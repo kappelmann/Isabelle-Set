@@ -498,11 +498,12 @@ lemma mode_means_property:
   assumes df: "mode df \<rightarrow> ty means prop"
       and m: "inhabited(ty)"
       and ex: "\<exists>x:ty. prop(x)"
-    shows "inhabited(df) \<and> 
-       (*ty_parent*) (x be df \<longrightarrow> x be ty) \<and>
-       (*intro*)    (x be ty \<longrightarrow> prop(x)\<longrightarrow> x be df) \<and>
-       (*elim*)     (x be df \<longrightarrow> prop(x))\<and>
-                    (x be ty \<longrightarrow> (x be df \<longleftrightarrow>  prop(x)))"
+    shows (* inhabited, ty_parent, intro, elim *)
+          "inhabited(df) \<and> 
+           (x be df \<longrightarrow> x be ty) \<and>
+           (x be ty \<longrightarrow> prop(x)\<longrightarrow> x be df) \<and>
+           (x be df \<longrightarrow> prop(x))\<and>
+           (x be ty \<longrightarrow> (x be df \<longleftrightarrow>  prop(x)))"
   text_raw {*}%EndSnippet*}
 proof-
    obtain x where
@@ -516,10 +517,10 @@ lemma mode_assume_means_property:
      and m: "inhabited(ty)"
      and assume_ex: "as \<Longrightarrow> ex x being ty st prop(x)"
    shows "inhabited(df) \<and>
-      (*ty_parent*) (x be df \<longrightarrow> x be ty) \<and>
-       (*intro*)    (as \<longrightarrow> x be ty \<longrightarrow> prop(x)\<longrightarrow> x be df) \<and>
-       (*elim*)     (x be df \<longrightarrow>  (as \<longrightarrow> prop(x)))\<and>
-                    (as \<longrightarrow> x be ty \<longrightarrow> (x be df \<longleftrightarrow>  prop(x)))"
+       (x be df \<longrightarrow> x be ty) \<and>
+       (as \<longrightarrow> x be ty \<longrightarrow> prop(x)\<longrightarrow> x be df) \<and>
+       (x be df \<longrightarrow>  (as \<longrightarrow> prop(x)))\<and>
+        (as \<longrightarrow> x be ty \<longrightarrow> (x be df \<longleftrightarrow>  prop(x)))"
 text_raw {*}%EndSnippet*}     
 proof (cases "as")
    assume r: "as"
@@ -541,10 +542,10 @@ lemma mode_means_if1_property:
              (\<not>case1 \<longrightarrow> (\<exists>x:ty. prop_o(x)))"
     and co:"\<And>x. True"
   shows "inhabited(df) \<and> 
-  (*ty_parent*)     (x be df \<longrightarrow> x be ty) \<and>
-       (*intro*)    (x be ty \<longrightarrow> (case1 \<and> prop_1(x))\<or>(\<not>case1 \<and> prop_o(x)) \<longrightarrow> x be df) \<and>
-       (*elim*)     (x be df \<longrightarrow> (case1 \<longrightarrow> prop_1(x))\<and>(\<not>case1 \<longrightarrow> prop_o(x)))\<and>                  
-                    (x be ty \<longrightarrow>(x be df \<longleftrightarrow> (case1 \<longrightarrow> prop_1(x))\<and>(\<not>case1 \<longrightarrow> prop_o(x))))"
+       (x be df \<longrightarrow> x be ty) \<and>
+       (x be ty \<longrightarrow> (case1 \<and> prop_1(x))\<or>(\<not>case1 \<and> prop_o(x)) \<longrightarrow> x be df) \<and>
+       (x be df \<longrightarrow> (case1 \<longrightarrow> prop_1(x))\<and>(\<not>case1 \<longrightarrow> prop_o(x)))\<and>                  
+       (x be ty \<longrightarrow>(x be df \<longleftrightarrow> (case1 \<longrightarrow> prop_1(x))\<and>(\<not>case1 \<longrightarrow> prop_o(x))))"
 proof-
   let ?C = "\<lambda>it.(case1 \<longrightarrow> prop_1(it))\<and> (\<not>case1 \<longrightarrow>  prop_o(it))"
   have dfF:" df=\<^sub>T mode_means(ty,?C)" using df unfolding mode_means_if1_def by auto

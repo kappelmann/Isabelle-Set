@@ -241,7 +241,7 @@ text_raw {*}%EndSnippet*}
 mdef xboole_0_def_8 (infixl "c<" 50)
   where 
 mlet "X be set","Y be set" 
-"pred (X c< Y) means X c= Y \<and> X\<noteq>Y"..
+ "pred (X c< Y) means X c= Y \<and> X\<noteq>Y"..
 
 syntax "xboole_0.xboole_0_def_8" :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "\<subset>" 50)
 

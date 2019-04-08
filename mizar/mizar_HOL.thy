@@ -31,6 +31,7 @@ no_notation
   HOL.eq (infixl "=" 50) and
   HOL.not_equal (infixl "~=" 50) and
   HOL.not_equal (infixl "\<noteq>" 50) and
+  HOL.not_equal (infix "\<noteq>" 50) and
   HOL.disj (infixr "|" 30) and
 
   Set.empty ("{}") and
