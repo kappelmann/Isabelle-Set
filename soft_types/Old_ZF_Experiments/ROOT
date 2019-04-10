@@ -1,0 +1,7 @@
+
+session ZFT = Pure +
+  description {* Set theory with types on top. *}
+  theories
+    ZF_Typing_Examples
+    Tests
+

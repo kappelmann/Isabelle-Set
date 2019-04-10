@@ -4,8 +4,12 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
   sessions
 	"HOL-Eisbach"
   theories
-    
-	(* Foundation *)
+
+    (* Types on top of Isabelle/Pure *)
+	"soft_types/Soft_Types"
+
+  
+	(* Mizar Foundation and Type System *)
 	"mizar/mizar"
 	"mizar/mizar_fraenkel"
 	"mizar/mizar_defs"
@@ -65,3 +69,10 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 	"mml/tarski_0"
 	"mml/z2"
 *)
+
+    (* Some more material from soft type experiments in Isabelle/ZF.
+       These shoud be adapted to Tarski-Grothendiek to be compatible with the Mizar foundation.
+	*)
+	"soft_types/Old_ZF_Experiments/ZF_Typing_Examples"
+
+
