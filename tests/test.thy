@@ -10,7 +10,7 @@ axiomatization empty finite bla :: Ty where
 **[clus]: "x is finite \<Longrightarrow> x is bla"
 
 lemma
-  assumes [ty]: "a is empty"
+  assumes "a is empty"
   shows "a is bla"
 by mauto
 
@@ -20,7 +20,7 @@ test[clus]: "s is set \<Longrightarrow> t is set \<Longrightarrow> z(s, t) is no
 subset[clus]: "\<And>x y. x is set \<Longrightarrow> y is Subset_of(x) \<Longrightarrow> y is set"
 
 lemma
-  assumes [ty]: "s is set" "t is Subset_of(s)"
+  assumes "s is set" "t is Subset_of(s)"
   shows "z(s, t) is non empty"
 by mauto
 
@@ -36,8 +36,7 @@ abbreviation "PartFunc_of(X,Y) == Function_like \<bar> Relation_of(X,Y)"
 abbreviation "Function_of(X,Y) == quasi_total(X,Y) \<bar> PartFunc_of(X,Y)"
 
 lemma
-  assumes
-    [ty]: "X is set" "Y is set" "F is Function_of(X, Y)"
+  assumes "X is set" "Y is set" "F is Function_of(X, Y)"
   shows
     "F is Relation_like"
 by mauto
