@@ -17,7 +17,7 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 	"mizar/mizar_string"
 	"mizar/mizar_struct"
 	"mizar/mizar_ty"
-	"test/test"
+	"tests/test"
 
 (* Not currently working:
 	"mizar/mizar_import"
