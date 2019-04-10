@@ -11,6 +11,6 @@ jobs:
           name: Build base image
           command: ~/Isabelle/bin/isabelle build -vb HOL-Number_Theory
 
-          - run:
+      - run:
           name: Build theories
           command: ~/Isabelle/bin/isabelle build -vD .
