@@ -1,5 +1,5 @@
 theory compos_1
-  imports compos_0 "../mizar/mizar_struct" "../mizar/mizar_string"
+  imports compos_0 "../2_Mizar/mizar_struct" "../2_Mizar/mizar_string"
    funct_2
 begin
 

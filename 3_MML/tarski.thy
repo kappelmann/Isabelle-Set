@@ -1,5 +1,5 @@
 theory tarski
-imports "../mizar/mizar_fraenkel"
+imports "../2_Mizar/mizar_fraenkel"
 begin
 
 section "TARSKI"

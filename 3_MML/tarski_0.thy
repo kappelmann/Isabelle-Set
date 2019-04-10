@@ -1,4 +1,4 @@
-theory tarski_0 imports "../mizar/mizar_reserve" begin
+theory tarski_0 imports "../2_Mizar/mizar_reserve" begin
 
 section "TARSKI_0"
 

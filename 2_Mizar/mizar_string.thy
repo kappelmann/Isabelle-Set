@@ -1,5 +1,5 @@
 theory mizar_string
-imports "../mml/xboole_0"
+imports "../3_MML/xboole_0"
 begin
 
 mdef Succ ::"Set \<Rightarrow> Set" ("Succ _" [90] 90) where

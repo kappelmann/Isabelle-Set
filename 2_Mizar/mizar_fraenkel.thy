@@ -1,5 +1,5 @@
 theory mizar_fraenkel
-imports "../mml/tarski_0"
+imports "../3_MML/tarski_0"
 begin
 
 text_raw {*\DefineSnippet{sethood_def}{*}  

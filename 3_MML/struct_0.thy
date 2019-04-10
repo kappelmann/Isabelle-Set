@@ -1,7 +1,7 @@
 theory struct_0
-  imports "../mizar/mizar_struct" 
-          "../mizar/mizar_string"
-          "../mizar/mizar_fraenkel_2"
+  imports "../2_Mizar/mizar_struct" 
+          "../2_Mizar/mizar_string"
+          "../2_Mizar/mizar_fraenkel_2"
   binop_1
 begin  
   

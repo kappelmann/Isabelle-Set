@@ -1,39 +1,43 @@
-theory mizar_fraenkel_more
-imports mizar_fraenkel "../mml/zfmisc_1"
-begin    
-  
-text_raw {*\DefineSnippet{ProdType}{*}  
-definition ProdType_prefix ("_ \<times> _" [101,102] 101)
-  where "A \<times> B \<equiv> define_ty(object, \<lambda>_. True, \<lambda>x. x is pair \<and> x`1 is A \<and> x`2 is B)"
-text_raw {*}%EndSnippet*}
-lemma [simp]:"[x,y] is pair" using xtuple_0_def_1 by auto     
+theory mizar_fraenkel_3
+imports mizar_fraenkel "../3_MML/zfmisc_1"
+begin
 
-text_raw {*\DefineSnippet{ProdType_prop}{*}    
-theorem ProdType:
+no_notation Product_Type.Times (infixr "\<times>" 80)
+hide_const Prod
+
+definition ModeProd_prefix ("_ \<times> _" [101,102] 101)
+  where "A \<times> B \<equiv> define_ty(object, \<lambda>_. True, \<lambda> x.  x is pair \<and> x`1 is A \<and> x`2 is B)"
+
+lemma [simp]:"[x,y] is pair" using xtuple_0_def_1 by auto     
+     
+theorem ModeProd:
   "x is A\<times>B iff x is pair \<and> x`1 is A \<and> x`2 is B"
-text_raw {*}%EndSnippet*}  
 proof
   assume "x is A\<times>B"
-  thus "x is pair \<and> x`1 is A \<and> x`2 is B" using def_ty_property[OF ProdType_prefix_def] by blast 
+  thus "x is pair \<and> x`1 is A \<and> x`2 is B" using  def_ty_property[OF ModeProd_prefix_def,THEN conjunct1] by auto 
 next
   assume "x is pair \<and> x`1 is A \<and> x`2 is B"
-  thus "x is A\<times>B" using def_ty_property[OF ProdType_prefix_def,THEN conjunct2] by simp  
+  thus "x is A\<times>B" using def_ty_property[OF ModeProd_prefix_def,THEN conjunct2] by auto  
 qed  
 
-lemma ProdType1:
+theorem ModeProd1:
   "[x,y] is A\<times>B iff x is A \<and> y is B"
-proof-
-  have A1: "[x,y]`1=x" "[x,y]`2=y" using xtuple_0_reduce by auto 
-  thus ?thesis  using ProdType A1 by auto   
+proof
+  assume A1: "[x,y] is A\<times>B"
+  hence "[x,y]`1=x" "[x,y]`2=y" using xtuple_0_reduce by auto  
+  thus " x is A \<and> y is B" using  ModeProd A1 by auto 
+next
+  have A2: "[x,y]`1=x" "[x,y]`2=y" using xtuple_0_reduce by auto  
+  assume "x is A \<and> y is B"    
+  thus "[x,y] is A\<times>B" using A2 ModeProd by auto  
 qed    
-text_raw {*\DefineSnippet{PT_inhabited}{*}  
-lemma PT_inhabited:
+  
+theorem ModeProdI:
   assumes "inhabited(A)" "inhabited(B)" 
   shows "inhabited(A\<times>B)"
-text_raw {*}%EndSnippet*}
 proof
   have "(the A) is A" "(the B) is B" using assms by auto
-  thus "[the A,the B] is A\<times>B" using ProdType1 by auto  
+  thus "[the A,the B] is A\<times>B" using ModeProd1 by auto  
 qed
     
 lemma pair: "x is pair \<Longrightarrow> [x`1,x`2] = x"
@@ -44,83 +48,68 @@ proof-
   hence "x`1 = y" "x`2 = z" using xtuple_0_reduce by auto
   thus "[x`1,x`2] = x" using A1 by auto     
 qed   
-text_raw {*\DefineSnippet{PT_sethood}{*} 
-lemma PT_sethood:  
+  
+theorem ModeProdS:  
    assumes "inhabited(A)" "inhabited(B)" 
            "sethood_prop(A)" "sethood_prop(B)"
    shows "sethood_prop(A\<times>B)"
-text_raw {*}%EndSnippet*}
 unfolding sethood_prop_def
 proof-
   obtain X1 where
     SetH1[ty]: "X1 be set" and Prop1: "for x being object holds x be A \<longleftrightarrow> x in X1" using assms sethood by auto
   obtain X2 where
-    SetH2[ty]: "X2 be set" and Prop2: "for x being object holds x be B \<longleftrightarrow> x in X2" using assms sethood by auto
+        SetH2[ty]: "X2 be set" and Prop2: "for x being object holds x be B \<longleftrightarrow> x in X2" using assms sethood by auto
   show "ex IT be set st  (\<forall>x : A\<times>B. x in IT)"
   proof(rule bexI[of _  "[:X1,X2:]"],auto)
-    show "inhabited(A \<times> B)" using PT_inhabited assms by auto
+    show "inhabited(A \<times> B)" using ModeProdI assms by auto
     fix x  
     assume "x is A\<times>B"
-    hence [ty]: "x`1 is A" "x`2 is B" "x is pair" using ProdType by auto
+    hence [ty]: "x`1 is A" "x`2 is B" "x is pair" using ModeProd by auto
     hence "[x`1,x`2] in [:X1,X2:]" using Prop1 Prop2 zfmisc_1_th_87 by auto  
     thus "x in [:X1,X2:]" using pair by auto
   qed mauto
-qed mauto  
-  
-text_raw {*\DefineSnippet{uncurry_def}{*}  
+qed  
+
 abbreviation 
-  "uncurry(P) \<equiv> \<lambda>x. P(x`1,x`2)"
-text_raw {*}%EndSnippet*}
-
+  "Prod(P) \<equiv> \<lambda> x. P(x`1,x`2)"
   
-  
-  
-
 lemma Ifft: "B\<longleftrightarrow>C \<Longrightarrow> A\<longleftrightarrow>B \<Longrightarrow> A\<longleftrightarrow>C" by simp    
-
-text_raw {*\DefineSnippet{ProdType_R}{*}
-lemma PT_rule: 
+  
+theorem ModeProdR: 
   assumes "inhabited(L1)" "inhabited(L2)" 
-  shows "(\<exists>x:L1\<times>L2. uncurry(P)(x)) \<longleftrightarrow> (\<exists>x1:L1. \<exists>x2:L2. P(x1,x2))"
-text_raw {*}%EndSnippet*}
+  shows "(\<exists> x :L1\<times>L2 . Prod(P)(x))\<longleftrightarrow> (\<exists> x1:L1 . \<exists>x2:L2 . P(x1,x2))"
 proof
-  assume "\<exists> x :L1\<times>L2 . uncurry(P)(x)"
+  assume "\<exists> x :L1\<times>L2 . Prod(P)(x)"
   then obtain x where
-    A1: "x is L1\<times>L2" and A2: "uncurry(P)(x)" using PT_inhabited assms by auto 
-  thus "\<exists> x1:L1 . \<exists>x2:L2 . P(x1,x2)" using A2 assms ProdType by auto    
+    A1: "x is L1\<times>L2" and A2: "Prod(P)(x)" using ModeProdI assms by auto 
+  thus "\<exists> x1:L1 . \<exists>x2:L2 . P(x1,x2)" using A2 assms ModeProd by auto    
 next
   assume "\<exists> x1:L1 . \<exists>x2:L2 . P(x1,x2)"
   then obtain x1 x2 where
     A1:"x1 is L1" "x2 is L2" "P(x1,x2)" using assms by auto
-  hence "[x1,x2] is L1\<times>L2" using ProdType xtuple_0_reduce by auto
-  thus   "\<exists> x :L1\<times>L2 . uncurry(P)(x)" using pair A1 PT_inhabited[OF assms] xtuple_0_reduce by auto
+  hence "[x1,x2] is L1\<times>L2" using ModeProd xtuple_0_reduce by auto
+  thus   "\<exists> x :L1\<times>L2 . Prod(P)(x)" using pair A1 ModeProdI[OF assms] xtuple_0_reduce by auto
 qed  
-  
-text_raw {*\DefineSnippet{Fraenkel2}{*}
-definition Fraenkel2 where
-  "Fraenkel2(F,L1,L2,Q) \<equiv> Fraenkel1(uncurry(F),L1\<times>L2,uncurry(Q))"   
-text_raw {*}%EndSnippet*}
 
-text_raw {*\DefineSnippet{Fraenkel2_S}{*}
+definition Fraenkel2 where
+  "Fraenkel2(F,L1,L2,Q) \<equiv> Fraenkel1(Prod(F),L1\<times>L2,Prod(Q))"   
+
 syntax
   "_Fraenkel2" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" ("{ _ where _ be _, _ be _ : _ }")
 translations
  "{ F where x1 be D1, x2 be D2 : Q }" \<rightharpoonup> "CONST Fraenkel2((%x1 x2. F), D1, D2, (%x1 x2. Q))"
-text_raw {*}%EndSnippet*}
-  
-text_raw {*\DefineSnippet{Fraenkel3}{*}  
+ 
 definition Fraenkel3 where
-  "Fraenkel3(F,L1,L2,L3,Q) \<equiv> Fraenkel1(uncurry(uncurry(F)),L1\<times>L2\<times>L3,uncurry(uncurry(Q)))"   
-text_raw {*}%EndSnippet*}
-text_raw {*\DefineSnippet{Fraenkel3_S}{*}
+  "Fraenkel3(F,L1,L2,L3,Q) \<equiv> Fraenkel1(Prod(Prod(F)),L1\<times>L2\<times>L3,Prod(Prod(Q)))"   
+
 syntax
   "_Fraenkel3" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" 
         ("{ _ where _ be _, _ be _ , _ be _ : _ }")
 translations
  "{ F where x1 be D1, x2 be D2,x3 be D3 : Q }" \<rightharpoonup> "CONST Fraenkel3((%x1 x2 x3. F), D1, D2, D3, (%x1 x2 x3. Q))"
-text_raw {*}%EndSnippet*}
+
 definition Fraenkel4 where
-  "Fraenkel4(F,L1,L2,L3,L4,Q) \<equiv> Fraenkel1(uncurry(uncurry(uncurry(F))),L1\<times>L2\<times>L3\<times>L4,uncurry(uncurry(uncurry(Q))))"   
+  "Fraenkel4(F,L1,L2,L3,L4,Q) \<equiv> Fraenkel1(Prod(Prod(Prod(F))),L1\<times>L2\<times>L3\<times>L4,Prod(Prod(Prod(Q))))"   
 
 syntax
   "_Fraenkel4" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow>vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" 
@@ -129,7 +118,7 @@ translations
  "{ F where x1 be D1, x2 be D2,x3 be D3,x4 be D4 : Q }" \<rightharpoonup> "CONST Fraenkel4((%x1 x2 x3 x4. F), D1, D2, D3,D4, (%x1 x2 x3 x4. Q))"
  
 definition Fraenkel5 where
-  "Fraenkel5(F,L1,L2,L3,L4,L5,Q) \<equiv> Fraenkel1(uncurry(uncurry(uncurry(uncurry(F)))),L1\<times>L2\<times>L3\<times>L4\<times>L5,uncurry(uncurry(uncurry(uncurry(Q)))))"   
+  "Fraenkel5(F,L1,L2,L3,L4,L5,Q) \<equiv> Fraenkel1(Prod(Prod(Prod(Prod(F)))),L1\<times>L2\<times>L3\<times>L4\<times>L5,Prod(Prod(Prod(Prod(Q)))))"   
 
 syntax
   "_Fraenkel5" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow>vs \<Rightarrow> Ty \<Rightarrow>vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" 
@@ -139,7 +128,7 @@ translations
     "CONST Fraenkel5((%x1 x2 x3 x4 x5. F),D1, D2, D3,D4,D5, (%x1 x2 x3 x4 x5. Q))"
 
 definition Fraenkel6 where
-  "Fraenkel6(F,L1,L2,L3,L4,L5,L6,Q) \<equiv> Fraenkel1(uncurry(uncurry(uncurry(uncurry(uncurry(F))))),L1\<times>L2\<times>L3\<times>L4\<times>L5\<times>L6,uncurry(uncurry(uncurry(uncurry(uncurry(Q))))))"   
+  "Fraenkel6(F,L1,L2,L3,L4,L5,L6,Q) \<equiv> Fraenkel1(Prod(Prod(Prod(Prod(Prod(F))))),L1\<times>L2\<times>L3\<times>L4\<times>L5\<times>L6,Prod(Prod(Prod(Prod(Prod(Q))))))"   
 
 syntax
   "_Fraenkel5" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow>vs \<Rightarrow> Ty \<Rightarrow>vs\<Rightarrow> Ty \<Rightarrow>vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" 
@@ -148,34 +137,20 @@ translations
  "{ F where x1 be D1, x2 be D2,x3 be D3,x4 be D4,x5 be D5, x6 be D6 : Q }" \<rightharpoonup> 
     "CONST Fraenkel6((%x1 x2 x3 x4 x5 x6. F),D1,D2,D3,D4,D5,D6, (%x1 x2 x3 x4 x5 x6. Q))"
 
-text_raw {*\DefineSnippet{FR1}{*}  
-theorem Fraenkel1:
-  assumes "inhabited(T1)" "sethood_prop(T1)"  
-  shows "x in Fraenkel1(F, T1, P) \<longleftrightarrow> (\<exists>y1 : T1. x = F(y1) \<and> P(y1))"
-using Fraenkel_A1[OF assms] by auto
-text_raw {*}%EndSnippet*}
- 
-text_raw {*\DefineSnippet{FR2E}{*}
-theorem Fraenkel2E:
-  assumes "inhabited(T1)" "inhabited(T2)" 
-           "sethood_prop(T1)" "sethood_prop(T2)"
-  shows "x in Fraenkel1(uncurry(F),T1\<times>T2,uncurry(P)) \<longleftrightarrow> 
-         (\<exists>y1:T1. \<exists>y2:T2. x = F(y1,y2) \<and> P(y1,y2))"
-  by (rule Ifft[OF _  Fraenkel1], rule Ifft[OF _  PT_rule],
-      auto simp add: assms PT_sethood PT_inhabited)           
-text_raw {*}%EndSnippet*} 
   
-text_raw {*\DefineSnippet{FR2}{*}
+theorem Fraenkel1:
+ assumes "inhabited(L1)" "sethood_prop(L1)"  
+  shows "x in Fraenkel1(P, L1, Q) \<longleftrightarrow> (\<exists>y1 : L1. x = P(y1) \<and> Q(y1))"
+using Fraenkel_A1[OF assms] by auto
+
 theorem Fraenkel2:
     assumes "inhabited(L1)" "inhabited(L2)" 
            "sethood_prop(L1)" "sethood_prop(L2)"
    shows "x in Fraenkel2(P, L1,L2, Q) \<longleftrightarrow> 
      (\<exists>y1 : L1.\<exists>y2 : L2. x = P(y1,y2) \<and> Q(y1,y2))"
 unfolding Fraenkel2_def
-by (rule Ifft[OF _  Fraenkel1],rule Ifft[OF _  PT_rule],auto simp add: assms PT_sethood PT_inhabited)           
-text_raw {*}%EndSnippet*} 
-  
-  
+by (rule Ifft[OF _  Fraenkel1],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
+ 
 lemmas Fraenkel_A2_ex =  Fraenkel2[THEN iffD1]
 lemma [ty_func]: "Fraenkel2(F, L1,L2, Q)  be set" using tarski_0_1 by auto
 
@@ -196,9 +171,7 @@ theorem Fraenkel3:
   shows "x in Fraenkel3(P, L1,L2,L3, Q) \<longleftrightarrow> 
      (\<exists>y1 : L1.\<exists>y2 : L2.\<exists>y3 : L3. x = P(y1,y2,y3) \<and> Q(y1,y2,y3))"
 unfolding Fraenkel3_def
-  by (rule Ifft[OF _  Fraenkel2[unfolded Fraenkel2_def]],rule Ifft[OF _  PT_rule],
-   auto simp add: assms PT_sethood PT_inhabited)           
-
+by (rule Ifft[OF _  Fraenkel2[unfolded Fraenkel2_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A3_ex =  Fraenkel3[THEN iffD1]
 lemma [ty_func]: "Fraenkel3(F, L1,L2,L3, Q)  be set" using tarski_0_1 by auto
 
@@ -221,7 +194,7 @@ theorem Fraenkel4:
   shows "x in Fraenkel4(P, L1,L2,L3,L4, Q) \<longleftrightarrow> 
      (\<exists>y1 : L1.\<exists>y2 : L2.\<exists>y3 : L3.\<exists>y4 : L4. x = P(y1,y2,y3,y4) \<and> Q(y1,y2,y3,y4))"
   unfolding Fraenkel4_def
-by (rule Ifft[OF _  Fraenkel3[unfolded Fraenkel3_def]],rule Ifft[OF _  PT_rule],auto simp add: assms PT_sethood PT_inhabited)           
+by (rule Ifft[OF _  Fraenkel3[unfolded Fraenkel3_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A4_ex =  Fraenkel4[THEN iffD1]
 lemma [ty_func]: "Fraenkel4(F, L1,L2,L3,L4, Q)  be set" using tarski_0_1 by auto
 
@@ -244,7 +217,7 @@ theorem Fraenkel5:
   shows "x in Fraenkel5(P, L1,L2,L3,L4,L5, Q) \<longleftrightarrow> 
      (\<exists>y1 : L1.\<exists>y2 : L2.\<exists>y3 : L3.\<exists>y4 : L4. \<exists>y5 : L5. x = P(y1,y2,y3,y4,y5) \<and> Q(y1,y2,y3,y4,y5))"
   unfolding Fraenkel5_def
-by (rule Ifft[OF _  Fraenkel4[unfolded Fraenkel4_def]],rule Ifft[OF _  PT_rule],auto simp add: assms PT_sethood PT_inhabited)           
+by (rule Ifft[OF _  Fraenkel4[unfolded Fraenkel4_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A5_ex =  Fraenkel5[THEN iffD1]
 lemma [ty_func]: "Fraenkel5(F, L1,L2,L3,L4,L5, Q)  be set" using tarski_0_1 by auto
 
@@ -271,8 +244,7 @@ theorem Fraenkel6:
   shows "x in Fraenkel6(P, L1,L2,L3,L4,L5,L6, Q) \<longleftrightarrow> 
      (\<exists>y1 : L1.\<exists>y2 : L2.\<exists>y3 : L3.\<exists>y4 : L4. \<exists>y5 : L5.\<exists>y6 : L6. x = P(y1,y2,y3,y4,y5,y6) \<and> Q(y1,y2,y3,y4,y5,y6))"
   unfolding Fraenkel6_def
-by (rule Ifft[OF _  Fraenkel5[unfolded Fraenkel5_def]],rule Ifft[OF _  PT_rule],auto simp add: assms PT_sethood PT_inhabited)           
-
+by (rule Ifft[OF _  Fraenkel5[unfolded Fraenkel5_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A6_ex =  Fraenkel6[THEN iffD1]
 lemma [ty_func]: "Fraenkel6(F, L1,L2,L3,L4,L5,L6, Q)  be set" using tarski_0_1 by auto
 

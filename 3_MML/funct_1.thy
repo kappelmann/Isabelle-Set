@@ -1,6 +1,6 @@
 
 theory funct_1
-imports relset_1 "../mizar/mizar_fraenkel"
+imports relset_1 "../2_Mizar/mizar_fraenkel"
 begin
 
 reserve x,y,z,x1,x2,y1,y2 for object

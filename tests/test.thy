@@ -1,5 +1,5 @@
 theory test
-imports "../mizar/mizar_ty"
+imports "../2_Mizar/mizar_ty"
 
 begin
 

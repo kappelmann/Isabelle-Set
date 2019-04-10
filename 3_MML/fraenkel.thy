@@ -1,5 +1,5 @@
 theory fraenkel
-imports funct_2 "../mizar/mizar_fraenkel_2"
+imports funct_2 "../2_Mizar/mizar_fraenkel_2"
 begin
 
 theorem Fraenkel_sch_1:
