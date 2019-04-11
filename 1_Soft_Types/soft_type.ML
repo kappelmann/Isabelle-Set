@@ -12,37 +12,42 @@ semantics.
 
 signature SOFT_TYPE =
 sig
-  val typeT: typ -> typ
 
-  (* Constants for the term representation *)
-  val Pi_const: typ -> typ -> term 
+val typeT: typ -> typ
 
-  datatype judgement =
-    Judgement of term * term
+(* Constants for the term representation *)
+val Pi_const: typ -> typ -> term
 
-  (* convert from representation *)
-  val read_judgement: term -> judgement
-  val mk_judgement: judgement -> term
-  val is_judgement: term -> bool
- 
-end;
+datatype judgement =
+  Judgement of term * term
+
+(* Convert from representation *)
+val read_judgement: Proof.context -> term -> judgement
+val mk_judgement: judgement -> term
+val is_judgement: term -> bool
+
+end
+
 
 structure Soft_Type : SOFT_TYPE =
 struct
 
-fun typeT T = Type (@{type_name "type"}, [T]);
-fun Pi_const Ta Tb = 
-  Const (@{const_name "Pi_type"},
-    typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb));
+fun typeT T =
+  Type (@{type_name "type"}, [T])
 
+fun Pi_const Ta Tb = 
+  Const (
+    @{const_name "Pi_type"},
+    typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb)
+  )
 
 datatype judgement =
-  Judgement of term * term;
+  Judgement of term * term
 
-fun read_judgement tm = 
+fun read_judgement ctxt tm =
   case tm of 
     Const (@{const_name "has_type"}, _) $ t $ ty => Judgement (t, ty)
-  | _ => error ("Invalid judgement: " ^ Syntax.string_of_term @{context} tm);
+  | _ => error ("Invalid judgement: " ^ Syntax.string_of_term ctxt tm)
 
 fun mk_judgement (Judgement (t, ty)) =
   let val T = fastype_of t 
@@ -54,6 +59,5 @@ fun is_judgement tm =
   case tm of 
     Const (@{const_name "has_type"}, _) $ _ $ _ => true
   | _ => false
-
 
 end
