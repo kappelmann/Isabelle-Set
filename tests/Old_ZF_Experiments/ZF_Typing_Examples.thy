@@ -52,8 +52,6 @@ context
     and [type]: "append ::: (A: Set) \<Rightarrow> (xs: set (List A)) \<Rightarrow> (ys : set (List A)) \<Rightarrow> set (List A)"
 begin
 
-
-
 ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
   @{term "Nil A = B"}
 ]\<close>
@@ -108,19 +106,20 @@ context
     and [type]: "0 ::: set nat"
     and [type]: "vappend ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> (m: set nat) \<Rightarrow> (xs: set (Vec A n)) 
 \<Rightarrow> (ys: set (Vec A m)) \<Rightarrow> set (Vec A (add n m))"
+    and [type_simp]: "add (succ n) m = succ (add n m)"
 begin
 
+  
 
 
 
 
-(*
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term "vappend A (succ n) m (VCons A n x xs) ys
    = VCons A (add n m) x (vappend A n m xs ys)"}
 ]\<close>
-*)
+
 
 
 end

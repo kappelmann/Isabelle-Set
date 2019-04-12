@@ -86,6 +86,9 @@ lemma Int_TypeD2:
 
 subsection \<open> Some Tooling \<close>
 
+
+named_theorems type_simp
+
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
 ML_file "soft_type_inference.ML"
