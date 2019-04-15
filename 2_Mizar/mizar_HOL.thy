@@ -1,4 +1,5 @@
 theory mizar_HOL imports
+  "../1_Soft_Types/Soft_Types_HOL"
   "HOL-Number_Theory.Number_Theory"
   "HOL-Computational_Algebra.Primes"
   "HOL-Algebra.Group"
@@ -13,16 +14,14 @@ theory mizar_HOL imports
   "HOL-Library.Discrete"
   "HOL-Decision_Procs.Approximation_Bounds"
 *)
- "HOL-Eisbach.Eisbach"
+  "HOL-Eisbach.Eisbach"
 
 begin
 
 setup Pure_Thy.old_appl_syntax_setup
 
-text_raw {*\DefineSnippet{mizar-typedecl}{*}
 typedecl Set
-typedecl Ty
-text_raw {*}%EndSnippet*}
+type_synonym Ty = "Set type"
 
 notation
   HOL.eq (infixl "=\<^sub>\<H>" 50)
@@ -76,8 +75,8 @@ notation mizeq (infixl "=\<^sub>\<S>" 50)
 (*notation
   HOL.eq (infixl "=H" 50)
 *)
-abbreviation not_eq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infix "<>" 50) where
-  "a <> b \<equiv> \<not> HOL.eq(a,b)"
+abbreviation not_eq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infix "<>" 50)
+  where "a <> b \<equiv> \<not> HOL.eq(a,b)"
 notation not_eq (infixl "\<noteq>" 50)
 
 abbreviation tyeq :: "Ty \<Rightarrow> Ty \<Rightarrow> o" (infixl "=\<^sub>T" 50)
@@ -91,12 +90,12 @@ notation (ASCII)
 
 syntax (output) "HOL.eq" :: "o \<Rightarrow> o \<Rightarrow> o" (infixl "\<longleftrightarrow>" 25)
 
-ML {*
+ML \<open>
 val basic_ss = HOL_basic_ss;
 val main_ss = HOL_ss;
 val mk_Trueprop = HOLogic.mk_Trueprop;
 val dest_Trueprop = HOLogic.dest_Trueprop;
 val eq_const = @{const_name HOL.eq}
-*}
+\<close>
 
 end

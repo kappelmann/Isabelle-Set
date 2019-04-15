@@ -5,6 +5,7 @@ begin
 
 
 subsection \<open> Type of sets \<close>
+
 definition Set :: "i type"
   where "Set \<equiv> Type (\<lambda>x::i. (x == x))"
 
@@ -14,14 +15,14 @@ lemma Set_TypeI: "(x::i) ::: Set"
 
 subsection \<open> Type of elements of a given set \<close>
 
-definition set :: "i \<Rightarrow> i type"
-  where "set A == Type (%x. Trueprop (x \<in> A))"
+definition elem_of :: "i \<Rightarrow> i type" ("(element of _)")
+  where "elem_of A == Type (\<lambda>x. Trueprop (x \<in> A))"
 
-lemma set_typeI: "x \<in> A \<Longrightarrow> x ::: set A"
-  unfolding set_def has_type_Type .
+lemma set_typeI: "x \<in> A \<Longrightarrow> x ::: element of A"
+  unfolding elem_of_def has_type_Type .
 
-lemma set_typeE: "x ::: set A \<Longrightarrow> x \<in> A"
-  unfolding set_def has_type_Type .
+lemma set_typeE: "x ::: element of A \<Longrightarrow> x \<in> A"
+  unfolding elem_of_def has_type_Type .
 
 
 subsection \<open> Type of object-level propositions \<close>

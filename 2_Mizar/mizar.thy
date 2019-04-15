@@ -2,21 +2,13 @@ theory mizar imports mizar_HOL begin
 
 declare [[eta_contract = false]]
 
-(*definition If ("((_) if (_) otherwise (_))" [10] 10)
-where [simp]: "If (a, b, c) \<longleftrightarrow> ((b \<longrightarrow> a) \<and> (\<not>b \<longrightarrow> c))"
-
-lemma split_if: "P (x if Q otherwise y) \<longleftrightarrow> ((Q \<longrightarrow> P(x)) \<and> (\<not>Q \<longrightarrow> P(y)))"
-  by (case_tac "Q") auto
-*)
 no_notation All (binder "\<forall>" 10) and Ex (binder "\<exists>" 10)
 notation All (binder "\<forall>\<^sub>L" 10) and Ex (binder "\<exists>\<^sub>L" 10)
 
-text_raw {*\DefineSnippet{mizar-consts}{*}
 consts
   ty_membership :: "Set \<Rightarrow> Ty \<Rightarrow> o" (infix "be" 90)
-  define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow>Ty"
+  define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> Ty"
   choice :: "Ty \<Rightarrow> Set"     ("the _" [79] 80)
-text_raw {*}%EndSnippet*}
 
 notation (input) ty_membership (infix "is" 90)
 
@@ -25,10 +17,9 @@ definition inhabited :: "Ty \<Rightarrow> o" where
 
 lemma inhabitedI[intro?]: "x be D \<Longrightarrow> inhabited(D)"
   unfolding inhabited_def by auto
-text_raw {*\DefineSnippet{axioms-def}{*}
+
 term "\<lambda>it. it be parent \<and> (cond(it) \<longrightarrow> property(it))"    
-text_raw {*}%EndSnippet*}    
-text_raw {*\DefineSnippet{mizar-axioms}{*}
+
 axiomatization where
 (*     "T === define_ty(P) \<Longrightarrow>for x :  x be T iff P(x)"*)
   def_ty_property: "T \<equiv> define_ty(parent, cond, property) \<Longrightarrow>
