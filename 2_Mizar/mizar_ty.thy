@@ -10,7 +10,6 @@ imports mizar
 
 begin
 
-
 section \<open>Utility functions\<close>
 
 ML \<open>
@@ -23,15 +22,15 @@ fun warn context msg = if Config.get (Context.proof_of context) ty_debug then wa
 fun id_msg msg = (warning msg; I)
 
 (* Check if a term is a *non-conditional* typing judgment.
-   A negated statement of ty_membership is also a typing judgment since it
+   A negated statement of has_type(Set) is also a typing judgment since it
    expresses the judgment "x is non T"
  *)
 fun is_typing tm =
   let val tm' = dest_Trueprop tm
   in
     case tm' of
-      @{const ty_membership} $ _ $ _ => true
-    | @{const Not} $ (@{const ty_membership} $ _ $ _) => true
+      @{const has_type(Set)} $ _ $ _ => true
+    | @{const Not} $ (@{const has_type(Set)} $ _ $ _) => true
     | _ => false
   end
   handle TERM _ => false
@@ -41,8 +40,8 @@ fun dest_typing tm =
   let val tm' = dest_Trueprop tm
   in
     case tm' of
-      @{const ty_membership} $ t $ T => (t, T)
-    | @{const Not} $ (@{const ty_membership} $ t $ T) => (t, T)
+      @{const has_type(Set)} $ t $ T => (t, T)
+    | @{const Not} $ (@{const has_type(Set)} $ t $ T) => (t, T)
     | _ => Exn.error "dest_typing: not a typing judgment"
   end
   handle TERM _ => Exn.error "dest_typing: cannot apply dest_Trueprop"
@@ -66,7 +65,7 @@ fun remove_triv_prems thm =
       let val tm' = dest_Trueprop tm
       in
         case tm' of
-          @{const ty_membership} $ _ $ @{const object} => true
+          @{const has_type(Set)} $ _ $ @{const object} => true
         | _ => false
       end
       handle TERM _ => Exn.error "remove_triv_prems: cannot apply dest_Trueprop"

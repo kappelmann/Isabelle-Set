@@ -1,11 +1,15 @@
-theory mizar_HOL imports
+theory mizar_HOL
+imports
   "../1_Soft_Types/Soft_Types_HOL"
+  "HOL-Eisbach.Eisbach"
+
   "HOL-Number_Theory.Number_Theory"
   "HOL-Computational_Algebra.Primes"
   "HOL-Algebra.Group"
   "HOL-Algebra.IntRing"
   "HOL.Int"
-(*
+
+  (*
   "Bertrands_Postulate.Bertrand"
   "SumSquares.TwoSquares"
   "SumSquares.FourSquares"
@@ -13,18 +17,11 @@ theory mizar_HOL imports
   "Fermat3_4.Fermat4"
   "HOL-Library.Discrete"
   "HOL-Decision_Procs.Approximation_Bounds"
-*)
-  "HOL-Eisbach.Eisbach"
+  *)
 
 begin
 
-setup Pure_Thy.old_appl_syntax_setup
-
-typedecl Set
-type_synonym Ty = "Set type"
-
-notation
-  HOL.eq (infixl "=\<^sub>\<H>" 50)
+section \<open> Hide notations \<close>
 
 no_notation
   HOL.eq (infixl "=" 50) and
@@ -57,26 +54,34 @@ no_syntax
   "_listcompr" :: "'a \<Rightarrow> lc_qual \<Rightarrow> lc_quals \<Rightarrow> 'a list"  ("[_ . __")
 
 hide_const
-  Set.empty finite union dom set inter Func
+  even finite union dom set inter Func
+  Nat.Nat
   Map.empty
-  even Nat
+  Set.empty
   Relation.Field
 
-  (* Code_Target_Nat.Nat *)
-  Nat.Nat
+
+section \<open> Setup \<close>
+
+setup Pure_Thy.old_appl_syntax_setup
+
+typedecl Set
+type_synonym Ty = "Set type"
 
 type_synonym o = bool
 abbreviation (input) "imp \<equiv> implies"
+
+notation
+  HOL.eq (infixl "=\<^sub>\<H>" 50)
 
 abbreviation mizeq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "=" 50)
   where "mizeq \<equiv> HOL.eq"
 
 notation mizeq (infixl "=\<^sub>\<S>" 50)
-(*notation
-  HOL.eq (infixl "=H" 50)
-*)
+
 abbreviation not_eq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infix "<>" 50)
   where "a <> b \<equiv> \<not> HOL.eq(a,b)"
+
 notation not_eq (infixl "\<noteq>" 50)
 
 abbreviation tyeq :: "Ty \<Rightarrow> Ty \<Rightarrow> o" (infixl "=\<^sub>T" 50)
@@ -91,10 +96,10 @@ notation (ASCII)
 syntax (output) "HOL.eq" :: "o \<Rightarrow> o \<Rightarrow> o" (infixl "\<longleftrightarrow>" 25)
 
 ML \<open>
-val basic_ss = HOL_basic_ss;
-val main_ss = HOL_ss;
-val mk_Trueprop = HOLogic.mk_Trueprop;
-val dest_Trueprop = HOLogic.dest_Trueprop;
+val basic_ss = HOL_basic_ss
+val main_ss = HOL_ss
+val mk_Trueprop = HOLogic.mk_Trueprop
+val dest_Trueprop = HOLogic.dest_Trueprop
 val eq_const = @{const_name HOL.eq}
 \<close>
 
