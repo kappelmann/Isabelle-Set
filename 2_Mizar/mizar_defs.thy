@@ -1,127 +1,140 @@
 theory mizar_defs
 imports mizar_ty
+
 begin
 
 definition "pred_means(prop) \<longleftrightarrow> prop"
-abbreviation (input) pred_means_p  ("pred _ means _" [0,0] 10)
+
+abbreviation (input) pred_means_p ("pred _ means _" [0,0] 10)
   where "pred df means prop \<equiv> df \<longleftrightarrow> pred_means(prop)"
 
 lemma pred_means_property:
-  assumes df:"pred df means prop"
-    and "True"
-  shows 
-     "(prop\<longrightarrow> df) \<and> (df\<longrightarrow>prop)\<and>(df \<longleftrightarrow> prop)" (* Add sth... *)
-  using df unfolding pred_means_def by auto
+  assumes "pred df means prop"
+  shows "(prop \<longrightarrow> df) \<and> (df \<longrightarrow> prop) \<and> (df \<longleftrightarrow> prop)"
+  using assms
+  unfolding pred_means_def
+  by auto
 
-definition "pred_means_if1(prop_1,case1,prop_o) \<longleftrightarrow> ((case1\<longrightarrow> prop_1)\<and>(\<not>case1\<longrightarrow>prop_o))"
-abbreviation (input) pred_means_if1_p  ("pred _ means _ if _ otherwise _" [0,0,0,0] 10)
-  where "pred df means prop_1 if case1 otherwise prop_o \<equiv> df \<longleftrightarrow> pred_means_if1(prop_1,case1,prop_o)"
+definition "pred_means_if1(prop_1, case1, prop_o) \<longleftrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (\<not>case1 \<longrightarrow> prop_o))"
+
+abbreviation (input) pred_means_if1_p ("pred _ means _ if _ otherwise _" [0,0,0,0] 10)
+  where
+    "pred df means prop_1 if case1 otherwise prop_o \<equiv>
+      df \<longleftrightarrow> pred_means_if1(prop_1, case1, prop_o)"
 
 lemma pred_means_if1_property:
-  assumes df:"pred df means prop_1 if case1 otherwise prop_o"
-    and "True"
-  shows 
-     "(((case1\<and>prop_1)\<or>(\<not>case1\<and>prop_o))\<longrightarrow> df) 
-    \<and> (df\<longrightarrow>((case1\<longrightarrow> prop_1)\<and>(\<not>case1\<longrightarrow>prop_o)))\<and>
-     (df \<longleftrightarrow> ((case1\<longrightarrow> prop_1)\<and>(\<not>case1\<longrightarrow>prop_o)))" (* Add sth... *)
-  using df unfolding pred_means_if1_def by auto    
+  assumes "pred df means prop_1 if case1 otherwise prop_o"
+  shows
+    "(((case1 \<and> prop_1) \<or> (\<not>case1 \<and> prop_o)) \<longrightarrow> df) \<and>
+      (df \<longrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (\<not>case1 \<longrightarrow> prop_o))) \<and>
+      (df \<longleftrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (\<not>case1 \<longrightarrow> prop_o)))"
+  using assms
+  unfolding pred_means_if1_def
+  by auto
 
-definition "pred_means_if2(prop_1,case1,prop_2,case2,prop_o) \<longleftrightarrow> 
-      ((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(\<not>case1\<and>\<not>case2\<longrightarrow>prop_o))"
-abbreviation (input) pred_means_if2_p  ("pred _ means _ if _ , _ if _ otherwise _" [0,0,0,0,0,0] 10)
-  where "pred df means prop_1 if case1, prop_2 if case2 otherwise prop_o \<equiv> 
-            df \<longleftrightarrow> pred_means_if2(prop_1,case1,prop_2,case2,prop_o)"
+definition "pred_means_if2(prop_1, case1, prop_2, case2, prop_o) \<longleftrightarrow>
+  ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (\<not>case1 \<and> \<not>case2 \<longrightarrow> prop_o))"
+
+abbreviation (input) pred_means_if2_p ("pred _ means _ if _ , _ if _ otherwise _" [0,0,0,0,0,0] 10)
+  where
+    "pred df means prop_1 if case1, prop_2 if case2 otherwise prop_o \<equiv>
+      df \<longleftrightarrow> pred_means_if2(prop_1, case1, prop_2, case2, prop_o)"
 
 lemma pred_means_if2_property:
-  assumes df:"pred df means prop_1 if case1, prop_2 if case2 otherwise prop_o"
-    and cons: "case1\<and>case2\<longrightarrow> (prop_1 \<longleftrightarrow>prop_2)"
-  shows 
-     "(((case1\<and> prop_1) \<or> (case2\<and>prop_2) \<or> (\<not>case1\<and>\<not>case2\<and>prop_o))\<longrightarrow>df) 
-    \<and> (df\<longrightarrow>((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(\<not>case1\<and>\<not>case2\<longrightarrow>prop_o)))\<and>
-     (df \<longleftrightarrow> ((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(\<not>case1\<and>\<not>case2\<longrightarrow>prop_o)))"
-proof-
-  have "((case1\<longrightarrow> prop_1) \<and> (case2\<longrightarrow>prop_2) \<and> (\<not>case1\<and>\<not>case2\<longrightarrow>prop_o))\<longrightarrow>df"
-      using df unfolding pred_means_if2_def by auto
-  hence "(((case1\<and> prop_1) \<or> (case2\<and>prop_2) \<or> (\<not>case1\<and>\<not>case2\<and>prop_o))\<longrightarrow>df)" using cons by auto 
-  thus ?thesis using df unfolding pred_means_if2_def cons by auto
-qed 
+  assumes
+    "pred df means prop_1 if case1, prop_2 if case2 otherwise prop_o" and
+    "case1 \<and> case2 \<longrightarrow> (prop_1 \<longleftrightarrow> prop_2)"
+  shows
+    "(((case1 \<and> prop_1) \<or> (case2 \<and> prop_2) \<or> (\<not>case1 \<and> \<not>case2 \<and> prop_o)) \<longrightarrow> df) \<and>
+      (df \<longrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (\<not>case1 \<and> \<not>case2 \<longrightarrow> prop_o))) \<and>
+      (df \<longleftrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (\<not>case1 \<and> \<not>case2 \<longrightarrow> prop_o)))"
+  using assms
+  unfolding pred_means_if2_def
+  by auto
   
-definition "pred_means_if3(prop_1,case1,prop_2,case2,prop_3,case3,prop_o) \<longleftrightarrow> 
-      ((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(case3\<longrightarrow>prop_3)\<and>(\<not>case1\<and>\<not>case2\<and>\<not>case3 \<longrightarrow> prop_o))"
-abbreviation (input) pred_means_if3_p  ("pred _ means _ if _ , _ if _ , _ if _ otherwise _" [0,0,0,0,0,0,0,0] 10)
-  where "pred df means prop_1 if case1, prop_2 if case2, prop_3 if case3 otherwise prop_o \<equiv> 
-            df \<longleftrightarrow> pred_means_if3(prop_1,case1,prop_2,case2,prop_3,case3,prop_o)"
+definition "pred_means_if3(prop_1, case1, prop_2, case2, prop_3, case3, prop_o) \<longleftrightarrow> 
+  ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (case3 \<longrightarrow> prop_3) \<and>
+    (\<not>case1 \<and> \<not>case2 \<and> \<not>case3 \<longrightarrow> prop_o))"
+
+abbreviation (input)
+  pred_means_if3_p ("pred _ means _ if _ , _ if _ , _ if _ otherwise _" [0,0,0,0,0,0,0,0] 10)
+  where
+    "pred df means prop_1 if case1, prop_2 if case2, prop_3 if case3 otherwise prop_o \<equiv>
+      df \<longleftrightarrow> pred_means_if3(prop_1, case1, prop_2, case2, prop_3, case3, prop_o)"
 
 lemma pred_means_if3_property:
-  assumes df:"pred df means prop_1 if case1, prop_2 if case2, prop_3 if case3 otherwise prop_o"
-    and cons: "(case1\<and>case2\<longrightarrow> (prop_1 \<longleftrightarrow>prop_2))\<and>
-               (case1\<and>case3 \<longrightarrow> (prop_1\<longleftrightarrow>prop_3))\<and>
-               (case2\<and>case3 \<longrightarrow>(prop_2 \<longleftrightarrow>prop_3))"
-  shows 
-     "(((case1\<and> prop_1) \<or> (case2\<and>prop_2) \<or> (case3\<and> prop_3)\<or> (\<not>case1\<and>\<not>case2\<and>\<not>case3\<and>prop_o))\<longrightarrow>df) 
-    \<and> (df\<longrightarrow>((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(case3\<longrightarrow> prop_3)\<and>(\<not>case1\<and>\<not>case2\<and>\<not>case3\<longrightarrow>prop_o)))\<and>
-     (df \<longleftrightarrow> ((case1\<longrightarrow> prop_1)\<and>(case2\<longrightarrow>prop_2)\<and>(case3\<longrightarrow>prop_3)\<and>(\<not>case1\<and>\<not>case2\<and>\<not>case3\<longrightarrow>prop_o)))"
-proof-
-  have "((case1\<longrightarrow> prop_1) \<and> (case2\<longrightarrow>prop_2) \<and>(case3\<longrightarrow>prop_3)\<and>(\<not>case1\<and>\<not>case2\<and>\<not>case3\<longrightarrow>prop_o))\<longrightarrow>df"
-      using df unfolding pred_means_if3_def by auto
-  hence "(((case1\<and> prop_1) \<or> (case2\<and>prop_2) \<or> (case3\<and> prop_3)\<or> (\<not>case1\<and>\<not>case2\<and>\<not>case3\<and>prop_o))\<longrightarrow>df)" using cons by auto 
-  thus ?thesis using df unfolding pred_means_if3_def cons by blast
-qed   
-  
-  
-  
-    
-definition "pred_antonym(prop) \<longleftrightarrow> \<not> prop"
-abbreviation (input) pred_antonym_p  ("antonym pred _ for _" [0,0] 10)
+  assumes
+    "pred df means prop_1 if case1, prop_2 if case2, prop_3 if case3 otherwise prop_o" and
+    "(case1 \<and> case2 \<longrightarrow> (prop_1 \<longleftrightarrow> prop_2)) \<and>
+      (case1 \<and> case3 \<longrightarrow> (prop_1 \<longleftrightarrow> prop_3)) \<and>
+        (case2 \<and> case3 \<longrightarrow> (prop_2 \<longleftrightarrow> prop_3))"
+  shows
+    "(((case1 \<and> prop_1) \<or> (case2 \<and> prop_2) \<or> (case3 \<and> prop_3) \<or>
+      (\<not>case1 \<and> \<not>case2 \<and> \<not>case3 \<and> prop_o)) \<longrightarrow> df) \<and>
+    (df \<longrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (case3 \<longrightarrow> prop_3) \<and>
+      (\<not>case1 \<and> \<not>case2 \<and> \<not>case3 \<longrightarrow> prop_o))) \<and>
+    (df \<longleftrightarrow> ((case1 \<longrightarrow> prop_1) \<and> (case2 \<longrightarrow> prop_2) \<and> (case3 \<longrightarrow> prop_3) \<and>
+      (\<not>case1 \<and> \<not>case2 \<and> \<not>case3 \<longrightarrow> prop_o)))"
+  using assms
+  unfolding pred_means_if3_def
+  by auto
+
+definition "pred_antonym(prop) \<longleftrightarrow> \<not>prop"
+
+abbreviation (input) pred_antonym_p ("antonym pred _ for _" [0,0] 10)
   where "antonym pred df for old \<equiv> df \<longleftrightarrow> pred_antonym(old)"
 
 lemma pred_antonym_property:
-  assumes df:"antonym pred df for old"
-    and "True"
-  shows "(df \<longleftrightarrow> \<not> old)"
-  using df unfolding pred_antonym_def by auto
+  assumes "antonym pred df for old"
+  shows "(df \<longleftrightarrow> \<not>old)"
+  using assms
+  unfolding pred_antonym_def
+  by auto
 
 definition "func_synonym(term) = term"
-abbreviation (input) func_synonym_p  ("synonym func _ for _" [0,0] 10)
+
+abbreviation (input) func_synonym_p ("synonym func _ for _" [0,0] 10)
   where "synonym func df for term \<equiv> df = func_synonym(term)"
 
 lemma func_synonym_property:
-  assumes df:"synonym func df for term"
-    and "True"
-  shows "(df=term)"
-  using df unfolding func_synonym_def by auto
-    
-    
-(*func means*)
+  assumes "synonym func df for term"
+  shows "df = term"
+  using assms
+  unfolding func_synonym_def
+  by auto
 
 definition "func_means(ty, prop) = theProp(ty, prop)"
-abbreviation func_means_p  ("func _ \<rightarrow> _ means _" [0,0] 10)
-  where "func P \<rightarrow> R means D \<equiv> P = func_means(R, D)"
-text_raw {*\DefineSnippet{funcasmeans}{*}
-abbreviation func_assume_means_p1  ("assume1 _ func _ \<rightarrow> _ means _" [0,0,0,0] 10)
-  where "assume1 as func df \<rightarrow> ty means prop \<equiv> df = the define_ty(ty, \<lambda>_. as, prop)"
-text_raw {*}%EndSnippet*}
 
+abbreviation func_means_p ("func _ \<rightarrow> _ means _" [0,0] 10)
+  where "func P \<rightarrow> R means D \<equiv> P = func_means(R, D)"
+
+abbreviation func_assume_means_p1 ("assume1 _ func _ \<rightarrow> _ means _" [0,0,0,0] 10)
+  where "assume1 as func df \<rightarrow> ty means prop \<equiv> df = the define_ty(ty, \<lambda>_. as, prop)"
 
 definition "func_assume_means(as, ty, prop) = the define_ty(ty, \<lambda>_. as, prop)"
-abbreviation func_assume_means_p  ("assume _ func _ \<rightarrow> _ means _" [0,0,0,0] 10)
+
+abbreviation func_assume_means_p ("assume _ func _ \<rightarrow> _ means _" [0,0,0,0] 10)
   where "assume as func df \<rightarrow> ty means prop \<equiv> df = func_assume_means(as, ty, prop)"
 
-definition "func_means_if1(ty, prop_1,case1,prop_o) = 
-   theProp(ty, \<lambda>it. (case1 \<longrightarrow> prop_1(it)) \<and> 
-                    ( \<not>case1 \<longrightarrow> prop_o(it)))"
+definition "func_means_if1(ty, prop_1, case1, prop_o) = 
+  theProp(ty, \<lambda>it. (case1 \<longrightarrow> prop_1(it)) \<and> (\<not>case1 \<longrightarrow> prop_o(it)))"
   
-abbreviation func_means_if1_p  ("func _ \<rightarrow> _ means  _ if _ otherwise _ " [0,0,0,0] 10)
-  where "func df \<rightarrow> ty means prop_1 if case1 otherwise prop_o \<equiv> df = func_means_if1(ty, prop_1, case1,prop_o)"
+abbreviation func_means_if1_p ("func _ \<rightarrow> _ means  _ if _ otherwise _ " [0,0,0,0] 10)
+  where
+    "func df \<rightarrow> ty means prop_1 if case1 otherwise prop_o \<equiv>
+      df = func_means_if1(ty, prop_1, case1, prop_o)"
 
-definition "func_assume_means_if1(as,ty, prop_1,case1,prop_o) = 
-   the define_ty(ty, \<lambda>_.as, \<lambda>it. (case1 \<longrightarrow> prop_1(it)) \<and> 
-                    ( \<not>case1 \<longrightarrow> prop_o(it)))"
+definition "func_assume_means_if1(as, ty, prop_1, case1, prop_o) = 
+   the define_ty(ty, \<lambda>_. as, \<lambda>it. (case1 \<longrightarrow> prop_1(it)) \<and> (\<not>case1 \<longrightarrow> prop_o(it)))"
 
-abbreviation func_assume_means_if1_p  ("assume _ func _ \<rightarrow> _ means  _ if _ otherwise _ " [0,0,0,0,0] 10)
-  where "assume as func df \<rightarrow> ty means prop_1 if case1 otherwise prop_o \<equiv> df = func_assume_means_if1(as,ty, prop_1, case1,prop_o)"
+abbreviation
+  func_assume_means_if1_p ("assume _ func _ \<rightarrow> _ means  _ if _ otherwise _ " [0,0,0,0,0] 10)
+  where
+    "assume as func df \<rightarrow> ty means prop_1 if case1 otherwise prop_o \<equiv>
+      df = func_assume_means_if1(as, ty, prop_1, case1, prop_o)"
 
-definition "func_means_if1o(ty, prop_1,case1) = func_assume_means(case1, ty, prop_1)"
+definition "func_means_if1o(ty, prop_1, case1) = func_assume_means(case1, ty, prop_1)"
+
 abbreviation func_means_if1o_p  ("func _ \<rightarrow> _ means  _ if _ " [0,0,0] 10)
   where "func df \<rightarrow> ty means prop_1 if case1 \<equiv> df = func_means_if1o(ty, prop_1, case1)"
     
@@ -166,10 +179,10 @@ lemma func_means_property:
   shows "df be ty \<and> (x be ty \<and> prop(x) \<longrightarrow> x = df) \<and> prop(df)"
   unfolding df func_means_def
 proof (intro conjI)
-  have e: "\<exists>\<^sub>Lx. x be define_ty(ty,\<lambda>_. True,prop)" using Bex_def m ex def_ty_property_true by auto
-  hence f: "(theProp(ty,prop)) be define_ty(ty,\<lambda>_. True,prop)" using choice_ax inhabited_def by auto
-  thus g: "(theProp(ty,prop)) be ty" using def_ty_property_true e object_root by auto
-  show h: "prop(theProp(ty,prop))" using def_ty_property_true e f object_root by auto
+  have e: "\<exists>\<^sub>Lx. x be define_ty(ty,\<lambda>_. True,prop)" using Bex_def m ex by auto
+  hence f: "(theProp(ty,prop)) be define_ty(ty,\<lambda>_. True,prop)" using choice_ax inhabited_def by blast
+  thus g: "(theProp(ty,prop)) be ty" using e object_root by auto
+  show h: "prop(theProp(ty,prop))" using e f object_root by auto
   show "x be ty \<and> prop(x) \<longrightarrow> x = theProp(ty,prop)" using un g h by auto
 qed
   
@@ -191,10 +204,10 @@ proof (cases "as")
 next
   assume nR: "not as"
   have "(the ty) be ty" using choice_ax mode_ex by auto
-  hence "inhabited(define_ty(ty,\<lambda>_. as,prop))" using def_ty_property[THEN conjunct2] using nR by simp
-  hence "df be define_ty(ty,\<lambda>_. as,prop)" using choice_ax df[unfolded func_assume_means_def] inhabited_def by auto
+  hence "inhabited(define_ty(ty,\<lambda>_. as,prop))" using define_ty_property[THEN conjunct2] nR 
+  hence "df be define_ty(ty,\<lambda>_. as,prop)" using choice_ax df[unfolded func_assume_means_def] inhabited_def by 
   thus "df be ty \<and> (as \<and> x be ty \<and> prop(x) \<longrightarrow> x = df) \<and> (as \<longrightarrow> prop(df))"
-    using def_ty_property[THEN conjunct1] nR by auto
+    using def_ty_property[THEN conjunct1] nR by 
 qed
   
 lemma func_means_if1_property:
