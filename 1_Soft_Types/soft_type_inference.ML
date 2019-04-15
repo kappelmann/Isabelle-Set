@@ -187,12 +187,44 @@ datatype infer_result =
     constraints: (term * term) list
   }
 
-fun simplify_constraints ctxt constraints maxidx =
-  Seq.hd (Unify.smash_unifiers
-    (Context.Proof ctxt)
-    (map (fn Eq e => e) constraints)
-    (Envir.empty maxidx)
-  )
+
+
+
+fun preprocess_constraints ctxt constraints =
+  let
+
+    fun encode_indexname (x, i) = x ^ chr 0 ^ string_of_int i
+    fun decode_indexname s =
+      let val [x, is] = String.fields (fn c => Char.ord c = 0) s
+      in (x, #1 (read_int (raw_explode is))) end
+  
+    fun to_free (Var (ixn, T)) = Free (encode_indexname ixn, T)
+      | to_free t = t 
+
+    fun to_var (t as Free (n, T)) = 
+          if exists_string (curry op = (chr 0)) n
+          then Var (decode_indexname n, T)
+          else t
+      | to_var t = t 
+
+    val type_simp_rules = 
+      Named_Theorems.get ctxt @{named_theorems "type_simp"}
+      |> map (Raw_Simplifier.mksimps ctxt)
+      |> flat
+
+    val transform_term =
+      Term.map_aterms to_free
+      #> Raw_Simplifier.rewrite_term (Proof_Context.theory_of ctxt) type_simp_rules []
+      #> Term.map_aterms to_var
+  in
+    map (fn Eq(s, t) => Eq (transform_term s, transform_term t)) constraints
+  end 
+
+
+
+
+fun unify_constraints ctxt constraints maxidx =
+  Seq.hd (Unify.smash_unifiers (Context.Proof ctxt) (map (fn Eq e => e) constraints) (Envir.empty maxidx))
 
 fun infer_type ctxt ts = 
   let
@@ -206,9 +238,16 @@ fun infer_type ctxt ts =
       }
     val (sTs, Inference_Context {constraints, var_types, fresh_idx}) =
        fold_map (fn t => fn c => collect_constraints' ctxt c [] t NONE) ts ictxt
+    
+    val _ = Output.tracing "Original constraints: "   
     val _ = map (trace_constraint ctxt) constraints
 
-    val env = simplify_constraints ctxt constraints fresh_idx
+    val simplified_constraints = preprocess_constraints ctxt constraints
+
+    val _ = Output.tracing "Simplified constraints: "   
+    val _ = map (trace_constraint ctxt) simplified_constraints
+
+    val env = unify_constraints ctxt simplified_constraints fresh_idx
     val instantiated = map (Envir.norm_term env) sTs
 
     val types_for_frees =
