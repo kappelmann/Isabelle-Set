@@ -10,7 +10,7 @@ text_raw {*}%EndSnippet*}
 text_raw {*\DefineSnippet{tarski-axiom1}{*}
 \<comment>\<open>Set axiom\<close>
 theorem tarski_0_1:
-  "\<forall>x. x be set" using SET_def by simp
+  "\<forall>x. x be set" using set_def by simp
 text_raw {*}%EndSnippet*}
 
 text_raw {*\DefineSnippet{tarski-set-exists}{*}

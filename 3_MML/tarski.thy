@@ -85,7 +85,7 @@ qed simp_all
 
 mdef tarski_def_3 (infixl "c=" 50)where
 mlet "X be set","Y be set"
-  "pred X c= Y means (\<forall>x:object. x in X \<longrightarrow> x in Y)"..
+  "pred X c= Y means (\<forall>x:object. x in X \<longrightarrow> x in Y)" .
 
 (*lemmas tarski_def_3a = tarski_def_3[THEN iffD1,THEN bspec,simplified,rule_format]
 lemmas tarski_def_3b[intro?] = tarski_def_3[THEN iffD2, rule_format,OF _ _ ballI, simplified,rule_format]
@@ -180,7 +180,7 @@ mdef tarski_def_6 ("_,_ areequipotent" [100,100]) where
     (ex Z st
      (for x st x in X ex y st y in Y \<and> [x,y] in Z) \<and>
      (for y st y in Y ex x st x in X \<and> [x,y] in Z) \<and>
-     (for x,y,z,u st [x,y] in Z \<and> [z,u] in Z holds x = z \<longleftrightarrow> y = u))" ..
+     (for x,y,z,u st [x,y] in Z \<and> [z,u] in Z holds x = z \<longleftrightarrow> y = u))" .
 
 section "TARSKI_A"
 
