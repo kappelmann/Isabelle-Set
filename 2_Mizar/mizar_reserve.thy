@@ -60,7 +60,7 @@ val () =
 ML {*
 fun do_lt tm lthya =
    case dest_Trueprop tm of
-     (Const (@{const_name ty_membership}, _) $ Free (n, _) $ _) =>
+     (@{const has_type(Set)} $ Free (n, _) $ _) =>
        let
          val (_, lthya2) = if Variable.is_fixed lthya n then ([], lthya) else Variable.add_fixes [n] lthya;
          val ct = Thm.cterm_of lthya tm;

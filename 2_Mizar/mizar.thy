@@ -3,8 +3,6 @@ imports mizar_HOL
 
 begin
 
-declare [[eta_contract = false]]
-
 no_notation All (binder "\<forall>" 10) and Ex (binder "\<exists>" 10)
 notation All (binder "\<forall>\<^sub>L" 10) and Ex (binder "\<exists>\<^sub>L" 10)
 
@@ -18,13 +16,6 @@ abbreviation define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> 
   "define_ty(parent, cond, property) \<equiv>
     Type (\<lambda>x. x be parent \<and> (cond(x) \<longrightarrow> property(x)))"
 
-lemma define_ty_property:
-  assumes "T \<equiv> define_ty(parent, cond, property)"
-  shows "(x be T \<longrightarrow> x be parent \<and> (cond(x) \<longrightarrow> property(x))) \<and>
-    (x be parent \<and> cond(x) \<and> property(x) \<longrightarrow> x be T)"
-  using assms
-  by auto
-
 definition inhabited :: "Ty \<Rightarrow> o"
   where "inhabited(D) \<longleftrightarrow> (\<exists>\<^sub>Lx. x be D)"
 
@@ -33,7 +24,17 @@ lemma inhabitedI[intro?]: "x be D \<Longrightarrow> inhabited(D)"
 
 consts choice :: "Ty \<Rightarrow> Set" ("the _" [79] 80)
 
-axiomatization where choice_ax: "inhabited(M) \<Longrightarrow> (the M) be M"
+axiomatization where
+  define_ty_cond: "x be parent \<and> \<not>cond(x) \<longrightarrow> inhabited(define_ty(parent, cond, property))" and
+  choice_ax: "inhabited(M) \<Longrightarrow> (the M) be M"
+
+lemma define_ty_property:
+  assumes "T \<equiv> define_ty(parent, cond, property)"
+  shows "(x be T \<longrightarrow> x be parent \<and> (cond(x) \<longrightarrow> property(x))) \<and>
+    (x be parent \<and> cond(x) \<and> property(x) \<longrightarrow> x be T) \<and>
+    (x be parent \<and> \<not>cond(x) \<longrightarrow> inhabited(T))"
+  using assms define_ty_cond
+  by auto
 
 lemma define_ty_property_true:
   "x be define_ty(ty, \<lambda>_. True, prop) \<longleftrightarrow> x be ty \<and> prop(x)"

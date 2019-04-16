@@ -197,9 +197,9 @@ qed
 lemma func_assume_means_property:
 assumes
   df: "assume as func df \<rightarrow> ty means prop" and
-  mode_ex: "inhabited(ty)" and
   assume_ex: "as \<Longrightarrow> \<exists>x: ty. prop(x)" and
-  assume_un: "\<And>x y. \<lbrakk>as; x be ty; y be ty; prop(x); prop(y)\<rbrakk> \<Longrightarrow> x = y"
+  assume_un: "\<And>x y. \<lbrakk>as; x be ty; y be ty; prop(x); prop(y)\<rbrakk> \<Longrightarrow> x = y" and
+  mode_ex: "inhabited(ty)"
 shows
    "df be ty \<and> (as \<and> x be ty \<and> prop(x) \<longrightarrow> x = df) \<and> (as \<longrightarrow> prop(df))"
 proof (cases "as")
@@ -214,10 +214,13 @@ proof (cases "as")
 next
   assume nas: "\<not>as"
   have "(the ty) be ty" using choice_ax mode_ex by auto
-  hence "inhabited(define_ty(ty,\<lambda>_. as,prop))" using define_ty_property[THEN conjunct2] nas
-  hence "df be define_ty(ty,\<lambda>_. as,prop)" using choice_ax df[unfolded func_assume_means_def] inhabited_def by 
+  hence "inhabited(define_ty(ty, \<lambda>_. as, prop))"
+    using define_ty_property[of _ ty "\<lambda>_. as", THEN conjunct2] nas
+    by auto
+  hence "df be define_ty(ty, \<lambda>_. as, prop)"
+    using choice_ax df[unfolded func_assume_means_def] by blast
   thus "df be ty \<and> (as \<and> x be ty \<and> prop(x) \<longrightarrow> x = df) \<and> (as \<longrightarrow> prop(df))"
-    using def_ty_property[THEN conjunct1] nR by 
+    using define_ty_property[of _ ty "\<lambda>_. as", THEN conjunct1] nas by blast
 qed
   
 lemma func_means_if1_property:
@@ -531,8 +534,8 @@ lemma mode_means_property:
 proof-
    obtain x where
     "x be ty \<and> prop(x)" using ex m by auto
-   hence "x be df" using ex def_ty_property_true df mode_means_def by auto
-   thus ?thesis using ex def_ty_property_true df mode_means_def inhabited_def by auto
+   hence "x be df" using ex define_ty_property_true df mode_means_def by auto
+   thus ?thesis using ex define_ty_property_true df mode_means_def inhabited_def by auto
  qed  
 text_raw {*\DefineSnippet{modeasmeansprop}{*}   
 lemma mode_assume_means_property:
@@ -554,8 +557,8 @@ proof (cases "as")
     assume nr:"not as"
     hence rdf: "df \<equiv> define_ty(ty, \<lambda>_. as, prop)" using df mode_assume_means_def mode_means_def by simp     
     have "(the ty) be ty" using choice_ax m by auto
-    thus ?thesis using def_ty_property[OF rdf,of x]
-          def_ty_property[OF rdf,of "the ty",THEN conjunct2] nr by blast
+    thus ?thesis using define_ty_property[OF rdf,of x]
+          define_ty_property[OF rdf,of "the ty",THEN conjunct2] nr by blast
 qed
 
 lemma mode_means_if1_property:
@@ -605,7 +608,7 @@ lemma attr_assume_means_property:
   shows "(X be ty \<longrightarrow> as(X) \<longrightarrow> prop(X) \<longrightarrow> X is df) \<and> (X be ty \<longrightarrow> as(X)\<longrightarrow> X is df \<longrightarrow> prop(X)) \<and>
          (X be ty \<longrightarrow> as(X) \<longrightarrow> \<not> prop(X) \<longrightarrow> X is non df) \<and>        
            (X be ty \<longrightarrow> as(X) \<longrightarrow> (X is df \<longleftrightarrow> prop(X)))"
-          using def_ty_property[of "df" object "\<lambda>it. it be ty\<and> as(it)" "prop" X] df[unfolded attr_assume_means_def] by auto            
+          using define_ty_property[of "df" object "\<lambda>it. it be ty\<and> as(it)" "prop" X] df[unfolded attr_assume_means_def] by auto            
             
 lemma attr_means_if1_property:
   assumes df:"attr df for ty means prop1 if case1 otherwise prop_o"
