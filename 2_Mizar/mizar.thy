@@ -14,7 +14,7 @@ notation (input) ty_membership (infix "is" 90)
 abbreviation define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> Ty"
   where
   "define_ty(parent, cond, property) \<equiv>
-    Type (\<lambda>x. x be parent \<and> (cond(x) \<longrightarrow> property(x)))"
+    Type (\<lambda>x. x be parent \<and> (cond(x) \<and> property(x)))"
 
 definition inhabited :: "Ty \<Rightarrow> o"
   where "inhabited(D) \<longleftrightarrow> (\<exists>\<^sub>Lx. x be D)"
@@ -193,8 +193,8 @@ lemma hidden_mode: "x be set \<Longrightarrow> x be object"
 abbreviation (input) theProp
   where "theProp(ty, prop) \<equiv> the define_ty(ty, \<lambda>_. True, prop)"
 
-lemma ty_intersection: "x be t1 \<bar> t2 \<longleftrightarrow> x be t1 \<and> x be t2"
-  by auto
+lemma ty_intersection: "(x be t1 \<bar> t2) \<longleftrightarrow> (x be t1 \<and> x be t2)"
+  by (auto intro: Int_TypeI Int_TypeD1 Int_TypeD2)
 
 definition NON ("non _" [102] 101)
   where "non A \<equiv> define_ty(object, \<lambda>_. True, \<lambda>x. \<not> x is A)"

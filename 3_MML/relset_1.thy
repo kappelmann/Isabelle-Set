@@ -52,7 +52,7 @@ proof(standard,standard)
   assume A2[ty]: "IT be Relation-of X,Y"
   have B1: "IT \<subseteq> [:X,Y:]" using relset_1_lm_1 A2 by infer_auto
   show "IT is (X-defined) \<bar> (Y-valued)"
-    proof
+    proof auto
        show "IT is (X-defined)"
           proof (intro relat_1_def_18I,infer_simp+)
             show "dom IT \<subseteq> X"

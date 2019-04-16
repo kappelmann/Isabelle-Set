@@ -226,7 +226,7 @@ qed infer_auto
     
 mdef xboole_0_def_7 (infixl "misses" 60) where
   mlet "X be set", "Y be set"
-  "pred X misses Y means X \<inter> Y = {}"..
+  "pred X misses Y means X \<inter> Y = {}".
 
 text_raw {*\DefineSnippet{xboole_0_def_7_symmetry}{*}
 mtheorem xboole_0_def_7_symmetry:
@@ -241,7 +241,7 @@ text_raw {*}%EndSnippet*}
 mdef xboole_0_def_8 (infixl "c<" 50)
   where 
 mlet "X be set","Y be set" 
- "pred (X c< Y) means X c= Y \<and> X\<noteq>Y"..
+ "pred (X c< Y) means X c= Y \<and> X\<noteq>Y".
 
 syntax "xboole_0.xboole_0_def_8" :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "\<subset>" 50)
 
@@ -279,7 +279,7 @@ qed simp_all
 
 mdef xboole_0_def_9 ("_ , _ are c= comparable"[50,50] 40) where
   mlet "X be set", "Y be set"
- "pred X,Y are c= comparable means (X c= Y \<or> Y c= X)"..
+ "pred X,Y are c= comparable means (X c= Y \<or> Y c= X)".
 
 theorem xboole_0_def_9_symmetry[THEN bspec,THEN bspec,rule_format,simplified]:
   "symmetry set xboole_0_def_9" using xboole_0_def_9 by auto
@@ -309,7 +309,7 @@ proof
 mdef xboole_0_antonym_meets (infix "meets" 60)
   where 
   mlet "X be set","Y be set" 
-  "antonym pred X meets Y for X misses Y"..
+  "antonym pred X meets Y for X misses Y".
 
 mtheorem xboole_0_th_1: "x in X \\+\\ Y \<longleftrightarrow> \<not> (x in X \<longleftrightarrow> x in Y)"
 proof -
@@ -544,11 +544,11 @@ qed
   
 mdef xboole_0_antonym_2 ("_ c\\= _" 40)where
  mlet "X be set","Y be set"
- "antonym pred X c\\= Y for X c= Y"..
+ "antonym pred X c\\= Y for X c= Y".
 
 mdef xboole_0_antonym_3 ("_ nin _" 40)where
  mlet "x be object","X be set"
- "antonym pred x nin X for x in X"..
+ "antonym pred x nin X for x in X".
 
 mtheorem xboole_1_th_1:
   "X \<subseteq> Y \<and> Y \<subseteq> Z \<longrightarrow> X \<subseteq> Z" using tarski_def_3 by infer_auto

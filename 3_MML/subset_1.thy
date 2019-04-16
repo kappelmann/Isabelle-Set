@@ -72,8 +72,7 @@ proof-
 qed
 
 lemma Element_of_rule3:
-  "X be set \<Longrightarrow> x in X \<Longrightarrow> x be Element-of X" using xb1[of x X] empty1 Element_of by auto
-
+  "X be set \<Longrightarrow> x in X \<Longrightarrow> x be Element-of X" using xb1[of x X] empty1[of X] Element_of(1) by auto
 
 lemmas Element= Element_of Element_of_rule1 Element_of_rule2 Element_of_rule Element_of_rule3
 Element_of(1)[THEN iffD1]

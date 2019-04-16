@@ -128,7 +128,7 @@ text_raw {*}%EndSnippet*}
 
 
 theorem field: "x is (selector \<rightarrow> spec) \<longleftrightarrow>  ((the selector of x) be spec(x) \<and> selector in dom x)"
-  using def_ty_property_true field_def by auto
+  using define_ty_property_true field_def by auto
 
 lemmas field_E = field[THEN iffD1,THEN conjunct1]
 
@@ -149,7 +149,7 @@ text_raw {*\DefineSnippet{truct_strict}{*}
 definition strict where
    "strict(M) \<equiv> define_ty(object,\<lambda>_.True, \<lambda>X. X be M \<and> dom X = domain_of M)"
 text_raw {*}%EndSnippet*}
-lemmas strict = strict_def[THEN def_ty_property,simplified]
+lemmas strict = strict_def[THEN define_ty_property,simplified]
 
 theorem [clus]:
   "X be strict(M) \<Longrightarrow> X be M" using strict[THEN conjunct1] by auto  
@@ -430,7 +430,7 @@ proof-
      "X be Struct" and
      fields: "X is Fields" and
      dom:   "dom X=D" using exist by auto
-   hence A1: "X be S" using def_ty_property_true structF_def df by auto
+   hence A1: "X be S" using define_ty_property_true structF_def df by auto
    hence I: "inhabited(S)" using inhabited_def by auto
    let ?P="\<lambda>it. (ex X be S st it = dom X) \<and>
             (\<forall>X : S.  it \<subseteq> dom X)"
@@ -441,7 +441,7 @@ proof-
          show "ex x be set st ?P(x)"
              proof(intro bexI[of _ D])
                show "(ex X be S st D=dom X)\<and>(\<forall>X : S.  D \<subseteq> dom X)"
-                   using A1 dom bexI def_ty_property_true df monotone I structF_def by auto
+                   using A1 dom bexI define_ty_property_true df monotone I structF_def by auto
              qed (simp_all add:all_set)
         case uniqueness
       show "\<And>x y. x be set \<Longrightarrow>
@@ -461,7 +461,7 @@ proof-
    hence A2:"?P(?D)" by auto
    then obtain X1 where
      A3:"X1 be S" "?D=dom X1" using I by auto
-   hence "X1 be Struct" "X1 is Fields" using def_ty_property_true df structF_def by auto
+   hence "X1 be Struct" "X1 is Fields" using define_ty_property_true df structF_def by auto
    hence "D c= dom X1" "dom X1 c= D" using monotone[rule_format, of X1]
             A2[THEN conjunct2,THEN bspec, OF I A1] dom A3(2) by auto
    thus ?thesis using A2 A3(2) xboole_0_def_10[of D "dom X1",simplified all_set] by auto
@@ -481,12 +481,12 @@ lemma struct_scheme:
        (E be S \<longrightarrow> the_restriction_of E to S be strict(S))"
 text_raw {*}%EndSnippet*}
 proof(intro conjI)
-   show "x be S \<longleftrightarrow> x be Fields\<bar>Struct" using def_ty_property_true df structF_def by auto
+   show "x be S \<longleftrightarrow> x be Fields\<bar>Struct" using define_ty_property_true df structF_def by auto
    obtain X where
      "X be Struct" and
      fields: "X is Fields" and
      dom:   "dom X=D" using exist by auto
-   hence A1: "X be S" using def_ty_property_true df structF_def by auto
+   hence A1: "X be S" using define_ty_property_true df structF_def by auto
    thus I: "inhabited(S)" using inhabited_def by auto
    let ?P="\<lambda>it. (ex X be S st it = dom X) \<and> (\<forall>X : S.  it \<subseteq> dom X)"
    let ?D = "domain_of S"
@@ -498,12 +498,12 @@ proof(intro conjI)
     proof(rule impI)
       assume B0[ty]: "E be S"
       hence B1[ty]: "E be Struct" "E is Fields" "?D be set" "E be Function"
-        using def_ty_property_true df all_set Struct_def structF_def by auto
+        using define_ty_property_true df all_set Struct_def structF_def by auto
       have B2: "E|?D be Relation" "E|?D is Function_like" using
          funct_1_cl by mauto
       hence B22:"E|?D be Struct" unfolding Struct_def by auto
       have "E|?D is Fields" using restriction B1(1,2) A4 by simp
-      hence B3: "E|?D be S" using (*def_ty_property[OF df]*) B22 all_set structF_def df by simp
+      hence B3: "E|?D be S" using (*define_ty_property[OF df]*) B22 all_set structF_def df by simp
       have "?D \<subseteq> dom E" using struct_domain[OF df exist monotone] B0 I by auto
       hence "dom (E|?D) = ?D" using relat_1_th_56[of E ?D] all_set B1 by auto
       hence "E|?D be strict (S)" using B3 strict[THEN conjunct2] by auto

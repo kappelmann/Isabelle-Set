@@ -131,7 +131,7 @@ abbreviation algstr_0_def_2 ("Trivial-addMagma") where
 
 mtheorem algstr_0_cl_4:
   "cluster Trivial-addMagma \<rightarrow> 1-element-struct\<bar> strict (addMagma)"
-proof(standard,standard,ty_auto)
+proof (standard, ty_auto)
   let ?T ="Trivial-addMagma"
   have T0[ty]: "?T be addMagma" by mauto
   have T1: "the carrier of ?T={{}}"

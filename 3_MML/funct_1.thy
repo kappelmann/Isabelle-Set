@@ -6,12 +6,10 @@ begin
 reserve x,y,z,x1,x2,y1,y2 for object
 reserve X,Y,Z for set
 
-text_raw {*\DefineSnippet{funct_1def1}{*}
 mdef funct_1_def_1 ("Function'_like") where
   "attr Function_like for set means
      (\<lambda>IT. for x,y1,y2 being object st
-          [x,y1] in IT \<and> [x,y2] in IT holds y1 = y2)"..
-text_raw {*}%EndSnippet*} 
+          [x,y1] in IT \<and> [x,y2] in IT holds y1 = y2)" ..
   
   
 mtheorem funct_1_cl_1:
@@ -38,7 +36,6 @@ proof
      qed simp_all
   thus "?F is Function_like" using funct_1_def_1I by mauto
 qed
-
 
 
 mtheorem funct_1_cl_4:
