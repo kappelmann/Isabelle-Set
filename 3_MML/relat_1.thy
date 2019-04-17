@@ -5,7 +5,7 @@ begin
 reserve x for object
 
 mdef relat_1_def_1 ("Relation'_like")where
-  "attr Relation_like for set means (\<lambda>IT. \<forall>x.  x in IT \<longrightarrow> (ex y, z st x = [y, z]))"..
+  "attr Relation_like for set means (\<lambda>IT. \<forall>x.  x in IT \<longrightarrow> (ex y, z st x = [y, z]))".
 
 mtheorem relat_1_cl_1:
   "cluster empty \<rightarrow> Relation_like for set" 
@@ -103,11 +103,11 @@ qed infer_auto
 
 mdef relat_1_def_18 ("_-defined" [110] 110) where
   mlet "X be set"
-  "attr X-defined for Relation means (\<lambda>R. dom R c= X)"..
+  "attr X-defined for Relation means (\<lambda>R. dom R c= X)".
 
 mdef relat_1_def_19 ("_-valued" [110] 110) where
   mlet "X be set"
-  "attr X-valued for Relation means (\<lambda>R. rng R c= X)"..
+  "attr X-valued for Relation means (\<lambda>R. rng R c= X)".
 
 theorem relat_1_sch_1:
    "A be set \<Longrightarrow> B be set

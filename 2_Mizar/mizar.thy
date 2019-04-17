@@ -14,7 +14,7 @@ notation (input) ty_membership (infix "is" 90)
 abbreviation define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> Ty"
   where
   "define_ty(parent, cond, property) \<equiv>
-    Type (\<lambda>x. x be parent \<and> (cond(x) \<and> property(x)))"
+    Type (\<lambda>x. x be parent \<and> (cond(x) \<longrightarrow> property(x)))"
 
 definition inhabited :: "Ty \<Rightarrow> o"
   where "inhabited(D) \<longleftrightarrow> (\<exists>\<^sub>Lx. x be D)"
@@ -171,10 +171,9 @@ definition object :: Ty
 lemma object_root: "x be object"
   unfolding object_def by auto
 
-axiomatization
-  prefix_in :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "in" 50)
-where
-  object_exists: "inhabited(object)"
+axiomatization where object_exists: "inhabited(object)"
+
+consts prefix_in :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "in" 50)
 
 declare object_root[simp]
 

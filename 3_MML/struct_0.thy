@@ -23,7 +23,7 @@ mtheorem
 
     
 mdef struct_0_def_1 ("empty-struct")where
-   "attr empty-struct for 1-sorted means (\<lambda> IT. (the carrier of IT) is empty)"..
+   "attr empty-struct for 1-sorted means (\<lambda> IT. (the carrier of IT) is empty)".
 
 mtheorem struct_0_cl_1:
   "cluster empty-struct\<bar> strict (1-sorted) for 1-sorted"
@@ -223,12 +223,12 @@ qed
 
 
 mdef struct_0_def_8 ("degenerated")where
-   "attr degenerated for ZeroOneStr means (\<lambda> S. 0\<^sub>S = 1\<^sub>S)"..
+   "attr degenerated for ZeroOneStr means (\<lambda> S. 0\<^sub>S = 1\<^sub>S)".
 
 (*lemma struct_0_def_8c: "X is ZeroOneStr \<Longrightarrow> 0\<^sub>X \<noteq> 1\<^sub>X \<Longrightarrow> \<not> X is degenerated" using struct_0_def_8 by auto*)
 
 mdef struct_0_def_9 ("trivial-struct")where
-   "attr trivial-struct for 1-sorted means (\<lambda> S. the carrier of S is trivial)"..
+   "attr trivial-struct for 1-sorted means (\<lambda> S. the carrier of S is trivial)".
 
 mtheorem struct_0_def_10:
    "redefine attr trivial-struct for 1-sorted means
@@ -264,7 +264,7 @@ qed mauto
 
 mdef struct_0_def_12 ("Zero \<^sub>_" [190] 190)where
 mlet   "S be ZeroStr"
-"attr Zero \<^sub>S for Element-of-struct S means (\<lambda> IT.  IT = 0\<^sub>S )"..
+"attr Zero \<^sub>S for Element-of-struct S means (\<lambda> IT.  IT = 0\<^sub>S )".
 
 mtheorem struct_0_cl_10:
   mlet "S be ZeroStr"
@@ -327,7 +327,7 @@ abbreviation(input) cartesian_product2 :: "(Set \<Rightarrow> Set) \<Rightarrow>
   "[:' X, Y :] \<equiv> \<lambda>it. [: X(it), Y:]"
 
 mdef struct_0_def_19_a ("1-element-struct")where
-  "attr 1-element-struct for 1-sorted means (\<lambda> IT. ex x be object st {x} = the carrier of IT)"..
+  "attr 1-element-struct for 1-sorted means (\<lambda> IT. ex x be object st {x} = the carrier of IT)".
 
 mtheorem struct_0_redef_1:
   mlet "S be non empty-struct\<bar>1-sorted",
@@ -409,7 +409,7 @@ mtheorem
 
   
 mdef struct_0_def_13 ("void-struct")where
-   "attr void-struct for 2-sorted means (\<lambda> IT. (the carrier` of IT) is empty)"..
+   "attr void-struct for 2-sorted means (\<lambda> IT. (the carrier` of IT) is empty)".
 
 mtheorem struct_0_cl_x:
   mlet "S be (non void-struct \<bar> 2-sorted)"
@@ -525,7 +525,7 @@ proof(standard,standard)
   qed mauto
 
 mdef struct_0_def_21 ("trivial`-struct")where
-   "attr trivial`-struct for 2-sorted means (\<lambda> S. the carrier` of S is trivial)"..
+   "attr trivial`-struct for 2-sorted means (\<lambda> S. the carrier` of S is trivial)".
 
 
 mtheorem struct_0_def_21R:

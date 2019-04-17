@@ -24,7 +24,7 @@ proof-
 
 text_raw {*\DefineSnippet{xboole_0_def_1}{*}
 mdef xboole_0_def_1 ("empty") where
-  "attr empty for set means (\<lambda>it. \<not> (\<exists>x : object. x in it))" ..
+  "attr empty for set means (\<lambda>it. \<not> (\<exists>x : object. x in it))" .
 text_raw {*}%EndSnippet*}
 
   

@@ -9,7 +9,7 @@ reserve X,Y,Z for set
 mdef funct_1_def_1 ("Function'_like") where
   "attr Function_like for set means
      (\<lambda>IT. for x,y1,y2 being object st
-          [x,y1] in IT \<and> [x,y2] in IT holds y1 = y2)" ..
+          [x,y1] in IT \<and> [x,y2] in IT holds y1 = y2)" .
   
   
 mtheorem funct_1_cl_1:
@@ -487,7 +487,7 @@ qed
 
 text_raw {*\DefineSnippet{funct_1_def_4}{*}
 mdef funct_1_def_4 ("one-to-one")where
-  "attr one-to-one for Function means (\<lambda>IT. for x1,x2 being object st x1 in dom IT \<and> x2 in dom IT holds x1 = x2)"..
+  "attr one-to-one for Function means (\<lambda>IT. for x1,x2 being object st x1 in dom IT \<and> x2 in dom IT holds x1 = x2)".
 text_raw {*}%EndSnippet*}
 
 
@@ -533,15 +533,15 @@ text_raw {*}%EndSnippet*}
   by simp
 
 mdef funct_1_def_13 ("functional")where
-  "attr functional for set means (\<lambda>IT. for x be object st x in IT holds x be Function)"..
+  "attr functional for set means (\<lambda>IT. for x be object st x in IT holds x be Function)".
 
 mdef funct_1_def_14 ("_-compatible" [110] 110) where
   mlet "g be Function"
   "attr g -compatible for Function
-    means (\<lambda>f. for x be object st x in dom f holds f .x in g .x) "..
+    means (\<lambda>f. for x be object st x in dom f holds f .x in g .x) ".
 
 mdef funct_1_def_9 ("non-empty")where
-  "attr non-empty for Function means (\<lambda>f.  \<not> {} in rng f )"..
+  "attr non-empty for Function means (\<lambda>f.  \<not> {} in rng f )".
 
 text_raw {*\DefineSnippet{funct1th110}{*}
 theorem funct_1_th_110:

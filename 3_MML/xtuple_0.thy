@@ -10,7 +10,7 @@ reserve X,Y for set
 text_raw {*\DefineSnippet{pair_def}{*}    
 mdef xtuple_0_def_1 ("pair") where
  "attr pair for object means 
-    (\<lambda>X. ex x1,x2 be object st X=[x1,x2])"..
+    (\<lambda>X. ex x1,x2 be object st X=[x1,x2])".
 text_raw {*}%EndSnippet*}
 
 theorem xtuple_0_lm_1:

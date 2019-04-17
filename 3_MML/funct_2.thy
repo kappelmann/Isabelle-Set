@@ -11,7 +11,7 @@ section "funct_2"
 mdef funct_2_def_1 ("_ , _ : quasi-total" [110,110] 110) where
    mlet "X be set", "Y be set"
    "attr (X , Y :quasi-total) for (Relation-of X,Y) means
-     (\<lambda> IT. X = dom IT) if (\<lambda> IT. Y \<noteq> {}) otherwise (\<lambda>IT. IT = {})" ..
+     (\<lambda> IT. X = dom IT) if (\<lambda> IT. Y \<noteq> {}) otherwise (\<lambda>IT. IT = {})" .
  
 text_raw {*\DefineSnippet{expandable_modes}{*}
 abbreviation funct_2_mode_1   ("Function-of _, _" [90,90] 190)
@@ -183,11 +183,11 @@ qed
 
 mdef funct_2_def_3 ("_ -onto" [95] 100)where
 mlet "Y be set"  
-"attr Y -onto for Y-valued\<bar>Function means (\<lambda>IT. rng IT = Y)"..
+"attr Y -onto for Y-valued\<bar>Function means (\<lambda>IT. rng IT = Y)".
 
 mdef funct_2_def_4 ("_ -bijective" [95] 100)where
   mlet "Y be set" 
-  "attr Y -bijective for Y-valued\<bar>Function means (\<lambda>IT. IT is Y-onto \<bar> one-to-one)"..
+  "attr Y -bijective for Y-valued\<bar>Function means (\<lambda>IT. IT is Y-onto \<bar> one-to-one)".
 
 text_raw {*\DefineSnippet{funct_2_cl_11}{*}
 mtheorem 

@@ -33,7 +33,7 @@ text_raw {*\DefineSnippet{partfun1def2a}{*}
 mdef partfun_1_def_2 ("_ : total" [110] 110)where
   mlet "X be set"
   " attr X :total for X-defined \<bar> Relation means
-      (\<lambda> IT. dom IT = X)"..
+      (\<lambda> IT. dom IT = X)".
 text_raw {*}%EndSnippet*}
 
 

@@ -145,7 +145,7 @@ proof-
 qed
 
 mdef zfmisc_1_def_10 ("trivial")where
-  "attr trivial for set means (\<lambda>X. for x,y st x in X \<and> y in X holds x=y)"..
+  "attr trivial for set means (\<lambda>X. for x,y st x in X \<and> y in X holds x=y)".
 
 
 mtheorem

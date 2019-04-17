@@ -149,18 +149,18 @@ qed
 mdef algstr_0_def_3 ("left-add-cancelable\<^sub>_" [200] 200)where
  mlet  "M be addMagma"
 "attr left-add-cancelable\<^sub>M for Element-of-struct M means
-     (\<lambda> x. for y,z be Element-of-struct M st x \<oplus>\<^sub>M y = x \<oplus>\<^sub>M z holds y = z)"..
+     (\<lambda> x. for y,z be Element-of-struct M st x \<oplus>\<^sub>M y = x \<oplus>\<^sub>M z holds y = z)".
 
 
 mdef algstr_0_def_4 ("right-add-cancelable\<^sub>_" [200] 200)where  
 mlet "M be addMagma"
  "attr right-add-cancelable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (for y,z be Element-of-struct M st y \<oplus>\<^sub>M x = z \<oplus>\<^sub>M x holds y = z))"..
+                                       (for y,z be Element-of-struct M st y \<oplus>\<^sub>M x = z \<oplus>\<^sub>M x holds y = z))".
 
 mdef algstr_0_def_5 ("add-cancelable\<^sub>_" [200] 200)where
   mlet "M be addMagma"
   " attr add-cancelable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       x is right-add-cancelable\<^sub>M \<bar> left-add-cancelable\<^sub>M)"..
+                                       x is right-add-cancelable\<^sub>M \<bar> left-add-cancelable\<^sub>M)".
 
 mtheorem algstr_0_cl_6:
   mlet "M be addMagma"
@@ -173,15 +173,15 @@ mtheorem algstr_0_cl_7:
 using algstr_0_def_5 by ty_auto
 
 mdef algstr_0_def_6 ("left-add-cancelable")where
-   "attr left-add-cancelable for addMagma means (\<lambda> M.  (for x be Element-of-struct M holds x is left-add-cancelable\<^sub>M))"..
+   "attr left-add-cancelable for addMagma means (\<lambda> M.  (for x be Element-of-struct M holds x is left-add-cancelable\<^sub>M))".
 
 mdef algstr_0_def_7 ("right-add-cancelable")where
    "attr right-add-cancelable for addMagma means (\<lambda> M.
-                                       (for x be Element-of-struct M holds x is right-add-cancelable\<^sub>M))"..
+                                       (for x be Element-of-struct M holds x is right-add-cancelable\<^sub>M))".
 
 mdef algstr_0_def_8 ("add-cancelable")where
    "attr add-cancelable for addMagma means (\<lambda> M.
-                                       M is right-add-cancelable \<bar> left-add-cancelable)"..
+                                       M is right-add-cancelable \<bar> left-add-cancelable)".
 
 mtheorem algstr_0_cl_8:
   "cluster right-add-cancelable \<bar> left-add-cancelable \<rightarrow> add-cancelable for addMagma" 
@@ -316,16 +316,16 @@ qed
 mdef algstr_0_def_10 ("left-complementable\<^sub>_" [200] 200)where
 mlet   "M be addLoopStr "
 " attr left-complementable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (ex y be Element-of-struct M st y \<oplus>\<^sub>M x =0\<^sub>M))"..
+                                       (ex y be Element-of-struct M st y \<oplus>\<^sub>M x =0\<^sub>M))".
 
 mdef algstr_0_def_11 ("right-complementable\<^sub>_" [200] 200)where
  mlet  "M be addLoopStr "
  " attr right-complementable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (ex y be Element-of-struct M st x \<oplus>\<^sub>M y =0\<^sub>M))"..
+                                       (ex y be Element-of-struct M st x \<oplus>\<^sub>M y =0\<^sub>M))".
 text_raw {*\DefineSnippet{algstr_0_def_12}{*}
 mdef algstr_0_def_12 ("add-complementable\<^sub>_" [200] 200)where
 mlet    " M be addLoopStr""attr add-complementable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       x is right-complementable\<^sub>M \<bar> left-complementable\<^sub>M)"..
+                                       x is right-complementable\<^sub>M \<bar> left-complementable\<^sub>M)".
 text_raw {*}%EndSnippet*}
 
 
@@ -408,16 +408,16 @@ proof(standard,standard,auto, infer_ty)
  qed ty_auto
 
 mdef algstr_0_def_15 ("left-complementable")where
-   "attr left-complementable for addLoopStr means (\<lambda> M. (for x be Element-of-struct M holds x is left-complementable\<^sub>M))"..
+   "attr left-complementable for addLoopStr means (\<lambda> M. (for x be Element-of-struct M holds x is left-complementable\<^sub>M))".
 
 
 mdef algstr_0_def_16 ("right-complementable")where
    "attr right-complementable for addLoopStr means (\<lambda> M.
-                                       (for x be Element-of-struct M holds x is right-complementable\<^sub>M))"..
+                                       (for x be Element-of-struct M holds x is right-complementable\<^sub>M))".
 
 mdef algstr_0_def_17 ("complementable")where
    "attr complementable for addLoopStr means (\<lambda> M.
-                                       M is right-complementable \<bar> left-complementable)"..
+                                       M is right-complementable \<bar> left-complementable)".
 
 mtheorem algstr_0_cl_22:
   "cluster right-complementable \<bar> left-complementable \<rightarrow> complementable for addLoopStr" 
@@ -574,17 +574,17 @@ qed
 mdef algstr_0_def_20 ("left-mult-cancelable\<^sub>_" [200] 200)where
 mlet   "M be multMagma""attr left-mult-cancelable\<^sub>M for Element-of-struct M means
 (\<lambda> x.
-                                       (for y,z be Element-of-struct M st x \<otimes>\<^sub>M y = x \<otimes>\<^sub>M z holds y = z))"..
+                                       (for y,z be Element-of-struct M st x \<otimes>\<^sub>M y = x \<otimes>\<^sub>M z holds y = z))".
 
 
 mdef algstr_0_def_21 ("right-mult-cancelable\<^sub>_" [200] 200)where
 mlet   " M be multMagma""attr right-mult-cancelable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (for y,z be Element-of-struct M st y \<otimes>\<^sub>M x = z \<otimes>\<^sub>M x holds y = z))"..
+                                       (for y,z be Element-of-struct M st y \<otimes>\<^sub>M x = z \<otimes>\<^sub>M x holds y = z))".
 
 mdef algstr_0_def_22 ("mult-cancelable\<^sub>_" [200] 200)where
 mlet   " M be multMagma" 
 "attr mult-cancelable\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       x is right-mult-cancelable\<^sub>M \<bar> left-mult-cancelable\<^sub>M)"..
+                                       x is right-mult-cancelable\<^sub>M \<bar> left-mult-cancelable\<^sub>M)".
 
 mtheorem algstr_0_cl_33:
   mlet "M be multMagma"
@@ -597,15 +597,15 @@ mtheorem algstr_0_cl_34:
 using algstr_0_def_22 by ty_auto
 
 mdef algstr_0_def_23 ("left-mult-cancelable")where
-   "attr left-mult-cancelable for multMagma means (\<lambda> M.  (for x be Element-of-struct M holds x is left-mult-cancelable\<^sub>M))"..
+   "attr left-mult-cancelable for multMagma means (\<lambda> M.  (for x be Element-of-struct M holds x is left-mult-cancelable\<^sub>M))".
 
 mdef algstr_0_def_24 ("right-mult-cancelable")where
    "attr right-mult-cancelable for multMagma means (\<lambda> M.
-                                       (for x be Element-of-struct M holds x is right-mult-cancelable\<^sub>M))"..
+                                       (for x be Element-of-struct M holds x is right-mult-cancelable\<^sub>M))".
 
 mdef algstr_0_def_25 ("mult-cancelable")where
    "attr mult-cancelable for multMagma means (\<lambda>M.
-                                       M is right-mult-cancelable \<bar> left-mult-cancelable)"..
+                                       M is right-mult-cancelable \<bar> left-mult-cancelable)".
 
 mtheorem algstr_0_cl_35:
   "cluster right-mult-cancelable \<bar> left-mult-cancelable \<rightarrow> mult-cancelable for multMagma" 
@@ -767,15 +767,15 @@ qed ty_auto
 
 mdef algstr_0_def_27 ("left-invertible\<^sub>_" [200] 200)where
    mlet "M be multLoopStr""attr left-invertible\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (ex y be Element-of-struct M st y \<otimes>\<^sub>M x =1\<^sub>M))"..
+                                       (ex y be Element-of-struct M st y \<otimes>\<^sub>M x =1\<^sub>M))".
 
 mdef algstr_0_def_28 ("right-invertible\<^sub>_" [200] 200)where
   mlet "M be multLoopStr""attr right-invertible\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       (ex y be Element-of-struct M st x \<otimes>\<^sub>M y =1\<^sub>M))"..
+                                       (ex y be Element-of-struct M st x \<otimes>\<^sub>M y =1\<^sub>M))".
 
 mdef algstr_0_def_29 ("mult-invertible\<^sub>_" [200] 200)where
   mlet "M be multLoopStr"" attr mult-invertible\<^sub>M for Element-of-struct M means (\<lambda> x.
-                                       x is right-invertible\<^sub>M \<bar> left-invertible\<^sub>M)"..
+                                       x is right-invertible\<^sub>M \<bar> left-invertible\<^sub>M)".
 
 mtheorem algstr_0_cl_47:
   mlet "M be multLoopStr"
@@ -815,16 +815,16 @@ proof-
 qed simp_all
 
 mdef algstr_0_def_31 ("left-invertible")where
-   "attr left-invertible for multLoopStr means (\<lambda> M.  (for x be Element-of-struct M holds x is left-invertible\<^sub>M))"..
+   "attr left-invertible for multLoopStr means (\<lambda> M.  (for x be Element-of-struct M holds x is left-invertible\<^sub>M))".
 
 
 mdef algstr_0_def_32 ("right-invertible")where
    "attr right-invertible for multLoopStr means (\<lambda> M.
-                                       (for x be Element-of-struct M holds x is right-invertible\<^sub>M))"..
+                                       (for x be Element-of-struct M holds x is right-invertible\<^sub>M))".
 
 mdef algstr_0_def_33 ("invertible")where
    "attr invertible for multLoopStr means (\<lambda> M.
-                                       M is right-invertible \<bar> left-invertible)"..
+                                       M is right-invertible \<bar> left-invertible)".
 
 mtheorem algstr_0_cl_49:
   "cluster right-invertible \<bar> left-invertible \<rightarrow> invertible for multLoopStr" 
@@ -956,14 +956,14 @@ qed
 
 mdef algstr_0_def_36 ("almost-left-cancelable") where
    "attr almost-left-cancelable for multLoopStr_0 means (\<lambda> M.
-                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is left-mult-cancelable\<^sub>M))"..
+                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is left-mult-cancelable\<^sub>M))".
 
 mdef algstr_0_def_37 ("almost-right-cancelable")where
    "attr almost-right-cancelable for multLoopStr_0 means (\<lambda> M.
-                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is right-mult-cancelable\<^sub>M))"..
+                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is right-mult-cancelable\<^sub>M))".
 
 mdef algstr_0_def_38 ("almost-cancelable")where
-   "attr almost-cancelable for multLoopStr_0 means (\<lambda> M.  M is almost-right-cancelable \<bar> almost-left-cancelable)"..
+   "attr almost-cancelable for multLoopStr_0 means (\<lambda> M.  M is almost-right-cancelable \<bar> almost-left-cancelable)".
 
 mtheorem algstr_0_cl_60:
   "cluster almost-right-cancelable \<bar> almost-left-cancelable \<rightarrow> almost-cancelable for multLoopStr_0" 
@@ -1001,14 +1001,14 @@ qed
 
 mdef algstr_0_def_39 ("almost-left-invertible")where
    "attr almost-left-invertible for multLoopStr_0 means (\<lambda> M.
-                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is left-invertible\<^sub>M))"..
+                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is left-invertible\<^sub>M))".
 
 mdef algstr_0_def_40 ("almost-right-invertible")where
    "attr almost-right-invertible for multLoopStr_0 means (\<lambda> M.
-                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is right-invertible\<^sub>M))"..
+                                       (for x be Element-of-struct M st x \<noteq> 0\<^sub>M holds x is right-invertible\<^sub>M))".
 
 mdef algstr_0_def_41 ("almost-invertible")where
-   "attr almost-invertible for multLoopStr_0 means (\<lambda> M.  M is almost-right-invertible \<bar> almost-left-invertible)"..
+   "attr almost-invertible for multLoopStr_0 means (\<lambda> M.  M is almost-right-invertible \<bar> almost-left-invertible)".
 
 mtheorem algstr_0_cl_64:
   "cluster almost-right-invertible \<bar> almost-left-invertible \<rightarrow> almost-invertible for multLoopStr_0" 
