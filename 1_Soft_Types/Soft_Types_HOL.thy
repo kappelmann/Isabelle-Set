@@ -3,7 +3,7 @@ theory Soft_Types_HOL
 begin
 
 text \<open>
-  HOL version of the soft types library.
+  HOL version of the soft types library, using bool instead of prop for the judgments.
 \<close>
 
 typedecl 'a type
