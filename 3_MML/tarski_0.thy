@@ -9,28 +9,38 @@ reserve x, y, z, a for object
 reserve X, Y, Z for set
 
 \<comment>\<open>Set axiom\<close>
-theorem tarski_0_1: "\<forall>x. x be set"
-  using set_def by simp
+theorem tarski_0_1:
+  "for x being object holds x is set"
+  using set_def by auto
 
 theorem set_exists[ex]: "inhabited(set)"
   using tarski_0_1 inhabited_def by auto
 
 \<comment>\<open>Extensionality axiom\<close>
-axiomatization where tarski_0_2: "\<forall>X. \<forall>Y. (\<forall>x. x in X \<longleftrightarrow> x in Y) \<longrightarrow> X = Y"
-
-lemmas tarski_0_2a = tarski_0_2[THEN bspec, THEN bspec, rule_format, OF _ _ _ _ ballI, simplified]
+axiomatization where tarski_0_2:
+  "(for x being object holds x in X \<longleftrightarrow> x in Y) \<longrightarrow> X = Y"
 
 \<comment>\<open>Axiom of pair\<close>
-axiomatization where tarski_0_3: "\<forall>x. \<forall>y. \<exists>Z. \<forall>a. a in Z \<longleftrightarrow> a = x \<or> a = y"
+axiomatization where tarski_0_3:
+  "for x, y being object holds ex z being set st
+    for a being object holds
+      a in z \<longleftrightarrow> (a = x or a = y)"
 
 \<comment>\<open>Axiom of union\<close>
-axiomatization where tarski_0_4: "\<forall>X. \<exists>Z. \<forall>x. x in Z \<longleftrightarrow> (\<exists>Y. x in Y \<and> Y in X)"
+axiomatization where tarski_0_4:
+  "for X being set holds
+    ex Z being set st
+      for x being object holds
+        x in Z \<longleftrightarrow> (ex Y being set st x in Y \<and> Y in X)"
 
 \<comment>\<open>Axiom of regularity\<close>
-axiomatization where tarski_0_5: "\<forall>x. \<forall>X. x in X \<longrightarrow> (\<exists>Y. Y in X \<and> \<not>(\<exists>z. z in X \<and> z in Y))"
+axiomatization where tarski_0_5:
+  "x in X \<longrightarrow> (ex Y st Y in X \<and> \<not>(ex x st x in X \<and> x in Y))"
 
 \<comment>\<open>Fraenkel's scheme\<close>
 axiomatization where tarski_0_sch_1:
-  "A be set \<Longrightarrow> \<forall>x, y, z. P(x,y) \<and> P(x,z) \<longrightarrow> y = z \<Longrightarrow> \<exists>X. \<forall>x. x in X \<longleftrightarrow> (\<exists>y. y in A \<and> P(y, x))"
+  "A be set \<longrightarrow>
+    (for x, y, z being object st P(x,y) \<and> P(x,z) \<longrightarrow> y = z holds
+      ex X st for x holds x in X \<longleftrightarrow> (ex y st y in A \<and> P(y,x)))"
 
 end

@@ -1,1004 +1,798 @@
 theory nat_1
-  imports ordinal1 funct_2
-(*    "~~/src/HOL/Number_Theory/Primes" *)
-    
+  imports card_1 pboole axioms xreal_1
+   "../mizar_extension/E_number"
 begin
-
-reserve x,y,n,k,m for Nat  
-  
-  
-mtheorem NAT_1_1: 
-  "for x st x<>{} holds
-     ex y st succ y = x" 
-proof(rule ballI,rule impI)
-  fix x assume [ty]:"x be Nat" and A0: "x<>{}"
-  let ?P = "\<lambda>it. it = {} or  (ex y be Nat st succ y = it)"
-  have A1: "?P({})" by simp
-  have A2: "\<forall>n : Nat. ?P(n) \<longrightarrow> ?P(succ n)" by auto
-  have "?P(x)" using ordinal_2_sch_19[of x ?P, OF _ A1 A2] by ty_auto
-  thus "ex y be Nat st succ y = x" using A0 by auto   
-qed mauto
-  
-theorem  NAT_1_2: "X\<noteq>Y \<Longrightarrow> succ X \<noteq> succ Y"
+(*begin*)
+mtheorem nat_1_cl_1:
+"cluster naturalORDINAL1V7 for objectHIDDENM1"
 proof
-  assume A1: "X\<noteq>Y" "succ X = succ Y"
-  have "Y in succ Y" using ordinal1_def_1 tarski_def_1 xboole_0_def_3 all_set by auto
-  hence "Y in X \<union> { X }" using ordinal1_def_1 A1(2) all_set by auto
-  hence A2: "Y in X" using A1(1) tarski_def_1 xboole_0_def_3 all_set by auto
-  have "X in succ X" using ordinal1_def_1 tarski_def_1 xboole_0_def_3 all_set by auto
-  hence "X in Y \<union> { Y }" using ordinal1_def_1 A1(2) all_set by auto
-  hence "X in Y" using A1(1) tarski_def_1 xboole_0_def_3 all_set by auto
-  thus "False" using A2 prefix_in_asymmetry[of X Y] all_set by mauto
-qed  
+(*existence*)
+  show " ex it be objectHIDDENM1 st it be naturalORDINAL1V7"
+sorry
+qed "sorry"
 
-mtheorem
-  mlet "m be Nat"
-  "cluster succ m \<rightarrow> Nat" 
+syntax NAT_1M1 :: "Ty" ("NatNAT-1M1" 70)
+translations "NatNAT-1M1" \<rightharpoonup> "naturalORDINAL1V7\<bar>numberORDINAL1M2"
+
+reserve x for "RealXREAL-0M1"
+reserve p, k, l, m, n, s, h, i, j, k1, t, t1 for "NatNAT-1M1"
+reserve X for "SubsetSUBSET-1M2-of REALNUMBERSK2"
+mtheorem nat_1_th_1:
+" for X be SubsetSUBSET-1M2-of REALNUMBERSK2 holds 0NUMBERSK6 inTARSKIR2 X & ( for x be RealXREAL-0M1 holds x inHIDDENR3 X implies x +XCMPLX-0K2 \<one>\<^sub>M inTARSKIR2 X) implies ( for n be NatNAT-1M1 holds n inTARSKIR2 X)"
+sorry
+
+mtheorem nat_1_cl_2:
+  mlet "n be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "k be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster n +XCMPLX-0K2 k as-term-is naturalORDINAL1V7"
 proof
-  let ?P="\<lambda>it. (succ it) in omega"
-  have "{} is Ordinal" by mauto
-  hence A0: "?P({})" using ordinal1_th_24 ordinal1_def_11 by ty_auto
-  have An:"\<forall>n : Nat. ?P(n) \<longrightarrow> ?P(succ n)"
-   proof(standard,standard)
-     fix n assume [ty]:"n be Nat"
-     hence N: "n in omega" using ordinal1_def_12 all_set by mauto
-     assume "?P(n)"
-     thus "?P(succ n)" using N ordinal1_th_24 ordinal1_def_11 by mauto
-   qed  mauto
-  have "?P(m)" using ordinal_2_sch_19[of m ?P,OF _ A0 An] by ty_auto
-  thus "(succ m) is Nat" using ordinal1_def_12 by ty_auto  
-qed
+(*coherence*)
+  show "n +XCMPLX-0K2 k be naturalORDINAL1V7"
+sorry
+qed "sorry"
 
-text_raw {*\DefineSnippet{predec}{*}
-mdef predec ("predecessor _" [90] 90) where
- mlet "n be Nat"  
- "assume n \<noteq> 0\<^sub>\<S>
-  func predecessor n \<rightarrow> Nat means 
-    \<lambda>it. succ it = n"
-text_raw {*}%EndSnippet*}
-proof -
-  show " n \<noteq> {} \<Longrightarrow> \<exists>x : Nat. succ x = n" using NAT_1_1 by ty_auto
-  fix x y  assume "n \<noteq> {}" "x be Nat" "y be Nat" 
-        "succ x = n" "succ y = n" 
-  thus "x=y" using NAT_1_2[of x y] by auto     
-qed mauto
+abbreviation(input) NAT_1K1(" _ +NAT-1K1  _ " [132,132]132) where
+  "n +NAT-1K1 k \<equiv> n +XCMPLX-0K2 k"
 
-mtheorem NAT_1_4:
-  "n<>{} implies  (predecessor n) c< n"
+mtheorem nat_1_add_1:
+  mlet "n be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "k be ElementSUBSET-1M1-of NATNUMBERSK1"
+"cluster n +XCMPLX-0K2 k as-term-is ElementSUBSET-1M1-of NATNUMBERSK1"
 proof
-  assume "n<>{}"
-  hence  "succ (predecessor n) = n" using predec by ty_auto
-  hence "(predecessor n) in n" using ordinal1_th_2 by mauto
-  thus "(predecessor n) c< n" using ordinal1_th_7a by ty_auto
-qed
-  
-mtheorem NAT_1_5:
-  "n<>{} implies succ (predecessor n) = n" using predec by ty_auto
+(*coherence*)
+  show "n +XCMPLX-0K2 k be ElementSUBSET-1M1-of NATNUMBERSK1"
+    using ordinal1_def_12 sorry
+qed "sorry"
 
-mtheorem NAT_1_6:
-  "predecessor (succ n) = n"
-proof-
-  have "succ n <>{}" by mauto
-  hence "succ  predecessor (succ n) = succ n" using predec by mauto
-  thus ?thesis using ordinal1_succ by inst_nopass_auto
-qed
-        
-theorem NAT_sch:
-  fixes S x
-  assumes SS:"for x be Nat holds S(x) is Nat"
-  assumes [ty]:"n is Nat" "m is Nat"
-  shows "ex f be  Function-of NAT,NAT st 
-          f.{} = n & (for k be Nat st k in m holds f. (succ k) = S(f. k))"
-proof-
-    have [ty]:"omega is non empty\<bar>set" by mauto 
-  let ?P="\<lambda>it.  ex f be  Function-of NAT,NAT st 
-          f.{} = n &  (for k be Nat st k in it holds f. (succ k) = S (f. k))"
-  have A0: "?P({})"
-   proof-
-     let ?Q="\<lambda>x. n"
-     have "n be Element-of NAT" by mauto  
-     hence "\<exists>f:Function-of NAT,NAT. \<forall>x:Element-of NAT. (f . x) = ?Q(x)" using  
-         funct_2_sch_4[of NAT NAT] by mauto
-     then obtain f where
-       [ty]:"f be Function-of NAT,NAT" and A1:"\<forall>x:Element-of NAT. (f . x) = ?Q(x)" by auto
-     show "ex f be  Function-of NAT,NAT st 
-          f.{} = n &  (for k be Nat st k in {} holds f. (succ k) = S (f. k))"
-     proof(rule bexI[of _ f],auto)
-       show "f . {} = n" using A1 by ty_auto
-       fix n assume [ty]:"n be natural" "n be set"
-       assume "n in {}"
-       thus "f. (succ n) = S (f. n)" using xb by auto  
-     qed ty_auto
-   qed    
-  have An: "for m st ?P(m) holds ?P(succ m)" 
-  proof(standard,standard)
-    fix m assume [ty]:"m be Nat" 
-    hence M:"m in NAT" using ordinal1_def_12 by auto
-    assume "?P(m)"
-    then obtain f where 
-       [ty]:" f be  Function-of NAT,NAT" 
-       and   
-       B1: "f.{} = n &  (for k be Nat st k in m holds f. (succ k) = S (f. k))" by ty_auto
-    let ?R = "\<lambda>x y. (x c= m implies y= f. x) & (not x c= m implies y = S (f. m))"
-    have [ty]:"f be set" using all_set by mauto 
-    have R:"rng f c= NAT" using relat_1_def_19E[of NAT f] by ty_auto  
-    have P1:"for x being object st x in NAT holds (ex y being object st y in NAT & ?R(x,y))"
-    proof(standard,standard)
-      fix x assume X: "x in omega"
-      hence "omega<>{}" using xb by auto
-      hence "f. x in rng f" "f. m in rng f" using funct_2_th_4[of _ NAT NAT] X M by ty_auto
-      hence K: "f. x in NAT" "f. m in NAT" using R tarski_def_3 by inst_pass_auto
-      hence "f. m is Nat" using ordinal1_def_12 by mauto    
-      hence "(S (f. m)) is Nat" using SS by mauto    
-      hence L:"S (f. m) in NAT" using ordinal1_def_12 by ty_auto
-      show "ex y being object st y in NAT & ?R(x,y)" using bexI[of _ "S (f. m)"] L bexI[of _ "f. x"] K by(cases "x c= m",auto)
-    qed mauto
-    have P2:"for x,y1,y2 being object st x in NAT &  ?R(x,y1) & ?R(x,y2) holds y1 = y2"  by auto
-    obtain g where 
-       [ty]:"g be Function-of NAT, NAT" and
-       B2: "for x being object st x in NAT holds ?R(x,g. x)" using  funct_2_sch_1[OF _ _ P1 P2] by ty_auto
-     show "ex h be  Function-of NAT,NAT st 
-          h.{} = n &  (for k be Nat st k in succ m holds h. (succ k) = S (h. k))"
-     proof(rule bexI[of _ g],auto)
-       have "{} in NAT" using ordinal1_def_12[of "{}"] by ty_auto
-       hence "?R({},g. {})" "{} c= m" using xb tarski_def_3I B2 by ty_auto
-       thus "g. {} = n" using B1 by auto
-       fix x assume [ty]:"x be natural" "x be set"
-       have X: "x in NAT" "succ x in NAT" using ordinal1_def_12[of x] ordinal1_def_12[of "succ x"] by mauto
-       hence X1: "?R(x,g. x)" "?R(succ x,g. (succ x))" using B2 by auto    
-       assume X2: "x in succ m"  
-       show "g . (succ x) = S (g . x)"
-       proof(cases "x in  m")
-         case A: True
-           hence "x c< m" "succ x c= m" using ordinal1_th_7a ordinal1_th_17 by ty_auto
-           hence "g . (succ x) = f . (succ x)" "f. x= g. x" using xboole_0_def_8 X1 by ty_auto   
-           thus ?thesis using A B1 by ty_auto
-         next 
-           case A:False
-             hence G1: "x=m" using X2 ordinal1_th_4 by ty_auto
-             hence G2: "f. x= g. x" using xboole_0_def_10 X1 by ty_auto
-             have "not (succ x) c= m" using ordinal1_th_17[of m m] G1 prefix_in_irreflexive by ty_auto
-             hence "g.(succ x)  = S (f. m)" using X1 by auto 
-             thus ?thesis using G2 G1 by auto
-       qed                
-     qed ty_auto
-  qed mauto
-  show "?P(m)" using ordinal_2_sch_19[of _ ?P,OF _ A0 An] by ty_auto
-qed  
-     
-text_raw {*\DefineSnippet{addM}{*}
-mdef addM ("_ +\<^sub>\<S>\<^sup>\<nat> _" [60,61]60) where
- mlet "n be Nat", "m be Nat"   
- "func n +\<^sub>\<S>\<^sup>\<nat> m \<rightarrow> Nat means
-    \<lambda>it. \<exists> f: Function-of NAT,NAT. 
-          (f.0\<^sub>\<S> =\<^sub>\<S> n \<and> f. m = it \<and> (
-   \<forall>k:Nat. k in m \<longrightarrow> f. (succ k) =\<^sub>\<S> succ (f. k)))"  
-text_raw {*}%EndSnippet*}
-proof-
-  have H: "for k be Nat holds (succ k) is Nat"
-  proof fix k assume [ty]:"k be Nat" thus "(succ k) be Nat" by mauto
-    qed mauto
-  obtain  f where [ty]:"f be  Function-of NAT,NAT" and
-     A1: "f.{} = n & (for k be Nat st k in m holds f. (succ k) = succ (f. k))" 
-    using NAT_sch[of "\<lambda>it. succ it" n m,OF H] by ty_auto
-  show "ex IT be Nat st 
- ex f be  Function-of NAT,NAT st 
-          f.{} = n & f. m = IT & (for k be Nat st k in m holds f. (succ k) = succ (f. k))"
-  proof(rule bexI[of _ "f. m"],rule  bexI[of _ f],intro conjI)
-    show "f . {} = n" "\<forall>k : Nat. k in m \<longrightarrow> f . (succ k) = succ f . k" using A1 by auto
-    have R:"rng f c= NAT" using relat_1_def_19 by mauto            
-        
-      have X: "m in omega" using ordinal1_def_12[of m] by ty_auto
-      hence "omega<>{}" using xb by auto
-      hence "f. m in rng f"  using funct_2_th_4[of _ NAT NAT] X by ty_auto
-      hence "f. m in NAT" using R tarski_def_3 by inst_pass_auto
-      thus "f. m is Nat" using ordinal1_def_12[of "f. m"] by mauto
-  qed mauto 
-  fix it1 it2 assume [ty]:"it1 is Nat" "it2 is Nat"
- and B1:
-    " ex f be  Function-of NAT,NAT st 
-          f.{} = n & f. m = it1 & (for k be Nat st k in m holds f. (succ k) = succ (f. k))"  
-    and B2: " ex f be  Function-of NAT,NAT st 
-          f.{} = n & f. m = it2 & (for k be Nat st k in m holds f. (succ k) = succ (f. k))"   
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       B3:   "f1.{} = n & f1. m = it1 & (for k be Nat st k in m holds f1. (succ k) = succ (f1. k))" using B1 by auto  
-  obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       B4:   "f2.{} = n & f2. m = it2 & (for k be Nat st k in m holds f2. (succ k) = succ (f2. k))" using B2 by auto  
-  let ?R="\<lambda>it. it c= m implies f1. it=f2. it"
-  have R0:"?R({})" using B3 B4 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = f2 . k" "succ k \<subseteq> m"
-    hence "k in m" using ordinal1_th_17 by ty_auto
-    hence "k c<m"" f1. (succ k) = succ (f1. k)" "f2. (succ k) = succ (f2. k)" using B3 B4 ordinal1_th_7a by ty_auto
-    thus "f1 . (succ k) = f2 . (succ k)" using xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto    
-  thus "it1=it2" using xboole_0_def_10[of m m] B3 B4 by ty_auto
-qed mauto
+(*\$CS*)
+(*\$N The Principle of Mathematical Induction*)
+theorem nat_1_sch_2:
+  fixes Pp1 
+  assumes
+    A1: "Pp1(0NUMBERSK6)" and
+   A2: " for k be NatNAT-1M1 holds Pp1(k) implies Pp1(k +NAT-1K1 \<one>\<^sub>M)"
+  shows " for k be NatNAT-1M1 holds Pp1(k)"
+sorry
 
-
-lemma [simp]: "1\<^sub>\<S> <>2\<^sub>\<S>" using ordinal1_th_5 by mauto
-  
-mtheorem Add_1:
-  "n +\<^sub>\<S>\<^sup>\<nat> succ m = succ (n +\<^sub>\<S>\<^sup>\<nat> m)"  
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = n & f1. (succ m) = n +\<^sub>\<S>\<^sup>\<nat> succ m & (for k be Nat st k in succ m holds f1. (succ k) = succ (f1. k))" 
-    using addM[of n "succ m"] by ty_auto
- obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       A2:   "f2.{} = n & f2. m = n +\<^sub>\<S>\<^sup>\<nat> m & (for k be Nat st k in m holds f2. (succ k) = succ (f2. k))" 
-   using addM[of n m] by mauto  
-  let ?R="\<lambda>it. it c= m implies f1. it=f2. it"
-  have R0:"?R({})" using A1 A2 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = f2 . k" "succ k \<subseteq> m"
-    hence R3: "k in m" using ordinal1_th_17 by ty_auto
-    hence "k in succ m" using ordinal1_th_4 by ty_auto
-    hence "k c<m" "f1. (succ k) = succ (f1. k)"
-       "f2. (succ k) = succ (f2. k)" using A1 A2 ordinal1_th_7a R3 by ty_auto
-    thus "f1 . (succ k) = f2 . (succ k)" using xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto    
-  hence L: "f1. m=f2. m" using xboole_0_def_10[of m m] by ty_auto
-  have "m in succ m" using ordinal1_th_4 by ty_auto
-  hence "f1. (succ m) = succ (f1. m)" using A1 by ty_auto
-  thus ?thesis using L A1 A2 by auto    
-qed
-  
-mtheorem Add_2:
-  "(succ n) +\<^sub>\<S>\<^sup>\<nat> m = succ (n +\<^sub>\<S>\<^sup>\<nat> m)"  
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = succ n & f1. m = (succ n) +\<^sub>\<S>\<^sup>\<nat>  m & (for k be Nat st k in m holds f1. (succ k) = succ (f1. k))" 
-    using addM[of "succ n" m] by ty_auto
- obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       A2:   "f2.{} = n & f2. m = n +\<^sub>\<S>\<^sup>\<nat> m & (for k be Nat st k in m holds f2. (succ k) = succ (f2. k))" 
-   using addM[of n m] by mauto  
-  let ?R="\<lambda>it. it c= m implies f1. it=succ (f2. it)"
-  have R0:"?R({})" using A1 A2 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = succ(f2 . k)" "succ k \<subseteq> m"
-    hence R3: "k in m" using ordinal1_th_17 by ty_auto
-    hence "k in succ m" using ordinal1_th_4 by ty_auto
-    hence "k c<m" "f1. (succ k) = succ (f1. k)"
-       "f2. (succ k) = succ (f2. k)" using A1 A2 ordinal1_th_7a R3 by ty_auto
-    thus "f1 . (succ k) = succ f2 . (succ k)" using xboole_0_def_8 R2 by ty_auto
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  hence "f1. m=succ (f2. m)" using xboole_0_def_10[of m m] by ty_auto
-  thus ?thesis using A1 A2 by auto    
-qed  
-
-mtheorem Add_3:
-  "n +\<^sub>\<S>\<^sup>\<nat> {} = n"
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = n & f1. {} = n +\<^sub>\<S>\<^sup>\<nat> {} & (for k be Nat st k in {} holds f1. (succ k) = succ (f1. k))" 
-    using addM[of n "{}"] by ty_auto
-  thus ?thesis by auto
-qed  
-
-mtheorem Add_4:
-  "{} +\<^sub>\<S>\<^sup>\<nat> n = n"
-proof-  
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = {} & f1. n = {} +\<^sub>\<S>\<^sup>\<nat>  n & (for k be Nat st k in n holds f1. (succ k) = succ (f1. k))" 
-    using addM[of "{}" n] by ty_auto
-  let ?R="\<lambda>it. it c= n implies f1. it= it"
-  have R0:"?R({})" using A1 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> n \<longrightarrow> f1 . k = k" "succ k \<subseteq> n"
-    hence R3: "k in n" using ordinal1_th_17 by ty_auto
-    hence "k in succ n" using ordinal1_th_4 by ty_auto
-    hence "k c<n" "f1. (succ k) = succ (f1. k)" using A1 ordinal1_th_7a R3 by ty_auto
-    thus "f1 . (succ k) = succ k" using xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(n)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  hence "f1. n=n" using xboole_0_def_10[of n n] by ty_auto
-  thus ?thesis using A1 by auto    
-qed  
-  
-mtheorem Add_5:
-  "(n +\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S>) = succ n & 1\<^sub>\<S> +\<^sub>\<S>\<^sup>\<nat> n = succ n"  
+mtheorem nat_1_cl_3:
+  mlet "n be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "k be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster n *XCMPLX-0K3 k as-term-is naturalORDINAL1V7"
 proof
-  have "n +\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = succ (n +\<^sub>\<S>\<^sup>\<nat> {})" using Add_1 by ty_auto
-  thus "n +\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = succ n" using Add_3 by ty_auto
-  have "1\<^sub>\<S> +\<^sub>\<S>\<^sup>\<nat> n = succ ({} +\<^sub>\<S>\<^sup>\<nat> n)" using Add_2 by ty_auto
-  thus "1\<^sub>\<S> +\<^sub>\<S>\<^sup>\<nat> n = succ n" using Add_4 by ty_auto
-qed  
-  
-mtheorem Add_6:
-  "n +\<^sub>\<S>\<^sup>\<nat> m = m +\<^sub>\<S>\<^sup>\<nat> n"
-proof-
-  let ?P="\<lambda>it. n +\<^sub>\<S>\<^sup>\<nat> it = it +\<^sub>\<S>\<^sup>\<nat> n"
-  have R0:"?P({})" using Add_3 Add_4 by ty_auto
-  have Rn:"for k st ?P(k) holds ?P(succ k)" 
-  proof(standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"n +\<^sub>\<S>\<^sup>\<nat> k = k +\<^sub>\<S>\<^sup>\<nat> n"
-    have "n +\<^sub>\<S>\<^sup>\<nat> (succ k) = succ (n+\<^sub>\<S>\<^sup>\<nat> k)" "(succ k) +\<^sub>\<S>\<^sup>\<nat> n = succ (k+\<^sub>\<S>\<^sup>\<nat> n)"
-      using Add_2 Add_1 by ty_auto
-    thus "n +\<^sub>\<S>\<^sup>\<nat> (succ k) = (succ k) +\<^sub>\<S>\<^sup>\<nat> n" using R2 by auto    
-  qed mauto
-  show "n +\<^sub>\<S>\<^sup>\<nat> m = m +\<^sub>\<S>\<^sup>\<nat> n" using ordinal_2_sch_19[of _ ?P,OF _ R0 Rn] by ty_auto
-qed  
+(*coherence*)
+  show "n *XCMPLX-0K3 k be naturalORDINAL1V7"
+sorry
+qed "sorry"
 
-mtheorem Add_7:
-  "(n +\<^sub>\<S>\<^sup>\<nat> m) +\<^sub>\<S>\<^sup>\<nat> k = n +\<^sub>\<S>\<^sup>\<nat> (m +\<^sub>\<S>\<^sup>\<nat> k)"
-proof-
-  let ?P="\<lambda>it. for m,k be Nat holds (it +\<^sub>\<S>\<^sup>\<nat> m)+\<^sub>\<S>\<^sup>\<nat> k = it +\<^sub>\<S>\<^sup>\<nat> (m +\<^sub>\<S>\<^sup>\<nat> k)"
-  have R0:"?P({})" 
-  proof(standard,standard)
-    fix m k assume [ty]:"m be Nat" "k be Nat"
-    have "{} +\<^sub>\<S>\<^sup>\<nat> m = m" "{}+\<^sub>\<S>\<^sup>\<nat> (m+\<^sub>\<S>\<^sup>\<nat> k) = m +\<^sub>\<S>\<^sup>\<nat> k" using Add_3 Add_4 by infer_auto
-    thus "({} +\<^sub>\<S>\<^sup>\<nat> m)+\<^sub>\<S>\<^sup>\<nat> k = {} +\<^sub>\<S>\<^sup>\<nat> (m +\<^sub>\<S>\<^sup>\<nat> k)" by auto   
-  qed mauto
-  have Rn:"for n st ?P(n) holds ?P(succ n)" 
-  proof(intro ballI impI)
-    fix n m k assume [ty]:"n is Nat" "m be Nat" "k be Nat" 
-    assume R1:"?P(n)"
-    have  "((succ n) +\<^sub>\<S>\<^sup>\<nat> m)+\<^sub>\<S>\<^sup>\<nat> k = (succ(n +\<^sub>\<S>\<^sup>\<nat> m))+\<^sub>\<S>\<^sup>\<nat> k" using Add_2 by ty_auto
-    also have  "\<dots>= (succ n) +\<^sub>\<S>\<^sup>\<nat> (m+\<^sub>\<S>\<^sup>\<nat> k)" using R1 Add_2 by infer_auto
-    finally show  "((succ n) +\<^sub>\<S>\<^sup>\<nat> m)+\<^sub>\<S>\<^sup>\<nat> k = (succ n) +\<^sub>\<S>\<^sup>\<nat> (m+\<^sub>\<S>\<^sup>\<nat> k)" by auto    
-  qed mauto
-  show ?thesis using ordinal_2_sch_19[of _ ?P,OF _ R0 Rn] by ty_auto
-qed  
-  
-mtheorem Add_8:
-  "n in m iff (ex k st k<>{} & m = n+\<^sub>\<S>\<^sup>\<nat> k)"
+abbreviation(input) NAT_1K2(" _ *NAT-1K2  _ " [164,164]164) where
+  "n *NAT-1K2 k \<equiv> n *XCMPLX-0K3 k"
+
+mtheorem nat_1_add_2:
+  mlet "n be ElementSUBSET-1M1-of NATNUMBERSK1", "k be ElementSUBSET-1M1-of NATNUMBERSK1"
+"cluster n *XCMPLX-0K3 k as-term-is ElementSUBSET-1M1-of NATNUMBERSK1"
 proof
-  let ?P="\<lambda>it. it in m implies  (ex k st k<>{} & m = it+\<^sub>\<S>\<^sup>\<nat> k)"
-  have R0:"?P({})" 
-  proof(standard)
-    assume "{} in m"
-    hence "m <> {}" "m={}+\<^sub>\<S>\<^sup>\<nat> m" using xb Add_4 by ty_auto
-    thus "ex k st k<>{} & m = {}+\<^sub>\<S>\<^sup>\<nat> k" using bexI[of _ m Nat] by ty_auto
-    qed
-  have Rn:"for n st ?P(n) holds ?P(succ n)" 
-  proof(intro ballI impI)
-    fix n assume [ty]:"n is Nat" 
-    assume R1:"?P(n)" "succ n in m"
-    have "n in succ n" using ordinal1_th_2 by ty_auto
-    hence "n in m" using R1 ordinal1_th_6 all_set by ty_auto
-    then obtain k where
-      [ty]:"k be Nat" and R2: "k<>{} & m = n+\<^sub>\<S>\<^sup>\<nat> k" using R1 by auto
-    have "succ (predecessor k) = k" using R2 NAT_1_5 by ty_auto
-    hence "m = n +\<^sub>\<S>\<^sup>\<nat> succ(predecessor k)" using R2 by ty_auto
-    also have "\<dots> =succ(n +\<^sub>\<S>\<^sup>\<nat> predecessor k)" using Add_1 by infer_auto
-    also have "\<dots>=(succ(n))+\<^sub>\<S>\<^sup>\<nat> predecessor k" using Add_2 by infer_auto
-    finally have R3: "m = (succ(n))+\<^sub>\<S>\<^sup>\<nat> predecessor k" by simp
-    have "m <> succ(n)" using R1 prefix_in_irreflexive by auto    
-    hence " predecessor k <> {}" using Add_3 R3 by infer_auto
-    thus "ex k st k<>{} & m = (succ n)+\<^sub>\<S>\<^sup>\<nat> k" using R3 bexI[of _ "predecessor k" Nat] by infer_auto
-  qed mauto
-  show "n in m \<Longrightarrow> \<exists>k : Nat. k \<noteq> {} \<and> m = n +\<^sub>\<S>\<^sup>\<nat> k" using ordinal_2_sch_19[of _ ?P,OF _ R0 Rn] by ty_auto
-next 
-  assume "\<exists>k : Nat. k \<noteq> {} \<and> m = n +\<^sub>\<S>\<^sup>\<nat> k"
-  then obtain k where [ty]:"k be Nat" and
-    A0: "k <>{} & m = n+\<^sub>\<S>\<^sup>\<nat> k" by auto
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = n & f1. k = n +\<^sub>\<S>\<^sup>\<nat> k & (for i be Nat st i in k holds f1. (succ i) = succ (f1. i))" 
-    using addM[of n k] by ty_auto
+(*coherence*)
+  show "n *XCMPLX-0K3 k be ElementSUBSET-1M1-of NATNUMBERSK1"
+    using ordinal1_def_12 sorry
+qed "sorry"
 
-       let ?R="\<lambda>it. it <>{} & it c= k implies n in f1. it"
-       have R0:"?R({})" by auto
-       have Rn:"for i be Nat st ?R(i) holds ?R(succ i)"
-       proof(standard,standard,standard)
-         fix i assume [ty]:"i be Nat" and A2:"?R(i)" "succ i <>{} & succ i c= k"
-         have "i in k" using ordinal1_th_17 A2 by ty_auto
-          hence I: "f1. (succ i) = succ (f1. i)" using A1 by ty_auto
-         show "n in f1. (succ i)" 
-         proof (cases "i={}")
-           case T: True
-             thus "n in  f1. (succ i)" using T ordinal1_th_2 A1 I by ty_auto
-           next 
-             case F: False
-             have "i c= succ i" using ordinal1_th_2a by ty_auto
-             hence "i c= k" using A2(2) xboole_1_th_1[of k "succ i" i ] by infer_auto
-             hence N: "n in f1. i" using A2 F by auto
-             have "f1. i  c= succ (f1. i)" using ordinal1_th_2a by infer_auto
-             thus "n in f1. (succ i)" using I N tarski_def_3E all_set by ty_auto     
-          qed    
-        qed mauto
-     
-  have "?R(k)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  thus "n in m" using xboole_0_def_10[of k k] all_set A0 A1 by ty_auto 
-qed  
+mtheorem nat_1_th_2:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds 0NUMBERSK6 <=XXREAL-0R1 i"
+sorry
 
-mtheorem Add_9:
-  "n c= m iff (ex k st m = n+\<^sub>\<S>\<^sup>\<nat> k)"
+mtheorem nat_1_th_3:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds 0NUMBERSK6 <>HIDDENR2 i implies 0NUMBERSK6 <XXREAL-0R3 i"
+  using nat_1_th_2 sorry
+
+mtheorem nat_1_th_4:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for h be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 j implies i *XCMPLX-0K3 h <=XXREAL-0R1 j *XCMPLX-0K3 h"
+sorry
+
+mtheorem nat_1_th_5:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds 0NUMBERSK6 <XXREAL-0R3 i +NAT-1K1 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_th_6:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i =HIDDENR1 0NUMBERSK6 or ( ex k be NatNAT-1M1 st i =HIDDENR1 k +NAT-1K1 \<one>\<^sub>M)"
+sorry
+
+mtheorem nat_1_th_7:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i +XCMPLX-0K2 j =XBOOLE-0R4 0NUMBERSK6 implies i =HIDDENR1 0NUMBERSK6 & j =HIDDENR1 0NUMBERSK6"
+sorry
+
+mtheorem nat_1_cl_4:
+"cluster zeroORDINAL1V8\<bar>naturalORDINAL1V7 for objectHIDDENM1"
 proof
-  assume A: "n c= m"
-  thus "ex k st m = n+\<^sub>\<S>\<^sup>\<nat> k"
-  proof(cases "n={}")
-    case True
-      hence "n+\<^sub>\<S>\<^sup>\<nat> m = m" using Add_4 by mauto
-      thus ?thesis using bexI[of _ m Nat] by ty_auto
-    next
-      let ?p = "predecessor n"
-    case False
-      hence S: "succ ?p = n" using predec by ty_auto
-      hence "?p in m" using ordinal1_th_17 A by infer_auto
-      then obtain k where 
-         [ty]: "k is Nat" and
-         A2: " k<>{} & m = ?p+\<^sub>\<S>\<^sup>\<nat> k" using Add_8[of m] by mauto
-      let ?K = "predecessor k"        
-      have "succ ?K = k" using predec A2 by mauto 
-      hence "m = succ( ?p +\<^sub>\<S>\<^sup>\<nat> ?K)" using A2 Add_1 by inst_pass_auto
-      hence "m = n +\<^sub>\<S>\<^sup>\<nat> ?K" using S Add_2 by inst_pass_auto
-      thus ?thesis using bexI[of _ ?K Nat] by mauto    
-    qed
-  next
-    assume "ex k st m = n+\<^sub>\<S>\<^sup>\<nat> k"
-    then obtain k where 
-      [ty]: "k be Nat" and
-       A1:"m = n +\<^sub>\<S>\<^sup>\<nat> k" by auto
-    show "n c= m"
-    proof(cases "k={}")
-      case True
-        hence "m = n" using A1 Add_3 by ty_auto
-        thus ?thesis using xboole_0_def_10 by mauto
-    next
-       let ?p = "predecessor n"
-       case False
-         hence "ex k be Nat st k \<noteq> {} \<and> m = n +\<^sub>\<S>\<^sup>\<nat> k" using A1 bexI[of _ k Nat]by mauto
-         hence "n in m" using Add_8[of m n,THEN iffD2] A1 by mauto  
-         thus ?thesis using ordinal1_def_2E by ty_auto
-   qed   
- qed  
-   
-mtheorem Add_10:
-  "n c= n +\<^sub>\<S>\<^sup>\<nat> m"
+(*existence*)
+  show " ex it be objectHIDDENM1 st it be zeroORDINAL1V8\<bar>naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+mtheorem nat_1_cl_5:
+"cluster  non zeroORDINAL1V8\<bar>naturalORDINAL1V7 for objectHIDDENM1"
+proof
+(*existence*)
+  show " ex it be objectHIDDENM1 st it be  non zeroORDINAL1V8\<bar>naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+mtheorem nat_1_cl_6:
+  mlet "m be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "n be  non zeroORDINAL1V8\<bar>naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster m +XCMPLX-0K2 n as-term-is  non zeroORDINAL1V8"
+proof
+(*coherence*)
+  show "m +XCMPLX-0K2 n be  non zeroORDINAL1V8"
+    using nat_1_th_7 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_7:
+  mlet "m be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "n be  non zeroORDINAL1V8\<bar>naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster n +XCMPLX-0K2 m as-term-is  non zeroORDINAL1V8"
+proof
+(*coherence*)
+  show "n +XCMPLX-0K2 m be  non zeroORDINAL1V8"
+     sorry
+qed "sorry"
+
+theorem nat_1_sch_3:
+  fixes Nf0 Ff2 Pp2 
+  assumes
+[ty]: "Nf0 be NatNAT-1M1" and
+  [ty_func]: "\<And> x1 x2. x1 be NatNAT-1M1 \<Longrightarrow> x2 be NatNAT-1M1 \<Longrightarrow> Ff2(x1,x2) be NatNAT-1M1" and
+   A1: " for k be NatNAT-1M1 holds  for n be NatNAT-1M1 holds Pp2(k,n) iff k =XBOOLE-0R4 0NUMBERSK6 & n =XBOOLE-0R4 Nf0 or ( ex m be NatNAT-1M1 st  ex l be NatNAT-1M1 st (k =XBOOLE-0R4 m +NAT-1K1 \<one>\<^sub>M & Pp2(m,l)) & n =XBOOLE-0R4 Ff2(k,l))"
+  shows "( for k be NatNAT-1M1 holds  ex n be NatNAT-1M1 st Pp2(k,n)) & ( for k be NatNAT-1M1 holds  for n be NatNAT-1M1 holds  for m be NatNAT-1M1 holds Pp2(k,n) & Pp2(k,m) implies n =XBOOLE-0R4 m)"
+sorry
+
+mtheorem nat_1_th_8:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 j +NAT-1K1 \<one>\<^sub>M implies i <=XXREAL-0R1 j or i =HIDDENR1 j +NAT-1K1 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_th_9:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 j & j <=XXREAL-0R1 i +NAT-1K1 \<one>\<^sub>M implies i =HIDDENR1 j or j =HIDDENR1 i +NAT-1K1 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_th_10:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 j implies ( ex k be NatNAT-1M1 st j =HIDDENR1 i +XCMPLX-0K2 k)"
+sorry
+
+mtheorem nat_1_th_11:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 i +XCMPLX-0K2 j"
+sorry
+
+theorem nat_1_sch_4:
+  fixes Pp1 
+  assumes
+    A1: " for k be NatNAT-1M1 holds ( for n be NatNAT-1M1 holds n <XXREAL-0R3 k implies Pp1(n)) implies Pp1(k)"
+  shows " for k be NatNAT-1M1 holds Pp1(k)"
+sorry
+
+theorem nat_1_sch_5:
+  fixes Pp1 
+  assumes
+    A1: " ex k be NatNAT-1M1 st Pp1(k)"
+  shows " ex k be NatNAT-1M1 st Pp1(k) & ( for n be NatNAT-1M1 holds Pp1(n) implies k <=XXREAL-0R1 n)"
+sorry
+
+theorem nat_1_sch_6:
+  fixes Nf0 Pp1 
+  assumes
+[ty]: "Nf0 be NatNAT-1M1" and
+   A1: " for k be NatNAT-1M1 holds Pp1(k) implies k <=XXREAL-0R1 Nf0" and
+   A2: " ex k be NatNAT-1M1 st Pp1(k)"
+  shows " ex k be NatNAT-1M1 st Pp1(k) & ( for n be NatNAT-1M1 holds Pp1(n) implies n <=XXREAL-0R1 k)"
+sorry
+
+mtheorem nat_1_th_12:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for h be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <=XXREAL-0R1 j implies i <=XXREAL-0R1 j +XCMPLX-0K2 h"
+sorry
+
+mtheorem nat_1_th_13:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <XXREAL-0R3 j +NAT-1K1 \<one>\<^sub>M iff i <=XXREAL-0R1 j"
+sorry
+
+mtheorem nat_1_th_14:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <XXREAL-0R3 \<one>\<^sub>M implies i =HIDDENR1 0NUMBERSK6"
+sorry
+
+mtheorem nat_1_th_15:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i *XCMPLX-0K3 j =XBOOLE-0R4 \<one>\<^sub>M implies i =HIDDENR1 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_th_16:
+" for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k <>HIDDENR2 0NUMBERSK6 implies n <XXREAL-0R3 n +XCMPLX-0K2 k"
+sorry
+
+theorem nat_1_sch_7:
+  fixes Pp1 
+  assumes
+    A1: " ex k be NatNAT-1M1 st Pp1(k)" and
+   A2: " for k be NatNAT-1M1 holds k <>HIDDENR2 0NUMBERSK6 & Pp1(k) implies ( ex n be NatNAT-1M1 st n <XXREAL-0R3 k & Pp1(n))"
+  shows "Pp1(0NUMBERSK6)"
+sorry
+
+mtheorem nat_1_th_17:
+" for m be NatNAT-1M1 holds 0NUMBERSK6 <XXREAL-0R3 m implies ( for n be NatNAT-1M1 holds  ex k be NatNAT-1M1 st  ex t be NatNAT-1M1 st n =XBOOLE-0R4 m *XCMPLX-0K3 k +XCMPLX-0K2 t & t <XXREAL-0R3 m)"
+sorry
+
+mtheorem nat_1_th_18:
+" for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for m be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for t be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for k1 be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for t1 be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds ((n =HIDDENR1 m *XCMPLX-0K3 k +XCMPLX-0K2 t & t <XXREAL-0R3 m) & n =HIDDENR1 m *XCMPLX-0K3 k1 +XCMPLX-0K2 t1) & t1 <XXREAL-0R3 m implies k =HIDDENR1 k1 & t =HIDDENR1 t1"
+sorry
+
+mtheorem nat_1_cl_8:
+"cluster note-that ordinalORDINAL1V3 for naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+proof
+(*coherence*)
+  show " for it be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds it be ordinalORDINAL1V3"
+sorry
+qed "sorry"
+
+mtheorem nat_1_cl_9:
+"cluster  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3 for SubsetSUBSET-1M2-of REALNUMBERSK2"
+proof
+(*existence*)
+  show " ex it be SubsetSUBSET-1M2-of REALNUMBERSK2 st it be  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3"
+sorry
+qed "sorry"
+
+mtheorem nat_1_th_19:
+" for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k <XXREAL-0R3 k +XCMPLX-0K2 n iff \<one>\<^sub>M <=XXREAL-0R1 n"
+sorry
+
+mtheorem nat_1_th_20:
+" for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k <XXREAL-0R3 n implies n -XCMPLX-0K6 \<one>\<^sub>M be ElementSUBSET-1M1-of NATNUMBERSK1"
+sorry
+
+mtheorem nat_1_th_21:
+" for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k <=XXREAL-0R1 n implies n -XCMPLX-0K6 k be ElementSUBSET-1M1-of NATNUMBERSK1"
+sorry
+
+(*begin*)
+mtheorem nat_1_th_22:
+" for m be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds m <XXREAL-0R3 n +NAT-1K1 \<one>\<^sub>M implies m <XXREAL-0R3 n or m =HIDDENR1 n"
+sorry
+
+mtheorem nat_1_th_23:
+" for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k <XXREAL-0R3 \<two>\<^sub>M implies k =HIDDENR1 0NUMBERSK6 or k =HIDDENR1 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_cl_10:
+"cluster  non zeroORDINAL1V8 for ElementSUBSET-1M1-of NATNUMBERSK1"
+proof
+(*existence*)
+  show " ex it be ElementSUBSET-1M1-of NATNUMBERSK1 st it be  non zeroORDINAL1V8"
+sorry
+qed "sorry"
+
+mtheorem nat_1_cl_11:
+"cluster note-that  non negativeXXREAL-0V3 for ElementSUBSET-1M1-of NATNUMBERSK1"
+proof
+(*coherence*)
+  show " for it be ElementSUBSET-1M1-of NATNUMBERSK1 holds it be  non negativeXXREAL-0V3"
+    using nat_1_th_2 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_12:
+"cluster note-that  non negativeXXREAL-0V3 for naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+proof
+(*coherence*)
+  show " for it be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds it be  non negativeXXREAL-0V3"
+    using nat_1_th_2 sorry
+qed "sorry"
+
+mtheorem nat_1_th_24:
+" for i be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for j be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for h be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds i <>HIDDENR2 0NUMBERSK6 & h =HIDDENR1 j *XCMPLX-0K3 i implies j <=XXREAL-0R1 h"
+sorry
+
+theorem nat_1_sch_8:
+  fixes Mf0 Pp1 
+  assumes
+[ty]: "Mf0 be NatNAT-1M1" and
+   A1: "Pp1(Mf0)" and
+   A2: " for j be NatNAT-1M1 holds Mf0 <=XXREAL-0R1 j implies (Pp1(j) implies Pp1(j +NAT-1K1 \<one>\<^sub>M))"
+  shows " for i be NatNAT-1M1 holds Mf0 <=XXREAL-0R1 i implies Pp1(i)"
+sorry
+
+theorem nat_1_sch_9:
+  fixes af0 Pp1 
+  assumes
+[ty]: "af0 be NatNAT-1M1" and
+   A1: " for k be NatNAT-1M1 holds k >=XXREAL-0R2 af0 & ( for n be NatNAT-1M1 holds n >=XXREAL-0R2 af0 & n <XXREAL-0R3 k implies Pp1(n)) implies Pp1(k)"
+  shows " for k be NatNAT-1M1 holds k >=XXREAL-0R2 af0 implies Pp1(k)"
+sorry
+
+mtheorem nat_1_th_25:
+" for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds n <=XXREAL-0R1 \<one>\<^sub>M implies n =HIDDENR1 0NUMBERSK6 or n =HIDDENR1 \<one>\<^sub>M"
+sorry
+
+theorem nat_1_sch_10:
+  fixes Pp1 
+  assumes
+    A1: "Pp1(\<one>\<^sub>M)" and
+   A2: " for k be  non zeroORDINAL1V8\<bar>NatNAT-1M1 holds Pp1(k) implies Pp1(k +NAT-1K1 \<one>\<^sub>M)"
+  shows " for k be  non zeroORDINAL1V8\<bar>NatNAT-1M1 holds Pp1(k)"
+sorry
+
+mdef nat_1_def_1 ("min*NAT-1K3  _ " [164]164 ) where
+  mlet "A be setHIDDENM2"
+"func min*NAT-1K3 A \<rightarrow> ElementSUBSET-1M1-of NATNUMBERSK1 means
+  \<lambda>it. it inTARSKIR2 A & ( for k be NatNAT-1M1 holds k inTARSKIR2 A implies it <=XXREAL-0R1 k) if A be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of NATNUMBERSK1 otherwise \<lambda>it. it =XBOOLE-0R4 0NUMBERSK6"
 proof-
-  have "ex k st n+\<^sub>\<S>\<^sup>\<nat> m = n+\<^sub>\<S>\<^sup>\<nat> k" using bexI[of _ m Nat] by ty_auto
-  thus "n c= n+\<^sub>\<S>\<^sup>\<nat> m" using Add_9 by ty_auto
-qed  
-  
-mtheorem Add_11:
-  "n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> k implies m=k"
-proof
-  assume AS: "n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> k"
-  let ?P="\<lambda>it. for m,k be Nat st m c= it & k c= it & n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> k holds m=k"
-  have R0:"?P({})" 
-  proof(intro ballI impI)
-    fix m k assume [ty]:"m be Nat" "k be Nat"
-    have A1: "{} c= m" "{} c= k" using xb tarski_def_3I by ty_auto
-    assume "m \<subseteq> {} \<and> k \<subseteq> {} \<and> n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> k"
-    hence "m={} \<and> k={}" using A1 xboole_0_def_10 by ty_auto
-    thus "m=k" by simp
-  qed mauto
-  have Rn:"for k st ?P(k) holds ?P(succ k)" 
-  proof(standard,standard,intro ballI impI)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"?P(k)"
-    fix m ka assume [ty]:"m be Nat" "ka be Nat"
-    assume A1: "m \<subseteq> succ k \<and> ka \<subseteq> succ k \<and> n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> ka"
-    show "m=ka"
-    proof(cases "m c= k")
-      case T:True
-         show "m=ka"
-         proof(cases "ka c= k")
-           case True 
-             thus "m=ka" using T A1 R2 by ty_auto
-           next
-             case False
-               hence A: "ka = succ k" using A1  ordinal1s[of ka k] by ty_auto
-               hence A3:" n +\<^sub>\<S>\<^sup>\<nat> m = n +\<^sub>\<S>\<^sup>\<nat> succ k" using A1 Add_1 by auto 
-               hence A4: "n +\<^sub>\<S>\<^sup>\<nat> m =succ(n +\<^sub>\<S>\<^sup>\<nat> k)" using Add_1 by ty_auto
-               have "succ k <>{}" using xb ordinal1_th_2 by auto
-               hence " n in n +\<^sub>\<S>\<^sup>\<nat> m" using A3 Add_8[of "n +\<^sub>\<S>\<^sup>\<nat> m" n] bexI[of _ "succ k" Nat] by infer_auto
-               hence "m<>{}" using prefix_in_irreflexive Add_3 by ty_auto
-               hence A7: "m = succ (predecessor m)" using NAT_1_5 by ty_auto
-               hence "n +\<^sub>\<S>\<^sup>\<nat> m = succ(n +\<^sub>\<S>\<^sup>\<nat> predecessor m)" using Add_1[of "predecessor m" n] by infer_auto
-               hence A6:"n +\<^sub>\<S>\<^sup>\<nat> predecessor m = n +\<^sub>\<S>\<^sup>\<nat> k" using A4 ordinal1_succ[of  "n +\<^sub>\<S>\<^sup>\<nat> k" "n +\<^sub>\<S>\<^sup>\<nat> predecessor m"]  all_set by ty_auto
-              
-               have "predecessor m in succ k" using ordinal1_th_17 A1 A7 by infer_auto
-               hence "predecessor m c= k" "k c=k" using ordinal1_th_18 xboole_0_def_10[of k k ] by infer_auto
-               hence "predecessor m = k " using A6 R2 by infer_auto
-               thus "m=ka" using A7 A by auto
-          qed
-        next
-          case T:False
-          hence T1:"m=succ k" using A1  ordinal1s[of m k] by ty_auto
-          hence A3:" n +\<^sub>\<S>\<^sup>\<nat> succ k = n +\<^sub>\<S>\<^sup>\<nat> ka" using A1 Add_1 by auto 
-          hence A4: "succ(n +\<^sub>\<S>\<^sup>\<nat> k) =n +\<^sub>\<S>\<^sup>\<nat> ka" using Add_1 by ty_auto
-          have "succ k <>{}" using xb ordinal1_th_2 by auto
-          hence " n in n +\<^sub>\<S>\<^sup>\<nat> ka" using A3 Add_8[of "n +\<^sub>\<S>\<^sup>\<nat> ka" n] bexI[of _ "succ k" Nat] by infer_auto
-          hence "ka<>{}" using prefix_in_irreflexive Add_3 by ty_auto
-          hence A7: "ka = succ (predecessor ka)" using NAT_1_5 by ty_auto
-          hence "n +\<^sub>\<S>\<^sup>\<nat> ka= succ(n +\<^sub>\<S>\<^sup>\<nat> predecessor ka)" using Add_1[of "predecessor ka" n] by infer_auto
-          hence A6:"n +\<^sub>\<S>\<^sup>\<nat> predecessor ka = n +\<^sub>\<S>\<^sup>\<nat> k" using A4 ordinal1_succ[of  "n +\<^sub>\<S>\<^sup>\<nat> k" "n +\<^sub>\<S>\<^sup>\<nat> predecessor ka"]  all_set by ty_auto
-          have "predecessor ka in succ k" using ordinal1_th_17 A1 A7 by infer_auto
-          hence "predecessor ka c= k" "k c=k" using ordinal1_th_18 xboole_0_def_10[of k k ] by infer_auto
-          hence "predecessor ka = k " using A6 R2 by infer_auto
-          thus "m=ka" using A7 T1 by auto
-        qed
-  qed mauto
-  have A[THEN bspec,THEN bspec]: "?P(k)" "?P(m)" using ordinal_2_sch_19[of k ?P,OF _ R0 Rn] ordinal_2_sch_19[of m ?P,OF _ R0 Rn] 
-      by ty_auto
-  have A1: "k c= k" "m c= m" using xboole_0_def_10[of k k] xboole_0_def_10[of m m] by ty_auto
-  have "m c= k \<or> k c= m" using ordinal1_def_5c by ty_auto
-  thus "m=k" using A(1)[of m k] A(2)[of m k] A1 AS by ty_auto 
-qed
+  (*existence*)
+    show "(A be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of NATNUMBERSK1 implies ( ex it be ElementSUBSET-1M1-of NATNUMBERSK1 st it inTARSKIR2 A & ( for k be NatNAT-1M1 holds k inTARSKIR2 A implies it <=XXREAL-0R1 k))) & ( not A be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of NATNUMBERSK1 implies ( ex it be ElementSUBSET-1M1-of NATNUMBERSK1 st it =XBOOLE-0R4 0NUMBERSK6))"
+sorry
+  (*uniqueness*)
+    show " for it1 be ElementSUBSET-1M1-of NATNUMBERSK1 holds  for it2 be ElementSUBSET-1M1-of NATNUMBERSK1 holds (A be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of NATNUMBERSK1 implies ((it1 inTARSKIR2 A & ( for k be NatNAT-1M1 holds k inTARSKIR2 A implies it1 <=XXREAL-0R1 k)) & (it2 inTARSKIR2 A & ( for k be NatNAT-1M1 holds k inTARSKIR2 A implies it2 <=XXREAL-0R1 k)) implies it1 =HIDDENR1 it2)) & ( not A be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of NATNUMBERSK1 implies (it1 =XBOOLE-0R4 0NUMBERSK6 & it2 =XBOOLE-0R4 0NUMBERSK6 implies it1 =HIDDENR1 it2))"
+sorry
+  (*consistency*)
+    show " for it be ElementSUBSET-1M1-of NATNUMBERSK1 holds  True "
+       sorry
+qed "sorry"
 
-mtheorem Add_12:
-  "n in m implies k +\<^sub>\<S>\<^sup>\<nat> n in k +\<^sub>\<S>\<^sup>\<nat> m"
-proof
-  assume A1: "n in m"
-  then obtain w where
-    [ty]:"w be Nat" and A2: "w<>{} & m = n+\<^sub>\<S>\<^sup>\<nat> w" using Add_8 by ty_auto
-  have "k +\<^sub>\<S>\<^sup>\<nat> m = (k +\<^sub>\<S>\<^sup>\<nat> n) +\<^sub>\<S>\<^sup>\<nat> w" using A2 Add_7 by ty_auto
-  thus "k +\<^sub>\<S>\<^sup>\<nat> n in k +\<^sub>\<S>\<^sup>\<nat> m" using Add_8 A2 bexI[of _ w Nat] by infer_auto
-qed
+reserve x for "objectHIDDENM1"
+reserve X, Y, Z for "setHIDDENM2"
+(*\$CT 12*)
+mtheorem nat_1_th_38:
+" for n be NatNAT-1M1 holds succORDINAL1K1 (SegmCARD-1K5 n) =XBOOLE-0R4 SegmCARD-1K5 (n +NAT-1K1 \<one>\<^sub>M)"
+sorry
 
-mtheorem Add_13:
-  "n c= m iff k +\<^sub>\<S>\<^sup>\<nat> n c= k +\<^sub>\<S>\<^sup>\<nat> m"
-proof
-  assume A1: "n c= m"
-  then obtain w where
-    [ty]:"w be Nat" and A2: "m = n+\<^sub>\<S>\<^sup>\<nat> w" using Add_9 by ty_auto
-  have "k +\<^sub>\<S>\<^sup>\<nat> m = (k +\<^sub>\<S>\<^sup>\<nat> n) +\<^sub>\<S>\<^sup>\<nat> w" using A2 Add_7 by ty_auto
-  thus "k +\<^sub>\<S>\<^sup>\<nat> n c= k +\<^sub>\<S>\<^sup>\<nat> m" using Add_9 A2 bexI[of _ w Nat] by infer_auto
-next 
-  assume "k +\<^sub>\<S>\<^sup>\<nat> n c= k +\<^sub>\<S>\<^sup>\<nat> m"
-  then obtain w where
-    [ty]:"w be Nat" and A2: "k +\<^sub>\<S>\<^sup>\<nat> m = (k +\<^sub>\<S>\<^sup>\<nat> n)+\<^sub>\<S>\<^sup>\<nat> w" using Add_9 by ty_auto
-  have "(k +\<^sub>\<S>\<^sup>\<nat> n)+\<^sub>\<S>\<^sup>\<nat> w = k +\<^sub>\<S>\<^sup>\<nat> (n +\<^sub>\<S>\<^sup>\<nat> w)" using Add_7 by ty_auto
-  hence "m = n+\<^sub>\<S>\<^sup>\<nat> w" using A2 Add_11[of "n+\<^sub>\<S>\<^sup>\<nat> w" m k] by infer_auto
-  thus "n c= m" using Add_9 bexI[of _ w Nat] by infer_auto
-qed
+mtheorem nat_1_th_39:
+" for m be NatNAT-1M1 holds  for n be NatNAT-1M1 holds n <=XXREAL-0R1 m iff SegmCARD-1K5 n c=ORDINAL1R1 SegmCARD-1K5 m"
+sorry
 
-mtheorem Add_14:
-  "n +\<^sub>\<S>\<^sup>\<nat> m ={} implies n={} & m={}" 
-proof(rule impI)
-  have A1: "{} c= n"  "{} c= m" using tarski_def_3 xb by ty_auto
-  assume "n+\<^sub>\<S>\<^sup>\<nat> m ={}"
-  hence "n c= {}" "m c= {}" using Add_10[of n m] Add_10[of m n] Add_6[of n m] by ty_auto
-  then show "n={} & m={}" using A1 xboole_0_def_10 by ty_auto
-qed
-text_raw {*\DefineSnippet{multM}{*}
-mdef multNat ("_ *\<^sub>\<S>\<^sup>\<nat> _" [91,90] 90) where
- mlet "n be Nat", "m be Nat"   
- "func n *\<^sub>\<S>\<^sup>\<nat> m \<rightarrow> Nat means
-    \<lambda>it. \<exists> f:Function-of NAT,NAT. 
-          (f.0\<^sub>\<S> =\<^sub>\<S> 0\<^sub>\<S> & f. m =\<^sub>\<S> it & (\<forall> k:Nat. k in m \<longrightarrow> f. (succ k) =\<^sub>\<S> (f. k) +\<^sub>\<S>\<^sup>\<nat> n))"  
-text_raw {*}%EndSnippet*}
+mtheorem nat_1_th_40:
+" for m be NatNAT-1M1 holds  for n be NatNAT-1M1 holds cardCARD-1K4 (SegmCARD-1K5 n) c=ORDINAL1R1 cardCARD-1K4 (SegmCARD-1K5 m) iff n <=XXREAL-0R1 m"
+  using nat_1_th_39 sorry
+
+mtheorem nat_1_th_41:
+" for m be NatNAT-1M1 holds  for n be NatNAT-1M1 holds cardCARD-1K4 (SegmCARD-1K5 n) inTARSKIR2 cardCARD-1K4 (SegmCARD-1K5 m) iff n <XXREAL-0R3 m"
+sorry
+
+reserve M, N for "CardinalCARD-1M1"
+mtheorem nat_1_th_42:
+" for n be NatNAT-1M1 holds nextcardCARD-1K2 (cardCARD-1K4 (SegmCARD-1K5 n)) =XBOOLE-0R4 cardCARD-1K4 (SegmCARD-1K5 (n +NAT-1K1 \<one>\<^sub>M))"
+sorry
+
+(*\$CD*)
+mtheorem nat_1_th_43:
+" for X be finiteFINSET-1V1\<bar>setHIDDENM2 holds  for Y be finiteFINSET-1V1\<bar>setHIDDENM2 holds X c=TARSKIR1 Y implies cardCARD-1K4 X <=XXREAL-0R1 cardCARD-1K4 Y"
+sorry
+
+mtheorem nat_1_th_44:
+" for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds  for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds k inHIDDENR3 SegmCARD-1K5 n iff k <XXREAL-0R3 n"
+sorry
+
+mtheorem nat_1_th_45:
+" for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds n inHIDDENR3 SegmCARD-1K5 (n +NAT-1K1 \<one>\<^sub>M)"
+sorry
+
+(*\$CT*)
+syntax NAT_1M2 :: " Set \<Rightarrow> Ty" ("sequenceNAT-1M2-of  _ " [70]70)
+translations "sequenceNAT-1M2-of X" \<rightharpoonup> "FunctionFUNCT-2M1-of(NATNUMBERSK1,X)"
+
+theorem nat_1_sch_11:
+  fixes Af0 Gf2 
+  assumes
+[ty]: "Af0 be objectHIDDENM1" and
+  [ty_func]: "\<And> x1 x2. x1 be objectHIDDENM1 \<Longrightarrow> x2 be objectHIDDENM1 \<Longrightarrow> Gf2(x1,x2) be objectHIDDENM1"
+  shows " ex f be FunctionFUNCT-1M1 st (domRELAT-1K1 f =XBOOLE-0R4 NATNUMBERSK1 & f .FUNCT-1K1 (0NUMBERSK6) =HIDDENR1 Af0) & ( for n be NatNAT-1M1 holds f .FUNCT-1K1 (n +NAT-1K1 \<one>\<^sub>M) =HIDDENR1 Gf2(n,f .FUNCT-1K1 n))"
+sorry
+
+theorem nat_1_sch_12:
+  fixes Df0 Af0 Gf2 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Af0 be ElementSUBSET-1M1-of Df0" and
+  [ty_func]: "\<And> x1 x2. x1 be objectHIDDENM1 \<Longrightarrow> x2 be objectHIDDENM1 \<Longrightarrow> Gf2(x1,x2) be ElementSUBSET-1M1-of Df0"
+  shows " ex f be sequenceNAT-1M2-of Df0 st f .FUNCT-2K3\<^bsub>(omegaORDINAL1K4,Df0)\<^esub> (0NUMBERSK6) =XBOOLE-0R4 Af0 & ( for n be NatNAT-1M1 holds f .FUNCT-2K3\<^bsub>(NATNUMBERSK1,Df0)\<^esub> (n +NAT-1K1 \<one>\<^sub>M) =XBOOLE-0R4 Gf2(n,f .FUNCT-1K1 n))"
+sorry
+
+theorem nat_1_sch_13:
+  fixes Af0 Ff0 Gf0 Pp3 
+  assumes
+[ty]: "Af0 be objectHIDDENM1" and
+  [ty]: "Ff0 be FunctionFUNCT-1M1" and
+  [ty]: "Gf0 be FunctionFUNCT-1M1" and
+   A1: "domRELAT-1K1 Ff0 =XBOOLE-0R4 NATNUMBERSK1" and
+   A2: "Ff0 .FUNCT-1K1 (0NUMBERSK6) =HIDDENR1 Af0" and
+   A3: " for n be NatNAT-1M1 holds Pp3(n,Ff0 .FUNCT-1K1 n,Ff0 .FUNCT-1K1 (n +NAT-1K1 \<one>\<^sub>M))" and
+   A4: "domRELAT-1K1 Gf0 =XBOOLE-0R4 NATNUMBERSK1" and
+   A5: "Gf0 .FUNCT-1K1 (0NUMBERSK6) =HIDDENR1 Af0" and
+   A6: " for n be NatNAT-1M1 holds Pp3(n,Gf0 .FUNCT-1K1 n,Gf0 .FUNCT-1K1 (n +NAT-1K1 \<one>\<^sub>M))" and
+   A7: " for n be NatNAT-1M1 holds  for x be setHIDDENM2 holds  for y1 be setHIDDENM2 holds  for y2 be setHIDDENM2 holds Pp3(n,x,y1) & Pp3(n,x,y2) implies y1 =XBOOLE-0R4 y2"
+  shows "Ff0 =FUNCT-1R1 Gf0"
+sorry
+
+theorem nat_1_sch_14:
+  fixes Df0 Af0 Ff0 Gf0 Pp3 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Af0 be ElementSUBSET-1M1-of Df0" and
+  [ty]: "Ff0 be sequenceNAT-1M2-of Df0" and
+  [ty]: "Gf0 be sequenceNAT-1M2-of Df0" and
+   A1: "Ff0 .FUNCT-2K3\<^bsub>(omegaORDINAL1K4,Df0)\<^esub> (0NUMBERSK6) =XBOOLE-0R4 Af0" and
+   A2: " for n be NatNAT-1M1 holds Pp3(n,Ff0 .FUNCT-1K1 n,Ff0 .FUNCT-2K3\<^bsub>(NATNUMBERSK1,Df0)\<^esub> (n +NAT-1K1 \<one>\<^sub>M))" and
+   A3: "Gf0 .FUNCT-2K3\<^bsub>(omegaORDINAL1K4,Df0)\<^esub> (0NUMBERSK6) =XBOOLE-0R4 Af0" and
+   A4: " for n be NatNAT-1M1 holds Pp3(n,Gf0 .FUNCT-1K1 n,Gf0 .FUNCT-2K3\<^bsub>(NATNUMBERSK1,Df0)\<^esub> (n +NAT-1K1 \<one>\<^sub>M))" and
+   A5: " for n be NatNAT-1M1 holds  for x be ElementSUBSET-1M1-of Df0 holds  for y1 be ElementSUBSET-1M1-of Df0 holds  for y2 be ElementSUBSET-1M1-of Df0 holds Pp3(n,x,y1) & Pp3(n,x,y2) implies y1 =XBOOLE-0R4 y2"
+  shows "Ff0 =FUNCT-2R2\<^bsub>(NATNUMBERSK1,Df0)\<^esub> Gf0"
+sorry
+
+theorem nat_1_sch_15:
+  fixes Af0 RecFunf2 Ff0 Gf0 
+  assumes
+[ty]: "Af0 be objectHIDDENM1" and
+  [ty_func]: "\<And> x1 x2. x1 be objectHIDDENM1 \<Longrightarrow> x2 be objectHIDDENM1 \<Longrightarrow> RecFunf2(x1,x2) be objectHIDDENM1" and
+  [ty]: "Ff0 be FunctionFUNCT-1M1" and
+  [ty]: "Gf0 be FunctionFUNCT-1M1" and
+   A1: "domRELAT-1K1 Ff0 =XBOOLE-0R4 NATNUMBERSK1" and
+   A2: "Ff0 .FUNCT-1K1 (0NUMBERSK6) =HIDDENR1 Af0" and
+   A3: " for n be NatNAT-1M1 holds Ff0 .FUNCT-1K1 (n +NAT-1K1 \<one>\<^sub>M) =HIDDENR1 RecFunf2(n,Ff0 .FUNCT-1K1 n)" and
+   A4: "domRELAT-1K1 Gf0 =XBOOLE-0R4 NATNUMBERSK1" and
+   A5: "Gf0 .FUNCT-1K1 (0NUMBERSK6) =HIDDENR1 Af0" and
+   A6: " for n be NatNAT-1M1 holds Gf0 .FUNCT-1K1 (n +NAT-1K1 \<one>\<^sub>M) =HIDDENR1 RecFunf2(n,Gf0 .FUNCT-1K1 n)"
+  shows "Ff0 =FUNCT-1R1 Gf0"
+sorry
+
+theorem nat_1_sch_16:
+  fixes Df0 Af0 RecFunf2 Ff0 Gf0 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Af0 be ElementSUBSET-1M1-of Df0" and
+  [ty_func]: "\<And> x1 x2. x1 be objectHIDDENM1 \<Longrightarrow> x2 be objectHIDDENM1 \<Longrightarrow> RecFunf2(x1,x2) be ElementSUBSET-1M1-of Df0" and
+  [ty]: "Ff0 be sequenceNAT-1M2-of Df0" and
+  [ty]: "Gf0 be sequenceNAT-1M2-of Df0" and
+   A1: "Ff0 .FUNCT-2K3\<^bsub>(omegaORDINAL1K4,Df0)\<^esub> (0NUMBERSK6) =XBOOLE-0R4 Af0" and
+   A2: " for n be NatNAT-1M1 holds Ff0 .FUNCT-2K3\<^bsub>(NATNUMBERSK1,Df0)\<^esub> (n +NAT-1K1 \<one>\<^sub>M) =XBOOLE-0R4 RecFunf2(n,Ff0 .FUNCT-1K1 n)" and
+   A3: "Gf0 .FUNCT-2K3\<^bsub>(omegaORDINAL1K4,Df0)\<^esub> (0NUMBERSK6) =XBOOLE-0R4 Af0" and
+   A4: " for n be NatNAT-1M1 holds Gf0 .FUNCT-2K3\<^bsub>(NATNUMBERSK1,Df0)\<^esub> (n +NAT-1K1 \<one>\<^sub>M) =XBOOLE-0R4 RecFunf2(n,Gf0 .FUNCT-1K1 n)"
+  shows "Ff0 =FUNCT-2R2\<^bsub>(NATNUMBERSK1,Df0)\<^esub> Gf0"
+sorry
+
+mtheorem nat_1_cl_13:
+  mlet "x be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "y be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster minXXREAL-0K4(x,y) as-term-is naturalORDINAL1V7"
+proof
+(*coherence*)
+  show "minXXREAL-0K4(x,y) be naturalORDINAL1V7"
+    using xxreal_0_th_15 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_14:
+  mlet "x be naturalORDINAL1V7\<bar>NumberORDINAL1M1", "y be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster maxXXREAL-0K5(x,y) as-term-is naturalORDINAL1V7"
+proof
+(*coherence*)
+  show "maxXXREAL-0K5(x,y) be naturalORDINAL1V7"
+    using xxreal_0_th_16 sorry
+qed "sorry"
+
+abbreviation(input) NAT_1K4("minNAT-1K4'( _ , _ ')" [0,0]228) where
+  "minNAT-1K4(x,y) \<equiv> minXXREAL-0K4(x,y)"
+
+mtheorem nat_1_add_3:
+  mlet "x be ElementSUBSET-1M1-of NATNUMBERSK1", "y be ElementSUBSET-1M1-of NATNUMBERSK1"
+"cluster minXXREAL-0K4(x,y) as-term-is ElementSUBSET-1M1-of NATNUMBERSK1"
+proof
+(*coherence*)
+  show "minXXREAL-0K4(x,y) be ElementSUBSET-1M1-of NATNUMBERSK1"
+    using xxreal_0_th_15 sorry
+qed "sorry"
+
+abbreviation(input) NAT_1K5("maxNAT-1K5'( _ , _ ')" [0,0]228) where
+  "maxNAT-1K5(x,y) \<equiv> maxXXREAL-0K5(x,y)"
+
+mtheorem nat_1_add_4:
+  mlet "x be ElementSUBSET-1M1-of NATNUMBERSK1", "y be ElementSUBSET-1M1-of NATNUMBERSK1"
+"cluster maxXXREAL-0K5(x,y) as-term-is ElementSUBSET-1M1-of NATNUMBERSK1"
+proof
+(*coherence*)
+  show "maxXXREAL-0K5(x,y) be ElementSUBSET-1M1-of NATNUMBERSK1"
+    using xxreal_0_th_16 sorry
+qed "sorry"
+
+theorem nat_1_sch_17:
+  fixes Ff1 
+  assumes
+[ty_func]: "\<And> x1. x1 be NatNAT-1M1 \<Longrightarrow> Ff1(x1) be NatNAT-1M1" and
+   A1: " for k be NatNAT-1M1 holds Ff1(k +NAT-1K1 \<one>\<^sub>M) <XXREAL-0R3 Ff1(k) or Ff1(k) =XBOOLE-0R4 0NUMBERSK6"
+  shows " ex k be NatNAT-1M1 st Ff1(k) =XBOOLE-0R4 0NUMBERSK6 & ( for n be NatNAT-1M1 holds Ff1(n) =XBOOLE-0R4 0NUMBERSK6 implies k <=XXREAL-0R1 n)"
+sorry
+
+mdef nat_1_def_3 (" _ ^'\\NAT-1K6  _ " [164,164]164 ) where
+  mlet "s be ManySortedSetPBOOLEM1-of NATNUMBERSK1", "k be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"func s ^\\NAT-1K6 k \<rightarrow> ManySortedSetPBOOLEM1-of NATNUMBERSK1 means
+  \<lambda>it.  for n be NatNAT-1M1 holds it .FUNCT-1K1 n =XBOOLE-0R4 s .FUNCT-1K1 (n +XCMPLX-0K2 k)"
 proof-
-  have H: "for k be Nat holds (k+\<^sub>\<S>\<^sup>\<nat> n) is Nat"
-  proof fix k assume [ty]:"k be Nat" thus "(k+\<^sub>\<S>\<^sup>\<nat> n) be Nat" by mauto
-    qed mauto
-  obtain  f where [ty]:"f be  Function-of NAT,NAT" and
-     A1: "f.{} = {} & (for k be Nat st k in m holds f. (succ k) =  (f. k)+\<^sub>\<S>\<^sup>\<nat> n)" 
-    using NAT_sch[of "\<lambda>it. it+\<^sub>\<S>\<^sup>\<nat> n" "{}" m,OF H] by ty_auto
-  show "ex IT be Nat st 
- ex f be  Function-of NAT,NAT st 
-          f.{} = {} & f. m = IT & (for k be Nat st k in m holds f. (succ k) = (f. k)+\<^sub>\<S>\<^sup>\<nat> n)"
-  proof(rule bexI[of _ "f. m"],rule  bexI[of _ f],intro conjI)
-    show "f . {} = {}" "\<forall>k : Nat. k in m \<longrightarrow> f . (succ k) = (f . k) +\<^sub>\<S>\<^sup>\<nat> n" using A1 by auto
-    have R:"rng f c= NAT" using relat_1_def_19 by mauto            
-        
-      have X: "m in omega" using ordinal1_def_12[of m] by ty_auto
-      hence "omega<>{}" using xb by auto
-      hence "f. m in rng f"  using funct_2_th_4[of _ NAT NAT] X by ty_auto
-      hence "f. m in NAT" using R tarski_def_3 by infer_auto
-      thus "f. m is Nat" using ordinal1_def_12[of "f. m"] by infer_auto 
-  qed mauto 
-  fix it1 it2 assume [ty]:"it1 is Nat" "it2 is Nat"
- and B1:
-    " ex f be  Function-of NAT,NAT st 
-          f.{} = {} & f. m = it1 & (for k be Nat st k in m holds f. (succ k) = (f. k)+\<^sub>\<S>\<^sup>\<nat> n)"  
-    and B2: " ex f be  Function-of NAT,NAT st 
-          f.{} = {} & f. m = it2 & (for k be Nat st k in m holds f. (succ k) = (f. k)+\<^sub>\<S>\<^sup>\<nat> n)"   
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       B3:   "f1.{} = {} & f1. m = it1 & (for k be Nat st k in m holds f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> n)" using B1 by auto  
-  obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       B4:   "f2.{} = {} & f2. m = it2 & (for k be Nat st k in m holds f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n)" using B2 by auto  
-  let ?R="\<lambda>it. it c= m implies f1. it=f2. it"
-  have R0:"?R({})" using B3 B4 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = f2 . k" "succ k \<subseteq> m"
-    hence "k in m" using ordinal1_th_17 by ty_auto
-    hence "k c<m"" f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> n " "f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n" using B3 B4 ordinal1_th_7a by ty_auto
-    thus "f1 . (succ k) = f2 . (succ k)" using xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  thus "it1=it2" using xboole_0_def_10[of m m] B3 B4 by ty_auto
-qed mauto 
+  (*existence*)
+    show " ex it be ManySortedSetPBOOLEM1-of NATNUMBERSK1 st  for n be NatNAT-1M1 holds it .FUNCT-1K1 n =XBOOLE-0R4 s .FUNCT-1K1 (n +XCMPLX-0K2 k)"
+sorry
+  (*uniqueness*)
+    show " for it1 be ManySortedSetPBOOLEM1-of NATNUMBERSK1 holds  for it2 be ManySortedSetPBOOLEM1-of NATNUMBERSK1 holds ( for n be NatNAT-1M1 holds it1 .FUNCT-1K1 n =XBOOLE-0R4 s .FUNCT-1K1 (n +XCMPLX-0K2 k)) & ( for n be NatNAT-1M1 holds it2 .FUNCT-1K1 n =XBOOLE-0R4 s .FUNCT-1K1 (n +XCMPLX-0K2 k)) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
 
-mtheorem Mult_1:
-  "{} *\<^sub>\<S>\<^sup>\<nat> n = {}"
-proof-  
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = {} & f1. n = {} *\<^sub>\<S>\<^sup>\<nat>  n & (for k be Nat st k in n holds f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> {})" 
-    using multNat[of "{}" n] by ty_auto
-  let ?R="\<lambda>it. it c= n implies f1. it= {}"
-  have R0:"?R({})" using A1 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> n \<longrightarrow> f1 . k = {}" "succ k \<subseteq> n"
-    hence R3: "k in n" using ordinal1_th_17 by ty_auto
-    hence "k in succ n" using ordinal1_th_4 by ty_auto
-    hence "k c<n" "f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> {}" using A1 ordinal1_th_7a R3 by ty_auto
-    thus "f1 . (succ k) = {}" using Add_3 xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(n)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  hence "f1. n={}" using xboole_0_def_10[of n n] by ty_auto
-  thus ?thesis using A1 by auto    
-qed  
-  
-mtheorem Mult_2:
-  "n *\<^sub>\<S>\<^sup>\<nat> {} = {}"
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = {} & f1. {} = n *\<^sub>\<S>\<^sup>\<nat> {} & (for k be Nat st k in {} holds f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> n)" 
-    using multNat[of n "{}"] by ty_auto
-  thus ?thesis by auto
-qed 
+mlemma nat_1_lm_1:
+" for s be ManySortedSetPBOOLEM1-of NATNUMBERSK1 holds  for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds rngFUNCT-1K2 (s ^\\NAT-1K6 k) c=TARSKIR1 rngFUNCT-1K2 s"
+sorry
 
-mtheorem Mult_3:
-  "(n *\<^sub>\<S>\<^sup>\<nat> succ m) = (n *\<^sub>\<S>\<^sup>\<nat> m) +\<^sub>\<S>\<^sup>\<nat> n"  
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = {} & f1. (succ m) = n *\<^sub>\<S>\<^sup>\<nat> succ m & (for k be Nat st k in succ m holds 
-   f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> n)" 
-    using multNat[of n "succ m"] by ty_auto
- obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       A2:   "f2.{} = {} & f2. m = n *\<^sub>\<S>\<^sup>\<nat> m & (for k be Nat st k in m holds f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n)" 
-   using multNat[of n m] by mauto  
-  let ?R="\<lambda>it. it c= m implies f1. it=f2. it"
-  have R0:"?R({})" using A1 A2 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = f2 . k" "succ k \<subseteq> m"
-    hence R3: "k in m" using ordinal1_th_17 by ty_auto
-    hence "k in succ m" using ordinal1_th_4 by ty_auto
-    hence "k c<m" "f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> n"
-       "f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n" using A1 A2 ordinal1_th_7a R3 by ty_auto
-    thus "f1 . (succ k) = f2 . (succ k)" using xboole_0_def_8 R2 by ty_auto    
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  hence L: "f1. m=f2. m" using xboole_0_def_10[of m m] by ty_auto
-  have "m in succ m" using ordinal1_th_4 by ty_auto
-  hence "f1. (succ m) = (f1. m)+\<^sub>\<S>\<^sup>\<nat> n" using A1 by ty_auto
-  thus ?thesis using L A1 A2 by auto    
-qed
-  
-mtheorem Mult_4:
-  "(succ n) *\<^sub>\<S>\<^sup>\<nat> m = (n *\<^sub>\<S>\<^sup>\<nat> m) +\<^sub>\<S>\<^sup>\<nat> m"  
-proof-
-  obtain f1 where [ty]:"f1 be  Function-of NAT,NAT" and
-       A1:   "f1.{} = {} & f1. m = (succ n) *\<^sub>\<S>\<^sup>\<nat>  m & (for k be Nat st k in m holds f1. (succ k) = 
-        (f1. k)+\<^sub>\<S>\<^sup>\<nat> (succ n))" 
-    using multNat[of "succ n" m] by ty_auto
- obtain f2 where [ty]:"f2 be  Function-of NAT,NAT" and
-       A2:   "f2.{} = {} & f2. m = n *\<^sub>\<S>\<^sup>\<nat> m & (for k be Nat st k in m holds 
-        f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n)" 
-   using multNat[of n m] by mauto  
-  let ?R="\<lambda>it. it c= m implies f1. it = (f2. it)+\<^sub>\<S>\<^sup>\<nat> it"
-  have "{} +\<^sub>\<S>\<^sup>\<nat> {} = {}" using Add_4 by ty_auto
-  hence R0:"?R({})" using A1 A2 by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k \<subseteq> m \<longrightarrow> f1 . k = (f2 . k)+\<^sub>\<S>\<^sup>\<nat> k" "succ k \<subseteq> m"
-    hence R3: "k in m" using ordinal1_th_17 by ty_auto
-    hence "k in succ m" using ordinal1_th_4 by ty_auto
-    hence R4:"k c<m" "f1. (succ k) = (f1. k)+\<^sub>\<S>\<^sup>\<nat> (succ n)"
-       "f2. (succ k) = (f2. k)+\<^sub>\<S>\<^sup>\<nat> n" using A1 A2 ordinal1_th_7a R3 by ty_auto
-    hence "f1.(succ k) = succ (((f2. k)+\<^sub>\<S>\<^sup>\<nat> k)+\<^sub>\<S>\<^sup>\<nat> n)" using xboole_0_def_8 R2 Add_1 by infer_auto
-    also have "\<dots> = succ ((f2. (succ k))+\<^sub>\<S>\<^sup>\<nat> k)"
-      apply infer_ty using Add_6 Add_7 R4 by ty_auto
-      (* !!! Do this for now until I figure out how to programatically add thms as [intro] *)
-    finally show "f1 . (succ k) = (f2 . (succ k)) +\<^sub>\<S>\<^sup>\<nat> (succ k) " using Add_1 Add_2 by infer_auto
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-  hence "f1. m=(f2. m)+\<^sub>\<S>\<^sup>\<nat> m" using xboole_0_def_10[of m m] by ty_auto
-  thus ?thesis using A1 A2 by auto    
-qed    
-
-mtheorem Mult_5:
-  "n *\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = n & 1\<^sub>\<S> *\<^sub>\<S>\<^sup>\<nat> n = n"  
+mtheorem nat_1_cl_15:
+  mlet "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "s be X -valuedRELAT-1V5\<bar>ManySortedSetPBOOLEM1-of NATNUMBERSK1", "k be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster s ^\\NAT-1K6 k as-term-is X -valuedRELAT-1V5"
 proof
-  have "n *\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = (n *\<^sub>\<S>\<^sup>\<nat> {}) +\<^sub>\<S>\<^sup>\<nat> n" using Mult_3 by ty_auto
-  thus "n *\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = n" using Add_4 Mult_2 by ty_auto
-  have "1\<^sub>\<S> *\<^sub>\<S>\<^sup>\<nat> n = ({} *\<^sub>\<S>\<^sup>\<nat> n)+\<^sub>\<S>\<^sup>\<nat> n" using Mult_4 by ty_auto
-  thus "1\<^sub>\<S> *\<^sub>\<S>\<^sup>\<nat> n = n" using Add_4 Mult_1 by ty_auto
-qed  
-  
-mtheorem Mult_6:
-  "n *\<^sub>\<S>\<^sup>\<nat> m = m *\<^sub>\<S>\<^sup>\<nat> n"
-proof-
-  let ?P="\<lambda>it. n *\<^sub>\<S>\<^sup>\<nat> it = it *\<^sub>\<S>\<^sup>\<nat> n"
-  have R0:"?P({})" using Mult_1 Mult_2 by ty_auto
-  have Rn:"for k st ?P(k) holds ?P(succ k)" 
-  proof(standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"n *\<^sub>\<S>\<^sup>\<nat> k = k *\<^sub>\<S>\<^sup>\<nat> n"
-    have "n *\<^sub>\<S>\<^sup>\<nat> (succ k) = (n*\<^sub>\<S>\<^sup>\<nat> k)+\<^sub>\<S>\<^sup>\<nat> n" "(succ k) *\<^sub>\<S>\<^sup>\<nat> n = (k*\<^sub>\<S>\<^sup>\<nat> n)+\<^sub>\<S>\<^sup>\<nat> n"
-      using Mult_3[of  k n] Mult_4[of n k] by ty_auto
-    thus "n *\<^sub>\<S>\<^sup>\<nat> (succ k) = (succ k) *\<^sub>\<S>\<^sup>\<nat> n" using R2 by auto    
-  qed mauto
-  show "n *\<^sub>\<S>\<^sup>\<nat> m = m *\<^sub>\<S>\<^sup>\<nat> n" using ordinal_2_sch_19[of _ ?P,OF _ R0 Rn] by ty_auto    
-qed  
+(*coherence*)
+  show "s ^\\NAT-1K6 k be X -valuedRELAT-1V5"
+sorry
+qed "sorry"
 
-mtheorem Mult_7:
-  "m <> {} implies n c= n *\<^sub>\<S>\<^sup>\<nat> m"
-proof-
-   let ?R="\<lambda>it. it <> {} implies n c= n *\<^sub>\<S>\<^sup>\<nat> it"
-   have R0:"?R({})" by simp
-  have Rn:"for k st ?R(k) holds ?R(succ k)" 
-  proof(standard,standard,standard)
-    fix k assume [ty]:"k is Nat"
-    assume R2:"k <> {} implies n c= n *\<^sub>\<S>\<^sup>\<nat> k" "succ k <> {}"
-    show "n c= n *\<^sub>\<S>\<^sup>\<nat> succ k"
-    proof(cases "k={}")
-      case True
-        hence "n *\<^sub>\<S>\<^sup>\<nat> succ k = n" using Mult_5 by mauto
-        thus ?thesis using xboole_0_def_10 by mauto
-      next case False
-        hence N1: "n c= n *\<^sub>\<S>\<^sup>\<nat> k" using R2 by auto
-        have "n *\<^sub>\<S>\<^sup>\<nat> k = k *\<^sub>\<S>\<^sup>\<nat> n" using Mult_6[of n k] by mauto
-        hence "(n *\<^sub>\<S>\<^sup>\<nat> k) +\<^sub>\<S>\<^sup>\<nat> n = (succ k) *\<^sub>\<S>\<^sup>\<nat> n" using Mult_4 by mauto 
-        hence " n *\<^sub>\<S>\<^sup>\<nat> k c= (succ k) *\<^sub>\<S>\<^sup>\<nat> n" using Add_10 by mauto
-        hence "n c=  (succ k) *\<^sub>\<S>\<^sup>\<nat> n" using N1 xboole_1_th_1[of "(succ k) *\<^sub>\<S>\<^sup>\<nat> n" "n *\<^sub>\<S>\<^sup>\<nat> k"] 
-          by infer_auto
-         thus ?thesis using Mult_6[of n] by infer_auto
-    qed     
-  qed mauto
-  have "?R(m)" using ordinal_2_sch_19[of _ ?R,OF _ R0 Rn] by ty_auto
-   thus ?thesis by auto    
- qed
+syntax NAT_1K7 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ ^'\\NAT-1K7\<^bsub>'( _ ')\<^esub>  _ " [164,0,164]164)
+translations "s ^\\NAT-1K7\<^bsub>(X)\<^esub> k" \<rightharpoonup> "s ^\\NAT-1K6 k"
 
-
-lemma one:"1\<^sub>\<S> ={ {} }" 
+mtheorem nat_1_add_5:
+  mlet "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "s be sequenceNAT-1M2-of X", "k be NatNAT-1M1"
+"cluster s ^\\NAT-1K6 k as-term-is sequenceNAT-1M2-of X"
 proof
-  fix x 
-  have "x in 1\<^sub>\<S> iff x = {} or x in {}" using  ordinal1_th_4 by infer_auto
-  hence "x in 1\<^sub>\<S> iff x = {}" using xb by auto
-  thus "x in 1\<^sub>\<S> iff x in {{}}" using tarski_def_1 by auto
-qed mauto
+(*coherence*)
+  show "s ^\\NAT-1K6 k be sequenceNAT-1M2-of X"
+sorry
+qed "sorry"
 
-mlemma one1: "1\<^sub>\<S> c= n iff {} in n"
-proof(rule iffI3)
-  have "{} in 1\<^sub>\<S>" using one tarski_def_1 by auto  
-  thus "1\<^sub>\<S> \<subseteq> n \<longrightarrow> {} in n" using tarski_def_3E[of "1\<^sub>\<S>" n] by ty_auto
-  assume "{} in n"
-  thus "1\<^sub>\<S> c= n" using one tarski_def_3I[of "1\<^sub>\<S>" n] tarski_def_1 by infer_auto
-qed  
+reserve X for " non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+reserve s for "sequenceNAT-1M2-of X"
+mtheorem nat_1_th_47:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds s ^\\NAT-1K7\<^bsub>(X)\<^esub> (0NUMBERSK6) =FUNCT-2R2\<^bsub>(NATNUMBERSK1,X)\<^esub> s"
+sorry
 
-mlemma one2:" 1\<^sub>\<S> c= n iff n\<noteq> {}"
-proof(rule iffI3)
-  have "{} in 1\<^sub>\<S>" using one tarski_def_1 by auto  
-  thus "1\<^sub>\<S> \<subseteq> n \<longrightarrow> n\<noteq>{}" using tarski_def_3E[of "1\<^sub>\<S>" n] xb by ty_auto
-  assume "n\<noteq>{}"
-  hence "{} in n" using xb ordinal1_th_10 by ty_auto
-  thus "1\<^sub>\<S> c= n" using one1 by ty_auto
-qed
-  
-mtheorem Mult_8:
-  "n *\<^sub>\<S>\<^sup>\<nat> m = 1\<^sub>\<S> implies n=1\<^sub>\<S> & m=1\<^sub>\<S>"
+mtheorem nat_1_th_48:
+" for k be NatNAT-1M1 holds  for m be NatNAT-1M1 holds  for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds (s ^\\NAT-1K7\<^bsub>(X)\<^esub> k)^\\NAT-1K7\<^bsub>(X)\<^esub> m =FUNCT-2R2\<^bsub>(NATNUMBERSK1,X)\<^esub> s ^\\NAT-1K7\<^bsub>(X)\<^esub> (k +XCMPLX-0K2 m)"
+sorry
+
+mtheorem nat_1_th_49:
+" for k be NatNAT-1M1 holds  for m be NatNAT-1M1 holds  for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds (s ^\\NAT-1K7\<^bsub>(X)\<^esub> k)^\\NAT-1K7\<^bsub>(X)\<^esub> m =FUNCT-2R2\<^bsub>(NATNUMBERSK1,X)\<^esub> (s ^\\NAT-1K7\<^bsub>(X)\<^esub> m)^\\NAT-1K7\<^bsub>(X)\<^esub> k"
+sorry
+
+mtheorem nat_1_cl_16:
+  mlet "N be sequenceNAT-1M2-of NATNUMBERSK1", "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "s be sequenceNAT-1M2-of X"
+"cluster s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> N as-term-is Function-likeFUNCT-1V1\<bar>NATNUMBERSK1 -definedRELAT-1V4\<bar>X -valuedRELAT-1V5"
 proof
-  assume A1: "n *\<^sub>\<S>\<^sup>\<nat> m = 1\<^sub>\<S>"
-  hence A2: "m<>{}" "n<>{}" using Mult_1 Mult_2 by ty_auto
-  hence "m c= 1\<^sub>\<S>" "n c= 1\<^sub>\<S>" "1\<^sub>\<S>={{}}" using A1 Mult_7[of m n] Mult_7[of  n m] Mult_6[of n m] one by ty_auto
-  thus "n=1\<^sub>\<S> & m=1\<^sub>\<S>" using zfmisc_1_th_33 A2 by ty_auto
-qed
+(*coherence*)
+  show "s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> N be Function-likeFUNCT-1V1\<bar>NATNUMBERSK1 -definedRELAT-1V4\<bar>X -valuedRELAT-1V5"
+     sorry
+qed "sorry"
 
-mtheorem Mult_9:
-  "n *\<^sub>\<S>\<^sup>\<nat> m = {} implies n={} or m={}"
+mtheorem nat_1_cl_17:
+  mlet "N be sequenceNAT-1M2-of NATNUMBERSK1", "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "s be sequenceNAT-1M2-of X"
+"cluster s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> N as-term-is totalPARTFUN1V1\<^bsub>(NATNUMBERSK1)\<^esub>"
 proof
-  assume A1: "n *\<^sub>\<S>\<^sup>\<nat> m ={}"
-  have "n<>{} implies m={}"
-  proof
-    assume "n<>{}"
-    then have "m c= {}" "{} c= m" using A1 Mult_6[of n m] Mult_7[of m n] tarski_def_3 xb by ty_auto
-    then show "m = {}" using xboole_0_def_10 by ty_auto
-  qed
-  then show "n={} or m={}" by blast  
-qed
+(*coherence*)
+  show "s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> N be totalPARTFUN1V1\<^bsub>(NATNUMBERSK1)\<^esub>"
+     sorry
+qed "sorry"
 
-mtheorem Mult_10:
-  "n *\<^sub>\<S>\<^sup>\<nat> m = n & n<>{} implies m = 1\<^sub>\<S>"
+mtheorem nat_1_th_50:
+" for k be NatNAT-1M1 holds  for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds  for N be sequenceNAT-1M2-of NATNUMBERSK1 holds (s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> N)^\\NAT-1K7\<^bsub>(X)\<^esub> k =FUNCT-2R2\<^bsub>(NATNUMBERSK1,X)\<^esub> s *PARTFUN1K1\<^bsub>(NATNUMBERSK1,NATNUMBERSK1,NATNUMBERSK1,X)\<^esub> (N ^\\NAT-1K7\<^bsub>(NATNUMBERSK1)\<^esub> k)"
+sorry
+
+mtheorem nat_1_th_51:
+" for n be NatNAT-1M1 holds  for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds s .FUNCT-1K1 n inTARSKIR2 rngFUNCT-1K2 s"
+sorry
+
+mtheorem nat_1_th_52:
+" for Y be setHIDDENM2 holds  for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for s be sequenceNAT-1M2-of X holds ( for n be NatNAT-1M1 holds s .FUNCT-1K1 n inTARSKIR2 Y) implies rngFUNCT-1K2 s c=TARSKIR1 Y"
+sorry
+
+mtheorem nat_1_th_53:
+" for n be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds n be  non zeroORDINAL1V8 implies n =HIDDENR1 \<one>\<^sub>M or n >XXREAL-0R4 \<one>\<^sub>M"
+sorry
+
+mtheorem nat_1_th_54:
+" for n be NatNAT-1M1 holds succORDINAL1K1 (SegmCARD-1K5 n) =XBOOLE-0R4 {l where l be NatNAT-1M1 : l <=XXREAL-0R1 n }"
+sorry
+
+mtheorem nat_1_reduce_1:
+  mlet "n be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"reduce InSUBSET-1K10(n,NATNUMBERSK1) to n"
 proof
-  let ?p = "predecessor m"
-  assume A1: "n *\<^sub>\<S>\<^sup>\<nat> m = n & n<>{}"
-  hence "m<>{}" using Mult_2 by ty_auto
-  hence A2: "succ ?p  = m" using NAT_1_5 by ty_auto
-  hence "n = (n *\<^sub>\<S>\<^sup>\<nat> ?p) +\<^sub>\<S>\<^sup>\<nat> n" using Mult_3[of ?p n] A1 by infer_auto
-  hence "n = n +\<^sub>\<S>\<^sup>\<nat> (n *\<^sub>\<S>\<^sup>\<nat> ?p)" using Add_6 by infer_auto
-  hence "n in n or n *\<^sub>\<S>\<^sup>\<nat> ?p ={}" using Add_8 bexI[of _ "n *\<^sub>\<S>\<^sup>\<nat> ?p" Nat] A1 by infer_auto
-  hence "n *\<^sub>\<S>\<^sup>\<nat> ?p = {}" using prefix_in_irreflexive by auto
-  hence "?p={}" using A1 Mult_9[of ?p n] by infer_auto
-  then show "m=1\<^sub>\<S>" using A2 by auto
-qed
+(*reducibility*)
+  show "InSUBSET-1K10(n,NATNUMBERSK1) =HIDDENR1 n"
+    using ordinal1_def_12 subset_1_def_8 sorry
+qed "sorry"
 
+theorem nat_1_sch_18:
+  fixes Ff1 Pp1 
+  assumes
+[ty_func]: "\<And> x1. x1 be NatNAT-1M1 \<Longrightarrow> Ff1(x1) be NatNAT-1M1" and
+   A1: " for k be NatNAT-1M1 holds Ff1(k +NAT-1K1 \<one>\<^sub>M) <XXREAL-0R3 Ff1(k) or Pp1(k)"
+  shows " ex k be NatNAT-1M1 st Pp1(k) & ( for n be NatNAT-1M1 holds Pp1(n) implies k <=XXREAL-0R1 n)"
+sorry
 
-  
-mdef div (infixl "divides" 60) where
-  mlet "n be Nat", "k be Nat"
-  "pred n divides k means ex m be Nat st n *\<^sub>\<S>\<^sup>\<nat> m = k"..
-
-mtheorem div_1:
-  " n divides {}"
-proof-
-  have " n *\<^sub>\<S>\<^sup>\<nat> {} = {}" using Mult_2 by mauto
-  thus ?thesis using divI[of n "{}"] bexI[of _ "{}" Nat] by ty_auto
-qed  
- 
-  
-mtheorem div_2:
-  " n divides k & k<>{} implies n c= k & n <> {}"
+mtheorem nat_1_cl_18:
+  mlet "k be OrdinalORDINAL1M3", "x be objectHIDDENM1"
+"cluster k -->FUNCOP-1K7 x as-term-is Sequence-likeORDINAL1V5"
 proof
-  assume A1: "n divides k & k <>{}"
-  then obtain m where
-      [ty]: "m be Nat" and
-       A2:  "n *\<^sub>\<S>\<^sup>\<nat> m = k" using div by ty_auto
-  hence "m<>{}" using Mult_2 A1 by mauto    
-  thus "n c= k & n<>{}" using A1 A2 Mult_7[of n m] Mult_1 by ty_auto
-qed  
-  
-mdef primeS ("prime\<^sub>\<S>") where
-  "attr prime\<^sub>\<S> for Nat means 
-     (\<lambda>it. 1\<^sub>\<S> in it & (for n be Nat st n divides it holds (n = 1\<^sub>\<S> or n=\<^sub>\<S>it)))"..
+(*coherence*)
+  show "k -->FUNCOP-1K7 x be Sequence-likeORDINAL1V5"
+    using funcop_1_th_13 sorry
+qed "sorry"
 
-reserve p for Nat
-mtheorem div_one:
-  " n divides 1\<^sub>\<S> iff n = 1\<^sub>\<S>"
-proof(standard)
-  assume A1: "n divides 1\<^sub>\<S>"
-  then obtain m where
-      [ty]: "m be Nat" and
-       A2:  "n *\<^sub>\<S>\<^sup>\<nat> m = 1\<^sub>\<S>" using div by ty_auto
-  show "n=1\<^sub>\<S>" using Mult_8[OF _ _ A2] by ty_auto
-next
-  assume "n = 1\<^sub>\<S>"
-  hence "n *\<^sub>\<S>\<^sup>\<nat> 1\<^sub>\<S> = 1\<^sub>\<S>" using Mult_5 by ty_auto
-  thus "n divides 1\<^sub>\<S>" using divI bexI[of _ "1\<^sub>\<S>" Nat] by ty_auto
-qed
+mtheorem nat_1_th_55:
+" for s be ManySortedSetPBOOLEM1-of NATNUMBERSK1 holds  for k be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds rngFUNCT-1K2 (s ^\\NAT-1K6 k) c=TARSKIR1 rngFUNCT-1K2 s"
+  using nat_1_lm_1 sorry
 
-mtheorem prime_eq_irreducible:
-  "p is primeS iff p <> {} & not p divides 1\<^sub>\<S> & (for n,m be Nat st p = n*\<^sub>\<S>\<^sup>\<nat> m holds n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>)"
-proof(rule iffI2)
-  show "p is primeS implies p <> {} & not p divides 1\<^sub>\<S> & (for n,m be Nat st p = n*\<^sub>\<S>\<^sup>\<nat> m holds n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>)"
-  proof(intro impI conjI ballI)
-    assume A1:"p is primeS"
-    then show P0: "p<>{}" using xb primeS by ty_auto
-    have "1\<^sub>\<S> in p" using A1 primeS by ty_auto
-    have "p<>1\<^sub>\<S>" using A1 primeS prefix_in_irreflexive by ty_auto
-    then show "not p divides 1\<^sub>\<S>" using div_one by ty_auto
-    fix n m
-    assume [ty]: "n be Nat" "m be Nat" and A3: "p = n*\<^sub>\<S>\<^sup>\<nat> m"
-    hence "n divides p" using div bexI[of _ m Nat]  by infer_auto
-    hence N: "n= 1\<^sub>\<S> or n=p" using A1 primeS by ty_auto
-    have "not n divides 1\<^sub>\<S> implies m divides 1\<^sub>\<S>"
-    proof
-      assume "not n divides 1\<^sub>\<S>"
-      hence "n<>1\<^sub>\<S>" using div_one by ty_auto
-      hence "n=p" using N by auto
-      hence "m=1\<^sub>\<S>" using Mult_10[of m p] P0 A3 by ty_auto
-      then show "m divides 1\<^sub>\<S>" using div_one by ty_auto
-    qed
-    then show "n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>" by blast
-  qed mauto
-  show "p <> {} & not p divides 1\<^sub>\<S> & (for n,m be Nat st p = n*\<^sub>\<S>\<^sup>\<nat> m holds n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>) 
-      implies p is primeS"
-  proof(standard,rule primeSI,simp)
-    assume A1:"p <> {} & not p divides 1\<^sub>\<S> & (for n,m be Nat st p = n*\<^sub>\<S>\<^sup>\<nat> m holds n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>)"
-    hence "not p in 1\<^sub>\<S> & p <>1\<^sub>\<S>" using div_one one tarski_def_1 by ty_auto
-    then show "1\<^sub>\<S> in p" using ordinal1_th_10 by ty_auto
-    show "for n be Nat st n divides p holds n = 1\<^sub>\<S> or n = p"
-    proof(intro ballI impI)
-      fix n assume [ty]: "n be Nat" and A2: "n divides p"
-      have "n <> 1\<^sub>\<S> implies n = p"
-      proof
-        assume A3: "n<>1\<^sub>\<S>"
-       then obtain m where
-      [ty]: "m be Nat" and
-       A4:  "n *\<^sub>\<S>\<^sup>\<nat> m = p" using div A2 by ty_auto
-       then have "n divides 1\<^sub>\<S> or m divides 1\<^sub>\<S>" using A1 by ty_auto
-       then have "m=1\<^sub>\<S>" using div_one A3 by ty_auto
-       then show "n=p" using Mult_5 A4 by ty_auto
-     qed
-     then show "n = 1\<^sub>\<S> or n = p" by blast
-  qed mauto
-   qed ty_auto
-qed
+(*\$CT 3*)
+mtheorem nat_1_th_59:
+" for X be finiteFINSET-1V1\<bar>setHIDDENM2 holds \<one>\<^sub>M <XXREAL-0R3 cardCARD-1K4 X implies ( ex x1 be setHIDDENM2 st  ex x2 be setHIDDENM2 st (x1 inTARSKIR2 X & x2 inTARSKIR2 X) & x1 <>HIDDENR2 x2)"
+sorry
 
+mtheorem nat_1_th_60:
+" for k be NatNAT-1M1 holds  for n be NatNAT-1M1 holds k <=XXREAL-0R1 n implies ( ex VarFor3 be setHIDDENM2 st (0NUMBERSK6 <=XXREAL-0R1 VarFor3 & VarFor3 <=XXREAL-0R1 n) & k =XBOOLE-0R4 VarFor3)"
+sorry
 
-mtheorem
-  "2\<^sub>\<S> is primeS"  
-proof(standard,auto)
-  show "1\<^sub>\<S> in 2\<^sub>\<S>" using ordinal1_th_2 by mauto
-  fix n assume [ty]:"n be natural" "n be set"
-  assume  A1: "n divides 2\<^sub>\<S>" "n \<noteq> 2\<^sub>\<S>"
-  hence "n c= 2\<^sub>\<S>"  using div_2 A1 by ty_auto
-  hence "n \<subset> 2\<^sub>\<S>" using A1 xboole_0_def_8 by ty_auto  
-  hence " n in 2\<^sub>\<S>" using ordinal1_th_7 by ty_auto
-  hence A2: "n in 1\<^sub>\<S> or n=1\<^sub>\<S>" using ordinal1_th_4 by mauto
-  have "not n in 1\<^sub>\<S>"
-  proof
-    assume "n in 1\<^sub>\<S>"
-    hence " n in {} or n ={}" using ordinal1_th_4 by mauto 
-    hence "n={}" using xb by auto
-    thus "False" using div_2 A1 by mauto
-  qed    
-  thus "n=1\<^sub>\<S>" using A2 by simp
-qed ty_auto
-  
-  
-text_raw {*\DefineSnippet{CompleteInduction}{*}
-theorem CompleteInduction:
-  assumes [ty]: "a is Nat"
-    and A1: "\<forall>n : Nat. (\<forall>m: Nat. m \<subset> n  \<longrightarrow> P(m)) \<longrightarrow> P(n)"
-  shows "P(a)"
-text_raw {*}%EndSnippet*}
-proof-
-  let ?R="\<lambda>it. for m be Nat st m c= it holds P(m)"
-  have R0: "?R({})"
-  proof(infer_ty, standard,standard)
-    fix m assume "m be Nat" "m c= {}" 
-    hence "m c= {}" "{} c= m" using xboole_0_def_8 xb tarski_def_3I all_set by auto
-    hence M:"m={}" using xboole_0_def_10 all_set by auto 
-    have "\<forall>n: Nat. n c< {}  \<longrightarrow> P(n)" 
-      proof(standard,standard)
-        fix n assume "n be Nat" "n c< {}" 
-        hence "n c= {}" "n<>{}" "{} c= n" using xboole_0_def_8 xb tarski_def_3I all_set by auto
-        thus "P(n)" using xboole_0_def_10 all_set by auto   
-      qed mauto
-    thus "P(m)" using A1 M by ty_auto
-      (* Confusing: if we remove the infer_ty call on line 950 and put it in the line above,
-         the proof doesn't go through, even though the contents of [ty] are the same... *)
-  qed mauto
-  have Rn:"\<forall>n : Nat. ?R(n) \<longrightarrow> ?R(succ n)"
-  proof(standard,standard,standard,standard)
-    fix n m assume [ty]:"n be Nat"
-    assume B1: "\<forall>m : Nat. m \<subseteq> n \<longrightarrow> P(m)"
-    assume [ty]:"m be Nat"
-    assume B2:"m c= succ n"
-    have  "m in succ n or succ n c= m" using ordinal1_th_12[of m "succ n"] by infer_auto
-    hence "m in succ n or succ n = m" using B2 xboole_0_def_10 all_set by auto
-    hence P1: "m c= n or succ n = m" using ordinal1_th_18 by ty_auto
-    have "\<forall>k: Nat. k c< succ n  \<longrightarrow> P(k)"
-    proof(standard,standard)
-      fix k assume [ty]:"k be Nat"
-      have [ty]:"k is Ordinal" "n is Ordinal" by mauto
-      assume  L: "k c< succ n"    
-      have  "k in succ n or succ n c= k" using ordinal1_th_12[of k "succ n"] by infer_auto
-      hence "k in succ n" using L xboole_0_def_8 xboole_0_def_10 by infer_auto
-      hence OR: "k in n or k in {n}" using ordinal1_def_1 xboole_0_def_3 by infer_auto
-      have or1: "k in n \<longrightarrow> P(k)"
-      proof
-        assume "k in n"
-        hence "k c= n" using ordinal1_def_2[of n] by ty_auto
-        thus "P(k)" using B1 by ty_simp    
-      qed
-      have "k in {n} \<longrightarrow> P(k)"
-      proof
-        assume "k in {n}"
-        hence K: "k=n" using tarski_def_1 by auto   
-        have "(\<forall>m: Nat. m c< n  \<longrightarrow> P(m))" using  B1 xboole_0_def_8 by ty_auto
-        thus "P(k)" using A1 K by ty_auto
-      qed
-      thus "P(k)" using or1 OR by auto   
-    qed mauto
-    hence "P(succ n)" using A1 by infer_auto
-    thus "P(m)" using P1 B1 by ty_auto
-  qed mauto
-  have "?R(a)" "a c= a" using  ordinal_2_sch_19[of a ?R,OF _ R0 Rn] xboole_0_def_10 all_set by ty_auto
-  thus "P(a)" by ty_simp    
-qed    
+mtheorem nat_1_th_61:
+" for n be NatNAT-1M1 holds  for x be objectHIDDENM1 holds x inHIDDENR3 SegmCARD-1K5 (n +NAT-1K1 \<one>\<^sub>M) implies ( ex VarFor3 be setHIDDENM2 st (0NUMBERSK6 <=XXREAL-0R1 VarFor3 & VarFor3 <=XXREAL-0R1 n) & x =HIDDENR1 VarFor3)"
+sorry
 
-end  
- 
+mtheorem nat_1_th_62:
+" for k be NatNAT-1M1 holds  for m be NatNAT-1M1 holds  for i be NatNAT-1M1 holds m <=XXREAL-0R1 i & i <=XXREAL-0R1 m +XCMPLX-0K2 k implies ( ex VarFor4 be setHIDDENM2 st (m +NAT-1K1 0NUMBERSK6 <=XXREAL-0R1 VarFor4 & VarFor4 <=XXREAL-0R1 m +XCMPLX-0K2 k) & i =XBOOLE-0R4 VarFor4)"
+sorry
+
+syntax NAT_1K8 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ .NAT-1K8\<^bsub>'( _ ')\<^esub>  _ " [200,0,200]200)
+translations "s .NAT-1K8\<^bsub>(D)\<^esub> n" \<rightharpoonup> "s .FUNCT-1K1 n"
+
+mtheorem nat_1_add_6:
+  mlet "D be setHIDDENM2", "s be sequenceNAT-1M2-of D", "n be naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+"cluster s .FUNCT-1K1 n as-term-is ElementSUBSET-1M1-of D"
+proof
+(*coherence*)
+  show "s .FUNCT-1K1 n be ElementSUBSET-1M1-of D"
+sorry
+qed "sorry"
+
+mtheorem nat_1_cl_19:
+"cluster zeroORDINAL1V8 also-is  non positiveXXREAL-0V2 for naturalORDINAL1V7\<bar>NumberORDINAL1M1"
+proof
+(*coherence*)
+  show " for it be naturalORDINAL1V7\<bar>NumberORDINAL1M1 holds it be zeroORDINAL1V8 implies it be  non positiveXXREAL-0V2"
+     sorry
+qed "sorry"
+
+mtheorem nat_1_cl_20:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {TARSKIK1 A} as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{TARSKIK1 A} be with-non-empty-elementsSETFAM-1V1"
+    using tarski_def_1 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_21:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {TARSKIK2 A,B } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{TARSKIK2 A,B } be with-non-empty-elementsSETFAM-1V1"
+    using tarski_def_2 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_22:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K1 A,B,C } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K1 A,B,C } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_1 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_23:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K2 A,B,C,D } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K2 A,B,C,D } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_2 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_24:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K3 A,B,C,D,E } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K3 A,B,C,D,E } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_3 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_25:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "F be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K4 A,B,C,D,E,F } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K4 A,B,C,D,E,F } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_4 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_26:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "F be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "G be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K5 A,B,C,D,E,F,G } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K5 A,B,C,D,E,F,G } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_5 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_27:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "F be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "G be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "H be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K6 A,B,C,D,E,F,G,H } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K6 A,B,C,D,E,F,G,H } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_6 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_28:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "F be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "G be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "H be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "I be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K7 A,B,C,D,E,F,G,H,I } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K7 A,B,C,D,E,F,G,H,I } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_7 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_29:
+  mlet "A be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "B be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "C be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "D be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "E be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "F be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "G be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "H be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "I be  non zeroORDINAL1V8\<bar>objectHIDDENM1", "J be  non zeroORDINAL1V8\<bar>objectHIDDENM1"
+"cluster {ENUMSET1K8 A,B,C,D,E,F,G,H,I,J } as-term-is with-non-empty-elementsSETFAM-1V1"
+proof
+(*coherence*)
+  show "{ENUMSET1K8 A,B,C,D,E,F,G,H,I,J } be with-non-empty-elementsSETFAM-1V1"
+    using enumset1_def_8 sorry
+qed "sorry"
+
+mtheorem nat_1_cl_30:
+"cluster emptyXBOOLE-0V1 also-is zeroORDINAL1V8 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be emptyXBOOLE-0V1 implies it be zeroORDINAL1V8"
+     sorry
+qed "sorry"
+
+mtheorem nat_1_cl_31:
+"cluster  non zeroORDINAL1V8 also-is  non emptyXBOOLE-0V1 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be  non zeroORDINAL1V8 implies it be  non emptyXBOOLE-0V1"
+     sorry
+qed "sorry"
+
+syntax NAT_1K9 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ .NAT-1K9\<^bsub>'( _ ')\<^esub>'( _ , _ ')" [200,0,0,0]200)
+translations "B .NAT-1K9\<^bsub>(G)\<^esub>(g,i)" \<rightharpoonup> "B .BINOP-1K1(g,i)"
+
+mtheorem nat_1_add_7:
+  mlet "G be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be FunctionFUNCT-2M1-of([:ZFMISC-1K2 G,NATNUMBERSK1 :],G)", "g be ElementSUBSET-1M1-of G", "i be NatNAT-1M1"
+"cluster B .BINOP-1K1(g,i) as-term-is ElementSUBSET-1M1-of G"
+proof
+(*coherence*)
+  show "B .BINOP-1K1(g,i) be ElementSUBSET-1M1-of G"
+sorry
+qed "sorry"
+
+syntax NAT_1K10 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ .NAT-1K10\<^bsub>'( _ ')\<^esub>'( _ , _ ')" [200,0,0,0]200)
+translations "B .NAT-1K10\<^bsub>(G)\<^esub>(i,g)" \<rightharpoonup> "B .BINOP-1K1(i,g)"
+
+mtheorem nat_1_add_8:
+  mlet "G be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be FunctionFUNCT-2M1-of([:ZFMISC-1K2 NATNUMBERSK1,G :],G)", "i be NatNAT-1M1", "g be ElementSUBSET-1M1-of G"
+"cluster B .BINOP-1K1(i,g) as-term-is ElementSUBSET-1M1-of G"
+proof
+(*coherence*)
+  show "B .BINOP-1K1(i,g) be ElementSUBSET-1M1-of G"
+sorry
+qed "sorry"
+
+theorem nat_1_sch_19:
+  fixes Xf0 Zf0 Pp3 
+  assumes
+[ty]: "Xf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Zf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+   A1: " for x be ElementSUBSET-1M1-of Xf0 holds  for y be NatNAT-1M1 holds  ex z be ElementSUBSET-1M1-of Zf0 st Pp3(x,y,z)"
+  shows " ex f be FunctionFUNCT-2M1-of([:ZFMISC-1K2 Xf0,NATNUMBERSK1 :],Zf0) st  for x be ElementSUBSET-1M1-of Xf0 holds  for y be NatNAT-1M1 holds Pp3(x,y,f .BINOP-1K1(x,y))"
+sorry
+
+mtheorem nat_1_th_63:
+" for n be NatNAT-1M1 holds SegmCARD-1K5 n c=ORDINAL1R1 SegmCARD-1K5 (n +NAT-1K1 \<one>\<^sub>M)"
+  using nat_1_th_11 nat_1_th_39 sorry
+
+end

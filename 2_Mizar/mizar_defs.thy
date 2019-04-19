@@ -5,6 +5,8 @@ begin
 
 definition "pred_means(prop) \<longleftrightarrow> prop"
 
+declare pred_means_def[simp]
+
 abbreviation (input) pred_means_p ("pred _ means _" [0,0] 10)
   where "pred df means prop \<equiv> df \<longleftrightarrow> pred_means(prop)"
 

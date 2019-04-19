@@ -1,649 +1,1086 @@
 theory funct_2
-imports partfun_1 funcop_1
-begin    
-
-reserve x,y,z,x1,x2,y1,y2 for object
-reserve X,Y,Z for set
-reserve f,g for Function
-  
-section "funct_2"
-      
-mdef funct_2_def_1 ("_ , _ : quasi-total" [110,110] 110) where
-   mlet "X be set", "Y be set"
-   "attr (X , Y :quasi-total) for (Relation-of X,Y) means
-     (\<lambda> IT. X = dom IT) if (\<lambda> IT. Y \<noteq> {}) otherwise (\<lambda>IT. IT = {})" .
- 
-text_raw {*\DefineSnippet{expandable_modes}{*}
-abbreviation funct_2_mode_1   ("Function-of _, _" [90,90] 190)
-where "Function-of X,Y \<equiv> (X,Y: quasi-total) \<bar> (PartFunc-of X,Y)"
-text_raw {*}%EndSnippet*}
-
-     
-mtheorem funct_2_th_2:
-  "f be Function-of dom f, rng f"
+  imports setfam_1 mcart_1 partfun1
+begin
+(*begin*)
+reserve P, Q, X, Y, Z for "setHIDDENM2"
+reserve p, x, x9, x1, x2, y, z for "objectHIDDENM1"
+mdef funct_2_def_1 ("quasi-totalFUNCT-2V1\<^bsub>'( _ , _ ')\<^esub>" [0,0]70 ) where
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"attr quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> for RelationRELSET-1M1-of(X,Y) means
+  \<lambda>R. X =XBOOLE-0R4 domRELSET-1K1\<^bsub>(X)\<^esub> R if \<lambda>R. Y <>HIDDENR2 {}XBOOLE-0K1 otherwise \<lambda>R. R =RELAT-1R1 {}XBOOLE-0K1"
 proof-
-  have "dom f c= dom f" "rng f c= rng f" using tarski_def_3 by mauto
-  hence A1[ty]: "f be Relation-of dom f,rng f" using relset_1_th_4 by ty_simp
-  show "f be Function-of dom f, rng f"
-  proof (cases "rng f={}")
-     assume "rng f \<noteq>{}"
-     thus "f be Function-of dom f, rng f" using A1 funct_2_def_1(1) by ty_simp
-   next
-     assume A2: "rng f = {}"
-      hence "f={}" using relat_1_th_41[of f] by ty_simp
-     hence "f be (dom f), (rng f):quasi-total" using A1 A2 funct_2_def_1I by mauto
-     thus "f be Function-of dom f, rng f" by mauto
-  qed
-qed
+  (*consistency*)
+    show " for R be RelationRELSET-1M1-of(X,Y) holds  True "
+sorry
+qed "sorry"
+
+mtheorem funct_2_cl_1:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"cluster quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> for PartFuncPARTFUN1M1-of(X,Y)"
+proof
+(*existence*)
+  show " ex it be PartFuncPARTFUN1M1-of(X,Y) st it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>"
+sorry
+qed "sorry"
+
+mtheorem funct_2_cl_2:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"cluster totalPARTFUN1V1\<^bsub>(X)\<^esub> also-is quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> for RelationRELSET-1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be RelationRELSET-1M1-of(X,Y) holds it be totalPARTFUN1V1\<^bsub>(X)\<^esub> implies it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>"
+sorry
+qed "sorry"
+
+abbreviation(input) FUNCT_2M1("FunctionFUNCT-2M1-of'( _ , _ ')" [0,0]70) where
+  "FunctionFUNCT-2M1-of(X,Y) \<equiv> quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,Y)"
+
+mtheorem funct_2_cl_3:
+  mlet "X be emptyXBOOLE-0V1\<bar>setHIDDENM2", "Y be setHIDDENM2"
+"cluster quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> also-is totalPARTFUN1V1\<^bsub>(X)\<^esub> for RelationRELSET-1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be RelationRELSET-1M1-of(X,Y) holds it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> implies it be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+     sorry
+qed "sorry"
+
+mtheorem funct_2_cl_4:
+  mlet "X be setHIDDENM2", "Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> also-is totalPARTFUN1V1\<^bsub>(X)\<^esub> for RelationRELSET-1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be RelationRELSET-1M1-of(X,Y) holds it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> implies it be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+    using funct_2_def_1 sorry
+qed "sorry"
+
+mtheorem funct_2_cl_5:
+  mlet "X be setHIDDENM2"
+"cluster quasi-totalFUNCT-2V1\<^bsub>(X,X)\<^esub> also-is totalPARTFUN1V1\<^bsub>(X)\<^esub> for RelationRELSET-1M1-of(X,X)"
+proof
+(*coherence*)
+  show " for it be RelationRELSET-1M1-of(X,X) holds it be quasi-totalFUNCT-2V1\<^bsub>(X,X)\<^esub> implies it be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+sorry
+qed "sorry"
+
+mtheorem funct_2_cl_6:
+  mlet "X be setHIDDENM2"
+"cluster quasi-totalFUNCT-2V1\<^bsub>([:ZFMISC-1K2 X,X :],X)\<^esub> also-is totalPARTFUN1V1\<^bsub>([:ZFMISC-1K2 X,X :])\<^esub> for RelationRELSET-1M1-of([:ZFMISC-1K2 X,X :],X)"
+proof
+(*coherence*)
+  show " for it be RelationRELSET-1M1-of([:ZFMISC-1K2 X,X :],X) holds it be quasi-totalFUNCT-2V1\<^bsub>([:ZFMISC-1K2 X,X :],X)\<^esub> implies it be totalPARTFUN1V1\<^bsub>([:ZFMISC-1K2 X,X :])\<^esub>"
+sorry
+qed "sorry"
+
+mtheorem funct_2_th_1:
+" for f be FunctionFUNCT-1M1 holds f be FunctionFUNCT-2M1-of(domRELAT-1K1 f,rngFUNCT-1K2 f)"
+sorry
+
+mtheorem funct_2_th_2:
+" for Y be setHIDDENM2 holds  for f be FunctionFUNCT-1M1 holds rngFUNCT-1K2 f c=TARSKIR1 Y implies f be FunctionFUNCT-2M1-of(domRELAT-1K1 f,Y)"
+sorry
 
 mtheorem funct_2_th_3:
-  "rng f \<subseteq> Y implies f be Function-of dom f, Y"
-proof
-  assume A0: "rng f \<subseteq> Y" 
-  hence "dom f c= dom f" "rng f c= Y" using tarski_def_3 by mauto
-  hence A1[ty]: "f be Relation-of dom f,Y" using relset_1_th_4 by ty_simp
-  show "f be Function-of dom f, Y"
-  proof (cases "rng f={}")
-    assume "rng f \<noteq>{}"
-     hence "Y \<noteq> {}" using xboole_1_empty[OF _ _ A0] by mauto
-     thus "f be Function-of dom f, Y" using A1 funct_2_def_1I[of "dom f" Y f] by ty_simp
-   next
-     assume A2: "rng f = {}"
-      hence "f={}" using relat_1_th_41[of f] by ty_simp
-     hence "f be (dom f), Y:quasi-total" using A1 A2 funct_2_def_1I by mauto
-     thus "f be Function-of dom f, Y" by ty_simp
-  qed
-qed  
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-1M1 holds domRELAT-1K1 f =XBOOLE-0R4 X & ( for x be objectHIDDENM1 holds x inHIDDENR3 X implies f .FUNCT-1K1 x inTARSKIR2 Y) implies f be FunctionFUNCT-2M1-of(X,Y)"
+sorry
 
-  
-  
-  
-text_raw {*\DefineSnippet{funct_2_th_2}{*}
-theorem "\<forall>x : object. \<not> x is Function-of dom x, rng x \<longrightarrow> \<not> x is Function"
-  using funct_2_th_2 by mauto
-text_raw {*}%EndSnippet*}
-
-
-text_raw {*\DefineSnippet{funct_2_cl_ex}{*}
-mtheorem
-  mlet "X be set", "Y be set"
-  "cluster X,Y: quasi-total for  PartFunc-of X,Y"
-text_raw {*}%EndSnippet*}
-proof(standard)
-  show "inhabited (Function-of X,Y)"
-  proof(cases "Y={}")
-    case T: True
-      have "{} c= [:X,Y:]" using xb1 by (intro tarski_def_3I) mauto
-      hence A: "{} be PartFunc-of X,Y" using Subset_of_rule T by mauto
-      have "dom {}={}" by (intro empty1) mauto
-      then have "{} be Function-of X,Y" using A funct_2_def_1I[of X Y "{}"] T by mauto
-      thus ?thesis using bexI inhabited_def by auto
-   next
-    case K: False
-      then obtain y where
-         "y be object" and A1: "y in Y" using xboole_0_def_1 empty1[of Y] by mauto
-      have "ex f be Function st dom f = X \<and> rng f c= {y}" using funct_1_th_5[of y X] by mauto
-      then obtain f where
-        [ty]: "f be Function" and A3:"dom f = X \<and> rng f c= {y}" by auto
-      have "rng f c= Y" using A1 tarski_def_3 A3 tarski_def_1
-        by (intro tarski_def_3I) mauto
-      hence "f be PartFunc-of X,Y" using relset_1_th_4 xboole_0_def_10 A3 by inst_pass_auto
-      hence "f be Function-of X,Y" using funct_2_def_1 A3 K by mauto
-      thus ?thesis using bexI inhabited_def by auto
-    qed
-qed
-
-theorem funct_2_sch_1:
-  assumes [ty]: "X be set" "Y be set" and
-         P1:"for x being object st x in X holds (ex y being object st y in Y & P(x,y))" and
-         P2:"for x,y1,y2 being object st x in X &  P(x,y1) & P(x,y2) holds y1 = y2"
-  shows "ex f being Function-of X, Y st 
-        (for x being object st x in X holds P(x,f. x)) "     
-proof-
-   let ?Z = "\<lambda>x y. x in X & P(x,y)"
-      obtain Q where
-        T2[ty]: "Q be Relation" and
-        A2: "for x,y holds [x,y] in Q \<longleftrightarrow> x in X \<and> y in Y \<and> ?Z (x,y)"
-         using relat_1_sch_1[of X Y ?Z] by mauto
-     have "for x,y1,y2 being object st [x,y1] in Q \<and> [x,y2] in Q holds y1 = y2"
-     proof(intro ballI impI)
-       fix x y1 y2
-       assume "[x , y1] in Q \<and> [x , y2] in Q"
-       hence "x in X & P(x,y1)" "P(x,y2)" using A2 by auto
-       thus "y1=y2" using P2  by auto
-     qed simp_all
-     hence P[ty]: "Q is Function_like" using funct_1_def_1 all_set by simp
-     show "ex f being Function-of X, Y st
-        (for x being object st x in X holds P(x,f. x))"
-       proof (intro bexI[of _ Q] conjI)
-         have D: "dom Q = X"
-           proof (intro xboole_0_def_10I conjI)
-       show "dom Q \<subseteq> X"
-          proof (standard,auto)
-            fix x
-            assume "x in dom Q"
-            then obtain y where
-              "y be object" " [x,y] in Q" using xtuple_0_def_12 by mauto
-            thus "x in X" using A2 by auto
-          qed mauto
-          show "X \<subseteq> dom Q"
-           proof(standard,auto)
-            fix x
-            assume B: "x in X"
-            hence "ex y being object st y in Y & P(x,y)" using P1 by auto   
-            then obtain y where
-              "y be object" and B1:"y in Y & P(x,y)" by auto
-            hence "[x,y] in Q" using B A2 by auto            
-            thus "x in dom Q" using xtuple_0_def_12 by mauto
-          qed mauto
-        qed mauto
-        have R:"rng Q c= Y" 
-        proof(standard,auto)
-           fix y
-           assume B: "y in rng Q"
-           then obtain x where
-             "x be object" and B1: "x in dom Q & y= Q. x" using funct_1_def_3 by ty_auto
-           hence "[x,y] in Q" using funct_1_def_2 by ty_auto
-           thus "y in Y" using A2 by auto
-          qed mauto
-        thus "Q be Function-of X,Y" using  D funct_2_th_3 T2 P by ty_auto  
-        show "for x st x in X holds P(x,Q. x)"
-         proof (intro ballI impI)
-            fix x
-            assume B: "x in X"
-            hence "[x,Q. x] in Q" using D funct_1_def_2 by ty_auto  
-            thus "P(x,Q. x)" using A2 by auto
-         qed simp_all
-    qed mauto
-qed  
-  
-  
 mtheorem funct_2_th_4:
-  "for f being (Function-of X,Y) st (Y \<noteq> {} \<and> x in X) holds f . x in rng f"
-proof (intro ballI, rule impI )
-  show "inhabited(Function-of X,Y)" by auto
-  fix f
-  assume T[ty]:"f be (Function-of X,Y)"
-  assume A1: "Y \<noteq> {} \<and> x in X"
-  have "dom f = X" using funct_2_def_1E[of X Y f] A1 by ty_auto
-  thus "f . x in rng f" using funct_1_def_3 A1 by mauto
-qed
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 & x inHIDDENR3 X implies f .FUNCT-1K1 x inTARSKIR2 rngRELSET-1K2\<^bsub>(Y)\<^esub> f"
+sorry
 
 mtheorem funct_2_th_5:
-  "for f being Function-of X,Y st Y \<noteq> {} \<and> x in X holds f . x in Y"
-proof (intro ballI, rule impI)
- show I: "inhabited(Function-of X,Y)" by auto
-  fix f
-  assume [ty]:"f be (Function-of X,Y)"
-  assume "Y \<noteq> {} \<and> x in X"
-  hence T4: "f . x in rng f" using funct_2_th_4[of x Y X] I by ty_auto
-  have "rng f c= Y" using relat_1_def_19[of Y f] by mauto
-  thus "f . x in Y" using T4 tarski_def_3 by infer_auto
-qed
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 & x inHIDDENR3 X implies f .FUNCT-1K1 x inTARSKIR2 Y"
+sorry
 
-mdef funct_2_def_3 ("_ -onto" [95] 100)where
-mlet "Y be set"  
-"attr Y -onto for Y-valued\<bar>Function means (\<lambda>IT. rng IT = Y)".
+mtheorem funct_2_th_6:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 Z implies f be FunctionFUNCT-2M1-of(X,Z)"
+sorry
 
-mdef funct_2_def_4 ("_ -bijective" [95] 100)where
-  mlet "Y be set" 
-  "attr Y -bijective for Y-valued\<bar>Function means (\<lambda>IT. IT is Y-onto \<bar> one-to-one)".
+mtheorem funct_2_th_7:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & Y c=TARSKIR1 Z implies f be FunctionFUNCT-2M1-of(X,Z)"
+  using relset_1_th_7 sorry
 
-text_raw {*\DefineSnippet{funct_2_cl_11}{*}
-mtheorem 
- mlet "Y be set"
- "cluster Y -bijective \<rightarrow> Y -onto \<bar> one-to-one for Y-valued \<bar> Function"
-  text_raw {*}%EndSnippet*}
-proof  (standard,intro ballI impI) 
-  fix F assume [ty]:" F be Y-valued \<bar> Function" " F be Y -bijective"
-  show "F is Y -onto \<bar> one-to-one"
-    using funct_2_def_4E by mauto
-qed mauto
+theorem funct_2_sch_1:
+  fixes Xf0 Yf0 Pp2 
+  assumes
+[ty]: "Xf0 be setHIDDENM2" and
+  [ty]: "Yf0 be setHIDDENM2" and
+   A1: " for x be objectHIDDENM1 holds x inHIDDENR3 Xf0 implies ( ex y be objectHIDDENM1 st y inHIDDENR3 Yf0 & Pp2(x,y))"
+  shows " ex f be FunctionFUNCT-2M1-of(Xf0,Yf0) st  for x be objectHIDDENM1 holds x inHIDDENR3 Xf0 implies Pp2(x,f .FUNCT-1K1 x)"
+sorry
 
-text_raw {*\DefineSnippet{funct_2_cl_12}{*}
-mtheorem 
-  mlet "Y be set" 
- "cluster  Y -onto \<bar> one-to-one \<rightarrow> Y -bijective for Y-valued \<bar> Function"
-  text_raw {*}%EndSnippet*}
-proof  (standard,intro ballI impI) 
-  fix F assume [ty]:" F be Y-valued \<bar> Function" " F be Y -onto \<bar> one-to-one"
-  show "F is Y -bijective"
-    using funct_2_def_4I by mauto
-qed mauto
+theorem funct_2_sch_2:
+  fixes Xf0 Yf0 Ff1 
+  assumes
+[ty]: "Xf0 be setHIDDENM2" and
+  [ty]: "Yf0 be setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be objectHIDDENM1" and
+   A1: " for x be objectHIDDENM1 holds x inHIDDENR3 Xf0 implies Ff1(x) inHIDDENR3 Yf0"
+  shows " ex f be FunctionFUNCT-2M1-of(Xf0,Yf0) st  for x be objectHIDDENM1 holds x inHIDDENR3 Xf0 implies f .FUNCT-1K1 x =HIDDENR1 Ff1(x)"
+sorry
 
-text_raw {*\DefineSnippet{funct_2_def_5}{*}
-mtheorem funct_2_def_5:
-  mlet "C be non empty\<bar>set","D be set",
-       "f be (Function-of C,D)"," c be Element-of C"
-   "redefine func f . c \<rightarrow> Element-of D"
-text_raw {*}%EndSnippet*}
-proof(standard)
-  show "(f . c)  be (Element-of D)"
-  proof ( cases "D is empty")
-    assume A1: "D is empty"
-    hence "D={}" using empty1 by auto
-    hence "f = {}" using funct_2_def_1E[of C D f] by mauto
-    hence "dom f={}" using empty1[of "proj1 {}"] by mauto
-    hence "f . c = {}" using funct_1_def_2[of f] xb by mauto
-    thus "(f . c) be (Element-of D)" using A1 subset_1_def_1 by mauto
-  next
-    assume "not D is empty"
-    hence A2:"D \<noteq> {}" by mauto
-    have "c in C" using subset_1_def_1[of C c] by mauto
-    hence "(f . c) in D" using A2 funct_2_th_5[of c D C] by mauto
-    thus "(f . c) be Element-of D" using Element(6) by mauto
-  qed
-qed
+mdef funct_2_def_2 ("FuncsFUNCT-2K1'( _ , _ ')" [0,0]228 ) where
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"func FuncsFUNCT-2K1(X,Y) \<rightarrow> setHIDDENM2 means
+  \<lambda>it.  for x be objectHIDDENM1 holds x inHIDDENR3 it iff ( ex f be FunctionFUNCT-1M1 st (x =HIDDENR1 f & domRELAT-1K1 f =XBOOLE-0R4 X) & rngFUNCT-1K2 f c=TARSKIR1 Y)"
+proof-
+  (*existence*)
+    show " ex it be setHIDDENM2 st  for x be objectHIDDENM1 holds x inHIDDENR3 it iff ( ex f be FunctionFUNCT-1M1 st (x =HIDDENR1 f & domRELAT-1K1 f =XBOOLE-0R4 X) & rngFUNCT-1K2 f c=TARSKIR1 Y)"
+sorry
+  (*uniqueness*)
+    show " for it1 be setHIDDENM2 holds  for it2 be setHIDDENM2 holds ( for x be objectHIDDENM1 holds x inHIDDENR3 it1 iff ( ex f be FunctionFUNCT-1M1 st (x =HIDDENR1 f & domRELAT-1K1 f =XBOOLE-0R4 X) & rngFUNCT-1K2 f c=TARSKIR1 Y)) & ( for x be objectHIDDENM1 holds x inHIDDENR3 it2 iff ( ex f be FunctionFUNCT-1M1 st (x =HIDDENR1 f & domRELAT-1K1 f =XBOOLE-0R4 X) & rngFUNCT-1K2 f c=TARSKIR1 Y)) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
 
-text_raw {*\DefineSnippet{funct_2_def_7}{*}
-mtheorem funct_2_def_7:
-  mlet "A be set"," B be set",
-      "f1 be Function-of A,B", "f2 be Function-of A,B"
-  " redefine pred f1 = f2 means
-      for a be Element-of A holds f1 . a = f2 . a"
-text_raw {*}%EndSnippet*}
+mtheorem funct_2_th_8:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies f inTARSKIR2 FuncsFUNCT-2K1(X,Y)"
+sorry
+
+mtheorem funct_2_th_9:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds f inTARSKIR2 FuncsFUNCT-2K1(X,X)"
+  using funct_2_th_8 sorry
+
+mtheorem funct_2_cl_7:
+  mlet "X be setHIDDENM2", "Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster FuncsFUNCT-2K1(X,Y) as-term-is  non emptyXBOOLE-0V1"
 proof
-  show " f1 = f2 \<longleftrightarrow> (for a be Element-of A holds f1 . a = f2 . a)"
-  proof(rule iffI3)
-    show " f1 = f2 \<longrightarrow> (for a be Element-of A holds f1 . a = f2 . a)" by auto
-    assume A: "for a be Element-of A holds f1 . a = f2 . a"
-    show "f1=f2"
-    proof(intro tarski_th_2 iffI3)
-      fix a
-      show "a in f1 \<longrightarrow> a in f2"
-      proof
-        assume A2: "a in f1"
-        then obtain x y where
-           A3: "x be object" "y be object" "a=[x,y]" using relat_1_def_1[of f1] by mauto
-        hence A4:"x in dom f1 \<and> y = f1 .x" using funct_1_th_1[of f1 y x] A2 by mauto
-        have "y in proj2 f1" using xtuple_0_def_13 A2 A3 by mauto
-        hence "y in B" using relat_1_def_19 [of B f1] tarski_def_3E[of "proj2 f1" B] by mauto
-        hence A5: "dom f1 = A" "dom f2 = A" using funct_2_def_1E xb[of y] by mauto
-        hence "f1 . x = f2 . x" using A A4 Element(6) by mauto
-        hence "[x,y] in f2" using funct_1_th_1[of f2 y x] A3 A4 A5 by mauto
-        thus "a in f2" using A3 by simp
-      qed
-     assume A2: "a in f2"
-        then obtain x y where
-           A3: "x be object" "y be object" "a=[x,y]" using relat_1_def_1[of f2] by mauto
-        hence A4:"x in dom f2 \<and> y = f2 .x" using funct_1_th_1[of f2 y x] A2 by mauto
-        have "y in proj2 f2" using xtuple_0_def_13 A2 A3 by mauto
-        hence "y in B" using relat_1_def_19[of B f2] tarski_def_3E[of _ B] by mauto
-        hence A5: "dom f1 = A" "dom f2 = A" using funct_2_def_1E xb[of y] by mauto
-        hence "f1 . x = f2 . x" using A A4 Element(6) by mauto
-        hence "[x,y] in f1" using funct_1_th_1[of f1 y x] A3 A4 A5 by mauto
-        thus "a in f1" using A3 by simp
-      qed mauto
-  qed
-qed
+(*coherence*)
+  show "FuncsFUNCT-2K1(X,Y) be  non emptyXBOOLE-0V1"
+    using funct_2_th_8 sorry
+qed "sorry"
 
-text_raw {*\DefineSnippet{funct_2_th_50}{*}
+mtheorem funct_2_cl_8:
+  mlet "X be setHIDDENM2"
+"cluster FuncsFUNCT-2K1(X,X) as-term-is  non emptyXBOOLE-0V1"
+proof
+(*coherence*)
+  show "FuncsFUNCT-2K1(X,X) be  non emptyXBOOLE-0V1"
+    using funct_2_th_8 sorry
+qed "sorry"
+
+mtheorem funct_2_cl_9:
+  mlet "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "Y be emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster FuncsFUNCT-2K1(X,Y) as-term-is emptyXBOOLE-0V1"
+proof
+(*coherence*)
+  show "FuncsFUNCT-2K1(X,Y) be emptyXBOOLE-0V1"
+sorry
+qed "sorry"
+
+mtheorem funct_2_th_10:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds ( for y be objectHIDDENM1 holds y inHIDDENR3 Y implies ( ex x be objectHIDDENM1 st x inHIDDENR3 X & y =HIDDENR1 f .FUNCT-1K1 x)) implies rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y"
+sorry
+
+mtheorem funct_2_th_11:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for y be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds y inHIDDENR3 rngRELSET-1K2\<^bsub>(Y)\<^esub> f implies ( ex x be objectHIDDENM1 st x inHIDDENR3 X & f .FUNCT-1K1 x =HIDDENR1 y)"
+sorry
+
+mtheorem funct_2_th_12:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f1 be FunctionFUNCT-2M1-of(X,Y) holds  for f2 be FunctionFUNCT-2M1-of(X,Y) holds ( for x be objectHIDDENM1 holds x inHIDDENR3 X implies f1 .FUNCT-1K1 x =XBOOLE-0R4 f2 .FUNCT-1K1 x) implies f1 =RELSET-1R2\<^bsub>(X,Y)\<^esub> f2"
+sorry
+
+mtheorem funct_2_th_13:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>\<bar>RelationRELSET-1M1-of(X,Y) holds  for g be quasi-totalFUNCT-2V1\<^bsub>(Y,Z)\<^esub>\<bar>RelationRELSET-1M1-of(Y,Z) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies Z =XBOOLE-0R4 {}XBOOLE-0K1 or X =XBOOLE-0R4 {}XBOOLE-0K1) implies f *RELSET-1K4\<^bsub>(X,Y,Y,Z)\<^esub> g be quasi-totalFUNCT-2V1\<^bsub>(X,Z)\<^esub>"
+sorry
+
+mtheorem funct_2_th_14:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds (Z <>HIDDENR2 {}XBOOLE-0K1 & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y) & rngRELSET-1K2\<^bsub>(Z)\<^esub> g =XBOOLE-0R4 Z implies rngRELSET-1K2\<^bsub>(Z)\<^esub> (g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f) =XBOOLE-0R4 Z"
+sorry
+
+mtheorem funct_2_th_15:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-1M1 holds Y <>HIDDENR2 {}XBOOLE-0K1 & x inHIDDENR3 X implies (g *FUNCT-1K3 f).FUNCT-1K1 x =XBOOLE-0R4 g .FUNCT-1K1 (f .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_16:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies (rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y iff ( for Z be setHIDDENM2 holds Z <>HIDDENR2 {}XBOOLE-0K1 implies ( for g be FunctionFUNCT-2M1-of(Y,Z) holds  for h be FunctionFUNCT-2M1-of(Y,Z) holds g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f =RELSET-1R2\<^bsub>(X,Z)\<^esub> h *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f implies g =RELSET-1R2\<^bsub>(Y,Z)\<^esub> h)))"
+sorry
+
+mtheorem funct_2_th_17:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be RelationRELSET-1M1-of(X,Y) holds idPARTFUN1K6 X *RELSET-1K4\<^bsub>(X,X,X,Y)\<^esub> f =RELSET-1R2\<^bsub>(X,Y)\<^esub> f & f *RELSET-1K4\<^bsub>(X,Y,Y,Y)\<^esub> idPARTFUN1K6 Y =RELSET-1R2\<^bsub>(X,Y)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_18:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,X) holds f *PARTFUN1K1\<^bsub>(Y,X,X,Y)\<^esub> g =RELSET-1R2\<^bsub>(Y,Y)\<^esub> idPARTFUN1K6 Y implies rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y"
+sorry
+
+mtheorem funct_2_th_19:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies (f be one-to-oneFUNCT-1V2 iff ( for x1 be objectHIDDENM1 holds  for x2 be objectHIDDENM1 holds (x1 inHIDDENR3 X & x2 inHIDDENR3 X) & f .FUNCT-1K1 x1 =XBOOLE-0R4 f .FUNCT-1K1 x2 implies x1 =HIDDENR1 x2))"
+sorry
+
+mtheorem funct_2_th_20:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds (Z =XBOOLE-0R4 {}XBOOLE-0K1 implies Y =XBOOLE-0R4 {}XBOOLE-0K1) & g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f be one-to-oneFUNCT-1V2 implies f be one-to-oneFUNCT-1V2"
+sorry
+
+mtheorem funct_2_th_21:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds X <>HIDDENR2 {}XBOOLE-0K1 & Y <>HIDDENR2 {}XBOOLE-0K1 implies (f be one-to-oneFUNCT-1V2 iff ( for Z be setHIDDENM2 holds  for g be FunctionFUNCT-2M1-of(Z,X) holds  for h be FunctionFUNCT-2M1-of(Z,X) holds f *PARTFUN1K1\<^bsub>(Z,X,X,Y)\<^esub> g =RELSET-1R2\<^bsub>(Z,Y)\<^esub> f *PARTFUN1K1\<^bsub>(Z,X,X,Y)\<^esub> h implies g =RELSET-1R2\<^bsub>(Z,X)\<^esub> h))"
+sorry
+
+mtheorem funct_2_th_22:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds (Z <>HIDDENR2 {}XBOOLE-0K1 & rngRELSET-1K2\<^bsub>(Z)\<^esub> (g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f) =XBOOLE-0R4 Z) & g be one-to-oneFUNCT-1V2 implies rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y"
+sorry
+
+mdef funct_2_def_3 ("ontoFUNCT-2V2\<^bsub>'( _ ')\<^esub>" [0]70 ) where
+  mlet "Y be setHIDDENM2"
+"attr ontoFUNCT-2V2\<^bsub>(Y)\<^esub> for Y -valuedRELAT-1V5\<bar>RelationRELAT-1M1 means
+  (\<lambda>f. rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y)"..
+
+mtheorem funct_2_th_23:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,X) holds g *PARTFUN1K1\<^bsub>(X,Y,Y,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X implies f be one-to-oneFUNCT-1V2 & g be ontoFUNCT-2V2\<^bsub>(X)\<^esub>"
+sorry
+
+mtheorem funct_2_th_24:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds ((Z =XBOOLE-0R4 {}XBOOLE-0K1 implies Y =XBOOLE-0R4 {}XBOOLE-0K1) & g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f be one-to-oneFUNCT-1V2) & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y implies f be one-to-oneFUNCT-1V2 & g be one-to-oneFUNCT-1V2"
+sorry
+
+mtheorem funct_2_th_25:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds f be one-to-oneFUNCT-1V2 & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y implies f \<inverse>FUNCT-1K4 be FunctionFUNCT-2M1-of(Y,X)"
+sorry
+
+mtheorem funct_2_th_26:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y <>HIDDENR2 {}XBOOLE-0K1 & f be one-to-oneFUNCT-1V2) & x inHIDDENR3 X implies f \<inverse>FUNCT-1K4 .FUNCT-1K1 (f .FUNCT-1K1 x) =HIDDENR1 x"
+sorry
+
+mtheorem funct_2_th_27:
+" for X be setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Z be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds f be ontoFUNCT-2V2\<^bsub>(Y)\<^esub> & g be ontoFUNCT-2V2\<^bsub>(Z)\<^esub> implies g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f be ontoFUNCT-2V2\<^bsub>(Z)\<^esub>"
+sorry
+
+mtheorem funct_2_th_28:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,X) holds (((X <>HIDDENR2 {}XBOOLE-0K1 & Y <>HIDDENR2 {}XBOOLE-0K1) & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y) & f be one-to-oneFUNCT-1V2) & ( for y be objectHIDDENM1 holds  for x be objectHIDDENM1 holds y inHIDDENR3 Y & g .FUNCT-1K1 y =HIDDENR1 x iff x inHIDDENR3 X & f .FUNCT-1K1 x =HIDDENR1 y) implies g =FUNCT-1R1 f \<inverse>FUNCT-1K4"
+sorry
+
+mtheorem funct_2_th_29:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y <>HIDDENR2 {}XBOOLE-0K1 & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y) & f be one-to-oneFUNCT-1V2 implies f \<inverse>FUNCT-1K4 *FUNCT-1K3 f =FUNCT-1R1 idPARTFUN1K6 X & f *FUNCT-1K3 f \<inverse>FUNCT-1K4 =FUNCT-1R1 idPARTFUN1K6 Y"
+sorry
+
+mtheorem funct_2_th_30:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,X) holds (((X <>HIDDENR2 {}XBOOLE-0K1 & Y <>HIDDENR2 {}XBOOLE-0K1) & rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y) & g *PARTFUN1K1\<^bsub>(X,Y,Y,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X) & f be one-to-oneFUNCT-1V2 implies g =FUNCT-1R1 f \<inverse>FUNCT-1K4"
+sorry
+
+mtheorem funct_2_th_31:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 & ( ex g be FunctionFUNCT-2M1-of(Y,X) st g *PARTFUN1K1\<^bsub>(X,Y,Y,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X) implies f be one-to-oneFUNCT-1V2"
+sorry
+
+mtheorem funct_2_th_32:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & Z c=TARSKIR1 X implies f |PARTFUN1K2\<^bsub>(X,Y)\<^esub> Z be FunctionFUNCT-2M1-of(Z,Y)"
+sorry
+
+mtheorem funct_2_th_33:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds X c=TARSKIR1 Z implies f |PARTFUN1K2\<^bsub>(X,Y)\<^esub> Z =RELSET-1R2\<^bsub>(X,Y)\<^esub> f"
+  using relset_1_th_19 sorry
+
+mtheorem funct_2_th_34:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y <>HIDDENR2 {}XBOOLE-0K1 & x inHIDDENR3 X) & f .FUNCT-1K1 x inTARSKIR2 Z implies (Z |`RELSET-1K6\<^bsub>(X,Y)\<^esub> f).FUNCT-1K1 x =XBOOLE-0R4 f .FUNCT-1K1 x"
+sorry
+
+mtheorem funct_2_th_35:
+" for P be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies ( for y be objectHIDDENM1 holds ( ex x be objectHIDDENM1 st (x inHIDDENR3 X & x inHIDDENR3 P) & y =HIDDENR1 f .FUNCT-1K1 x) implies y inHIDDENR3 f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> P)"
+sorry
+
+mtheorem funct_2_th_36:
+" for P be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> P c=TARSKIR1 Y"
+   sorry
+
+(*\$CT*)
+mtheorem funct_2_th_38:
+" for Q be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies ( for x be objectHIDDENM1 holds x inHIDDENR3 f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> Q iff x inHIDDENR3 X & f .FUNCT-1K1 x inTARSKIR2 Q)"
+sorry
+
+mtheorem funct_2_th_39:
+" for Q be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> Q c=TARSKIR1 X"
+   sorry
+
+mtheorem funct_2_th_40:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> Y =XBOOLE-0R4 X"
+sorry
+
+mtheorem funct_2_th_41:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds ( for y be objectHIDDENM1 holds y inHIDDENR3 Y implies f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> {TARSKIK1 y} <>HIDDENR2 {}XBOOLE-0K1) iff rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 Y"
+  using funct_1_th_73 funct_1_th_72 sorry
+
+mtheorem funct_2_th_42:
+" for P be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & P c=TARSKIR1 X implies P c=TARSKIR1 f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> (f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> P)"
+sorry
+
+mtheorem funct_2_th_43:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> (f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> X) =XBOOLE-0R4 X"
+sorry
+
+mtheorem funct_2_th_44:
+" for Q be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(Y,Z) holds (Z =XBOOLE-0R4 {}XBOOLE-0K1 implies Y =XBOOLE-0R4 {}XBOOLE-0K1) implies f \<inverse>RELSET-1K8\<^bsub>(X,Y)\<^esub> Q c=TARSKIR1 (g *PARTFUN1K1\<^bsub>(X,Y,Y,Z)\<^esub> f)\<inverse>RELSET-1K8\<^bsub>(X,Z)\<^esub> (g .:RELSET-1K7\<^bsub>(Y,Z)\<^esub> Q)"
+sorry
+
+mtheorem funct_2_th_45:
+" for P be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of({}XBOOLE-0K1,Y) holds f .:RELSET-1K7\<^bsub>({}XBOOLE-0K1,Y)\<^esub> P =FUNCT-1R1 {}XBOOLE-0K1"
+   sorry
+
+mtheorem funct_2_th_46:
+" for Q be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of({}XBOOLE-0K1,Y) holds f \<inverse>RELSET-1K8\<^bsub>({}XBOOLE-0K1,Y)\<^esub> Q =FUNCT-1R1 {}XBOOLE-0K1"
+   sorry
+
+mtheorem funct_2_th_47:
+" for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of({TARSKIK1 x},Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies f .FUNCT-1K1 x inTARSKIR2 Y"
+sorry
+
+mtheorem funct_2_th_48:
+" for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of({TARSKIK1 x},Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 {TARSKIK1 f .FUNCT-1K1 x }"
+sorry
+
+mtheorem funct_2_th_49:
+" for P be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of({TARSKIK1 x},Y) holds Y <>HIDDENR2 {}XBOOLE-0K1 implies f .:RELSET-1K7\<^bsub>({TARSKIK1 x},Y)\<^esub> P c=TARSKIR1 {TARSKIK1 f .FUNCT-1K1 x }"
+sorry
+
 mtheorem funct_2_th_50:
-  "for y be object, X be non empty\<bar>set holds
-     for f1,f2 be Function-of X,{y} holds f1=f2"
-proof(intro ballI)
-  fix y X
-  assume T0[ty]: "y be object" "X be non empty\<bar>set"
-  show "inhabited(Function-of X,{y})" "inhabited(Function-of X,{y})" by mauto
-  fix f1
-  assume [ty]:"f1 be Function-of X,{y}"
-  fix f2 assume[ty]: "f2 be Function-of X,{y}"
-  show "f1 = f2"
-  proof (rule funct_2_def_7I[of X "{y}" f1 f2],ty_simp)
-text_raw {*}%EndSnippet*}
-   show "for a be Element-of X holds f1 . a = f2 . a"
-       proof
-         fix a assume A1[ty]: "a be Element-of X"
-         have A2: "a in X" using Element(1)[of X a]  ty by auto
-         have "{y}\<noteq>{}" using xb tarski_def_1[of y y] by auto
-         hence "f1 .a in {y}" "f2 .a in {y}"
-           using funct_2_th_5[of a "{y}" X] A2 by mauto
-           thus "f1 .a = f2 .a" using tarski_def_1 by auto
-        qed simp
-      qed mauto
-qed simp_all
+" for X be setHIDDENM2 holds  for x be objectHIDDENM1 holds  for y be objectHIDDENM1 holds  for f be FunctionFUNCT-2M1-of(X,{TARSKIK1 y}) holds x inHIDDENR3 X implies f .FUNCT-1K1 x =HIDDENR1 y"
+sorry
 
-mtheorem funct_2_lm_1:
-  mlet "f be Function "," g be Function"
-  "rng f c= dom g implies dom f = dom (g*`f)"
-proof (intro impI xboole_0_def_10I conjI)
-  assume A0:"rng f c= dom g"
-       show "dom f \<subseteq> dom (g*`f)"
-          proof (standard,auto)
-            fix x
-            assume K: "x in dom f"
-            hence "f. x in dom g" using funct_1_def_3[of f] tarski_def_3E[OF _ _ A0] by mauto
-            thus "x in dom (g*`f)" using funct_1_th_11[of g f x] K by mauto
-          qed mauto
-          show "dom (g*`f) \<subseteq> dom f"
-           proof (standard,auto)
-            fix x
-            assume "x in dom (g*`f)"
-            thus "x in dom f" using funct_1_th_11[of g f x] by mauto
-          qed mauto
-        qed mauto
+mtheorem funct_2_th_51:
+" for X be setHIDDENM2 holds  for y be objectHIDDENM1 holds  for f1 be FunctionFUNCT-2M1-of(X,{TARSKIK1 y}) holds  for f2 be FunctionFUNCT-2M1-of(X,{TARSKIK1 y}) holds f1 =RELSET-1R2\<^bsub>(X,{TARSKIK1 y})\<^esub> f2"
+sorry
 
- mtheorem funct_2_lm_2:
-  mlet "f be Function","g be Function"
-  "rng f c= dom g implies rng (g*`f) c= rng g"
- proof(standard,standard,auto)
-   assume  A1: "rng f c= dom g"
-   fix y
-    assume "y in rng (g*`f)"
-    then obtain x where
-      C1: "x be object" "x in dom (g*`f)" "(g*`f). x = y" using funct_1_def_3 by mauto
-    have "x in dom f \<and> f. x in dom g" using funct_1_th_11[of g f x] C1 by mauto
-    hence "g.(f. x) = (g*`f). x" "g.(f. x) in rng g" using funct_1_th_12[of g f x]
-      funct_1_def_3[of g] C1 by mauto
-    thus "y in rng g" using C1 by simp
-qed mauto
+mtheorem funct_2_th_52:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds domRELSET-1K1\<^bsub>(X)\<^esub> f =XBOOLE-0R4 X"
+sorry
 
-text_raw {*\DefineSnippet{funct_2_def_11}{*}
-mdef funct_2_def_11 ("_ '/*`[_, _] _" [10,0,0,10] 90) where
-   mlet "X be set", "Z be set", "Y be (non empty)\<bar>set",
-      "f be Function-of X,Y","p be (Z-valued) \<bar>Function"
-   "assume rng f c= dom p func p /*`[X, Z] f \<rightarrow>
-             Function-of X,Z equals p*`f"
-text_raw {*}%EndSnippet*}
-proof -
-   assume A1: "rng f c= dom p"
-    have A22: "rng p c= Z" using relat_1_def_19[THEN iffD1] by mauto
-    let ?y = "the (Element-of Y)"
-    have "Y \<noteq> {}" using xb1 ty xboole_0_def_1 empty2 by auto
-    hence B3: "dom f = X" using funct_2_def_1E by mauto
-    have A2: "dom f = dom (p*`f)" using funct_2_lm_1[of f p] A1 by mauto
-        have A3: "rng (p*`f) c= Z"
-        proof(standard,auto)
-             fix y
-             assume "y in rng (p*`f)"
-             then obtain x where
-               C1: "x be object" "x in dom (p*`f)" "(p*`f). x = y" using funct_1_def_3 by ty_auto
-             have "x in dom f \<and> f. x in dom p" using funct_1_th_11[of p f x] C1 B3 by ty_auto
-             hence "p.(f. x) = (p*`f). x" "p.(f. x) in rng p" using funct_1_th_12[of p f x] C1
-               funct_1_def_3 by mauto
-             thus "y in Z" using tarski_def_3E[OF _ _ A22] C1 by mauto
-          qed mauto
-       hence T3: "p*`f be Relation-of X,Z" using A2 B3 relset_1_th_4[of Z X] xboole_0_def_10 by infer_auto
-  show "p*`f be (Function-of X,Z)"
-  proof(cases "Z={}")
-    case T: True
-      have "{} c= [:X,Z:]" using xb1 by (intro tarski_def_3I) mauto
-      hence A: "{} be PartFunc-of X,Z" using Subset_of_rule[of "{}" "[:X,Z:]"] T by mauto
-      have "dom {}={}" using empty1[of "dom {}"] by infer_auto
-      hence A: "{} be Function-of X,Z" using A funct_2_def_1I[of X "{}" "{}"] T by mauto
-      have "rng (p*`f) ={}" using A3 T xboole_0_def_10[of "rng (p*`f)" "{}"] xb[simplified] tarski_def_3I[of "{}"] by mauto
-      hence "(p*`f) ={}" using relat_1_th_41[of "p*`f"]  by mauto
-      thus "p*`f be (X,Z: quasi-total)\<bar> (PartFunc-of X,Z)" using A funct_2_def_1E[of "p*`f" X Z] T3 T by auto
-  next
-     case K: False
-    hence A4: "p*`f be Function_like \<bar> (Relation-of X,Z)" using T3 by mauto
-    hence "p*`f is (X,Z: quasi-total) \<or> (p*`f = {} \<and> Z={})" using funct_2_def_1I[of X Z "p*`f"] A2 A3 K B3 by mauto
-    thus "p*`f be (X,Z: quasi-total) \<bar> (PartFunc-of X,Z)" using A4 K by auto
-   qed
-qed mauto
-
-mtheorem funct_2_def_10:
-  mlet "X be set"
-  "redefine func id X \<rightarrow> Function-of X,X"
+mtheorem funct_2_cl_10:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2", "f be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,Y)", "g be quasi-totalFUNCT-2V1\<^bsub>(X,X)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,X)"
+"cluster f *PARTFUN1K1\<^bsub>(X,X,X,Y)\<^esub> g as-term-is quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> for PartFuncPARTFUN1M1-of(X,Y)"
 proof
-  have A1:"dom (id X) = X" "rng (id X) = X" using relat_1_id_dom relat_1_id_rng by mauto
-  hence T1[ty]:"id X be Relation-of X,X" using relset_1_th_4[of X X] xboole_0_def_10 by mauto
-  show "id X be Function-of X,X"
-  proof (cases "X={}")
-    case I:True
-      hence "id X={}" using A1 relat_1_th_41[of "id X",rule_format] by mauto
-      hence "id X is X , X : quasi-total" using T1 funct_2_def_1I[of X X "id X"] I by mauto
-      thus ?thesis using T1 by mauto
-  next
-    case False
-       thus ?thesis using A1 funct_2_def_1I[of X X "id X"] T1 by mauto
-  qed
-qed
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,Y) holds it =HIDDENR1 f *PARTFUN1K1\<^bsub>(X,X,X,Y)\<^esub> g implies it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>"
+sorry
+qed "sorry"
 
+mtheorem funct_2_cl_11:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2", "f be quasi-totalFUNCT-2V1\<^bsub>(Y,Y)\<^esub>\<bar>PartFuncPARTFUN1M1-of(Y,Y)", "g be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,Y)"
+"cluster f *PARTFUN1K1\<^bsub>(X,Y,Y,Y)\<^esub> g as-term-is quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub> for PartFuncPARTFUN1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,Y) holds it =HIDDENR1 f *PARTFUN1K1\<^bsub>(X,Y,Y,Y)\<^esub> g implies it be quasi-totalFUNCT-2V1\<^bsub>(X,Y)\<^esub>"
+sorry
+qed "sorry"
 
-mdef funct_2_def_2 ("Funcs'( _ , _ ')") where
-  mlet "X be set", "Y be set"
-  "func Funcs(X,Y) \<rightarrow> set means
-     \<lambda>it. \<forall>x : object. 
-         x in it \<longleftrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y)"
-proof-
-   let ?P = "\<lambda>x. ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y"
-    have A0:"bool [:X,Y:] be set" by infer_auto
-     obtain IT where
-   [ty]:"IT be set" and A1: "for x being object holds x in IT \<longleftrightarrow> x in bool [:X,Y:] \<and> ?P(x)" using xboole_0_sch_1[OF A0, of ?P] by auto
-     show "ex IT be set st \<forall>x : object.  x in IT \<longleftrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y)"
-     proof(rule bexI[of _ IT],rule ballI,rule iffI3)
-       fix x assume [ty]:"x be object"
-       show "x in IT \<longrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y)" using A1 by auto
-       assume A2: "ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y"
-       then obtain f where
-         [ty]:"f be Function" and A3: "x=f \<and> dom f = X \<and> rng f c= Y" by auto
-       have A4: "rng f c= Y" using A2 A3 by auto
-       have "dom f c= X" using A3 xboole_0_def_10 by infer_auto
-       hence A5: "[:dom f,rng f:] c= [:X,Y:]" using A4 A3(1) zfmisc_1_th_96[of Y "rng f" X "dom f"] by infer_auto
-       have "f c= [:dom f,rng f:]" using relat_1_th_7[of f] A2 by ty_auto
-       hence "f c= [:X,Y:]" using A5 tarski_def_3 tarski_0_1 by auto
-       hence "f in bool [:X,Y:]" using zfmisc_1_def_1 by infer_auto
-       thus "x in IT" using A1 A2 A3 by auto
-     qed ty_auto
-next
-  fix A1 A2
-  assume [ty]:"A1 be set" and A1: "(\<forall>x : object. 
-         x in A1 \<longleftrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y))" and
-        [ty]: "A2 be set" and A2:"\<forall>x : object. 
-         x in A2 \<longleftrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y)"
-    {
-      fix x
-      assume Z1: "x be object"
-      have "x in A1 \<longleftrightarrow> (ex f being Function st x = f \<and> dom f = X \<and> rng f c= Y)" using Z1 A1 by auto
-      then have "x in A1 \<longleftrightarrow> x in A2" using Z1 A2 by auto
-    }
-  thus "A1 = A2" by (intro tarski_th_2) ty_auto
-qed simp_all
-  
-text_raw {*\DefineSnippet{funct_2_sch_4}{*}  
+mtheorem funct_2_th_53:
+" for X be setHIDDENM2 holds  for f be RelationRELSET-1M1-of(X,X) holds  for g be RelationRELSET-1M1-of(X,X) holds rngRELSET-1K2\<^bsub>(X)\<^esub> f =XBOOLE-0R4 X & rngRELSET-1K2\<^bsub>(X)\<^esub> g =XBOOLE-0R4 X implies rngRELSET-1K2\<^bsub>(X)\<^esub> (g *RELSET-1K4\<^bsub>(X,X,X,X)\<^esub> f) =XBOOLE-0R4 X"
+sorry
+
+mtheorem funct_2_th_54:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds  for g be FunctionFUNCT-2M1-of(X,X) holds g *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> f & rngRELSET-1K2\<^bsub>(X)\<^esub> f =XBOOLE-0R4 X implies g =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X"
+sorry
+
+mtheorem funct_2_th_55:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds  for g be FunctionFUNCT-2M1-of(X,X) holds f *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> g =RELSET-1R2\<^bsub>(X,X)\<^esub> f & f be one-to-oneFUNCT-1V2 implies g =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X"
+sorry
+
+mtheorem funct_2_th_56:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds f be one-to-oneFUNCT-1V2 iff ( for x1 be objectHIDDENM1 holds  for x2 be objectHIDDENM1 holds (x1 inHIDDENR3 X & x2 inHIDDENR3 X) & f .FUNCT-1K1 x1 =XBOOLE-0R4 f .FUNCT-1K1 x2 implies x1 =HIDDENR1 x2)"
+sorry
+
+mdef funct_2_def_4 ("bijectiveFUNCT-2V3\<^bsub>'( _ , _ ')\<^esub>" [0,0]70 ) where
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"attr bijectiveFUNCT-2V3\<^bsub>(X,Y)\<^esub> for X -definedRELAT-1V4\<bar>Y -valuedRELAT-1V5\<bar>FunctionFUNCT-1M1 means
+  (\<lambda>f. f be one-to-oneFUNCT-1V2\<bar>ontoFUNCT-2V2\<^bsub>(Y)\<^esub>)"..
+
+mtheorem funct_2_cl_12:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"cluster bijectiveFUNCT-2V3\<^bsub>(X,Y)\<^esub> also-is one-to-oneFUNCT-1V2\<bar>ontoFUNCT-2V2\<^bsub>(Y)\<^esub> for PartFuncPARTFUN1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,Y) holds it be bijectiveFUNCT-2V3\<^bsub>(X,Y)\<^esub> implies it be one-to-oneFUNCT-1V2\<bar>ontoFUNCT-2V2\<^bsub>(Y)\<^esub>"
+     sorry
+qed "sorry"
+
+mtheorem funct_2_cl_13:
+  mlet "X be setHIDDENM2", "Y be setHIDDENM2"
+"cluster one-to-oneFUNCT-1V2\<bar>ontoFUNCT-2V2\<^bsub>(Y)\<^esub> also-is bijectiveFUNCT-2V3\<^bsub>(X,Y)\<^esub> for PartFuncPARTFUN1M1-of(X,Y)"
+proof
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,Y) holds it be one-to-oneFUNCT-1V2\<bar>ontoFUNCT-2V2\<^bsub>(Y)\<^esub> implies it be bijectiveFUNCT-2V3\<^bsub>(X,Y)\<^esub>"
+     sorry
+qed "sorry"
+
+mtheorem funct_2_cl_14:
+  mlet "X be setHIDDENM2"
+"cluster bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub> for FunctionFUNCT-2M1-of(X,X)"
+proof
+(*existence*)
+  show " ex it be FunctionFUNCT-2M1-of(X,X) st it be bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>"
+sorry
+qed "sorry"
+
+syntax FUNCT_2M2 :: " Set \<Rightarrow> Ty" ("PermutationFUNCT-2M2-of  _ " [70]70)
+translations "PermutationFUNCT-2M2-of X" \<rightharpoonup> "bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>\<bar>FunctionFUNCT-2M1-of(X,X)"
+
+mtheorem funct_2_th_57:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds f be one-to-oneFUNCT-1V2 & rngRELSET-1K2\<^bsub>(X)\<^esub> f =XBOOLE-0R4 X implies f be PermutationFUNCT-2M2-of X"
+sorry
+
+mtheorem funct_2_th_58:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds f be one-to-oneFUNCT-1V2 implies ( for x1 be objectHIDDENM1 holds  for x2 be objectHIDDENM1 holds (x1 inHIDDENR3 X & x2 inHIDDENR3 X) & f .FUNCT-1K1 x1 =XBOOLE-0R4 f .FUNCT-1K1 x2 implies x1 =HIDDENR1 x2)"
+  using funct_2_th_56 sorry
+
+mtheorem funct_2_cl_15:
+  mlet "X be setHIDDENM2", "f be ontoFUNCT-2V2\<^bsub>(X)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,X)", "g be ontoFUNCT-2V2\<^bsub>(X)\<^esub>\<bar>PartFuncPARTFUN1M1-of(X,X)"
+"cluster f *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> g as-term-is ontoFUNCT-2V2\<^bsub>(X)\<^esub> for PartFuncPARTFUN1M1-of(X,X)"
+proof
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,X) holds it =HIDDENR1 f *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> g implies it be ontoFUNCT-2V2\<^bsub>(X)\<^esub>"
+sorry
+qed "sorry"
+
+mtheorem funct_2_cl_16:
+  mlet "X be setHIDDENM2", "f be bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>\<bar>FunctionFUNCT-2M1-of(X,X)", "g be bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>\<bar>FunctionFUNCT-2M1-of(X,X)"
+"cluster g *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f as-term-is bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub> for FunctionFUNCT-2M1-of(X,X)"
+proof
+(*coherence*)
+  show " for it be FunctionFUNCT-2M1-of(X,X) holds it =HIDDENR1 g *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f implies it be bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>"
+     sorry
+qed "sorry"
+
+mtheorem funct_2_cl_17:
+  mlet "X be setHIDDENM2"
+"cluster reflexiveRELAT-2V1\<bar>totalPARTFUN1V1\<^bsub>(X)\<^esub> also-is bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub> for FunctionFUNCT-2M1-of(X,X)"
+proof
+(*coherence*)
+  show " for it be FunctionFUNCT-2M1-of(X,X) holds it be reflexiveRELAT-2V1\<bar>totalPARTFUN1V1\<^bsub>(X)\<^esub> implies it be bijectiveFUNCT-2V3\<^bsub>(X,X)\<^esub>"
+sorry
+qed "sorry"
+
+syntax FUNCT_2K2 :: " Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ \<inverse>FUNCT-2K2\<^bsub>'( _ ')\<^esub>" [228,0]228)
+translations "f \<inverse>FUNCT-2K2\<^bsub>(X)\<^esub>" \<rightharpoonup> "f \<inverse>FUNCT-1K4"
+
+mtheorem funct_2_add_1:
+  mlet "X be setHIDDENM2", "f be PermutationFUNCT-2M2-of X"
+"cluster f \<inverse>FUNCT-1K4 as-term-is PermutationFUNCT-2M2-of X"
+proof
+(*coherence*)
+  show "f \<inverse>FUNCT-1K4 be PermutationFUNCT-2M2-of X"
+sorry
+qed "sorry"
+
+mtheorem funct_2_th_59:
+" for X be setHIDDENM2 holds  for f be PermutationFUNCT-2M2-of X holds  for g be PermutationFUNCT-2M2-of X holds g *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> g implies f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X"
+sorry
+
+mtheorem funct_2_th_60:
+" for X be setHIDDENM2 holds  for f be PermutationFUNCT-2M2-of X holds  for g be PermutationFUNCT-2M2-of X holds g *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X implies g =RELSET-1R2\<^bsub>(X,X)\<^esub> f \<inverse>FUNCT-2K2\<^bsub>(X)\<^esub>"
+sorry
+
+mtheorem funct_2_th_61:
+" for X be setHIDDENM2 holds  for f be PermutationFUNCT-2M2-of X holds f \<inverse>FUNCT-2K2\<^bsub>(X)\<^esub> *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X & f *PARTFUN1K1\<^bsub>(X,X,X,X)\<^esub> f \<inverse>FUNCT-2K2\<^bsub>(X)\<^esub> =RELSET-1R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X"
+sorry
+
+mtheorem funct_2_th_62:
+" for P be setHIDDENM2 holds  for X be setHIDDENM2 holds  for f be PermutationFUNCT-2M2-of X holds P c=TARSKIR1 X implies f .:RELSET-1K7\<^bsub>(X,X)\<^esub> f \<inverse>RELSET-1K8\<^bsub>(X,X)\<^esub> P =XBOOLE-0R4 P & f \<inverse>RELSET-1K8\<^bsub>(X,X)\<^esub> (f .:RELSET-1K7\<^bsub>(X,X)\<^esub> P) =XBOOLE-0R4 P"
+sorry
+
+reserve D for " non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+mtheorem funct_2_cl_18:
+  mlet "X be setHIDDENM2", "D be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "Z be setHIDDENM2", "f be FunctionFUNCT-2M1-of(X,D)", "g be FunctionFUNCT-2M1-of(D,Z)"
+"cluster g *PARTFUN1K1\<^bsub>(X,D,D,Z)\<^esub> f as-term-is quasi-totalFUNCT-2V1\<^bsub>(X,Z)\<^esub> for PartFuncPARTFUN1M1-of(X,Z)"
+proof
+(*coherence*)
+  show " for it be PartFuncPARTFUN1M1-of(X,Z) holds it =HIDDENR1 g *PARTFUN1K1\<^bsub>(X,D,D,Z)\<^esub> f implies it be quasi-totalFUNCT-2V1\<^bsub>(X,Z)\<^esub>"
+    using funct_2_th_13 sorry
+qed "sorry"
+
+syntax FUNCT_2K3 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ .FUNCT-2K3\<^bsub>'( _ , _ ')\<^esub>  _ " [200,0,0,200]200)
+translations "f .FUNCT-2K3\<^bsub>(C,D)\<^esub> c" \<rightharpoonup> "f .FUNCT-1K1 c"
+
+mtheorem funct_2_add_2:
+  mlet "C be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "D be setHIDDENM2", "f be FunctionFUNCT-2M1-of(C,D)", "c be ElementSUBSET-1M1-of C"
+"cluster f .FUNCT-1K1 c as-term-is ElementSUBSET-1M1-of D"
+proof
+(*coherence*)
+  show "f .FUNCT-1K1 c be ElementSUBSET-1M1-of D"
+sorry
+qed "sorry"
+
+theorem funct_2_sch_3:
+  fixes Cf0 Df0 Pp2 
+  assumes
+[ty]: "Cf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+   A1: " for x be ElementSUBSET-1M1-of Cf0 holds  ex y be ElementSUBSET-1M1-of Df0 st Pp2(x,y)"
+  shows " ex f be FunctionFUNCT-2M1-of(Cf0,Df0) st  for x be ElementSUBSET-1M1-of Cf0 holds Pp2(x,f .FUNCT-2K3\<^bsub>(Cf0,Df0)\<^esub> x)"
+sorry
+
 theorem funct_2_sch_4:
-  assumes [ty]: "C be non empty\<bar>set"   "D be non empty\<bar>set"
-    and T0: "\<forall>x:Element-of C. F(x) be Element-of D"
-  shows "\<exists>f:Function-of C,D. \<forall>x:Element-of C. (f . x) = F(x)"
-text_raw {*}%EndSnippet*}
+  fixes Cf0 Df0 Ff1 
+  assumes
+[ty]: "Cf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be ElementSUBSET-1M1-of Cf0 \<Longrightarrow> Ff1(x1) be ElementSUBSET-1M1-of Df0"
+  shows " ex f be FunctionFUNCT-2M1-of(Cf0,Df0) st  for x be ElementSUBSET-1M1-of Cf0 holds f .FUNCT-2K3\<^bsub>(Cf0,Df0)\<^esub> x =XBOOLE-0R4 Ff1(x)"
+sorry
+
+mtheorem funct_2_th_63:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f1 be FunctionFUNCT-2M1-of(X,Y) holds  for f2 be FunctionFUNCT-2M1-of(X,Y) holds ( for x be ElementSUBSET-1M1-of X holds f1 .FUNCT-1K1 x =XBOOLE-0R4 f2 .FUNCT-1K1 x) implies f1 =RELSET-1R2\<^bsub>(X,Y)\<^esub> f2"
+sorry
+
+mtheorem funct_2_th_64:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for P be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for y be objectHIDDENM1 holds y inHIDDENR3 f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> P implies ( ex x be objectHIDDENM1 st (x inHIDDENR3 X & x inHIDDENR3 P) & y =HIDDENR1 f .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_65:
+" for P be setHIDDENM2 holds  for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for y be objectHIDDENM1 holds y inHIDDENR3 f .:RELSET-1K7\<^bsub>(X,Y)\<^esub> P implies ( ex c be ElementSUBSET-1M1-of X st c inTARSKIR2 P & y =HIDDENR1 f .FUNCT-1K1 c)"
+sorry
+
+(*begin*)
+mtheorem funct_2_th_66:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be setHIDDENM2 holds f inTARSKIR2 FuncsFUNCT-2K1(X,Y) implies f be FunctionFUNCT-2M1-of(X,Y)"
+sorry
+
+theorem funct_2_sch_5:
+  fixes Af0 Bf0 Ff1 Gf1 Cp1 
+  assumes
+[ty]: "Af0 be setHIDDENM2" and
+  [ty]: "Bf0 be setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be objectHIDDENM1" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Gf1(x1) be objectHIDDENM1" and
+   A1: " for x be objectHIDDENM1 holds x inHIDDENR3 Af0 implies (Cp1(x) implies Ff1(x) inHIDDENR3 Bf0) & ( not Cp1(x) implies Gf1(x) inHIDDENR3 Bf0)"
+  shows " ex f be FunctionFUNCT-2M1-of(Af0,Bf0) st  for x be objectHIDDENM1 holds x inHIDDENR3 Af0 implies (Cp1(x) implies f .FUNCT-1K1 x =HIDDENR1 Ff1(x)) & ( not Cp1(x) implies f .FUNCT-1K1 x =HIDDENR1 Gf1(x))"
+sorry
+
+mtheorem funct_2_th_67:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds domRELSET-1K1\<^bsub>(X)\<^esub> f =XBOOLE-0R4 X implies f be FunctionFUNCT-2M1-of(X,Y)"
+sorry
+
+mtheorem funct_2_th_68:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds f be totalPARTFUN1V1\<^bsub>(X)\<^esub> implies f be FunctionFUNCT-2M1-of(X,Y)"
+   sorry
+
+mtheorem funct_2_th_69:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & f be FunctionFUNCT-2M1-of(X,Y) implies f be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+   sorry
+
+mtheorem funct_2_th_70:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies <:PARTFUN1K3 f,X,Y :> be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+   sorry
+
+mtheorem funct_2_cl_19:
+  mlet "X be setHIDDENM2", "f be FunctionFUNCT-2M1-of(X,X)"
+"cluster <:PARTFUN1K3 f,X,X :> as-term-is totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+proof
+(*coherence*)
+  show "<:PARTFUN1K3 f,X,X :> be totalPARTFUN1V1\<^bsub>(X)\<^esub>"
+     sorry
+qed "sorry"
+
+mtheorem funct_2_th_71:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies ( ex g be FunctionFUNCT-2M1-of(X,Y) st  for x be objectHIDDENM1 holds x inHIDDENR3 domRELSET-1K1\<^bsub>(X)\<^esub> f implies g .FUNCT-1K1 x =XBOOLE-0R4 f .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_72:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds FuncsFUNCT-2K1(X,Y) c=TARSKIR1 PFuncsPARTFUN1K4(X,Y)"
+sorry
+
+mtheorem funct_2_th_73:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & f toleratesPARTFUN1R1 g implies f =RELSET-1R2\<^bsub>(X,Y)\<^esub> g"
+  using partfun1_th_66 sorry
+
+mtheorem funct_2_th_74:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds  for g be FunctionFUNCT-2M1-of(X,X) holds f toleratesPARTFUN1R1 g implies f =RELSET-1R2\<^bsub>(X,X)\<^esub> g"
+  using partfun1_th_66 sorry
+
+mtheorem funct_2_th_75:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies (f toleratesPARTFUN1R1 g iff ( for x be objectHIDDENM1 holds x inHIDDENR3 domRELSET-1K1\<^bsub>(X)\<^esub> f implies f .FUNCT-1K1 x =XBOOLE-0R4 g .FUNCT-1K1 x))"
+sorry
+
+mtheorem funct_2_th_76:
+" for X be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,X) holds  for g be FunctionFUNCT-2M1-of(X,X) holds f toleratesPARTFUN1R1 g iff ( for x be objectHIDDENM1 holds x inHIDDENR3 domRELSET-1K1\<^bsub>(X)\<^esub> f implies f .FUNCT-1K1 x =XBOOLE-0R4 g .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_77:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies ( ex g be FunctionFUNCT-2M1-of(X,Y) st f toleratesPARTFUN1R1 g)"
+sorry
+
+mtheorem funct_2_th_78:
+" for X be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,X) holds  for g be PartFuncPARTFUN1M1-of(X,X) holds  for h be FunctionFUNCT-2M1-of(X,X) holds f toleratesPARTFUN1R1 h & g toleratesPARTFUN1R1 h implies f toleratesPARTFUN1R1 g"
+  using partfun1_th_67 sorry
+
+mtheorem funct_2_th_79:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & f toleratesPARTFUN1R1 g implies ( ex h be FunctionFUNCT-2M1-of(X,Y) st f toleratesPARTFUN1R1 h & g toleratesPARTFUN1R1 h)"
+sorry
+
+mtheorem funct_2_th_80:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) & f toleratesPARTFUN1R1 g implies g inTARSKIR2 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f"
+  using partfun1_def_5 sorry
+
+mtheorem funct_2_th_81:
+" for X be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,X) holds  for g be FunctionFUNCT-2M1-of(X,X) holds f toleratesPARTFUN1R1 g implies g inTARSKIR2 TotFuncsPARTFUN1K5\<^bsub>(X,X)\<^esub> f"
+  using partfun1_def_5 sorry
+
+mtheorem funct_2_th_82:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be setHIDDENM2 holds g inTARSKIR2 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f implies g be FunctionFUNCT-2M1-of(X,Y)"
+sorry
+
+mtheorem funct_2_th_83:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f c=TARSKIR1 FuncsFUNCT-2K1(X,Y)"
+sorry
+
+mtheorem funct_2_th_84:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> (<:PARTFUN1K3 {}XBOOLE-0K1,X,Y :>) =XBOOLE-0R4 FuncsFUNCT-2K1(X,Y)"
+sorry
+
+mtheorem funct_2_th_85:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds (Y =XBOOLE-0R4 {}XBOOLE-0K1 implies X =XBOOLE-0R4 {}XBOOLE-0K1) implies TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> (<:PARTFUN1K3 f,X,Y :>) =XBOOLE-0R4 {TARSKIK1 f}"
+  using partfun1_th_72 sorry
+
+mtheorem funct_2_th_86:
+" for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds TotFuncsPARTFUN1K5\<^bsub>(X,X)\<^esub> (<:PARTFUN1K3 f,X,X :>) =XBOOLE-0R4 {TARSKIK1 f}"
+  using partfun1_th_72 sorry
+
+mtheorem funct_2_th_87:
+" for X be setHIDDENM2 holds  for y be objectHIDDENM1 holds  for f be PartFuncPARTFUN1M1-of(X,{TARSKIK1 y}) holds  for g be FunctionFUNCT-2M1-of(X,{TARSKIK1 y}) holds TotFuncsPARTFUN1K5\<^bsub>(X,{TARSKIK1 y})\<^esub> f =XBOOLE-0R4 {TARSKIK1 g}"
+sorry
+
+mtheorem funct_2_th_88:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(X,Y) holds g c=RELSET-1R1\<^bsub>(X,Y)\<^esub> f implies TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f c=TARSKIR1 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> g"
+sorry
+
+mtheorem funct_2_th_89:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(X,Y) holds domRELSET-1K1\<^bsub>(X)\<^esub> g c=TARSKIR1 domRELSET-1K1\<^bsub>(X)\<^esub> f & TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f c=TARSKIR1 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> g implies g c=RELSET-1R1\<^bsub>(X,Y)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_90:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(X,Y) holds TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f c=TARSKIR1 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> g & ( for y be objectHIDDENM1 holds Y <>HIDDENR2 {TARSKIK1 y}) implies g c=RELSET-1R1\<^bsub>(X,Y)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_91:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for f be PartFuncPARTFUN1M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(X,Y) holds ( for y be objectHIDDENM1 holds Y <>HIDDENR2 {TARSKIK1 y}) & TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> f =XBOOLE-0R4 TotFuncsPARTFUN1K5\<^bsub>(X,Y)\<^esub> g implies f =RELSET-1R2\<^bsub>(X,Y)\<^esub> g"
+  using funct_2_th_90 sorry
+
+mtheorem funct_2_cl_20:
+  mlet "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster note-that  non emptyXBOOLE-0V1 for FunctionFUNCT-2M1-of(A,B)"
+proof
+(*coherence*)
+  show " for it be FunctionFUNCT-2M1-of(A,B) holds it be  non emptyXBOOLE-0V1"
+    using funct_2_def_1 relat_1_th_38 sorry
+qed "sorry"
+
+(*begin*)
+theorem funct_2_sch_6:
+  fixes Df0 Rf0 Af0 Bf0 Ff1 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Rf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Af0 be ElementSUBSET-1M1-of Df0" and
+  [ty]: "Bf0 be ElementSUBSET-1M1-of Rf0" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be ElementSUBSET-1M1-of Rf0"
+  shows " ex f be FunctionFUNCT-2M1-of(Df0,Rf0) st f .FUNCT-2K3\<^bsub>(Df0,Rf0)\<^esub> Af0 =XBOOLE-0R4 Bf0 & ( for x be ElementSUBSET-1M1-of Df0 holds x <>HIDDENR2 Af0 implies f .FUNCT-2K3\<^bsub>(Df0,Rf0)\<^esub> x =XBOOLE-0R4 Ff1(x))"
+sorry
+
+theorem funct_2_sch_7:
+  fixes Df0 Rf0 A1f0 A2f0 B1f0 B2f0 Ff1 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Rf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "A1f0 be ElementSUBSET-1M1-of Df0" and
+  [ty]: "A2f0 be ElementSUBSET-1M1-of Df0" and
+  [ty]: "B1f0 be ElementSUBSET-1M1-of Rf0" and
+  [ty]: "B2f0 be ElementSUBSET-1M1-of Rf0" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be ElementSUBSET-1M1-of Rf0" and
+   A1: "A1f0 <>HIDDENR2 A2f0"
+  shows " ex f be FunctionFUNCT-2M1-of(Df0,Rf0) st (f .FUNCT-2K3\<^bsub>(Df0,Rf0)\<^esub> A1f0 =XBOOLE-0R4 B1f0 & f .FUNCT-2K3\<^bsub>(Df0,Rf0)\<^esub> A2f0 =XBOOLE-0R4 B2f0) & ( for x be ElementSUBSET-1M1-of Df0 holds x <>HIDDENR2 A1f0 & x <>HIDDENR2 A2f0 implies f .FUNCT-2K3\<^bsub>(Df0,Rf0)\<^esub> x =XBOOLE-0R4 Ff1(x))"
+sorry
+
+mtheorem funct_2_th_92:
+" for A be setHIDDENM2 holds  for B be setHIDDENM2 holds  for f be FunctionFUNCT-1M1 holds f inTARSKIR2 FuncsFUNCT-2K1(A,B) implies domRELAT-1K1 f =XBOOLE-0R4 A & rngFUNCT-1K2 f c=TARSKIR1 B"
+sorry
+
+theorem funct_2_sch_8:
+  fixes Xf0 Yf0 Ff1 
+  assumes
+[ty]: "Xf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Yf0 be setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be objectHIDDENM1" and
+   A1: " for x be ElementSUBSET-1M1-of Xf0 holds Ff1(x) inHIDDENR3 Yf0"
+  shows " ex f be FunctionFUNCT-2M1-of(Xf0,Yf0) st  for x be ElementSUBSET-1M1-of Xf0 holds f .FUNCT-2K3\<^bsub>(Xf0,Yf0)\<^esub> x =HIDDENR1 Ff1(x)"
+sorry
+
+theorem funct_2_sch_9:
+  fixes Xf0 Yf0 Ff1 
+  assumes
+[ty]: "Xf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Yf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be objectHIDDENM1" and
+   A1: " for x be ElementSUBSET-1M1-of Xf0 holds Ff1(x) be ElementSUBSET-1M1-of Yf0"
+  shows " ex f be FunctionFUNCT-2M1-of(Xf0,Yf0) st  for x be ElementSUBSET-1M1-of Xf0 holds f .FUNCT-2K3\<^bsub>(Xf0,Yf0)\<^esub> x =HIDDENR1 Ff1(x)"
+sorry
+
+syntax FUNCT_2K4 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" ("pr1FUNCT-2K4\<^bsub>'( _ , _ , _ ')\<^esub>  _ " [0,0,0,228]228)
+translations "pr1FUNCT-2K4\<^bsub>(A,B,C)\<^esub> f" \<rightharpoonup> "pr1MCART-1K11 f"
+
+mtheorem funct_2_def_5:
+  mlet "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "C be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(A,[:ZFMISC-1K2 B,C :])"
+"redefine func pr1FUNCT-2K4\<^bsub>(A,B,C)\<^esub> f \<rightarrow> FunctionFUNCT-2M1-of(A,B) means
+  \<lambda>it.  for x be ElementSUBSET-1M1-of A holds it .FUNCT-2K3\<^bsub>(A,B)\<^esub> x =HIDDENR1 (f .FUNCT-2K3\<^bsub>(A,[:ZFMISC-1K2 B,C :])\<^esub> x)`1XTUPLE-0K1"
+proof
+(*compatibility*)
+  show " for it be FunctionFUNCT-2M1-of(A,B) holds it =HIDDENR1 pr1FUNCT-2K4\<^bsub>(A,B,C)\<^esub> f iff ( for x be ElementSUBSET-1M1-of A holds it .FUNCT-2K3\<^bsub>(A,B)\<^esub> x =HIDDENR1 (f .FUNCT-2K3\<^bsub>(A,[:ZFMISC-1K2 B,C :])\<^esub> x)`1XTUPLE-0K1)"
+sorry
+qed "sorry"
+
+mtheorem funct_2_add_3:
+  mlet "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "C be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(A,[:ZFMISC-1K2 B,C :])"
+"cluster pr1MCART-1K11 f as-term-is FunctionFUNCT-2M1-of(A,B)"
+proof
+(*coherence*)
+  show "pr1MCART-1K11 f be FunctionFUNCT-2M1-of(A,B)"
+sorry
+qed "sorry"
+
+syntax FUNCT_2K5 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" ("pr2FUNCT-2K5\<^bsub>'( _ , _ , _ ')\<^esub>  _ " [0,0,0,228]228)
+translations "pr2FUNCT-2K5\<^bsub>(A,B,C)\<^esub> f" \<rightharpoonup> "pr2MCART-1K12 f"
+
+mtheorem funct_2_def_6:
+  mlet "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "C be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(A,[:ZFMISC-1K2 B,C :])"
+"redefine func pr2FUNCT-2K5\<^bsub>(A,B,C)\<^esub> f \<rightarrow> FunctionFUNCT-2M1-of(A,C) means
+  \<lambda>it.  for x be ElementSUBSET-1M1-of A holds it .FUNCT-2K3\<^bsub>(A,C)\<^esub> x =HIDDENR1 (f .FUNCT-2K3\<^bsub>(A,[:ZFMISC-1K2 B,C :])\<^esub> x)`2XTUPLE-0K2"
+proof
+(*compatibility*)
+  show " for it be FunctionFUNCT-2M1-of(A,C) holds it =HIDDENR1 pr2FUNCT-2K5\<^bsub>(A,B,C)\<^esub> f iff ( for x be ElementSUBSET-1M1-of A holds it .FUNCT-2K3\<^bsub>(A,C)\<^esub> x =HIDDENR1 (f .FUNCT-2K3\<^bsub>(A,[:ZFMISC-1K2 B,C :])\<^esub> x)`2XTUPLE-0K2)"
+sorry
+qed "sorry"
+
+mtheorem funct_2_add_4:
+  mlet "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "C be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(A,[:ZFMISC-1K2 B,C :])"
+"cluster pr2MCART-1K12 f as-term-is FunctionFUNCT-2M1-of(A,C)"
+proof
+(*coherence*)
+  show "pr2MCART-1K12 f be FunctionFUNCT-2M1-of(A,C)"
+sorry
+qed "sorry"
+
+syntax FUNCT_2R1 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> o" (" _ =FUNCT-2R1\<^bsub>'( _ , _ , _ , _ ')\<^esub>  _ " [50,0,0,0,0,50]50)
+translations "f1 =FUNCT-2R1\<^bsub>(A1,B1,A2,B2)\<^esub> f2" \<rightharpoonup> "f1 =HIDDENR1 f2"
+
+mtheorem funct_2_def_7:
+  mlet "A1 be setHIDDENM2", "B1 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "A2 be setHIDDENM2", "B2 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f1 be FunctionFUNCT-2M1-of(A1,B1)", "f2 be FunctionFUNCT-2M1-of(A2,B2)"
+"redefine pred f1 =FUNCT-2R1\<^bsub>(A1,B1,A2,B2)\<^esub> f2 means
+  A1 =XBOOLE-0R4 A2 & ( for a be ElementSUBSET-1M1-of A1 holds f1 .FUNCT-1K1 a =XBOOLE-0R4 f2 .FUNCT-1K1 a)"
+proof
+(*compatibility*)
+  show "f1 =FUNCT-2R1\<^bsub>(A1,B1,A2,B2)\<^esub> f2 iff A1 =XBOOLE-0R4 A2 & ( for a be ElementSUBSET-1M1-of A1 holds f1 .FUNCT-1K1 a =XBOOLE-0R4 f2 .FUNCT-1K1 a)"
+sorry
+qed "sorry"
+
+syntax FUNCT_2R2 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> o" (" _ =FUNCT-2R2\<^bsub>'( _ , _ ')\<^esub>  _ " [50,0,0,50]50)
+translations "f1 =FUNCT-2R2\<^bsub>(A,B)\<^esub> f2" \<rightharpoonup> "f1 =HIDDENR1 f2"
+
+mtheorem funct_2_def_8:
+  mlet "A be setHIDDENM2", "B be setHIDDENM2", "f1 be FunctionFUNCT-2M1-of(A,B)", "f2 be FunctionFUNCT-2M1-of(A,B)"
+"redefine pred f1 =FUNCT-2R2\<^bsub>(A,B)\<^esub> f2 means
+   for a be ElementSUBSET-1M1-of A holds f1 .FUNCT-1K1 a =XBOOLE-0R4 f2 .FUNCT-1K1 a"
+proof
+(*compatibility*)
+  show "f1 =FUNCT-2R2\<^bsub>(A,B)\<^esub> f2 iff ( for a be ElementSUBSET-1M1-of A holds f1 .FUNCT-1K1 a =XBOOLE-0R4 f2 .FUNCT-1K1 a)"
+    using funct_2_th_63 sorry
+qed "sorry"
+
+mtheorem funct_2_th_93:
+" for N be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(N,boolSETFAM-1K9 N) holds  ex R be RelationRELSET-1M2-of N st  for i be setHIDDENM2 holds i inTARSKIR2 N implies ImRELAT-1K12(R,i) =XBOOLE-0R4 f .FUNCT-1K1 i"
+sorry
+
+mtheorem funct_2_th_94:
+" for X be setHIDDENM2 holds  for A be SubsetSUBSET-1M2-of X holds (idPARTFUN1K6 X)\<inverse>RELSET-1K8\<^bsub>(X,X)\<^esub> A =XBOOLE-0R4 A"
+sorry
+
+reserve A, B for " non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+mtheorem funct_2_th_95:
+" for A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(A,B) holds  for A0 be SubsetSUBSET-1M2-of A holds  for B0 be SubsetSUBSET-1M2-of B holds f .:RELSET-1K7\<^bsub>(A,B)\<^esub> A0 c=TARSKIR1 B0 iff A0 c=TARSKIR1 f \<inverse>RELSET-1K8\<^bsub>(A,B)\<^esub> B0"
+sorry
+
+mtheorem funct_2_th_96:
+" for A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(A,B) holds  for A0 be  non emptyXBOOLE-0V1\<bar>SubsetSUBSET-1M2-of A holds  for f0 be FunctionFUNCT-2M1-of(A0,B) holds ( for c be ElementSUBSET-1M1-of A holds c inTARSKIR2 A0 implies f .FUNCT-2K3\<^bsub>(A,B)\<^esub> c =XBOOLE-0R4 f0 .FUNCT-1K1 c) implies f |PARTFUN1K2\<^bsub>(A,B)\<^esub> A0 =FUNCT-1R1 f0"
+sorry
+
+mtheorem funct_2_th_97:
+" for f be FunctionFUNCT-1M1 holds  for A0 be setHIDDENM2 holds  for C be setHIDDENM2 holds C c=TARSKIR1 A0 implies f .:FUNCT-1K5 C =XBOOLE-0R4 (f |RELAT-1K8 A0).:FUNCT-1K5 C"
+sorry
+
+mtheorem funct_2_th_98:
+" for f be FunctionFUNCT-1M1 holds  for A0 be setHIDDENM2 holds  for D be setHIDDENM2 holds f \<inverse>FUNCT-1K6 D c=TARSKIR1 A0 implies f \<inverse>FUNCT-1K6 D =XBOOLE-0R4 (f |RELAT-1K8 A0)\<inverse>FUNCT-1K6 D"
+sorry
+
+theorem funct_2_sch_10:
+  fixes Af0 Bf0 Ff1 
+  assumes
+[ty]: "Af0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty]: "Bf0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be setHIDDENM2" and
+   A1: " for a be ElementSUBSET-1M1-of Af0 holds Bf0 meetsXBOOLE-0R5 Ff1(a)"
+  shows " ex t be FunctionFUNCT-2M1-of(Af0,Bf0) st  for a be ElementSUBSET-1M1-of Af0 holds t .FUNCT-2K3\<^bsub>(Af0,Bf0)\<^esub> a inTARSKIR2 Ff1(a)"
+sorry
+
+mtheorem funct_2_th_99:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for D be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for p be FunctionFUNCT-2M1-of(X,D) holds  for i be ElementSUBSET-1M1-of X holds p /.PARTFUN1K7\<^bsub>(D)\<^esub> i =XBOOLE-0R4 p .FUNCT-2K3\<^bsub>(X,D)\<^esub> i"
+sorry
+
+mtheorem funct_2_ident_1:
+  mlet "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "D be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "p be FunctionFUNCT-2M1-of(X,D)", "i be ElementSUBSET-1M1-of X"
+"identify p /.PARTFUN1K7\<^bsub>(D)\<^esub> i with p .FUNCT-2K3\<^bsub>(X,D)\<^esub> i"
+proof
+(*compatibility*)
+  show "p /.PARTFUN1K7\<^bsub>(D)\<^esub> i =HIDDENR1 p .FUNCT-2K3\<^bsub>(X,D)\<^esub> i"
+    using funct_2_th_99 sorry
+qed "sorry"
+
+mtheorem funct_2_th_100:
+" for S be setHIDDENM2 holds  for X be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(S,X) holds  for A be SubsetSUBSET-1M2-of X holds (X =XBOOLE-0R4 {}XBOOLE-0K1 implies S =XBOOLE-0R4 {}XBOOLE-0K1) implies (f \<inverse>RELSET-1K8\<^bsub>(S,X)\<^esub> A)`SUBSET-1K3\<^bsub>(S)\<^esub> =XBOOLE-0R4 f \<inverse>RELSET-1K8\<^bsub>(S,X)\<^esub> A `SUBSET-1K3\<^bsub>(X)\<^esub>"
+sorry
+
+mtheorem funct_2_th_101:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for D be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,D) holds Y c=TARSKIR1 X & f .:RELSET-1K7\<^bsub>(X,D)\<^esub> Y c=TARSKIR1 Z implies f |PARTFUN1K2\<^bsub>(X,D)\<^esub> Y be FunctionFUNCT-2M1-of(Y,Z)"
+sorry
+
+mdef funct_2_def_9 (" _ \<inverse>FUNCT-2K6\<^bsub>'( _ , _ ')\<^esub>  _ " [228,0,0,228]228 ) where
+  mlet "T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(T,S)", "G be Subset-FamilySETFAM-1M1-of S"
+"func f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> G \<rightarrow> Subset-FamilySETFAM-1M1-of T means
+  \<lambda>it.  for A be SubsetSUBSET-1M2-of T holds A inTARSKIR2 it iff ( ex B be SubsetSUBSET-1M2-of S st B inTARSKIR2 G & A =XBOOLE-0R4 f \<inverse>RELSET-1K8\<^bsub>(T,S)\<^esub> B)"
 proof-
-  obtain f where
-    [ty]:"f be  Function" and A1:"dom f = C \<and> (for x st x in C holds f .x = F(x))" 
-    using funct_1_sch_Lambda[of C F] by ty_auto
-  have "rng f \<subseteq> D"
-  proof(standard,auto)
-    fix y assume "y in rng f"
-    then obtain x where
-      A2: "x in dom f \<and>y=f . x" using funct_1_def_3 by ty_auto
-    hence "x is Element-of C" using Element_of A1 by ty_auto
-    hence  "f .x = F(x)" "F(x) is Element-of D" using A1  Element_of1 T0 by ty_auto
-    thus "y in D" using Element_of1 A2 by ty_auto
-  qed mauto
-  hence [ty]:"f be Function-of C,D" using A1 funct_2_th_3 by ty_auto
-  show "\<exists>f:Function-of C,D. \<forall>x:Element-of C. (f .x) = F(x)"
-  proof(rule bexI[of _ f],auto)
-    fix x assume "x is Element-of C"
-    hence "x in C" using Element_of1[of C x] by ty_auto
-    thus "f .x = F(x)" using A1  Element_of1 by auto  
-  qed ty_auto
-qed  
+  (*existence*)
+    show " ex it be Subset-FamilySETFAM-1M1-of T st  for A be SubsetSUBSET-1M2-of T holds A inTARSKIR2 it iff ( ex B be SubsetSUBSET-1M2-of S st B inTARSKIR2 G & A =XBOOLE-0R4 f \<inverse>RELSET-1K8\<^bsub>(T,S)\<^esub> B)"
+sorry
+  (*uniqueness*)
+    show " for it1 be Subset-FamilySETFAM-1M1-of T holds  for it2 be Subset-FamilySETFAM-1M1-of T holds ( for A be SubsetSUBSET-1M2-of T holds A inTARSKIR2 it1 iff ( ex B be SubsetSUBSET-1M2-of S st B inTARSKIR2 G & A =XBOOLE-0R4 f \<inverse>RELSET-1K8\<^bsub>(T,S)\<^esub> B)) & ( for A be SubsetSUBSET-1M2-of T holds A inTARSKIR2 it2 iff ( ex B be SubsetSUBSET-1M2-of S st B inTARSKIR2 G & A =XBOOLE-0R4 f \<inverse>RELSET-1K8\<^bsub>(T,S)\<^esub> B)) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
 
-mtheorem funct_2_cl_Funcs1:
-  mlet "A be set", "B be non empty\<bar>set"
- "cluster Funcs(A,B) \<rightarrow> non empty"
-proof
-  obtain b where
-    A1:  "b in B" using xboole_0_def_1[of B] by ty_auto
-  let ?F ="A \<midarrow>> b"
-  have A: "dom ?F = A" "rng ?F c= {b}" using funcop_1_th_13 by ty_auto
+mtheorem funct_2_th_102:
+" for T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for A be Subset-FamilySETFAM-1M1-of S holds  for B be Subset-FamilySETFAM-1M1-of S holds A c=TARSKIR1 B implies f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> A c=TARSKIR1 f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> B"
+sorry
 
-  have "rng ?F c= B"
-  proof(standard,auto)
-    fix x assume "x in rng ?F"
-    then show "x in B " using A A1 tarski_def_3 tarski_def_1 by inst_pass_auto
-  qed mauto
-  hence "?F in  Funcs(A,B)" using A funct_2_def_2 by inst_pass_auto
-  then show "Funcs(A,B) is non empty" using xboole_0_def_1 by ty_auto
-qed
-
-mtheorem funct_2_cl_Funcs:
-  mlet "X be set"
-  "cluster Funcs(X,X) \<rightarrow> non empty"
-proof
-  have "dom id X=X" "rng id X=X"
-    using relat_1_id_dom relat_1_id_rng by mauto
-  hence "id X in Funcs(X,X)" using funct_2_def_2 xboole_0_def_10 by mauto
-  thus "Funcs(X,X) is non empty" using xboole_0_def_1 bexI by ty_auto
-qed
-
-text_raw {*\DefineSnippet{Action}{*}
-abbreviation funct_2_action ("Action-of _ , _") where
-  "Action-of O, E \<equiv> Function-of O,Funcs(E,E)"
-text_raw {*}%EndSnippet*}
-
-theorem funct_2_cl_action[ex]:
-  assumes [ty]: "O be set" "E be set"
-  shows "inhabited(Action-of O,E)"
-  by mauto
-
-abbreviation pboole_def_1 ("ManySortedSet-of _" 190) where
-  "ManySortedSet-of I \<equiv> I:total \<bar> I-defined \<bar> Function"
-
-mtheorem pboole_def_1_th_1:
-  "for F be Function st dom F=X holds F be ManySortedSet-of X"
-proof(intro ballI impI)
-  obtain A where "A=X" by auto
-  fix F
-  assume [ty]:"F be Function"
-  assume A: "dom F=X"
-  hence [ty]:"F be X-defined" using xboole_0_def_10 relat_1_def_18I by mauto
-  hence" F be X:total" using A partfun_1_def_2I by ty_auto
-  thus "F be ManySortedSet-of X" by ty_auto
-qed simp_all
-
-mtheorem pboole_cl_ex:
-  mlet "I be set"
-  "cluster I:total \<bar> I-defined for Function"
-proof(standard)
-  have "inhabited (Function-of I,{I})" by mauto
-  then obtain F where
-    A1[ty]: "F be Function-of I,{I}" using inhabited_def by auto  
-  have [ty]:"F is Function" by ty_auto
-  have "{I} be set" by mauto
-  hence "bool [:I,{I}:] be set" by mauto
-  hence "F be set" using A1 subset_1_def_1(1) by mauto
-  have "I in {I}" using tarski_def_1 by simp
-  hence "{I} \<noteq>{}" using xb by auto
-  hence "dom F = I" using funct_2_def_1E by mauto
-  hence "F is I : total \<bar> I -defined \<bar> Function" using pboole_def_1_th_1[of I F] by mauto
-  thus "inhabited(ManySortedSet-of I)" ..
-qed
-
-mtheorem funct_2_cl_comp:
-  mlet "I be set","f be non-empty\<bar>I:total \<bar>I-defined\<bar>Function"
-  "cluster I:total \<bar>I-defined\<bar> f-compatible for Function"
-proof
-  let ?P = "\<lambda>x. the Element-of f .x"
-  obtain F where
-    [ty]: "F be Function" and A2: "dom F=I" 
-    "for x be object st x in I holds F .x = ?P(x)" 
-    using funct_1_sch_Lambda[of I ?P] by ty_auto
-  have A[ty]:"F is I-defined\<bar>I:total" using pboole_def_1_th_1 A2 by ty_auto
-  have A3: "dom f=I" using partfun_1_def_2E by mauto
-  have "F is f-compatible"
-  proof(intro funct_1_def_14I,auto)
-      fix x assume A4: "x in dom F"
-      hence "f. x in rng f" using A3 A2 funct_1_def_3 by mauto
-      hence A5: "f. x \<noteq> {}" using funct_1_def_9 by mauto
-      have "F .x = the Element-of f .x" using A2 A4 by auto
-      hence "(F. x) be (Element-of f .x)" by mauto
-      thus "F .x in f .x" using Element(4) A5 by mauto
-  qed ty_auto
-  hence "F be I:total \<bar> I-defined\<bar> f-compatible \<bar>Function" by ty_auto
-  thus "inhabited(I:total \<bar> I-defined\<bar>f-compatible \<bar> Function)" unfolding inhabited_def ..
-qed
-
-reserve A,B for set
-
-mtheorem funcop_cl[rule_format]:
-  "y in B implies (A \<midarrow>> y) is (Function-of A,B)"
-proof
-  assume A0: "y in B"
-  hence "{y} c= B" using tarski_def_1 tarski_def_3 by mauto
-  hence "[:A, {y}:] c= [:A,B:]" using zfmisc_1_th_96[of B "{y}"] xboole_0_def_10[of A A] by mauto
-  hence W0:"[:A,{y}:] be Subset-of [:A,B:]" using Subset_of_rule by auto
-  hence W1: "[:A,{y}:] be Relation-of A,B" by mauto
-  hence [ty]:"(A \<midarrow>> y) be Relation-of A,B" using funcop_1_def_2 by ty_auto
-  hence W2: "(A \<midarrow>> y) be PartFunc-of A,B" by ty_auto
-  have "dom (A\<midarrow>> y) = A" "B\<noteq>{}" using funcop_1_th_13 A0 xb by ty_auto
-  hence "(A\<midarrow>> y) is (A,B: quasi-total)" using funct_2_def_1I W2 by mauto
-  thus "(A \<midarrow>> y) be (Function-of A,B)" using W2 by mauto
-qed
-
-
-
-mdef card_3_def_5 ("product _" [105] 105) where
-  mlet "f be Function"
-  "func product f \<rightarrow> set means
-     \<lambda>it. \<forall>x : object. 
-         x in it \<longleftrightarrow> (ex g st x = g \<and> dom g = dom f \<and>
-       (for y being object st y in dom f holds g. y in f. y))"
+mdef funct_2_def_10 (" _ .:FUNCT-2K7\<^bsub>'( _ , _ ')\<^esub>  _ " [200,0,0,200]200 ) where
+  mlet "T be setHIDDENM2", "S be setHIDDENM2", "f be FunctionFUNCT-2M1-of(T,S)", "G be Subset-FamilySETFAM-1M1-of T"
+"func f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> G \<rightarrow> Subset-FamilySETFAM-1M1-of S means
+  \<lambda>it.  for A be SubsetSUBSET-1M2-of S holds A inTARSKIR2 it iff ( ex B be SubsetSUBSET-1M2-of T st B inTARSKIR2 G & A =XBOOLE-0R4 f .:RELSET-1K7\<^bsub>(T,S)\<^esub> B)"
 proof-
-  let ?P = "\<lambda>x.  ex g be Function st x = g \<and> dom g = dom f \<and>
-      (for x being object st x in dom f holds g. x in f. x)"
-    have A0: "Funcs(dom f, union rng f) be set" by mauto
-     obtain IT where
-   A1:"IT be set"  "for x being object holds x in IT \<longleftrightarrow> x in Funcs(dom f, union rng f) \<and> ?P(x)" using xboole_0_sch_1[OF A0, of ?P]
-       by auto
-     show "ex IT be set st \<forall>x : object.  x in IT \<longleftrightarrow> ?P(x)"
-     proof(intro bexI[of _ IT] ballI iffI3)
-       show "IT be set" using A1(1) by simp
-       fix x assume "x be object"
-       show "x in IT \<longrightarrow> ?P(x)" using A1 by auto
-       assume A2: "?P(x)"
-       then obtain g where
-         [ty]:"g be Function" and A3: "x=g" "dom g = dom f" "for x being object st x in dom f holds g. x in f. x"
-         by auto
-       have "rng g c= union rng f"
-       proof(standard,auto)
-         fix y assume "y in rng g"
-         then obtain x where
-           A4: "x be object" "x in dom g \<and> g .x =y" using funct_1_def_3 A3(1) by mauto
-         have "y in f. x" "f. x in rng f" "f. x be set" using A3 A4 funct_1_def_3 by mauto
-         thus "y in union rng f" using tarski_def_4[of "proj2 f"] bexI by mauto
-         qed mauto
-       thus "x in IT" using A1(2) A2 funct_2_def_2 A3 by mauto
-     qed simp_all
-next
-  fix A1 A2
-  assume [ty]: "A1 be set"  "A2 be set" and A1: "(\<forall>x : object. 
-         x in A1 \<longleftrightarrow> (ex g be Function st x = g \<and> dom g = dom f \<and>
-      (for x being object st x in dom f holds g. x in f. x)))" and
-        A2: "\<forall>x : object. 
-         x in A2 \<longleftrightarrow> (ex g be Function st x = g \<and> dom g = dom f \<and>
-      (for x being object st x in dom f holds g. x in f. x))"
-    {
-      fix x
-      assume Z1: "x be object"
-      have "x in A1 \<longleftrightarrow> (ex g be Function st x = g \<and> dom g = dom f \<and>
-      (for x being object st x in dom f holds g. x in f. x))" using Z1 A1 by auto
-      then have "x in A1 \<longleftrightarrow> x in A2" using Z1 A2 by auto
-    }
-  thus "A1 = A2" by (intro tarski_th_2) ty_auto
-qed simp_all
+  (*existence*)
+    show " ex it be Subset-FamilySETFAM-1M1-of S st  for A be SubsetSUBSET-1M2-of S holds A inTARSKIR2 it iff ( ex B be SubsetSUBSET-1M2-of T st B inTARSKIR2 G & A =XBOOLE-0R4 f .:RELSET-1K7\<^bsub>(T,S)\<^esub> B)"
+sorry
+  (*uniqueness*)
+    show " for it1 be Subset-FamilySETFAM-1M1-of S holds  for it2 be Subset-FamilySETFAM-1M1-of S holds ( for A be SubsetSUBSET-1M2-of S holds A inTARSKIR2 it1 iff ( ex B be SubsetSUBSET-1M2-of T st B inTARSKIR2 G & A =XBOOLE-0R4 f .:RELSET-1K7\<^bsub>(T,S)\<^esub> B)) & ( for A be SubsetSUBSET-1M2-of S holds A inTARSKIR2 it2 iff ( ex B be SubsetSUBSET-1M2-of T st B inTARSKIR2 G & A =XBOOLE-0R4 f .:RELSET-1K7\<^bsub>(T,S)\<^esub> B)) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
 
-mtheorem card_3_cl:
-  mlet "f be non-empty\<bar>Function"
-  "cluster product f \<rightarrow> non empty"
+mtheorem funct_2_th_103:
+" for T be setHIDDENM2 holds  for S be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for A be Subset-FamilySETFAM-1M1-of T holds  for B be Subset-FamilySETFAM-1M1-of T holds A c=TARSKIR1 B implies f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> A c=TARSKIR1 f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> B"
+sorry
+
+mtheorem funct_2_th_104:
+" for T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for B be Subset-FamilySETFAM-1M1-of S holds  for P be SubsetSUBSET-1M2-of S holds f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> B be CoverSETFAM-1M2-of P implies B be CoverSETFAM-1M2-of P"
+sorry
+
+mtheorem funct_2_th_105:
+" for T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for B be Subset-FamilySETFAM-1M1-of T holds  for P be SubsetSUBSET-1M2-of T holds B be CoverSETFAM-1M2-of P implies f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> (f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> B) be CoverSETFAM-1M2-of P"
+sorry
+
+mtheorem funct_2_th_106:
+" for T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for Q be Subset-FamilySETFAM-1M1-of S holds unionSETFAM-1K5\<^bsub>(S)\<^esub> (f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> Q) c=TARSKIR1 unionSETFAM-1K5\<^bsub>(S)\<^esub> Q"
+sorry
+
+mtheorem funct_2_th_107:
+" for T be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for S be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(T,S) holds  for P be Subset-FamilySETFAM-1M1-of T holds unionSETFAM-1K5\<^bsub>(T)\<^esub> P c=TARSKIR1 unionSETFAM-1K5\<^bsub>(T)\<^esub> (f \<inverse>FUNCT-2K6\<^bsub>(T,S)\<^esub> (f .:FUNCT-2K7\<^bsub>(T,S)\<^esub> P))"
+sorry
+
+mdef funct_2_def_11 (" _ '/*FUNCT-2K8\<^bsub>'( _ , _ , _ ')\<^esub>  _ " [228,0,0,0,228]228 ) where
+  mlet "X be setHIDDENM2", "Z be setHIDDENM2", "Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "f be FunctionFUNCT-2M1-of(X,Y)", "p be Z -valuedRELAT-1V5\<bar>FunctionFUNCT-1M1"
+"assume rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELAT-1K1 p func p /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f \<rightarrow> FunctionFUNCT-2M1-of(X,Z) equals
+  p *FUNCT-1K3 f"
+proof-
+  (*coherence*)
+    show "rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELAT-1K1 p implies p *FUNCT-1K3 f be FunctionFUNCT-2M1-of(X,Z)"
+sorry
+qed "sorry"
+
+reserve Y for " non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+reserve f for "FunctionFUNCT-2M1-of(X,Y)"
+reserve p for "PartFuncPARTFUN1M1-of(Y,Z)"
+reserve x for "ElementSUBSET-1M1-of X"
+mtheorem funct_2_th_108:
+" for X be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for p be PartFuncPARTFUN1M1-of(Y,Z) holds  for x be ElementSUBSET-1M1-of X holds X <>HIDDENR2 {}XBOOLE-0K1 & rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELSET-1K1\<^bsub>(Y)\<^esub> p implies p /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f .FUNCT-1K1 x =XBOOLE-0R4 p .FUNCT-1K1 (f .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_109:
+" for X be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for p be PartFuncPARTFUN1M1-of(Y,Z) holds  for x be ElementSUBSET-1M1-of X holds X <>HIDDENR2 {}XBOOLE-0K1 & rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELSET-1K1\<^bsub>(Y)\<^esub> p implies p /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f .FUNCT-1K1 x =XBOOLE-0R4 p /.PARTFUN1K7\<^bsub>(Z)\<^esub> (f .FUNCT-1K1 x)"
+sorry
+
+reserve g for "FunctionFUNCT-2M1-of(X,X)"
+mtheorem funct_2_th_110:
+" for X be setHIDDENM2 holds  for Z be setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for p be PartFuncPARTFUN1M1-of(Y,Z) holds  for g be FunctionFUNCT-2M1-of(X,X) holds rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELSET-1K1\<^bsub>(Y)\<^esub> p implies p /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f *PARTFUN1K1\<^bsub>(X,X,X,Z)\<^esub> g =FUNCT-2R2\<^bsub>(X,Z)\<^esub> p /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> (f *PARTFUN1K1\<^bsub>(X,X,X,Y)\<^esub> g)"
+sorry
+
+mtheorem funct_2_th_111:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds f be constantFUNCT-1V5 iff ( ex y be ElementSUBSET-1M1-of Y st rngRELSET-1K2\<^bsub>(Y)\<^esub> f =XBOOLE-0R4 {TARSKIK1 y})"
+sorry
+
+mtheorem funct_2_th_112:
+" for A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for x be ElementSUBSET-1M1-of A holds  for f be FunctionFUNCT-2M1-of(A,B) holds f .FUNCT-2K3\<^bsub>(A,B)\<^esub> x inTARSKIR2 rngRELSET-1K2\<^bsub>(B)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_113:
+" for y be objectHIDDENM1 holds  for A be setHIDDENM2 holds  for B be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(A,B) holds y inHIDDENR3 rngRELSET-1K2\<^bsub>(B)\<^esub> f implies ( ex x be ElementSUBSET-1M1-of A st y =HIDDENR1 f .FUNCT-1K1 x)"
+sorry
+
+mtheorem funct_2_th_114:
+" for Z be setHIDDENM2 holds  for A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(A,B) holds ( for x be ElementSUBSET-1M1-of A holds f .FUNCT-2K3\<^bsub>(A,B)\<^esub> x inTARSKIR2 Z) implies rngRELSET-1K2\<^bsub>(B)\<^esub> f c=TARSKIR1 Z"
+sorry
+
+reserve X, Y for " non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+reserve Z, S, T for "setHIDDENM2"
+reserve f for "FunctionFUNCT-2M1-of(X,Y)"
+reserve g for "PartFuncPARTFUN1M1-of(Y,Z)"
+reserve x for "ElementSUBSET-1M1-of X"
+mtheorem funct_2_th_115:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(Y,Z) holds  for x be ElementSUBSET-1M1-of X holds g be totalPARTFUN1V1\<^bsub>(Y)\<^esub> implies g /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f .FUNCT-2K3\<^bsub>(X,Z)\<^esub> x =XBOOLE-0R4 g .FUNCT-1K1 (f .FUNCT-2K3\<^bsub>(X,Y)\<^esub> x)"
+sorry
+
+mtheorem funct_2_th_116:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Z be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(Y,Z) holds  for x be ElementSUBSET-1M1-of X holds g be totalPARTFUN1V1\<^bsub>(Y)\<^esub> implies g /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f .FUNCT-2K3\<^bsub>(X,Z)\<^esub> x =XBOOLE-0R4 g /.PARTFUN1K7\<^bsub>(Z)\<^esub> (f .FUNCT-2K3\<^bsub>(X,Y)\<^esub> x)"
+sorry
+
+mtheorem funct_2_th_117:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Z be setHIDDENM2 holds  for S be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(Y,Z) holds rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELSET-1K1\<^bsub>(Y)\<^esub> (g |PARTFUN1K2\<^bsub>(Y,Z)\<^esub> S) implies (g |PARTFUN1K2\<^bsub>(Y,Z)\<^esub> S)/*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f =FUNCT-2R2\<^bsub>(X,Z)\<^esub> g /*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_118:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for Z be setHIDDENM2 holds  for S be setHIDDENM2 holds  for T be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be PartFuncPARTFUN1M1-of(Y,Z) holds rngRELSET-1K2\<^bsub>(Y)\<^esub> f c=TARSKIR1 domRELSET-1K1\<^bsub>(Y)\<^esub> (g |PARTFUN1K2\<^bsub>(Y,Z)\<^esub> S) & S c=TARSKIR1 T implies (g |PARTFUN1K2\<^bsub>(Y,Z)\<^esub> S)/*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f =FUNCT-2R2\<^bsub>(X,Z)\<^esub> (g |PARTFUN1K2\<^bsub>(Y,Z)\<^esub> T)/*FUNCT-2K8\<^bsub>(X,Z,Y)\<^esub> f"
+sorry
+
+mtheorem funct_2_th_119:
+" for D be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for H be FunctionFUNCT-2M1-of(D,[:ZFMISC-1K2 A,B :]) holds  for d be ElementSUBSET-1M1-of D holds H .FUNCT-2K3\<^bsub>(D,[:ZFMISC-1K2 A,B :])\<^esub> d =HIDDENR1 [TARSKIK4 pr1FUNCT-2K4\<^bsub>(D,A,B)\<^esub> H .FUNCT-2K3\<^bsub>(D,A)\<^esub> d,pr2FUNCT-2K5\<^bsub>(D,A,B)\<^esub> H .FUNCT-2K3\<^bsub>(D,B)\<^esub> d ]"
+sorry
+
+mtheorem funct_2_th_120:
+" for A1 be setHIDDENM2 holds  for A2 be setHIDDENM2 holds  for B1 be setHIDDENM2 holds  for B2 be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(A1,A2) holds  for g be FunctionFUNCT-2M1-of(B1,B2) holds f toleratesPARTFUN1R1 g implies f /\\SUBSET-1K9\<^bsub>([:ZFMISC-1K2 B1,B2 :])\<^esub> g be FunctionFUNCT-2M1-of(A1 /\\XBOOLE-0K3 B1,A2 /\\XBOOLE-0K3 B2)"
+sorry
+
+mtheorem funct_2_cl_21:
+  mlet "A be setHIDDENM2", "B be setHIDDENM2"
+"cluster FuncsFUNCT-2K1(A,B) as-term-is functionalFUNCT-1V6"
 proof
-  have A2: "(dom f) be set \<and> f be non-empty \<bar>   (dom f) : total \<bar>  (dom f) -defined \<bar> Function" using pboole_def_1_th_1 by mauto
-  hence "inhabited((dom f):total \<bar>(dom f)-defined \<bar> f-compatible \<bar> Function)" using ex by simp
-  then obtain g where
-     A3[ty]: "g be (dom f):total \<bar>(dom f)-defined \<bar> f-compatible\<bar>Function" using inhabited_def by blast
-  have "dom g=dom f" using partfun_1_def_2E by ty_auto
-  hence "for y being object st y in dom f holds g. y in f. y" using funct_1_def_14[of f g,THEN iffD1,simplified] by ty_auto
-  hence "g in product f" using partfun_1_def_2E[of "proj1 f" g] card_3_def_5 by mauto
-  thus "product f is non empty" using xboole_0_def_1 by mauto
-qed
+(*coherence*)
+  show "FuncsFUNCT-2K1(A,B) be functionalFUNCT-1V6"
+sorry
+qed "sorry"
+
+mdef funct_2_def_12 ("FUNCTION-DOMAINFUNCT-2M3-of'( _ , _ ')" [0,0]70 ) where
+  mlet "A be setHIDDENM2", "B be setHIDDENM2"
+"mode FUNCTION-DOMAINFUNCT-2M3-of(A,B) \<rightarrow>  non emptyXBOOLE-0V1\<bar>setHIDDENM2 means
+  (\<lambda>it.  for x be ElementSUBSET-1M1-of it holds x be FunctionFUNCT-2M1-of(A,B))"
+proof-
+  (*existence*)
+    show " ex it be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 st  for x be ElementSUBSET-1M1-of it holds x be FunctionFUNCT-2M1-of(A,B)"
+sorry
+qed "sorry"
+
+mtheorem funct_2_cl_22:
+  mlet "A be setHIDDENM2", "B be setHIDDENM2"
+"cluster note-that functionalFUNCT-1V6 for FUNCTION-DOMAINFUNCT-2M3-of(A,B)"
+proof
+(*coherence*)
+  show " for it be FUNCTION-DOMAINFUNCT-2M3-of(A,B) holds it be functionalFUNCT-1V6"
+    using funct_2_def_12 sorry
+qed "sorry"
+
+mtheorem funct_2_th_121:
+" for P be setHIDDENM2 holds  for Q be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(P,Q) holds {TARSKIK1 f} be FUNCTION-DOMAINFUNCT-2M3-of(P,Q)"
+sorry
+
+mtheorem funct_2_th_122:
+" for P be setHIDDENM2 holds  for B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds FuncsFUNCT-2K1(P,B) be FUNCTION-DOMAINFUNCT-2M3-of(P,B)"
+sorry
+
+abbreviation(input) FUNCT_2K9("FuncsFUNCT-2K9'( _ , _ ')" [0,0]228) where
+  "FuncsFUNCT-2K9(A,B) \<equiv> FuncsFUNCT-2K1(A,B)"
+
+mtheorem funct_2_add_5:
+  mlet "A be setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster FuncsFUNCT-2K1(A,B) as-term-is FUNCTION-DOMAINFUNCT-2M3-of(A,B)"
+proof
+(*coherence*)
+  show "FuncsFUNCT-2K1(A,B) be FUNCTION-DOMAINFUNCT-2M3-of(A,B)"
+    using funct_2_th_122 sorry
+qed "sorry"
+
+syntax FUNCT_2M4 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Ty" ("ElementFUNCT-2M4\<^bsub>'( _ , _ ')\<^esub>-of  _ " [0,0,70]70)
+translations "ElementFUNCT-2M4\<^bsub>(A,B)\<^esub>-of F" \<rightharpoonup> "ElementSUBSET-1M1-of F"
+
+mtheorem funct_2_add_6:
+  mlet "A be setHIDDENM2", "B be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "F be FUNCTION-DOMAINFUNCT-2M3-of(A,B)"
+"cluster note-that FunctionFUNCT-2M1-of(A,B) for ElementSUBSET-1M1-of F"
+proof
+(*coherence*)
+  show " for it be ElementSUBSET-1M1-of F holds it be FunctionFUNCT-2M1-of(A,B)"
+    using funct_2_def_12 sorry
+qed "sorry"
+
+mtheorem funct_2_cl_23:
+  mlet "I be setHIDDENM2"
+"cluster idPARTFUN1K6 I as-term-is totalPARTFUN1V1\<^bsub>(I)\<^esub> for I -definedRELAT-1V4\<bar>FunctionFUNCT-1M1"
+proof
+(*coherence*)
+  show " for it be I -definedRELAT-1V4\<bar>FunctionFUNCT-1M1 holds it =HIDDENR1 idPARTFUN1K6 I implies it be totalPARTFUN1V1\<^bsub>(I)\<^esub>"
+     sorry
+qed "sorry"
+
+syntax FUNCT_2K10 :: " Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow>  Set \<Rightarrow> Set" (" _ '/.FUNCT-2K10\<^bsub>'( _ , _ ')\<^esub>  _ " [200,0,0,200]200)
+translations "F /.FUNCT-2K10\<^bsub>(X,A)\<^esub> x" \<rightharpoonup> "F /.PARTFUN1K7\<^bsub>(A)\<^esub> x"
+
+mtheorem funct_2_def_13:
+  mlet "X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "A be  non emptyXBOOLE-0V1\<bar>setHIDDENM2", "F be FunctionFUNCT-2M1-of(X,A)", "x be setHIDDENM2"
+"assume x inTARSKIR2 X redefine func F /.FUNCT-2K10\<^bsub>(X,A)\<^esub> x \<rightarrow> ElementSUBSET-1M1-of A equals
+  F .FUNCT-1K1 x"
+proof
+(*compatibility*)
+  show "x inTARSKIR2 X implies ( for it be ElementSUBSET-1M1-of A holds it =HIDDENR1 F /.FUNCT-2K10\<^bsub>(X,A)\<^esub> x iff it =HIDDENR1 F .FUNCT-1K1 x)"
+sorry
+qed "sorry"
+
+mtheorem funct_2_th_123:
+" for X be setHIDDENM2 holds  for Y be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,Y) holds  for g be X -valuedRELAT-1V5\<bar>FunctionFUNCT-1M1 holds domRELAT-1K1 (f *FUNCT-1K3 g) =XBOOLE-0R4 domRELAT-1K1 g"
+sorry
+
+mtheorem funct_2_th_124:
+" for X be  non emptyXBOOLE-0V1\<bar>setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of(X,X) holds ( for x be ElementSUBSET-1M1-of X holds f .FUNCT-2K3\<^bsub>(X,X)\<^esub> x =XBOOLE-0R4 x) implies f =FUNCT-2R2\<^bsub>(X,X)\<^esub> idPARTFUN1K6 X"
+   sorry
+
+abbreviation(input) FUNCT_2M5("ActionFUNCT-2M5-of'( _ , _ ')" [0,0]70) where
+  "ActionFUNCT-2M5-of(O,E) \<equiv> FunctionFUNCT-2M1-of(O,FuncsFUNCT-2K1(E,E))"
+
+mtheorem funct_2_th_125:
+" for x be setHIDDENM2 holds  for A be setHIDDENM2 holds  for f be FunctionFUNCT-2M1-of({TARSKIK1 x},A) holds  for g be FunctionFUNCT-2M1-of({TARSKIK1 x},A) holds f .FUNCT-1K1 x =XBOOLE-0R4 g .FUNCT-1K1 x implies f =FUNCT-2R2\<^bsub>({TARSKIK1 x},A)\<^esub> g"
+sorry
+
+mtheorem funct_2_th_126:
+" for A be setHIDDENM2 holds idPARTFUN1K6 A inTARSKIR2 FuncsFUNCT-2K1(A,A)"
+sorry
+
+mtheorem funct_2_th_127:
+"FuncsFUNCT-2K1({}XBOOLE-0K1,{}XBOOLE-0K1) =XBOOLE-0R4 {TARSKIK1 idPARTFUN1K6 ({}XBOOLE-0K1) }"
+sorry
+
+mtheorem funct_2_th_128:
+" for A be setHIDDENM2 holds  for B be setHIDDENM2 holds  for C be setHIDDENM2 holds  for f be FunctionFUNCT-1M1 holds  for g be FunctionFUNCT-1M1 holds f inTARSKIR2 FuncsFUNCT-2K1(A,B) & g inTARSKIR2 FuncsFUNCT-2K1(B,C) implies g *FUNCT-1K3 f inTARSKIR2 FuncsFUNCT-2K1(A,C)"
+sorry
+
+mtheorem funct_2_th_129:
+" for A be setHIDDENM2 holds  for B be setHIDDENM2 holds  for C be setHIDDENM2 holds FuncsFUNCT-2K1(A,B) <>HIDDENR2 {}XBOOLE-0K1 & FuncsFUNCT-2K1(B,C) <>HIDDENR2 {}XBOOLE-0K1 implies FuncsFUNCT-2K1(A,C) <>HIDDENR2 {}XBOOLE-0K1"
+sorry
+
+mtheorem funct_2_th_130:
+" for A be setHIDDENM2 holds {}XBOOLE-0K1 be FunctionFUNCT-2M1-of(A,{}XBOOLE-0K1)"
+  using funct_2_def_1 relset_1_th_12 sorry
+
+theorem funct_2_sch_11:
+  fixes Xf0 Yf0 Ff1 
+  assumes
+[ty]: "Xf0 be setHIDDENM2" and
+  [ty]: "Yf0 be setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be objectHIDDENM1 \<Longrightarrow> Ff1(x1) be objectHIDDENM1" and
+   A1: " for x be setHIDDENM2 holds x inTARSKIR2 Xf0 implies Ff1(x) inHIDDENR3 Yf0"
+  shows " ex f be FunctionFUNCT-2M1-of(Xf0,Yf0) st  for x be setHIDDENM2 holds x inTARSKIR2 Xf0 implies f .FUNCT-1K1 x =HIDDENR1 Ff1(x)"
+sorry
+
 end

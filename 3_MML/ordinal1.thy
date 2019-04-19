@@ -1,966 +1,758 @@
 theory ordinal1
-imports zfmisc_1 subset_1
+  imports funct_1 xregular
 begin
-
-
-reserve u,v,x,x1,x2,y,y1,y2,z,p,a for object
-reserve A,B,X,X1,X2,X3,X4,X5,X6,Y,Y1,Y2,Z,N,M for set
-
-section "ordinal1"
-
-abbreviation(input) 
-  "ZeroM  \<equiv> {}" 
-
-mtheorem ordinal1_th_1:"Y in X \<longrightarrow> \<not> X \<subseteq> Y"
-proof (standard,standard)
-  assume A1:"Y in X"
-  assume "X \<subseteq> Y"
-  hence "Y in Y" using A1 tarski_def_3 by infer_auto
-  thus "False" using prefix_in_irreflexive by infer_auto
-qed
-
-text_raw {*\DefineSnippet{ordinal_1_def_1}{*}
-mdef ordinal1_def_1 ("succ _" [90] 90) where
-  "func succ X \<rightarrow> set equals X \<union> {X}"
-text_raw {*}%EndSnippet*}
-proof -
-  show "(X \<union> {X}) be set" by infer_simp
-qed
-
-abbreviation (input) 
-  "OneM  \<equiv> succ {}" 
-
-abbreviation (input)
-  "TwoM  \<equiv> succ OneM" 
-
-
-abbreviation (input) 
-  "ThreeM  \<equiv> succ TwoM" 
-
-
-abbreviation (input) 
-  "FourM  \<equiv> succ ThreeM" 
-
-
-notation
-  ZeroM ("0\<^sub>\<S>") and
-  OneM ("1\<^sub>\<S>") and
-  TwoM ("2\<^sub>\<S>") and
-  ThreeM ("3\<^sub>\<S>") and
-  FourM ("4\<^sub>\<S>")
-mtheorem ordinal1_th_2:"X in succ X"
-proof -
-  have "X in {X}" using tarski_def_1 by infer_auto
-  thus ?thesis using xboole_0_def_3 ordinal1_def_1 by infer_auto
-qed
-  
-mtheorem ordinal1_th_2a:"X c= succ X"
-proof -
-  have "succ X= X\<union>{X}" using ordinal1_def_1  by infer_auto
-  thus ?thesis using xboole_0_def_3 tarski_def_3  by infer_auto
-qed
-
-
-lemma nonempty_succ[simp]: "succ X<>{} & {}<>succ X"
-proof-
-  have "X in succ X" using ordinal1_th_2 all_set by auto
-  thus ?thesis using xb by auto
-qed
-    
-mtheorem ordinal1_th_4:"x in succ X \<longleftrightarrow> x in X \<or> x = X"
-proof (rule iffI3)
-  show "x in succ X \<longrightarrow> x in X \<or> x = X"
-  proof
-    assume "x in succ X"
-    hence "x in X \<or> x in {X}" using xboole_0_def_3 ordinal1_def_1 by infer_auto
-    thus "x in X \<or> x = X" using tarski_def_1[of X] by infer_auto
-  qed
-  assume "x in X \<or> x = X"
-  hence "x in X \<or> x in {X}" using tarski_def_1 by infer_auto
-  thus "x in succ X" using xboole_0_def_3 ordinal1_def_1 by infer_auto
-qed
-
+(*begin*)
+reserve X, Y, Z, X1, X2, X3, X4, X5, X6 for "setHIDDENM2"
+reserve x, y for "objectHIDDENM1"
+(*\$CT 4*)
 mtheorem ordinal1_th_5:
-  "X <> succ X"
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds Y inTARSKIR2 X implies  not X c=TARSKIR1 Y"
+sorry
+
+mdef ordinal1_def_1 ("succORDINAL1K1  _ " [228]228 ) where
+  mlet "X be setHIDDENM2"
+"func succORDINAL1K1 X \<rightarrow> setHIDDENM2 equals
+  X \\/XBOOLE-0K2 {TARSKIK1 X}"
+proof-
+  (*coherence*)
+    show "X \\/XBOOLE-0K2 {TARSKIK1 X} be setHIDDENM2"
+       sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_1:
+  mlet "X be setHIDDENM2"
+"cluster succORDINAL1K1 X as-term-is  non emptyXBOOLE-0V1"
 proof
-  assume
-A1: "X = succ X"
-  have "X in succ X" using ordinal1_th_2 by infer_auto
-  thus "False" using  A1 prefix_in_irreflexive by auto
-qed
-  
-mtheorem ordinal1_succ: "X\<noteq>Y \<Longrightarrow> succ X \<noteq> succ Y"
-proof
-  assume A1: "X\<noteq>Y" "succ X = succ Y"
-  have "Y in succ Y" using ordinal1_th_2 tarski_def_1 xboole_0_def_3 by infer_auto
-  hence "Y in X \<union> { X }" using ordinal1_def_1 A1(2) by infer_auto
-  hence A2: "Y in X" using A1(1) tarski_def_1 xboole_0_def_3 by infer_auto
-  have "X in succ X" using ordinal1_th_2 tarski_def_1 xboole_0_def_3 by infer_auto
-  hence "X in Y \<union> { Y }" using ordinal1_def_1 A1(2) by infer_auto
-  hence "X in Y" using A1(1) tarski_def_1 xboole_0_def_3 by infer_auto
-  thus "False" using A2 prefix_in_asymmetry[of X Y] by infer_auto
-qed
-  
-reserve a,b,c for object
-reserve X,Y,Z,x,y,z for set
-
-mdef ordinal1_def_2 ("epsilon-transitive")where
-  "attr epsilon-transitive for set means
-     (\<lambda>X. for x st x in X holds x c= X)".
-
-mdef ordinal1_def_3 ("epsilon-connected")where
-  "attr epsilon-connected for set means
-     (\<lambda>X. for x,y st x in X \<and> y in X holds x in y \<or> x = y \<or> y in x)".
-
-mdef ordinal1_def_4 ("ordinal")where
-  "attr ordinal for object means
-     (\<lambda>IT. IT is epsilon-transitive \<bar> epsilon-connected \<bar> set)".
-
-mdef ordinal1_def_6 ("limit'_ordinal")where
-  "attr limit_ordinal for set means (\<lambda>A. A = union A)".
-
-abbreviation (input) "Number \<equiv> object"
-abbreviation (input) "number \<equiv> set"
-abbreviation "Ordinal \<equiv> ordinal \<bar> number"
-
-
-mtheorem Lm1:
- "cluster {} \<rightarrow> epsilon-transitive \<bar> epsilon-connected"
-proof
-  show "{} is epsilon-transitive \<bar> epsilon-connected"
-  using xb1 ordinal1_def_2I ordinal1_def_3I by inst_nopass_auto
-qed
-  
-mtheorem 
-  "cluster ordinal for number"
-proof(standard,standard)
-  show "{} is Ordinal" using Lm1 ordinal1_def_4I by infer_auto
-qed
-
-mtheorem 
-  "cluster epsilon-transitive for number"
-proof(standard,standard)
-  show "{} is epsilon-transitive \<bar> number" using Lm1 by infer_auto
-qed
-
-reserve A,B,C,D for Ordinal
-mtheorem
-  "cluster epsilon-transitive \<bar> epsilon-connected \<rightarrow> ordinal for set"
-    using ordinal1_def_4I by infer_auto
- 
-mtheorem
-  "cluster ordinal \<rightarrow> epsilon-transitive \<bar> epsilon-connected  for set"
-using  ordinal1_def_4E by infer_auto
-  
-(* Are similar? *)
+(*coherence*)
+  show "succORDINAL1K1 X be  non emptyXBOOLE-0V1"
+     sorry
+qed "sorry"
 
 mtheorem ordinal1_th_6:
-  "\<forall>B : number. \<forall>A : number. \<forall>C : epsilon-transitive \<bar> number. A in B \<and> B in C \<longrightarrow> A in C"
-proof (standard,standard,standard,standard,elim conjE)
-  fix A B
-  assume [ty]: "A is number" "B is number"
-  fix C
-  assume [ty]: "C is epsilon-transitive \<bar> number"
-  assume A1:"A in B" and A2:"B in C"
-  have "B \<subseteq> C" using A2 ordinal1_def_2 by infer_auto
-  thus "A in C" using A1 tarski_def_3 by infer_auto
-qed infer_auto
+" for X be setHIDDENM2 holds X inTARSKIR2 succORDINAL1K1 X"
+sorry
 
 mtheorem ordinal1_th_7:
-  "\<forall>x : epsilon-transitive \<bar> number. \<forall>A : Ordinal. x \<subset> A \<longrightarrow> x in A"
-proof (standard,standard,standard)
-  fix x
-  assume [ty]: "x is epsilon-transitive \<bar> set"
-  fix A
-  assume [ty]: "A is Ordinal"
-  let ?a = "the Element-of (A \\ x)"
-  assume A1:"x \<subset> A"
-  hence A2:"x \<subseteq> A" using xboole_0_def_8 by infer_auto
-  have B2: "x \<noteq> A" using A1 xboole_0_def_8 by infer_auto
-  hence "not A c= x" using A2 xboole_0_def_10 by infer_auto
-  hence "ex y be object st y in A\\ x" using tarski_def_3 xboole_0_def_5 by infer_auto
-  hence "A \\ x \<noteq> {}" using xboole_0_def_1 by infer_auto
-  hence "?a in A \\ x" using Element(4) by infer_auto
-  then obtain y where [ty]: "y is number" and
-A3: "y in A \\ x" and
-A4: "not (ex a being object st a in A \\ x \<and> a in y)" using tarski_th_3[of ?a "A\\x"] by infer_auto
-  have A5:"y in A" "\<not> y in x" using A3 xboole_0_def_5 by infer_auto
-  {
-    fix a
-    assume "a in x"
-    then obtain z where
-    [ty]:"z be set" and
-A6: "z = a" and
-A7: "z in x" using all_set by auto
-    have W1:  "z in A" using A2 A7 tarski_def_3E all_set by auto
-    hence W3: "z in y \<or> z=y \<or> y in z" using A5 ordinal1_def_3E[of A] by infer_auto
-    have W2: "z \<noteq> y" using A5 A7 prefix_in_irreflexive by auto
-    have A8: "z c= x" using A7 ordinal1_def_2 by infer_auto
-    hence "\<not> y in z" using xboole_0_def_5 A3 tarski_def_3E all_set by auto
-    hence "a in y" using W3 W2 A6 by auto
-  }
-  hence A8:"x \<subseteq> y" by (intro tarski_def_3I[of x y]) infer_auto
-  have A9:"y \<subseteq> A" using A3 ordinal1_def_2E[of A ] xboole_0_def_5 by infer_auto
-  {
-    fix a
-    assume [ty]: "a is Number"
-    assume A10:"a in y"
-    hence "\<not> a in A \\ x" using A4 by infer_auto
-    hence "a in x" using A9 A10 xboole_0_def_5 tarski_def_3 by infer_auto
-  }
-  hence A11:"y \<subseteq> x" using tarski_def_3 by infer_auto
-  thus "x in A" using A5 A8 xboole_0_def_10 by infer_auto
-qed infer_auto
-
-mtheorem ordinal1_th_7a:
-  "\<forall>x : epsilon-transitive \<bar> number. \<forall>A : Ordinal. x in A \<longrightarrow> x \<subset> A"
-proof(standard,standard,standard)
-  fix x A assume [ty]:"x is   epsilon-transitive \<bar> number" "A is Ordinal"
-  assume "x in A"
-  hence "x c= A" " x<>A" using ordinal1_def_2 prefix_in_irreflexive by infer_auto
-  thus "x \<subset> A" using xboole_0_def_8 by infer_auto
-qed infer_auto
-
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds succORDINAL1K1 X =XBOOLE-0R4 succORDINAL1K1 Y implies X =XBOOLE-0R4 Y"
+sorry
 
 mtheorem ordinal1_th_8:
-  "\<forall>A : epsilon-transitive \<bar> number. \<forall>C : Ordinal. \<forall>B : Ordinal. A \<subseteq> B \<and> B in C \<longrightarrow> A in C"
-proof (standard,standard,standard,standard,elim conjE)
-  fix A
-  assume [ty]: "A is epsilon-transitive \<bar> number"
-  fix B C
-  assume [ty]: "B is Ordinal" "C is Ordinal"
-  assume A1:"A \<subseteq> B" and A2:"B in C"
-  have "B \<subseteq> C" using A2 ordinal1_def_2[of C] by infer_auto
-  hence A3:"A \<subseteq> C" using A1 tarski_def_3 by infer_auto
-  have "A \<noteq> C" using A1 A2 ordinal1_th_1 by infer_auto
-  hence "A \<subset> C" using A3 xboole_0_def_8 by infer_auto
-  thus "A in C" using ordinal1_th_7 by infer_auto
-qed infer_auto
-
-
-mtheorem xreagular_th_7:
-  "for X1,X2,X3 be set holds
-      \<not> (X1 in X2 \<and> X2 in X3 \<and> X3 in X1)"
-proof (intro ballI notI impI)
-  fix a b c
-  assume T0[ty]:"a be set" "b be set" "c be set"
-  assume A1:"a in b \<and> b in c \<and> c in a"
-  let ?X = "{ a , b, c }"
-  have "a in ?X" using enumset1_def_1 by infer_auto
-  then obtain Y where
-  T1[ty]: "Y be set" and A4:"Y in ?X \<and> \<not>(\<exists>z:object. z in ?X \<and> z in Y)"
-    using tarski_th_3[of a ?X] by infer_auto
-  have "Y=a \<or> Y=b\<or> Y=c " using A4 enumset1_def_1 by auto
-  then show False using A1 A4 enumset1_def_1 by infer_auto
-qed simp_all
-
-
+" for X be setHIDDENM2 holds  for x be objectHIDDENM1 holds x inHIDDENR3 succORDINAL1K1 X iff x inHIDDENR3 X or x =HIDDENR1 X"
+sorry
 
 mtheorem ordinal1_th_9:
-  "a in A \<longrightarrow> a is Ordinal"
-proof
-  assume
-A1: "a in A"
-  have [ty]: "a is set" using tarski_0_1 by auto
-  have A2: "a c= A " using ordinal1_def_2E A1 by infer_auto
-      {
-    fix y assume [ty]: "y be set"
-    assume
-A3: "y in a"
-    then have
-A4: "y c= A" using A2 ordinal1_def_2E[of A] tarski_def_3 by inst_nopass_auto
-    assume "not y c= a"
-    then obtain b where
-A5: "b in y \<and> \<not> b in a" using tarski_def_3 by infer_auto
-    have "b in y \\ a" using A5 xboole_0_def_5 by infer_auto
-    then obtain z where
-A6: "z in y \\ a" and
-    "not (ex c being object st c in y \\ a \<and> c in z)" using tarski_th_3[of b "y\\a"] by infer_auto
-    have A7: "z in y" "not z in a" using A6 xboole_0_def_5 by infer_auto
-    hence "z in A" using A4 tarski_def_3 by infer_auto
-    then have W1: " (z = a) \<or> (a in z)" using A1 A4 A7 ordinal1_def_3E[of A ] all_set by infer_auto
-    have W2: "z = a \<Longrightarrow> False" using prefix_in_asymmetry[of y z] A7 A3 by infer_auto
-    have "a in z \<Longrightarrow>  False" using A3 A7 xreagular_th_7[of y a z] all_set by infer_auto
-    hence False using W1 W2 by auto
-  }
-  then have
-A7: "a is epsilon-transitive" using ordinal1_def_2I[of a] all_set by auto
-  have "for y,z st y in a \<and> z in a holds y in z \<or> y = z \<or> z in y" using A2 ordinal1_def_3 tarski_def_3 by infer_auto
-  hence "a is epsilon-connected" using ordinal1_def_3I by infer_auto
-  thus "a is Ordinal" using A7 ordinal1_def_4I by infer_auto
-qed
+" for X be setHIDDENM2 holds X <>HIDDENR2 succORDINAL1K1 X"
+sorry
 
-text_raw {*\DefineSnippet{ordinal1_th_10}{*}
+reserve a, b, c for "objectHIDDENM1"
+reserve X, Y, Z, x, y, z for "setHIDDENM2"
+mdef ordinal1_def_2 ("epsilon-transitiveORDINAL1V1" 70 ) where
+"attr epsilon-transitiveORDINAL1V1 for setHIDDENM2 means
+  (\<lambda>X.  for x be setHIDDENM2 holds x inTARSKIR2 X implies x c=TARSKIR1 X)"..
+
+mdef ordinal1_def_3 ("epsilon-connectedORDINAL1V2" 70 ) where
+"attr epsilon-connectedORDINAL1V2 for setHIDDENM2 means
+  (\<lambda>X.  for x be setHIDDENM2 holds  for y be setHIDDENM2 holds x inTARSKIR2 X & y inTARSKIR2 X implies (x inTARSKIR2 y or x =XBOOLE-0R4 y) or y inTARSKIR2 x)"..
+
+mlemma ordinal1_lm_1:
+"{}XBOOLE-0K1 be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+   sorry
+
+mtheorem ordinal1_cl_2:
+"cluster epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2 for setHIDDENM2"
+proof
+(*existence*)
+  show " ex it be setHIDDENM2 st it be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+    using ordinal1_lm_1 sorry
+qed "sorry"
+
+mdef ordinal1_def_4 ("ordinalORDINAL1V3" 70 ) where
+"attr ordinalORDINAL1V3 for objectHIDDENM1 means
+  (\<lambda>IT. IT be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2\<bar>setHIDDENM2)"..
+
+mtheorem ordinal1_cl_3:
+"cluster ordinalORDINAL1V3 also-is epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be ordinalORDINAL1V3 implies it be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_4:
+"cluster epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2 also-is ordinalORDINAL1V3 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2 implies it be ordinalORDINAL1V3"
+     sorry
+qed "sorry"
+
+abbreviation(input) ORDINAL1M1("NumberORDINAL1M1" 70) where
+  "NumberORDINAL1M1 \<equiv> objectHIDDENM1"
+
+abbreviation(input) ORDINAL1M2("numberORDINAL1M2" 70) where
+  "numberORDINAL1M2 \<equiv> setHIDDENM2"
+
+mtheorem ordinal1_cl_5:
+"cluster ordinalORDINAL1V3 for numberORDINAL1M2"
+proof
+(*existence*)
+  show " ex it be numberORDINAL1M2 st it be ordinalORDINAL1V3"
+    using ordinal1_lm_1 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_6:
+"cluster ordinalORDINAL1V3 for NumberORDINAL1M1"
+proof
+(*existence*)
+  show " ex it be NumberORDINAL1M1 st it be ordinalORDINAL1V3"
+    using ordinal1_lm_1 sorry
+qed "sorry"
+
+syntax ORDINAL1M3 :: "Ty" ("OrdinalORDINAL1M3" 70)
+translations "OrdinalORDINAL1M3" \<rightharpoonup> "ordinalORDINAL1V3\<bar>numberORDINAL1M2"
+
+reserve A, B, C, D for "OrdinalORDINAL1M3"
 mtheorem ordinal1_th_10:
-  "\<not>A in B \<and> A \<noteq> B \<longrightarrow> B in A"
-text_raw {*}%EndSnippet*}
-proof(auto)
-  assume
-A1: "not A in B" and
-A2: "A \<noteq> B"
-  have "not A \<subset> B" using A1 ordinal1_th_7 by infer_auto
-  hence "not A c= B" using A2 xboole_0_def_8 by infer_auto
-  then obtain a where
-A3: "a in A \<and> \<not> a in B" using tarski_def_3 by infer_auto
-  have "a in A \\ B" using A3 xboole_0_def_5 by infer_auto
-  then obtain X where
-    [ty]: "X be set" and
-A4: "X in A \\ B" and
-A5: "not (ex a being object st a in A \\ B \<and> a in X)" using tarski_th_3[ of a "A\\B"] by infer_auto
-have A6: "X c= A" using A4 ordinal1_def_2E xboole_0_def_5 by infer_auto
-  {
-    fix b
-    assume
-A7: "b in X"
-    hence "not b in A \\ B" using A5 by auto
-    hence "b in B" using A6 A7 xboole_0_def_5 tarski_def_3 by infer_auto
-  }
-  hence "X c= B" using tarski_def_3 by infer_auto
-  then have
-A8: "X c< B \<or> X = B" using xboole_0_def_8 by infer_auto
-   have"   B is ordinal" by infer_auto
-  have A9: "X in A" using A4 xboole_0_def_5 by infer_auto
-  hence "not X in B" and [ty]:"X is Ordinal" using A4 ordinal1_th_9[of A X]  xboole_0_def_5 by infer_auto
-  thus "B in A" using A8 ordinal1_th_7[of X B] A4 xboole_0_def_5 by infer_auto
-qed
+" for A be setHIDDENM2 holds  for B be setHIDDENM2 holds  for C be epsilon-transitiveORDINAL1V1\<bar>setHIDDENM2 holds A inTARSKIR2 B & B inTARSKIR2 C implies A inTARSKIR2 C"
+sorry
 
-mtheorem ordinal1_def_5:
-  mlet "A be Ordinal"," B be Ordinal"
-  "redefine pred A c= B means
-     for C be Ordinal st C in A holds C in B"
-proof (standard,rule iffI3)
-  show "A c= B \<longrightarrow>  (for C be Ordinal st C in A holds C in B)" using tarski_def_3 by infer_auto
-  assume A1:"for C be Ordinal st C in A holds C in B"
-  show "A c= B"
-    proof(standard,auto)
-      fix C
-      assume A2:"C in A"
-      hence [ty]:"C be Ordinal" using ordinal1_th_9[of A C]  by infer_auto
-      show "C in B" using A1 A2 by infer_auto
-    qed infer_auto
-qed
-
-theorem ordinal1_def_5c:
-  "A be Ordinal \<Longrightarrow> B be Ordinal \<Longrightarrow> \<not> A c= B \<longrightarrow> B c= A"
-proof
-  assume T[ty]: "A be Ordinal" "B be Ordinal"
-  assume A1: "not A c= B"
-  show "B c= A"
-  proof(standard,auto)
-    obtain C where
-       A2: "C in A \<and> \<not> C in B" using A1 tarski_def_3 by infer_auto
-    hence [ty]:"C is Ordinal" using A2(1) ordinal1_th_9[of A] by infer_auto
-    fix D assume A3: "D in B"
-    hence [ty]: "D is Ordinal" using ordinal1_th_9[of B] by infer_auto
-    have "A in B \<or> B in A" using ordinal1_th_10[of A B] A1 xboole_0_def_10[of A B] by infer_auto
-    hence "B in A" using ordinal1_th_6[of A] A2 by infer_auto (*szkoda ze infer_auto tego nie lapie bez instancji*)
-    thus "D in A" using ordinal1_th_6[of B] A3 by infer_auto
-  qed infer_auto
-qed
+mtheorem ordinal1_th_11:
+" for x be epsilon-transitiveORDINAL1V1\<bar>setHIDDENM2 holds  for A be OrdinalORDINAL1M3 holds x c<XBOOLE-0R2 A implies x inTARSKIR2 A"
+sorry
 
 mtheorem ordinal1_th_12:
-    "A c= B \<or> B in A"
-proof-
-  have "A in B \<or> A = B \<or> B in A" using ordinal1_th_10 by infer_auto
-  thus "A c= B \<or> B in A" using xboole_0_def_10 ordinal1_def_2 all_set by infer_auto   
-qed
-  
+" for A be epsilon-transitiveORDINAL1V1\<bar>setHIDDENM2 holds  for B be OrdinalORDINAL1M3 holds  for C be OrdinalORDINAL1M3 holds A c=TARSKIR1 B & B inTARSKIR2 C implies A inTARSKIR2 C"
+sorry
+
 mtheorem ordinal1_th_13:
-  "x is Ordinal \<Longrightarrow> (succ x) is Ordinal"
-proof auto
-  assume
-A3[ty]:"x is Ordinal"
-  have E: "(succ x) = x \<union> {x}" using ordinal1_def_1 by infer_auto
-  have "(succ x) is epsilon-transitive"
-  proof(standard,auto)
-    fix y
-    have A4:"y = x \<longrightarrow> y c= (succ x)" using
-      xboole_1_th_7[of "x\<union>{x}" x] E by infer_auto
-    have A5: "y in x \<longrightarrow> y c= (succ x)"
-      proof
-        assume B: "y in x"
-        hence [ty]:"y is Ordinal" using ordinal1_th_9[of x] by infer_auto
-        have
-A6:     "y c= x" using ordinal1_def_2E[of x] B by infer_auto
-        have "x c= x \<union> { x }" using xboole_1_th_7 by infer_auto
-        thus "y c=  succ x" using A6 xboole_1_th_1[of "succ x" x y] E by infer_auto
-      qed
-      assume "y in succ x"
-      hence "y in x \<or> y =x " using E xboole_0_def_3 tarski_def_1 by infer_auto
-      thus "y c= succ x" using A5 A4 by auto
-    qed infer_auto
-  then have
-A7: "(succ x) is epsilon-transitive" by auto
-  {
-    fix y z assume [ty]: "y be set" "z be set"
-    assume
-A8: "y in succ x" and
-A9: "z in succ x"
-   have A10: "z in x \<or> z = x" using A9 E xboole_0_def_3 tarski_def_1 by infer_auto
-   have "y in x \<or> y = x" using A8 xboole_0_def_3 tarski_def_1 E by infer_auto
-   hence "y in z \<or> y = z \<or> z in y" using A10 ordinal1_def_3E[of x,THEN bspec,THEN bspec] by infer_auto
-  }
-  hence "(succ x) is epsilon-connected" using ordinal1_def_3I by infer_auto
-  show "(succ x) is ordinal" using A7 ordinal1_def_4 by infer_auto
-qed infer_auto
+" for a be objectHIDDENM1 holds  for A be OrdinalORDINAL1M3 holds a inHIDDENR3 A implies a be OrdinalORDINAL1M3"
+sorry
 
-mtheorem 
-  "cluster succ A \<rightarrow> non empty \<bar> ordinal"
-proof(standard,simp,intro conjI)
-    have "A in succ A" using ordinal1_th_2 by infer_auto
-    thus "\<not>(succ A) is empty" using xboole_0_def_1 by infer_auto
-    show "(succ A) is ordinal" using ordinal1_th_13 by infer_auto
-qed
+mtheorem ordinal1_th_14:
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds (A inTARSKIR2 B or A =XBOOLE-0R4 B) or B inTARSKIR2 A"
+sorry
 
+abbreviation(input) ORDINAL1R1(" _ c=ORDINAL1R1  _ " [50,50]50) where
+  "A c=ORDINAL1R1 B \<equiv> A c=TARSKIR1 B"
 
-mtheorem ordinal1_th_15:"(\<forall>x : set. x in X \<longrightarrow> x is ordinal \<bar> set \<and> x \<subseteq> X) \<longrightarrow>
-               X is epsilon-transitive \<bar> epsilon-connected"
-proof (standard,standard)
-  assume A1:"\<forall>x : set. x in X \<longrightarrow> x is ordinal \<bar> set \<and> x \<subseteq> X"
-  show "X is epsilon-transitive" using A1 ordinal1_def_2 by infer_auto
-  show "X is epsilon-connected"
-  proof(standard,infer_simp,intro ballI impI)
-    fix x assume [ty]:"x is set"
-    fix y assume [ty]:"y is set"
-    assume "x in X\<and>y in X"
-    hence [ty]: "x is ordinal \<bar> set \<and> y is ordinal \<bar> set" using A1 by infer_auto
-    thus "x in y \<or> x = y \<or> y in x" using ordinal1_th_10 by inst_nopass_auto
-  qed infer_auto
-qed
+mtheorem ordinal1_def_5:
+  mlet "A be OrdinalORDINAL1M3", "B be OrdinalORDINAL1M3"
+"redefine pred A c=ORDINAL1R1 B means
+   for C be OrdinalORDINAL1M3 holds C inTARSKIR2 A implies C inTARSKIR2 B"
+proof
+(*compatibility*)
+  show "A c=ORDINAL1R1 B iff ( for C be OrdinalORDINAL1M3 holds C inTARSKIR2 A implies C inTARSKIR2 B)"
+sorry
+qed "sorry"
+
+mtheorem ORDINAL1R1_connectedness:
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds  not A c=ORDINAL1R1 B implies B c=ORDINAL1R1 A"
+sorry
+
+mtheorem ordinal1_th_15:
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds (A,B)are-c=-comparableXBOOLE-0R3"
+sorry
 
 mtheorem ordinal1_th_16:
-  "X \<subseteq> A \<and> X \<noteq> {} \<longrightarrow> (\<exists>C : Ordinal. C in X \<and> (\<forall>B : Ordinal. B in X \<longrightarrow> C \<subseteq> B))"
-proof (intro impI, elim conjE)
-  let ?a = "the Element-of X"
-  assume A1:"X \<subseteq> A" and A2:"X \<noteq> {}"
-  have "?a in X" using A2 Element_of_rule2 by infer_auto
-  then obtain Y where [ty]:"Y is set" and
-  A3:"Y in X" and
-  A4:"\<not> (\<exists>a : object. a in X \<and> a in Y)" using tarski_th_3[of _ X] by infer_auto
-  have "Y in A" using A1 A3 tarski_def_3 by infer_auto
-  hence "Y is Ordinal" using ordinal1_th_9[of A Y] by infer_auto
-  then obtain C where [ty]:"C is Ordinal" and
-  A5:"C = Y" by infer_auto
-  show "\<exists>C : Ordinal. C in X \<and> (\<forall>B : Ordinal. B in X \<longrightarrow> C \<subseteq> B)"
-  proof (intro bexI[of _ C] conjI ballI impI)
-    show "C in X" using A3 A5 by infer_auto
-    fix B
-    assume [ty]:"B is Ordinal"
-    assume "B in X"
-    hence "\<not> B in C" using A4 A5 by infer_auto
-    hence "B = C \<or> C in B" using ordinal1_th_10 by infer_auto
-    thus "C \<subseteq> B" using ordinal1_def_2E[of B,simplified] tarski_def_3_reflexive by infer_auto
-  qed infer_auto
-qed
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds A c=ORDINAL1R1 B or B inTARSKIR2 A"
+sorry
+
+mtheorem ordinal1_cl_7:
+"cluster emptyXBOOLE-0V1 also-is ordinalORDINAL1V3 for numberORDINAL1M2"
+proof
+(*coherence*)
+  show " for it be numberORDINAL1M2 holds it be emptyXBOOLE-0V1 implies it be ordinalORDINAL1V3"
+    using ordinal1_lm_1 sorry
+qed "sorry"
 
 mtheorem ordinal1_th_17:
-  "A in B \<longleftrightarrow> succ A \<subseteq> B"
-proof(rule iffI3)
-  show "A in B \<longrightarrow> succ A c= B"
-  proof
-    assume
-A1: "A in B"
-    hence "\<forall>a : object.  a in { A } \<longrightarrow> a in B" using tarski_def_1 by auto
-    hence
-A2: "{ A } c= B" using tarski_def_3 by infer_auto
-    have "A c= B" using A1 ordinal1_def_2 by infer_auto
-    thus "succ A c= B" using A2 xboole_1_th_8[of "{A}" B A] ordinal1_def_1 by infer_auto
-  qed
-  assume
-A3: "succ A c= B"
-  have "A in succ A" using ordinal1_th_2 by infer_auto
-  thus "A in B" using A3 tarski_def_3 by infer_auto
-qed
-
-theorem ordinal1s:
-  "A be Ordinal \<Longrightarrow> B be Ordinal \<Longrightarrow> A c= succ B \<Longrightarrow> A c= B \<or> A=succ B"
-proof-
-  assume [ty]: "A be Ordinal" "B be Ordinal" and A1:"A c= succ B"
-  have "\<not> A c= B implies A=succ B"
-  proof
-    assume "\<not> A c= B"
-    hence "B in A" using ordinal1_th_12[of B A] by infer_auto
-    hence "succ B c= A" using ordinal1_th_17 by infer_auto
-    thus "A = succ B" using A1 xboole_0_def_10 by infer_auto
-  qed
-  thus "A c= B \<or> A=succ B" by auto
-qed infer_auto
+" for x be setHIDDENM2 holds x be OrdinalORDINAL1M3 implies succORDINAL1K1 x be OrdinalORDINAL1M3"
+sorry
 
 mtheorem ordinal1_th_18:
-  "A in succ B iff A c= B"
-proof(rule iffI3)
-  show "A in succ B implies A c= B"
-  proof
-    assume "A in succ B"
-    hence "A in B or A in { B }" using xboole_0_def_3 ordinal1_def_1 by infer_auto
-    hence "A c= B or A = B" using ordinal1_def_2 tarski_def_1 by infer_auto
-    thus "A c= B" using xboole_0_def_10 by infer_auto
-  qed
-  assume
-A1: "A c= B"
-  show "A in succ B"
-  proof(rule ccontr)  
-    assume "not A in succ B"
-    hence "A = succ B or succ B in A" using ordinal1_th_10 by infer_auto
-    hence "A = succ B or succ B c= A" using ordinal1_def_2 by infer_auto
-    hence A2: "succ B c= B" using A1 xboole_1_th_1[of B]  by infer_auto
-      
-    have "B in succ B" using ordinal1_th_2 by infer_auto
-    hence "B c= succ B" using ordinal1_def_2 by infer_auto
-    hence "succ B = B" using A2 xboole_0_def_10 by infer_auto
-    thus "False" using ordinal1_th_5 by inst_nopass_auto
-  qed
-qed    
-  
-theorem ordinal1_sch_1:
-  assumes A1: "ex A st P(A)"
-  shows "ex A st P(A) \<and> (\<forall>B. P(B) \<longrightarrow> A c= B)"
-proof -
-  obtain A where [ty]: "A is Ordinal" and
-  A2: "P(A)" using A1 by infer_auto
-  let ?R = "\<lambda>x. ex B st x = B \<and> P(B)"
-  obtain X where [ty]: "X is set" and
-  A3: "for x being object holds x in X \<longleftrightarrow> x in succ A \<and> ?R(x)"
-    using xboole_0_sch_1[of "succ A" ?R] by infer_auto
-  hence "\<forall>a : object.  a in X \<longrightarrow> a in succ A" by infer_auto
-  hence A4: "X c= succ A" by (intro tarski_def_3[THEN iffD2]) infer_auto
-  have [ty]: "(succ A) is ordinal" by infer_auto
-  have "A in succ A" using ordinal1_th_2 by infer_auto
-  hence "X \<noteq> {}" using A2 A3[THEN bspec,of A] xb1 by infer_auto
-  then obtain C where [ty]: "C is ordinal" "C is set" and
-  A5: "C in X" and
-  A6: "for B st B in X holds C c= B" using ordinal1_th_16[of _ X,OF _ _ A4,simplified] by infer_auto
-  have [ty]: "C is number" using ordinal1_def_4 by infer_simp
-  have "C in succ A" using A3 A5 by infer_auto
-  hence A7: "C c= succ A" using ordinal1_def_2E by infer_auto
-  show ?thesis
-  proof (intro bexI[of _ C] conjI ballI impI)
-    have "ex B st C = B \<and> P(B)" using A3 A5 by infer_auto
-    thus "P(C)" by infer_auto
-    fix B assume [ty]: "B is Ordinal"
-    assume A8: "P(B)"
-    show "C c= B" proof (rule ccontr)
-      assume A9: "\<not>C c= B"
-      hence " B c= C" " B\<noteq>C" using ordinal1_def_5c xboole_0_def_10 by infer_auto
-      hence "B c< C" using xboole_0_def_8 by infer_auto
-      hence "B in C" using ordinal1_th_7 by infer_auto
-      hence "B in X" unfolding A3[THEN bspec,of B,simplified] using A8 tarski_def_3E A7 by infer_auto
-      thus False using A6 A9 by infer_auto
-    qed
-  qed infer_auto
-qed
+" for x be setHIDDENM2 holds x be ordinalORDINAL1V3 implies unionTARSKIK3 x be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+sorry
 
-  (*::$N Transfinite induction*)
-theorem ordinal1_sch_2:
-  assumes A1:"for A st for C st C in A holds P(C) holds P(A)"
-  shows "\<forall>A. P(A)"
+mtheorem ordinal1_cl_8:
+"cluster  non emptyXBOOLE-0V1 for OrdinalORDINAL1M3"
 proof
-  let ?R = "\<lambda> x. ex B st x=B \<and> P(B)"
-  fix A assume [ty]:"A is Ordinal"
-  let ?Y = "succ A"
-  obtain Z where
-    [ty]:"Z be set" and
-A2: "for x being object holds x in Z \<longleftrightarrow> x in ?Y \<and> ?R(x)" using xboole_0_sch_1[of ?Y ?R] by infer_auto
-   have "?Y be Ordinal" by infer_auto
-  have "?Y \\ Z \<noteq> {} \<longrightarrow> False"
-   proof
-    have B1:"?Y \\ Z \<subseteq> ?Y" using tarski_def_3 xboole_0_def_5 by infer_auto
-    assume "?Y \\ Z \<noteq> {}"
-    then obtain C where
-    [ty]:"C be Ordinal" and
-A3: "C in ?Y \\ Z" and
-A4: "for B st B in ?Y \\ Z holds C c= B" using ordinal1_th_16[of ?Y "?Y \\ Z"] B1 by infer_auto
-    have "for B st B in C holds P(B)"
-      proof(standard,standard)
-         fix B assume [ty]:"B be Ordinal" and
-A5:   "B in C"
-      have "C in ?Y" using A3 B1 tarski_def_3E by infer_auto
-      hence
-A6:   "C c= ?Y" using ordinal1_def_2 by infer_auto
-      have "not B in Z \<longrightarrow> False"
-      proof
-        assume "not B in Z"
-        then have "B in ?Y \\ Z" using A5 A6 xboole_0_def_5 tarski_def_3E[OF _ _ A6] by infer_auto
-        then have
-A7:     "C c= B" using A4 by infer_auto
-        have "C \<noteq> B" using A5 prefix_in_irreflexive by infer_auto
-        hence "C \<subset> B" using A7 xboole_0_def_8 by infer_auto
-        thus False using A5 ordinal1_th_7 prefix_in_asymmetry[of C B] by infer_auto
-      qed
-      then have "ex B9 being Ordinal st B = B9 \<and> P(B9)" using A2 by auto
-      thus "P(B)" by auto
-    qed infer_auto
-    hence
-A8: "P(C)" using A1 by infer_auto
-    have A9: "not C in Z" using A3 xboole_0_def_5 by infer_auto
-    hence "C in succ A" using A3 xboole_0_def_5 by infer_auto
-    thus False using A2 A8 A9 by infer_auto
-  qed infer_auto
-  hence "?Y\\Z = {}" by auto
-  hence "not A in ?Y \<or> A in Z" using xboole_0_def_5 xboole_0_def_1 by inst_nopass_auto
-  hence "ex B st A = B \<and> P(B)" using A2 ordinal1_th_2 by infer_auto
-  thus "P(A)" by auto
-qed infer_auto
+(*existence*)
+  show " ex it be OrdinalORDINAL1M3 st it be  non emptyXBOOLE-0V1"
+sorry
+qed "sorry"
 
-mtheorem ordinal1_th_24:"\<forall>A : Ordinal. A is limit_ordinal \<longleftrightarrow> (\<forall>C : ordinal \<bar> set. C in A \<longrightarrow> succ C in A)"
-proof (standard,standard)
-  fix A assume [ty]:"A is Ordinal"
-  show "A is limit_ordinal \<Longrightarrow> (\<forall>C : Ordinal. C in A \<longrightarrow> succ C in A)"
-  proof (standard, standard)
-    assume "A is limit_ordinal"
-    hence A1:"A = union A" using ordinal1_def_6E by infer_auto
-    fix C assume [ty]:"C is Ordinal"
-    assume "C in A"
-    then obtain z where [ty]:"z is set" and
-    A2:"C in z" and
-    A3:"z in A" using A1 tarski_def_4[of A C] by infer_auto
-    have "\<forall>b : object. b in {C} \<longrightarrow> b in z" using A2 tarski_def_1 by infer_auto
-    hence A4:"{C} \<subseteq> z" using tarski_def_3I by infer_auto
-    have A5[ty]:"z is Ordinal" using ordinal1_th_9[OF _ _ A3] by infer_auto
-    hence "C \<subseteq> z" using A2 ordinal1_def_2E by infer_auto
-    hence "succ C \<subseteq> z" using xboole_1_th_8[OF _ _ _ _ A4,of C] ordinal1_def_1 by infer_auto
-    hence "succ C = z \<or> succ C \<subset> z" using xboole_0_def_8 by infer_auto
-    hence A6:"succ C = z \<or> succ C in z" using A5 ordinal1_th_7 by infer_auto
-    have "z \<subseteq> A" using A3 ordinal1_def_2 by infer_auto
-    thus "succ C in A" using A3 A6 ordinal1_th_6[of _ "succ C" A] by infer_auto
-  qed infer_auto
-  assume A7:"\<forall>C : Ordinal. C in A \<longrightarrow> succ C in A"
-  {
-    fix a
-    have [ty]:"a is set" using tarski_0_1 by infer_auto
-    assume A8:"a in A"
-    have "a is ordinal \<bar> set" using ordinal1_th_9[OF _ _ A8] by infer_auto
-    hence A9:"succ a in A" using A7 A8 by infer_auto
-    have "a in succ a" using ordinal1_th_2 by infer_auto
-    hence "a in union A" using A9 tarski_def_4[THEN iffD2,of A a,OF _ bexI] by infer_auto
-  }
-  hence A10:"A \<subseteq> union A" using tarski_def_3I by infer_auto
-  {
-    fix a
-    assume "a in union A"
-    then obtain z where [ty]:"z is set" and
-    A11:"a in z" and
-    A12:"z in A" using tarski_def_4 by infer_auto
-    have "z \<subseteq> A" using A12 ordinal1_def_2 by infer_auto
-    hence "a in A" using A11 tarski_def_3E by infer_auto
-  }
-  hence "union A \<subseteq> A" using tarski_def_3I by infer_auto
-  hence "A = union A" using A10 xboole_0_def_10 by infer_auto
-  thus "A is limit_ordinal" using ordinal1_def_6I by infer_auto
-qed infer_auto
+mtheorem ordinal1_cl_9:
+  mlet "A be OrdinalORDINAL1M3"
+"cluster succORDINAL1K1 A as-term-is  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3"
+proof
+(*coherence*)
+  show "succORDINAL1K1 A be  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3"
+    using ordinal1_th_17 sorry
+qed "sorry"
 
-text_raw {*\DefineSnippet{ordinal1_th_24A}{*}
-mtheorem ordinal1_th_24A:
-  "\<forall>A : Ordinal. 
-     A is limit_ordinal \<longleftrightarrow> (for C be set st C in A holds succ C in A)"
-text_raw {*}%EndSnippet*}
-proof(standard, rule iffI3)
-  fix A assume [ty]:"A is Ordinal"
-  show "A is limit_ordinal \<longrightarrow> (for C be set st C in A holds succ C in A)"
-  proof(standard,standard,standard)
-    fix C
-    assume A1: "A is limit_ordinal" and [ty]: "C is set" and A2: "C in A"
-    hence "C is Ordinal" using ordinal1_th_9[of A] by infer_auto
-    thus "succ C in A" using A1 A2 ordinal1_th_24[of A,THEN iffD1] by infer_auto
-  qed infer_auto
-  assume "for C be set st C in A holds succ C in A"
-  thus "A is limit_ordinal" using ordinal1_th_24 by infer_auto
-qed infer_auto
+mtheorem ordinal1_cl_10:
+  mlet "A be OrdinalORDINAL1M3"
+"cluster unionTARSKIK3 A as-term-is ordinalORDINAL1V3"
+proof
+(*coherence*)
+  show "unionTARSKIK3 A be ordinalORDINAL1V3"
+    using ordinal1_th_18 sorry
+qed "sorry"
 
+mtheorem ordinal1_th_19:
+" for X be setHIDDENM2 holds ( for x be setHIDDENM2 holds x inTARSKIR2 X implies x be OrdinalORDINAL1M3 & x c=TARSKIR1 X) implies X be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+sorry
 
+mtheorem ordinal1_th_20:
+" for X be setHIDDENM2 holds  for A be OrdinalORDINAL1M3 holds X c=TARSKIR1 A & X <>HIDDENR2 {}XBOOLE-0K1 implies ( ex C be OrdinalORDINAL1M3 st C inTARSKIR2 X & ( for B be OrdinalORDINAL1M3 holds B inTARSKIR2 X implies C c=ORDINAL1R1 B))"
+sorry
+
+mtheorem ordinal1_th_21:
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds A inTARSKIR2 B iff succORDINAL1K1 A c=ORDINAL1R1 B"
+sorry
+
+mtheorem ordinal1_th_22:
+" for A be OrdinalORDINAL1M3 holds  for C be OrdinalORDINAL1M3 holds A inTARSKIR2 succORDINAL1K1 C iff A c=ORDINAL1R1 C"
+sorry
+
+theorem ordinal1_sch_1:
+  fixes Pp1 
+  assumes
+    A1: " ex A be OrdinalORDINAL1M3 st Pp1(A)"
+  shows " ex A be OrdinalORDINAL1M3 st Pp1(A) & ( for B be OrdinalORDINAL1M3 holds Pp1(B) implies A c=ORDINAL1R1 B)"
+sorry
+
+(*\$N Transfinite induction*)
+theorem ordinal1_sch_2:
+  fixes Pp1 
+  assumes
+    A1: " for A be OrdinalORDINAL1M3 holds ( for C be OrdinalORDINAL1M3 holds C inTARSKIR2 A implies Pp1(C)) implies Pp1(A)"
+  shows " for A be OrdinalORDINAL1M3 holds Pp1(A)"
+sorry
+
+mtheorem ordinal1_th_23:
+" for X be setHIDDENM2 holds ( for a be objectHIDDENM1 holds a inHIDDENR3 X implies a be OrdinalORDINAL1M3) implies unionTARSKIK3 X be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2"
+sorry
+
+mtheorem ordinal1_th_24:
+" for X be setHIDDENM2 holds ( for a be objectHIDDENM1 holds a inHIDDENR3 X implies a be OrdinalORDINAL1M3) implies ( ex A be OrdinalORDINAL1M3 st X c=TARSKIR1 A)"
+sorry
+
+mtheorem ordinal1_th_25:
+" not ( ex X be setHIDDENM2 st  for x be setHIDDENM2 holds x inTARSKIR2 X iff x be OrdinalORDINAL1M3)"
+sorry
+
+mtheorem ordinal1_th_26:
+" not ( ex X be setHIDDENM2 st  for A be OrdinalORDINAL1M3 holds A inTARSKIR2 X)"
+sorry
+
+mtheorem ordinal1_th_27:
+" for X be setHIDDENM2 holds  ex A be OrdinalORDINAL1M3 st  not A inTARSKIR2 X & ( for B be OrdinalORDINAL1M3 holds  not B inTARSKIR2 X implies A c=ORDINAL1R1 B)"
+sorry
+
+mdef ordinal1_def_6 ("limit-ordinalORDINAL1V4" 70 ) where
+"attr limit-ordinalORDINAL1V4 for setHIDDENM2 means
+  (\<lambda>A. A =XBOOLE-0R4 unionTARSKIK3 A)"..
+
+mtheorem ordinal1_th_28:
+" for A be OrdinalORDINAL1M3 holds A be limit-ordinalORDINAL1V4 iff ( for C be OrdinalORDINAL1M3 holds C inTARSKIR2 A implies succORDINAL1K1 C inTARSKIR2 A)"
+sorry
 
 mtheorem ordinal1_th_29:
-  "not (A is limit_ordinal) \<longleftrightarrow> (ex B st A = succ B)"
-proof(rule iffI3)
-  show "not A is limit_ordinal \<longrightarrow> (ex B st A = succ B)"
-  proof
-    assume "not A is limit_ordinal"
-    then obtain B where
-      T[ty]:"B be Ordinal" and
-A1: "B in A" and
-A2: "not succ B in A" using ordinal1_th_24 by infer_auto
-    show "ex B st A=succ B"
-      proof(intro bexI[of _ B])
-        have "A\<noteq>succ B \<longrightarrow> False"
-          proof
-            assume
-A3:           "A \<noteq> succ B"
-            have "succ B \<subseteq> A" using A1 ordinal1_th_17 by infer_auto
-            hence "succ B \<subset> A" using A3 xboole_0_def_8 by infer_auto
-            thus False using A2 ordinal1_th_7 by infer_auto
-          qed
-         thus "A=succ B" by auto
-       qed infer_auto
-     qed
-  assume "ex B st A=succ B"
-  then obtain B where
-    [ty]: "B be Ordinal" and
-    A4: "A = succ B" by auto
-  have "B in A \<and> \<not> succ B in A" using A4 ordinal1_th_2 prefix_in_irreflexive by infer_auto
-  thus "not (A is limit_ordinal)" using ordinal1_th_24 by infer_auto
-qed
+" for A be OrdinalORDINAL1M3 holds  not A be limit-ordinalORDINAL1V4 iff ( ex B be OrdinalORDINAL1M3 st A =XBOOLE-0R4 succORDINAL1K1 B)"
+sorry
 
+reserve F, G for "FunctionFUNCT-1M1"
+mdef ordinal1_def_7 ("Sequence-likeORDINAL1V5" 70 ) where
+"attr Sequence-likeORDINAL1V5 for setHIDDENM2 means
+  (\<lambda>IT. proj1XTUPLE-0K12 IT be epsilon-transitiveORDINAL1V1\<bar>epsilon-connectedORDINAL1V2)"..
 
-mdef ordinal1_def_9 ("On _") where
-  "func On X \<rightarrow> set means
-     (\<lambda>it. for x being object holds x in it \<longleftrightarrow> x in X \<and> x is Ordinal)"
-proof -
-  show "\<exists>x : set. \<forall>xa : object. xa in x \<longleftrightarrow> xa in X \<and> xa is ordinal \<bar> set"
-    using xboole_0_sch_1 by infer_auto
-  show "\<And>x y. x is set \<Longrightarrow>
-           y is set \<Longrightarrow>
-           \<forall>xa : object. xa in x \<longleftrightarrow> xa in X \<and> xa is ordinal \<bar> set \<Longrightarrow>
-           \<forall>x : object. x in y \<longleftrightarrow> x in X \<and> x is ordinal \<bar> set \<Longrightarrow> x = y"
-    by (intro xboole_0_sch_2[of _ _ "\<lambda>xa. xa in X \<and> xa is Ordinal"]) infer_auto
-qed infer_auto
-
-text_raw {*\DefineSnippet{ordinal1_th_32}{*}
-mtheorem ordinal1_th_32:
-  "\<forall>D : Ordinal.  ex A be Ordinal st D in A \<and> A is limit_ordinal"
-text_raw {*}%EndSnippet*}
-
+mtheorem ordinal1_cl_11:
+"cluster emptyXBOOLE-0V1 also-is Sequence-likeORDINAL1V5 for setHIDDENM2"
 proof
-  fix D
-  assume [ty]: "D is Ordinal"
-  have dset: "D is set" by infer_auto
-  obtain Field where [ty]:"Field is set" and
-  A1:"D in Field" and
-  A2:"\<forall>X : set. \<forall>Y : set. X in Field \<and> Y \<subseteq> X \<longrightarrow> Y in Field" and
-  A3:"\<forall>X : set. X in Field \<longrightarrow> bool X in Field"
-  "\<forall>X : set. X \<subseteq> Field \<longrightarrow> X,Field areequipotent \<or> X in Field"
-    thm ty
-    using zfmisc_1_th_112[of D,OF dset,THEN bexE,OF set_exists,of thesis] by blast
-  have C: "\<forall>X : set. (X in On Field) \<longrightarrow> X is Ordinal \<and> X \<subseteq> On Field"
-  proof (standard,standard,standard)
-    fix X
-    assume [ty]:"X is set"
-    let ?A = X
-    assume A4:"X in On Field"
-    hence [ty]:"?A is Ordinal" using ordinal1_def_9 by infer_auto
-    have A5:"?A in Field" using A4 ordinal1_def_9 by infer_auto
-    show "X is Ordinal" using A4 ordinal1_def_9 by infer_auto
-    show "X \<subseteq> On Field"
-    proof(standard,auto)
-      fix y
-      assume A6:"y in X"
-      have B: "y in ?A" using A6 by infer_auto
-      let ?B = y
-      have [ty]:"?B is Ordinal" using ordinal1_th_9[OF _ _ B] by infer_auto
-      have "?B \<subseteq> ?A" using A6 ordinal1_def_2 by infer_auto
-      hence "?B in Field" using A2[THEN bspec,THEN bspec,of X _] A5 by infer_auto
-      thus "y in On Field" using ordinal1_def_9 by infer_auto
-    qed infer_auto
-  qed infer_auto
-  let ?ON = "On Field"
-  show "\<exists>A : ordinal \<bar> set. D in A \<and> A is limit_ordinal"
-  proof (intro bexI[of _ ?ON] conjI)
-    have [ty]:"?ON is epsilon-transitive \<bar> epsilon-connected \<bar> set" using C ordinal1_th_15 by infer_auto
-    show "D in ?ON" using A1 ordinal1_def_9 by infer_auto
-    have "\<forall>A : ordinal \<bar> set. A in ?ON \<longrightarrow> succ A in ?ON"
-    proof (standard,standard)
-      fix A assume [ty]: "A is Ordinal"
-      have A7:"succ A \<subseteq> bool A"
-      proof(standard,auto)
-        fix x
-        have [ty]:"x is set" using tarski_0_1 by infer_auto
-        assume "x in succ A"
-        hence "x in A \<or> x = A" using ordinal1_th_4 by infer_auto
-        hence "x \<subseteq> A" using ordinal1_def_2 tarski_def_3_reflexive by infer_auto
-        thus "x in bool A" using zfmisc_1_def_1 by infer_auto
-      qed infer_auto
-      assume "A in ?ON"
-      hence "A in Field" using ordinal1_def_9 by infer_auto
-      hence "bool A in Field" using A3 by infer_auto
-      hence "succ A in Field" using A2[THEN bspec,THEN bspec,of _ "succ A"] A7 by infer_auto
-      thus "succ A in ?ON" by (intro ordinal1_def_9[THEN iffD2]) infer_auto
-    qed infer_auto
-    thus "?ON is limit_ordinal" using ordinal1_th_24 by infer_auto
-    thus "?ON is Ordinal" by infer_auto
-  qed infer_auto
-qed infer_auto
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be emptyXBOOLE-0V1 implies it be Sequence-likeORDINAL1V5"
+     sorry
+qed "sorry"
 
-text_raw {*\DefineSnippet{omega}{*}
-mdef ordinal1_def_11 ("omega") where
-  "func omega \<rightarrow> set means (\<lambda>it.
-  0\<^sub>\<S> in it \<and> it be limit_ordinal \<and> it be Ordinal \<and> 
-   (\<forall>A:Ordinal. 0\<^sub>\<S> in A \<and> A is limit_ordinal \<longrightarrow> it \<subseteq> A))"
-text_raw {*}%EndSnippet*}
-proof -
-  have A: "{} is ordinal" using Lm1 by (intro ordinal1_def_4I) infer_auto
-  show "\<exists>A : set. {} in A \<and>
-              A is limit_ordinal \<and>
-              A is Ordinal \<and> (\<forall>B : ordinal \<bar> set. {} in B \<and> B is limit_ordinal \<longrightarrow> A \<subseteq> B)"
-    using ordinal1_sch_1[OF ordinal1_th_32,OF A] by infer_auto
-  show "\<And>x y. x is set \<Longrightarrow> y is set \<Longrightarrow>
-       {} in x \<and> x is limit_ordinal \<and>
-       x is Ordinal \<and> (\<forall>A : ordinal \<bar> set. {} in A \<and> A is limit_ordinal \<longrightarrow> x \<subseteq> A) \<Longrightarrow>
-       {} in y \<and> y is limit_ordinal \<and>
-       y is Ordinal \<and> (\<forall>A : ordinal \<bar> set. {} in A \<and> A is limit_ordinal \<longrightarrow> y \<subseteq> A) \<Longrightarrow> x = y"
-    proof (elim conjE)
-      fix x y
-      assume [ty]: "x is set" "y is set" "x is limit_ordinal" "y is limit_ordinal" "x is Ordinal" "y is Ordinal"
-      assume E: "{} in x" "{} in y"
-      assume U: "\<forall>A : ordinal \<bar> set. {} in A \<and> A is limit_ordinal \<longrightarrow> x \<subseteq> A"
-                "\<forall>A : ordinal \<bar> set. {} in A \<and> A is limit_ordinal \<longrightarrow> y \<subseteq> A"
-      have "x c= y \<and> y c= x" using U(1)[THEN bspec,of y,simplified] U(2)[THEN bspec,of x,simplified] E by infer_auto
-      thus "x = y" using xboole_0_def_10 by infer_auto
-    qed
-qed infer_auto
+syntax ORDINAL1M4 :: "Ty" ("SequenceORDINAL1M4" 70)
+translations "SequenceORDINAL1M4" \<rightharpoonup> "Sequence-likeORDINAL1V5\<bar>FunctionFUNCT-1M1"
 
-mtheorem
-  "cluster omega \<rightarrow> ordinal" 
- using ordinal1_def_11 by infer_auto
+mtheorem ordinal1_cl_12:
+  mlet "Z be setHIDDENM2"
+"cluster Z -valuedRELAT-1V5 for SequenceORDINAL1M4"
+proof
+(*existence*)
+  show " ex it be SequenceORDINAL1M4 st it be Z -valuedRELAT-1V5"
+sorry
+qed "sorry"
 
-mdef ordinal1_def_12 ("natural")where
-  "attr natural for object means (\<lambda>A. A in omega)"..
+syntax ORDINAL1M5 :: " Set \<Rightarrow> Ty" ("SequenceORDINAL1M5-of  _ " [70]70)
+translations "SequenceORDINAL1M5-of Z" \<rightharpoonup> "Z -valuedRELAT-1V5\<bar>SequenceORDINAL1M4"
 
-mtheorem
-  "cluster omega \<rightarrow> non empty" 
- using ordinal1_def_11 xboole_0_def_1 by infer_auto
+mtheorem ordinal1_th_30:
+" for Z be setHIDDENM2 holds {}XBOOLE-0K1 be SequenceORDINAL1M5-of Z"
+sorry
 
-abbreviation (input) "NAT \<equiv> omega"
+reserve L, L1 for "SequenceORDINAL1M4"
+mtheorem ordinal1_th_31:
+" for F be FunctionFUNCT-1M1 holds domRELAT-1K1 F be OrdinalORDINAL1M3 implies F be SequenceORDINAL1M5-of rngFUNCT-1K2 F"
+  using ordinal1_def_7 relat_1_def_19 sorry
 
+mtheorem ordinal1_cl_13:
+  mlet "L be SequenceORDINAL1M4"
+"cluster domRELAT-1K1 L as-term-is ordinalORDINAL1V3"
+proof
+(*coherence*)
+  show "domRELAT-1K1 L be ordinalORDINAL1V3"
+    using ordinal1_def_7 sorry
+qed "sorry"
 
-abbreviation "Nat \<equiv> natural \<bar> set"
+mtheorem ordinal1_th_32:
+" for X be setHIDDENM2 holds  for Y be setHIDDENM2 holds X c=TARSKIR1 Y implies ( for L be SequenceORDINAL1M5-of X holds L be SequenceORDINAL1M5-of Y)"
+sorry
 
-mtheorem "cluster {} \<rightarrow> Nat"
- using ordinal1_def_11 ordinal1_def_12I by infer_auto
-   
-mtheorem 
- "cluster  natural \<rightarrow> Element-of NAT for object"
-proof(standard,standard,standard)
-  fix x 
-  assume "x is natural"
-  hence "x in NAT" using ordinal1_def_12 by auto
-  thus "x is Element-of NAT" using Element_of_rule3 by infer_auto
-qed infer_auto
+mtheorem ordinal1_cl_14:
+  mlet "L be SequenceORDINAL1M4", "A be OrdinalORDINAL1M3"
+"cluster L |RELAT-1K8 A as-term-is rngFUNCT-1K2 L -valuedRELAT-1V5\<bar>Sequence-likeORDINAL1V5"
+proof
+(*coherence*)
+  show "L |RELAT-1K8 A be rngFUNCT-1K2 L -valuedRELAT-1V5\<bar>Sequence-likeORDINAL1V5"
+sorry
+qed "sorry"
 
-mtheorem
-  "cluster \<rightarrow> natural for Element-of NAT"
-proof(standard,auto)
-  fix x 
-  have N: "NAT \<noteq> {}" using xb ordinal1_def_11 by infer_auto
-  assume "x is Element-of NAT"
-  hence "x in NAT" using N Element_of_rule2[of NAT x] by infer_auto
-  thus "x is natural" using ordinal1_def_12 by infer_auto
-qed
-  
-mtheorem
-  "cluster natural for set"
-proof(standard,standard)
-  show "{} is Nat" by infer_auto
-qed
+mtheorem ordinal1_th_33:
+" for X be setHIDDENM2 holds  for L be SequenceORDINAL1M5-of X holds  for A be OrdinalORDINAL1M3 holds L |RELAT-1K8 A be SequenceORDINAL1M5-of X"
+   sorry
 
-mtheorem 
-  "cluster natural \<rightarrow> ordinal for Number"
-proof(standard,auto)
-  fix x assume "x be natural"
-  hence "x in omega" using ordinal1_def_12 by auto
-  thus "x is ordinal" using ordinal1_th_9[of omega] by infer_auto
-qed  
+mdef ordinal1_def_8 ("c=-linearORDINAL1V6" 70 ) where
+"attr c=-linearORDINAL1V6 for setHIDDENM2 means
+  (\<lambda>IT.  for x be setHIDDENM2 holds  for y be setHIDDENM2 holds x inTARSKIR2 IT & y inTARSKIR2 IT implies (x,y)are-c=-comparableXBOOLE-0R3)"..
 
-mdef ordinal1_def_16 ("with'_zero")where
-  "attr with_zero for set means (\<lambda>IT. {} in IT)"..
+mtheorem ordinal1_th_34:
+" for X be setHIDDENM2 holds ( for a be objectHIDDENM1 holds a inHIDDENR3 X implies a be SequenceORDINAL1M4) & X be c=-linearORDINAL1V6 implies unionTARSKIK3 X be SequenceORDINAL1M4"
+sorry
 
-mtheorem with_zero_cl:
-  "cluster with_zero \<rightarrow> non empty for set"
-proof(standard,intro ballI impI)
-  fix X assume [ty]: "X be set" "X is with_zero"
-  have "{} in X" using ordinal1_def_16 by infer_auto
-  thus "X is non empty" using xboole_0_def_1 by infer_auto
-qed infer_auto
+theorem ordinal1_sch_3:
+  fixes Af0 Hf1 L1f0 L2f0 
+  assumes
+[ty]: "Af0 be OrdinalORDINAL1M3" and
+  [ty_func]: "\<And> x1. x1 be SequenceORDINAL1M4 \<Longrightarrow> Hf1(x1) be setHIDDENM2" and
+  [ty]: "L1f0 be SequenceORDINAL1M4" and
+  [ty]: "L2f0 be SequenceORDINAL1M4" and
+   A1: "domRELAT-1K1 L1f0 =XBOOLE-0R4 Af0 & ( for B be OrdinalORDINAL1M3 holds  for L be SequenceORDINAL1M4 holds B inTARSKIR2 Af0 & L =FUNCT-1R1 L1f0 |RELAT-1K8 B implies L1f0 .FUNCT-1K1 B =XBOOLE-0R4 Hf1(L))" and
+   A2: "domRELAT-1K1 L2f0 =XBOOLE-0R4 Af0 & ( for B be OrdinalORDINAL1M3 holds  for L be SequenceORDINAL1M4 holds B inTARSKIR2 Af0 & L =FUNCT-1R1 L2f0 |RELAT-1K8 B implies L2f0 .FUNCT-1K1 B =XBOOLE-0R4 Hf1(L))"
+  shows "L1f0 =FUNCT-1R1 L2f0"
+sorry
 
-mtheorem
-  "cluster with_zero for set"
-proof(standard,standard)
-  show "{{}} is with_zero\<bar>set" using ordinal1_def_16 tarski_def_1 by infer_auto
-qed
+theorem ordinal1_sch_4:
+  fixes Af0 Hf1 
+  assumes
+[ty]: "Af0 be OrdinalORDINAL1M3" and
+  [ty_func]: "\<And> x1. x1 be SequenceORDINAL1M4 \<Longrightarrow> Hf1(x1) be setHIDDENM2"
+  shows " ex L be SequenceORDINAL1M4 st domRELAT-1K1 L =XBOOLE-0R4 Af0 & ( for B be OrdinalORDINAL1M3 holds  for L1 be SequenceORDINAL1M4 holds B inTARSKIR2 Af0 & L1 =FUNCT-1R1 L |RELAT-1K8 B implies L .FUNCT-1K1 B =XBOOLE-0R4 Hf1(L1))"
+sorry
 
-text_raw {*\DefineSnippet{ordinal2_sch_1}{*}
-theorem ordinal2_sch_1:
-  assumes A1: "P({})"
-      and A2: "\<forall>A. P(A) \<longrightarrow> P(succ A)"
-      and A3: "\<forall>A. A \<noteq> {} \<and> A is limit_ordinal \<and>
-                 (\<forall>B. B in A \<longrightarrow> P(B)) \<longrightarrow> P(A)"
-  shows "\<forall>A.  P(A)"
-text_raw {*}%EndSnippet*}
+theorem ordinal1_sch_5:
+  fixes Lf0 Ff1 Hf1 
+  assumes
+[ty]: "Lf0 be SequenceORDINAL1M4" and
+  [ty_func]: "\<And> x1. x1 be OrdinalORDINAL1M3 \<Longrightarrow> Ff1(x1) be setHIDDENM2" and
+  [ty_func]: "\<And> x1. x1 be SequenceORDINAL1M4 \<Longrightarrow> Hf1(x1) be setHIDDENM2" and
+   A1: " for A be OrdinalORDINAL1M3 holds  for a be objectHIDDENM1 holds a =HIDDENR1 Ff1(A) iff ( ex L be SequenceORDINAL1M4 st (a =HIDDENR1 Hf1(L) & domRELAT-1K1 L =XBOOLE-0R4 A) & ( for B be OrdinalORDINAL1M3 holds B inTARSKIR2 A implies L .FUNCT-1K1 B =XBOOLE-0R4 Hf1(L |RELAT-1K8 B)))" and
+   A2: " for A be OrdinalORDINAL1M3 holds A inTARSKIR2 domRELAT-1K1 Lf0 implies Lf0 .FUNCT-1K1 A =XBOOLE-0R4 Ff1(A)"
+  shows " for B be OrdinalORDINAL1M3 holds B inTARSKIR2 domRELAT-1K1 Lf0 implies Lf0 .FUNCT-1K1 B =XBOOLE-0R4 Hf1(Lf0 |RELAT-1K8 B)"
+sorry
+
+mtheorem ordinal1_th_35:
+" for A be OrdinalORDINAL1M3 holds  for B be OrdinalORDINAL1M3 holds (A c<XBOOLE-0R2 B or A =XBOOLE-0R4 B) or B c<XBOOLE-0R2 A"
+sorry
+
+(*begin*)
+mdef ordinal1_def_9 ("OnORDINAL1K2  _ " [228]228 ) where
+  mlet "X be setHIDDENM2"
+"func OnORDINAL1K2 X \<rightarrow> setHIDDENM2 means
+  \<lambda>it.  for x be objectHIDDENM1 holds x inHIDDENR3 it iff x inHIDDENR3 X & x be OrdinalORDINAL1M3"
 proof-
-have A4: "for A st for B st B in A holds P(B) holds P(A)"
-  proof(standard,standard)
-    fix A assume [ty]:"A be Ordinal" and
-   A5: "for B st B in A holds P(B)"
-    show "P(A)"
-    proof(cases "A={}" )
-      case True thus "P(A)" using A1 by auto
-    next
-      case C1: False
-         show "P(A)"
-         proof(cases "(\<forall>B.  A \<noteq> succ B)")
-           case True
-              hence "A is limit_ordinal" using ordinal1_th_29[of A] by infer_auto
-              thus "P(A)" using C1 A3 A5 by infer_auto
-           next
-           case C2:False
-              then obtain B where
-              [ty]: "B is Ordinal" and
-              A7:   "A = succ B" by auto
-              have "B in A" using A7 ordinal1_def_1[of B] xboole_0_def_3 tarski_def_1 by infer_auto
-              thus "P(A)" using A2 A5 A7 by infer_auto
-         qed
-       qed
- qed infer_auto
- thus "\<forall>A.  P(A)" using ordinal1_sch_2 by simp
-qed
+  (*existence*)
+    show " ex it be setHIDDENM2 st  for x be objectHIDDENM1 holds x inHIDDENR3 it iff x inHIDDENR3 X & x be OrdinalORDINAL1M3"
+sorry
+  (*uniqueness*)
+    show " for it1 be setHIDDENM2 holds  for it2 be setHIDDENM2 holds ( for x be objectHIDDENM1 holds x inHIDDENR3 it1 iff x inHIDDENR3 X & x be OrdinalORDINAL1M3) & ( for x be objectHIDDENM1 holds x inHIDDENR3 it2 iff x inHIDDENR3 X & x be OrdinalORDINAL1M3) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
 
-
-text_raw {*\DefineSnippet{OmegaInd}{*}
-theorem ordinal_2_sch_19:
-  assumes [ty]: "a is Nat"
-    and A1: "P({})"
-    and A2: "\<forall>n : Nat. P(n) \<longrightarrow> P(succ n)"
-  shows "P(a)"
-text_raw {*}%EndSnippet*}
+mdef ordinal1_def_10 ("LimORDINAL1K3  _ " [228]228 ) where
+  mlet "X be setHIDDENM2"
+"func LimORDINAL1K3 X \<rightarrow> setHIDDENM2 means
+  \<lambda>it.  for x be objectHIDDENM1 holds x inHIDDENR3 it iff x inHIDDENR3 X & ( ex A be OrdinalORDINAL1M3 st x =HIDDENR1 A & A be limit-ordinalORDINAL1V4)"
 proof-
-  have [ty]:"a is set" using all_set by auto
-  let ?P= "\<lambda>x . x is natural \<longrightarrow> P(x)"
-  have
-A3:"for A st ?P(A) holds ?P(succ A)"
-  proof(standard,standard)
-    fix A assume [ty]:"A be Ordinal" and
-A4: "?P(A)"
-    show "?P(succ A)"
-    proof
-      have "omega is set" by infer_auto
-         assume "(succ A) is natural"
-      hence
-A5:     "(succ A) in omega" using ordinal1_def_12 by auto
-       have B1: "A in succ A" using xboole_0_def_3 tarski_def_1 ordinal1_def_1[of A] by infer_auto
-       hence "A in omega" using A5 prefix_in_asymmetry[of A "succ A"] A5 ordinal1_th_6[of "succ A" A omega] by infer_auto
-      thus "P(succ A)" using A2 A4 ordinal1_def_12[of A] by infer_auto
-    qed
-  qed infer_auto
-  have
-A6: "for A st A \<noteq> {} \<and> A is limit_ordinal \<and> (for B st B in A holds ?P(B))
-           holds ?P(A)"
-  proof(intro ballI, rule impI)
-    fix A
-    assume
-    [ty]: "A is Ordinal" and
-     A7:"A \<noteq> {} \<and> A is limit_ordinal \<and> (for B st B in A holds ?P(B))"
-    have "{} c= A" using tarski_def_3I xb by infer_auto
-    hence "{} \<subset> A" using A7 xboole_0_def_8 by infer_auto
-    hence
-A8: "{} in A" using ordinal1_th_7[of "{}" A] Lm1 by infer_auto
-    have
-A9: "not A in A" using prefix_in_irreflexive by auto
-    have "omega c= A" using A8 A7 ordinal1_def_11 by infer_auto
-    hence "not A in omega" using A9 tarski_def_3E[of omega A] by infer_auto
-    thus "?P(A)" using ordinal1_def_12 by auto
-  qed infer_auto
-  have A10: "?P({})" using A1 by auto
-   have "a is Ordinal"  by infer_auto
-   have "\<forall>A.  ?P(A)" using ordinal2_sch_1[OF A10 A3 A6] by auto
- thus "P(a)" by infer_auto
-qed
+  (*existence*)
+    show " ex it be setHIDDENM2 st  for x be objectHIDDENM1 holds x inHIDDENR3 it iff x inHIDDENR3 X & ( ex A be OrdinalORDINAL1M3 st x =HIDDENR1 A & A be limit-ordinalORDINAL1V4)"
+sorry
+  (*uniqueness*)
+    show " for it1 be setHIDDENM2 holds  for it2 be setHIDDENM2 holds ( for x be objectHIDDENM1 holds x inHIDDENR3 it1 iff x inHIDDENR3 X & ( ex A be OrdinalORDINAL1M3 st x =HIDDENR1 A & A be limit-ordinalORDINAL1V4)) & ( for x be objectHIDDENM1 holds x inHIDDENR3 it2 iff x inHIDDENR3 X & ( ex A be OrdinalORDINAL1M3 st x =HIDDENR1 A & A be limit-ordinalORDINAL1V4)) implies it1 =HIDDENR1 it2"
+sorry
+qed "sorry"
+
+(*\$N Generalized Axiom of Infinity*)
+mtheorem ordinal1_th_36:
+" for D be OrdinalORDINAL1M3 holds  ex A be OrdinalORDINAL1M3 st D inTARSKIR2 A & A be limit-ordinalORDINAL1V4"
+sorry
+
+mdef ordinal1_def_11 ("omegaORDINAL1K4" 228 ) where
+"func omegaORDINAL1K4 \<rightarrow> setHIDDENM2 means
+  \<lambda>it. (({}XBOOLE-0K1 inTARSKIR2 it & it be limit-ordinalORDINAL1V4) & it be ordinalORDINAL1V3) & ( for A be OrdinalORDINAL1M3 holds {}XBOOLE-0K1 inTARSKIR2 A & A be limit-ordinalORDINAL1V4 implies it c=TARSKIR1 A)"
+proof-
+  (*existence*)
+    show " ex it be setHIDDENM2 st (({}XBOOLE-0K1 inTARSKIR2 it & it be limit-ordinalORDINAL1V4) & it be ordinalORDINAL1V3) & ( for A be OrdinalORDINAL1M3 holds {}XBOOLE-0K1 inTARSKIR2 A & A be limit-ordinalORDINAL1V4 implies it c=TARSKIR1 A)"
+sorry
+  (*uniqueness*)
+    show " for it1 be setHIDDENM2 holds  for it2 be setHIDDENM2 holds ((({}XBOOLE-0K1 inTARSKIR2 it1 & it1 be limit-ordinalORDINAL1V4) & it1 be ordinalORDINAL1V3) & ( for A be OrdinalORDINAL1M3 holds {}XBOOLE-0K1 inTARSKIR2 A & A be limit-ordinalORDINAL1V4 implies it1 c=TARSKIR1 A)) & ((({}XBOOLE-0K1 inTARSKIR2 it2 & it2 be limit-ordinalORDINAL1V4) & it2 be ordinalORDINAL1V3) & ( for A be OrdinalORDINAL1M3 holds {}XBOOLE-0K1 inTARSKIR2 A & A be limit-ordinalORDINAL1V4 implies it2 c=TARSKIR1 A)) implies it1 =HIDDENR1 it2"
+       sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_15:
+"cluster omegaORDINAL1K4 as-term-is  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3"
+proof
+(*coherence*)
+  show "omegaORDINAL1K4 be  non emptyXBOOLE-0V1\<bar>ordinalORDINAL1V3"
+    using ordinal1_def_11 sorry
+qed "sorry"
+
+mdef ordinal1_def_12 ("naturalORDINAL1V7" 70 ) where
+"attr naturalORDINAL1V7 for objectHIDDENM1 means
+  (\<lambda>A. A inHIDDENR3 omegaORDINAL1K4)"..
+
+mtheorem ordinal1_cl_16:
+"cluster naturalORDINAL1V7 for NumberORDINAL1M1"
+proof
+(*existence*)
+  show " ex it be NumberORDINAL1M1 st it be naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_17:
+"cluster naturalORDINAL1V7 for setHIDDENM2"
+proof
+(*existence*)
+  show " ex it be setHIDDENM2 st it be naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+syntax ORDINAL1M6 :: "Ty" ("NatORDINAL1M6" 70)
+translations "NatORDINAL1M6" \<rightharpoonup> "naturalORDINAL1V7\<bar>setHIDDENM2"
+
+mtheorem
+"cluster sethood of NatORDINAL1M6"
+proof
+(*sethood*)
+  show " ex cover be setHIDDENM2 st  for it be NatORDINAL1M6 holds it inHIDDENR3 cover"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_18:
+  mlet "A be OrdinalORDINAL1M3"
+"cluster note-that ordinalORDINAL1V3 for ElementSUBSET-1M1-of A"
+proof
+(*coherence*)
+  show " for it be ElementSUBSET-1M1-of A holds it be ordinalORDINAL1V3"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_19:
+"cluster naturalORDINAL1V7 also-is ordinalORDINAL1V3 for numberORDINAL1M2"
+proof
+(*coherence*)
+  show " for it be numberORDINAL1M2 holds it be naturalORDINAL1V7 implies it be ordinalORDINAL1V3"
+     sorry
+qed "sorry"
+
+theorem ordinal1_sch_6:
+  fixes Df0 Pp2 
+  assumes
+[ty]: "Df0 be  non emptyXBOOLE-0V1\<bar>setHIDDENM2" and
+   A1: " for d be ElementSUBSET-1M1-of Df0 holds  ex A be OrdinalORDINAL1M3 st Pp2(d,A)"
+  shows " ex F be FunctionFUNCT-1M1 st domRELAT-1K1 F =XBOOLE-0R4 Df0 & ( for d be ElementSUBSET-1M1-of Df0 holds  ex A be OrdinalORDINAL1M3 st (A =XBOOLE-0R4 F .FUNCT-1K1 d & Pp2(d,A)) & ( for B be OrdinalORDINAL1M3 holds Pp2(d,B) implies A c=ORDINAL1R1 B))"
+sorry
+
+mtheorem ordinal1_th_37:
+" for X be setHIDDENM2 holds succORDINAL1K1 X \\SUBSET-1K6 {TARSKIK1 X} =XBOOLE-0R4 X"
+sorry
+
+mtheorem ordinal1_cl_20:
+"cluster emptyXBOOLE-0V1 also-is naturalORDINAL1V7 for numberORDINAL1M2"
+proof
+(*coherence*)
+  show " for it be numberORDINAL1M2 holds it be emptyXBOOLE-0V1 implies it be naturalORDINAL1V7"
+    using ordinal1_def_11 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_21:
+"cluster note-that naturalORDINAL1V7 for ElementSUBSET-1M1-of omegaORDINAL1K4"
+proof
+(*coherence*)
+  show " for it be ElementSUBSET-1M1-of omegaORDINAL1K4 holds it be naturalORDINAL1V7"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_22:
+"cluster  non emptyXBOOLE-0V1\<bar>naturalORDINAL1V7 for numberORDINAL1M2"
+proof
+(*existence*)
+  show " ex it be numberORDINAL1M2 st it be  non emptyXBOOLE-0V1\<bar>naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_23:
+  mlet "a be naturalORDINAL1V7\<bar>OrdinalORDINAL1M3"
+"cluster succORDINAL1K1 a as-term-is naturalORDINAL1V7"
+proof
+(*coherence*)
+  show "succORDINAL1K1 a be naturalORDINAL1V7"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_24:
+"cluster emptyXBOOLE-0V1 also-is c=-linearORDINAL1V6 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be emptyXBOOLE-0V1 implies it be c=-linearORDINAL1V6"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_25:
+  mlet "X be c=-linearORDINAL1V6\<bar>setHIDDENM2"
+"cluster note-that c=-linearORDINAL1V6 for SubsetSUBSET-1M2-of X"
+proof
+(*coherence*)
+  show " for it be SubsetSUBSET-1M2-of X holds it be c=-linearORDINAL1V6"
+    using ordinal1_def_8 sorry
+qed "sorry"
+
+(*\$CT*)
+mdef ordinal1_def_13 ("0ORDINAL1K5" 164 ) where
+"func 0ORDINAL1K5 \<rightarrow> numberORDINAL1M2 equals
+  {}XBOOLE-0K1"
+proof-
+  (*coherence*)
+    show "{}XBOOLE-0K1 be numberORDINAL1M2"
+       sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_26:
+"cluster 0ORDINAL1K5 as-term-is naturalORDINAL1V7"
+proof
+(*coherence*)
+  show "0ORDINAL1K5 be naturalORDINAL1V7"
+     sorry
+qed "sorry"
+
+mdef ordinal1_def_14 ("zeroORDINAL1V8" 70 ) where
+"attr zeroORDINAL1V8 for NumberORDINAL1M1 means
+  (\<lambda>x. x =HIDDENR1 0ORDINAL1K5)"..
+
+mtheorem ordinal1_cl_27:
+"cluster 0ORDINAL1K5 as-term-is zeroORDINAL1V8"
+proof
+(*coherence*)
+  show "0ORDINAL1K5 be zeroORDINAL1V8"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_28:
+"cluster zeroORDINAL1V8 for NumberORDINAL1M1"
+proof
+(*existence*)
+  show " ex it be NumberORDINAL1M1 st it be zeroORDINAL1V8"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_29:
+"cluster zeroORDINAL1V8 for setHIDDENM2"
+proof
+(*existence*)
+  show " ex it be setHIDDENM2 st it be zeroORDINAL1V8"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_30:
+"cluster zeroORDINAL1V8 also-is naturalORDINAL1V7 for NumberORDINAL1M1"
+proof
+(*coherence*)
+  show " for it be NumberORDINAL1M1 holds it be zeroORDINAL1V8 implies it be naturalORDINAL1V7"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_31:
+"cluster  non zeroORDINAL1V8 for NumberORDINAL1M1"
+proof
+(*existence*)
+  show " ex it be NumberORDINAL1M1 st it be  non zeroORDINAL1V8"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_32:
+"cluster zeroORDINAL1V8 also-is trivialSUBSET-1V2 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be zeroORDINAL1V8 implies it be trivialSUBSET-1V2"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_33:
+"cluster  non trivialSUBSET-1V2 also-is  non zeroORDINAL1V8 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be  non trivialSUBSET-1V2 implies it be  non zeroORDINAL1V8"
+     sorry
+qed "sorry"
+
+mdef ordinal1_def_15 ("non-zeroORDINAL1V9" 70 ) where
+"attr non-zeroORDINAL1V9 for RelationRELAT-1M1 means
+  (\<lambda>R.  not 0ORDINAL1K5 inTARSKIR2 rngRELAT-1K2 R)"..
+
+mdef ordinal1_def_16 ("with-zeroORDINAL1V10" 70 ) where
+"attr with-zeroORDINAL1V10 for setHIDDENM2 means
+  (\<lambda>X. 0ORDINAL1K5 inTARSKIR2 X)"..
+
+syntax ORDINAL1V11 :: "Ty" ("without-zeroORDINAL1V11" 70)
+translations "without-zeroORDINAL1V11" \<rightharpoonup> " non with-zeroORDINAL1V10"
+
+mtheorem ordinal1_cl_34:
+"cluster emptyXBOOLE-0V1 also-is without-zeroORDINAL1V11 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be emptyXBOOLE-0V1 implies it be without-zeroORDINAL1V11"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_35:
+"cluster emptyXBOOLE-0V1 also-is non-zeroORDINAL1V9 for RelationRELAT-1M1"
+proof
+(*coherence*)
+  show " for it be RelationRELAT-1M1 holds it be emptyXBOOLE-0V1 implies it be non-zeroORDINAL1V9"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_36:
+"cluster without-zeroORDINAL1V11\<bar> non emptyXBOOLE-0V1 for setHIDDENM2"
+proof
+(*existence*)
+  show " ex it be setHIDDENM2 st it be without-zeroORDINAL1V11\<bar> non emptyXBOOLE-0V1"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_37:
+  mlet "X be without-zeroORDINAL1V11\<bar> non emptyXBOOLE-0V1\<bar>setHIDDENM2"
+"cluster note-that  non zeroORDINAL1V8 for ElementSUBSET-1M1-of X"
+proof
+(*coherence*)
+  show " for it be ElementSUBSET-1M1-of X holds it be  non zeroORDINAL1V8"
+    using ordinal1_def_16 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_38:
+"cluster non-zeroORDINAL1V9 for RelationRELAT-1M1"
+proof
+(*existence*)
+  show " ex it be RelationRELAT-1M1 st it be non-zeroORDINAL1V9"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_39:
+"cluster  non non-zeroORDINAL1V9 for RelationRELAT-1M1"
+proof
+(*existence*)
+  show " ex it be RelationRELAT-1M1 st it be  non non-zeroORDINAL1V9"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_40:
+  mlet "R be non-zeroORDINAL1V9\<bar>RelationRELAT-1M1"
+"cluster rngRELAT-1K2 R as-term-is without-zeroORDINAL1V11"
+proof
+(*coherence*)
+  show "rngRELAT-1K2 R be without-zeroORDINAL1V11"
+    using ordinal1_def_15 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_41:
+  mlet "R be  non non-zeroORDINAL1V9\<bar>RelationRELAT-1M1"
+"cluster rngRELAT-1K2 R as-term-is with-zeroORDINAL1V10"
+proof
+(*coherence*)
+  show "rngRELAT-1K2 R be with-zeroORDINAL1V10"
+    using ordinal1_def_15 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_42:
+  mlet "R be non-zeroORDINAL1V9\<bar>RelationRELAT-1M1", "S be RelationRELAT-1M1"
+"cluster S *RELAT-1K6 R as-term-is non-zeroORDINAL1V9"
+proof
+(*coherence*)
+  show "S *RELAT-1K6 R be non-zeroORDINAL1V9"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_43:
+"cluster without-zeroORDINAL1V11 also-is with-non-empty-elementsSETFAM-1V1 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be without-zeroORDINAL1V11 implies it be with-non-empty-elementsSETFAM-1V1"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_44:
+"cluster with-zeroORDINAL1V10 also-is  non with-non-empty-elementsSETFAM-1V1 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be with-zeroORDINAL1V10 implies it be  non with-non-empty-elementsSETFAM-1V1"
+sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_45:
+"cluster with-non-empty-elementsSETFAM-1V1 also-is without-zeroORDINAL1V11 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be with-non-empty-elementsSETFAM-1V1 implies it be without-zeroORDINAL1V11"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_46:
+"cluster  non with-non-empty-elementsSETFAM-1V1 also-is with-zeroORDINAL1V10 for setHIDDENM2"
+proof
+(*coherence*)
+  show " for it be setHIDDENM2 holds it be  non with-non-empty-elementsSETFAM-1V1 implies it be with-zeroORDINAL1V10"
+     sorry
+qed "sorry"
+
+mdef ordinal1_def_17 ("SegmORDINAL1K6  _ " [164]164 ) where
+  mlet "o be objectHIDDENM1"
+"func SegmORDINAL1K6 o \<rightarrow> setHIDDENM2 equals
+  o"
+proof-
+  (*coherence*)
+    show "o be setHIDDENM2"
+      using tarski_th_1 sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_47:
+  mlet "n be OrdinalORDINAL1M3"
+"cluster SegmORDINAL1K6 n as-term-is ordinalORDINAL1V3"
+proof
+(*coherence*)
+  show "SegmORDINAL1K6 n be ordinalORDINAL1V3"
+     sorry
+qed "sorry"
+
+mtheorem ordinal1_cl_48:
+  mlet "n be zeroORDINAL1V8\<bar>OrdinalORDINAL1M3"
+"cluster SegmORDINAL1K6 n as-term-is emptyXBOOLE-0V1"
+proof
+(*coherence*)
+  show "SegmORDINAL1K6 n be emptyXBOOLE-0V1"
+    using ordinal1_def_14 sorry
+qed "sorry"
 
 end

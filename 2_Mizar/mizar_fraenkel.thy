@@ -47,7 +47,8 @@ abbreviation (input) setS :: "Set \<Rightarrow> Ty" ("set''")
   where "set' \<equiv> \<lambda>it. set"
 
 definition Fraenkel1
-  where "func Fraenkel1(F, D, P) \<rightarrow> set means \<lambda>it. \<forall>x: object. x in it \<longleftrightarrow> (\<exists>y: D. x = F(y) \<and> P(y))"
+  where "func Fraenkel1(F, D, P) \<rightarrow> set means \<lambda>it.
+    \<forall>x: object. x in it \<longleftrightarrow> (\<exists>y: D. x = F(y) \<and> P(y))"
 
 syntax
   "_Fraenkel1" :: "Set \<Rightarrow> vs \<Rightarrow> Ty \<Rightarrow> o \<Rightarrow> Set" ("{ _ where _ be _ : _ }")
