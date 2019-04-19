@@ -106,18 +106,18 @@ reserve X,Y,Z,x,y,z for set
 
 mdef ordinal1_def_2 ("epsilon-transitive")where
   "attr epsilon-transitive for set means
-     (\<lambda>X. for x st x in X holds x c= X)"..
+     (\<lambda>X. for x st x in X holds x c= X)".
 
 mdef ordinal1_def_3 ("epsilon-connected")where
   "attr epsilon-connected for set means
-     (\<lambda>X. for x,y st x in X \<and> y in X holds x in y \<or> x = y \<or> y in x)"..
+     (\<lambda>X. for x,y st x in X \<and> y in X holds x in y \<or> x = y \<or> y in x)".
 
 mdef ordinal1_def_4 ("ordinal")where
   "attr ordinal for object means
-     (\<lambda>IT. IT is epsilon-transitive \<bar> epsilon-connected \<bar> set)"..
+     (\<lambda>IT. IT is epsilon-transitive \<bar> epsilon-connected \<bar> set)".
 
 mdef ordinal1_def_6 ("limit'_ordinal")where
-  "attr limit_ordinal for set means (\<lambda>A. A = union A)"..
+  "attr limit_ordinal for set means (\<lambda>A. A = union A)".
 
 abbreviation (input) "Number \<equiv> object"
 abbreviation (input) "number \<equiv> set"
@@ -367,7 +367,7 @@ qed
   
 mtheorem ordinal1_th_13:
   "x is Ordinal \<Longrightarrow> (succ x) is Ordinal"
-proof
+proof auto
   assume
 A3[ty]:"x is Ordinal"
   have E: "(succ x) = x \<union> {x}" using ordinal1_def_1 by infer_auto
@@ -401,7 +401,7 @@ A9: "z in succ x"
    hence "y in z \<or> y = z \<or> z in y" using A10 ordinal1_def_3E[of x,THEN bspec,THEN bspec] by infer_auto
   }
   hence "(succ x) is epsilon-connected" using ordinal1_def_3I by infer_auto
-  thus "(succ x) is ordinal" using A7 ordinal1_def_4 by infer_auto
+  show "(succ x) is ordinal" using A7 ordinal1_def_4 by infer_auto
 qed infer_auto
 
 mtheorem 
