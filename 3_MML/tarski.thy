@@ -8,111 +8,94 @@ reserve x,y,z,u for object
 reserve N,M,X,Y,Z for set
 
 theorem all_set: "x be set"
-using tarski_0_1 object_root by inst_nopass_auto
+  using tarski_0_1 by auto
 
 lemmas tarski_sch_1 = tarski_0_sch_1
 lemmas tarski_th_2 = tarski_0_2a[intro?]
 
-(*lemmas tarski_th_2 = tarski_0_2[rule_format,OF _ _ ballI,simplified,intro?]*)
-text_raw {*\DefineSnippet{tarski-def1}{*}
-mdef tarski_def_1    ("{_}") where
+mdef tarski_def_1 ("{_}") where
   mlet "y be object"
   "func {y} \<rightarrow> set means \<lambda>it.
-     \<forall>x. x in it \<longleftrightarrow> x = y"
-text_raw {*}%EndSnippet*}
+    \<forall>x. x in it \<longleftrightarrow> x = y"
 proof -
   fix X1 X2
-  assume [ty]: "X1 be set" "X2 be set" and
-    A1: "\<forall>x:object. x in X1 \<longleftrightarrow> x = y" and
-    A2: "\<forall>x:object. x in X2 \<longleftrightarrow> x = y"
+  assume
+    [ty]: "X1 be set" "X2 be set" and
+    A1: "\<forall>x: object. x in X1 \<longleftrightarrow> x = y" and
+    A2: "\<forall>x: object. x in X2 \<longleftrightarrow> x = y"
     {
-      fix x
-      assume [ty]: "x be object"
+      fix x assume [ty]: "x be object"
       hence "x in X1 \<longleftrightarrow> x = y" using A1 by auto
       hence "x in X1 \<longleftrightarrow> x in X2" using A2 by auto
     }
-      thus "X1 = X2" by (intro tarski_th_2) inst_nopass_auto
-    next
+    thus "X1 = X2" by (intro tarski_th_2) mauto
+  next
   obtain X where
-    [ty]: "X be set" and A1: "(\<forall>x:object.
-       (x in X \<longleftrightarrow> (x = y \<or> x = y)))"
-    using tarski_0_3[THEN bspec,THEN bspec] ex by inst_nopass_auto
-      show "\<exists>Z:set. \<forall>x: object. x in Z \<longleftrightarrow> x = y"
-        proof (rule bexI[of _ X])
-          show "\<forall>x:object. x in X \<longleftrightarrow> x = y" using A1 by auto
-        qed inst_nopass_auto
+    [ty]: "X be set" and
+    A1: "(\<forall>x: object. (x in X \<longleftrightarrow> (x = y \<or> x = y)))"
+    using tarski_0_3[THEN bspec, THEN bspec] ex by mauto
+    show "\<exists>Z: set. \<forall>x: object. x in Z \<longleftrightarrow> x = y"
+    proof (rule bexI[of _ X])
+      show "\<forall>x:object. x in X \<longleftrightarrow> x = y" using A1 by auto
+    qed mauto
 qed simp
 
-text_raw {*\DefineSnippet{tarski-def2}{*}
-mdef tarski_def_2    ("{_ , _}") where
+mdef tarski_def_2 ("{_ , _}") where
   mlet "y be object", "z be object"
   "func {y, z} \<rightarrow> set means \<lambda>it.
-     \<forall>x. x in it \<longleftrightarrow> (x = y \<or> x = z)"
-text_raw {*}%EndSnippet*}
-proof-
-  obtain X where
-      "X be set" and A1: "(\<forall>x:object. (x in X \<longleftrightarrow> (x = y \<or> x = z)))"
-       using tarski_0_3[THEN bspec,THEN bspec] by inst_nopass_auto
-  thus "\<exists>X:set. \<forall>x:object. x in X \<longleftrightarrow> (x = y \<or> x = z)" using ex by auto
+    \<forall>x. x in it \<longleftrightarrow> (x = y \<or> x = z)"
+proof -
+  obtain X where "X be set" and "(\<forall>x:object. (x in X \<longleftrightarrow> (x = y \<or> x = z)))"
+    using tarski_0_3[THEN bspec, THEN bspec] by mauto
+  thus "\<exists>X: set. \<forall>x: object. x in X \<longleftrightarrow> (x = y \<or> x = z)" using ex by auto
 next
   fix IT1 IT2
-  assume [ty]: "IT1 be set" and
-         A1: "\<forall>x:object. (x in IT1 \<longleftrightarrow> x = y \<or> x = z)" and
-         [ty]: "IT2 be set" and
-         A2: "\<forall>x:object. (x in IT2 \<longleftrightarrow> x = y \<or> x = z)"
+  assume
+    [ty]: "IT1 be set" and
+    A1: "\<forall>x: object. (x in IT1 \<longleftrightarrow> x = y \<or> x = z)" and
+    [ty]: "IT2 be set" and
+    A2: "\<forall>x: object. (x in IT2 \<longleftrightarrow> x = y \<or> x = z)"
   {
-    fix x
-    assume [ty]: "x be object"
+    fix x assume [ty]: "x be object"
     have "x in IT1 \<longleftrightarrow> x=y \<or> x = z" using A1 by auto
     hence "x in IT1 \<longleftrightarrow> x in IT2" using A2 by auto
   }
-  thus "IT1 = IT2" by (intro tarski_th_2) inst_nopass_auto
+  thus "IT1 = IT2" by (intro tarski_th_2) mauto
 qed simp
 
 mtheorem tarski_def_2_commutativity[simplified]:
   "commutativity object tarski_def_2"
 proof(intro ballI)
-  fix x y
-  assume T0[ty]:"x be object" "y be object"
-  have "{x,y}  be set" by inst_nopass_auto
-  {fix z
-   assume T1[ty]: "z be object"
-   have "z in {x,y} \<longleftrightarrow> z = x \<or> z = y" using tarski_def_2 by auto
-   hence "z in {x,y} \<longleftrightarrow> z in {y,x}" using tarski_def_2 by auto
+  fix x y assume "x be object" "y be object"
+  have "{x,y} be set" by mauto
+  {
+    fix z
+    assume T1[ty]: "z be object"
+    have "z in {x,y} \<longleftrightarrow> z = x \<or> z = y" using tarski_def_2 by auto
+    hence "z in {x,y} \<longleftrightarrow> z in {y,x}" using tarski_def_2 by auto
   }
-  thus "{x,y}={y,x}" by (intro tarski_th_2) inst_nopass_auto
+  thus "{x,y}={y,x}" by (intro tarski_th_2) mauto
 qed simp_all
 
 mdef tarski_def_3 (infixl "c=" 50)where
-mlet "X be set","Y be set"
-  "pred X c= Y means (\<forall>x:object. x in X \<longrightarrow> x in Y)" .
+  mlet "X be set", "Y be set"
+    "pred X c= Y means (\<forall>x: object. x in X \<longrightarrow> x in Y)" .
 
-(*lemmas tarski_def_3a = tarski_def_3[THEN iffD1,THEN bspec,simplified,rule_format]
-lemmas tarski_def_3b[intro?] = tarski_def_3[THEN iffD2, rule_format,OF _ _ ballI, simplified,rule_format]
-*)
-
-text_raw {*\DefineSnippet{tarski_def_3_reflexivity}{*}
 theorem tarski_def_3_reflexive:
   "reflexive set tarski_def_3" using tarski_def_3 by auto
-text_raw {*}%EndSnippet*}
-
-
 
 abbreviation tarski_def_3_notation (infixl "\<subseteq>" 50) where
   "X \<subseteq> Y \<equiv> X c= Y"
 
+lemmas tarski_def_3c = tarski_def_3_reflexive[THEN bspec, simplified]
 
-lemmas tarski_def_3c = tarski_def_3_reflexive[THEN bspec,simplified]
-
-text_raw {*\DefineSnippet{tarski-def4}{*}
-
-mdef tarski_def_4    ("union _" [90] 90) where
-   mlet "X be set"
-   "func union X \<rightarrow> set means \<lambda>it.
+mdef tarski_def_4 ("union _" [90] 90) where
+  mlet "X be set"
+    "func union X \<rightarrow> set means \<lambda>it.
       \<forall>x. x in it \<longleftrightarrow> (\<exists>Y. x in Y \<and> Y in X)"
-text_raw {*}%EndSnippet*}
-proof-
-  show "\<exists>IT:set. \<forall>x:object. x in IT \<longleftrightarrow> (\<exists>Y:set. x in Y \<and> Y in X)" using tarski_0_4 by inst_nopass_auto
+proof -
+  show "\<exists>IT: set. \<forall>x: object. x in IT \<longleftrightarrow> (\<exists>Y: set. x in Y \<and> Y in X)"
+    using tarski_0_4 by mauto
 next
   fix IT1 IT2
   assume T0[ty]: "IT1 be set" "IT2 be set"
@@ -127,7 +110,7 @@ next
   thus "IT1 = IT2" by (intro tarski_th_2) inst_nopass_auto
 qed simp
 
-lemmas tarski_th_3 = tarski_0_5[THEN bspec,THEN bspec]
+lemmas tarski_th_3 = tarski_0_5[THEN bspec, THEN bspec]
 
 mtheorem prefix_in_asymmetry:
   "asymmetry set prefix_in"

@@ -6,7 +6,7 @@ begin
 section "TARSKI_0"
 reserve x for object
 theorem tarski_0_1:
-  "\<forall>x. x be set" using SET_def by simp
+  "\<forall>x. x be set" using set_def by simp
 theorem set_exists[ex]: "inhabited(set)"
   using tarski_0_1 inhabited_def by auto
 

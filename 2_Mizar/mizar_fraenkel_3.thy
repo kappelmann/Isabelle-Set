@@ -14,10 +14,10 @@ theorem ModeProd:
   "x is A\<times>B iff x is pair \<and> x`1 is A \<and> x`2 is B"
 proof
   assume "x is A\<times>B"
-  thus "x is pair \<and> x`1 is A \<and> x`2 is B" using  def_ty_property[OF ModeProd_prefix_def,THEN conjunct1] by auto 
+  thus "x is pair \<and> x`1 is A \<and> x`2 is B" using define_ty_property[OF ModeProd_prefix_def,THEN conjunct1] by auto 
 next
   assume "x is pair \<and> x`1 is A \<and> x`2 is B"
-  thus "x is A\<times>B" using def_ty_property[OF ModeProd_prefix_def,THEN conjunct2] by auto  
+  thus "x is A\<times>B" using define_ty_property[OF ModeProd_prefix_def,THEN conjunct2] by auto  
 qed  
 
 theorem ModeProd1:
@@ -65,8 +65,8 @@ proof-
     fix x  
     assume "x is A\<times>B"
     hence [ty]: "x`1 is A" "x`2 is B" "x is pair" using ModeProd by auto
-    hence "[x`1,x`2] in [:X1,X2:]" using Prop1 Prop2 zfmisc_1_th_87 by auto  
-    thus "x in [:X1,X2:]" using pair by auto
+    hence "[x`1,x`2] in [:X1,X2:]" using Prop1 Prop2 zfmisc_1_th_87 by mauto
+    thus "x in [:X1,X2:]" using pair by mauto
   qed mauto
 qed  
 
@@ -152,7 +152,7 @@ unfolding Fraenkel2_def
 by (rule Ifft[OF _  Fraenkel1],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
  
 lemmas Fraenkel_A2_ex =  Fraenkel2[THEN iffD1]
-lemma [ty_func]: "Fraenkel2(F, L1,L2, Q)  be set" using tarski_0_1 by auto
+lemma [clus]: "Fraenkel2(F, L1,L2, Q)  be set" using tarski_0_1 by auto
 
 theorem Fraenkel_A2_in:
    "sethood_prop(L1) \<Longrightarrow> x1 be L1 \<Longrightarrow> sethood_prop(L2) \<Longrightarrow> x2 be L2
@@ -173,7 +173,7 @@ theorem Fraenkel3:
 unfolding Fraenkel3_def
 by (rule Ifft[OF _  Fraenkel2[unfolded Fraenkel2_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A3_ex =  Fraenkel3[THEN iffD1]
-lemma [ty_func]: "Fraenkel3(F, L1,L2,L3, Q)  be set" using tarski_0_1 by auto
+lemma [clus]: "Fraenkel3(F, L1,L2,L3, Q)  be set" using tarski_0_1 by auto
 
 theorem Fraenkel_A3_in:
    "sethood_prop(L1) \<Longrightarrow> x1 be L1 \<Longrightarrow> sethood_prop(L2) \<Longrightarrow> x2 be L2
@@ -196,7 +196,7 @@ theorem Fraenkel4:
   unfolding Fraenkel4_def
 by (rule Ifft[OF _  Fraenkel3[unfolded Fraenkel3_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A4_ex =  Fraenkel4[THEN iffD1]
-lemma [ty_func]: "Fraenkel4(F, L1,L2,L3,L4, Q)  be set" using tarski_0_1 by auto
+lemma [clus]: "Fraenkel4(F, L1,L2,L3,L4, Q)  be set" using tarski_0_1 by auto
 
 theorem Fraenkel_A4_in:
    "sethood_prop(L1) \<Longrightarrow> x1 be L1 \<Longrightarrow> sethood_prop(L2) \<Longrightarrow> x2 be L2
@@ -219,7 +219,7 @@ theorem Fraenkel5:
   unfolding Fraenkel5_def
 by (rule Ifft[OF _  Fraenkel4[unfolded Fraenkel4_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A5_ex =  Fraenkel5[THEN iffD1]
-lemma [ty_func]: "Fraenkel5(F, L1,L2,L3,L4,L5, Q)  be set" using tarski_0_1 by auto
+lemma [clus]: "Fraenkel5(F, L1,L2,L3,L4,L5, Q)  be set" using tarski_0_1 by auto
 
 theorem Fraenkel_A5_in:
    "sethood_prop(L1) \<Longrightarrow> x1 be L1 \<Longrightarrow> sethood_prop(L2) \<Longrightarrow> x2 be L2
@@ -246,7 +246,7 @@ theorem Fraenkel6:
   unfolding Fraenkel6_def
 by (rule Ifft[OF _  Fraenkel5[unfolded Fraenkel5_def]],rule Ifft[OF _  ModeProdR],auto simp add: assms ModeProdS ModeProdI)           
 lemmas Fraenkel_A6_ex =  Fraenkel6[THEN iffD1]
-lemma [ty_func]: "Fraenkel6(F, L1,L2,L3,L4,L5,L6, Q)  be set" using tarski_0_1 by auto
+lemma [clus]: "Fraenkel6(F, L1,L2,L3,L4,L5,L6, Q)  be set" using tarski_0_1 by auto
 
 theorem Fraenkel_A6_in:
    "sethood_prop(L1) \<Longrightarrow> x1 be L1 \<Longrightarrow> sethood_prop(L2) \<Longrightarrow> x2 be L2

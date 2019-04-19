@@ -1,9 +1,14 @@
-theory mizar_FOL imports "~~/src/FOL/FOL" "~~/src/HOL/Eisbach/Eisbach_Old_Appl_Syntax" begin
+theory mizar_FOL
+imports
+  "~~/src/FOL/FOL"
+  "~~/src/HOL/Eisbach/Eisbach_Old_Appl_Syntax"
 
-text_raw {*\DefineSnippet{mizar-typedecl}{*}
+begin
+
+(* OLD VERSION: does not use the new soft types library! *)
 typedecl Set
 typedecl Ty
-text_raw {*}%EndSnippet*}
+
 instance Set :: "term" ..
 instance Ty :: "term" ..
 
@@ -18,6 +23,7 @@ abbreviation mizeq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infixl "=" 50)
 
 abbreviation not_eq :: "Set \<Rightarrow> Set \<Rightarrow> o" (infix "<>" 50) where
   "a <> b \<equiv> \<not> IFOL.eq(a,b)"
+
 notation not_eq (infixl "\<noteq>" 50)
 
 abbreviation tyeq :: "Ty \<Rightarrow> Ty \<Rightarrow> o" (infixl "=\<^sub>T" 50)
@@ -29,13 +35,13 @@ notation (ASCII)
   disj (infixl "or" 30) and
   Not ("not _" [40] 40)
 
-ML {*
-val basic_ss = FOL_basic_ss;
-val main_ss = FOL_ss;
-val mk_Trueprop = FOLogic.mk_Trueprop;
-val dest_Trueprop = FOLogic.dest_Trueprop;
+ML \<open>
+val basic_ss = FOL_basic_ss
+val main_ss = FOL_ss
+val mk_Trueprop = FOLogic.mk_Trueprop
+val dest_Trueprop = FOLogic.dest_Trueprop
 val eq_const = @{const_name IFOL.eq}
-*}
+\<close>
 
 lemmas Eq_TrueI = iff_reflection_T
 lemmas Eq_FalseI = iff_reflection_F

@@ -54,7 +54,7 @@ syntax
 translations
   "{ f where x be D : P }" \<rightharpoonup> "CONST mizar_fraenkel.Fraenkel1((\<lambda>x. f), D, (\<lambda>x. P))"
   "mizar_fraenkel.Fraenkel1((\<lambda>x. f), D, (\<lambda>y. P))" \<rightharpoonup> "{ (\<lambda>x. f)(y) where y be D : P }"
-  
+
 schematic_goal Fraenkel_A1s:
 fixes F :: "Set \<Rightarrow> Set" and P :: "Set => o"
 assumes [ex]: "inhabited(L)" "sethood_prop(L)"
