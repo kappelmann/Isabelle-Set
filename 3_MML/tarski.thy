@@ -43,8 +43,9 @@ mdef tarski_def_2 ("{ _ , _ }") where
     for x being object holds x in it iff x = y \<or> x = z"
 proof -
   \<comment>\<open>existence\<close>
-  show "ex it be set st for x be object holds x in it iff x = y \<or> x = z" using tarski_0_3 by auto
-
+  show "ex it be set st for x be object holds x in it iff x = y \<or> x = z"
+    using tarski_0_3 by auto
+next
   \<comment>\<open>uniqueness\<close>
   fix X1 X2 assume "X1 be set" "X2 be set" and
     A1: "for x be object holds x in X1 iff x = y \<or> x = z" and
@@ -78,19 +79,26 @@ theorem tarski_def_3_reflexivity:
   "for Y be set holds (Y c= Y)"
   using tarski_def_3_def by auto
 
-mdef tarski_def_4 ("union  _ " [228]228 ) where
-  mlet "X be setHIDDENM2"
-"func unionTARSKIK3 X \<rightarrow> setHIDDENM2 means
-
-  \<lambda>it.  for x be objectHIDDENM1 holds x inHIDDENR3 it iff ( ex Y be setHIDDENM2 st x inHIDDENR3 Y & Y inHIDDENR3 X)"
-proof-
-  (*existence*)
-    show " ex it be setHIDDENM2 st  for x be objectHIDDENM1 holds x inHIDDENR3 it iff ( ex Y be setHIDDENM2 st x inHIDDENR3 Y & Y inHIDDENR3 X)"
-sorry
-  (*uniqueness*)
-    show " for it1 be setHIDDENM2 holds  for it2 be setHIDDENM2 holds ( for x be objectHIDDENM1 holds x inHIDDENR3 it1 iff ( ex Y be setHIDDENM2 st x inHIDDENR3 Y & Y inHIDDENR3 X)) & ( for x be objectHIDDENM1 holds x inHIDDENR3 it2 iff ( ex Y be setHIDDENM2 st x inHIDDENR3 Y & Y inHIDDENR3 X)) implies it1 =HIDDENR1 it2"
-sorry
-qed "sorry"
+mdef tarski_def_4 ("union  _ ") where
+  mlet "X be set"
+  "func union X \<rightarrow> set means \<lambda>it.
+    for x holds x in it iff (ex Y st x in Y \<and> Y in X)"
+proof -
+  \<comment>\<open>existence\<close>
+  show "ex Z st for x holds x in Z iff (ex Y st x in Y \<and> Y in X)"
+    using tarski_0_4[THEN bspec[where ?x=X]] by mauto
+next
+  \<comment>\<open>uniqueness\<close>
+  fix X1 X2 assume "X1 be set" "X2 be set" and
+    A1: "for x being object holds x in X1 iff (ex Y being set st x in Y \<and> Y in X)" and
+    A2: "for x being object holds x in X2 iff (ex Y being set st x in Y \<and> Y in X)"
+  {
+    fix x assume "x be object"
+    have "x in X1 iff (ex Y being set st x in Y \<and> Y in X)" using A1 by auto
+    hence "x in X1 iff x in X2" using A2 by auto
+  }
+  thus "X1 = X2" using tarski_0_2 by auto
+qed auto
 
 mtheorem tarski_th_3:
 " for x be objectHIDDENM1 holds  for X be setHIDDENM2 holds x inHIDDENR3 X implies ( ex Y be setHIDDENM2 st Y inHIDDENR3 X &  not ( ex x be objectHIDDENM1 st x inHIDDENR3 X & x inHIDDENR3 Y))"
