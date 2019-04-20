@@ -55,7 +55,7 @@ subsection \<open> Intersections \<close>
 definition Int_Type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 100)
 where "A \<bar> B \<equiv> Type (\<lambda>x. x ::: A \<and> x ::: B)"
 
-lemma Int_TypeI:
+lemma Int_TypeI [intro?]:
   "x ::: A \<Longrightarrow> x ::: B \<Longrightarrow> x ::: A \<bar> B"
   unfolding Int_Type_def has_type_Type
   by auto
