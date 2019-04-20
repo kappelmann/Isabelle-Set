@@ -11,11 +11,11 @@ mtheorem NAT_1_1:
   "for x st x<>{} holds
      ex y st succ y = x" 
 proof(rule ballI,rule impI)
-  fix x assume [ty]:"x be Nat" and A0: "x<>{}"
+  fix x assume [ty]: "x be Nat" and A0: "x<>{}"
   let ?P = "\<lambda>it. it = {} or  (ex y be Nat st succ y = it)"
   have A1: "?P({})" by simp
   have A2: "\<forall>n : Nat. ?P(n) \<longrightarrow> ?P(succ n)" by auto
-  have "?P(x)" using ordinal_2_sch_19[of x ?P, OF _ A1 A2] by ty_auto
+  have "?P(x)" using ordinal_2_sch_19[of x ?P, OF _ A1 A2] by mauto
   thus "ex y be Nat st succ y = x" using A0 by auto   
 qed mauto
   
@@ -828,7 +828,7 @@ qed
   
 mdef div (infixl "divides" 60) where
   mlet "n be Nat", "k be Nat"
-  "pred n divides k means ex m be Nat st n *\<^sub>\<S>\<^sup>\<nat> m = k"..
+  "pred n divides k means ex m be Nat st n *\<^sub>\<S>\<^sup>\<nat> m = k".
 
 mtheorem div_1:
   " n divides {}"
@@ -851,7 +851,7 @@ qed
   
 mdef primeS ("prime\<^sub>\<S>") where
   "attr prime\<^sub>\<S> for Nat means 
-     (\<lambda>it. 1\<^sub>\<S> in it & (for n be Nat st n divides it holds (n = 1\<^sub>\<S> or n=\<^sub>\<S>it)))"..
+     (\<lambda>it. 1\<^sub>\<S> in it & (for n be Nat st n divides it holds (n = 1\<^sub>\<S> or n=\<^sub>\<S>it)))".
 
 reserve p for Nat
 mtheorem div_one:

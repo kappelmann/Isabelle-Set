@@ -14,12 +14,12 @@ begin
 mtheorem 
  mlet "X be MultiGraphStruct"
  "cluster  (the Source of X) \<rightarrow> Function-of the carrier` of X, the carrier of X"
-using field MultiGraphStructE by auto
+using field MultiGraphStructE by mauto
 
 mtheorem 
   mlet "X be MultiGraphStruct"
   "cluster (the Target of X) \<rightarrow> Function-of the carrier` of X, the carrier of X"
-using field MultiGraphStructE by auto 
+using field MultiGraphStructE by mauto 
 
 mtheorem
   mlet "X be set", "Y be set", "S be Function-of Y,X", "T be Function-of Y,X"
@@ -27,7 +27,7 @@ mtheorem
 unfolding MultiGraphStruct_def
   by (auto,rule struct_aggr_ancesors_rule,
     auto intro!: aggrI struct_aggr3  struct_aggr0 Fields_add_3_arg_Mode First_0_arg_Mode dest!:field_E simp add:
-          string)
+          string) mauto
 
 abbreviation graph_1_mode_1_prefix ("Vertex-of _" [150] 150)
   where "Vertex-of X \<equiv> Element-of (the carrier of X)"
@@ -48,7 +48,7 @@ proof(intro conjI impI)
   next
     assume  "\<not>C is non void-struct \<bar> non empty-struct" 
     thus "(the Vertex-of C) is Vertex-of C" by auto
-qed mauto
+qed
 
 mdef graph_1_def_2 ("cod \<^bsub>_\<^esub> _" [999,105] 105) where
  mlet "C be MultiGraphStruct", "f be Edge-of C"
@@ -56,13 +56,13 @@ mdef graph_1_def_2 ("cod \<^bsub>_\<^esub> _" [999,105] 105) where
       (the Target of C) . f if (C is non void-struct \<bar>non empty-struct)
         otherwise the Vertex-of C"
 proof(intro conjI impI)
-   assume [ty]: "C is non void-struct \<bar> non empty-struct"
+  assume [ty]: "C is non void-struct \<bar> non empty-struct"
   show "((the Target of C) . f) is Vertex-of C" 
     using funct_2_def_5[of "the carrier` of C" "the carrier of C" "the Target of C"] by mauto
   next
     assume  "\<not>C is non void-struct \<bar> non empty-struct" 
     thus "(the Vertex-of C) is Vertex-of C" by auto
-qed mauto
+qed
 
 text_raw {*\DefineSnippet{redefine_func_equals}{*}
 abbreviation (input) redefine_func_equals ("let _ redefine func _ \<rightarrow> _ equals _" [10,10,10,10] 10)
@@ -77,7 +77,7 @@ theorem graph_1_def_3[simplified,rule_format]:
 proof
   assume [ty]: "C be non void-struct \<bar> non empty-struct \<bar> MultiGraphStruct \<and> f be Edge-of C"
   have A: "dom\<^bsub>C\<^esub> f is Vertex-of C" by mauto
-  thus "dom\<^bsub>C\<^esub> f is Vertex-of C \<and> dom\<^bsub>C\<^esub> f = (the Source of C) . f" using graph_1_def_1 by auto
+  thus "dom\<^bsub>C\<^esub> f is Vertex-of C \<and> dom\<^bsub>C\<^esub> f = (the Source of C) . f" using graph_1_def_1 by mauto
 qed
 
 theorem graph_1_def_4[simplified,rule_format]:
@@ -87,7 +87,7 @@ theorem graph_1_def_4[simplified,rule_format]:
 proof
   assume [ty]: "C be non void-struct \<bar> non empty-struct \<bar> MultiGraphStruct \<and> f be Edge-of C"
   have A: "cod\<^bsub>C\<^esub> f is Vertex-of C" by mauto
-  thus "cod\<^bsub>C\<^esub> f is Vertex-of C \<and> cod\<^bsub>C\<^esub> f = (the Target of C) . f" using graph_1_def_2 by auto
+  thus "cod\<^bsub>C\<^esub> f is Vertex-of C \<and> cod\<^bsub>C\<^esub> f = (the Target of C) . f" using graph_1_def_2 by mauto
 qed
 
 end

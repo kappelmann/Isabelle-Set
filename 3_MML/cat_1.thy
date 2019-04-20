@@ -25,7 +25,7 @@ mdef CatStr :: "Ty" ("CatStr") where
 mtheorem
   mlet "X be CatStr" 
   "cluster (the Comp of X) \<rightarrow> PartFunc-of [:the carrier` of X, the carrier` of X:],the carrier` of X"
-using field CatStrE by auto
+using field CatStrE by mauto
      
 mtheorem
  mlet "X be set","Y be set","S be Function-of Y,X","T be Function-of Y,X",
@@ -33,7 +33,7 @@ mtheorem
  "cluster [#carrier\<mapsto> X ; carrier`\<mapsto>Y; Source\<mapsto>S; Target\<mapsto>T ;  Comp \<mapsto>C #] \<rightarrow> strict(CatStr)"
  unfolding  CatStr_def
     by (auto,rule struct_aggr_ancesors_rule, 
-        auto intro!: aggrI struct_aggr3  struct_aggr0 Fields_add_3_arg_Mode First_0_arg_Mode dest!:field_E simp add:string)
+        auto intro!: aggrI struct_aggr3  struct_aggr0 Fields_add_3_arg_Mode First_0_arg_Mode dest!:field_E simp add:string) mauto
 
 
 abbreviation cat_1_mode_1_prefix ("Object-of _" [150] 150)
@@ -51,17 +51,17 @@ mdef cat_1_def_1 ("_ *\<^sub>_ _" [70, 70, 70] 70) where
 text_raw {*}%EndSnippet*}
 proof-
 
-  have Q:   "( the Comp of C ) is   Function_like\<bar>Relation-of [:the carrier` of C, the carrier` of C:],the carrier` of C"  by auto
+  have Q:   "( the Comp of C ) is   Function_like\<bar>Relation-of [:the carrier` of C, the carrier` of C:],the carrier` of C"  by mauto
   
   hence [ty]:  "( the Comp of C ) is   Function" 
      using relset_1_cl_1[of "[:the carrier` of C, the carrier` of C:]" "the carrier` of C"]  by mauto
   have [ty]:  "( the Comp of C ) is   (the carrier` of C)-valued" using Q relset_1_cl_2 by mauto
  (* !?! CK !?!*) 
-  have A1: "( the Comp of C ). \<lparr> g , f \<rparr> = ( the Comp of C ). [g , f]" using binop_0_def_1 by auto
+  have A1: "( the Comp of C ). \<lparr> g , f \<rparr> = ( the Comp of C ). [g , f]" using binop_0_def_1 by mauto
   assume "[g,f] in dom(the Comp of C)"
   hence "( the Comp of C ). [g , f] in (the carrier` of C)" using patfun1_th_4
     by mauto
- thus "( the Comp of C ). \<lparr> g , f \<rparr> is Morphism-of C" using Element_of_rule3 binop_0_def_1 by auto
+ thus "( the Comp of C ). \<lparr> g , f \<rparr> is Morphism-of C" using Element_of_rule3 binop_0_def_1 by mauto
 qed mauto
 
 mtheorem
@@ -73,7 +73,7 @@ proof(standard,standard)
   hence [ty]: "?X is non empty-struct" using struct_0_def_1 by mauto
   have "the carrier` of ?X = {{}}" using the_selector_of_1[of _ "carrier`" "{{}}"] aggr by mauto
   hence [ty]: "?X is non void-struct" using struct_0_def_13 by mauto
-  show "?X is non empty-struct\<bar> non void-struct \<bar>  CatStr" by auto
+  show "?X is non empty-struct\<bar> non void-struct \<bar>  CatStr" by mauto
 qed
 
 text_raw {*\DefineSnippet{cat_1_def_4}{*}
@@ -91,9 +91,9 @@ proof-
       obtain f where
     [ty]:"f be Morphism-of C"and
     A2: "x = f" and
-    A3: "dom\<^bsub>C\<^esub> f = a \<and> cod\<^bsub>C\<^esub> f = b" using Fraenkel_A1_ex[OF _ _ B1] by auto
+    A3: "dom\<^bsub>C\<^esub> f = a \<and> cod\<^bsub>C\<^esub> f = b" using Fraenkel_A1_ex[OF _ _ B1] by mauto
     show "x in the carrier` of C" using Element_of1 A2 by mauto
-  qed
+  qed mauto
   thus "?X is Subset-of the carrier` of C" using Subset_of_rule by mauto
 qed
 
@@ -107,8 +107,8 @@ proof(rule iffI3)
   show "f in Hom\<^bsub>C\<^esub>(a,b) \<longrightarrow> dom\<^bsub>C\<^esub> f=a \<and> cod\<^bsub>C\<^esub>f=b"
   proof
     assume "f in Hom\<^bsub>C\<^esub>(a,b)"
-    hence B1: "f in {g where g be Morphism-of C : dom\<^bsub>C\<^esub> g = a \<and> cod\<^bsub>C\<^esub> g = b}" using cat_1_def_4 by simp
-    have J: " ex y be Morphism-of C st f = y \<and> dom\<^bsub>C\<^esub> y = a \<and> cod\<^bsub>C\<^esub> y = b" using Fraenkel_A1_ex[OF _ _ B1] by auto
+    hence B1: "f in {g where g be Morphism-of C : dom\<^bsub>C\<^esub> g = a \<and> cod\<^bsub>C\<^esub> g = b}" using cat_1_def_4 by mauto
+    have J: " ex y be Morphism-of C st f = y \<and> dom\<^bsub>C\<^esub> y = a \<and> cod\<^bsub>C\<^esub> y = b" using Fraenkel_A1_ex[OF _ _ B1] by mauto
      obtain g where
       [ty]: "g be Morphism-of C"and
      A2: "f = g \<and> dom\<^bsub>C\<^esub> g = a \<and> cod\<^bsub>C\<^esub> g = b" using bexE[OF J,of thesis] by auto
@@ -116,8 +116,8 @@ proof(rule iffI3)
    qed
   assume "dom \<^bsub>C\<^esub> f=a \<and> cod \<^bsub>C\<^esub> f=b"
   hence "f in {g where g be Morphism-of C : dom \<^bsub>C\<^esub> g = a \<and> cod \<^bsub>C\<^esub> g = b}" using Fraenkel_A1_in[of "Morphism-of C" f
-           "\<lambda>g. dom \<^bsub>C\<^esub> g = a \<and> cod \<^bsub>C\<^esub> g = b" ] by auto
-  thus "f in Hom\<^bsub>C\<^esub>(a,b)" using cat_1_def_4 by simp
+           "\<lambda>g. dom \<^bsub>C\<^esub> g = a \<and> cod \<^bsub>C\<^esub> g = b" ] by ty_auto
+  thus "f in Hom\<^bsub>C\<^esub>(a,b)" using cat_1_def_4 by mauto
 qed
 
 text_raw {*\DefineSnippet{cat_1_def_5}{*}
@@ -129,14 +129,13 @@ mdef cat_1_def_5    ("Morphism-of") where
       (\<lambda>it. it in Hom\<^bsub>C\<^esub>(a,b))"
 text_raw {*}%EndSnippet*}
 proof-
-  have "Hom\<^bsub>C\<^esub>(a,b) is Subset-of the carrier` of C" by auto
-  hence [ty]: "Hom\<^bsub>C\<^esub>(a,b) is set" by mauto (* !?! CK !?!*) (* bez tego dalej nie idzie*)
+  have "Hom\<^bsub>C\<^esub>(a,b) is Subset-of the carrier` of C" by mauto
   assume "Hom\<^bsub>C\<^esub>(a,b) \<noteq> {}"
   hence "ex x be object st x in Hom\<^bsub>C\<^esub>(a,b)" using xboole_0_th_7 by mauto
   then obtain x where
      A1: "x in Hom\<^bsub>C\<^esub>(a,b)" using bexI by auto
   have "Hom\<^bsub>C\<^esub>(a,b) \<subseteq> the carrier` of C" using Subset_in_rule by mauto
-  hence "x is Element-of the carrier` of C" using Element_of_rule3 tarski_def_3 A1 by auto
+  hence "x is Element-of the carrier` of C" using Element_of_rule3 tarski_def_3 A1 by ty_auto mauto
   thus "ex x be Morphism-of C st x in Hom\<^bsub>C\<^esub>(a,b) " using A1 by mauto
 qed mauto  
   
@@ -182,24 +181,24 @@ text_raw {*\DefineSnippet{cat_1_def_6}{*}
 mdef cat_1_def_6 ("Category'_like")where
 "attr Category_like for non empty-struct \<bar> non void-struct \<bar> CatStr means
       (\<lambda>C. for f,g being Morphism-of C
-            holds [g,f] in dom (the Comp of C) \<longleftrightarrow> dom \<^bsub>C\<^esub> g = cod \<^bsub>C\<^esub> f)"..
+            holds [g,f] in dom (the Comp of C) \<longleftrightarrow> dom \<^bsub>C\<^esub> g = cod \<^bsub>C\<^esub> f)".
 text_raw {*}%EndSnippet*}
 
 
 mdef cat_1_def_7 ("transitive")where
 "attr transitive for non empty-struct \<bar> non void-struct \<bar> CatStr means
       (\<lambda>C. for f,g being Morphism-of C st dom \<^bsub>C\<^esub> g = cod \<^bsub>C\<^esub> f
-         holds dom \<^bsub>C\<^esub> (g *\<^sub>C f) = dom \<^bsub>C\<^esub> f \<and> cod \<^bsub>C\<^esub> (g *\<^sub>C f) = cod \<^bsub>C\<^esub> g)"..
+         holds dom \<^bsub>C\<^esub> (g *\<^sub>C f) = dom \<^bsub>C\<^esub> f \<and> cod \<^bsub>C\<^esub> (g *\<^sub>C f) = cod \<^bsub>C\<^esub> g)".
 
 mdef cat_1_def_8 ("associative")where
 "attr associative for non empty-struct \<bar> non void-struct \<bar> CatStr means
       (\<lambda>C. for f,g,h being Morphism-of C
      st dom \<^bsub>C\<^esub> h = cod \<^bsub>C\<^esub> g \<and> dom \<^bsub>C\<^esub> g = cod \<^bsub>C\<^esub> f
-    holds h *\<^sub>C (g *\<^sub>C f) = (h *\<^sub>C g) *\<^sub>C f)"..
+    holds h *\<^sub>C (g *\<^sub>C f) = (h *\<^sub>C g) *\<^sub>C f)".
 
 mdef cat_1_def_9 ("reflexive")where
 "attr reflexive for non empty-struct \<bar> non void-struct \<bar> CatStr means
-      (\<lambda>C. for b being Object-of C holds Hom\<^bsub>C\<^esub>(b,b) \<noteq> {})"..
+      (\<lambda>C. for b being Object-of C holds Hom\<^bsub>C\<^esub>(b,b) \<noteq> {})".
 
 mdef cat_1_def_10 ("with'_identities")where
 "attr with_identities for non empty-struct \<bar> non void-struct \<bar> CatStr means
@@ -207,7 +206,7 @@ mdef cat_1_def_10 ("with'_identities")where
          ex i being Morphism-of(a,a,C) st
     for b being Object-of C holds
      (Hom\<^bsub>C\<^esub>(a,b)\<noteq>{} \<longrightarrow> (for g being Morphism-of(a,b,C) holds g *\<^sub>C i = g)) \<and>
-     (Hom\<^bsub>C\<^esub>(b,a)\<noteq>{} \<longrightarrow> (for f being Morphism-of(b,a,C) holds i *\<^sub>C f = f)) )"..
+     (Hom\<^bsub>C\<^esub>(b,a)\<noteq>{} \<longrightarrow> (for f being Morphism-of(b,a,C) holds i *\<^sub>C f = f)) )".
 
 
 mdef cat_1_def_11("1Cat'(_,_')") where
@@ -219,13 +218,13 @@ mdef cat_1_def_11("1Cat'(_,_')") where
      Target \<mapsto> (m .\<midarrow>> o);
      Comp \<mapsto> ([m,m].\<midarrow>>m) #]"
 proof-
-  have [ty]:"m .\<midarrow>> o be Function-of {m},{o}" by auto
+  have [ty]:"m .\<midarrow>> o be Function-of {m},{o}" by mauto
   have [ty]:"[m,m] .\<midarrow>> o be Function-of [:{m},{m}:],{o}" by mauto
   thus "[# carrier \<mapsto>{o};
      carrier`\<mapsto> {m};
      Source \<mapsto> (m .\<midarrow>> o);
      Target \<mapsto> (m .\<midarrow>> o);
-     Comp \<mapsto> ([m,m].\<midarrow>>m) #] be CatStr" by auto
+     Comp \<mapsto> ([m,m].\<midarrow>>m) #] be CatStr" by mauto
 qed
 
 mtheorem cat_1_cl:
@@ -239,16 +238,16 @@ proof
      Comp \<mapsto> ([m,m].\<midarrow>>m) #]"
   have T1[ty]: "?C be CatStr" by mauto
   have T2: "the carrier of ?C = {o}"
-     using the_selector_of_1[of ?C carrier "{o}"] aggr by auto
+     using the_selector_of_1[of ?C carrier "{o}"] aggr by mauto
   hence [ty]:"?C is trivial-struct" using struct_0_def_9[of ?C] by mauto
   have "the carrier of ?C is non empty" using T2 by mauto
-  hence [ty]: "?C be non empty-struct" using struct_0_def_1 T2 by auto
+  hence [ty]: "?C be non empty-struct" using struct_0_def_1 T2 by mauto
   have T2: "the carrier` of ?C = {m}"
-     using the_selector_of_1[of ?C "carrier`" "{m}"] aggr by auto
+     using the_selector_of_1[of ?C "carrier`" "{m}"] aggr by mauto
   hence [ty]:"?C is trivial`-struct" using struct_0_def_21[of ?C] by mauto
   have "the carrier` of ?C is non empty" using T2 by mauto
-  hence [ty]: "?C be non void-struct" using struct_0_def_13 T2 by auto
-  show "1Cat(o,m) is non empty-struct \<bar> trivial-struct \<bar> non void-struct \<bar> trivial`-struct" using cat_1_def_11 by auto
+  hence [ty]: "?C be non void-struct" using struct_0_def_13 T2 by mauto
+  show "1Cat(o,m) is non empty-struct \<bar> trivial-struct \<bar> non void-struct \<bar> trivial`-struct" using cat_1_def_11 by mauto
 qed
 
 mtheorem
@@ -264,8 +263,8 @@ proof(standard,standard,standard)
     show "dom \<^bsub>C\<^esub> (g *\<^sub>C f) = dom \<^bsub>C\<^esub> f " " cod \<^bsub>C\<^esub> (g *\<^sub>C f) = cod \<^bsub>C\<^esub> g" using
        struct_0_def_10[THEN iffD1,THEN bspec,THEN bspec,of C "dom \<^bsub>C\<^esub> (g *\<^sub>C f)"]
        struct_0_def_10[THEN iffD1,THEN bspec,THEN bspec,of C "cod \<^bsub>C\<^esub> (g *\<^sub>C f)"]
-       by mby auto
-   qed
+       by mauto
+   qed mauto
   have [ty]:"C is reflexive"
    proof(standard,auto)
      fix b
@@ -292,10 +291,10 @@ proof(standard,standard,standard)
     fix f g h assume T2[ty]: "f be Morphism-of C" "g be Morphism-of C" "h be Morphism-of C"
     assume "dom \<^bsub>C\<^esub> h = cod \<^bsub>C\<^esub> g " "dom \<^bsub>C\<^esub> g = cod \<^bsub>C\<^esub> f"
     show "h *\<^sub>C (g *\<^sub>C f) = (h *\<^sub>C g) *\<^sub>C f " using
-       struct_0_def_21RE[THEN bspec,THEN bspec, of C "h *\<^sub>C (g *\<^sub>C f) " " (h *\<^sub>C g) *\<^sub>C f "] by mty auto
-  qed
+       struct_0_def_21RE[THEN bspec,THEN bspec, of C "h *\<^sub>C (g *\<^sub>C f) " " (h *\<^sub>C g) *\<^sub>C f "] by mauto
+  qed mauto
   have [ty]:"C is with_identities"
-  proof(standard,simp,intro ballI)
+  proof(standard,mauto,intro ballI)
     fix a assume T2[ty]: "a be Object-of C"
     let ?i = "the Morphism-of(a,a,C)"
     have [ty]:"?i be Morphism-of(a,a,C)" by mauto
@@ -338,12 +337,12 @@ proof(standard,standard)
      assume "dom \<^bsub>1Cat(o,m)\<^esub> g = cod \<^bsub>1Cat(o,m)\<^esub> f"
      have "the Comp of 1Cat(o,m) = ([m,m].\<midarrow>>m)" using cat_1_def_11 the_selector_of_1[of ?C Comp "[m,m].\<midarrow>>m"]  aggr by mauto
      hence
-   A1: "dom the Comp of 1Cat(o,m) = {[m,m]}" using funcop_1_th_13[of m "{[m,m]}"] funcop_1_def_9 by mty auto
+   A1: "dom the Comp of 1Cat(o,m) = {[m,m]}" using funcop_1_th_13[of m "{[m,m]}"] funcop_1_def_9 by mauto
      have "the carrier` of 1Cat(o,m) = {m}" using cat_1_def_11 the_selector_of_1[of ?C "carrier`" "{m}"]  aggr by mauto
      hence "f in {m} \<and> g in {m}" using Element_of1 by mauto
      hence "f = m" "g = m" using tarski_def_1 by mauto
      thus "[g , f] in proj1 the' Comp(1Cat(o,m))" using A1 tarski_def_1 by auto
-   qed mauto
+   qed
  qed mauto
    qed mauto
 
@@ -352,7 +351,7 @@ mtheorem
       Category_like \<bar>non void-struct \<bar>non empty-struct for CatStr"
 proof(standard,standard)
   show "1Cat(the object,the object) is reflexive \<bar>transitive \<bar>associative \<bar>with_identities\<bar>
-      Category_like \<bar>non void-struct \<bar>non empty-struct \<bar> CatStr" by mty auto
+      Category_like \<bar>non void-struct \<bar>non empty-struct \<bar> CatStr" by mauto
 qed
 
 abbreviation(input)
@@ -369,16 +368,16 @@ mtheorem cat_1_th_19:
 proof(standard,auto)
   assume
 A1: "Hom\<^bsub>C\<^esub>(a,b)\<noteq>{}" and A2: "Hom\<^bsub>C\<^esub>(b,c)\<noteq>{}"
-  have A3:"f in Hom\<^bsub>C\<^esub>(a,b)" using A1 cat_1_def_5E by auto
-  hence A4:"cod\<^bsub>C\<^esub>f=b" using cat_1_th_1 by auto
-  have A5:"g in Hom\<^bsub>C\<^esub>(b,c)" using A2 cat_1_def_5E by auto
-  hence A6: "dom\<^bsub>C\<^esub>g=b" using cat_1_th_1 by auto
+  have A3:"f in Hom\<^bsub>C\<^esub>(a,b)" using A1 cat_1_def_5E by mauto
+  hence A4:"cod\<^bsub>C\<^esub>f=b" using cat_1_th_1 by mauto
+  have A5:"g in Hom\<^bsub>C\<^esub>(b,c)" using A2 cat_1_def_5E by mauto
+  hence A6: "dom\<^bsub>C\<^esub>g=b" using cat_1_th_1 by mauto
 
-  have "cod\<^bsub>C\<^esub>g=c" using A5 cat_1_th_1 by auto
-  hence A7: "cod\<^bsub>C\<^esub> (g *\<^sub>C f) = c" using A6 A4 cat_1_def_7E[THEN bspec,THEN bspec] by auto
-  have "dom\<^bsub>C\<^esub>f=a" using A3 cat_1_th_1 by auto
-  hence "dom\<^bsub>C\<^esub> (g *\<^sub>C f) = a" using A4 A6 cat_1_def_7E[THEN bspec,THEN bspec] by auto
-  thus "g *\<^sub>C f in Hom\<^bsub>C\<^esub>(a,c)" using A7 cat_1_th_1 by auto
+  have "cod\<^bsub>C\<^esub>g=c" using A5 cat_1_th_1 by mauto
+  hence A7: "cod\<^bsub>C\<^esub> (g *\<^sub>C f) = c" using A6 A4 cat_1_def_7E[THEN bspec,THEN bspec] by mauto
+  have "dom\<^bsub>C\<^esub>f=a" using A3 cat_1_th_1 by mauto
+  hence "dom\<^bsub>C\<^esub> (g *\<^sub>C f) = a" using A4 A6 cat_1_def_7E[THEN bspec,THEN bspec] by mauto
+  thus "g *\<^sub>C f in Hom\<^bsub>C\<^esub>(a,c)" using A7 cat_1_th_1 by mauto
 qed
 
 text_raw {*\DefineSnippet{cat_1_def_13}{*}
@@ -392,7 +391,7 @@ proof-
   assume "Hom\<^bsub>C\<^esub>(a,b)\<noteq>{} \<and> Hom\<^bsub>C\<^esub>(b,c)\<noteq>{}"
   hence E: "g *\<^sub>C f in Hom\<^bsub>C\<^esub>(a,c)" using cat_1_th_19 by mauto
   hence " Hom\<^bsub>C\<^esub>(a,c)\<noteq>{}" using xb by auto
-  thus "(g *\<^sub>C f) is Morphism-of(a,c,C)" using cat_1_def_5I E by auto
+  thus "(g *\<^sub>C f) is Morphism-of(a,c,C)" using cat_1_def_5I E by mauto
 qed mauto
 
 end

@@ -367,7 +367,7 @@ qed
   
 mtheorem ordinal1_th_13:
   "x is Ordinal \<Longrightarrow> (succ x) is Ordinal"
-proof auto
+proof
   assume
 A3[ty]:"x is Ordinal"
   have E: "(succ x) = x \<union> {x}" using ordinal1_def_1 by infer_auto
@@ -401,7 +401,7 @@ A9: "z in succ x"
    hence "y in z \<or> y = z \<or> z in y" using A10 ordinal1_def_3E[of x,THEN bspec,THEN bspec] by infer_auto
   }
   hence "(succ x) is epsilon-connected" using ordinal1_def_3I by infer_auto
-  show "(succ x) is ordinal" using A7 ordinal1_def_4 by infer_auto
+  thus "(succ x) is ordinal" using A7 ordinal1_def_4 by infer_auto
 qed infer_auto
 
 mtheorem 
@@ -812,7 +812,7 @@ mtheorem
  using ordinal1_def_11 by infer_auto
 
 mdef ordinal1_def_12 ("natural")where
-  "attr natural for object means (\<lambda>A. A in omega)"..
+  "attr natural for object means (\<lambda>A. A in omega)".
 
 mtheorem
   "cluster omega \<rightarrow> non empty" 
@@ -860,7 +860,7 @@ proof(standard,auto)
 qed  
 
 mdef ordinal1_def_16 ("with'_zero")where
-  "attr with_zero for set means (\<lambda>IT. {} in IT)"..
+  "attr with_zero for set means (\<lambda>IT. {} in IT)".
 
 mtheorem with_zero_cl:
   "cluster with_zero \<rightarrow> non empty for set"
