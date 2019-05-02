@@ -7,20 +7,6 @@ Soft type inference.
 signature SOFT_TYPE_INFERENCE =
 sig
 
-  datatype constraint =
-    Eq of term * term  (* equality *)
-
-  (* Context \<Gamma>, which maps variables and constants to their types. Also used to collect constraints
-     during inference.
-   *)
-  datatype inference_context = Inference_Context of {
-    var_types: term Termtab.table,
-    constraints: constraint list,
-    fresh_idx: int
-  }
-
-  val init_context: (term * term) list -> inference_context;
-
 
   val print_inferred_types: Proof.context -> term list -> unit;
 
@@ -29,29 +15,38 @@ end;
 structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
 struct
 
- datatype constraint =
-    Eq of term * term
+  (* Similar to Term.map_aterms, but also passes the binder level to f *)
+  fun map_aterms_lev f =
+    let fun mapt l (Abs (n, T, b)) = Abs (n, T, mapt (l + 1) b)
+          | mapt l (t $ u) = mapt l t $ mapt l u
+          | mapt l t = f l t
+    in mapt 0 end
 
+
+  (* Context \<Gamma>, which maps variables and constants to their types. Also used to collect constraints
+     during inference.
+   *)
   datatype inference_context = Inference_Context of {
+    const_types: term -> term option,
     var_types: term Termtab.table,
-    constraints: constraint list,
+    constraints: unit u_equation list,
     fresh_idx: int
   }
 
-  fun init_context (vts : (term * term) list) =
-    Inference_Context {
-      var_types = Termtab.make vts,
-      constraints = [],
-      fresh_idx = 0
-    };
+  fun get_const_type (Inference_Context {const_types, ...}) (c : term) =
+    const_types c;
   
-  fun get_var_type (Inference_Context {var_types, ...}) (v : term) =
-    Termtab.lookup var_types v;
+  fun get_var_type (Inference_Context {const_types, var_types, ...}) (v : term) =
+    case const_types v of
+      SOME sty => SOME sty
+    | NONE => Termtab.lookup var_types v;
   
-  fun add_constraint (c as Eq (lhs, rhs)) (Gamma as Inference_Context {var_types, constraints, fresh_idx}) =
+  fun add_constraint 
+         (c as (_, (lhs, rhs), _)) 
+         (Gamma as Inference_Context {const_types, var_types, constraints, fresh_idx}) =
     if lhs aconv rhs (* Skip trivial constraints *)
     then Gamma
-    else Inference_Context {var_types=var_types,
+    else Inference_Context {const_types=const_types, var_types=var_types,
            constraints = insert (op =) c constraints,
            fresh_idx=fresh_idx};
   
@@ -65,8 +60,8 @@ struct
   fun incr_bounds (Delta : preproc_context) =
     map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
 
-  fun incr (Inference_Context {var_types, constraints, fresh_idx}) =
-    Inference_Context {var_types=var_types, constraints=constraints, fresh_idx=fresh_idx + 1}
+  fun incr (Inference_Context {const_types, var_types, constraints, fresh_idx}) =
+    Inference_Context {const_types=const_types, var_types=var_types, constraints=constraints, fresh_idx=fresh_idx + 1}
 
   fun fresh_idx (Inference_Context {fresh_idx, ...}) =
     fresh_idx
@@ -80,8 +75,8 @@ struct
       incr Gamma)
     end
 
-  fun add_free (v, st) (Inference_Context {var_types, constraints, fresh_idx}) =
-    Inference_Context {var_types=Termtab.update_new (v, st) var_types, constraints=constraints, fresh_idx=fresh_idx};
+  fun add_free (v, st) (Inference_Context {const_types, var_types, constraints, fresh_idx}) =
+    Inference_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, constraints=constraints, fresh_idx=fresh_idx};
 
   fun fix_var_type v T Gamma Delta =
     let
@@ -90,58 +85,53 @@ struct
       (stv, add_free (v, stv) Gamma1)
     end
 
-  fun abstract_constraint Delta (Eq (s, t)) =
-    let
-      val abstract = fold (fn (x, _, T) => Term.abs (x, T)) Delta
-    in
-      Eq (abstract s, abstract t)
-    end    
-
-
-  fun trace_constraint ctxt (Eq (s, t)) =
-    let
-      val pr = Syntax.string_of_term ctxt
-    in 
-      if (fastype_of s <> fastype_of t)
-      then error ("Bad types in constraint:" ^ pr s ^ " === " ^ pr t)
-      else Output.tracing ("Constraint " ^ pr s ^ " === " ^ pr t)
-    end
+  fun trace_constraint ctxt t (eqn as (_, (lhs, rhs), _)) =
+    if (fastype_of lhs <> fastype_of rhs)
+    then error (cat_lines ["Bad types in constraint:", 
+        "  Constraint: " ^ pr_equation ctxt eqn,
+        "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
+    else Output.tracing ("Constraint: " ^ pr_equation ctxt eqn)
 
   fun collect_constraints ctxt
-    (Gamma : inference_context)
-    (Delta : (string * term * typ) list)
+    (Gamma : inference_context)                (* Types of frees and vars, constraints *)
+    (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
     (t : term)
-    (expected_type : term option) 
+    (expected_type : term option)
     : (term * inference_context) =
     case t of 
-      Free (_, T) => 
-        (case get_var_type Gamma t of
-          SOME st => (st, Gamma)
-        | NONE => 
-            (case expected_type of 
-               SOME exp => (exp, add_free (t, exp) Gamma)
-             | NONE => fix_var_type t T Gamma []) (* Free variable types have no dependencies: Delta = [] *)
-        )
-    | Const (n, _) => 
-        (case get_var_type Gamma t of
-          SOME st => (st, Gamma)
+      Const (n, _) => 
+        (case get_const_type Gamma t of
+          SOME st => 
+            let   
+              (* Ensure that unification variables are fresh for each constant occurrence
+                 and make them depend on the current binders. *)
+              val binder_types = rev (map #3 Delta)
+              val bounds = (length Delta - 1) downto 0
+              val idx = fresh_idx Gamma
+              fun lift_var d (Var ((n, 0), T)) =
+                    Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
+                | lift_var _ (Var _) = error "Illegal Var index"
+                | lift_var _ t = t
+              val const_type = map_aterms_lev lift_var st
+              val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
+            in
+              (const_type, incr Gamma)
+            end
         | NONE => error ("Cannot resolve type of constant " ^ quote n))
     | s $ u => 
         (case collect_constraints' ctxt Gamma Delta s NONE of
           (Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B), Gamma1) =>
             let
               val (u_st, Gamma2) = collect_constraints' ctxt Gamma1 Delta u (SOME A)
-              val new_constraint = Eq (u_st, A)
-                |> abstract_constraint Delta
-                |> tap (trace_constraint ctxt)
+              val new_constraint = (Delta, (u_st, A), ())
+                |> tap (trace_constraint ctxt (SOME t))
               val application_type = Term.subst_bound (u, B)
             in
               (application_type, add_constraint new_constraint Gamma2)
             end
         | (s_st, _) => error ("Bad soft type for application head: " ^ Syntax.string_of_term ctxt s 
                       ^ " ::: " ^ Syntax.string_of_term ctxt s_st))
-| Bound i => (#2 (nth Delta i), Gamma)
-    | Var _ => error "illegal Var"
+    | Bound i => (#2 (nth Delta i), Gamma)
     | Abs (x, T, body) => 
         let 
           (* Invent variable for the domain *)
@@ -160,6 +150,16 @@ struct
         in
           (st, Gamma3)
         end
+    | t => (* Variable cases: Var and Free *)
+        (case get_var_type Gamma t of
+          SOME st => (st, Gamma)
+        | NONE => fix_var_type t (fastype_of t) Gamma []) (* Free variable types have no dependencies: Delta = [] *)
+(*
+            (case expected_type of 
+               SOME exp => (exp, add_free (t, exp) Gamma)
+             | NONE => fix_var_type t (fastype_of t) Gamma []) (* Free variable types have no dependencies: Delta = [] *)
+        ) *)
+
    and collect_constraints' ctxt Gamma Delta t expected_type =
      let 
        val _ = Output.tracing (cat_lines [
@@ -175,6 +175,7 @@ struct
 
 datatype infer_result =
   Infer_Result of {
+    elaborated_terms: term list,
     term_types: term list,
     variable_types: (term * term) list,
     constraints: (term * term) list
@@ -182,84 +183,51 @@ datatype infer_result =
 
 
 
-
-fun preprocess_constraints ctxt constraints =
+fun unify_constraints ctxt constraints fresh_idx =
   let
-
-    fun encode_indexname (x, i) = x ^ chr 0 ^ string_of_int i
-    fun decode_indexname s =
-      let val [x, is] = String.fields (fn c => Char.ord c = 0) s
-      in (x, #1 (read_int (raw_explode is))) end
-  
-    fun to_free (Var (ixn, T)) = Free (encode_indexname ixn, T)
-      | to_free t = t 
-
-    fun to_var (t as Free (n, T)) = 
-          if exists_string (curry op = (chr 0)) n
-          then Var (decode_indexname n, T)
-          else t
-      | to_var t = t 
-
-    val type_simp_rules = 
-      Named_Theorems.get ctxt @{named_theorems "type_simp"}
-      |> map (Raw_Simplifier.mksimps ctxt)
-      |> flat
-
-    val transform_term =
-      Term.map_aterms to_free
-      #> Raw_Simplifier.rewrite_term (Proof_Context.theory_of ctxt) type_simp_rules []
-      #> Term.map_aterms to_var
-  in
-    map (fn Eq(s, t) => Eq (transform_term s, transform_term t)) constraints
-  end 
-
-
-
-
-fun unify_constraints ctxt constraints maxidx =
-  Seq.hd (Unify.smash_unifiers (Context.Proof ctxt) (map (fn Eq e => e) constraints) (Envir.empty maxidx))
-    
+    val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
+    val up = init_up constraints fresh_idx type_simps
+  in 
+    unify ctxt up
+  end
 
 fun infer_type ctxt ts = 
   let
-    val var_types = Soft_Type_Context.Ctxt.get (Context.Proof ctxt)
-      |> Termtab.map (K (#2 o Soft_Type_Context.dest_typing o Thm.prop_of))
+    val const_types = 
+      Option.map (#2 o Soft_Type_Context.dest_typing o Thm.prop_of) o Soft_Type_Context.get (Context.Proof ctxt)
 
     val ictxt = Inference_Context {
-        var_types = var_types,
+        const_types = const_types,
+        var_types = Termtab.empty,
         constraints = [],
         fresh_idx = 0
       }
-    val (sTs, Inference_Context {constraints, var_types, fresh_idx}) =
+    val (sTs, Inference_Context {constraints, var_types, fresh_idx, ...}) =
        fold_map (fn t => fn c => collect_constraints' ctxt c [] t NONE) ts ictxt
     
     val _ = Output.tracing "Original constraints: "   
-    val _ = map (trace_constraint ctxt) constraints
+    val _ = map (trace_constraint ctxt NONE) constraints
 
-    val simplified_constraints = preprocess_constraints ctxt constraints
+    val env = unify_constraints ctxt constraints fresh_idx
+    fun instantiate t = instantiate_term env t
+    val term_types = map instantiate sTs
+    val elaborated_terms = map instantiate ts
 
-    val _ = Output.tracing "Simplified constraints: "   
-    val _ = map (trace_constraint ctxt) simplified_constraints
-
-    val env = unify_constraints ctxt simplified_constraints fresh_idx
-    val instantiated = map (Envir.norm_term env) sTs
-
-    val types_for_frees =
-      fold Term.add_frees ts []
-      |> map (fn f => 
-          (Free f, 
-           Termtab.lookup var_types (Free f) |> the |> Envir.norm_term env))
+    val types_for_vars =
+      (map Free (fold Term.add_frees elaborated_terms [])) @ (map Var (fold Term.add_vars elaborated_terms []))
+      |> map_filter (fn v => case Termtab.lookup var_types v of SOME t => SOME (v, instantiate t) | _ => NONE)
   in
     Infer_Result {
-      term_types = instantiated,
-      variable_types = types_for_frees,
+      elaborated_terms = elaborated_terms,
+      term_types = term_types,
+      variable_types = types_for_vars,
       constraints = []
     }
   end 
 
 fun print_inferred_types ctxt ts = 
   let
-    val Infer_Result {term_types, variable_types,constraints } = infer_type ctxt ts
+    val Infer_Result {elaborated_terms, term_types, variable_types,constraints } = infer_type ctxt ts
 
     fun section header content = header :: map (prefix "  ") content
 
@@ -267,11 +235,18 @@ fun print_inferred_types ctxt ts =
 
     val _ = Output.writeln (cat_lines ("--- Inference result ---" ::
       flat [
+        section "Instantiated terms" (map pr_term elaborated_terms),
         section "Types of terms" (map pr_term term_types),
         section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types),
         section "Constraints" (map (fn (s, t) => pr_term s ^ " = " ^ pr_term t) constraints)
       ]))
 
   in () end 
+
+
+(* Useful antiquotation for testing *)
+val _ = Theory.setup (
+   ML_Antiquotation.inline \<^binding>\<open>term_pattern\<close> (Args.term_pattern >> (ML_Syntax.atomic o ML_Syntax.print_term)))
+
 
 end

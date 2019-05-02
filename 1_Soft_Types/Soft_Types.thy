@@ -87,11 +87,15 @@ lemma Int_TypeD2:
 subsection \<open> Some Tooling \<close>
 
 
+
+
 named_theorems type_simp
 
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
+ML_file "unification.ML"
 ML_file "soft_type_inference.ML"
+
 
 
 (* See Old_ZF_Examples/ZF_Typing_Examples.thy for an example with type inference *)

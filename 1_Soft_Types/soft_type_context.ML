@@ -13,15 +13,23 @@ struct
 
   (* Context data. Maps terms to soft types. *)
   structure Ctxt = Generic_Data(
-    type T = thm Termtab.table;
-    val empty = Termtab.empty;
+    type T = thm Termtab.table * thm Symtab.table;
+    val empty = (Termtab.empty, Symtab.empty);
     val extend = I;
-    val merge = Termtab.merge Thm.eq_thm_prop;
+    fun merge ((a1, b1), (a2, b2)) =
+        (Termtab.merge Thm.eq_thm_prop (a1, a2), 
+         Symtab.merge Thm.eq_thm_prop (b1, b2));
   );
 
+  fun put_sty (Const (n, _)) sty = apsnd (Symtab.update (n, sty))
+    | put_sty t sty = apfst (Termtab.update (t, sty))
+
+  fun get_sty tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
+    | get_sty tabs t = Termtab.lookup (fst tabs) t
+
   (* Canonical get and put operations *)
-  fun put t sty = Ctxt.map (Termtab.update (t, sty));
-  fun get ctxt t = Termtab.lookup (Ctxt.get ctxt) t;
+  fun put t sty = Ctxt.map (put_sty t sty);
+  fun get ctxt t = get_sty (Ctxt.get ctxt) t;
 
 
   (* Break a typing judgment into its term and type parts *)
