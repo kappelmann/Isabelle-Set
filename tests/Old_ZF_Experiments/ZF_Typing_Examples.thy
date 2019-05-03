@@ -51,6 +51,57 @@ lemma eq_type[type]: "((=)::(i \<Rightarrow> i \<Rightarrow> o)) ::: (x: A) \<Ri
 lemma iff_type[type]: "((\<longleftrightarrow>)::(o \<Rightarrow> o \<Rightarrow> o)) ::: (x: o) \<Rightarrow> (y: o) \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
 
+lemma Lambda_type[type]: 
+  "Set_Theory.Lambda ::: (A : Set) \<Rightarrow> (f: (x : set A) \<Rightarrow> set (B x)) \<Rightarrow> set (Pi A B)"
+proof (intro Pi_typeI)
+  fix A f assume f: "f ::: (x : set A) \<Rightarrow> set (B x)"
+  
+  show "Lambda A f ::: set (Pi A B)"
+    unfolding set_type_iff
+  proof (rule lam_type)
+    fix x assume "x \<in> A"
+    then have "x ::: set A" unfolding set_type_iff .
+    then have "f x ::: set (B x)"
+      by (rule Pi_typeE[OF f])
+    then show "f x \<in> B x" unfolding set_type_iff .
+  qed
+qed
+
+lemma vimage_type[type]: "vimage ::: (R: subset (A \<times> B)) \<Rightarrow> (X: subset B) \<Rightarrow> subset A"
+  apply (intro Pi_typeI)
+  apply (unfold set_type_iff Pow_iff)
+  by (rule vimage_subset)
+
+lemma cons_type[type]: "cons ::: (x: set A) \<Rightarrow> (B: subset A) \<Rightarrow> subset A"
+  by (intro Pi_typeI, unfold set_type_iff Pow_iff) auto
+
+lemma empty_type[type]: "0 ::: subset A"
+  unfolding set_type_iff Pow_iff by auto
+
+lemma trans_type[type]: "trans ::: (r : set (A * A)) \<Rightarrow> o"
+  by (rule Pi_typeI, rule o_TypeI)
+
+lemma All_type[type]: "First_Order_Logic.All ::: (P: ((x::i): A) \<Rightarrow> o) \<Rightarrow> o"
+  by (rule Pi_typeI, rule o_TypeI)
+
+lemma imp_type[type]: "(\<longrightarrow>) ::: (l: o) \<Rightarrow> (r: o) \<Rightarrow> o"
+  by (intro Pi_typeI o_TypeI)
+
+lemma mem_type[type]: "(\<in>) ::: (x: set A) \<Rightarrow> (S: subset A) \<Rightarrow> o"
+  by (intro Pi_typeI o_TypeI)
+
+lemma Pair_type[type]: "Pair ::: (x: set A) \<Rightarrow> (y: set (B x)) \<Rightarrow> set (Sigma A B)"
+proof (intro Pi_typeI)
+  fix x y assume x: "x ::: set A" and y: "y ::: set (B x)"
+  from x have "x \<in> A" by (rule set_typeE)
+  moreover from y have "y \<in> B x" by (rule set_typeE)
+  ultimately have "<x, y> \<in> Sigma A B" by (rule SigmaI)
+  then show "<x, y> ::: set (Sigma A B)" by (rule set_typeI)
+qed
+
+
+
+
 
 text \<open> Example: Inferring types for list append \<close>
 
@@ -109,17 +160,6 @@ Soft_Type_Inference.print_inferred_types @{context} [
 ]
 \<close>
 
-(*
-ML \<open>
-
-Soft_Type_Inference.print_inferred_types @{context} [
-  @{term "\<And>A x xs ys. append A (Cons A x xs) ys = Cons A x (append A xs ys)"},
-  @{term "\<And>A ys. append A (Nil A) ys = ys"} 
-]
-\<close>
-*)
-
-
 end
 
 
@@ -158,51 +198,27 @@ ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
 
 end
 
-text \<open> Relations examples \<close>
+subsection \<open> Further examples \<close>
 
 
-
-
-
-lemma trans_type[type]: "trans ::: (r : set (A * A)) \<Rightarrow> o"
-  by (rule Pi_typeI, rule o_TypeI)
-
-
-lemma All_type[type]: "First_Order_Logic.All ::: (P: ((x::i): A) \<Rightarrow> o) \<Rightarrow> o"
-  by (rule Pi_typeI, rule o_TypeI)
-
-lemma imp_type[type]: "(\<longrightarrow>) ::: (l: o) \<Rightarrow> (r: o) \<Rightarrow> o"
-  by (intro Pi_typeI o_TypeI)
-
-lemma mem_type[type]: "(\<in>) ::: (x: set A) \<Rightarrow> (S: subset A) \<Rightarrow> o"
-  by (intro Pi_typeI o_TypeI)
-
-lemma Pair_type[type]: "Pair ::: (x: set A) \<Rightarrow> (y: set (B x)) \<Rightarrow> set (Sigma A B)"
-proof (intro Pi_typeI)
-  fix x y assume x: "x ::: set A" and y: "y ::: set (B x)"
-  from x have "x \<in> A" by (rule set_typeE)
-  moreover from y have "y \<in> B x" by (rule set_typeE)
-  ultimately have "<x, y> \<in> Sigma A B" by (rule SigmaI)
-  then show "<x, y> ::: set (Sigma A B)" by (rule set_typeI)
-qed
-
-context
-
-begin
-
-
-ML \<open> Soft_Type_Context.get (Context.Proof @{context}) \<close>
+text \<open> Transitivity of a relation \<close>
 
 (*
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term "\<forall>x y z. <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"}
 ]\<close>
+
+
+
+text \<open> Well-foundednes of a function definition \<close>
+
+ML \<open>
+Soft_Type_Inference.print_inferred_types @{context} [
+  @{term "(f = (\<lambda>x\<in>r-``{a}. H x (restrict f (r-``{x}))))"}
+]\<close>
+
+
 *)
-
-
-
-end
-
 
 
 end
