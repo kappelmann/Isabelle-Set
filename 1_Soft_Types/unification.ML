@@ -92,7 +92,7 @@ fun occurs (Var (F, _)) t =
 
 fun instantiate_term theta t =
   let
-    fun inst (t as Var (ixn, _)) = (case Vartab.lookup theta ixn of NONE => t | SOME s => s)
+    fun inst (t as Var (ixn, _)) = (case Vartab.lookup theta ixn of NONE => t | SOME s => inst s)
       | inst (s $ t) = inst s $ inst t
       | inst (Abs (n, T, t)) = Abs (n, T, inst t)
       | inst t = t
@@ -102,6 +102,8 @@ fun instantiate_term theta t =
 
 fun instantiate_eqn theta (bs, (lhs, rhs), or) =
   (bs, (instantiate_term theta lhs, instantiate_term theta rhs), or)
+
+
 
 (* Dealing with bound variables *)
 
@@ -116,7 +118,38 @@ fun map_bound_indices f =
 
 
 
+(* Collects the bound variable indices as they appear as an argument of a unification variable.
+  At the same time, checks that they are mutually distinct. *)
+fun collect_bound_idxs [] = []
+  | collect_bound_idxs (Bound i ::bs) =
+      let val is = collect_bound_idxs bs
+      in if member (op =) is i then error "Not a pattern" else i::is end
+  | collect_bound_idxs _ = error "Not a pattern"
 
+
+
+fun the_fail msg opt = case opt of SOME x => x | _ => raise Fail msg
+
+(*
+  Given 
+  - term [t] with loose bounds
+  - the binder context [binders]
+  - a list of indices [is]
+  Checks that
+  - all loose bounds that actually occur in [t] are present in [is]
+  And returns the term
+   %x y z. t
+  which abstracts over exactly the variables referred to in [is]
+*)
+fun abstract_over_loose_bounds binders is t =
+  let
+    (* mapping function for bound indices, which must match the binders we construct *)
+    val bound_reorder = Inttab.lookup (Inttab.make (map_index swap (rev is)))
+  in  
+    t 
+    |> map_bound_indices (bound_reorder #> the_fail "loose bound not covered by abstraction")
+    |> fold_rev (fn (n, _, T) => fn b => Abs (n, T, b)) (map (nth binders) is)
+  end
 
 
 (* Rewriting *)
@@ -189,7 +222,9 @@ and cases ctxt u (eqn as (bs, (lhs, rhs), _)) =
       let
         val ((lhd, ss), (rhd, ts)) = (strip_comb lhs, strip_comb rhs)
       in case (lhd, rhd) of
-        (Var _, Var _)        => flexflex ctxt bs u lhd ss rhd ts
+        (Var F, Var G)        => if (F = G) 
+                                 then flexflex_same ctxt bs u lhd ss rhd ts
+                                 else flexflex_different ctxt bs u lhd ss rhd ts
       | (Var _, _)            => flexrigid ctxt bs u lhd ss rhs
       | (_, Var _)            => flexrigid ctxt bs u rhd ts lhs
       | (Const _, Const _)    => rigidrigid ctxt u eqn lhd ss rhd ts
@@ -203,10 +238,20 @@ and cases ctxt u (eqn as (bs, (lhs, rhs), _)) =
       | _                     => error "Case not implemented"
       end
 
-and flexflex ctxt bs u F ss G ts =
-  if ss = [] andalso ts = [] 
-  then flexrigid ctxt bs u F ss (list_comb (G, ts))
-  else error "FlexFlex: function variable case not supported yet"
+and flexflex_same ctxt bs u F ss G ts =
+  error "Flexflex-Same: unimplemented"`
+
+and flexflex_different ctxt bs u F ss G ts =
+  let
+    val left_idxs = collect_bound_idxs ss
+    val right_idxs = collect_bound_idxs ts
+  in
+    if subset (op =) (right_idxs, left_idxs)
+    then flexrigid ctxt bs u F ss (list_comb (G, ts))
+    else if subset (op =) (left_idxs, right_idxs)
+    then flexrigid ctxt bs u G ts (list_comb (F, ss))
+    else error "FlexFlex: Variable intersection case unimplemented"
+  end
 
 
 (* Flex-Rigid case: 
@@ -224,13 +269,7 @@ and flexrigid ctxt bs u F ss t =
         val _ = if subtract (op =) bound_by_F bounds_in_t <> []
                 then error "Unsolvalbe bound variable in equation." else ()
         
-        (* mapping function for bound indices, which must match the binders we construct *)
-        val bound_reorder = the o Inttab.lookup (Inttab.make (map_index swap (rev bound_by_F)))
-        val t' = map_bound_indices bound_reorder t
-        val lambdas_to_add = map (nth bs) bound_by_F
-        val inst = 
-          (fst (dest_Var F), fold_rev (fn (n, _, T) => fn b => Abs (n, T, b)) lambdas_to_add t')
-
+        val inst = (fst (dest_Var F), abstract_over_loose_bounds bs bound_by_F t)
         val new_subst = Vartab.update inst (up_get_subst u)
         val instantiate = map (instantiate_eqn new_subst)
       in

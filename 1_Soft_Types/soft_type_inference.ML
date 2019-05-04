@@ -86,11 +86,16 @@ struct
     end
 
   fun trace_constraint ctxt t (eqn as (_, (lhs, rhs), _)) =
-    if (fastype_of lhs <> fastype_of rhs)
-    then error (cat_lines ["Bad types in constraint:", 
-        "  Constraint: " ^ pr_equation ctxt eqn,
-        "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
-    else Output.tracing ("Constraint: " ^ pr_equation ctxt eqn)
+    let
+      val context_msg = 
+        (case t of SOME t' => " (collected from " ^ Syntax.string_of_term ctxt t' ^ ")" | _ => "")
+    in                        
+      if (fastype_of lhs <> fastype_of rhs)
+      then error (cat_lines ["Bad types in constraint:", 
+          "  Constraint: " ^ pr_equation ctxt eqn,
+          "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
+      else Output.tracing ("Constraint: " ^ pr_equation ctxt eqn ^ context_msg)
+    end
 
   fun collect_constraints ctxt
     (Gamma : inference_context)                (* Types of frees and vars, constraints *)
@@ -154,11 +159,6 @@ struct
         (case get_var_type Gamma t of
           SOME st => (st, Gamma)
         | NONE => fix_var_type t (fastype_of t) Gamma []) (* Free variable types have no dependencies: Delta = [] *)
-(*
-            (case expected_type of 
-               SOME exp => (exp, add_free (t, exp) Gamma)
-             | NONE => fix_var_type t (fastype_of t) Gamma []) (* Free variable types have no dependencies: Delta = [] *)
-        ) *)
 
    and collect_constraints' ctxt Gamma Delta t expected_type =
      let 
@@ -227,7 +227,7 @@ fun infer_type ctxt ts =
 
 fun print_inferred_types ctxt ts = 
   let
-    val Infer_Result {elaborated_terms, term_types, variable_types,constraints } = infer_type ctxt ts
+    val Infer_Result {elaborated_terms, term_types, variable_types, constraints } = infer_type ctxt ts
 
     fun section header content = header :: map (prefix "  ") content
 

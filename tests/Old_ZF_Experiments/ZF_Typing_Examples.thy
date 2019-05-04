@@ -3,7 +3,6 @@ theory ZF_Typing_Examples
 begin
 
 
-
 subsection \<open> Type of sets \<close>
 definition Set :: "i type"
   where "Set \<equiv> Type (\<lambda>x::i. (x == x))"
@@ -121,6 +120,10 @@ ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
 ]\<close>
 
 ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+  @{term_pattern "Cons _ x xs"}
+]\<close>
+
+ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
   @{term "%A. Nil A"}
 ]\<close>
 
@@ -200,17 +203,30 @@ end
 
 subsection \<open> Further examples \<close>
 
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term_pattern "%x. Pair _"}
+]\<close>
+
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term "%x. Pair x"}
+]\<close>
+
+
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term "\<lambda>x y. <x,y>"}
+]\<close>
+
 
 text \<open> Transitivity of a relation \<close>
 
-(*
+
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term "\<forall>x y z. <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"}
 ]\<close>
 
 
 
-text \<open> Well-foundednes of a function definition \<close>
+text \<open> Well-foundedness of a function definition \<close>
 
 ML \<open>
 Soft_Type_Inference.print_inferred_types @{context} [
@@ -218,7 +234,7 @@ Soft_Type_Inference.print_inferred_types @{context} [
 ]\<close>
 
 
-*)
+
 
 
 end
