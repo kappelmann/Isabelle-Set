@@ -63,6 +63,9 @@ fun up_map_postponed f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_
 fun up_map_subst f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx, rews=rews })
   = UP { eqns=eqns, postponed=postponed, subst=f subst, fresh_idx=fresh_idx, rews=rews }
 
+fun up_map_fresh_idx f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx, rews=rews })
+  = UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=f fresh_idx, rews=rews }
+
 fun postpone_current_equation (UP { eqns=eqn::eqns, postponed, subst, fresh_idx, rews })
   = UP { eqns=eqns, postponed=eqn::postponed, subst=subst, fresh_idx=fresh_idx, rews=rews }
 
@@ -71,6 +74,8 @@ fun up_get_subst (UP { subst, ... })
 
 fun up_get_rews (UP { rews, ... })
   = rews
+
+fun up_get_fresh_idx (UP { fresh_idx, ...}) = fresh_idx
 
 fun init_up eqns fresh_idx rews =
  UP { eqns=eqns, postponed=[], subst=Vartab.empty, fresh_idx=fresh_idx, rews=rews }
@@ -201,6 +206,78 @@ fun rewrite_eqns ctxt rews eqns =
 
 
 
+(*
+  Checks if the given equation "?F xs = rhs" is a solvable pattern. This is true iff
+  - the left-hand side is a pattern
+  - rhs does not contain other variables than the xs in rigid positions.
+  - rhs does not contain ?F.
+*)
+fun is_pattern F xs rhs =
+  let
+
+    fun check_arg idxs t = case t of
+        Bound _ => true (* Other variables can be projected away in this position *)
+      | _ => subset (op =) (Term.loose_bnos t, idxs)
+
+    fun check_allowed_bounds idxs t = case strip_comb t of
+        (Var _, rs) => forall (check_arg idxs) rs
+      | (Free _, rs) => forall (check_allowed_bounds idxs) rs
+      | (Const _, rs) => forall (check_allowed_bounds idxs) rs
+      | (Bound i, rs) => member (op =) idxs i andalso forall (check_allowed_bounds idxs) rs
+      | (Abs (_, _, b), rs) => check_allowed_bounds (map (fn i => i + 1) idxs) b
+                               andalso forall (check_allowed_bounds idxs) rs
+      | _ => raise Fail "Unreachable"  
+
+    val bvs =  map (fn s => case s of Bound i => i | _ => ~1) xs
+    val is_lhs_linear = 
+      not (has_duplicates (op =) bvs) andalso forall (fn i => (i >= 0)) bvs
+  in 
+    is_lhs_linear 
+    andalso check_allowed_bounds bvs rhs
+    andalso not (occurs F rhs)
+  end
+
+
+fun project_vars idxs t theta fresh_idx =
+  let
+    fun proj d t (theta, fresh_idx) = case Envir.beta_norm (instantiate_term theta t) of
+        Abs (n, T, b) => proj (d + 1) b (theta, fresh_idx) |> apfst (fn b' => Abs(n, T, b'))
+      | t' => case strip_comb t' of
+          (Var ((n, i), T), rs) => 
+             let 
+               fun keep_arg (Bound i) = member (op =) idxs (i - d)
+                 | keep_arg _ = true
+
+               val args = map (fn arg => (arg, keep_arg arg)) rs
+                          |> curry (op ~~) ((length rs - 1) downto 0)
+
+               val (argTs, otherTs) = chop (length rs) (binder_types T)
+               val resultT = otherTs ---> body_type T
+
+               val arg_types = args ~~ argTs
+               val filtered_args =
+                 arg_types
+                 |> map_filter (fn ((i, (arg, keep)), T) => if keep then SOME (i, arg, T) else NONE) 
+
+               val new_Var = Var ((n, fresh_idx), map #3 filtered_args ---> resultT)
+
+               (* V -> %[domain_types V]. ?V2 (filtered_Bounds) *)
+               val inst = ((n, i),
+                 new_Var
+                 |> (fn v => list_comb (v, map (fn (i, _, _) => Bound i) filtered_args))
+                 |> fold_rev (fn T => fn b => Abs ("", T, b)) argTs)
+
+               val theta' = Vartab.update inst theta
+               val t' = list_comb (new_Var, map #2 filtered_args)
+             in
+               (t', (theta', fresh_idx+1))
+             end
+ 
+        | (t, rs) => fold_map (proj d) rs (theta, fresh_idx) |> apfst (curry list_comb t)  (* Const, Free, Bound *)
+        
+in proj 0 t (theta, fresh_idx) end
+
+
 
 (* Unification *)
 
@@ -263,20 +340,22 @@ Instantiate ?F with (%ss. t)
 and flexrigid ctxt bs u F ss t =
       if occurs F t then error "Occurs check failed"
       else let
-        val bounds_in_t = Term.loose_bnos t
         val bound_by_F = 
           map (fn s => case s of Bound i => i | _ => error "Not a pattern") ss
-        val _ = if subtract (op =) bound_by_F bounds_in_t <> []
+        val _ = if not (is_pattern F ss t)
                 then error "Unsolvalbe bound variable in equation." else ()
-        
-        val inst = (fst (dest_Var F), abstract_over_loose_bounds bs bound_by_F t)
-        val new_subst = Vartab.update inst (up_get_subst u)
+        val theta = up_get_subst u
+        val fresh_idx = up_get_fresh_idx u
+        val (t', (theta', fresh_idx')) = project_vars bound_by_F t theta fresh_idx
+        val inst = (fst (dest_Var F), abstract_over_loose_bounds bs bound_by_F t')
+        val new_subst = Vartab.update inst theta'
         val instantiate = map (instantiate_eqn new_subst)
       in
         u 
         |> up_map_eqns (instantiate o tl)
         |> up_map_postponed instantiate
         |> up_map_subst (K new_subst)
+        |> up_map_fresh_idx (K fresh_idx')
         |> unify ctxt
       end
 
