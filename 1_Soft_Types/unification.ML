@@ -238,6 +238,36 @@ fun is_pattern F xs rhs =
   end
 
 
+
+(* 
+  Creates an instantiation mapping the variable V to a new Variable V' which depends only on
+  some given arguments of V.
+
+  [V, T] the variable (name, index, type)
+  [fresh_idx] a fresh index that will be used
+  [keep args] a list of booleans denoting whether the argument should be
+              kept (true) or projected away (false)
+
+*)
+fun make_projection (V, T) fresh_idx keep_args =
+  let
+    val arity = length keep_args
+    val (argTs, otherTs) = chop arity (binder_types T)
+    val resultT = otherTs ---> body_type T
+
+    val filtered_args =
+      (argTs ~~ keep_args)
+      |> map_index I
+      |> map_filter (fn (i, (T, keep)) => if keep then SOME (arity-i-1, T) else NONE)
+  in 
+    (V,
+      Var (apsnd (K fresh_idx) V, map #2 filtered_args ---> resultT)
+      |> (fn v => list_comb (v, map (fn (i, _) => Bound i) filtered_args))
+      |> fold_rev (fn T => fn b => Abs ("", T, b)) argTs)
+  end
+
+
+
 fun project_vars idxs t theta fresh_idx =
   let
     fun proj d t (theta, fresh_idx) = case Envir.beta_norm (instantiate_term theta t) of
@@ -247,36 +277,20 @@ fun project_vars idxs t theta fresh_idx =
              let 
                fun keep_arg (Bound i) = member (op =) idxs (i - d)
                  | keep_arg _ = true
-
-               val args = map (fn arg => (arg, keep_arg arg)) rs
-                          |> curry (op ~~) ((length rs - 1) downto 0)
-
-               val (argTs, otherTs) = chop (length rs) (binder_types T)
-               val resultT = otherTs ---> body_type T
-
-               val arg_types = args ~~ argTs
-               val filtered_args =
-                 arg_types
-                 |> map_filter (fn ((i, (arg, keep)), T) => if keep then SOME (i, arg, T) else NONE) 
-
-               val new_Var = Var ((n, fresh_idx), map #3 filtered_args ---> resultT)
-
-               (* V -> %[domain_types V]. ?V2 (filtered_Bounds) *)
-               val inst = ((n, i),
-                 new_Var
-                 |> (fn v => list_comb (v, map (fn (i, _, _) => Bound i) filtered_args))
-                 |> fold_rev (fn T => fn b => Abs ("", T, b)) argTs)
-
+             in if forall keep_arg rs then (t', (theta, fresh_idx)) else let
+               val inst = make_projection ((n, i), T) fresh_idx (map keep_arg rs)
                val theta' = Vartab.update inst theta
-               val t' = list_comb (new_Var, map #2 filtered_args)
+               val t' = Envir.beta_norm (list_comb (snd inst, rs))
              in
                (t', (theta', fresh_idx+1))
-             end
+             end end
  
         | (t, rs) => fold_map (proj d) rs (theta, fresh_idx) |> apfst (curry list_comb t)  (* Const, Free, Bound *)
         
 in proj 0 t (theta, fresh_idx) end
 
+
+datatype pos_type = Eq | NotEq | Unknown
 
 
 (* Unification *)
@@ -297,13 +311,16 @@ fun unify ctxt (u as UP {eqns, postponed, subst, ...}) =
 
 and cases ctxt u (eqn as (bs, (lhs, rhs), _)) = 
       let
-        val ((lhd, ss), (rhd, ts)) = (strip_comb lhs, strip_comb rhs)
+        val lhs' = Envir.beta_norm lhs
+        val rhs' = Envir.beta_norm rhs
+        val ((lhd, ss), (rhd, ts)) =
+          (strip_comb lhs', strip_comb rhs')
       in case (lhd, rhd) of
         (Var F, Var G)        => if (F = G) 
-                                 then flexflex_same ctxt bs u lhd ss rhd ts
+                                 then flexflex_same ctxt u F ss ts
                                  else flexflex_different ctxt bs u lhd ss rhd ts
-      | (Var _, _)            => flexrigid ctxt bs u lhd ss rhs
-      | (_, Var _)            => flexrigid ctxt bs u rhd ts lhs
+      | (Var _, _)            => flexrigid ctxt bs u lhd ss rhs'
+      | (_, Var _)            => flexrigid ctxt bs u rhd ts lhs'
       | (Const _, Const _)    => rigidrigid ctxt u eqn lhd ss rhd ts
       | (Free _, Free _)      => rigidrigid ctxt u eqn lhd ss rhd ts
       | (Const _, Free _)     => rigidrigid ctxt u eqn lhd ss rhd ts
@@ -315,8 +332,32 @@ and cases ctxt u (eqn as (bs, (lhs, rhs), _)) =
       | _                     => error "Case not implemented"
       end
 
-and flexflex_same ctxt bs u F ss G ts =
-  error "Flexflex-Same: unimplemented"`
+and flexflex_same ctxt u F ss ts =
+  let
+    fun can_unify (s, t) = (s aconv t) orelse case (s, t) of 
+        (Bound _, Bound _) => false
+      | (Bound _, Free _) => false
+      | (Free _, Bound _) => false
+      | (Free _, Free _) => false
+      | (Bound _, Const _) => false
+      | (Const _, Bound _) => false
+      | _ => true
+
+    val keep_args = map can_unify (ss ~~ ts)
+    val is_solved = ss ~~ ts ~~ keep_args 
+      |> forall (fn ((s, t), keep) => not keep orelse s aconv t)
+    val inst = make_projection F (up_get_fresh_idx u) keep_args
+    val theta = Vartab.update inst (up_get_subst u)
+
+    val instantiate = map (instantiate_eqn theta)
+  in
+    u
+    |> up_map_eqns (fn es => instantiate (if is_solved then tl es else es))
+    |> up_map_postponed instantiate
+    |> up_map_subst (K theta)
+    |> up_map_fresh_idx (fn i => i + 1)
+    |> unify ctxt
+  end
 
 and flexflex_different ctxt bs u F ss G ts =
   let
@@ -343,7 +384,7 @@ and flexrigid ctxt bs u F ss t =
         val bound_by_F = 
           map (fn s => case s of Bound i => i | _ => error "Not a pattern") ss
         val _ = if not (is_pattern F ss t)
-                then error "Unsolvalbe bound variable in equation." else ()
+                then error ("Equation is not a pattern: " ^ @{make_string} (F, ss, t)) else ()
         val theta = up_get_subst u
         val fresh_idx = up_get_fresh_idx u
         val (t', (theta', fresh_idx')) = project_vars bound_by_F t theta fresh_idx

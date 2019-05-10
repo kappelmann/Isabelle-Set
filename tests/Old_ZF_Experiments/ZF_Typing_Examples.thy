@@ -136,18 +136,31 @@ ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
 
 ML \<open>
 
-fun should_throw (P : exn -> unit) (f: unit -> 'a) =
-  case Exn.capture f () of
-    Exn.Exn exn => (P exn
-                    handle Match => error ("Not the expected exception: " ^ @{make_string} exn))
-  | Exn.Res _ => error "Expected exception"                 
+fun should_throw (P : exn -> bool) (f: unit -> 'a) =
+  let
+    val res = Exn.capture f ()
+    fun check (Exn.Exn exn) = if P exn then () else raise Match
+      | check (Exn.Res r) = error ("Expected exception but got result: " ^ @{make_string} r)
+  in
+    ((check res)
+     handle Match => error ("Not the expected exception: " ^ @{make_string} (the (Exn.get_exn res))))
+  end 
+\<close>
 
+ML \<open>
+fun starts_with prefix str = is_prefix (op =) (raw_explode prefix) (raw_explode str)
 \<close>
 
 ML \<open>
   (fn _ => Soft_Type_Inference.print_inferred_types @{context} [
      @{term "%A x. Cons A x xs = Cons A x xs"} ])
-  |> should_throw (fn ERROR "Unsolvalbe bound variable in equation." => ())
+  |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
+\<close>
+
+ML \<open>
+  (fn _ => Soft_Type_Inference.print_inferred_types @{context} [
+       @{term "%A x. Cons A x xs = Cons A x xs"} ])
+  |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
@@ -230,7 +243,6 @@ ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
 
 text \<open> Transitivity of a relation \<close>
 
-
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term "\<forall>x y z. <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"}
 ]\<close>
@@ -239,11 +251,12 @@ ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
 
 text \<open> Well-foundedness of a function definition \<close>
 
+(*
 ML \<open>
 Soft_Type_Inference.print_inferred_types @{context} [
   @{term "(f = (\<lambda>x\<in>r-``{a}. H x (restrict f (r-``{x}))))"}
 ]\<close>
-
+*)
 
 
 
