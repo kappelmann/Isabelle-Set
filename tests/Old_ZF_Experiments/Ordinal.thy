@@ -25,7 +25,7 @@ definition
 
 definition
   Limit         :: "i=>o"  where
-    "Limit(i)    == Ord(i) & 0<i & (\<forall>y. y<i \<longrightarrow> succ(y)<i)"
+    "Limit(i)    == Ord(i) & {}<i & (\<forall>y. y<i \<longrightarrow> succ(y)<i)"
 
 abbreviation
   le  (infixl "\<le>" 50) where
@@ -69,7 +69,7 @@ by (blast dest: Transset_Pair_D)
 
 subsubsection\<open>Closure Properties\<close>
 
-lemma Transset_0: "Transset(0)"
+lemma Transset_0: "Transset({})"
 by (unfold Transset_def, blast)
 
 lemma Transset_Un:
@@ -145,7 +145,7 @@ by (blast dest: OrdmemD)
 
 subsection\<open>The Construction of Ordinals: 0, succ, Union\<close>
 
-lemma Ord_0 [iff,TC]: "Ord(0)"
+lemma Ord_0 [iff,TC]: "Ord({})"
 by (blast intro: OrdI Transset_0)
 
 lemma Ord_succ [TC]: "Ord(i) ==> Ord(succ(i))"
@@ -195,7 +195,7 @@ done
 lemma ltD: "i<j ==> i\<in>j"
 by (erule ltE, assumption)
 
-lemma not_lt0 [simp]: "~ i<0"
+lemma not_lt0 [simp]: "~ i<{}"
 by (unfold lt_def, blast)
 
 lemma lt_Ord: "j<i ==> Ord(j)"
@@ -207,7 +207,7 @@ by (erule ltE, assumption)
 (* @{term"ja \<le> j ==> Ord(j)"} *)
 lemmas le_Ord2 = lt_Ord2 [THEN Ord_succD]
 
-(* i<0 ==> R *)
+(* i<{} ==> R *)
 lemmas lt0E = not_lt0 [THEN notE, elim!]
 
 lemma lt_trans [trans]: "[| i<j;  j<k |] ==> i<k"
@@ -259,7 +259,7 @@ apply (simp add: le_iff)
 apply (blast elim: lt_asym)
 done
 
-lemma le0_iff [simp]: "i \<le> 0 <-> i=0"
+lemma le0_iff [simp]: "i \<le> {} <-> i={}"
 by (blast elim!: leE)
 
 lemmas le0D = le0_iff [THEN iffD1, dest!]
@@ -285,10 +285,10 @@ by (unfold Memrel_def, blast)
 lemma Memrel_mono: "A<=B ==> Memrel(A) \<subseteq> Memrel(B)"
 by (unfold Memrel_def, blast)
 
-lemma Memrel_0 [simp]: "Memrel(0) = 0"
+lemma Memrel_0 [simp]: "Memrel({}) = {}"
 by (unfold Memrel_def, blast)
 
-lemma Memrel_1 [simp]: "Memrel(1) = 0"
+lemma Memrel_1 [simp]: "Memrel(1) = {}"
 by (unfold Memrel_def, blast)
 
 lemma relation_Memrel: "relation(Memrel(A))"
@@ -401,16 +401,16 @@ by (blast dest: le_imp_not_lt not_lt_imp_le)
 lemma not_le_iff_lt: "[| Ord(i);  Ord(j) |] ==> ~ i \<le> j <-> j<i"
 by (simp (no_asm_simp) add: not_lt_iff_le [THEN iff_sym])
 
-(*This is identical to 0<succ(i) *)
-lemma Ord_0_le: "Ord(i) ==> 0 \<le> i"
+(*This is identical to {}<succ(i) *)
+lemma Ord_0_le: "Ord(i) ==> {} \<le> i"
 by (erule not_lt_iff_le [THEN iffD1], auto)
 
-lemma Ord_0_lt: "[| Ord(i);  i\<noteq>0 |] ==> 0<i"
+lemma Ord_0_lt: "[| Ord(i);  i\<noteq>{} |] ==> {}<i"
 apply (erule not_le_iff_lt [THEN iffD1])
 apply (rule Ord_0, blast)
 done
 
-lemma Ord_0_lt_iff: "Ord(i) ==> i\<noteq>0 <-> 0<i"
+lemma Ord_0_lt_iff: "Ord(i) ==> i\<noteq>{} <-> {}<i"
 by (blast intro: Ord_0_lt)
 
 
@@ -418,7 +418,7 @@ subsection\<open>Results about Less-Than or Equals\<close>
 
 (** For ordinals, @{term"j\<subseteq>i"} implies @{term"j \<le> i"} (less-than or equals) **)
 
-lemma zero_le_succ_iff [iff]: "0 \<le> succ(x) <-> Ord(x)"
+lemma zero_le_succ_iff [iff]: "{} \<le> succ(x) <-> Ord(x)"
 by (blast intro: Ord_0_le elim: ltE)
 
 lemma subset_imp_le: "[| j<=i;  Ord(i);  Ord(j) |] ==> j \<le> i"
@@ -474,7 +474,7 @@ apply (rule subset_imp_le [THEN lt_trans1])
 apply (blast intro: elim: ltE) +
 done
 
-lemma lt_imp_0_lt: "j<i ==> 0<i"
+lemma lt_imp_0_lt: "j<i ==> {}<i"
 by (blast intro: lt_trans1 Ord_0_le [OF lt_Ord])
 
 lemma succ_lt_iff: "succ(i) < j <-> i<j & succ(i) \<noteq> j"
@@ -640,12 +640,12 @@ apply (unfold Limit_def)
 apply (erule conjunct1)
 done
 
-lemma Limit_has_0: "Limit(i) ==> 0 < i"
+lemma Limit_has_0: "Limit(i) ==> {} < i"
 apply (unfold Limit_def)
 apply (erule conjunct2 [THEN conjunct1])
 done
 
-lemma Limit_nonzero: "Limit(i) ==> i \<noteq> 0"
+lemma Limit_nonzero: "Limit(i) ==> i \<noteq> {}"
 by (drule Limit_has_0, blast)
 
 lemma Limit_has_succ: "[| Limit(i);  j<i |] ==> succ(j) < i"
@@ -657,20 +657,20 @@ apply (frule lt_Ord)
 apply (blast intro: lt_trans)
 done
 
-lemma zero_not_Limit [iff]: "~ Limit(0)"
+lemma zero_not_Limit [iff]: "~ Limit({})"
 by (simp add: Limit_def)
 
 lemma Limit_has_1: "Limit(i) ==> 1 < i"
 by (blast intro: Limit_has_0 Limit_has_succ)
 
-lemma increasing_LimitI: "[| 0<l; \<forall>x\<in>l. \<exists>y\<in>l. x<y |] ==> Limit(l)"
+lemma increasing_LimitI: "[| {}<l; \<forall>x\<in>l. \<exists>y\<in>l. x<y |] ==> Limit(l)"
 apply (unfold Limit_def, simp add: lt_Ord2, clarify)
 apply (drule_tac i=y in ltD)
 apply (blast intro: lt_trans1 [OF _ ltI] lt_Ord2)
 done
 
 lemma non_succ_LimitI:
-  assumes i: "0<i" and nsucc: "\<And>y. succ(y) \<noteq> i"
+  assumes i: "{}<i" and nsucc: "\<And>y. succ(y) \<noteq> i"
   shows "Limit(i)"
 proof -
   have Oi: "Ord(i)" using i by (simp add: lt_def)
@@ -698,17 +698,17 @@ by (blast elim!: leE)
 
 subsubsection\<open>Traditional 3-Way Case Analysis on Ordinals\<close>
 
-lemma Ord_cases_disj: "Ord(i) ==> i=0 | (\<exists>j. Ord(j) & i=succ(j)) | Limit(i)"
+lemma Ord_cases_disj: "Ord(i) ==> i={} | (\<exists>j. Ord(j) & i=succ(j)) | Limit(i)"
 by (blast intro!: non_succ_LimitI Ord_0_lt)
 
 lemma Ord_cases:
  assumes i: "Ord(i)"
- obtains ("0") "i=0" | (succ) j where "Ord(j)" "i=succ(j)" | (limit) "Limit(i)"
+ obtains ("0") "i={}" | (succ) j where "Ord(j)" "i=succ(j)" | (limit) "Limit(i)"
 by (insert Ord_cases_disj [OF i], auto)
 
 lemma trans_induct3_raw:
      "[| Ord(i);
-         P(0);
+         P({});
          !!x. [| Ord(x);  P(x) |] ==> P(succ(x));
          !!x. [| Limit(x);  \<forall>y\<in>x. P(y) |] ==> P(x)
       |] ==> P(i)"
@@ -726,11 +726,11 @@ lemma Union_le: "[| !!x. x\<in>I ==> x\<le>j; Ord(j) |] ==> \<Union>(I) \<le> j"
 
 lemma Ord_set_cases:
   assumes I: "\<forall>i\<in>I. Ord(i)"
-  shows "I=0 \<or> \<Union>(I) \<in> I \<or> (\<Union>(I) \<notin> I \<and> Limit(\<Union>(I)))"
+  shows "I={} \<or> \<Union>(I) \<in> I \<or> (\<Union>(I) \<notin> I \<and> Limit(\<Union>(I)))"
 proof (cases "\<Union>(I)" rule: Ord_cases)
   show "Ord(\<Union>I)" using I by (blast intro: Ord_Union)
 next
-  assume "\<Union>I = 0" thus ?thesis by (simp, blast intro: subst_elem)
+  assume "\<Union>I = {}" thus ?thesis by (simp, blast intro: subst_elem)
 next
   fix j
   assume j: "Ord(j)" and UIj:"\<Union>(I) = succ(j)"
@@ -756,7 +756,7 @@ text\<open>If the union of a set of ordinals is a successor, then it is an eleme
 lemma Ord_Union_eq_succD: "[|\<forall>x\<in>X. Ord(x);  \<Union>X = succ(j)|] ==> succ(j) \<in> X"
   by (drule Ord_set_cases, auto)
 
-lemma Limit_Union [rule_format]: "[| I \<noteq> 0;  \<forall>i\<in>I. Limit(i) |] ==> Limit(\<Union>I)"
+lemma Limit_Union [rule_format]: "[| I \<noteq> {};  \<forall>i\<in>I. Limit(i) |] ==> Limit(\<Union>I)"
 apply (simp add: Limit_def lt_def)
 apply (blast intro!: equalityI)
 done

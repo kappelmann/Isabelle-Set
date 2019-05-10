@@ -17,7 +17,7 @@ typedecl i
 instance i :: "term" ..
 
 axiomatization mem :: "i \<Rightarrow> i \<Rightarrow> o"  (infixl "\<in>" 50)  \<comment> \<open>membership relation\<close>
-  and zero :: "i"  ("0")  \<comment> \<open>the empty set\<close>
+  and empty :: "i"  ("{}")  \<comment> \<open>the empty set\<close>
   and Pow :: "i \<Rightarrow> i"  \<comment> \<open>power sets\<close>
   and Inf :: "i"  \<comment> \<open>infinite set\<close>
   and Union :: "i \<Rightarrow> i"  ("\<Union>_" [90] 90)
@@ -95,10 +95,10 @@ translations
 subsection \<open>Finite sets and binary operations\<close>
 
 (*Unordered pairs (Upair) express binary union/intersection and cons;
-  set enumerations translate as {a,...,z} = cons(a,...,cons(z,0)...)*)
+  set enumerations translate as {a,...,z} = cons(a,...,cons(z,{})...)*)
 
 definition Upair :: "[i, i] => i"
-  where "Upair a b == {y. x\<in>Pow(Pow(0)), (x=0 & y=a) | (x=Pow(0) & y=b)}"
+  where "Upair a b == {y. x\<in>Pow(Pow({})), (x={} & y=a) | (x=Pow({}) & y=b)}"
 
 definition Subset :: "[i, i] \<Rightarrow> o"  (infixl "\<subseteq>" 50)  \<comment> \<open>subset relation\<close>
   where subset_def: "A \<subseteq> B \<equiv> \<forall>x\<in>A. x\<in>B"
@@ -125,7 +125,7 @@ syntax
   "_Finset" :: "is \<Rightarrow> i"  ("{(_)}")
 translations
   "{x, xs}" == "CONST cons x {xs}"
-  "{x}" == "CONST cons x 0"
+  "{x}" == "CONST cons x {}"
 
 
 subsection \<open>Axioms\<close>
@@ -141,10 +141,10 @@ where
   Pow_iff:       "A \<in> Pow(B) \<longleftrightarrow> A \<subseteq> B" and
 
   (*We may name this set, though it is not uniquely defined.*)
-  infinity:      "0 \<in> Inf \<and> (\<forall>y\<in>Inf. succ(y) \<in> Inf)" and
+  infinity:      "{} \<in> Inf \<and> (\<forall>y\<in>Inf. succ(y) \<in> Inf)" and
 
   (*This formulation facilitates case analysis on A.*)
-  foundation:    "A = 0 \<or> (\<exists>x\<in>A. \<forall>y\<in>x. y\<notin>A)" and
+  foundation:    "A = {} \<or> (\<exists>x\<in>A. \<forall>y\<in>x. y\<notin>A)" and
 
   (*Schema axiom since predicate P is a higher-order variable*)
   replacement:   "(\<forall>x\<in>A. \<forall>y z. P x y \<and> P x z \<longrightarrow> y = z) \<Longrightarrow>
@@ -154,7 +154,7 @@ where
 subsection \<open>Definite descriptions -- via Replace over the set "1"\<close>
 
 definition The :: "(i \<Rightarrow> o) \<Rightarrow> i"  (binder "THE " 10)
-  where the_def: "The(P)    == \<Union>({y . x \<in> {0}, P(y)})"
+  where the_def: "The(P)    == \<Union>({y . x \<in> {{}}, P(y)})"
 
 definition If :: "[o, i, i] \<Rightarrow> i"  ("(if (_)/ then (_)/ else (_))" [10] 10)
   where if_def: "if P then a else b == THE z. P & z=a | ~P & z=b"
@@ -551,9 +551,9 @@ by simp
 
 subsection\<open>Rules for the empty set\<close>
 
-(*The set @{term"{x\<in>0. False}"} is empty; by foundation it equals 0
+(*The set @{term"{x\<in>{}. False}"} is empty; by foundation it equals {}
   See Suppes, page 21.*)
-lemma not_mem_empty [simp]: "a \<notin> 0"
+lemma not_mem_empty [simp]: "a \<notin> {}"
 apply (cut_tac foundation)
 apply (best dest: equalityD2)
 done
@@ -561,33 +561,33 @@ done
 lemmas emptyE [elim!] = not_mem_empty [THEN notE]
 
 
-lemma empty_subsetI [simp]: "0 \<subseteq> A"
+lemma empty_subsetI [simp]: "{} \<subseteq> A"
 by blast
 
-lemma equals0I: "[| !!y. y\<in>A ==> False |] ==> A=0"
+lemma equals0I: "[| !!y. y\<in>A ==> False |] ==> A={}"
 by blast
 
-lemma equals0D [dest]: "A=0 ==> a \<notin> A"
+lemma equals0D [dest]: "A={} ==> a \<notin> A"
 by blast
 
 declare sym [THEN equals0D, dest]
 
-lemma not_emptyI: "a\<in>A ==> A \<noteq> 0"
+lemma not_emptyI: "a\<in>A ==> A \<noteq> {}"
 by blast
 
-lemma not_emptyE:  "[| A \<noteq> 0;  !!x. x\<in>A ==> R |] ==> R"
+lemma not_emptyE:  "[| A \<noteq> {};  !!x. x\<in>A ==> R |] ==> R"
 by blast
 
 
 subsection\<open>Rules for Inter\<close>
 
 (*Not obviously useful for proving InterI, InterD, InterE*)
-lemma Inter_iff: "A \<in> \<Inter>(C) <-> (\<forall>x\<in>C. A: x) & C\<noteq>0"
+lemma Inter_iff: "A \<in> \<Inter>(C) <-> (\<forall>x\<in>C. A: x) & C\<noteq>{}"
 by (simp add: Inter_def Ball_def, blast)
 
 (* Intersection is well-behaved only if the family is non-empty! *)
 lemma InterI [intro!]:
-    "[| !!x. x: C ==> A: x;  C\<noteq>0 |] ==> A \<in> \<Inter>(C)"
+    "[| !!x. x: C ==> A: x;  C\<noteq>{} |] ==> A \<in> \<Inter>(C)"
 by (simp add: Inter_iff)
 
 (*A "destruct" rule -- every B in C contains A as an element, but
@@ -605,10 +605,10 @@ subsection\<open>Rules for Intersections of families\<close>
 
 (* @{term"\<Inter>x\<in>A. B(x)"} abbreviates @{term"\<Inter>({B(x). x\<in>A})"} *)
 
-lemma INT_iff: "b \<in> (\<Inter>x\<in>A. B(x)) <-> (\<forall>x\<in>A. b \<in> B(x)) & A\<noteq>0"
+lemma INT_iff: "b \<in> (\<Inter>x\<in>A. B(x)) <-> (\<forall>x\<in>A. b \<in> B(x)) & A\<noteq>{}"
 by (force simp add: Inter_def)
 
-lemma INT_I: "[| !!x. x: A ==> b: B(x);  A\<noteq>0 |] ==> b: (\<Inter>x\<in>A. B(x))"
+lemma INT_I: "[| !!x. x: A ==> b: B(x);  A\<noteq>{} |] ==> b: (\<Inter>x\<in>A. B(x))"
 by blast
 
 lemma INT_E: "[| b \<in> (\<Inter>x\<in>A. B(x));  a: A |] ==> b \<in> B(a)"
@@ -631,7 +631,7 @@ by (erule Pow_iff [THEN iffD1])
 
 declare Pow_iff [iff]
 
-lemmas Pow_bottom = empty_subsetI [THEN PowI]    \<comment>\<open>@{term"0 \<in> Pow(B)"}\<close>
+lemmas Pow_bottom = empty_subsetI [THEN PowI]    \<comment>\<open>@{term"{} \<in> Pow(B)"}\<close>
 lemmas Pow_top = subset_refl [THEN PowI]         \<comment>\<open>@{term"A \<in> Pow(A)"}\<close>
 
 

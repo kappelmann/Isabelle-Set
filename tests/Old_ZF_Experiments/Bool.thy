@@ -9,7 +9,7 @@ theory Bool imports Ordered_Pair begin
 
 abbreviation
   one  ("1") where
-  "1 == succ(0)"
+  "1 == succ({})"
 
 abbreviation
   two  ("2") where
@@ -17,15 +17,15 @@ abbreviation
 
 text\<open>2 is equal to bool, but is used as a number rather than a type.\<close>
 
-definition "bool == {0,1}"
+definition "bool == {{},1}"
 
 definition "cond b c d == if (b=1) then c else d"
 
-definition "not b == cond b 0 1"
+definition "not b == cond b {} 1"
 
 definition
   "and"       :: "[i,i]=>i"      (infixl "and" 70)  where
-    "a and b == cond a b 0"
+    "a and b == cond a b {}"
 
 definition
   or          :: "[i,i]=>i"      (infixl "or" 65)  where
@@ -38,7 +38,7 @@ definition
 
 lemmas bool_defs = bool_def cond_def
 
-lemma singleton_0: "{0} = 1"
+lemma singleton_0: "{{}} = 1"
 by (simp add: succ_def)
 
 (* Introduction rules *)
@@ -46,17 +46,17 @@ by (simp add: succ_def)
 lemma bool_1I [simp,TC]: "1 \<in> bool"
 by (simp add: bool_defs )
 
-lemma bool_0I [simp,TC]: "0 \<in> bool"
+lemma bool_0I [simp,TC]: "{} \<in> bool"
 by (simp add: bool_defs)
 
-lemma one_not_0: "1\<noteq>0"
+lemma one_not_0: "1\<noteq>{}"
 by (simp add: bool_defs )
 
 (** 1=0 ==> R **)
 lemmas one_neq_0 = one_not_0 [THEN notE]
 
 lemma boolE:
-    "[| c: bool;  c=1 ==> P;  c=0 ==> P |] ==> P"
+    "[| c: bool;  c=1 ==> P;  c={} ==> P |] ==> P"
 by (simp add: bool_defs, blast)
 
 (** cond **)
@@ -66,10 +66,10 @@ lemma cond_1 [simp]: "cond 1 c d = c"
 by (simp add: bool_defs )
 
 (*0 means false*)
-lemma cond_0 [simp]: "cond 0 c d = d"
+lemma cond_0 [simp]: "cond {} c d = d"
 by (simp add: bool_defs )
 
-lemma cond_type [TC]: "[| b: bool;  c: A(1);  d: A(0) |] ==> cond b c d: A b"
+lemma cond_type [TC]: "[| b: bool;  c: A(1);  d: A({}) |] ==> cond b c d: A b"
 by (simp add: bool_defs, blast)
 
 (*For Simp_tac and Blast_tac*)
@@ -79,7 +79,7 @@ by (simp add: bool_defs )
 lemma def_cond_1: "[| !!b. j(b)==cond b c d |] ==> j 1 = c"
 by simp
 
-lemma def_cond_0: "[| !!b. j b == cond b c d |] ==> j 0 = d"
+lemma def_cond_0: "[| !!b. j b == cond b c d |] ==> j {} = d"
 by simp
 
 lemmas not_1 = not_def [THEN def_cond_1, simp]
@@ -153,12 +153,12 @@ by (elim boolE, auto)
 
 definition
   bool_of_o :: "o=>i" where
-   "bool_of_o(P) == (if P then 1 else 0)"
+   "bool_of_o(P) == (if P then 1 else {})"
 
 lemma [simp]: "bool_of_o(True) = 1"
 by (simp add: bool_of_o_def)
 
-lemma [simp]: "bool_of_o(False) = 0"
+lemma [simp]: "bool_of_o(False) = {}"
 by (simp add: bool_of_o_def)
 
 lemma [simp,TC]: "bool_of_o(P) \<in> bool"
@@ -167,7 +167,7 @@ by (simp add: bool_of_o_def)
 lemma [simp]: "(bool_of_o(P) = 1) \<longleftrightarrow> P"
 by (simp add: bool_of_o_def)
 
-lemma [simp]: "(bool_of_o(P) = 0) \<longleftrightarrow> ~P"
+lemma [simp]: "(bool_of_o(P) = {}) \<longleftrightarrow> ~P"
 by (simp add: bool_of_o_def)
 
 end

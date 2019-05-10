@@ -471,7 +471,7 @@ text\<open>See similar theorems in func.thy\<close>
 
 text\<open>Theorem by KG, proof by LCP\<close>
 lemma inj_disjoint_Un:
-     "[| f \<in> inj A B;  g \<in> inj C D;  B \<inter> D = 0 |]
+     "[| f \<in> inj A B;  g \<in> inj C D;  B \<inter> D = {} |]
       ==> (\<lambda>a\<in>A \<union> C. if a \<in> A then f`a else g`a) \<in> inj (A \<union> C) (B \<union> D)"
 apply (rule_tac d = "%z. if z \<in> B then converse (f) `z else converse (g) `z"
        in lam_injective)
@@ -479,7 +479,7 @@ apply (auto simp add: inj_is_fun [THEN apply_type])
 done
 
 lemma surj_disjoint_Un:
-    "[| f \<in> surj A B;  g \<in> surj C D;  A \<inter> C = 0 |]
+    "[| f \<in> surj A B;  g \<in> surj C D;  A \<inter> C = {} |]
      ==> (f \<union> g) \<in> surj (A \<union> C) (B \<union> D)"
 apply (simp add: surj_def fun_disjoint_Un)
 apply (blast dest!: domain_of_fun
@@ -489,7 +489,7 @@ done
 text\<open>A simple, high-level proof; the version for injections follows from it,
   using  @{term "f \<in> inj A B \<longleftrightarrow> f \<in> bij A (range f)"}\<close>
 lemma bij_disjoint_Un:
-     "[| f \<in> bij A B;  g \<in> bij C D;  A \<inter> C = 0;  B \<inter> D = 0 |]
+     "[| f \<in> bij A B;  g \<in> bij C D;  A \<inter> C = {};  B \<inter> D = {} |]
       ==> (f \<union> g) \<in> bij (A \<union> C) (B \<union> D)"
 apply (rule invertible_imp_bijective)
 apply (subst converse_Un)

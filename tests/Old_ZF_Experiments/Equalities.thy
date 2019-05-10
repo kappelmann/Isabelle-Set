@@ -13,7 +13,7 @@ de Groote proved many of the inclusions.\<close>
 lemma in_mono: "A\<subseteq>B ==> x\<in>A \<longrightarrow> x\<in>B"
 by blast
 
-lemma the_eq_0 [simp]: "(THE x. False) = 0"
+lemma the_eq_0 [simp]: "(THE x. False) = {}"
 by (blast intro: the_0)
 
 subsection\<open>Bounded Quantifiers\<close>
@@ -60,7 +60,7 @@ by blast
 lemma converse_prod [simp]: "converse(A*B) = B*A"
 by blast
 
-lemma converse_empty [simp]: "converse(0) = 0"
+lemma converse_empty [simp]: "converse({}) = {}"
 by blast
 
 lemma converse_subset_iff:
@@ -83,7 +83,7 @@ by blast
   [| cons(a,B) \<subseteq> C; [| a \<in> C; B \<subseteq> C |] ==> R |] ==> R *)
 lemmas cons_subsetE = cons_subset_iff [THEN iffD1, THEN conjE]
 
-lemma subset_empty_iff: "A\<subseteq>0 \<longleftrightarrow> A=0"
+lemma subset_empty_iff: "A\<subseteq>{} \<longleftrightarrow> A={}"
 by blast
 
 lemma subset_cons_iff: "C\<subseteq>cons a B \<longleftrightarrow> C\<subseteq>B | (a\<in>C & C-{a} \<subseteq> B)"
@@ -259,7 +259,7 @@ by (blast elim!: equalityE)
 lemma subset_Un_iff2: "A\<subseteq>B \<longleftrightarrow> B \<union> A = B"
 by (blast elim!: equalityE)
 
-lemma Un_empty [iff]: "(A \<union> B = 0) \<longleftrightarrow> (A = 0 & B = 0)"
+lemma Un_empty [iff]: "(A \<union> B = {}) \<longleftrightarrow> (A = {} & B = {})"
 by blast
 
 lemma Un_eq_Union: "A \<union> B = \<Union>({A, B})"
@@ -270,36 +270,36 @@ subsection\<open>Set Difference\<close>
 lemma Diff_subset: "A-B \<subseteq> A"
 by blast
 
-lemma Diff_contains: "[| C\<subseteq>A;  C \<inter> B = 0 |] ==> C \<subseteq> A-B"
+lemma Diff_contains: "[| C\<subseteq>A;  C \<inter> B = {} |] ==> C \<subseteq> A-B"
 by blast
 
 lemma subset_Diff_cons_iff: "B \<subseteq> A - cons c C  \<longleftrightarrow>  B\<subseteq>A-C & c \<notin> B"
 by blast
 
-lemma Diff_cancel: "A - A = 0"
+lemma Diff_cancel: "A - A = {}"
 by blast
 
-lemma Diff_triv: "A  \<inter> B = 0 ==> A - B = A"
+lemma Diff_triv: "A  \<inter> B = {} ==> A - B = A"
 by blast
 
-lemma empty_Diff [simp]: "0 - A = 0"
+lemma empty_Diff [simp]: "{} - A = {}"
 by blast
 
-lemma Diff_0 [simp]: "A - 0 = A"
+lemma Diff_0 [simp]: "A - {} = A"
 by blast
 
-lemma Diff_eq_0_iff: "A - B = 0 \<longleftrightarrow> A \<subseteq> B"
+lemma Diff_eq_0_iff: "A - B = {} \<longleftrightarrow> A \<subseteq> B"
 by (blast elim: equalityE)
 
-(*NOT SUITABLE FOR REWRITING since {a} == cons(a,0)*)
+(*NOT SUITABLE FOR REWRITING since {a} == cons(a,{})*)
 lemma Diff_cons: "A - cons a B = A - B - {a}"
 by blast
 
-(*NOT SUITABLE FOR REWRITING since {a} == cons(a,0)*)
+(*NOT SUITABLE FOR REWRITING since {a} == cons(a,{})*)
 lemma Diff_cons2: "A - cons a B = A - {a} - B"
 by blast
 
-lemma Diff_disjoint: "A \<inter> (B-A) = 0"
+lemma Diff_disjoint: "A \<inter> (B-A) = {}"
 by blast
 
 lemma Diff_partition: "A\<subseteq>B ==> A \<union> (B-A) = B"
@@ -364,10 +364,10 @@ by blast
 lemma Union_Int_subset: "\<Union>(A \<inter> B) \<subseteq> \<Union>(A) \<inter> \<Union>(B)"
 by blast
 
-lemma Union_disjoint: "\<Union>(C) \<inter> A = 0 \<longleftrightarrow> (\<forall>B\<in>C. B \<inter> A = 0)"
+lemma Union_disjoint: "\<Union>(C) \<inter> A = {} \<longleftrightarrow> (\<forall>B\<in>C. B \<inter> A = {})"
 by (blast elim!: equalityE)
 
-lemma Union_empty_iff: "\<Union>(A) = 0 \<longleftrightarrow> (\<forall>B\<in>A. B=0)"
+lemma Union_empty_iff: "\<Union>(A) = {} \<longleftrightarrow> (\<forall>B\<in>A. B={})"
 by blast
 
 lemma Int_Union2: "\<Union>(B) \<inter> A = (\<Union>C\<in>B. C \<inter> A)"
@@ -375,13 +375,13 @@ by blast
 
 (** Big Intersection is the greatest lower bound of a nonempty set **)
 
-lemma Inter_subset_iff: "A\<noteq>0  ==>  C \<subseteq> \<Inter>(A) \<longleftrightarrow> (\<forall>x\<in>A. C \<subseteq> x)"
+lemma Inter_subset_iff: "A\<noteq>{}  ==>  C \<subseteq> \<Inter>(A) \<longleftrightarrow> (\<forall>x\<in>A. C \<subseteq> x)"
 by blast
 
 lemma Inter_lower: "B\<in>A ==> \<Inter>(A) \<subseteq> B"
 by blast
 
-lemma Inter_greatest: "[| A\<noteq>0;  !!x. x\<in>A ==> C\<subseteq>x |] ==> C \<subseteq> \<Inter>(A)"
+lemma Inter_greatest: "[| A\<noteq>{};  !!x. x\<in>A ==> C\<subseteq>x |] ==> C \<subseteq> \<Inter>(A)"
 by blast
 
 (** Intersection of a family of sets  **)
@@ -389,10 +389,10 @@ by blast
 lemma INT_lower: "x\<in>A ==> (\<Inter>x\<in>A. B(x)) \<subseteq> B(x)"
 by blast
 
-lemma INT_greatest: "[| A\<noteq>0;  !!x. x\<in>A ==> C\<subseteq>B(x) |] ==> C \<subseteq> (\<Inter>x\<in>A. B(x))"
+lemma INT_greatest: "[| A\<noteq>{};  !!x. x\<in>A ==> C\<subseteq>B(x) |] ==> C \<subseteq> (\<Inter>x\<in>A. B(x))"
 by force
 
-lemma Inter_0 [simp]: "\<Inter>(0) = 0"
+lemma Inter_0 [simp]: "\<Inter>({}) = {}"
 by (unfold Inter_def, blast)
 
 lemma Inter_Un_subset:
@@ -401,7 +401,7 @@ by blast
 
 (* A good challenge: Inter is ill-behaved on the empty set *)
 lemma Inter_Un_distrib:
-     "[| A\<noteq>0;  B\<noteq>0 |] ==> \<Inter>(A \<union> B) = \<Inter>(A) \<inter> \<Inter>(B)"
+     "[| A\<noteq>{};  B\<noteq>{} |] ==> \<Inter>(A \<union> B) = \<Inter>(A) \<inter> \<Inter>(B)"
 by blast
 
 lemma Union_singleton: "\<Union>({b}) = b"
@@ -411,7 +411,7 @@ lemma Inter_singleton: "\<Inter>({b}) = b"
 by blast
 
 lemma Inter_cons [simp]:
-     "\<Inter>(cons a B) = (if B=0 then a else a \<inter> \<Inter>(B))"
+     "\<Inter>(cons a B) = (if B={} then a else a \<inter> \<Inter>(B))"
 by force
 
 subsection\<open>Unions and Intersections of Families\<close>
@@ -434,7 +434,7 @@ by blast
 lemma Inter_eq_INT: "\<Inter>(A) = (\<Inter>x\<in>A. x)"
 by (unfold Inter_def, blast)
 
-lemma UN_0 [simp]: "(\<Union>i\<in>0. A(i)) = 0"
+lemma UN_0 [simp]: "(\<Union>i\<in>{}. A(i)) = {}"
 by blast
 
 lemma UN_singleton: "(\<Union>x\<in>A. {x}) = A"
@@ -444,8 +444,8 @@ lemma UN_Un: "(\<Union>i\<in> A \<union> B. C(i)) = (\<Union>i\<in> A. C(i)) \<u
 by blast
 
 lemma INT_Un: "(\<Inter>i\<in>I \<union> J. A(i)) =
-               (if I=0 then \<Inter>j\<in>J. A(j)
-                       else if J=0 then \<Inter>i\<in>I. A(i)
+               (if I={} then \<Inter>j\<in>J. A(j)
+                       else if J={} then \<Inter>i\<in>I. A(i)
                        else ((\<Inter>i\<in>I. A(i)) \<inter>  (\<Inter>j\<in>J. A(j))))"
 by (simp, blast intro!: equalityI)
 
@@ -456,21 +456,21 @@ by blast
 lemma Int_UN_distrib: "B \<inter> (\<Union>i\<in>I. A(i)) = (\<Union>i\<in>I. B \<inter> A(i))"
 by blast
 
-lemma Un_INT_distrib: "I\<noteq>0 ==> B \<union> (\<Inter>i\<in>I. A(i)) = (\<Inter>i\<in>I. B \<union> A(i))"
+lemma Un_INT_distrib: "I\<noteq>{} ==> B \<union> (\<Inter>i\<in>I. A(i)) = (\<Inter>i\<in>I. B \<union> A(i))"
 by auto
 
 lemma Int_UN_distrib2:
      "(\<Union>i\<in>I. A(i)) \<inter> (\<Union>j\<in>J. B(j)) = (\<Union>i\<in>I. \<Union>j\<in>J. A(i) \<inter> B(j))"
 by blast
 
-lemma Un_INT_distrib2: "[| I\<noteq>0;  J\<noteq>0 |] ==>
+lemma Un_INT_distrib2: "[| I\<noteq>{};  J\<noteq>{} |] ==>
       (\<Inter>i\<in>I. A(i)) \<union> (\<Inter>j\<in>J. B(j)) = (\<Inter>i\<in>I. \<Inter>j\<in>J. A(i) \<union> B(j))"
 by auto
 
-lemma UN_constant [simp]: "(\<Union>y\<in>A. c) = (if A=0 then 0 else c)"
+lemma UN_constant [simp]: "(\<Union>y\<in>A. c) = (if A={} then {} else c)"
 by force
 
-lemma INT_constant [simp]: "(\<Inter>y\<in>A. c) = (if A=0 then 0 else c)"
+lemma INT_constant [simp]: "(\<Inter>y\<in>A. c) = (if A={} then {} else c)"
 by force
 
 lemma UN_RepFun [simp]: "(\<Union>y\<in> RepFun A f. B(y)) = (\<Union>x\<in>A. B(f(x)))"
@@ -480,14 +480,14 @@ lemma INT_RepFun [simp]: "(\<Inter>x\<in>RepFun A f. B(x)) = (\<Inter>a\<in>A. B
 by (auto simp add: Inter_def)
 
 lemma INT_Union_eq:
-     "0 \<notin> A ==> (\<Inter>x\<in> \<Union>(A). B(x)) = (\<Inter>y\<in>A. \<Inter>x\<in>y. B(x))"
-apply (subgoal_tac "\<forall>x\<in>A. x\<noteq>0")
+     "{} \<notin> A ==> (\<Inter>x\<in> \<Union>(A). B(x)) = (\<Inter>y\<in>A. \<Inter>x\<in>y. B(x))"
+apply (subgoal_tac "\<forall>x\<in>A. x\<noteq>{}")
  prefer 2 apply blast
 apply (force simp add: Inter_def ball_conj_distrib)
 done
 
 lemma INT_UN_eq:
-     "(\<forall>x\<in>A. B(x) \<noteq> 0)
+     "(\<forall>x\<in>A. B(x) \<noteq> {})
       ==> (\<Inter>z\<in> (\<Union>x\<in>A. B(x)). C(z)) = (\<Inter>x\<in>A. \<Inter>z\<in> B(x). C(z))"
 apply (subst INT_Union_eq, blast)
 apply (simp add: Inter_def)
@@ -502,7 +502,7 @@ lemma UN_Un_distrib:
 by blast
 
 lemma INT_Int_distrib:
-     "I\<noteq>0 ==> (\<Inter>i\<in>I. A(i) \<inter> B(i)) = (\<Inter>i\<in>I. A(i)) \<inter> (\<Inter>i\<in>I. B(i))"
+     "I\<noteq>{} ==> (\<Inter>i\<in>I. A(i) \<inter> B(i)) = (\<Inter>i\<in>I. A(i)) \<inter> (\<Inter>i\<in>I. B(i))"
 by (blast elim!: not_emptyE)
 
 lemma UN_Int_subset:
@@ -511,10 +511,10 @@ by blast
 
 (** Devlin, page 12, exercise 5: Complements **)
 
-lemma Diff_UN: "I\<noteq>0 ==> B - (\<Union>i\<in>I. A(i)) = (\<Inter>i\<in>I. B - A(i))"
+lemma Diff_UN: "I\<noteq>{} ==> B - (\<Union>i\<in>I. A(i)) = (\<Inter>i\<in>I. B - A(i))"
 by (blast elim!: not_emptyE)
 
-lemma Diff_INT: "I\<noteq>0 ==> B - (\<Inter>i\<in>I. A(i)) = (\<Union>i\<in>I. B - A(i))"
+lemma Diff_INT: "I\<noteq>{} ==> B - (\<Inter>i\<in>I. A(i)) = (\<Union>i\<in>I. B - A(i))"
 by (blast elim!: not_emptyE)
 
 
@@ -571,7 +571,7 @@ lemma SUM_eq_UN: "(\<Sum>i\<in>I. A(i)) = (\<Union>i\<in>I. {i} * A(i))"
 by blast
 
 lemma times_subset_iff:
-     "(A'*B' \<subseteq> A*B) \<longleftrightarrow> (A' = 0 | B' = 0 | (A'\<subseteq>A) & (B'\<subseteq>B))"
+     "(A'*B' \<subseteq> A*B) \<longleftrightarrow> (A' = {} | B' = {} | (A'\<subseteq>A) & (B'\<subseteq>B))"
 by blast
 
 lemma Int_Sigma_eq:
@@ -596,7 +596,7 @@ by blast
 lemma domain_of_prod: "b\<in>B ==> domain(A*B) = A"
 by blast
 
-lemma domain_0 [simp]: "domain(0) = 0"
+lemma domain_0 [simp]: "domain({}) = {}"
 by blast
 
 lemma domain_cons [simp]: "domain (cons <a,b> r) = cons a (domain r)"
@@ -637,7 +637,7 @@ done
 lemma range_of_prod: "a\<in>A ==> range(A*B) = B"
 by blast
 
-lemma range_0 [simp]: "range(0) = 0"
+lemma range_0 [simp]: "range({}) = {}"
 by blast
 
 lemma range_cons [simp]: "range (cons <a,b> r) = cons b (range r)"
@@ -703,7 +703,7 @@ by (simp add: relation_def, blast)
 lemma field_of_prod: "field(A*A) = A"
 by blast
 
-lemma field_0 [simp]: "field(0) = 0"
+lemma field_0 [simp]: "field({}) = {}"
 by blast
 
 lemma field_cons [simp]: "field (cons <a,b> r) = cons a (cons b (field r))"
@@ -755,7 +755,7 @@ by (unfold image_def, blast)
 lemma image_subset: "r \<subseteq> A*B ==> r``C \<subseteq> B"
 by blast
 
-lemma image_0 [simp]: "r``0 = 0"
+lemma image_0 [simp]: "r``{} = {}"
 by blast
 
 lemma image_Un [simp]: "r``(A \<union> B) = (r``A) \<union> (r``B)"
@@ -779,7 +779,7 @@ by blast
 
 
 (*Image laws for special relations*)
-lemma image_0_left [simp]: "0``A = 0"
+lemma image_0_left [simp]: "{}``A = {}"
 by blast
 
 lemma image_Un_left: "(r \<union> s)``A = (r``A) \<union> (s``A)"
@@ -811,7 +811,7 @@ apply (unfold vimage_def)
 apply (erule converse_type [THEN image_subset])
 done
 
-lemma vimage_0 [simp]: "r-``0 = 0"
+lemma vimage_0 [simp]: "r-``{} = {}"
 by blast
 
 lemma vimage_Un [simp]: "r-``(A \<union> B) = (r-``A) \<union> (r-``B)"
@@ -843,7 +843,7 @@ by blast
 
 
 (*Invese image laws for special relations*)
-lemma vimage_0_left [simp]: "0-``A = 0"
+lemma vimage_0_left [simp]: "{}-``A = {}"
 by blast
 
 lemma vimage_Un_left: "(r \<union> s)-``A = (r-``A) \<union> (s-``A)"
@@ -867,7 +867,7 @@ by blast
 lemma converse_UN [simp]: "converse(\<Union>x\<in>A. B(x)) = (\<Union>x\<in>A. converse(B(x)))"
 by blast
 
-(*Unfolding Inter avoids using excluded middle on A=0*)
+(*Unfolding Inter avoids using excluded middle on A={}*)
 lemma converse_INT [simp]:
      "converse(\<Inter>x\<in>A. B(x)) = (\<Inter>x\<in>A. converse(B(x)))"
 apply (unfold Inter_def, blast)
@@ -876,7 +876,7 @@ done
 
 subsection\<open>Powerset Operator\<close>
 
-lemma Pow_0 [simp]: "Pow(0) = {0}"
+lemma Pow_0 [simp]: "Pow({}) = {{}}"
 by blast
 
 lemma Pow_insert: "Pow (cons a A) = Pow(A) \<union> {cons a X . X: Pow(A)}"
@@ -903,7 +903,7 @@ by blast
 lemma Pow_Int_eq [simp]: "Pow(A \<inter> B) = Pow(A) \<inter> Pow(B)"
 by blast
 
-lemma Pow_INT_eq: "A\<noteq>0 ==> Pow(\<Inter>x\<in>A. B(x)) = (\<Inter>x\<in>A. Pow(B(x)))"
+lemma Pow_INT_eq: "A\<noteq>{} ==> Pow(\<Inter>x\<in>A. B(x)) = (\<Inter>x\<in>A. Pow(B(x)))"
 by (blast elim!: not_emptyE)
 
 
@@ -912,10 +912,10 @@ subsection\<open>RepFun\<close>
 lemma RepFun_subset: "[| !!x. x\<in>A ==> f(x) \<in> B |] ==> {f(x). x\<in>A} \<subseteq> B"
 by blast
 
-lemma RepFun_eq_0_iff [simp]: "{f(x).x\<in>A}=0 \<longleftrightarrow> A=0"
+lemma RepFun_eq_0_iff [simp]: "{f(x).x\<in>A}={} \<longleftrightarrow> A={}"
 by blast
 
-lemma RepFun_constant [simp]: "{c. x\<in>A} = (if A=0 then 0 else {c})"
+lemma RepFun_constant [simp]: "{c. x\<in>A} = (if A={} then {} else {c})"
 by force
 
 

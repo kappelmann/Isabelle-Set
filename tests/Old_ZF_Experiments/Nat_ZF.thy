@@ -7,6 +7,15 @@ section\<open>The Natural numbers As a Least Fixed Point\<close>
 
 theory Nat_ZF imports OrdQuant Bool begin
 
+definition zero :: i ("0") where
+  "zero = {}"
+
+lemma zero_not_succ[simp]: "0 \<noteq> succ n"
+  unfolding zero_def by simp
+
+lemma succ_not_zero[simp]: "succ n \<noteq> 0"
+  unfolding zero_def by simp
+
 definition
   nat :: i  where
     "nat == lfp Inf (%X. {0} \<union> {succ(i). i \<in> X})"
@@ -52,8 +61,8 @@ predecessors!\<close>
 
 
 lemma nat_bnd_mono: "bnd_mono Inf (%X. {0} \<union> {succ(i). i \<in> X})"
-apply (rule bnd_monoI)
-apply (cut_tac infinity, blast, blast)
+  apply (rule bnd_monoI, unfold zero_def)
+  apply (cut_tac infinity, blast, blast)
 done
 
 (* @{term"nat = {0} \<union> {succ(x). x \<in> nat}"} *)
@@ -71,6 +80,7 @@ apply (subst nat_unfold)
 apply (erule RepFunI [THEN UnI2])
 done
 
+(*
 lemma nat_1I [iff,TC]: "1 \<in> nat"
 by (rule nat_0I [THEN nat_succI])
 
@@ -81,6 +91,7 @@ lemma bool_subset_nat: "bool \<subseteq> nat"
 by (blast elim!: boolE)
 
 lemmas bool_into_nat = bool_subset_nat [THEN subsetD]
+*)
 
 
 subsection\<open>Injectivity Properties and Induction\<close>
@@ -97,7 +108,7 @@ using assms
 by (rule nat_unfold [THEN equalityD1, THEN subsetD, THEN UnE]) auto
 
 lemma nat_into_Ord [simp]: "n \<in> nat ==> Ord(n)"
-by (erule nat_induct, auto)
+by (erule nat_induct, auto simp: zero_def)
 
 (* @{term"i \<in> nat ==> 0 \<le> i"}; same thing as @{term"0<succ(i)"}  *)
 lemmas nat_0_le = nat_into_Ord [THEN Ord_0_le]
@@ -110,20 +121,21 @@ apply (rule OrdI)
 apply (erule_tac [2] nat_into_Ord [THEN Ord_is_Transset])
 apply (unfold Transset_def)
 apply (rule ballI)
-apply (erule nat_induct, auto)
+apply (erule nat_induct, auto simp: zero_def)
 done
 
 lemma Limit_nat [iff]: "Limit(nat)"
 apply (unfold Limit_def)
-apply (safe intro!: ltI Ord_nat)
+  apply (safe intro!: ltI Ord_nat)
+  apply (unfold zero_def[symmetric], safe)
 apply (erule ltD)
 done
 
 lemma naturals_not_limit: "a \<in> nat ==> ~ Limit(a)"
-by (induct a rule: nat_induct, auto)
+by (induct a rule: nat_induct, auto simp: zero_def)
 
 lemma succ_natD: "succ(i): nat ==> i \<in> nat"
-by (rule Ord_trans [OF succI1], auto)
+  by (rule Ord_trans [OF succI1]) auto
 
 lemma nat_succ_iff [iff]: "succ(n): nat \<longleftrightarrow> n \<in> nat"
 by (blast dest!: succ_natD)
@@ -132,7 +144,8 @@ lemma nat_le_Limit: "Limit(i) ==> nat \<le> i"
 apply (rule subset_imp_le)
 apply (simp_all add: Limit_is_Ord)
 apply (rule subsetI)
-apply (erule nat_induct)
+  apply (erule nat_induct)
+  apply (unfold zero_def)
  apply (erule Limit_has_0 [THEN ltD])
 apply (blast intro: Limit_has_succ [THEN ltD] ltI Limit_is_Ord)
 done
@@ -159,12 +172,15 @@ lemmas complete_induct_rule =
         complete_induct [rule_format, case_names less, consumes 1]
 
 
+lemma le_zero_iff[iff]: "n \<le> 0 \<longleftrightarrow> n = 0"
+  unfolding zero_def by (rule le0_iff)
+
 lemma nat_induct_from_lemma [rule_format]:
     "[| n \<in> nat;  m \<in> nat;
         !!x. [| x \<in> nat;  m \<le> x;  P(x) |] ==> P(succ(x)) |]
      ==> m \<le> n \<longrightarrow> P(m) \<longrightarrow> P(n)"
 apply (erule nat_induct)
-apply (simp_all add: distrib_simps le0_iff le_succ_iff)
+apply (simp_all add: distrib_simps le_succ_iff)
 done
 
 (*Induction starting from m rather than 0*)
@@ -199,7 +215,7 @@ lemma succ_lt_induct_lemma [rule_format]:
 apply (erule nat_induct)
  apply (intro impI, rule nat_induct [THEN ballI])
    prefer 4 apply (intro impI, rule nat_induct [THEN ballI])
-apply (auto simp add: le_iff)
+apply (auto simp add: le_iff zero_def)
 done
 
 lemma succ_lt_induct:
@@ -222,7 +238,7 @@ lemma nat_imp_quasinat: "n \<in> nat ==> quasinat(n)"
 by (erule natE, simp_all)
 
 lemma non_nat_case: "~ quasinat(x) ==> nat_case a b x = 0"
-by (simp add: quasinat_def nat_case_def)
+by (simp add: quasinat_def nat_case_def zero_def)
 
 lemma nat_cases_disj: "k=0 | (\<exists>y. k = succ(y)) | ~ quasinat(k)"
 apply (case_tac "k=0", simp)
@@ -286,7 +302,8 @@ done
 
 (*needed to simplify unions over nat*)
 lemma nat_nonempty [simp]: "nat \<noteq> 0"
-by blast
+  unfolding zero_def
+  by auto
 
 text\<open>A natural number is the set of its predecessors\<close>
 lemma nat_eq_Collect_lt: "i \<in> nat ==> {j\<in>nat. j<i} = i"

@@ -10,10 +10,10 @@ theory Sum imports Bool Equalities begin
 text\<open>And the "Part" primitive for simultaneous recursive type definitions\<close>
 
 definition sum :: "[i,i]=>i" (infixr "+" 65) where
-     "A+B == {0}*A \<union> {1}*B"
+     "A+B == {{}}*A \<union> {1}*B"
 
 definition Inl :: "i=>i" where
-     "Inl(a) == <0,a>"
+     "Inl(a) == <{},a>"
 
 definition Inr :: "i=>i" where
      "Inr(b) == <1,b>"
@@ -55,7 +55,7 @@ subsection\<open>Rules for Disjoint Sums\<close>
 
 lemmas sum_defs = sum_def Inl_def Inr_def case_def
 
-lemma Sigma_bool: "Sigma bool C = C(0) + C(1)"
+lemma Sigma_bool: "Sigma bool C = C({}) + C(1)"
 by (unfold bool_def sum_def, blast)
 
 (** Introduction rules for the injections **)
@@ -89,7 +89,7 @@ by (simp add: sum_defs)
 lemma Inr_Inl_iff [simp]: "Inr(b)=Inl(a) \<longleftrightarrow> False"
 by (simp add: sum_defs)
 
-lemma sum_empty [simp]: "0+0 = 0"
+lemma sum_empty [simp]: "{}+{} = {}"
 by (simp add: sum_defs)
 
 (*Injection and freeness rules*)

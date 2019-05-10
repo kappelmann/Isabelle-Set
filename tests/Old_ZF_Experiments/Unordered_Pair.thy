@@ -129,7 +129,7 @@ by (simp, blast)
 lemma consCI [intro!]: "(a\<notin>B ==> a=b) ==> a \<in> cons b B"
 by (simp, blast)
 
-lemma cons_not_0 [simp]: "cons a B \<noteq> 0"
+lemma cons_not_0 [simp]: "cons a B \<noteq> {}"
 by (blast elim: equalityE)
 
 lemmas cons_neq_0 = cons_not_0 [THEN notE]
@@ -170,14 +170,14 @@ done
   @{term "THE x.P(x)"}  rewrites to @{term "THE x.Q(x)"} *)
 
 (*If it's "undefined", it's zero!*)
-lemma the_0: "~ (\<exists>!x. P(x)) ==> (THE x. P(x))=0"
+lemma the_0: "~ (\<exists>!x. P(x)) ==> (THE x. P(x))={}"
 apply (unfold the_def)
 apply (blast elim!: ReplaceE)
 done
 
 (*Easier to apply than theI: conclusion has only one occurrence of P*)
 lemma theI2:
-    assumes p1: "~ Q(0) ==> \<exists>!x. P(x)"
+    assumes p1: "~ Q({}) ==> \<exists>!x. P(x)"
         and p2: "!!x. P(x) ==> Q(x)"
     shows "Q(THE x. P(x))"
 apply (rule classical)
@@ -301,7 +301,7 @@ done
 lemma succCI [intro!]: "(i\<notin>j ==> i=j) ==> i \<in> succ(j)"
 by (simp add: succ_iff, blast)
 
-lemma succ_not_0 [simp]: "succ(n) \<noteq> 0"
+lemma succ_not_0 [simp]: "succ(n) \<noteq> {}"
 by (blast elim!: equalityE)
 
 lemmas succ_neq_0 = succ_not_0 [THEN notE, elim!]
@@ -324,11 +324,11 @@ lemmas succ_inject = succ_inject_iff [THEN iffD1, dest!]
 subsection\<open>Miniscoping of the Bounded Universal Quantifier\<close>
 
 lemma ball_simps1:
-     "(\<forall>x\<in>A. P(x) & Q)   \<longleftrightarrow> (\<forall>x\<in>A. P(x)) & (A=0 | Q)"
+     "(\<forall>x\<in>A. P(x) & Q)   \<longleftrightarrow> (\<forall>x\<in>A. P(x)) & (A={} | Q)"
      "(\<forall>x\<in>A. P(x) | Q)   \<longleftrightarrow> ((\<forall>x\<in>A. P(x)) | Q)"
      "(\<forall>x\<in>A. P(x) \<longrightarrow> Q) \<longleftrightarrow> ((\<exists>x\<in>A. P(x)) \<longrightarrow> Q)"
      "(~(\<forall>x\<in>A. P(x))) \<longleftrightarrow> (\<exists>x\<in>A. ~P(x))"
-     "(\<forall>x\<in>0.P(x)) \<longleftrightarrow> True"
+     "(\<forall>x\<in>{}.P(x)) \<longleftrightarrow> True"
      "(\<forall>x\<in>succ i. P(x)) \<longleftrightarrow> P(i) & (\<forall>x\<in>i. P x)"
      "(\<forall>x\<in>cons a B. P(x)) \<longleftrightarrow> P(a) & (\<forall>x\<in>B. P x)"
      "(\<forall>x\<in>RepFun A f. P(x)) \<longleftrightarrow> (\<forall>y\<in>A. P (f y))"
@@ -336,7 +336,7 @@ lemma ball_simps1:
 by blast+
 
 lemma ball_simps2:
-     "(\<forall>x\<in>A. P & Q(x))   \<longleftrightarrow> (A=0 | P) & (\<forall>x\<in>A. Q(x))"
+     "(\<forall>x\<in>A. P & Q(x))   \<longleftrightarrow> (A={} | P) & (\<forall>x\<in>A. Q(x))"
      "(\<forall>x\<in>A. P | Q(x))   \<longleftrightarrow> (P | (\<forall>x\<in>A. Q(x)))"
      "(\<forall>x\<in>A. P \<longrightarrow> Q(x)) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x\<in>A. Q(x)))"
 by blast+
@@ -356,9 +356,9 @@ subsection\<open>Miniscoping of the Bounded Existential Quantifier\<close>
 
 lemma bex_simps1:
      "(\<exists>x\<in>A. P(x) & Q) \<longleftrightarrow> ((\<exists>x\<in>A. P(x)) & Q)"
-     "(\<exists>x\<in>A. P(x) | Q) \<longleftrightarrow> (\<exists>x\<in>A. P(x)) | (A\<noteq>0 & Q)"
-     "(\<exists>x\<in>A. P(x) \<longrightarrow> Q) \<longleftrightarrow> ((\<forall>x\<in>A. P(x)) \<longrightarrow> (A\<noteq>0 & Q))"
-     "(\<exists>x\<in>0.P(x)) \<longleftrightarrow> False"
+     "(\<exists>x\<in>A. P(x) | Q) \<longleftrightarrow> (\<exists>x\<in>A. P(x)) | (A\<noteq>{} & Q)"
+     "(\<exists>x\<in>A. P(x) \<longrightarrow> Q) \<longleftrightarrow> ((\<forall>x\<in>A. P(x)) \<longrightarrow> (A\<noteq>{} & Q))"
+     "(\<exists>x\<in>{}.P(x)) \<longleftrightarrow> False"
      "(\<exists>x\<in>succ(i).P(x)) \<longleftrightarrow> P(i) | (\<exists>x\<in>i. P(x))"
      "(\<exists>x\<in>cons a B. P(x)) \<longleftrightarrow> P(a) | (\<exists>x\<in>B. P(x))"
      "(\<exists>x\<in>RepFun A f. P(x)) \<longleftrightarrow> (\<exists>y\<in>A. P(f(y)))"
@@ -368,8 +368,8 @@ by blast+
 
 lemma bex_simps2:
      "(\<exists>x\<in>A. P & Q(x)) \<longleftrightarrow> (P & (\<exists>x\<in>A. Q(x)))"
-     "(\<exists>x\<in>A. P | Q(x)) \<longleftrightarrow> (A\<noteq>0 & P) | (\<exists>x\<in>A. Q(x))"
-     "(\<exists>x\<in>A. P \<longrightarrow> Q(x)) \<longleftrightarrow> ((A=0 | P) \<longrightarrow> (\<exists>x\<in>A. Q(x)))"
+     "(\<exists>x\<in>A. P | Q(x)) \<longleftrightarrow> (A\<noteq>{} & P) | (\<exists>x\<in>A. Q(x))"
+     "(\<exists>x\<in>A. P \<longrightarrow> Q(x)) \<longleftrightarrow> ((A={} | P) \<longrightarrow> (\<exists>x\<in>A. Q(x)))"
 by blast+
 
 lemma bex_simps3:
@@ -408,10 +408,10 @@ subsection\<open>Miniscoping of the Replacement Operator\<close>
 
 text\<open>These cover both @{term Replace} and @{term Collect}\<close>
 lemma Rep_simps [simp]:
-     "{x. y \<in> 0, R x y} = 0"
-     "{x \<in> 0. P(x)} = 0"
-     "{x \<in> A. Q} = (if Q then A else 0)"
-     "RepFun 0 f = 0"
+     "{x. y \<in> {}, R x y} = {}"
+     "{x \<in> {}. P(x)} = {}"
+     "{x \<in> A. Q} = (if Q then A else {})"
+     "RepFun {} f = {}"
      "RepFun (succ i) f = cons (f i) (RepFun i f)"
      "RepFun (cons a B) f = cons (f a) (RepFun B f)"
 by (simp_all, blast+)
@@ -420,13 +420,13 @@ by (simp_all, blast+)
 subsection\<open>Miniscoping of Unions\<close>
 
 lemma UN_simps1:
-     "(\<Union>x\<in>C. cons a (B x)) = (if C=0 then 0 else cons a (\<Union>x\<in>C. B(x)))"
-     "(\<Union>x\<in>C. A(x) \<union> B')   = (if C=0 then 0 else (\<Union>x\<in>C. A(x)) \<union> B')"
-     "(\<Union>x\<in>C. A' \<union> B(x))   = (if C=0 then 0 else A' \<union> (\<Union>x\<in>C. B(x)))"
+     "(\<Union>x\<in>C. cons a (B x)) = (if C={} then {} else cons a (\<Union>x\<in>C. B(x)))"
+     "(\<Union>x\<in>C. A(x) \<union> B')   = (if C={} then {} else (\<Union>x\<in>C. A(x)) \<union> B')"
+     "(\<Union>x\<in>C. A' \<union> B(x))   = (if C={} then {} else A' \<union> (\<Union>x\<in>C. B(x)))"
      "(\<Union>x\<in>C. A(x) \<inter> B')  = ((\<Union>x\<in>C. A(x)) \<inter> B')"
      "(\<Union>x\<in>C. A' \<inter> B(x))  = (A' \<inter> (\<Union>x\<in>C. B(x)))"
      "(\<Union>x\<in>C. A(x) - B')    = ((\<Union>x\<in>C. A(x)) - B')"
-     "(\<Union>x\<in>C. A' - B(x))    = (if C=0 then 0 else A' - (\<Inter>x\<in>C. B(x)))"
+     "(\<Union>x\<in>C. A' - B(x))    = (if C={} then {} else A' - (\<Inter>x\<in>C. B(x)))"
 apply (simp_all add: Inter_def)
 apply (blast intro!: equalityI )+
 done
@@ -442,7 +442,7 @@ lemmas UN_simps [simp] = UN_simps1 UN_simps2
 text\<open>Opposite of miniscoping: pull the operator out\<close>
 
 lemma UN_extend_simps1:
-     "(\<Union>x\<in>C. A(x)) \<union> B   = (if C=0 then B else (\<Union>x\<in>C. A(x) \<union> B))"
+     "(\<Union>x\<in>C. A(x)) \<union> B   = (if C={} then B else (\<Union>x\<in>C. A(x) \<union> B))"
      "((\<Union>x\<in>C. A(x)) \<inter> B) = (\<Union>x\<in>C. A(x) \<inter> B)"
      "((\<Union>x\<in>C. A(x)) - B) = (\<Union>x\<in>C. A(x) - B)"
 apply simp_all
@@ -450,10 +450,10 @@ apply blast+
 done
 
 lemma UN_extend_simps2:
-     "cons a (\<Union>x\<in>C. B(x)) = (if C=0 then {a} else (\<Union>x\<in>C. cons a (B x)))"
-     "A \<union> (\<Union>x\<in>C. B(x))   = (if C=0 then A else (\<Union>x\<in>C. A \<union> B(x)))"
+     "cons a (\<Union>x\<in>C. B(x)) = (if C={} then {a} else (\<Union>x\<in>C. cons a (B x)))"
+     "A \<union> (\<Union>x\<in>C. B(x))   = (if C={} then A else (\<Union>x\<in>C. A \<union> B(x)))"
      "(A \<inter> (\<Union>x\<in>C. B(x))) = (\<Union>x\<in>C. A \<inter> B(x))"
-     "A - (\<Inter>x\<in>C. B(x))    = (if C=0 then A else (\<Union>x\<in>C. A - B(x)))"
+     "A - (\<Inter>x\<in>C. B(x))    = (if C={} then A else (\<Union>x\<in>C. A - B(x)))"
      "(\<Union>y\<in>A. \<Union>x\<in>y. B(x)) = (\<Union>x\<in>\<Union>(A). B(x))"
      "(\<Union>a\<in>A. B(f(a))) = (\<Union>x\<in>RepFun A f. B(x))"
 apply (simp_all add: Inter_def)
@@ -472,14 +472,14 @@ subsection\<open>Miniscoping of Intersections\<close>
 lemma INT_simps1:
      "(\<Inter>x\<in>C. A(x) \<inter> B) = (\<Inter>x\<in>C. A(x)) \<inter> B"
      "(\<Inter>x\<in>C. A(x) - B)   = (\<Inter>x\<in>C. A(x)) - B"
-     "(\<Inter>x\<in>C. A(x) \<union> B)  = (if C=0 then 0 else (\<Inter>x\<in>C. A(x)) \<union> B)"
+     "(\<Inter>x\<in>C. A(x) \<union> B)  = (if C={} then {} else (\<Inter>x\<in>C. A(x)) \<union> B)"
 by (simp_all add: Inter_def, blast+)
 
 lemma INT_simps2:
      "(\<Inter>x\<in>C. A \<inter> B(x)) = A \<inter> (\<Inter>x\<in>C. B(x))"
-     "(\<Inter>x\<in>C. A - B(x))   = (if C=0 then 0 else A - (\<Union>x\<in>C. B(x)))"
-     "(\<Inter>x\<in>C. cons a (B x)) = (if C=0 then 0 else cons a (\<Inter>x\<in>C. B(x)))"
-     "(\<Inter>x\<in>C. A \<union> B(x))  = (if C=0 then 0 else A \<union> (\<Inter>x\<in>C. B(x)))"
+     "(\<Inter>x\<in>C. A - B(x))   = (if C={} then {} else A - (\<Union>x\<in>C. B(x)))"
+     "(\<Inter>x\<in>C. cons a (B x)) = (if C={} then {} else cons a (\<Inter>x\<in>C. B(x)))"
+     "(\<Inter>x\<in>C. A \<union> B(x))  = (if C={} then {} else A \<union> (\<Inter>x\<in>C. B(x)))"
   by (auto simp add: Inter_def)
 
 lemmas INT_simps [simp] = INT_simps1 INT_simps2
@@ -490,14 +490,14 @@ text\<open>Opposite of miniscoping: pull the operator out\<close>
 lemma INT_extend_simps1:
      "(\<Inter>x\<in>C. A(x)) \<inter> B = (\<Inter>x\<in>C. A(x) \<inter> B)"
      "(\<Inter>x\<in>C. A(x)) - B = (\<Inter>x\<in>C. A(x) - B)"
-     "(\<Inter>x\<in>C. A(x)) \<union> B  = (if C=0 then B else (\<Inter>x\<in>C. A(x) \<union> B))"
+     "(\<Inter>x\<in>C. A(x)) \<union> B  = (if C={} then B else (\<Inter>x\<in>C. A(x) \<union> B))"
   by (auto simp add: Inter_def)
 
 lemma INT_extend_simps2:
      "A \<inter> (\<Inter>x\<in>C. B(x)) = (\<Inter>x\<in>C. A \<inter> B(x))"
-     "A - (\<Union>x\<in>C. B(x))   = (if C=0 then A else (\<Inter>x\<in>C. A - B(x)))"
-     "cons a (\<Inter>x\<in>C. B(x)) = (if C=0 then {a} else (\<Inter>x\<in>C. cons a (B x)))"
-     "A \<union> (\<Inter>x\<in>C. B(x))  = (if C=0 then A else (\<Inter>x\<in>C. A \<union> B(x)))"
+     "A - (\<Union>x\<in>C. B(x))   = (if C={} then A else (\<Inter>x\<in>C. A - B(x)))"
+     "cons a (\<Inter>x\<in>C. B(x)) = (if C={} then {a} else (\<Inter>x\<in>C. cons a (B x)))"
+     "A \<union> (\<Inter>x\<in>C. B(x))  = (if C={} then A else (\<Inter>x\<in>C. A \<union> B(x)))"
   by (auto simp add: Inter_def)
 
 lemmas INT_extend_simps = INT_extend_simps1 INT_extend_simps2
@@ -509,13 +509,13 @@ subsection\<open>Other simprules\<close>
 (*** Miniscoping: pushing in big Unions, Intersections, quantifiers, etc. ***)
 
 lemma misc_simps [simp]:
-     "0 \<union> A = A"
-     "A \<union> 0 = A"
-     "0 \<inter> A = 0"
-     "A \<inter> 0 = 0"
-     "0 - A = 0"
-     "A - 0 = A"
-     "\<Union>(0) = 0"
+     "{} \<union> A = A"
+     "A \<union> {} = A"
+     "{} \<inter> A = {}"
+     "A \<inter> {} = {}"
+     "{} - A = {}"
+     "A - {} = A"
+     "\<Union>({}) = {}"
      "\<Union>(cons b A) = b \<union> \<Union>(A)"
      "\<Inter>({b}) = b"
 by blast+

@@ -74,7 +74,7 @@ lemma vimage_type[type]: "vimage ::: (R: subset (A \<times> B)) \<Rightarrow> (X
 lemma cons_type[type]: "cons ::: (x: set A) \<Rightarrow> (B: subset A) \<Rightarrow> subset A"
   by (intro Pi_typeI, unfold set_type_iff Pow_iff) auto
 
-lemma empty_type[type]: "0 ::: subset A"
+lemma empty_type[type]: "{} ::: subset A"
   unfolding set_type_iff Pow_iff by auto
 
 lemma trans_type[type]: "trans ::: (r : set (A * A)) \<Rightarrow> o"
@@ -88,6 +88,9 @@ lemma imp_type[type]: "(\<longrightarrow>) ::: (l: o) \<Rightarrow> (r: o) \<Rig
 
 lemma mem_type[type]: "(\<in>) ::: (x: set A) \<Rightarrow> (S: subset A) \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
+
+lemma succ_type[type]: "succ ::: (n: set nat) \<Rightarrow> set nat"
+  by (intro Pi_typeI, unfold set_type_iff) auto
 
 lemma Pair_type[type]: "Pair ::: (x: set A) \<Rightarrow> (y: set (B x)) \<Rightarrow> set (Sigma A B)"
 proof (intro Pi_typeI)
@@ -204,11 +207,19 @@ end
 subsection \<open> Further examples \<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "%x. Pair _"}
+  \<^term_pattern>\<open>\<lambda>x. Pair\<close>
 ]\<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term "%x. Pair x"}
+  @{term_pattern "{{}}"}
+]\<close>
+
+(* This one is pretty underconstrained, since the type of y is not clear *)
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term_pattern "\<lambda>y. Pair {} y"}
+]\<close>
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term "\<lambda>x. Pair x"}
 ]\<close>
 
 

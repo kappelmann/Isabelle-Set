@@ -21,7 +21,7 @@ theory WF imports Trancl begin
 definition
   wf           :: "i=>o"  where
     (*r is a well-founded relation*)
-    "wf(r) == \<forall>Z. Z=0 | (\<exists>x\<in>Z. \<forall>y. <y,x>:r \<longrightarrow> ~ y \<in> Z)"
+    "wf(r) == \<forall>Z. Z={} | (\<exists>x\<in>Z. \<forall>y. <y,x>:r \<longrightarrow> ~ y \<in> Z)"
 
 definition
   wf_on        :: "[i,i]=>o"                      ("wf[_]'(_')")  where

@@ -49,7 +49,7 @@ lemmas Pair_inject = Pair_iff [THEN iffD1, THEN conjE, elim!]
 lemmas Pair_inject1 = Pair_iff [THEN iffD1, THEN conjunct1]
 lemmas Pair_inject2 = Pair_iff [THEN iffD1, THEN conjunct2]
 
-lemma Pair_not_0: "<a,b> \<noteq> 0"
+lemma Pair_not_0: "<a,b> \<noteq> {}"
 apply (unfold Pair_def)
 apply (blast elim: equalityE)
 done
@@ -112,13 +112,13 @@ by (simp add: Sigma_def)
   flex-flex pairs and the "Check your prover" error.  Most
   Sigmas and Pis are abbreviated as * or -> *)
 
-lemma Sigma_empty1 [simp]: "Sigma 0 B = 0"
+lemma Sigma_empty1 [simp]: "Sigma {} B = {}"
 by blast
 
-lemma Sigma_empty2 [simp]: "A*0 = 0"
+lemma Sigma_empty2 [simp]: "A*{} = {}"
 by blast
 
-lemma Sigma_empty_iff: "A*B=0 \<longleftrightarrow> A=0 | B=0"
+lemma Sigma_empty_iff: "A*B={} \<longleftrightarrow> A={} | B={}"
 by blast
 
 
