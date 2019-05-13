@@ -5,7 +5,7 @@
 
 section\<open>Booleans in Zermelo-Fraenkel Set Theory\<close>
 
-theory Bool imports Ordered_Pair begin
+theory Bool imports Ordered_Pair ASCII_Syntax begin
 
 abbreviation
   one  ("1") where

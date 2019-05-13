@@ -7,6 +7,11 @@ section\<open>Functions, Function Spaces, Lambda-Abstraction\<close>
 
 theory Function imports Equalities Sum begin
 
+notation (ASCII)
+ function_space  (infixr "\<rightarrow>" 60)
+
+
+
 subsection\<open>The Pi Operator: Dependent Function Space\<close>
 
 lemma subset_Sigma_imp_relation: "r \<subseteq> Sigma A B ==> relation(r)"

@@ -51,7 +51,7 @@ lemma iff_type[type]: "((\<longleftrightarrow>)::(o \<Rightarrow> o \<Rightarrow
   by (intro Pi_typeI o_TypeI)
 
 lemma Lambda_type[type]: 
-  "Set_Theory.Lambda ::: (A : Set) \<Rightarrow> (f: (x : set A) \<Rightarrow> set (B x)) \<Rightarrow> set (Pi A B)"
+  "Lambda ::: (A : Set) \<Rightarrow> (f: (x : set A) \<Rightarrow> set (B x)) \<Rightarrow> set (Pi A B)"
 proof (intro Pi_typeI)
   fix A f assume f: "f ::: (x : set A) \<Rightarrow> set (B x)"
   

@@ -5,67 +5,14 @@
 
 section\<open>Basic Equalities and Inclusions\<close>
 
-theory Equalities imports Ordered_Pair begin
+theory Equalities imports More_Set_Theory Ordered_Pair ASCII_Syntax 
+begin
 
 text\<open>These cover union, intersection, converse, domain, range, etc.  Philippe
 de Groote proved many of the inclusions.\<close>
 
-lemma in_mono: "A\<subseteq>B ==> x\<in>A \<longrightarrow> x\<in>B"
-by blast
 
-lemma the_eq_0 [simp]: "(THE x. False) = {}"
-by (blast intro: the_0)
 
-subsection\<open>Bounded Quantifiers\<close>
-text \<open>\medskip
-
-  The following are not added to the default simpset because
-  (a) they duplicate the body and (b) there are no similar rules for \<open>Int\<close>.\<close>
-
-lemma ball_Un: "(\<forall>x \<in> A\<union>B. P(x)) \<longleftrightarrow> (\<forall>x \<in> A. P(x)) & (\<forall>x \<in> B. P(x))"
-  by blast
-
-lemma bex_Un: "(\<exists>x \<in> A\<union>B. P(x)) \<longleftrightarrow> (\<exists>x \<in> A. P(x)) | (\<exists>x \<in> B. P(x))"
-  by blast
-
-lemma ball_UN: "(\<forall>z \<in> (\<Union>x\<in>A. B(x)). P(z)) \<longleftrightarrow> (\<forall>x\<in>A. \<forall>z \<in> B(x). P(z))"
-  by blast
-
-lemma bex_UN: "(\<exists>z \<in> (\<Union>x\<in>A. B(x)). P(z)) \<longleftrightarrow> (\<exists>x\<in>A. \<exists>z\<in>B(x). P(z))"
-  by blast
-
-subsection\<open>Converse of a Relation\<close>
-
-lemma converse_iff [simp]: "<a,b>\<in> converse(r) \<longleftrightarrow> <b,a>\<in>r"
-by (unfold converse_def, blast)
-
-lemma converseI [intro!]: "<a,b>\<in>r ==> <b,a>\<in>converse(r)"
-by (unfold converse_def, blast)
-
-lemma converseD: "<a,b> \<in> converse(r) ==> <b,a> \<in> r"
-by (unfold converse_def, blast)
-
-lemma converseE [elim!]:
-    "[| yx \<in> converse(r);
-        !!x y. [| yx=<y,x>;  <x,y>\<in>r |] ==> P |]
-     ==> P"
-by (unfold converse_def, blast)
-
-lemma converse_converse: "r \<subseteq> Sigma A B ==> converse (converse r) = r"
-by blast
-
-lemma converse_type: "r\<subseteq>A*B ==> converse(r)\<subseteq>B*A"
-by blast
-
-lemma converse_prod [simp]: "converse(A*B) = B*A"
-by blast
-
-lemma converse_empty [simp]: "converse({}) = {}"
-by blast
-
-lemma converse_subset_iff:
-     "A \<subseteq> Sigma X Y ==> converse(A) \<subseteq> converse(B) \<longleftrightarrow> A \<subseteq> B"
-by blast
 
 
 subsection\<open>Finite Set Constructions Using @{term cons}\<close>
