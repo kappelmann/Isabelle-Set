@@ -124,18 +124,18 @@ struct
             end
         | NONE => error ("Cannot resolve type of constant " ^ quote n))
     | s $ u => 
-        (case collect_constraints' ctxt Gamma Delta s NONE of
-          (Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B), Gamma1) =>
-            let
-              val (u_st, Gamma2) = collect_constraints' ctxt Gamma1 Delta u (SOME A)
-              val new_constraint = (Delta, (u_st, A), ())
-                |> tap (trace_constraint ctxt (SOME t))
-              val application_type = Term.subst_bound (u, B)
-            in
-              (application_type, add_constraint new_constraint Gamma2)
-            end
-        | (s_st, _) => error ("Bad soft type for application head: " ^ Syntax.string_of_term ctxt s 
-                      ^ " ::: " ^ Syntax.string_of_term ctxt s_st))
+        let
+          val (fun_type, Gamma1) = 
+            collect_constraints' ctxt Gamma Delta s NONE
+            |> ensure_function ctxt Delta s
+          val Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B) = fun_type
+          val (u_st, Gamma2) = collect_constraints' ctxt Gamma1 Delta u (SOME A)
+          val new_constraint = (Delta, (u_st, A), ())
+            |> tap (trace_constraint ctxt (SOME t))
+          val application_type = Term.subst_bound (u, B)
+        in
+          (application_type, add_constraint new_constraint Gamma2)
+        end
     | Bound i => (#2 (nth Delta i), Gamma)
     | Abs (x, T, body) => 
         let 
@@ -159,6 +159,21 @@ struct
         (case get_var_type Gamma t of
           SOME st => (st, Gamma)
         | NONE => fix_var_type t (fastype_of t) Gamma []) (* Free variable types have no dependencies: Delta = [] *)
+
+   and ensure_function ctxt Delta f (st, Gamma) =
+     case st of
+         Const (@{const_name "Pi_type"}, _) $ _ $ Abs _ => (st, Gamma)
+       | _ => 
+         let
+           val fT = Term.fastype_of1 (map #3 Delta, f)
+           val domainT = domain_type fT
+           val rangeT = range_type fT
+           val (A_var, Gamma1) = fresh_variable domainT Gamma Delta
+           val (B_var, Gamma2) = fresh_variable (range_type fT) Gamma1 (("", A_var, domainT) :: Delta)
+           val fun_st = Soft_Type.Pi_const domainT rangeT $ A_var $ Abs ("", domainT, B_var)
+         in
+           (fun_st, Gamma2)
+         end  
 
    and collect_constraints' ctxt Gamma Delta t expected_type =
      let 
