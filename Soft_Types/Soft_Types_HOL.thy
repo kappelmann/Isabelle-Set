@@ -47,10 +47,10 @@ term "(f: (x:A) \<Rightarrow> B x) \<Rightarrow> C f"
 
 
 lemma Pi_typeI:
-  assumes "\<forall>x. x ::: A \<longrightarrow> f x ::: B x"
+  assumes "\<And>x. x ::: A \<Longrightarrow> f x ::: B x"
   shows "f ::: (x : A) \<Rightarrow> B x"
   unfolding Pi_type_def has_type_Type
-  by fact
+  using assms by auto
 
 lemma Pi_typeE:
   assumes 1: "f ::: (x : A) \<Rightarrow> B x"
