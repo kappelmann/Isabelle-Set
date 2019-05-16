@@ -14,7 +14,7 @@ axiomatization
   where
   pred_of_Type: "pred_of (Type t) \<equiv> t"
 
-definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":::" 40)
+definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":::" 45)
   where "x ::: T \<equiv> pred_of T x"
 
 lemma has_type_Type[simp]: "x ::: Type P \<equiv> P x"
@@ -32,9 +32,9 @@ abbreviation function_space :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a 
 nonterminal tel_lhs
 
 syntax
-  "_tel_simple" :: "logic \<Rightarrow> tel_lhs" ("_" [11] 12)
-  "_telescopelhs" :: "pttrn \<Rightarrow> logic \<Rightarrow> tel_lhs" ("'(_ : _')" [11, 10] 12)
-  "_telescope" :: "tel_lhs \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 10)
+  "_tel_simple" :: "logic \<Rightarrow> tel_lhs" ("_" [51] 52)
+  "_telescopelhs" :: "pttrn \<Rightarrow> logic \<Rightarrow> tel_lhs" ("'(_ : _')" [51, 50] 52)
+  "_telescope" :: "tel_lhs \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
@@ -48,12 +48,12 @@ term "(f: (x:A) \<Rightarrow> B x) \<Rightarrow> C f"
 
 lemma Pi_typeI:
   assumes "\<forall>x. x ::: A \<longrightarrow> f x ::: B x"
-  shows "f ::: ((x : A) \<Rightarrow> B x)"
+  shows "f ::: (x : A) \<Rightarrow> B x"
   unfolding Pi_type_def has_type_Type
   by fact
 
 lemma Pi_typeE:
-  assumes 1: "f ::: ((x : A) \<Rightarrow> B x)"
+  assumes 1: "f ::: (x : A) \<Rightarrow> B x"
   assumes 2: "x ::: A"
   shows "f x ::: B x"
 proof -
@@ -65,7 +65,7 @@ qed
 
 subsection \<open> Intersections \<close>
 
-definition Int_Type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 100)
+definition Int_Type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
 where "A \<bar> B \<equiv> Type (\<lambda>x. x ::: A \<and> x ::: B)"
 
 lemma Int_TypeI [intro?]:
