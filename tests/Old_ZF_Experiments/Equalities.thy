@@ -43,16 +43,16 @@ by blast
 lemma cons_commute: "cons a (cons b C) = cons b (cons a C)"
 by blast
 
-lemma cons_absorb: "a: B ==> cons a B = B"
+lemma cons_absorb: "a\<in> B ==> cons a B = B"
 by blast
 
-lemma cons_Diff: "a: B ==> cons a (B-{a}) = B"
+lemma cons_Diff: "a\<in> B ==> cons a (B-{a}) = B"
 by blast
 
 lemma Diff_cons_eq: "cons a B - C = (if a\<in>C then B-C else cons a (B-C))"
 by auto
 
-lemma equal_singleton [rule_format]: "[| a: C;  \<forall>y\<in>C. y=b |] ==> C = {b}"
+lemma equal_singleton [rule_format]: "[| a\<in> C;  \<forall>y\<in>C. y=b |] ==> C = {b}"
 by blast
 
 lemma [simp]: "cons a (cons a B) = cons a B"
@@ -527,10 +527,10 @@ by blast
 
 (** Domain **)
 
-lemma domain_iff: "a: domain(r) \<longleftrightarrow> (\<exists>y. <a,y>\<in> r)"
+lemma domain_iff: "a\<in> domain(r) \<longleftrightarrow> (\<exists>y. <a,y>\<in> r)"
 by (unfold domain_def, blast)
 
-lemma domainI [intro]: "<a,b>\<in> r ==> a: domain(r)"
+lemma domainI [intro]: "<a,b>\<in> r ==> a\<in> domain(r)"
 by (unfold domain_def, blast)
 
 lemma domainE [elim!]:
@@ -696,7 +696,7 @@ lemma imageI [intro]: "[| <a,b>\<in> r;  a\<in>A |] ==> b \<in> r``A"
 by (unfold image_def, blast)
 
 lemma imageE [elim!]:
-    "[| b: r``A;  !!x.[| <x,b>\<in> r;  x\<in>A |] ==> P |] ==> P"
+    "[| b\<in> r``A;  !!x.[| <x,b>\<in> r;  x\<in>A |] ==> P |] ==> P"
 by (unfold image_def, blast)
 
 lemma image_subset: "r \<subseteq> A*B ==> r``C \<subseteq> B"
@@ -749,7 +749,7 @@ lemma vimageI [intro]: "[| <a,b>\<in> r;  b\<in>B |] ==> a \<in> r-``B"
 by (unfold vimage_def, blast)
 
 lemma vimageE [elim!]:
-    "[| a: r-``B;  !!x.[| <a,x>\<in> r;  x\<in>B |] ==> P |] ==> P"
+    "[| a\<in> r-``B;  !!x.[| <a,x>\<in> r;  x\<in>B |] ==> P |] ==> P"
 apply (unfold vimage_def, blast)
 done
 

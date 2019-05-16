@@ -244,7 +244,7 @@ ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
 text \<open> Transitivity of a relation \<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term "\<forall>x y z. <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"}
+  @{term "\<forall>x y z. <x,y>\<in> r \<longrightarrow> <y,z>\<in> r \<longrightarrow> <x,z>\<in> r"}
 ]\<close>
 
 

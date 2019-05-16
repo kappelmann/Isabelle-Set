@@ -134,10 +134,10 @@ done
 lemma naturals_not_limit: "a \<in> nat ==> ~ Limit(a)"
 by (induct a rule: nat_induct, auto simp: zero_def)
 
-lemma succ_natD: "succ(i): nat ==> i \<in> nat"
+lemma succ_natD: "succ(i)\<in> nat ==> i \<in> nat"
   by (rule Ord_trans [OF succI1]) auto
 
-lemma nat_succ_iff [iff]: "succ(n): nat \<longleftrightarrow> n \<in> nat"
+lemma nat_succ_iff [iff]: "succ(n)\<in> nat \<longleftrightarrow> n \<in> nat"
 by (blast dest!: succ_natD)
 
 lemma nat_le_Limit: "Limit(i) ==> nat \<le> i"
@@ -259,7 +259,7 @@ lemma nat_case_succ [simp]: "nat_case a b (succ n) = b(n)"
 by (simp add: nat_case_def)
 
 lemma nat_case_type [TC]:
-    "[| n \<in> nat;  a \<in> C(0);  !!m. m \<in> nat ==> b(m): C(succ(m)) |]
+    "[| n \<in> nat;  a \<in> C(0);  !!m. m \<in> nat ==> b(m)\<in> C(succ(m)) |]
      ==> nat_case a b n \<in> C(n)"
 by (erule nat_induct, auto)
 

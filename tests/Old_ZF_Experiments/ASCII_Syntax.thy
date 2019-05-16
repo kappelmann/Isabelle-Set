@@ -16,7 +16,7 @@ notation (ASCII)
   Int             (infixl "Int" 70) and
   Un              (infixl "Un" 65) and
   Subset          (infixl "<=" 50) and
-  mem             (infixl ":" 50) and
+(*  mem             (infixl ":" 50) and *)
   not_mem         (infixl "~:" 50)
 
 syntax (ASCII)

@@ -158,7 +158,7 @@ done
 
 subsubsection \<open>Rules for Ordinal-Indexed Unions\<close>
 
-lemma OUN_I [intro]: "[| a<i;  b \<in> B(a) |] ==> b: (\<Union>z<i. B(z))"
+lemma OUN_I [intro]: "[| a<i;  b \<in> B(a) |] ==> b\<in> (\<Union>z<i. B(z))"
 by (unfold OUnion_def lt_def, blast)
 
 lemma OUN_E [elim!]:

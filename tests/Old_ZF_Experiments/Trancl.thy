@@ -17,24 +17,24 @@ definition
 
 definition
   sym      :: "i=>o"  where
-    "sym(r) == \<forall>x y. <x,y>: r \<longrightarrow> <y,x>: r"
+    "sym(r) == \<forall>x y. <x,y>\<in> r \<longrightarrow> <y,x>\<in> r"
 
 definition
   asym     :: "i=>o"  where
-    "asym(r) == \<forall>x y. <x,y>:r \<longrightarrow> ~ <y,x>:r"
+    "asym(r) == \<forall>x y. <x,y>\<in>r \<longrightarrow> ~ <y,x>\<in>r"
 
 definition
   antisym  :: "i=>o"  where
-    "antisym(r) == \<forall>x y.<x,y>:r \<longrightarrow> <y,x>:r \<longrightarrow> x=y"
+    "antisym(r) == \<forall>x y.<x,y>\<in>r \<longrightarrow> <y,x>\<in>r \<longrightarrow> x=y"
 
 definition
   trans    :: "i=>o"  where
-    "trans(r) == \<forall>x y z. <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"
+    "trans(r) == \<forall>x y z. <x,y>\<in> r \<longrightarrow> <y,z>\<in> r \<longrightarrow> <x,z>\<in> r"
 
 definition
   trans_on :: "[i,i]=>o"  ("trans[_]'(_')")  where
     "trans[A](r) == \<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A.
-                          <x,y>: r \<longrightarrow> <y,z>: r \<longrightarrow> <x,z>: r"
+                          <x,y>\<in> r \<longrightarrow> <y,z>\<in> r \<longrightarrow> <x,z>\<in> r"
 
 definition
   rtrancl :: "i=>i"  ("(_^*)" [100] 100)  (*refl/transitive closure*)  where
@@ -63,28 +63,28 @@ by (simp add: irrefl_def)
 subsubsection\<open>symmetry\<close>
 
 lemma symI:
-     "[| !!x y.<x,y>: r ==> <y,x>: r |] ==> sym(r)"
+     "[| !!x y.<x,y>\<in> r ==> <y,x>\<in> r |] ==> sym(r)"
 by (unfold sym_def, blast)
 
-lemma symE: "[| sym(r); <x,y>: r |]  ==>  <y,x>: r"
+lemma symE: "[| sym(r); <x,y>\<in> r |]  ==>  <y,x>\<in> r"
 by (unfold sym_def, blast)
 
 subsubsection\<open>antisymmetry\<close>
 
 lemma antisymI:
-     "[| !!x y.[| <x,y>: r;  <y,x>: r |] ==> x=y |] ==> antisym(r)"
+     "[| !!x y.[| <x,y>\<in> r;  <y,x>\<in> r |] ==> x=y |] ==> antisym(r)"
 by (simp add: antisym_def, blast)
 
-lemma antisymE: "[| antisym(r); <x,y>: r;  <y,x>: r |]  ==>  x=y"
+lemma antisymE: "[| antisym(r); <x,y>\<in> r;  <y,x>\<in> r |]  ==>  x=y"
 by (simp add: antisym_def, blast)
 
 subsubsection\<open>transitivity\<close>
 
-lemma transD: "[| trans(r);  <a,b>:r;  <b,c>:r |] ==> <a,c>:r"
+lemma transD: "[| trans(r);  <a,b>\<in>r;  <b,c>\<in>r |] ==> <a,c>\<in>r"
 by (unfold trans_def, blast)
 
 lemma trans_onD:
-    "[| trans[A](r);  <a,b>:r;  <b,c>:r;  a \<in> A;  b \<in> A;  c \<in> A |] ==> <a,c>:r"
+    "[| trans[A](r);  <a,b>\<in>r;  <b,c>\<in>r;  a \<in> A;  b \<in> A;  c \<in> A |] ==> <a,c>\<in>r"
 by (unfold trans_on_def, blast)
 
 lemma trans_imp_trans_on: "trans(r) ==> trans[A](r)"
@@ -150,7 +150,7 @@ by (blast intro: r_into_rtrancl dest!: rtrancl_type [THEN subsetD])
 lemma rtrancl_full_induct [case_names initial step, consumes 1]:
   "[| <a,b> \<in> r^*;
       !!x. x \<in> field(r) ==> P(<x,x>);
-      !!x y z.[| P(<x,y>); <x,y>: r^*; <y,z>: r |]  ==>  P(<x,z>) |]
+      !!x y z.[| P(<x,y>); <x,y>\<in> r^*; <y,z>\<in> r |]  ==>  P(<x,z>) |]
    ==>  P(<a,b>)"
 by (erule def_induct [OF rtrancl_def rtrancl_bnd_mono], blast)
 
@@ -320,7 +320,7 @@ done
 
 (** rtrancl **)
 
-lemma rtrancl_converseD: "<x,y>:converse(r)^* ==> <x,y>:converse(r^*)"
+lemma rtrancl_converseD: "<x,y>\<in>converse(r)^* ==> <x,y>\<in>converse(r^*)"
 apply (rule converseI)
 apply (frule rtrancl_type [THEN subsetD])
 apply (erule rtrancl_induct)
@@ -328,7 +328,7 @@ apply (blast intro: rtrancl_refl)
 apply (blast intro: r_into_rtrancl rtrancl_trans)
 done
 
-lemma rtrancl_converseI: "<x,y>:converse(r^*) ==> <x,y>:converse(r)^*"
+lemma rtrancl_converseI: "<x,y>\<in>converse(r^*) ==> <x,y>\<in>converse(r)^*"
 apply (drule converseD)
 apply (frule rtrancl_type [THEN subsetD])
 apply (erule rtrancl_induct)
@@ -344,12 +344,12 @@ done
 
 (** trancl **)
 
-lemma trancl_converseD: "<a, b>:converse(r)^+ ==> <a, b>:converse(r^+)"
+lemma trancl_converseD: "<a, b>\<in>converse(r)^+ ==> <a, b>\<in>converse(r^+)"
 apply (erule trancl_induct)
 apply (auto intro: r_into_trancl trancl_trans)
 done
 
-lemma trancl_converseI: "<x,y>:converse(r^+) ==> <x,y>:converse(r)^+"
+lemma trancl_converseI: "<x,y>\<in>converse(r^+) ==> <x,y>\<in>converse(r)^+"
 apply (drule converseD)
 apply (erule trancl_induct)
 apply (auto intro: r_into_trancl trancl_trans)
@@ -362,7 +362,7 @@ apply (safe dest!: trancl_converseD intro!: trancl_converseI)
 done
 
 lemma converse_trancl_induct [case_names initial step, consumes 1]:
-"[| <a, b>:r^+; !!y. <y, b> :r ==> P(y);
+"[| <a, b>\<in>r^+; !!y. <y, b> \<in> r ==> P(y);
       !!y z. [| <y, z> \<in> r; <z, b> \<in> r^+; P(z) |] ==> P(y) |]
        ==> P(a)"
 apply (drule converseI)

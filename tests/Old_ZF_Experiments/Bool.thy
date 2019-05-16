@@ -54,9 +54,9 @@ by (simp add: bool_defs )
 
 (** 1=0 ==> R **)
 lemmas one_neq_0 = one_not_0 [THEN notE]
-
+  
 lemma boolE:
-    "[| c: bool;  c=1 ==> P;  c={} ==> P |] ==> P"
+    "[| c \<in> bool;  c=1 ==> P;  c={} ==> P |] ==> P"
 by (simp add: bool_defs, blast)
 
 (** cond **)
@@ -69,11 +69,11 @@ by (simp add: bool_defs )
 lemma cond_0 [simp]: "cond {} c d = d"
 by (simp add: bool_defs )
 
-lemma cond_type [TC]: "[| b: bool;  c: A(1);  d: A({}) |] ==> cond b c d: A b"
+lemma cond_type [TC]: "[| b\<in> bool;  c\<in> A(1);  d\<in> A({}) |] ==> cond b c d\<in> A b"
 by (simp add: bool_defs, blast)
 
 (*For Simp_tac and Blast_tac*)
-lemma cond_simple_type: "[| b: bool;  c: A;  d: A |] ==> cond b c d : A"
+lemma cond_simple_type: "[| b\<in> bool;  c\<in> A;  d\<in> A |] ==> cond b c d \<in> A"
 by (simp add: bool_defs )
 
 lemma def_cond_1: "[| !!b. j(b)==cond b c d |] ==> j 1 = c"
@@ -94,16 +94,16 @@ lemmas or_0 = or_def [THEN def_cond_0, simp]
 lemmas xor_1 = xor_def [THEN def_cond_1, simp]
 lemmas xor_0 = xor_def [THEN def_cond_0, simp]
 
-lemma not_type [TC]: "a:bool ==> not(a) \<in> bool"
+lemma not_type [TC]: "a\<in>bool ==> not(a) \<in> bool"
 by (simp add: not_def)
 
-lemma and_type [TC]: "[| a:bool;  b:bool |] ==> a and b \<in> bool"
+lemma and_type [TC]: "[| a\<in>bool;  b\<in>bool |] ==> a and b \<in> bool"
 by (simp add: and_def)
 
-lemma or_type [TC]: "[| a:bool;  b:bool |] ==> a or b \<in> bool"
+lemma or_type [TC]: "[| a\<in>bool;  b\<in>bool |] ==> a or b \<in> bool"
 by (simp add: or_def)
 
-lemma xor_type [TC]: "[| a:bool;  b:bool |] ==> a xor b \<in> bool"
+lemma xor_type [TC]: "[| a\<in>bool;  b\<in>bool |] ==> a xor b \<in> bool"
 by (simp add: xor_def)
 
 lemmas bool_typechecks = bool_1I bool_0I cond_type not_type and_type
@@ -111,42 +111,42 @@ lemmas bool_typechecks = bool_1I bool_0I cond_type not_type and_type
 
 subsection\<open>Laws About 'not'\<close>
 
-lemma not_not [simp]: "a:bool ==> not(not(a)) = a"
+lemma not_not [simp]: "a\<in>bool ==> not(not(a)) = a"
 by (elim boolE, auto)
 
-lemma not_and [simp]: "a:bool ==> not(a and b) = not(a) or not(b)"
+lemma not_and [simp]: "a\<in>bool ==> not(a and b) = not(a) or not(b)"
 by (elim boolE, auto)
 
-lemma not_or [simp]: "a:bool ==> not(a or b) = not(a) and not(b)"
+lemma not_or [simp]: "a\<in>bool ==> not(a or b) = not(a) and not(b)"
 by (elim boolE, auto)
 
 subsection\<open>Laws About 'and'\<close>
 
-lemma and_absorb [simp]: "a: bool ==> a and a = a"
+lemma and_absorb [simp]: "a\<in> bool ==> a and a = a"
 by (elim boolE, auto)
 
-lemma and_commute: "[| a: bool; b:bool |] ==> a and b = b and a"
+lemma and_commute: "[| a\<in> bool; b\<in>bool |] ==> a and b = b and a"
 by (elim boolE, auto)
 
-lemma and_assoc: "a: bool ==> (a and b) and c  =  a and (b and c)"
+lemma and_assoc: "a\<in> bool ==> (a and b) and c  =  a and (b and c)"
 by (elim boolE, auto)
 
-lemma and_or_distrib: "[| a: bool; b:bool; c:bool |] ==>
+lemma and_or_distrib: "[| a\<in> bool; b\<in>bool; c\<in>bool |] ==>
        (a or b) and c  =  (a and c) or (b and c)"
 by (elim boolE, auto)
 
 subsection\<open>Laws About 'or'\<close>
 
-lemma or_absorb [simp]: "a: bool ==> a or a = a"
+lemma or_absorb [simp]: "a\<in> bool ==> a or a = a"
 by (elim boolE, auto)
 
-lemma or_commute: "[| a: bool; b:bool |] ==> a or b = b or a"
+lemma or_commute: "[| a\<in> bool; b\<in>bool |] ==> a or b = b or a"
 by (elim boolE, auto)
 
-lemma or_assoc: "a: bool ==> (a or b) or c  =  a or (b or c)"
+lemma or_assoc: "a\<in> bool ==> (a or b) or c  =  a or (b or c)"
 by (elim boolE, auto)
 
-lemma or_and_distrib: "[| a: bool; b: bool; c: bool |] ==>
+lemma or_and_distrib: "[| a\<in> bool; b\<in> bool; c\<in> bool |] ==>
            (a and b) or c  =  (a or c) and (b or c)"
 by (elim boolE, auto)
 

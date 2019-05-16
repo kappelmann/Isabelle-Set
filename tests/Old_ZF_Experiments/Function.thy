@@ -30,7 +30,7 @@ by (unfold Pi_def, blast)
 
 (*For upward compatibility with the former definition*)
 lemma Pi_iff_old:
-    "f \<in> Pi A B \<longleftrightarrow> f<=Sigma A B & (\<forall>x\<in>A. \<exists>!y. <x,y>: f)"
+    "f \<in> Pi A B \<longleftrightarrow> f<=Sigma A B & (\<forall>x\<in>A. \<exists>!y. <x,y>\<in> f)"
 by (unfold Pi_def function_def, blast)
 
 lemma fun_is_function: "f \<in> Pi A B ==> function(f)"
@@ -41,7 +41,7 @@ lemma function_imp_Pi:
 by (simp add: Pi_iff relation_def, blast)
 
 lemma functionI:
-     "[| !!x y y'. [| <x,y>:r; <x,y'>:r |] ==> y=y' |] ==> function(r)"
+     "[| !!x y y'. [| <x,y>\<in>r; <x,y'>\<in>r |] ==> y=y' |] ==> function(r)"
 by (simp add: function_def, blast)
 
 (*Functions are relations*)
@@ -62,13 +62,13 @@ by (unfold Pi_def, best)
 
 subsection\<open>Function Application\<close>
 
-lemma apply_equality2: "[| <a,b>: f;  <a,c>: f;  f \<in> Pi A B |] ==> b=c"
+lemma apply_equality2: "[| <a,b>\<in> f;  <a,c>\<in> f;  f \<in> Pi A B |] ==> b=c"
 by (unfold Pi_def function_def, blast)
 
-lemma function_apply_equality: "[| <a,b>: f;  function(f) |] ==> f`a = b"
+lemma function_apply_equality: "[| <a,b>\<in> f;  function(f) |] ==> f`a = b"
 by (unfold apply_def function_def, blast)
 
-lemma apply_equality: "[| <a,b>: f;  f \<in> Pi A B |] ==> f`a = b"
+lemma apply_equality: "[| <a,b>\<in> f;  f \<in> Pi A B |] ==> f`a = b"
 apply (unfold Pi_def)
 apply (blast intro: function_apply_equality)
 done
@@ -82,13 +82,13 @@ apply (frule fun_is_rel)
 apply (blast dest: apply_equality)
 done
 
-lemma function_apply_Pair: "[| function(f);  a \<in> domain(f)|] ==> <a,f`a>: f"
+lemma function_apply_Pair: "[| function(f);  a \<in> domain(f)|] ==> <a,f`a>\<in> f"
 apply (simp add: function_def, clarify)
 apply (subgoal_tac "f`a = y", blast)
 apply (simp add: apply_def, blast)
 done
 
-lemma apply_Pair: "[| f \<in> Pi A B;  a \<in> A |] ==> <a,f`a>: f"
+lemma apply_Pair: "[| f \<in> Pi A B;  a \<in> A |] ==> <a,f`a>\<in> f"
 apply (simp add: Pi_iff)
 apply (blast intro: function_apply_Pair)
 done
@@ -101,7 +101,7 @@ by (blast intro: apply_Pair dest: fun_is_rel)
 lemma apply_funtype: "[| f \<in> A->B;  a \<in> A |] ==> f`a \<in> B"
 by (blast dest: apply_type)
 
-lemma apply_iff: "f \<in> Pi A B ==> <a,b>: f \<longleftrightarrow> a \<in> A & f`a = b"
+lemma apply_iff: "f \<in> Pi A B ==> <a,b>\<in> f \<longleftrightarrow> a \<in> A & f`a = b"
 apply (frule fun_is_rel)
 apply (blast intro!: apply_Pair apply_equality)
 done
@@ -131,7 +131,7 @@ by (blast dest: fun_is_rel)
 lemma range_type: "[| <a,b> \<in> f;  f \<in> Pi A B |] ==> b \<in> B(a)"
 by (blast dest: fun_is_rel)
 
-lemma Pair_mem_PiD: "[| <a,b>: f;  f \<in> Pi A B |] ==> a \<in> A & b \<in> B(a) & f`a = b"
+lemma Pair_mem_PiD: "[| <a,b>\<in> f;  f \<in> Pi A B |] ==> a \<in> A & b \<in> B(a) & f`a = b"
 by (blast intro: domain_type range_type apply_equality)
 
 subsection\<open>Lambda Abstraction\<close>
@@ -142,15 +142,15 @@ apply (erule RepFunI)
 done
 
 lemma lamE:
-    "[| p: (\<lambda>x\<in>A. b(x));  !!x.[| x \<in> A; p=<x,b(x)> |] ==> P
+    "[| p\<in> (\<lambda>x\<in>A. b(x));  !!x.[| x \<in> A; p=<x,b(x)> |] ==> P
      |] ==>  P"
 by (simp add: lam_def, blast)
 
-lemma lamD: "[| <a,c>: (\<lambda>x\<in>A. b(x)) |] ==> c = b(a)"
+lemma lamD: "[| <a,c>\<in> (\<lambda>x\<in>A. b(x)) |] ==> c = b(a)"
 by (simp add: lam_def)
 
 lemma lam_type [TC]:
-    "[| !!x. x \<in> A ==> b(x): B(x) |] ==> (\<lambda>x\<in>A. b(x)) \<in> Pi A B"
+    "[| !!x. x \<in> A ==> b(x)\<in> B(x) |] ==> (\<lambda>x\<in>A. b(x)) \<in> Pi A B"
 by (simp add: lam_def Pi_def function_def, blast)
 
 lemma lam_funtype: "(\<lambda>x\<in>A. b(x)) \<in> A -> {b(x). x \<in> A}"
@@ -239,7 +239,7 @@ by (blast dest: apply_Pair
 (*Every element of Pi(A,B) may be expressed as a lambda abstraction!*)
 lemma Pi_lamE:
   assumes major: "f \<in> Pi A B"
-      and minor: "!!b. [| \<forall>x\<in>A. b(x):B(x);  f = (\<lambda>x\<in>A. b(x)) |] ==> P"
+      and minor: "!!b. [| \<forall>x\<in>A. b(x)\<in>B(x);  f = (\<lambda>x\<in>A. b(x)) |] ==> P"
   shows "P"
 apply (rule minor)
 apply (rule_tac [2] eta [symmetric])
@@ -573,11 +573,11 @@ by (erule field_mono [THEN subset_trans], blast)
 subsubsection\<open>Images\<close>
 
 lemma image_pair_mono:
-    "[| !! x y. <x,y>:r ==> <x,y>:s;  A<=B |] ==> r``A \<subseteq> s``B"
+    "[| !! x y. <x,y>\<in>r ==> <x,y>\<in>s;  A<=B |] ==> r``A \<subseteq> s``B"
 by blast
 
 lemma vimage_pair_mono:
-    "[| !! x y. <x,y>:r ==> <x,y>:s;  A<=B |] ==> r-``A \<subseteq> s-``B"
+    "[| !! x y. <x,y>\<in>r ==> <x,y>\<in>s;  A<=B |] ==> r-``A \<subseteq> s-``B"
 by blast
 
 lemma image_mono: "[| r<=s;  A<=B |] ==> r``A \<subseteq> s``B"

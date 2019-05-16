@@ -146,7 +146,7 @@ done
 
 (*Definition form, to control unfolding*)
 lemma def_induct:
-    "[| A == lfp D h;  bnd_mono D h;  a:A;    
+    "[| A == lfp D h;  bnd_mono D h;  a\<in>A;    
         !!x. x \<in> h(Collect A P) ==> P(x)  
      |] ==> P(a)"
 by (rule induct, blast+)
@@ -253,7 +253,7 @@ done
 subsection\<open>Coinduction Rules for Greatest Fixed Points\<close>
 
 (*weak version*)
-lemma weak_coinduct: "[| a: X;  X \<subseteq> h(X);  X \<subseteq> D |] ==> a \<in> gfp D h"
+lemma weak_coinduct: "[| a\<in> X;  X \<subseteq> h(X);  X \<subseteq> D |] ==> a \<in> gfp D h"
 by (blast intro: gfp_upperbound [THEN subsetD])
 
 lemma coinduct_lemma:
@@ -268,7 +268,7 @@ done
 
 (*strong version*)
 lemma coinduct:
-     "[| bnd_mono D h;  a: X;  X \<subseteq> h(X \<union> gfp D h);  X \<subseteq> D |]
+     "[| bnd_mono D h;  a\<in> X;  X \<subseteq> h(X \<union> gfp D h);  X \<subseteq> D |]
       ==> a \<in> gfp D h"
 apply (rule weak_coinduct)
 apply (erule_tac [2] coinduct_lemma)
@@ -277,7 +277,7 @@ done
 
 (*Definition form, to control unfolding*)
 lemma def_coinduct:
-    "[| A == gfp D h;  bnd_mono D h;  a: X;  X \<subseteq> h(X \<union> A);  X \<subseteq> D |] ==>  
+    "[| A == gfp D h;  bnd_mono D h;  a\<in> X;  X \<subseteq> h(X \<union> A);  X \<subseteq> D |] ==>  
      a \<in> A"
 apply simp
 apply (rule coinduct, assumption+)
@@ -286,7 +286,7 @@ done
 (*The version used in the induction/coinduction package*)
 lemma def_Collect_coinduct:
     "[| A == gfp D (%w. Collect D (P w));  bnd_mono D (%w. Collect D (P w));   
-        a: X;  X \<subseteq> D;  !!z. z: X ==> P(X \<union> A) z |] ==>  
+        a\<in> X;  X \<subseteq> D;  !!z. z\<in> X ==> P(X \<union> A) z |] ==>  
      a \<in> A"
 apply (rule def_coinduct, assumption+, blast+)
 done

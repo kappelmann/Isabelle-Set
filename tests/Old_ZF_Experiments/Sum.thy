@@ -100,10 +100,10 @@ lemmas Inl_neq_Inr = Inl_Inr_iff [THEN iffD1, THEN FalseE, elim!]
 lemmas Inr_neq_Inl = Inr_Inl_iff [THEN iffD1, THEN FalseE, elim!]
 
 
-lemma InlD: "Inl(a): A+B ==> a \<in> A"
+lemma InlD: "Inl(a)\<in> A+B ==> a \<in> A"
 by blast
 
-lemma InrD: "Inr(b): A+B ==> b \<in> B"
+lemma InrD: "Inr(b)\<in> A+B ==> b \<in> B"
 by blast
 
 lemma sum_iff: "u \<in> A+B \<longleftrightarrow> (\<exists>x. x \<in> A & u=Inl(x)) | (\<exists>y. y \<in> B & u=Inr(y))"
@@ -135,8 +135,8 @@ by (simp add: sum_defs)
 
 lemma case_type [TC]:
     "[| u \<in> A+B;
-        !!x. x \<in> A ==> c(x): C(Inl(x));
-        !!y. y \<in> B ==> d(y): C(Inr(y))
+        !!x. x \<in> A ==> c(x)\<in> C(Inl(x));
+        !!y. y \<in> B ==> d(y)\<in> C(Inr(y))
      |] ==> case c d u \<in> C(u)"
 by auto
 

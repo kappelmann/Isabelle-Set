@@ -50,7 +50,7 @@ by (unfold Transset_def, blast)
 subsubsection\<open>Consequences of Downwards Closure\<close>
 
 lemma Transset_doubleton_D:
-    "[| Transset(C); {a,b}: C |] ==> a\<in>C & b\<in>C"
+    "[| Transset(C); {a,b}\<in> C |] ==> a\<in>C & b\<in>C"
 by (unfold Transset_def, blast)
 
 lemma Transset_Pair_D:
