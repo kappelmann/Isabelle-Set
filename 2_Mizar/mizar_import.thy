@@ -1,6 +1,8 @@
 theory mizar_import
-  imports "mizar_fraenkel"
-    "mizar_fraenkel_more"
+imports
+  "mizar_fraenkel"
+  "mizar_fraenkel_more"
+
 begin
 
 section "TARSKI_0"
