@@ -6,10 +6,10 @@ begin
 no_notation All (binder "\<forall>" 10) and Ex (binder "\<exists>" 10)
 notation All (binder "\<forall>\<^sub>L" 10) and Ex (binder "\<exists>\<^sub>L" 10)
 
-abbreviation ty_membership :: "Set \<Rightarrow> Ty \<Rightarrow> o" (infix "be" 90)
+abbreviation ty_membership :: "Set \<Rightarrow> Ty \<Rightarrow> o" (infix "be" 45)
   where "x be T \<equiv> x ::: T"
 
-notation (input) ty_membership (infix "is" 90)
+notation (input) ty_membership (infix "is" 45)
 
 abbreviation define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> Ty"
   where
