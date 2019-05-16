@@ -44,14 +44,14 @@ abbreviation subset :: "i \<Rightarrow> i type"
 
 subsection \<open> Type declarations for basic material \<close>
 
-lemma eq_type[type]: "((=)::(i \<Rightarrow> i \<Rightarrow> o)) ::: (x: A) \<Rightarrow> (y: A) \<Rightarrow> o"
+lemma eq_type[type]: "((=)::(i \<Rightarrow> i \<Rightarrow> o)) ::: A \<Rightarrow> A \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
 
-lemma iff_type[type]: "((\<longleftrightarrow>)::(o \<Rightarrow> o \<Rightarrow> o)) ::: (x: o) \<Rightarrow> (y: o) \<Rightarrow> o"
+lemma iff_type[type]: "((\<longleftrightarrow>)::(o \<Rightarrow> o \<Rightarrow> o)) ::: o \<Rightarrow> o \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
 
 lemma Lambda_type[type]: 
-  "Lambda ::: (A : Set) \<Rightarrow> (f: (x : set A) \<Rightarrow> set (B x)) \<Rightarrow> set (Pi A B)"
+  "Lambda ::: (A : Set) \<Rightarrow> ((x : set A) \<Rightarrow> set (B x)) \<Rightarrow> set (Pi A B)"
 proof (intro Pi_typeI)
   fix A f assume f: "f ::: (x : set A) \<Rightarrow> set (B x)"
   
@@ -66,33 +66,33 @@ proof (intro Pi_typeI)
   qed
 qed
 
-lemma vimage_type[type]: "vimage ::: (R: subset (A \<times> B)) \<Rightarrow> (X: subset B) \<Rightarrow> subset A"
+lemma vimage_type[type]: "vimage ::: subset (A \<times> B) \<Rightarrow> subset B \<Rightarrow> subset A"
   apply (intro Pi_typeI)
   apply (unfold set_type_iff Pow_iff)
   by (rule vimage_subset)
 
-lemma cons_type[type]: "cons ::: (x: set A) \<Rightarrow> (B: subset A) \<Rightarrow> subset A"
+lemma cons_type[type]: "cons ::: set A \<Rightarrow> subset A \<Rightarrow> subset A"
   by (intro Pi_typeI, unfold set_type_iff Pow_iff) auto
 
 lemma empty_type[type]: "{} ::: subset A"
   unfolding set_type_iff Pow_iff by auto
 
-lemma trans_type[type]: "trans ::: (r : set (A * A)) \<Rightarrow> o"
+lemma trans_type[type]: "trans ::: set (A * A) \<Rightarrow> o"
   by (rule Pi_typeI, rule o_TypeI)
 
-lemma All_type[type]: "First_Order_Logic.All ::: (P: ((x::i): A) \<Rightarrow> o) \<Rightarrow> o"
+lemma All_type[type]: "First_Order_Logic.All ::: (((x::i): A) \<Rightarrow> o) \<Rightarrow> o"
   by (rule Pi_typeI, rule o_TypeI)
 
-lemma imp_type[type]: "(\<longrightarrow>) ::: (l: o) \<Rightarrow> (r: o) \<Rightarrow> o"
+lemma imp_type[type]: "(\<longrightarrow>) ::: o \<Rightarrow> o \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
 
-lemma mem_type[type]: "(\<in>) ::: (x: set A) \<Rightarrow> (S: subset A) \<Rightarrow> o"
+lemma mem_type[type]: "(\<in>) ::: set A \<Rightarrow> subset A \<Rightarrow> o"
   by (intro Pi_typeI o_TypeI)
 
-lemma succ_type[type]: "succ ::: (n: set nat) \<Rightarrow> set nat"
+lemma succ_type[type]: "succ ::: set nat \<Rightarrow> set nat"
   by (intro Pi_typeI, unfold set_type_iff) auto
 
-lemma Pair_type[type]: "Pair ::: (x: set A) \<Rightarrow> (y: set (B x)) \<Rightarrow> set (Sigma A B)"
+lemma Pair_type[type]: "Pair ::: (x: set A) \<Rightarrow> set (B x) \<Rightarrow> set (Sigma A B)"
 proof (intro Pi_typeI)
   fix x y assume x: "x ::: set A" and y: "y ::: set (B x)"
   from x have "x \<in> A" by (rule set_typeE)
@@ -113,8 +113,8 @@ context
     and Cons :: "i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i"
     and append :: "i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i"
   assumes [type]: "Nil ::: (A: Set) \<Rightarrow> set (List A)"
-    and [type]: "Cons ::: (A: Set) \<Rightarrow> (x: set A) \<Rightarrow> (xs : set (List A)) \<Rightarrow> set (List A)" 
-    and [type]: "append ::: (A: Set) \<Rightarrow> (xs: set (List A)) \<Rightarrow> (ys : set (List A)) \<Rightarrow> set (List A)"
+    and [type]: "Cons ::: (A: Set) \<Rightarrow> set A \<Rightarrow> set (List A) \<Rightarrow> set (List A)" 
+    and [type]: "append ::: (A: Set) \<Rightarrow> set (List A) \<Rightarrow> set (List A) \<Rightarrow> set (List A)"
 begin
 
 
@@ -194,14 +194,14 @@ context
     and VCons :: "i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i"
     and add :: "i \<Rightarrow> i \<Rightarrow> i"
     and vappend :: "i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i"
-  assumes [type]: "Vec ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> Set"
+  assumes [type]: "Vec ::: Set \<Rightarrow> set nat \<Rightarrow> Set"
     and [type]: "VNil ::: (A: Set) \<Rightarrow> set (Vec A 0)"
-    and [type]: "VCons ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> (x: set A) \<Rightarrow> (xs : set (Vec A n)) \<Rightarrow> set (Vec A (succ n))"
-    and [type]: "add ::: (n : set nat) \<Rightarrow> (m : set nat) \<Rightarrow> set nat"
-    and [type]: "succ ::: (n : set nat) \<Rightarrow> set nat"
+    and [type]: "VCons ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> set A \<Rightarrow> set (Vec A n) \<Rightarrow> set (Vec A (succ n))"
+    and [type]: "add ::: set nat \<Rightarrow> set nat \<Rightarrow> set nat"
+    and [type]: "succ ::: set nat \<Rightarrow> set nat"
     and [type]: "0 ::: set nat"
-    and [type]: "vappend ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> (m: set nat) \<Rightarrow> (xs: set (Vec A n)) 
-\<Rightarrow> (ys: set (Vec A m)) \<Rightarrow> set (Vec A (add n m))"
+    and [type]: "vappend ::: (A: Set) \<Rightarrow> (n: set nat) \<Rightarrow> (m: set nat) \<Rightarrow> 
+          set (Vec A n) \<Rightarrow> set (Vec A m) \<Rightarrow> set (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin
 
