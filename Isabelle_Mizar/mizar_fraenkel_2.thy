@@ -1,5 +1,5 @@
 theory mizar_fraenkel_2
-imports mizar_fraenkel "../3_MML/zfmisc_1"
+imports mizar_fraenkel "../MML/zfmisc_1"
 begin  
   
     

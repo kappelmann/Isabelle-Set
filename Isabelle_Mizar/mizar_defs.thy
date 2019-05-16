@@ -1002,11 +1002,11 @@ subsection \<open> Some abbreviations \<close>
 abbreviation (input) prefix_asymmetry ("asymmetry _ _")
 where "asymmetry dom R \<equiv> for x1, x2 being dom holds \<not>(R(x1, x2) \<and> R(x2, x1))"
 
-abbreviation (input) prefix_irreflexive ("irreflexive _ _")
-where "irreflexive dom R \<equiv> \<forall>x: dom. \<not>R(x, x)"
+abbreviation (input) prefix_irreflexive ("irreflexivity _ _")
+where "irreflexivity dom R \<equiv> \<forall>x: dom. \<not>R(x, x)"
 
-abbreviation (input) prefix_reflexive ("reflexive _ _")
-where "reflexive dom R \<equiv> \<forall>x: dom. R(x, x)"
+abbreviation (input) prefix_reflexive ("reflexivity _ _")
+where "reflexivity dom R \<equiv> \<forall>x: dom. R(x, x)"
 
 abbreviation (input) prefix_symmetry ("symmetry _ _")
 where "symmetry dom R \<equiv> for x1, x2 being dom st R(x1, x2) holds R(x2, x1)"

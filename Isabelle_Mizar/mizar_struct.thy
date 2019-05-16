@@ -1,5 +1,5 @@
 theory mizar_struct
-imports "../3_MML/funct_1"
+imports "../MML/funct_1"
 begin
 
 nonterminal "Tys"
