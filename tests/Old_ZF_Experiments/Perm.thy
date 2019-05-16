@@ -16,7 +16,7 @@ definition
   (*composition of relations and functions; NOT Suppes's relative product*)
   comp     :: "[i,i]=>i"      (infixr "O" 60)  where
     "r O s == {xz \<in> domain(s)*range(r) .
-               \<exists>x y z. xz=<x,z> & <x,y>:s & <y,z>:r}"
+               \<exists>x y z. xz=<x,z> & <x,y>\<in>s & <y,z>\<in>r}"
 
 definition
   (*the identity function for A*)
@@ -59,13 +59,13 @@ done
 text\<open>A function with a right inverse is a surjection\<close>
 
 lemma f_imp_surjective:
-    "[| f \<in> A->B;  !!y. y \<in> B ==> d(y): A;  !!y. y \<in> B ==> f`d(y) = y |]
+    "[| f \<in> A->B;  !!y. y \<in> B ==> d(y)\<in> A;  !!y. y \<in> B ==> f`d(y) = y |]
      ==> f \<in> surj A B"
   by (simp add: surj_def, blast)
 
 lemma lam_surjective:
-    "[| !!x. x \<in> A ==> c(x): B;
-        !!y. y \<in> B ==> d(y): A;
+    "[| !!x. x \<in> A ==> c(x)\<in> B;
+        !!y. y \<in> B ==> d(y)\<in> A;
         !!y. y \<in> B ==> c(d(y)) = y
      |] ==> (\<lambda>x\<in>A. c(x)) \<in> surj A B"
 apply (rule_tac d = d in f_imp_surjective)
@@ -89,7 +89,7 @@ done
 
 text\<open>Good for dealing with sets of pairs, but a bit ugly in use [used in AC]\<close>
 lemma inj_equality:
-    "[| <a,b>:f;  <c,b>:f;  f \<in> inj A B |] ==> a=c"
+    "[| <a,b>\<in>f;  <c,b>\<in>f;  f \<in> inj A B |] ==> a=c"
 apply (unfold inj_def)
 apply (blast dest: Pair_mem_PiD)
 done
@@ -105,7 +105,7 @@ apply (blast intro: subst_context [THEN box_equals])
 done
 
 lemma lam_injective:
-    "[| !!x. x \<in> A ==> c(x): B;
+    "[| !!x. x \<in> A ==> c(x)\<in> B;
         !!x. x \<in> A ==> d(c(x)) = x |]
      ==> (\<lambda>x\<in>A. c(x)) \<in> inj A B"
 apply (rule_tac d = d in f_imp_injective)
@@ -128,8 +128,8 @@ lemma bij_is_fun: "f \<in> bij A B ==> f \<in> A->B"
   by (rule bij_is_inj [THEN inj_is_fun])
 
 lemma lam_bijective:
-    "[| !!x. x \<in> A ==> c(x): B;
-        !!y. y \<in> B ==> d(y): A;
+    "[| !!x. x \<in> A ==> c(x)\<in> B;
+        !!y. y \<in> B ==> d(y)\<in> A;
         !!x. x \<in> A ==> d(c(x)) = x;
         !!y. y \<in> B ==> c(d(y)) = y
      |] ==> (\<lambda>x\<in>A. c(x)) \<in> bij A B"
@@ -169,19 +169,19 @@ apply (unfold id_def)
 apply (erule lam_mono)
 done
 
-lemma id_subset_inj: "A<=B ==> id(A): inj A B"
+lemma id_subset_inj: "A<=B ==> id(A)\<in> inj A B"
 apply (simp add: inj_def id_def)
 apply (blast intro: lam_type)
 done
 
 lemmas id_inj = subset_refl [THEN id_subset_inj]
 
-lemma id_surj: "id(A): surj A A"
+lemma id_surj: "id(A)\<in> surj A A"
 apply (unfold id_def surj_def)
 apply (simp (no_asm_simp))
 done
 
-lemma id_bij: "id(A): bij A A"
+lemma id_bij: "id(A)\<in> bij A A"
 apply (unfold bij_def)
 apply (blast intro: id_inj id_surj)
 done
@@ -210,7 +210,7 @@ text\<open>Equations for converse(f)\<close>
 
 text\<open>The premises are equivalent to saying that f is injective...\<close>
 lemma left_inverse_lemma:
-     "[| f \<in> A->B;  converse(f): C->A;  a \<in> A |] ==> converse(f)`(f`a) = a"
+     "[| f \<in> A->B;  converse(f)\<in> C->A;  a \<in> A |] ==> converse(f)`(f`a) = a"
 by (blast intro: apply_Pair apply_equality)
 
 lemma left_inverse [simp]: "[| f \<in> inj A B;  a \<in> A |] ==> converse(f)`(f`a) = a"
@@ -223,7 +223,7 @@ by auto
 lemmas left_inverse_bij = bij_is_inj [THEN left_inverse]
 
 lemma right_inverse_lemma:
-     "[| f \<in> A->B;  converse(f): C->A;  b \<in> C |] ==> f`(converse(f)`b) = b"
+     "[| f \<in> A->B;  converse(f)\<in> C->A;  b \<in> C |] ==> f`(converse(f)`b) = b"
 by (rule apply_Pair [THEN converseD [THEN apply_equality]], auto)
 
 (*Should the premises be f \<in> surj A B, b \<in> B for symmetry with left_inverse?
@@ -237,7 +237,7 @@ by (force simp add: bij_def surj_range)
 
 subsection\<open>Converses of Injections, Surjections, Bijections\<close>
 
-lemma inj_converse_inj: "f \<in> inj A B ==> converse(f): inj (range f) A"
+lemma inj_converse_inj: "f \<in> inj A B ==> converse(f)\<in> inj (range f) A"
 apply (rule f_imp_injective)
 apply (erule inj_converse_fun, clarify)
 apply (rule right_inverse)
@@ -245,12 +245,12 @@ apply (rule right_inverse)
 apply blast
 done
 
-lemma inj_converse_surj: "f \<in> inj A B ==> converse(f): surj (range f) A"
+lemma inj_converse_surj: "f \<in> inj A B ==> converse(f)\<in> surj (range f) A"
 by (blast intro: f_imp_surjective inj_converse_fun left_inverse inj_is_fun
                  range_of_fun [THEN apply_type])
 
 text\<open>Adding this as an intro! rule seems to cause looping\<close>
-lemma bij_converse_bij [TC]: "f \<in> bij A B ==> converse(f): bij B A"
+lemma bij_converse_bij [TC]: "f \<in> bij A B ==> converse(f)\<in> bij B A"
 apply (unfold bij_def)
 apply (fast elim: surj_range [THEN subst] inj_converse_inj inj_converse_surj)
 done
@@ -261,18 +261,18 @@ subsection\<open>Composition of Two Relations\<close>
 
 text\<open>The inductive definition package could derive these theorems for @{term"r O s"}\<close>
 
-lemma compI [intro]: "[| <a,b>:s; <b,c>:r |] ==> <a,c> \<in> r O s"
+lemma compI [intro]: "[| <a,b>\<in>s; <b,c>\<in>r |] ==> <a,c> \<in> r O s"
 by (unfold comp_def, blast)
 
 lemma compE [elim!]:
     "[| xz \<in> r O s;
-        !!x y z. [| xz=<x,z>;  <x,y>:s;  <y,z>:r |] ==> P |]
+        !!x y z. [| xz=<x,z>;  <x,y>\<in>s;  <y,z>\<in>r |] ==> P |]
      ==> P"
 by (unfold comp_def, blast)
 
 lemma compEpair:
     "[| <a,c> \<in> r O s;
-        !!y. [| <a,y>:s;  <y,c>:r |] ==> P |]
+        !!y. [| <a,y>\<in>s;  <y,c>\<in>r |] ==> P |]
      ==> P"
 by (erule compE, simp)
 
@@ -352,7 +352,7 @@ done
 
 text\<open>Simplifies compositions of lambda-abstractions\<close>
 lemma comp_lam:
-    "[| !!x. x \<in> A ==> b(x): B |]
+    "[| !!x. x \<in> A ==> b(x)\<in> B |]
      ==> (\<lambda>y\<in>B. c(y)) O (\<lambda>x\<in>A. b(x)) = (\<lambda>x\<in>A. c(b(x)))"
 apply (subgoal_tac "(\<lambda>x\<in>A. b(x)) \<in> A -> B")
  apply (rule fun_extension)
@@ -390,11 +390,11 @@ text\<open>Useful for proofs from
     Artificial Intelligence, 10:1--27, 1978.\<close>
 
 lemma comp_mem_injD1:
-    "[| (f O g): inj A C;  g \<in> A->B;  f \<in> B->C |] ==> g \<in> inj A B"
+    "[| (f O g)\<in> inj A C;  g \<in> A->B;  f \<in> B->C |] ==> g \<in> inj A B"
 by (unfold inj_def, force)
 
 lemma comp_mem_injD2:
-    "[| (f O g): inj A C;  g \<in> surj A B;  f \<in> B->C |] ==> f \<in> inj B C"
+    "[| (f O g)\<in> inj A C;  g \<in> surj A B;  f \<in> B->C |] ==> f \<in> inj B C"
 apply (unfold inj_def surj_def, safe)
 apply (rule_tac x1 = x in bspec [THEN bexE])
 apply (erule_tac [3] x1 = w in bspec [THEN bexE], assumption+, safe)
@@ -404,14 +404,14 @@ apply (simp (no_asm_simp))
 done
 
 lemma comp_mem_surjD1:
-    "[| (f O g): surj A C;  g \<in> A->B;  f \<in> B->C |] ==> f \<in> surj B C"
+    "[| (f O g)\<in> surj A C;  g \<in> A->B;  f \<in> B->C |] ==> f \<in> surj B C"
 apply (unfold surj_def)
 apply (blast intro!: comp_fun_apply [symmetric] apply_funtype)
 done
 
 
 lemma comp_mem_surjD2:
-    "[| (f O g): surj A C;  g \<in> A->B;  f \<in> inj B C |] ==> g \<in> surj A B"
+    "[| (f O g)\<in> surj A C;  g \<in> A->B;  f \<in> inj B C |] ==> g \<in> surj A B"
 apply (unfold inj_def surj_def, safe)
 apply (drule_tac x = "f`y" in bspec, auto)
 apply (blast intro: apply_funtype)
@@ -461,7 +461,7 @@ lemma nilpotent_imp_bijective: "[| f \<in> A->A;  f O f = id(A) |] ==> f \<in> b
 by (blast intro: fg_imp_bijective)
 
 lemma invertible_imp_bijective:
-     "[| converse(f): B->A;  f \<in> A->B |] ==> f \<in> bij A B"
+     "[| converse(f)\<in> B->A;  f \<in> A->B |] ==> f \<in> bij A B"
 by (simp add: fg_imp_bijective comp_eq_id_iff
               left_inverse_lemma right_inverse_lemma)
 
@@ -471,7 +471,7 @@ text\<open>See similar theorems in func.thy\<close>
 
 text\<open>Theorem by KG, proof by LCP\<close>
 lemma inj_disjoint_Un:
-     "[| f \<in> inj A B;  g \<in> inj C D;  B \<inter> D = 0 |]
+     "[| f \<in> inj A B;  g \<in> inj C D;  B \<inter> D = {} |]
       ==> (\<lambda>a\<in>A \<union> C. if a \<in> A then f`a else g`a) \<in> inj (A \<union> C) (B \<union> D)"
 apply (rule_tac d = "%z. if z \<in> B then converse (f) `z else converse (g) `z"
        in lam_injective)
@@ -479,7 +479,7 @@ apply (auto simp add: inj_is_fun [THEN apply_type])
 done
 
 lemma surj_disjoint_Un:
-    "[| f \<in> surj A B;  g \<in> surj C D;  A \<inter> C = 0 |]
+    "[| f \<in> surj A B;  g \<in> surj C D;  A \<inter> C = {} |]
      ==> (f \<union> g) \<in> surj (A \<union> C) (B \<union> D)"
 apply (simp add: surj_def fun_disjoint_Un)
 apply (blast dest!: domain_of_fun
@@ -489,7 +489,7 @@ done
 text\<open>A simple, high-level proof; the version for injections follows from it,
   using  @{term "f \<in> inj A B \<longleftrightarrow> f \<in> bij A (range f)"}\<close>
 lemma bij_disjoint_Un:
-     "[| f \<in> bij A B;  g \<in> bij C D;  A \<inter> C = 0;  B \<inter> D = 0 |]
+     "[| f \<in> bij A B;  g \<in> bij C D;  A \<inter> C = {};  B \<inter> D = {} |]
       ==> (f \<union> g) \<in> bij (A \<union> C) (B \<union> D)"
 apply (rule invertible_imp_bijective)
 apply (subst converse_Un)
@@ -512,18 +512,18 @@ lemma restrict_image [simp]: "restrict f A `` B = f `` (A \<inter> B)"
 by (auto simp add: restrict_def)
 
 lemma restrict_inj:
-    "[| f \<in> inj A B;  C<=A |] ==> restrict f C : inj C B"
+    "[| f \<in> inj A B;  C<=A |] ==> restrict f C \<in> inj C B"
 apply (unfold inj_def)
 apply (safe elim!: restrict_type2, auto)
 done
 
-lemma restrict_surj: "[| f \<in> Pi A B;  C<=A |] ==> restrict f C : surj C (f``C)"
+lemma restrict_surj: "[| f \<in> Pi A B;  C<=A |] ==> restrict f C \<in> surj C (f``C)"
 apply (insert restrict_type2 [THEN surj_image])
 apply (simp)
 done
 
 lemma restrict_bij:
-    "[| f \<in> inj A B;  C<=A |] ==> restrict f C : bij C (f``C)"
+    "[| f \<in> inj A B;  C<=A |] ==> restrict f C \<in> bij C (f``C)"
 apply (simp add: inj_def bij_def)
 apply (blast intro: restrict_surj surj_is_fun)
 done

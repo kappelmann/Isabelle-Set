@@ -38,10 +38,10 @@ subsubsection \<open>simplification of the new quantifiers\<close>
 (*MOST IMPORTANT that this is added to the simpset BEFORE Ord_atomize
   is proved.  Ord_atomize would convert this rule to
     x < 0 ==> P(x) == True, which causes dire effects!*)
-lemma [simp]: "(\<forall>x<0. P(x))"
+lemma [simp]: "(\<forall>x<{}. P(x))"
 by (simp add: oall_def)
 
-lemma [simp]: "~(\<exists>x<0. P(x))"
+lemma [simp]: "~(\<exists>x<{}. P(x))"
 by (simp add: oex_def)
 
 lemma [simp]: "(\<forall>x<succ(i). P(x)) <-> (Ord(i) \<longrightarrow> P(i) & (\<forall>x<i. P(x)))"
@@ -120,7 +120,7 @@ lemma rev_oallE [elim]:
 by (simp add: oall_def, blast)
 
 
-(*Trival rewrite rule.  @{term"(\<forall>x<a.P)<->P"} holds only if a is not 0!*)
+(*Trival rewrite rule.  @{term"(\<forall>x<a.P)<->P"} holds only if a is not {}!*)
 lemma oall_simp [simp]: "(\<forall>x<a. True) <-> True"
 by blast
 
@@ -158,7 +158,7 @@ done
 
 subsubsection \<open>Rules for Ordinal-Indexed Unions\<close>
 
-lemma OUN_I [intro]: "[| a<i;  b \<in> B(a) |] ==> b: (\<Union>z<i. B(z))"
+lemma OUN_I [intro]: "[| a<i;  b \<in> B(a) |] ==> b\<in> (\<Union>z<i. B(z))"
 by (unfold OUnion_def lt_def, blast)
 
 lemma OUN_E [elim!]:
