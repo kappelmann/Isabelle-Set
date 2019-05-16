@@ -1,8 +1,8 @@
-
 session Typed_Set_Theory = "HOL-Number_Theory" +
-  description {* Set theory with types on top. *}
+  description
+    {* Set theory with types on top. *}
   sessions
-	"HOL-Eisbach"
+    "HOL-Eisbach"
   theories
 
   (* Types on top of Isabelle/Pure *)
@@ -73,5 +73,4 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
      These should be adapted to Tarski-Grothendieck to be compatible with the Mizar foundation.
 	*)
 	"tests/Old_ZF_Experiments/ZF_Typing_Examples"
-
 
