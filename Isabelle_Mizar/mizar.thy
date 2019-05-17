@@ -22,7 +22,7 @@ definition inhabited :: "Ty \<Rightarrow> o"
 lemma inhabitedI[intro?]: "x be D \<Longrightarrow> inhabited(D)"
   unfolding inhabited_def by auto
 
-consts choice :: "Ty \<Rightarrow> Set" ("the _" [79] 80)
+consts choice :: "Ty \<Rightarrow> Set" ("the _" 52)
 
 axiomatization where
   define_ty_cond: "x be parent \<and> \<not>cond(x) \<longrightarrow> inhabited(define_ty(parent, cond, property))" and
