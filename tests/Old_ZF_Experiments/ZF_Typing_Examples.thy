@@ -1,5 +1,5 @@
 theory ZF_Typing_Examples
-  imports Nat_ZF "../../1_Soft_Types/Soft_Types"
+  imports Nat_ZF "../../Soft_Types/Soft_Types"
 begin
 
 
