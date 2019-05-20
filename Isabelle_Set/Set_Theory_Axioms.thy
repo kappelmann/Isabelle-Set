@@ -17,20 +17,6 @@ no_notation (ASCII)
 no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 
 
-text \<open>Do we want the definite description operator?\<close>
-
-thm
-  the_eq_trivial the_equality theI theI' theI2 the1I2 the1_equality the_sym_eq_trivial
-  choice_eq
-hide_fact
-  the_eq_trivial the_equality theI theI' theI2 the1I2 the1_equality the_sym_eq_trivial
-  choice_eq
-
-no_translations "THE x. P" \<rightleftharpoons> "CONST The (\<lambda>x. P)"
-no_syntax "_The" :: "[pttrn, bool] \<Rightarrow> 'a"  ("(3THE _./ _)" [0, 10] 10)
-hide_const The
-
-
 subsection \<open>Axioms of HOTG\<close>
 
 text \<open>
