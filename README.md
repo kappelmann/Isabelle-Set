@@ -9,16 +9,16 @@ Goals:
 * Provide type-based automation for specifications and proofs...
 * ... based on an untyped formalism.
 * Provide a Mizar compatibility layer, to match Mizar's style of working.
-* Eventualy be able to check the Mizar Mathematical Library.
+* Eventually be able to check the Mizar Mathematical Library.
 
 ## Structure and Dependencies
 
 Directory `Isabelle/Mizar` contains the Isabelle/Mizar material, which mostly focuses on mimicking Mizar's style of working.
 It allows the porting of some articles of the Mizar Mathematical Library (in Directory `MML`).
 
-However, Mizar does not really abstract from the underlying set theory, which severely hinders automation, as it unfolds too many
-concepts. Therefore, we attempt to provide a clean start in session/directory `Isabelle_Set`. It contains a new development
-of Higher-Order Tarski Grothendieck Set Theory embedded in HOL.
+However, Mizar does not really abstract from the underlying set theory, which severely hinders automation, as it unfolds too many concepts.
+Therefore, we attempt to provide a clean start in session/directory `Isabelle_Set`.
+It contains a new development of Higher-Order Tarski Grothendieck Set Theory embedded in HOL.
 
 Ultimately, these developments should converge.
 
@@ -29,7 +29,7 @@ Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. Th
 
 Compatibility: Isabelle 2018, Isabelle 2019 Release candidates
 
-    # Build supporting image
+  # Build supporting image
 	isabelle build -b HOL-Number_Theory
 	
 	# Build this development
