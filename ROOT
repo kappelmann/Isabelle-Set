@@ -8,8 +8,7 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 
   (* Types on top of Isabelle/Pure *)
 	"Soft_Types/Soft_Types"
-
-  
+ 
 	(* Isabelle/Mizar Foundation, Type System, and foundational MML *)
 	"Isabelle_Mizar/mizar_HOL"
 	"Isabelle_Mizar/mizar"
@@ -77,3 +76,13 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 	"tests/test"
 	"tests/Old_ZF_Experiments/ZF_Typing_Examples"
 
+session Isabelle_Set = "HOL-Number_Theory" +
+  description
+    {* Isabelle/Set. A typed version of Tarski Grothendieck Set Theory embedded in HOL *}
+  theories
+
+  (* Types on top of Isabelle/Pure *)
+	"Soft_Types/Soft_Types"
+
+  (* Tarski-Grothendieck Set Theory on top of HOL. *)
+	"Isabelle_Set/Set_Theory"
