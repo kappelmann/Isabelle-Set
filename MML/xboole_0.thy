@@ -1,50 +1,46 @@
 theory xboole_0
 imports tarski
+
 begin
 
-section "XBOOLE_0"
+section \<open> XBOOLE_0 \<close>
+
+reserve X,Y,Z for set
+reserve x,y,z for object
 
 mscheme xboole_0_sch_1:
   mlet "A be set"
-  "ex X being set st for x being object holds
-      x in X \<longleftrightarrow> x in A \<and> P(x)"
-proof-
-  let ?Q = "\<lambda>x. \<lambda>y. (x=y \<and> P(x))"
+  "ex X being set st for x holds x in X \<longleftrightarrow> x in A \<and> P(x)"
+proof -
+  let ?Q = "\<lambda>x. \<lambda>y. x = y \<and> P(y)"
   have A1: "for x,y,z being object holds
-    ?Q (x,y) \<and> ?Q (x,  z) \<longrightarrow> y = z" using ex by simp
+    ?Q(x, y) \<and> ?Q(x, z) \<longrightarrow> y = z" by auto
   obtain X where
-   T[ty]:"X be set" and A2: "(for x being object holds x in X iff
-    (ex y being object st y in A \<and> ?Q (y,x)))"
-    using tarski_sch_1[of A,OF _ A1] by infer_auto
+  A2: "\<forall>x. x in X \<longleftrightarrow> (\<exists>y. y in A \<and> ?Q(y,x))"
+    using tarski_sch_1[of _ ?Q] by auto
   hence "for x being object holds x in X \<longleftrightarrow> x in A \<and> P(x)" by auto
-  then show "ex X be set st
-    (for x being object holds x in X \<longleftrightarrow> x in A \<and> P(x))"
-    using T ex by blast
-  qed
+  thus ?thesis by auto
+qed
 
-text_raw {*\DefineSnippet{xboole_0_def_1}{*}
+
 mdef xboole_0_def_1 ("empty") where
   "attr empty for set means (\<lambda>it. \<not> (\<exists>x : object. x in it))" .
-text_raw {*}%EndSnippet*}
 
   
 mtheorem xboole_0_cl_1:
    "cluster empty for set"
 proof
-   let ?P = "\<lambda>x. False"
-   obtain X where
-   T0[ty]:"X be set" and A1:"(for x being object holds x in X \<longleftrightarrow> x in (the set) \<and> ?P(x))"
-       using xboole_0_sch_1[of "the set" ?P] by auto
-   hence "X is empty\<bar>set" using xboole_0_def_1I by auto
-   thus "inhabited(empty \<bar> set)" using inhabited_def by auto
+  let ?P = "\<lambda>x. False"
+  obtain X where "X be set" and
+  A1: "(for x being object holds x in X \<longleftrightarrow> x in (the set) \<and> ?P(x))"
+    using xboole_0_sch_1[of _ ?P] by auto
+  hence "X is empty \<bar> set" using xboole_0_def_1I by auto
+  thus "inhabited(empty \<bar> set)" using inhabited_def by auto
 qed
- 
-  
-text_raw {*\DefineSnippet{xboole_0_def_2}{*}
-mdef xboole_0_def_2:xboole_0K1  ("{}") where
+
+mdef xboole_0_def_2:xboole_0K1 ("{}") where
   "func {} \<rightarrow> set equals
-     the empty\<bar>set"
-text_raw {*}%EndSnippet*}
+    the empty\<bar>set"
 proof -
   show "(the empty \<bar>set) be set" using choice_ax[of "empty\<bar>set"] by auto
 qed
@@ -96,29 +92,20 @@ proof -
 qed simp
 
 
-
-
-text_raw {*\DefineSnippet{xboole_0_def_3_commutativity}{*}
 mtheorem xboole_0_def_3_commutativity:
   "commutativity set xboole_0_def_3"
-proof (intro ballI tarski_0_2)
-  fix x1 x2
-  assume [ty]: "x1 is set" "x2 is set"
-  show "(x1 \<union> x2) is set" by infer_auto
-  show "(x2 \<union> x1) is set" by infer_auto
-  fix x
-  show "(x in x1 \<union> x2) \<longleftrightarrow> (x in x2 \<union> x1)" using xboole_0_def_3 by infer_auto
-qed infer_auto
-text_raw {*}%EndSnippet*}
+proof (purify, extensionality)
+  fix x1 x2 assume "x1 is set" "x2 is set"
+  fix x show "(x in x1 \<union> x2) \<longleftrightarrow> (x in x2 \<union> x1)"
+    using xboole_0_def_3 by auto
+qed auto
 
-text_raw {*\DefineSnippet{xboole_0_def_3_idempotence}{*}
-theorem xboole_0_def_3_idempotence[rule_format,THEN bspec,simplified]:
+theorem xboole_0_def_3_idempotence [rule_format,THEN bspec,simplified]:
   "idempotence set xboole_0_def_3"
 proof
-  fix x assume [ty]: "x is set"
-  show "x\<union>x=x" using xboole_0_def_3 by (intro tarski_th_2) infer_auto
-qed simp_all
-text_raw {*}%EndSnippet*}
+  fix x assume "x is set"
+  show "x \<union> x = x" using xboole_0_def_3 using tarski_th_2 by auto
+qed auto
 
 mtheorem xboole_0_def_3_assoc: "X \<union> (Y \<union> Z) = (X \<union> Y) \<union> Z"
   using xboole_0_def_3 by (intro ballI tarski_0_2a) infer_auto
@@ -126,13 +113,7 @@ mtheorem xboole_0_def_3_idem2[simp]: "X \<union> (X \<union> Z) = X \<union> Z"
   using xboole_0_def_3 by (intro ballI tarski_0_2a) infer_auto
 lemmas xboole_0_def_3_ac = xboole_0_def_3_assoc xboole_0_def_3_commutativity xboole_0_def_3_idempotence xboole_0_def_3_ty
 
-(* KP: Może ładniej robić tak później a nie zawsze rozbijać definicją unii? *)
-mlemma mlet "W be set", "V be set", "M be set"
-  "X \<union> Y \<union> V \<union> Z \<union> W \<union> V \<union> M = M \<union> X \<union> Z \<union> Y \<union> W \<union> V"
-  using xboole_0_def_3_ac by infer_simp
-
-text_raw {*\DefineSnippet{xboole_0_def_4}{*}
-mdef xboole_0_def_4  (infixl "\<inter>" 70) where
+mdef xboole_0_def_4 (infixl "\<inter>" 70) where
   mlet "X be set", "Y be set"
   "func X \<inter> Y \<rightarrow> set means \<lambda>it.
     \<forall>x. x in it \<longleftrightarrow> (x in X \<and> x in Y)"
