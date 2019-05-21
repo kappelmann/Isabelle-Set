@@ -1,18 +1,37 @@
+section \<open>Higher-order Tarski-Grothendieck set theory\<close>
+
 theory Set_Theory
 imports
-  Set_Theory_Axioms
-  "../Soft_Types/Soft_Types_HOL"
+  "../Soft_Types/Soft_Types_HOL" (* <-- This import must go before Eisbach *)
   "HOL-Eisbach.Eisbach"
   "HOL-Eisbach.Eisbach_Tools"
+  Set_Theory_Axioms
 
 begin
 
-subsection \<open>Further notation\<close>
+subsection \<open>Setup, further notation and logical rules\<close>
 
 declare[[eta_contract=false]]
 
+text \<open>First get rid of HOL-specific syntax which would conflict with set-theoretic syntax.\<close>
+
+no_notation (ASCII)
+  Not ("~ _" [40] 40) and
+  conj (infixr "&" 35) and
+  disj (infixr "|" 30) and
+  implies (infixr "-->" 25) and
+  not_equal (infixl "~=" 50)
+
+no_notation
+  disj (infixr "|" 30)
+
+no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
+
 abbreviation not_elem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
+
+lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
+  by blast
 
 
 subsection \<open>Foundational axioms as rules\<close>
@@ -156,8 +175,12 @@ lemma bex_cong [cong]:
 
 subsection \<open>Replacement\<close>
 
-syntax "_Replace"  :: "[set, pttrn, set] => set" ("(1{_ ./ _ \<in> _})")
-translations "{y. x \<in> A}" \<rightleftharpoons> "CONST Repl A (\<lambda>x. y)"
+syntax
+  "_Replace"  :: "[set, pttrn, set] => set" ("(1{_ |/ _ \<in> _})")
+  "_Replace'"  :: "[set, pttrn, set] => set" ("(1{_ ./ _ \<in> _})")
+translations
+  "{y | x \<in> A}" \<rightleftharpoons> "CONST Repl A (\<lambda>x. y)"
+  "{y. x \<in> A}" \<rightharpoonup> "CONST Repl A (\<lambda>x. y)"
 
 lemma RepFunI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
   by (unfold Replacement_rule) auto
@@ -330,12 +353,14 @@ subsection \<open>Set comprehension notation\<close>
 text \<open>This is also known as separation.\<close>
 
 definition Collect :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
-  where "Collect A P \<equiv> \<Union>{if P x then {x} else {} . x \<in> A}"
+  where "Collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
 
 syntax
-  "_Set_Collect" :: "pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"  ("(1{_ \<in> _ ./ _})")
+  "_Set_Collect" :: "pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"  ("(1{_ \<in> _ |/ _})")
+  "_Set_Collect'" :: "pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"  ("(1{_ \<in> _ ./ _})")
 translations
-  "{x \<in> A. P}" \<rightleftharpoons> "CONST Collect A (\<lambda>x. P)"
+  "{x \<in> A | P}" \<rightleftharpoons> "CONST Collect A (\<lambda>x. P)"
+  "{x \<in> A . P}" \<rightharpoonup> "CONST Collect A (\<lambda>x. P)"
 
 lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: Collect_def)
@@ -343,14 +368,15 @@ lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in>
 
 subsection \<open>Union and intersection\<close>
 
-lemma Union_empty: "\<Union>{} = {}"
-  by extensionality
-
-
 definition Inter :: "set => set"  ("\<Inter>_" [90] 90)
   where "\<Inter>A \<equiv> {x \<in> \<Union>A . \<forall>y \<in> A. x \<in> y}"
 
-  
+lemma Union_empty [simp]: "\<Union>{} = {}"
+  by extensionality
+
+lemma Inter_empty [simp]: "\<Inter>{} = {}"
+  unfolding Inter_def by extensionality
+
 
 syntax
   "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" 10)
@@ -368,7 +394,7 @@ lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B x) \<longleftrightarrow> (\<e
 
 text \<open>The order of the premises presupposes that A is rigid; b may be flexible\<close>
 
-lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in>(\<Union>x \<in> A. B x)"
+lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x \<in> A. B x)"
   by (simp, blast)
 
 lemma UN_E [elim!]: "\<lbrakk>b \<in> (\<Union>x \<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
@@ -383,50 +409,51 @@ lemma Inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
 
-lemma InterI [intro!]:
-    "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C\<noteq>{}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>(C)"
-  by auto
-
-text \<open>A "destruct" rule -- every B in C contains A as an element, but
-  A\<in> B can hold when B\<in>C does not!  This rule is analogous to "spec".\<close>
-lemma InterD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>(C); B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
-  by auto
-
-text \<open>"Classical" elimination rule -- does not require exhibiting @{term"B\<in>C"}\<close>
-
-lemma InterE [elim]:
-    "\<lbrakk>A \<in> \<Inter>(C); B\<notin>C \<Longrightarrow> R; A\<in> B \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+lemma InterI [intro!]: "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C \<noteq> {}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>C"
   by auto
 
 
-text \<open> \<open>\<Inter>x \<in> A. B x\<close> abbreviates \<open>\<Inter>({B x. x \<in> A})\<close>\<close>
+text \<open>
+A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when B \<in> C does not!  This rule is analogous to "spec".
+\<close>
 
+lemma InterD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
+  by auto
+
+
+text \<open>"Classical" elimination rule -- does not require exhibiting @{term "B \<in> C"}\<close>
+
+lemma InterE [elim]: "\<lbrakk>A \<in> \<Inter>C; B \<notin> C \<Longrightarrow> R; A \<in> B \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  by auto
+
+
+text \<open>@{term "\<Inter>x \<in> A. B x"} abbreviates @{term "\<Inter>({B x. x \<in> A})"}\<close>
 
 lemma INT_iff: "b \<in> (\<Inter>x \<in> A. B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
   by auto
   
-lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b\<in> B x; A\<noteq>{}\<rbrakk> \<Longrightarrow> b\<in> (\<Inter>x \<in> A. B x)"
+lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b \<in> B x; A \<noteq> {}\<rbrakk> \<Longrightarrow> b \<in> (\<Inter>x \<in> A. B x)"
   by blast
 
-lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B(a)"
+lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B a"
   by blast
 
-lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x=D x) \<Longrightarrow> (\<Inter>x \<in> A. C x) = (\<Inter>x \<in> B. D x)"
+lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x = D x) \<Longrightarrow> (\<Inter>x \<in> A. C x) = (\<Inter>x \<in> B. D x)"
   by simp
 
 
 subsection \<open>Binary union and intersection\<close>
 
-definition Un :: "[set, set] \<Rightarrow> set"  (infixl "\<union>" 70)
-  where "A \<union> B = \<Union>(Upair A B)"
+definition Un :: "[set, set] \<Rightarrow> set" (infixl "\<union>" 70)
+  where "A \<union> B = \<Union>{A, B}"
 
-definition Int :: "[set, set] \<Rightarrow> set"  (infixl "\<inter>" 70)  \<comment> \<open>binary intersection\<close>
-  where "A \<inter> B \<equiv> \<Inter>(Upair A B)"
+definition Int :: "[set, set] \<Rightarrow> set" (infixl "\<inter>" 70)
+  where "A \<inter> B \<equiv> \<Inter>{A, B}"
 
-lemma Un_iff[simp]: "x \<in> A \<union> B \<longleftrightarrow> x \<in> A \<or> x \<in> B"
+lemma Un_iff [simp]: "x \<in> A \<union> B \<longleftrightarrow> x \<in> A \<or> x \<in> B"
   unfolding Un_def by auto
 
-lemma Int_iff[simp]: "x \<in> A \<inter> B \<longleftrightarrow> x \<in> A \<and> x \<in> B"
+lemma Int_iff [simp]: "x \<in> A \<inter> B \<longleftrightarrow> x \<in> A \<and> x \<in> B"
   unfolding Int_def by auto
 
 lemma UnI1 [elim?]: "c \<in> A \<Longrightarrow> c \<in> A \<union> B"
@@ -438,87 +465,88 @@ lemma UnI2 [elim?]: "c \<in> B \<Longrightarrow> c \<in> A \<union> B"
 lemma UnE [elim!]: "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(*Stronger version of the rule above*)
-lemma UnE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; \<lbrakk>c \<in> B; c\<notin>A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+(* Stronger version of the rule above *)
+lemma UnE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; \<lbrakk>c \<in> B; c \<notin> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(*Classical introduction rule: no commitment to A vs B*)
+(* Classical introduction rule: no commitment to A vs B *)
 lemma UnCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarrow> c \<in> A \<union> B"
   by auto
 
-
 lemma IntI [intro!]: "\<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> c \<in> A \<inter> B"
-by simp
+  by simp
 
 lemma IntD1: "c \<in> A \<inter> B \<Longrightarrow> c \<in> A"
-by simp
+  by simp
 
 lemma IntD2: "c \<in> A \<inter> B \<Longrightarrow> c \<in> B"
-by simp
+  by simp
 
 lemma IntE [elim!]: "\<lbrakk>c \<in> A \<inter> B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-by simp
-
+  by simp
 
 
 subsection \<open>Set Difference\<close>
 
-definition Diff :: "[set, set] \<Rightarrow> set"  (infixl "\<setminus>" 65)  \<comment> \<open>set difference\<close>
-  where "A \<setminus> B \<equiv> { x \<in> A . \<not>(x \<in> B) }"
+definition Diff :: "[set, set] \<Rightarrow> set"  (infixl "\<setminus>" 65)
+  where "A \<setminus> B \<equiv> {x \<in> A | x \<notin> B}"
 
-lemma Diff_iff [simp]: "c \<in> A\<setminus>B \<longleftrightarrow> (c \<in> A \<and> c\<notin>B)"
-by (unfold Diff_def, blast)
+lemma Diff_iff [simp]: "c \<in> A \<setminus> B \<longleftrightarrow> (c \<in> A \<and> c \<notin> B)"
+  by (unfold Diff_def, auto)
 
 lemma DiffI [intro!]: "\<lbrakk>c \<in> A; c \<notin> B\<rbrakk> \<Longrightarrow> c \<in> A \<setminus> B"
-by simp
+  by simp
 
 lemma DiffD1: "c \<in> A \<setminus> B \<Longrightarrow> c \<in> A"
-by simp
+  by simp
 
 lemma DiffD2: "c \<in> A \<setminus> B \<Longrightarrow> c \<notin> B"
-by simp
+  by simp
 
-lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c\<notin>B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-by simp
+lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<notin> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  by simp
+
 
 subsection \<open>Definite description\<close>
 
+text \<open>
+For now, we just reuse HOLs description operator, which works uniformly on the set type, so we do not need further definitions or theorems.
 
-text \<open>For now, we just reuse HOLs description operator, which works uniformly on the
-set type, so we do not need further definitions or theorems.
-
-Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF,
-where the operator would return the empty set.
+Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where the operator would return the empty set.
 \<close>
+(* Josh -- I think this is a good idea; definite description should be a feature of
+the logic and not the set theory *)
 
-term "THE (x::set). P x"
 
+(* Josh -- this section should be removed/rewritten:
+the definitions in here were written for first-order ZF and are not the best thing to do
+for our higher-order formulation.
 
 subsection \<open>Generalized replacement\<close>
 
 text \<open>This basically extends replacement with an extra predicate for filtering.\<close>
 
-definition
-  Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
-  where
-  "Replace A P = Repl (Collect A (%x. \<exists>!y. P x y)) (%x. THE y. P x y)"
+definition Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
+  where "Replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
 
 syntax
-  "_GenRepl"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ ./ _ \<in> _, _})")
+  "_GenRepl"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ |/ _ \<in> _, _})")
+  "_GenRepl'"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ ./ _ \<in> _, _})")
 translations
-  "{y. x\<in>A, Q}" \<rightleftharpoons> "CONST Replace A (\<lambda>x y. Q)"
+  "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST Replace A (\<lambda>x y. Q)"
+  "{y . x \<in> A, Q}" \<rightharpoonup> "CONST Replace A (\<lambda>x y. Q)"
 
 
 lemma Replace_iff:
-    "b \<in> {y. x\<in>A, P x y}  \<longleftrightarrow>  (\<exists>x\<in>A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b))"
+  "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
 proof -
-  have "b \<in> {y. x\<in>A, P x y}
-            \<longleftrightarrow> (\<exists>x\<in>A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))" by (auto simp: Replace_def)
-  also have "\<dots> \<longleftrightarrow> (\<exists>x\<in>A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b))"
+  have "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))"
+    using Replace_def by auto
+  also have "... \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
   proof (rule bex_cong[OF refl])
     fix x assume "x \<in> A"
-
-    show "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b)"
+    show
+      "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b)"
       (is "?lhs \<longleftrightarrow> ?rhs")
     proof
       assume "?lhs"
@@ -526,7 +554,7 @@ proof -
       show ?rhs
       proof
         from ex1 show "P x b" unfolding b by (rule theI')
-        with ex1 show "\<forall>y. P x y \<longrightarrow> y=b" unfolding Ex1_def by blast
+        with ex1 show "\<forall>y. P x y \<longrightarrow> y = b" unfolding Ex1_def by blast
       qed
     next
       assume ?rhs
@@ -540,59 +568,51 @@ proof -
       qed
     qed
   qed
-  ultimately show ?thesis by (rule trans)
+  ultimately show ?thesis by auto
 qed
 
+(* Introduction; there must be a unique y such that P(x,y), namely y = b. *)
+lemma ReplaceI [intro]: "\<lbrakk>P x b; x \<in> A; \<And>y. P x y \<Longrightarrow> y = b\<rbrakk> \<Longrightarrow> b \<in> {y | x \<in> A, P x y}"
+  by (rule Replace_iff [THEN iffD2], blast)
 
-(*Introduction; there must be a unique y such that P(x,y), namely y=b. *)
-lemma ReplaceI [intro]:
-    "[| P x b;  x\<in> A;  !!y. P x y ==> y=b |] ==>
-     b \<in> {y. x\<in>A, P x y}"
-by (rule Replace_iff [THEN iffD2], blast)
-
-(*Elimination; may asssume there is a unique y such that P(x,y), namely y=b. *)
+(* Elimination; may assume there is a unique y such that P(x,y), namely y = b. *)
 lemma ReplaceE:
-    "[| b \<in> {y. x\<in>A, P x y};
-        !!x. [| x\<in> A;  P x b;  \<forall>y. P x y \<longrightarrow> y=b |] ==> R
-     |] ==> R"
-by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
+  "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
 
 (*As above but without the (generally useless) 3rd assumption*)
 lemma ReplaceE2 [elim!]:
-    "[| b \<in> {y. x\<in>A, P x y};
-        !!x. [| x\<in> A;  P x b |] ==> R
-     |] ==> R"
+    "\<lbrakk>b \<in> {y. x \<in> A, P x y};
+        \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R
+    \<rbrakk> \<Longrightarrow> R"
 by (erule ReplaceE, blast)
 
 lemma Replace_cong [cong]:
-    "[| A=B;  !!x y. x\<in>B ==> P x y \<longleftrightarrow> Q x y |] ==>
+    "\<lbrakk>A=B; \<And>x y. x \<in>B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow>
      Replace A P = Replace B Q"
 by (rule equality_iffI) (simp add: Replace_iff)
+*)
 
 
-subsection\<open>Consequences of Foundation/elem-Induction\<close>
+subsection \<open>Consequences of elem-induction (foundation)\<close>
 
-lemma elem_induct: "(\<And>X. (\<And>x. x \<in> X \<Longrightarrow> P x) \<Longrightarrow> P X) \<Longrightarrow> P A"
-  by (insert elem_induct_rule[of P A]) auto
+text \<open>Isabelle/ZF's formulation of foundation, for compatibility.\<close>
 
-lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
-  by blast
-  
-text \<open> Isabelle/ZF's formulation of foundation, for compatibility \<close>
-lemma foundation: "A = {} \<or> (\<exists>x \<in> A. \<forall>y\<in>x. y\<notin>A)"
+lemma foundation: "A = {} \<or> (\<exists>x \<in> A. \<forall>y \<in> x. y \<notin> A)"
 proof (rule disjCI2)
   assume "A \<noteq> {}"
   then obtain x where "x \<in> A" by (rule not_emptyE)
-  then show "(\<exists>y \<in> A. \<forall>z\<in>y. z\<notin>A)"
-  proof (induct x arbitrary: A rule: elem_induct)
-    fix x u assume x: "x \<in> u" 
-      and IH: "\<And>z u'. z \<in> x \<Longrightarrow> z \<in> u' \<Longrightarrow> (\<exists>y\<in>u'. \<forall>w\<in>y. w\<notin>u')"
-    then show "\<exists>y\<in>u. \<forall>w\<in>y. w\<notin>u"
-    proof (cases "\<forall>z\<in>x. z\<notin>u")
+  then show "(\<exists>y \<in> A. \<forall>z \<in> y. z \<notin> A)"
+  proof (induct x arbitrary: A rule: elem_induct_rule)
+    fix x u assume
+      x: "x \<in> u" and
+      IH: "\<And>z u'. z \<in> x \<Longrightarrow> z \<in> u' \<Longrightarrow> (\<exists>y \<in> u'. \<forall>w \<in> y. w \<notin> u')"
+    then show "\<exists>y \<in> u. \<forall>w \<in> y. w \<notin> u"
+    proof (cases "\<forall>z \<in> x. z \<notin> u")
       case True from this x show ?thesis by (rule bexI)
     next
       case False
-      then obtain y where "y \<in> x" "y \<in> u"
+      then obtain y where "y \<in> x" and "y \<in> u"
         by (auto elim: not_emptyE)
       then show ?thesis by (rule IH)
     qed
@@ -600,27 +620,31 @@ proof (rule disjCI2)
 qed
 
 
-lemma mem_asym: "\<lbrakk>a \<in> b; \<not>P \<Longrightarrow> b \<in> a\<rbrakk> \<Longrightarrow> P"
-apply (rule classical)
-apply (rule_tac A1 = "{a,b}" in foundation [THEN disjE])
-apply (blast elim!: equalityE)+
-done
+lemma elem_asymE: "\<lbrakk>a \<in> b; \<not>P \<Longrightarrow> b \<in> a\<rbrakk> \<Longrightarrow> P"
+  apply (rule classical)
+  apply (rule_tac A1 = "{a,b}" in foundation [THEN disjE])
+  apply (blast elim!: equalityE)+
+  done
 
-lemma mem_irrefl: "a \<in> a \<Longrightarrow> P"
-by (blast intro: mem_asym)
+lemma elem_asym: "a \<in> b \<Longrightarrow> b \<notin> a"
+  by (auto intro: elem_asymE)
 
-(*mem_irrefl should NOT be added to default databases:
-      it would be tried on most goals, making proofs slower!*)
+lemma elem_irreflE: "a \<in> a \<Longrightarrow> P"
+  by (blast intro: elem_asymE)
 
-lemma mem_not_refl: "a \<notin> a"
-  by (rule notI) (erule mem_irrefl)
+text \<open>
+@{thm elem_irreflE} should NOT be added to default databases: it would be tried on most goals, making proofs slower!
+\<close>
 
-(*Good for proving inequalities by rewriting*)
-lemma mem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
-  by (blast elim: mem_irrefl)
+lemma elem_irrefl: "a \<notin> a"
+  by (rule notI) (erule elem_irreflE)
 
-lemma eq_imp_not_mem: "a = A \<Longrightarrow> a \<notin> A"
-  by (blast elim: mem_irrefl)
+(* Good for proving inequalities by rewriting *)
+lemma elem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
+  by (blast elim: elem_irreflE)
+
+lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
+  by (blast elim: elem_irreflE)
 
 
 end

@@ -1,23 +1,9 @@
+section \<open>Axioms of HOTG\<close>
+
 theory Set_Theory_Axioms
 imports HOL.HOL
 
 begin
-
-subsection \<open>Setup\<close>
-
-text \<open>First get rid of HOL-specific syntax which would conflict with set-theoretic syntax.\<close>
-
-no_notation (ASCII)
-  Not ("~ _" [40] 40) and
-  conj (infixr "&" 35) and
-  disj (infixr "|" 30) and
-  implies (infixr "-->" 25) and
-  not_equal (infixl "~=" 50)
-
-no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
-
-
-subsection \<open>Axioms of HOTG\<close>
 
 text \<open>
 Axiomatic basis of higher-order Tarski-Grothendieck set theory embedded in HOL.
