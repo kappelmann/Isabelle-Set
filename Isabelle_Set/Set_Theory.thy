@@ -1,6 +1,7 @@
 theory Set_Theory
 imports
   Set_Theory_Axioms
+  "../Soft_Types/Soft_Types_HOL"
   "HOL-Eisbach.Eisbach"
   "HOL-Eisbach.Eisbach_Tools"
 
@@ -77,6 +78,8 @@ lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Long
 
 lemma equality_iffD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
   by auto
+
+method extensionality = (rule extensionality, auto | auto intro: equality_iffI) \<comment>\<open>Frequently used\<close>
 
 
 subsection \<open>Bounded Quantifiers\<close>
@@ -166,37 +169,22 @@ lemma RepFunE [elim!]:
 
 lemma RepFun_cong [cong]:
   "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> {f x. x \<in> A} = {g x. x \<in> B}"
-  by (rule equality_iffI) auto
+  by extensionality
 
 lemma triv_RepFun [simp]: "{x. x \<in> A} = A"
-  by (rule equality_iffI) auto
+  by extensionality
 
 lemma Repl_empty[iff]: "{f x. x \<in> {}} = {}"
-  by (rule equality_iffI) auto
+  by extensionality
 
 lemma Repl_is_empty[iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: equality_iffD intro!: equality_iffI)
 
 
-subsection \<open>Power set\<close>
-
-lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow(B)"
-by (erule Pow_rule [THEN iffD2])
-
-lemma PowD: "A \<in> Pow(B) \<Longrightarrow> A \<subseteq> B"
-by (erule Pow_rule [THEN iffD1])
-
-lemma Pow_bottom: "{} \<in> Pow A"
-  by (auto simp: subset_def)
-
-lemma Pow_top: "A \<in> Pow A"
-  by (auto simp: subset_def)
-
-
 subsection \<open>Rules for the empty set\<close>
 
 lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
-  by simp
+  by auto
 
 lemma empty_subsetI [simp]: "{} \<subseteq> A"
   by auto
@@ -205,10 +193,10 @@ lemma equals_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> Fals
   by (rule extensionality) auto
 
 lemma equals_emptyD [dest]: "A = {} \<Longrightarrow> a \<notin> A"
-  by blast
+  by auto
 
 lemma not_emptyI: "a \<in> A \<Longrightarrow> A \<noteq> {}"
-  by blast
+  by auto
 
 lemma not_empty_Ex: "A \<noteq> {} \<Longrightarrow> \<exists>x. x \<in> A"
   by auto
@@ -220,24 +208,27 @@ lemma not_emptyE:
   by auto
 
 lemma subset_empty[simp]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
-  by (auto intro: equality_iffI)
-
-
-subsection \<open>Unordered pairs\<close>
-
-(* text \<open>This is only a low-level construction that should not be used in high-level
-proofs.\<close>
-
-definition Upair :: "set \<Rightarrow> set \<Rightarrow> set"
-  where "Upair a b = {if i = {} then a else b. i \<in> Pow (Pow {})}" *)
-
-(* private *)
-lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
-  unfolding Pow_rule subset_def
   by auto
 
-(* private *)
-lemma Pow_Pow_empty: "x \<in> Pow (Pow {}) \<longleftrightarrow> x = Pow {} \<or> x = {}"
+
+subsection \<open>Power set\<close>
+
+lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow(B)"
+  by auto
+
+lemma PowD: "A \<in> Pow(B) \<Longrightarrow> A \<subseteq> B"
+  by auto
+
+lemma Pow_bottom: "{} \<in> Pow A"
+  by auto
+
+lemma Pow_top: "A \<in> Pow A"
+  by auto
+
+lemma Pow_elems: "x \<in> Pow {} \<longleftrightarrow> x = {}"
+  by auto
+
+lemma Pow_Pow_elems: "x \<in> Pow (Pow {}) \<longleftrightarrow> x = Pow {} \<or> x = {}"
 proof
   assume "x \<in> Pow (Pow {})"
   then have subset: "x \<subseteq> Pow {}" ..
@@ -246,32 +237,38 @@ proof
   proof (cases "{} \<in> x")
     case True
     then have "Pow {} \<subseteq> x"
-      by (auto simp: Pow_empty)
+      by (auto simp: Pow_elems)
     with subset have "x = Pow {}" by (rule extensionality)
     thus ?thesis ..
   next
     case False
     have "x = {}" 
-    proof (rule equals0I)
+    proof (rule equals_emptyI)
       fix y assume y: "y \<in> x"
       with subset have "y \<in> Pow {}" ..
-      with Pow_empty have "y = {}" by simp
+      with Pow_elems have "y = {}" by simp
       with False y show False by auto
     qed
     thus ?thesis ..
   qed
 qed auto
 
-lemma Upair_iff[iff]: "x \<in> Upair a b \<longleftrightarrow> x = a \<or> x = b"
-  by (auto simp: Upair_def Pow_Pow_empty)
-
 
 subsection \<open>Finite sets\<close>
+
+text \<open>We use the unordered pair to define finite sets.\<close>
+
+definition Upair :: "set \<Rightarrow> set \<Rightarrow> set"
+  where "Upair a b = {if i = {} then a else b. i \<in> Pow (Pow {})}"
+
+lemma Upair_elems [iff]: "x \<in> Upair a b \<longleftrightarrow> x = a \<or> x = b"
+  by (auto simp: Upair_def)
+
 
 definition Cons :: "set \<Rightarrow> set \<Rightarrow> set"
   where "Cons x A = \<Union>(Upair A (Upair x x))"
 
-lemma Cons_iff[iff]: "y \<in> Cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
+lemma Cons_elems [iff]: "y \<in> Cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
   by (auto simp: Cons_def)
 
 lemma consI1 [simp]: "a \<in> Cons a B"
@@ -283,34 +280,40 @@ lemma consI2: "a \<in> B \<Longrightarrow> a \<in> Cons b B"
 lemma consE [elim!]: "\<lbrakk>a \<in> Cons b A; a = b \<Longrightarrow> P; a \<in> A \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(*Stronger version of the rule above*)
+(* Stronger version of the rule above *)
 lemma consE':
-    "\<lbrakk>a \<in> Cons b A; a=b \<Longrightarrow> P; \<lbrakk>a \<in> A; a\<noteq>b\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  "\<lbrakk>a \<in> Cons b A; a = b \<Longrightarrow> P; \<lbrakk>a \<in> A; a \<noteq> b\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(*Classical introduction rule*)
-lemma consCI [intro!]: "(a\<notin>B \<Longrightarrow> a=b) \<Longrightarrow> a \<in> Cons b B"
+(* Classical introduction rule *)
+lemma consCI [intro!]: "(a \<notin> B \<Longrightarrow> a = b) \<Longrightarrow> a \<in> Cons b B"
   by auto
 
-lemma cons_not_0 [simp]: "Cons a B \<noteq> {}"
+lemma cons_not_empty [simp]: "Cons a B \<noteq> {}"
   by auto
 
-declare cons_not_0 [THEN not_sym, simp]
+declare cons_not_empty [THEN not_sym, simp]
 
-lemmas cons_neq_0 = cons_not_0 [THEN notE]
+lemmas cons_neq_empty = cons_not_empty [THEN notE]
 
-(*TODO: [simp]?*)
+(* TODO: [simp]? *)
 lemma Cons_commute: "Cons x (Cons y A) = Cons y (Cons x A)"
-  by (rule equality_iffI) auto
+  by extensionality
 
 syntax
-  "_Finset_Set" :: "args \<Rightarrow> set"    ("{(_)}")
+  "_Finset_Set" :: "args \<Rightarrow> set" ("{(_)}")
 translations
   "{x, xs}" \<rightleftharpoons> "CONST Cons x {xs}"
   "{x}" \<rightleftharpoons> "CONST Cons x {}"
 
+(* TODO: proper rewrite rules for finite sets! *)
 
-(*TODO: proper rewrite rules for finite sets! *)
+(* Use the following to transfer results about two-element finite sets over to Upairs,
+so that there's no difference to the user. *)
+lemma Upair_eq_Cons [simp]: "Upair a b = {a, b}"
+  by extensionality
+
+lemma "(a \<notin> {y} \<Longrightarrow> a = x) \<Longrightarrow> a \<in> Upair x y" by auto
 
 
 subsection \<open>Set comprehension notation\<close>
@@ -340,8 +343,8 @@ syntax
   "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_\<in>_./ _)" 10)
 translations
 (* @{term"\<Union>x \<in> A. B(x)"} abbreviates @{term"\<Union>({B(x). x \<in> A})"} *)
-  "\<Union>x \<in> A. B" \<equiv> "CONST Union {B. x \<in> A}"
-  "\<Inter>x \<in> A. B" \<equiv> "CONST Inter {B. x \<in> A}"
+  "\<Union>x \<in> A. B" \<rightleftharpoons> "CONST Union {B. x \<in> A}"
+  "\<Inter>x \<in> A. B" \<rightleftharpoons> "CONST Inter {B. x \<in> A}"
 
 
 subsection\<open>Rules for Unions of families\<close>
@@ -472,7 +475,7 @@ by simp
 subsection\<open>Consequences of Foundation/elem-Induction\<close>
 
 lemma elem_induct: "(\<And>X. (\<And>x. x \<in> X \<Longrightarrow> P x) \<Longrightarrow> P X) \<Longrightarrow> P A"
-  by (insert elem_induct_axiom[of P A]) auto
+  by (insert elem_induct_rule[of P A]) auto
 
 lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
   by blast
