@@ -306,6 +306,13 @@ translations
   "{x, xs}" \<rightleftharpoons> "CONST Cons x {xs}"
   "{x}" \<rightleftharpoons> "CONST Cons x {}"
 
+lemma singleton_eq_iff [iff]: "{a} = {b} \<longleftrightarrow> a=b"
+  by (auto intro: equality_iffI dest: equality_iffD)
+
+lemma doubleton_eq_iff: "{a,b} = {c,d} \<longleftrightarrow> (a=c \<and> b=d) \<or> (a=d \<and> b=c)"
+  by (auto intro: equality_iffI dest: equality_iffD)
+
+
 (* TODO: proper rewrite rules for finite sets! *)
 
 (* Use the following to transfer results about two-element finite sets over to Upairs,
@@ -470,6 +477,93 @@ by simp
 lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c\<notin>B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
 by simp
 
+subsection \<open>Definite description\<close>
+
+
+text \<open>For now, we just reuse HOLs description operator, which works uniformly on the
+set type, so we do not need further definitions or theorems.
+
+Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF,
+where the operator would return the empty set.
+\<close>
+
+term "THE (x::set). P x"
+
+
+subsection \<open>Generalized replacement\<close>
+
+text \<open>This basically extends replacement with an extra predicate for filtering.\<close>
+
+definition
+  Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
+  where
+  "Replace A P = Repl (Collect A (%x. \<exists>!y. P x y)) (%x. THE y. P x y)"
+
+syntax
+  "_GenRepl"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ ./ _ \<in> _, _})")
+translations
+  "{y. x\<in>A, Q}" \<rightleftharpoons> "CONST Replace A (\<lambda>x y. Q)"
+
+
+lemma Replace_iff:
+    "b \<in> {y. x\<in>A, P x y}  \<longleftrightarrow>  (\<exists>x\<in>A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b))"
+proof -
+  have "b \<in> {y. x\<in>A, P x y}
+            \<longleftrightarrow> (\<exists>x\<in>A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))" by (auto simp: Replace_def)
+  also have "\<dots> \<longleftrightarrow> (\<exists>x\<in>A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b))"
+  proof (rule bex_cong[OF refl])
+    fix x assume "x \<in> A"
+
+    show "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y=b)"
+      (is "?lhs \<longleftrightarrow> ?rhs")
+    proof
+      assume "?lhs"
+      then have ex1: "\<exists>!y. P x y" and b: "b = (THE y. P x y)" by auto
+      show ?rhs
+      proof
+        from ex1 show "P x b" unfolding b by (rule theI')
+        with ex1 show "\<forall>y. P x y \<longrightarrow> y=b" unfolding Ex1_def by blast
+      qed
+    next
+      assume ?rhs
+      then have P: "P x b" and uniq: "\<And>y. P x y \<Longrightarrow> y = b" by auto
+      show ?lhs
+      proof
+        from P uniq
+        show "\<exists>!y. P x y" by (rule ex1I)
+        from this P
+        show "b = (THE y. P x y)" by (rule the1_equality[symmetric])
+      qed
+    qed
+  qed
+  ultimately show ?thesis by (rule trans)
+qed
+
+
+(*Introduction; there must be a unique y such that P(x,y), namely y=b. *)
+lemma ReplaceI [intro]:
+    "[| P x b;  x\<in> A;  !!y. P x y ==> y=b |] ==>
+     b \<in> {y. x\<in>A, P x y}"
+by (rule Replace_iff [THEN iffD2], blast)
+
+(*Elimination; may asssume there is a unique y such that P(x,y), namely y=b. *)
+lemma ReplaceE:
+    "[| b \<in> {y. x\<in>A, P x y};
+        !!x. [| x\<in> A;  P x b;  \<forall>y. P x y \<longrightarrow> y=b |] ==> R
+     |] ==> R"
+by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
+
+(*As above but without the (generally useless) 3rd assumption*)
+lemma ReplaceE2 [elim!]:
+    "[| b \<in> {y. x\<in>A, P x y};
+        !!x. [| x\<in> A;  P x b |] ==> R
+     |] ==> R"
+by (erule ReplaceE, blast)
+
+lemma Replace_cong [cong]:
+    "[| A=B;  !!x y. x\<in>B ==> P x y \<longleftrightarrow> Q x y |] ==>
+     Replace A P = Replace B Q"
+by (rule equality_iffI) (simp add: Replace_iff)
 
 
 subsection\<open>Consequences of Foundation/elem-Induction\<close>
@@ -526,4 +620,3 @@ lemma eq_imp_not_mem: "a = A \<Longrightarrow> a \<notin> A"
 
 
 end
-
