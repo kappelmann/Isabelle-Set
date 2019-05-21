@@ -1,13 +1,14 @@
 section \<open>Ordered Pairs\<close>
 
-(* Based heavily on code copied directly from the theory file ZF/pair.thy
+text \<open>
+Based heavily on code copied directly from the theory file ZF/pair.thy
 of the Isabelle/ZF object logic.
 
-Modified 2019 Alexander Krauss, QAware GmbH and Joshua Chen, University of Innsbruck.
+Modified 2019 Alexander Krauss (QAware GmbH) and Joshua Chen (University of Innsbruck).
 
 Original ZF/Pair.thy by Lawrence C Paulson, Cambridge University Computer Laboratory,
 Copyright 1992 University of Cambridge.
-*)
+\<close>
 
 theory Pair
 imports Set_Theory 
@@ -32,8 +33,7 @@ simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") = \
 subsection \<open>Ordered pairs and tuples\<close>
 
 text \<open>
-We use a clever hack for the ordered pair:
-First we define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"}, which makes proofs easier, and then we easily show equality with the Kuratowski pair.
+It is easier to define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"}, which makes proofs easier, and then show equality with the Kuratowski pair.
 \<close>
 
 definition Pair :: "set \<Rightarrow> set \<Rightarrow> set"

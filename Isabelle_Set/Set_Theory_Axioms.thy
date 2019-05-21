@@ -1,7 +1,7 @@
 section \<open>Axioms of HOTG\<close>
 
 theory Set_Theory_Axioms
-imports HOL.HOL
+imports More_HOL
 
 begin
 

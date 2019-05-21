@@ -1,37 +1,45 @@
 section \<open>Higher-order Tarski-Grothendieck set theory\<close>
 
 theory Set_Theory
-imports
-  "../Soft_Types/Soft_Types_HOL" (* <-- This import must go before Eisbach *)
-  "HOL-Eisbach.Eisbach"
-  "HOL-Eisbach.Eisbach_Tools"
-  Set_Theory_Axioms
+imports Set_Theory_Axioms
 
 begin
 
-subsection \<open>Setup, further notation and logical rules\<close>
+subsection \<open>Preliminaries\<close>
 
 declare[[eta_contract=false]]
-
-text \<open>First get rid of HOL-specific syntax which would conflict with set-theoretic syntax.\<close>
-
-no_notation (ASCII)
-  Not ("~ _" [40] 40) and
-  conj (infixr "&" 35) and
-  disj (infixr "|" 30) and
-  implies (infixr "-->" 25) and
-  not_equal (infixl "~=" 50)
-
-no_notation
-  disj (infixr "|" 30)
-
-no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 
 abbreviation not_elem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
-lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
-  by blast
+
+subsection \<open>Soft types\<close>
+
+text \<open>Set up soft types corresponding to the types of sets and propositions.\<close>
+
+definition set :: "set type"
+  where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
+
+definition bool :: "bool type"
+  where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
+
+lemma all_sets_set [intro, simp]: "x : set"
+  unfolding set_typedef by auto
+
+lemma all_formulas_bool [intro, simp]: "P : bool"
+  unfolding bool_typedef by auto
+
+
+text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
+
+lemma
+  elem_type: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
+  empty_set_type: "{} : set" and
+  Pow_type: "Pow : set \<Rightarrow> set" and
+  Union_type: "Union : set \<Rightarrow> set" and
+  Repl_type: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+
+  unfolding Pi_typedef by auto
 
 
 subsection \<open>Foundational axioms as rules\<close>
@@ -115,8 +123,8 @@ definition Bex :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool
   where "Bex A P \<equiv> \<exists>x. x \<in> A \<and> P x"
 
 syntax
-  "_Set_Ball" :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<forall>_ \<in> _./ _)" 10)
-  "_Set_Bex"  :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<exists>_ \<in> _./ _)" 10)
+  "_Ball" :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<forall>_ \<in> _./ _)" 10)
+  "_Bex"  :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<exists>_ \<in> _./ _)" 10)
 translations
   "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST Ball A (\<lambda>x. P)"
   "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST Bex A (\<lambda>x. P)"

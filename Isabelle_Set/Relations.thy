@@ -7,47 +7,46 @@ begin
 
 subsection \<open>Relations and functions\<close>
 
-definition relation :: "set \<Rightarrow> bool" \<comment>\<open>recognizes sets of pairs\<close>
-  where "relation r \<equiv> \<forall>z \<in> r. \<exists>x y. z = \<langle>x, y\<rangle>"
+definition is_binrel :: "set \<Rightarrow> bool" \<comment>\<open>recognizes sets of pairs\<close>
+  where "is_binrel r \<equiv> \<forall>z \<in> r. \<exists>x y. z = \<langle>x, y\<rangle>"
 
-(* Josh -- Here are good examples of where we want to use soft typing:
-the converse should only be defined for relations. *)
+definition relation :: "set type" \<comment>\<open>type of binary relations\<close>
+  where relation_typedef: "relation = Type is_binrel"
 
-(*converse of relation r, inverse of function*)
-definition converse :: "set \<Rightarrow> set"
-  where "converse(r) == {z | w\<in>r, \<exists>x y. w=\<langle>x,y\<rangle> \<and> z=\<langle>y,x\<rangle>}"
+
+definition converse :: "set \<Rightarrow> set" \<comment>\<open>converse of relation\<close>
+  where "converse R \<equiv> if R : relation then {\<langle>snd p, fst p\<rangle> | p \<in> R} else undefined"
 
 definition domain :: "set \<Rightarrow> set"
-  where "domain(r) == {x. w\<in>r, \<exists>y. w=\<langle>x,y\<rangle>}"
+  where "domain R \<equiv> if R : relation then {fst p | p \<in> R} else undefined"
 
 definition range :: "set \<Rightarrow> set"
-  where "range r = domain (converse r)"
+  where "range R \<equiv> if R : relation then {snd p | p \<in> R} else undefined"
 
 definition field :: "set \<Rightarrow> set"
-  where "field r == domain r \<union> range r"
+  where "field R \<equiv> domain R \<union> range R"
 
 
+lemma range_alt_def: "R : relation \<Longrightarrow> range R = domain (range R)"
+  sorry
 
-lemma converse_iff [simp]: "\<langle>a,b\<rangle>\<in> converse(r) \<longleftrightarrow> \<langle>b,a\<rangle>\<in>r"
-  by (unfold converse_def, blast)
-
-lemma converseI [intro!]: "\<langle>a,b\<rangle>\<in>r \<Longrightarrow> \<langle>b,a\<rangle> \<in> converse r"
+lemma converse_iff [simp]: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
+  unfolding converse_def relation_typedef is_binrel_def
   by auto
 
-lemma converseD: "\<langle>a,b\<rangle> \<in> converse(r) \<Longrightarrow> \<langle>b,a\<rangle> \<in> r"
+lemma converseI [intro!]: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> R \<Longrightarrow> \<langle>b, a\<rangle> \<in> converse R"
   by auto
 
-lemma converseE [elim!]:
-    "\<lbrakk>yx \<in> converse(r);
-        \<And>x y. \<lbrakk>yx=\<langle>y,x\<rangle>; \<langle>x,y\<rangle>\<in>r\<rbrakk> \<Longrightarrow> P\<rbrakk>
-     \<Longrightarrow> P"
-  by (unfold converse_def, blast)
+lemma converseD: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<Longrightarrow> \<langle>b, a\<rangle> \<in> R"
+  by auto
 
-lemma converse_type: "r\<subseteq>A\<times>B \<Longrightarrow> converse(r)\<subseteq>B\<times>A"
-by 
+lemma converseE [elim!]: "\<lbrakk>p \<in> converse R; \<And>x y. \<lbrakk>p = \<langle>y, x\<rangle>; \<langle>x, y\<rangle> \<in> r\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  sorry
 
-(*
-TODO
+lemma converse_subset: "r \<subseteq> A \<times> B \<Longrightarrow> converse R \<subseteq> B \<times> A"
+  by auto
+
+(* TODO
 
 lemma converse_converse: "r \<subseteq> Sigma A B \<Longrightarrow> converse (converse r) = r"
 by blast
