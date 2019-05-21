@@ -7,7 +7,7 @@ no_notation All (binder "\<forall>" 10) and Ex (binder "\<exists>" 10)
 notation All (binder "\<forall>\<^sub>L" 10) and Ex (binder "\<exists>\<^sub>L" 10)
 
 abbreviation ty_membership :: "Set \<Rightarrow> Ty \<Rightarrow> o" (infix "be" 45)
-  where "x be T \<equiv> x ::: T"
+  where "x be T \<equiv> x : T"
 
 notation (input) ty_membership (infix "is" 45)
 
@@ -50,6 +50,10 @@ lemma Bex_property[simp]:
   "inhabited(D) \<Longrightarrow> Bex(D, P) \<longleftrightarrow> (\<exists>\<^sub>Lx. x be D \<and> P(x))"
   using Bex_def
   by simp
+
+no_syntax
+  "_Soft_Ball" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
+  "_Soft_Bex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
 
 nonterminal vgs and bg and vs
 syntax
