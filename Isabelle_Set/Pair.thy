@@ -1,5 +1,14 @@
 section \<open>Ordered Pairs\<close>
 
+(* Based heavily on code copied directly from the theory file ZF/pair.thy
+of the Isabelle/ZF object logic.
+
+Modified 2019 Alexander Krauss, QAware GmbH and Joshua Chen, University of Innsbruck.
+
+Original ZF/Pair.thy by Lawrence C Paulson, Cambridge University Computer Laboratory,
+Copyright 1992 University of Cambridge.
+*)
+
 theory Pair
 imports Set_Theory 
 
