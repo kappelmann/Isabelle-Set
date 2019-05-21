@@ -89,4 +89,4 @@ session Isabelle_Set = "HOL" +
 
   (* Tarski-Grothendieck Set Theory on top of HOL. *)
 	"Isabelle_Set/Set_Theory"
-	"Isabelle_Set/Relations"
+	"Isabelle_Set/Pair"

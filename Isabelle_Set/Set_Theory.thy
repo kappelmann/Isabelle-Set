@@ -284,7 +284,7 @@ qed auto
 
 subsection \<open>Finite sets\<close>
 
-text \<open>We use the unordered pair to define finite sets.\<close>
+text \<open>The unordered pair is defined using replacement. We then use it to define finite sets.\<close>
 
 definition Upair :: "set \<Rightarrow> set \<Rightarrow> set"
   where "Upair a b = {if i = {} then a else b. i \<in> Pow (Pow {})}"
