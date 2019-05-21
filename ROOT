@@ -76,9 +76,12 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 	"tests/test"
 	"tests/Old_ZF_Experiments/ZF_Typing_Examples"
 
-session Isabelle_Set = "HOL-Number_Theory" +
+session Isabelle_Set = "HOL" +
   description
-    {* Isabelle/Set. A typed version of Tarski Grothendieck Set Theory embedded in HOL *}
+    {* Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL *}
+  sessions
+    "HOL-Eisbach"
+
   theories
 
   (* Types on top of Isabelle/Pure *)
