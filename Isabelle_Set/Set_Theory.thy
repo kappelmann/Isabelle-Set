@@ -9,6 +9,8 @@ begin
 
 subsection \<open>Further notation\<close>
 
+declare[[eta_contract=false]]
+
 abbreviation not_elem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
@@ -79,7 +81,10 @@ lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Long
 lemma equality_iffD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
   by auto
 
-method extensionality = (rule extensionality, auto | auto intro: equality_iffI) \<comment>\<open>Frequently used\<close>
+method extensionality = (
+    (rule extensionality)?,
+    auto intro: equality_iffI dest: equality_iffD
+  ) \<comment>\<open>Frequently used\<close>
 
 
 subsection \<open>Bounded Quantifiers\<close>
@@ -190,7 +195,7 @@ lemma empty_subsetI [simp]: "{} \<subseteq> A"
   by auto
 
 lemma equals_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> False\<rbrakk> \<Longrightarrow> A = {}"
-  by (rule extensionality) auto
+  by extensionality
 
 lemma equals_emptyD [dest]: "A = {} \<Longrightarrow> a \<notin> A"
   by auto
@@ -306,21 +311,18 @@ translations
   "{x, xs}" \<rightleftharpoons> "CONST Cons x {xs}"
   "{x}" \<rightleftharpoons> "CONST Cons x {}"
 
-lemma singleton_eq_iff [iff]: "{a} = {b} \<longleftrightarrow> a=b"
-  by (auto intro: equality_iffI dest: equality_iffD)
-
-lemma doubleton_eq_iff: "{a,b} = {c,d} \<longleftrightarrow> (a=c \<and> b=d) \<or> (a=d \<and> b=c)"
-  by (auto intro: equality_iffI dest: equality_iffD)
-
-
 (* TODO: proper rewrite rules for finite sets! *)
+
+lemma singleton_eq_iff [iff]: "{a} = {b} \<longleftrightarrow> a = b"
+  by extensionality
+
+lemma doubleton_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
+  by extensionality
 
 (* Use the following to transfer results about two-element finite sets over to Upairs,
 so that there's no difference to the user. *)
 lemma Upair_eq_Cons [simp]: "Upair a b = {a, b}"
   by extensionality
-
-lemma "(a \<notin> {y} \<Longrightarrow> a = x) \<Longrightarrow> a \<in> Upair x y" by auto
 
 
 subsection \<open>Set comprehension notation\<close>
@@ -335,50 +337,52 @@ syntax
 translations
   "{x \<in> A. P}" \<rightleftharpoons> "CONST Collect A (\<lambda>x. P)"
 
-lemma Collect_iff[iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
+lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: Collect_def)
 
 
-subsection \<open>General union and intersection\<close>
+subsection \<open>Union and intersection\<close>
+
+lemma Union_empty: "\<Union>{} = {}"
+  by extensionality
+
 
 definition Inter :: "set => set"  ("\<Inter>_" [90] 90)
-  where "\<Inter>(A) \<equiv> { x \<in>\<Union>(A) . \<forall>y \<in> A. x \<in>y}"
+  where "\<Inter>A \<equiv> {x \<in> \<Union>A . \<forall>y \<in> A. x \<in> y}"
 
+  
 
 syntax
-  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_\<in>_./ _)" 10)
-  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_\<in>_./ _)" 10)
+  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" 10)
+  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_ \<in> _./ _)" 10)
 translations
-(* @{term"\<Union>x \<in> A. B(x)"} abbreviates @{term"\<Union>({B(x). x \<in> A})"} *)
+  \<comment>\<open>@{term "\<Union>x \<in> A. B x"} abbreviates @{term "\<Union>({B x. x \<in> A})"}\<close>
   "\<Union>x \<in> A. B" \<rightleftharpoons> "CONST Union {B. x \<in> A}"
   "\<Inter>x \<in> A. B" \<rightleftharpoons> "CONST Inter {B. x \<in> A}"
 
 
-subsection\<open>Rules for Unions of families\<close>
+subsection \<open>Rules for unions and intersections of families\<close>
 
-lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B(x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B(x))"
-by (simp add: Bex_def, blast)
+lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
+  by (simp add: Bex_def, blast)
 
 text \<open>The order of the premises presupposes that A is rigid; b may be flexible\<close>
 
-lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in>(\<Union>x \<in> A. B(x))"
-by (simp, blast)
+lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in>(\<Union>x \<in> A. B x)"
+  by (simp, blast)
 
+lemma UN_E [elim!]: "\<lbrakk>b \<in> (\<Union>x \<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  by blast
 
-lemma UN_E [elim!]:
-    "\<lbrakk>b \<in> (\<Union>x \<in> A. B(x)); \<And>x.\<lbrakk>x \<in> A; b\<in> B(x)\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-by blast
+lemma UN_cong: "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> (\<Union>x \<in> A. C x) = (\<Union>x \<in> B. D x)"
+  by simp
 
-lemma UN_cong:
-    "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C(x)=D(x)\<rbrakk> \<Longrightarrow> (\<Union>x \<in> A. C(x)) = (\<Union>x \<in> B. D(x))"
-by simp
-
-lemma Inter_iff[iff]: "A \<in> \<Inter>(C) \<longleftrightarrow> (\<forall>x \<in>C. A \<in> x) \<and> C\<noteq>{}"
+lemma Inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in> C. A \<in> x) \<and> C \<noteq> {}"
   unfolding Inter_def Ball_def
   by (force elim: not_emptyE)
 
-
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
+
 lemma InterI [intro!]:
     "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C\<noteq>{}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>(C)"
   by auto
@@ -395,19 +399,19 @@ lemma InterE [elim]:
   by auto
 
 
-text \<open> \<open>\<Inter>x \<in> A. B(x)\<close> abbreviates \<open>\<Inter>({B(x). x \<in> A})\<close>\<close>
+text \<open> \<open>\<Inter>x \<in> A. B x\<close> abbreviates \<open>\<Inter>({B x. x \<in> A})\<close>\<close>
 
 
-lemma INT_iff: "b \<in> (\<Inter>x \<in> A. B(x)) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B(x)) \<and> A \<noteq> {}"
+lemma INT_iff: "b \<in> (\<Inter>x \<in> A. B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
   by auto
   
-lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b\<in> B(x); A\<noteq>{}\<rbrakk> \<Longrightarrow> b\<in> (\<Inter>x \<in> A. B(x))"
+lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b\<in> B x; A\<noteq>{}\<rbrakk> \<Longrightarrow> b\<in> (\<Inter>x \<in> A. B x)"
   by blast
 
-lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B(x)); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B(a)"
+lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B(a)"
   by blast
 
-lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C(x)=D(x)) \<Longrightarrow> (\<Inter>x \<in> A. C(x)) = (\<Inter>x \<in> B. D(x))"
+lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x=D x) \<Longrightarrow> (\<Inter>x \<in> A. C x) = (\<Inter>x \<in> B. D x)"
   by simp
 
 
