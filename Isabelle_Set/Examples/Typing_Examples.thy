@@ -150,6 +150,10 @@ ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term_pattern "{{}}"}
 ]\<close>
 
+ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+  @{term_pattern "{x, y}"}
+]\<close>
+
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term_pattern "\<lambda>y. Pair {} y"}
