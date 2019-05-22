@@ -27,18 +27,5 @@ subsection \<open>Additional logical rules\<close>
 lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
   by blast
 
-text \<open>Provide more support for @{term undefined}.\<close>
-
-(* What we'd really like is to have a rule/schema saying that whenever "undefined" is
-an argument to any function, then the result of the evaluation is also undefined.
-For the moment I don't know how to do this generally, hence the following.
-
-Observe that the result of comparing an undefined with any other value is itself undefined.
-*)
-axiomatization where
-  undefined1: "\<And>f. f undefined = undefined" and
-  undefined2: "\<And>f x. f undefined x = undefined" and
-  undefined2': "\<And>f x. f x undefined = undefined"
-
 
 end

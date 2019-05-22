@@ -8,7 +8,7 @@ begin
 text \<open>
 Axiomatic basis of higher-order Tarski-Grothendieck set theory embedded in HOL.
 
-We axiomatize a type \<open>set\<close>, with the standard set-theoretic operations and axioms.
+We axiomatize a rigid type \<open>set\<close>, with the standard set-theoretic operations and axioms.
 \<close>
 
 typedecl set

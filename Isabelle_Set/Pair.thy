@@ -59,7 +59,7 @@ lemmas Pair_inject = Pair_iff [THEN iffD1, THEN conjE, elim!]
 lemmas Pair_inject1 = Pair_iff [THEN iffD1, THEN conjunct1]
 lemmas Pair_inject2 = Pair_iff [THEN iffD1, THEN conjunct2]
 
-lemma Pair_not_empty: "\<langle>a,b\<rangle> \<noteq> {}"
+lemma Pair_not_empty: "\<langle>a, b\<rangle> \<noteq> {}"
   apply (unfold Pair_def)
   apply (blast elim: equalityE)
   done
@@ -92,6 +92,9 @@ lemma fst_conv [simp]: "fst(\<langle>a,b\<rangle>) = a"
 
 lemma snd_conv [simp]: "snd(\<langle>a,b\<rangle>) = b"
   by (simp add: snd_def)
+
+lemma pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+  by simp
 
 
 definition KPair :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -156,8 +159,11 @@ lemma Disj_Union_fst: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> fst p
 lemma Disj_Union_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B(fst p)"
   by auto
 
-lemma Disj_Union_pair: "a \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> \<langle>fst a, snd a\<rangle> = a"
+lemma Disj_Union_pair [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
+
+corollary cartesian_prod_pair: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+  by (fact Disj_Union_pair)
 
 
 subsection \<open>Disjoint union as sigma type\<close>

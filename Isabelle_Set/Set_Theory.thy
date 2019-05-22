@@ -17,16 +17,18 @@ subsection \<open>Soft types\<close>
 
 text \<open>Set up soft types corresponding to the types of sets and propositions.\<close>
 
-definition set :: "set type"
+type_synonym type = "set type"
+
+definition set :: type
   where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
 
-definition bool :: "bool type"
+definition bool :: "bool Soft_Types_HOL.type"
   where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
 
-lemma all_sets_set [intro, simp]: "x : set"
+lemma all_sets_set: "x : set"
   unfolding set_typedef by auto
 
-lemma all_formulas_bool [intro, simp]: "P : bool"
+lemma all_formulas_bool: "P : bool"
   unfolding bool_typedef by auto
 
 
@@ -39,7 +41,7 @@ lemma
   Union_type: "Union : set \<Rightarrow> set" and
   Repl_type: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
 
-  unfolding Pi_typedef by auto
+  unfolding Pi_typedef by (auto intro: all_sets_set all_formulas_bool)
 
 
 subsection \<open>Foundational axioms as rules\<close>
@@ -59,19 +61,22 @@ subsection \<open>Rules for subsets\<close>
 lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   by (simp add: subset_def)
 
-lemma subsetD [elim]: "\<lbrakk>A \<subseteq> B; c \<in> A\<rbrakk> \<Longrightarrow> c \<in> B"
+lemma subsetE [elim]: "\<lbrakk>A \<subseteq> B; c \<in> A\<rbrakk> \<Longrightarrow> c \<in> B"
   by (unfold subset_def) auto
+
+lemma subsetD: "A \<subseteq> B \<Longrightarrow> c \<in> A \<longrightarrow> c \<in> B"
+  by auto
 
 lemma subsetCE [elim]: "\<lbrakk>A \<subseteq> B; c \<notin> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (simp add: subset_def, blast)
 
-lemma rev_subsetD: "\<lbrakk>c \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<in> B"
+lemma rev_subsetE: "\<lbrakk>c \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<in> B"
   by blast
 
-lemma contra_subsetD: "\<lbrakk>A \<subseteq> B; c \<notin> B\<rbrakk> \<Longrightarrow> c \<notin> A"
+lemma contra_subsetE: "\<lbrakk>A \<subseteq> B; c \<notin> B\<rbrakk> \<Longrightarrow> c \<notin> A"
   by blast
 
-lemma rev_contra_subsetD: "\<lbrakk>c \<notin> B; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<notin> A"
+lemma rev_contra_subsetE: "\<lbrakk>c \<notin> B; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<notin> A"
   by blast
 
 lemma subset_refl [simp]: "A \<subseteq> A"
@@ -89,8 +94,8 @@ lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A 
 text \<open>For calculations:\<close>
 
 declare
-  subsetD [trans]
-  rev_subsetD [trans]
+  subsetE [trans]
+  rev_subsetE [trans]
   subset_trans [trans]
 
 
@@ -190,24 +195,28 @@ translations
   "{y | x \<in> A}" \<rightleftharpoons> "CONST Repl A (\<lambda>x. y)"
   "{y. x \<in> A}" \<rightharpoonup> "CONST Repl A (\<lambda>x. y)"
 
-lemma RepFunI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
+lemma ReplI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
   by (unfold Replacement_rule) auto
 
 (* Useful for coinduction proofs *)
-lemma RepFun_eqI [intro]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x. x \<in> A}"
+lemma Repl_eqI [intro]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x. x \<in> A}"
   apply (erule ssubst)
-  apply (erule RepFunI)
+  apply (erule ReplI)
   done
 
-lemma RepFunE [elim!]:
-  "\<lbrakk>b \<in> {f x. x \<in> A}; \<And>x.\<lbrakk>x \<in> A; b = f x\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+(* The converse of the above *)
+lemma ReplD:  "b \<in> {f x | x \<in> A} \<Longrightarrow> \<exists>a \<in> A. b = f a"
   by auto
 
-lemma RepFun_cong [cong]:
+lemma ReplE [elim!]:
+  "\<lbrakk>b \<in> {f x. x \<in> A}; \<And>x. \<lbrakk>x \<in> A; b = f x\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  by auto
+
+lemma Repl_cong [cong]:
   "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> {f x. x \<in> A} = {g x. x \<in> B}"
   by extensionality
 
-lemma triv_RepFun [simp]: "{x. x \<in> A} = A"
+lemma triv_Repl [simp]: "{x. x \<in> A} = A"
   by extensionality
 
 lemma Repl_empty[iff]: "{f x. x \<in> {}} = {}"
@@ -518,7 +527,7 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
 subsection \<open>Definite description\<close>
 
 text \<open>
-For now, we just reuse HOLs description operator, which works uniformly on the set type, so we do not need further definitions or theorems.
+For now, we just reuse HOLs description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems.
 
 Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where the operator would return the empty set.
 \<close>
@@ -526,11 +535,14 @@ Note that the result is unspecified if the predicate is not unique, unlike in Is
 the logic and not the set theory *)
 
 
-(* Josh -- this section should be removed/rewritten:
+subsection \<open>More replacement\<close>
+
+lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
+  by extensionality
+
+(* Josh -- this section should be rewritten:
 the definitions in here were written for first-order ZF and are not the best thing to do
 for our higher-order formulation.
-
-subsection \<open>Generalized replacement\<close>
 
 text \<open>This basically extends replacement with an extra predicate for filtering.\<close>
 

@@ -1,61 +1,105 @@
-section \<open>Relations\<close>
+section \<open>Relations and functions\<close>
 
 theory Relations
 imports Pair
 
 begin
 
-subsection \<open>Relations and functions\<close>
+subsection \<open>Relations\<close>
 
-definition is_binrel :: "set \<Rightarrow> bool" \<comment>\<open>recognizes sets of pairs\<close>
-  where "is_binrel r \<equiv> \<forall>z \<in> r. \<exists>x y. z = \<langle>x, y\<rangle>"
-
-definition relation :: "set type" \<comment>\<open>type of binary relations\<close>
-  where relation_typedef: "relation = Type is_binrel"
-
-
-definition converse :: "set \<Rightarrow> set" \<comment>\<open>converse of relation\<close>
-  where "converse R \<equiv> if R : relation then {\<langle>snd p, fst p\<rangle> | p \<in> R} else undefined"
+definition relation :: type
+  where relation_typedef: "relation = Type (\<lambda>R. \<forall>z \<in> R. \<exists>x y. z = \<langle>x, y\<rangle>)"
 
 definition domain :: "set \<Rightarrow> set"
-  where "domain R \<equiv> if R : relation then {fst p | p \<in> R} else undefined"
+  where "domain R \<equiv> {fst p | p \<in> R}"
 
 definition range :: "set \<Rightarrow> set"
-  where "range R \<equiv> if R : relation then {snd p | p \<in> R} else undefined"
+  where "range R \<equiv> {snd p | p \<in> R}"
 
 definition field :: "set \<Rightarrow> set"
   where "field R \<equiv> domain R \<union> range R"
 
 
-lemma range_alt_def: "R : relation \<Longrightarrow> range R = domain (range R)"
-  sorry
+subsection \<open>Various results on relations\<close>
 
-lemma converse_iff [simp]: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
-  unfolding converse_def relation_typedef is_binrel_def
+lemma relation_elem_conv:
+  "\<lbrakk>x \<in> R; R : relation\<rbrakk> \<Longrightarrow> \<langle>fst x, snd x\<rangle> = x"
+  unfolding relation_typedef by auto
+
+lemma relation_subsetI:
+  "R : relation \<Longrightarrow> R \<subseteq> domain R \<times> range R"
+unfolding domain_def range_def
+proof auto
+  let ?dom = "{fst x | x \<in> R}" and ?rng = "{snd x | x \<in> R}"
+  fix x assume R: "R : relation" and x: "x \<in> R"
+  hence "fst x \<in> ?dom" and "snd x \<in> ?rng"
+    by auto
+  hence "\<langle>fst x, snd x\<rangle> \<in> ?dom \<times> ?rng" by auto
+  thus "x \<in> ?dom \<times> ?rng" using R x relation_elem_conv by auto
+qed
+
+lemma relation_subsetE [elim]: "\<lbrakk>A \<subseteq> R; R : relation\<rbrakk> \<Longrightarrow> A : relation"
+  unfolding relation_typedef by auto
+
+lemma Disj_Union_rel: "\<Coprod>x \<in> A. (B x) : relation"
+  unfolding relation_typedef by auto
+
+corollary cartesian_prod_rel: "A \<times> B : relation"
+  by (fact Disj_Union_rel)
+
+
+subsection \<open>Converse relations\<close>
+
+definition converse :: "set \<Rightarrow> set" \<comment>\<open>converse of relation\<close>
+  where "converse R \<equiv> {\<langle>snd p, fst p\<rangle> | p \<in> R}"
+
+
+text \<open>Alternative definition for the range of a relation\<close>
+
+lemma range_def2: "range R = domain (converse R)"
+  unfolding relation_typedef range_def domain_def converse_def
   by auto
 
-lemma converseI [intro!]: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> R \<Longrightarrow> \<langle>b, a\<rangle> \<in> converse R"
+
+lemma converse_iff [simp]:
+  "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
+  unfolding converse_def relation_typedef
   by auto
 
-lemma converseD: "R : relation \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<Longrightarrow> \<langle>b, a\<rangle> \<in> R"
+lemma converseI [intro!]:
+  "\<lbrakk>\<langle>a, b\<rangle> \<in> R; R : relation\<rbrakk> \<Longrightarrow> \<langle>b, a\<rangle> \<in> converse R"
   by auto
 
-lemma converseE [elim!]: "\<lbrakk>p \<in> converse R; \<And>x y. \<lbrakk>p = \<langle>y, x\<rangle>; \<langle>x, y\<rangle> \<in> r\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  sorry
-
-lemma converse_subset: "r \<subseteq> A \<times> B \<Longrightarrow> converse R \<subseteq> B \<times> A"
+lemma converseD:
+  "\<lbrakk>\<langle>a, b\<rangle> \<in> converse R; R : relation\<rbrakk> \<Longrightarrow> \<langle>b, a\<rangle> \<in> R"
   by auto
 
-(* TODO
+lemma converseE [elim!]:
+  "\<lbrakk>p \<in> converse R; \<And>x y. \<lbrakk>p = \<langle>y, x\<rangle>; \<langle>x, y\<rangle> \<in> R\<rbrakk> \<Longrightarrow> P; R : relation\<rbrakk> \<Longrightarrow> P"
+  unfolding relation_typedef converse_def by auto
 
-lemma converse_converse: "r \<subseteq> Sigma A B \<Longrightarrow> converse (converse r) = r"
-by blast
+lemma converse_subset:
+  "R \<subseteq> A \<times> B \<Longrightarrow> converse R \<subseteq> B \<times> A"
+  unfolding converse_def by (auto simp: relation_typedef)
 
-lemma converse_prod [simp]: "converse(A\<times>B) = B\<times>A"
-by blast
+(* Our first example of a soft type rule! *)
+lemma converse_rel: "R : relation \<Longrightarrow> converse R : relation"
+  using
+    relation_subsetI[of R]
+    converse_subset[of R "domain R" "range R"]
+    relation_subsetE
+    cartesian_prod_rel
+  by auto
 
-lemma converse_empty [simp]: "converse({}) = {}"
-by blast
-*)
+lemma converse_involution: "R : relation \<Longrightarrow> converse (converse R) = R"
+  unfolding converse_def
+  by extensionality (auto simp: relation_elem_conv)
+
+lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
+  unfolding converse_def by extensionality
+
+lemma converse_empty [simp]: "converse {} = {}"
+  unfolding converse_def by extensionality
+
 
 end
