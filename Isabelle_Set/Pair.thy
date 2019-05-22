@@ -33,7 +33,8 @@ simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") = \
 subsection \<open>Ordered pairs and tuples\<close>
 
 text \<open>
-It is easier to define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"}, which makes proofs easier, and then show equality with the Kuratowski pair.
+It is easier to define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"}, which makes
+proofs easier, and then show equality with the Kuratowski pair.
 \<close>
 
 definition Pair :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -126,7 +127,7 @@ lemma Disj_UnionI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrigh
 lemmas Disj_UnionD1 = Disj_Union_iff [THEN iffD1, THEN conjunct1]
 lemmas Disj_UnionD2 = Disj_Union_iff [THEN iffD1, THEN conjunct2]
 
-(* The general elimination rule *)
+(* LCP: The general elimination rule *)
 lemma Disj_UnionE [elim!]:
   "\<lbrakk>c \<in> \<Coprod>x \<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x; c = \<langle>x, y\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (unfold Disj_Union_def, blast)
@@ -166,7 +167,7 @@ subsection \<open>Disjoint union as sigma type\<close>
 definition split :: "(set \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" \<comment>\<open>for pattern-matching\<close>
   where "split f \<equiv> \<lambda>p. f (fst p) (snd p)"
 
-(* Patterns -- extends pre-defined type "pttrn" used in abstractions *)
+(* LCP: Patterns -- extends pre-defined type "pttrn" used in abstractions *)
 nonterminal patterns
 syntax
   "_pattern"  :: "patterns => pttrn" ("\<langle>_\<rangle>")

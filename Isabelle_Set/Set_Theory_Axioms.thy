@@ -43,7 +43,8 @@ and
 
 
 text \<open>
-Finally, we axiomatize the constant \<open>Univ\<close>, which, given a set, returns a Grothendieck universe containing the set.
+Finally, we axiomatize the constant \<open>Univ\<close>, which, given a set, returns a Grothendieck universe
+containing the set.
 
 This is the Tarski axiom.
 \<close>
