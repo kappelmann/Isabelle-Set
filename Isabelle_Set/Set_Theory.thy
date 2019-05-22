@@ -512,15 +512,10 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
 subsection \<open>Definite description\<close>
 
 text \<open>
-For now, we just reuse HOLs description operator, which works uniformly on the set type, so we do not need further definitions or theorems.
+We just reuse HOLs description operator, which works uniformly on the set type, so we do not need further definitions or theorems.
 
 Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where the operator would return the empty set.
 \<close>
-(* Josh -- I think this is a good idea; definite description should be a feature of
-the logic and not the set theory *)
-
-
-
 
 
 subsection \<open>Consequences of elem-induction (foundation)\<close>
