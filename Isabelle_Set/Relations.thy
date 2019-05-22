@@ -15,13 +15,13 @@ definition relation :: "set type" \<comment>\<open>type of binary relations\<clo
 
 
 definition converse :: "set \<Rightarrow> set" \<comment>\<open>converse of relation\<close>
-  where "converse R \<equiv> if R : relation then {\<langle>snd p, fst p\<rangle> | p \<in> R} else undefined"
+  where "converse R \<equiv> {\<langle>snd p, fst p\<rangle> | p \<in> R}"
 
 definition domain :: "set \<Rightarrow> set"
-  where "domain R \<equiv> if R : relation then {fst p | p \<in> R} else undefined"
+  where "domain R \<equiv> {fst p | p \<in> R}"
 
 definition range :: "set \<Rightarrow> set"
-  where "range R \<equiv> if R : relation then {snd p | p \<in> R} else undefined"
+  where "range R \<equiv> {snd p | p \<in> R}"
 
 definition field :: "set \<Rightarrow> set"
   where "field R \<equiv> domain R \<union> range R"
