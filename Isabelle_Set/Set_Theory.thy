@@ -28,19 +28,19 @@ lemma all_sets_set [intro, simp]: "x : set"
 text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
 
 lemma
-  elem_type: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
-  eq_type: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
-  empty_set_type: "{} : set" and
-  Pow_type: "Pow : set \<Rightarrow> set" and
-  Union_type: "Union : set \<Rightarrow> set" and
-  Repl_type: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+  elem_type[type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
+  eq_type[type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
+  empty_set_type[type]: "{} : set" and
+  Pow_type[type]: "Pow : set \<Rightarrow> set" and
+  Union_type[type]: "Union : set \<Rightarrow> set" and
+  Repl_type[type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
 
   unfolding Pi_typedef by (auto intro: all_formulas_bool)
 
 
 subsection \<open>Foundational axioms as rules\<close>
 
-lemma empty_rule [simp]: "\<not> x \<in> {}" using empty_axiom by blast
+lemma empty_rule [simp]: "x \<notin> {}" using empty_axiom by blast
 
 lemmas
   extensionality = extensionality_axiom[rule_format] and

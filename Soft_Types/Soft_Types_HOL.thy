@@ -133,16 +133,8 @@ definition bool :: "bool type"
 lemma all_formulas_bool: "P : bool"
   unfolding bool_typedef by auto
 
-lemma imp_type: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
+lemma imp_type[type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
-
-
-
-
-
-
-
-(* See Old_ZF_Examples/ZF_Typing_Examples.thy for an example with type inference *)
 
 
 end

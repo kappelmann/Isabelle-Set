@@ -32,11 +32,15 @@ struct
   fun get ctxt t = get_sty (Ctxt.get ctxt) t;
 
 
-  (* Break a typing judgment into its term and type parts *)
+  (* Breaks a typing judgment into its term and type parts.
+
+    Accepts both pure judgement form or embedded into HOL.Trueprop.
+   *)
   fun dest_typing tm =
       case tm of
         Const (@{const_name has_type}, _) $ t $ T => (t, T)
-      | _ => Exn.error "dest_typing: not a typing judgment"
+      | Const ("HOL.Trueprop", _) $ (Const (@{const_name has_type}, _) $ t $ T) => (t, T)
+      | _ => Exn.error ("dest_typing: not a typing judgment" ^ \<^make_string> tm)
 
 
   fun add_typing thm ctxt =
