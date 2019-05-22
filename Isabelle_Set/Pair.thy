@@ -209,4 +209,19 @@ lemma split_paired_Ball_Disj_Union [simp]:
   by blast
 
 
+subsection \<open>Typing rules\<close>
+
+lemma Pair_type: "Pair : [x: element A] \<Rightarrow> element (B x) \<Rightarrow> element (Disj_Union A B)"
+proof (intro Pi_typeI)
+  fix x y assume x: "x : element A" and y: "y : element (B x)"
+  from x have "x \<in> A" by (rule element_typeE)
+  moreover from y have "y \<in> B x" by (rule element_typeE)
+  ultimately have "\<langle>x, y\<rangle> \<in> Disj_Union A B" by (rule Disj_UnionI)
+  then show "\<langle>x, y\<rangle> : element (Disj_Union A B)" by (rule element_typeI)
+qed
+
+
+
+
+
 end

@@ -125,6 +125,23 @@ ML_file "unification.ML"
 ML_file "soft_type_inference.ML"
 
 
+subsection \<open>Bool type\<close>
+
+definition bool :: "bool type"
+  where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
+
+lemma all_formulas_bool: "P : bool"
+  unfolding bool_typedef by auto
+
+lemma imp_type: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
+  by (intro Pi_typeI all_formulas_bool)
+
+
+
+
+
+
+
 (* See Old_ZF_Examples/ZF_Typing_Examples.thy for an example with type inference *)
 
 

@@ -20,26 +20,22 @@ text \<open>Set up soft types corresponding to the types of sets and proposition
 definition set :: "set type"
   where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
 
-definition bool :: "bool type"
-  where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
-
 lemma all_sets_set [intro, simp]: "x : set"
   unfolding set_typedef by auto
 
-lemma all_formulas_bool [intro, simp]: "P : bool"
-  unfolding bool_typedef by auto
 
 
 text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
 
 lemma
   elem_type: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
+  eq_type: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
   empty_set_type: "{} : set" and
   Pow_type: "Pow : set \<Rightarrow> set" and
   Union_type: "Union : set \<Rightarrow> set" and
   Repl_type: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
 
-  unfolding Pi_typedef by auto
+  unfolding Pi_typedef by (auto intro: all_formulas_bool)
 
 
 subsection \<open>Foundational axioms as rules\<close>
@@ -653,6 +649,29 @@ lemma elem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
 
 lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: elem_irreflE)
+
+
+subsection \<open>Further Types\<close>
+
+subsubsection \<open> Type of elements of a given set \<close>
+
+definition element :: "set \<Rightarrow> set type"
+  where "element A == Type (%x. x \<in> A)"
+
+lemma element_type_iff: "x : element A \<longleftrightarrow> x \<in> A"
+  unfolding element_def has_type_Type ..
+
+lemma element_typeI: "x \<in> A \<Longrightarrow> x : element A"
+  unfolding element_type_iff .
+
+lemma element_typeE: "x : element A \<Longrightarrow> x \<in> A"
+  unfolding element_type_iff .
+
+
+subsubsection \<open> Type of subsets of a given set \<close>
+
+abbreviation subset :: "set \<Rightarrow> set type"
+  where "subset A == element (Pow A)"
 
 
 end
