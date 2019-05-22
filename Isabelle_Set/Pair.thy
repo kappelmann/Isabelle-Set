@@ -107,6 +107,8 @@ text \<open>Generalizes Cartesian product\<close>
 definition Disj_Union :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   where "Disj_Union A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x,y\<rangle>}"
 
+abbreviation (input) "Sigma \<equiv> Disj_Union" \<comment> \<open>For Isabelle/ZF compatibility\<close>
+
 syntax
   "_Disj_UNION" :: "[pttrn, set, set \<Rightarrow> set] \<Rightarrow> set" ("\<Coprod>_ \<in> _./ _" [0, 0, 100])
 translations
