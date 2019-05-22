@@ -94,11 +94,10 @@ lemma snd_conv [simp]: "snd(\<langle>a,b\<rangle>) = b"
   by (simp add: snd_def)
 
 
-definition KPair :: "set \<Rightarrow> set \<Rightarrow> set"
-  where "KPair a b \<equiv> {{a}, {a, b}}"
+text \<open>The definition above is equivalent to this more standard one:\<close>
 
-lemma Pair_eq_KPair: "Pair a b = KPair a b"
-  unfolding Pair_def KPair_def by extensionality
+lemma Kuratowski_Pair_def: "Pair a b = {{a}, {a, b}}"
+  unfolding Pair_def by extensionality
 
 
 subsection \<open>Disjoint union of a set-indexed family of sets\<close>

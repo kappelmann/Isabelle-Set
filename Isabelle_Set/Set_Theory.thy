@@ -78,9 +78,7 @@ lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longri
 
 (* Useful for proving A c= B by rewriting in some cases *)
 lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
-  apply (unfold subset_def)
-  apply (rule refl)
-  done
+  unfolding subset_def ..
 
 text \<open>For calculations:\<close>
 
