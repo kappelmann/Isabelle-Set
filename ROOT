@@ -1,6 +1,6 @@
 session Typed_Set_Theory = "HOL-Number_Theory" +
   description
-    {* Set theory with types on top. *}
+    \<open> Set theory with types on top. \<close>
   sessions
     "HOL-Eisbach"
 
@@ -78,7 +78,7 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 
 session Isabelle_Set = "HOL" +
   description
-    {* Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL *}
+    \<open> Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL \<close>
   sessions
     "HOL-Eisbach"
 
@@ -91,3 +91,4 @@ session Isabelle_Set = "HOL" +
 	"Isabelle_Set/Set_Theory"
 	"Isabelle_Set/Pair"
 	"Isabelle_Set/Examples/Typing_Examples"
+	"Isabelle_Set/ZF_Compatibility"
