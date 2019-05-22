@@ -79,7 +79,7 @@ lemma subset_refl [simp]: "A \<subseteq> A"
 lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> A \<subseteq> C"
   by blast
 
-(* Useful for proving A c= B by rewriting in some cases *)
+(* LCP: Useful for proving A \<subseteq> B by rewriting in some cases *)
 lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
   unfolding subset_def ..
 
@@ -139,7 +139,7 @@ lemma rev_ballE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longri
 lemma ballE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by blast
 
-(* Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
+(* LCP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
 lemma ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
   by (simp add: Ball_def)
 
@@ -158,18 +158,18 @@ lemmas
 lemma bexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by (simp add: Bex_def, blast)
 
-(* The best argument order when there is only one @{term "x \<in> A"} *)
+(* LCP: The best argument order when there is only one @{term "x \<in> A"} *)
 lemma rev_bexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
-(* Not of the general form for such rules. The existential quantifier becomes universal. *)
+(* LCP: Not of the general form for such rules. The existential quantifier becomes universal. *)
 lemma bexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
 lemma bexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: Bex_def, blast)
 
-(* We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is nonempty *)
+(* LCP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is nonempty *)
 lemma bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
   by (simp add: Bex_def)
 
@@ -190,8 +190,8 @@ translations
 lemma ReplI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
   by (unfold Replacement_rule) auto
 
-(* Useful for coinduction proofs *)
-lemma Repl_eqI [intro]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x. x \<in> A}"
+(* LCP: Useful for coinduction proofs *)
+lemma RepFun_eqI [intro]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x. x \<in> A}"
   apply (erule ssubst)
   apply (erule ReplI)
   done
@@ -317,12 +317,12 @@ lemma consI2: "a \<in> B \<Longrightarrow> a \<in> Cons b B"
 lemma consE [elim!]: "\<lbrakk>a \<in> Cons b A; a = b \<Longrightarrow> P; a \<in> A \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* Stronger version of the rule above *)
+(* LCP: Stronger version of the rule above *)
 lemma consE':
   "\<lbrakk>a \<in> Cons b A; a = b \<Longrightarrow> P; \<lbrakk>a \<in> A; a \<noteq> b\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* Classical introduction rule *)
+(* LCP: Classical introduction rule *)
 lemma consCI [intro!]: "(a \<notin> B \<Longrightarrow> a = b) \<Longrightarrow> a \<in> Cons b B"
   by auto
 
@@ -401,7 +401,7 @@ subsection \<open>Rules for unions and intersections of families\<close>
 lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
   by (simp add: Bex_def, blast)
 
-text \<open>The order of the premises presupposes that A is rigid; b may be flexible\<close>
+text \<open>LCP: The order of the premises presupposes that A is rigid; b may be flexible\<close>
 
 lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x \<in> A. B x)"
   by (simp, blast)
@@ -423,14 +423,15 @@ lemma InterI [intro!]: "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x;
 
 
 text \<open>
-A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when B \<in> C does not!  This rule is analogous to "spec".
+LCP: A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when
+B \<in> C does not!  This rule is analogous to "spec".
 \<close>
 
 lemma InterD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
   by auto
 
 
-text \<open>"Classical" elimination rule -- does not require exhibiting @{term "B \<in> C"}\<close>
+text \<open>LCP: "Classical" elimination rule -- does not require exhibiting @{term "B \<in> C"}\<close>
 
 lemma InterE [elim]: "\<lbrakk>A \<in> \<Inter>C; B \<notin> C \<Longrightarrow> R; A \<in> B \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by auto
@@ -474,11 +475,11 @@ lemma UnI2 [elim?]: "c \<in> B \<Longrightarrow> c \<in> A \<union> B"
 lemma UnE [elim!]: "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* Stronger version of the rule above *)
+(* LCP: Stronger version of the rule above *)
 lemma UnE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; \<lbrakk>c \<in> B; c \<notin> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* Classical introduction rule: no commitment to A vs B *)
+(* LCP: Classical introduction rule: no commitment to A vs B *)
 lemma UnCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarrow> c \<in> A \<union> B"
   by auto
 
@@ -519,9 +520,15 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
 subsection \<open>Definite description\<close>
 
 text \<open>
+<<<<<<< HEAD
 We just reuse HOL's description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems.
+=======
+We just reuse HOLs description operator, which works uniformly on the set type, so we do not need
+further definitions or theorems.
+>>>>>>> 58f09130bc7cbaa60fefa6e67302c2c632ae74cb
 
-Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where the operator would return the empty set.
+Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where
+the operator would return the empty set.
 \<close>
 (* Josh -- I think this is a good idea; definite description should be a feature of
 the logic and not the set theory *)
@@ -531,6 +538,8 @@ subsection \<open>More replacement\<close>
 
 lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
   by extensionality
+
+term "THE (x::set). P x"
 
 
 subsection \<open>Consequences of elem-induction (foundation)\<close>
@@ -572,13 +581,14 @@ lemma elem_irreflE: "a \<in> a \<Longrightarrow> P"
   by (blast intro: elem_asymE)
 
 text \<open>
-@{thm elem_irreflE} should NOT be added to default databases: it would be tried on most goals, making proofs slower!
+LCP: @{thm elem_irreflE} should NOT be added to default databases: it would be tried on most goals,
+making proofs slower!
 \<close>
 
 lemma elem_irrefl: "a \<notin> a"
   by (rule notI) (erule elem_irreflE)
 
-(* Good for proving inequalities by rewriting *)
+(* LCP: Good for proving inequalities by rewriting *)
 lemma elem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
   by (blast elim: elem_irreflE)
 
