@@ -22,31 +22,25 @@ type_synonym type = "set type"
 definition set :: type
   where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
 
-definition bool :: "bool Soft_Types_HOL.type"
-  where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
-
 lemma all_sets_set: "x : set"
   unfolding set_typedef by auto
-
-lemma all_formulas_bool: "P : bool"
-  unfolding bool_typedef by auto
 
 
 text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
 
 lemma
-  elem_type: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
-  empty_set_type: "{} : set" and
-  Pow_type: "Pow : set \<Rightarrow> set" and
-  Union_type: "Union : set \<Rightarrow> set" and
-  Repl_type: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-
+  elem_type[type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
+  eq_type[type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
+  empty_set_type[type]: "{} : set" and
+  Pow_type[type]: "Pow : set \<Rightarrow> set" and
+  Union_type[type]: "Union : set \<Rightarrow> set" and
+  Repl_type[type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   unfolding Pi_typedef by (auto intro: all_sets_set all_formulas_bool)
 
 
 subsection \<open>Foundational axioms as rules\<close>
 
-lemma empty_rule [simp]: "\<not> x \<in> {}" using empty_axiom by blast
+lemma empty_rule [simp]: "x \<notin> {}" using empty_axiom by blast
 
 lemmas
   extensionality = extensionality_axiom[rule_format] and
@@ -87,9 +81,7 @@ lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longri
 
 (* Useful for proving A c= B by rewriting in some cases *)
 lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
-  apply (unfold subset_def)
-  apply (rule refl)
-  done
+  unfolding subset_def ..
 
 text \<open>For calculations:\<close>
 
@@ -527,7 +519,7 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
 subsection \<open>Definite description\<close>
 
 text \<open>
-For now, we just reuse HOLs description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems.
+We just reuse HOL's description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems.
 
 Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where the operator would return the empty set.
 \<close>
@@ -539,79 +531,6 @@ subsection \<open>More replacement\<close>
 
 lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
   by extensionality
-
-(* Josh -- this section should be rewritten:
-the definitions in here were written for first-order ZF and are not the best thing to do
-for our higher-order formulation.
-
-text \<open>This basically extends replacement with an extra predicate for filtering.\<close>
-
-definition Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
-  where "Replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
-
-syntax
-  "_GenRepl"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ |/ _ \<in> _, _})")
-  "_GenRepl'"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ ./ _ \<in> _, _})")
-translations
-  "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST Replace A (\<lambda>x y. Q)"
-  "{y . x \<in> A, Q}" \<rightharpoonup> "CONST Replace A (\<lambda>x y. Q)"
-
-
-lemma Replace_iff:
-  "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
-proof -
-  have "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))"
-    using Replace_def by auto
-  also have "... \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
-  proof (rule bex_cong[OF refl])
-    fix x assume "x \<in> A"
-    show
-      "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b)"
-      (is "?lhs \<longleftrightarrow> ?rhs")
-    proof
-      assume "?lhs"
-      then have ex1: "\<exists>!y. P x y" and b: "b = (THE y. P x y)" by auto
-      show ?rhs
-      proof
-        from ex1 show "P x b" unfolding b by (rule theI')
-        with ex1 show "\<forall>y. P x y \<longrightarrow> y = b" unfolding Ex1_def by blast
-      qed
-    next
-      assume ?rhs
-      then have P: "P x b" and uniq: "\<And>y. P x y \<Longrightarrow> y = b" by auto
-      show ?lhs
-      proof
-        from P uniq
-        show "\<exists>!y. P x y" by (rule ex1I)
-        from this P
-        show "b = (THE y. P x y)" by (rule the1_equality[symmetric])
-      qed
-    qed
-  qed
-  ultimately show ?thesis by auto
-qed
-
-(* Introduction; there must be a unique y such that P(x,y), namely y = b. *)
-lemma ReplaceI [intro]: "\<lbrakk>P x b; x \<in> A; \<And>y. P x y \<Longrightarrow> y = b\<rbrakk> \<Longrightarrow> b \<in> {y | x \<in> A, P x y}"
-  by (rule Replace_iff [THEN iffD2], blast)
-
-(* Elimination; may assume there is a unique y such that P(x,y), namely y = b. *)
-lemma ReplaceE:
-  "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-  by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
-
-(*As above but without the (generally useless) 3rd assumption*)
-lemma ReplaceE2 [elim!]:
-    "\<lbrakk>b \<in> {y. x \<in> A, P x y};
-        \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R
-    \<rbrakk> \<Longrightarrow> R"
-by (erule ReplaceE, blast)
-
-lemma Replace_cong [cong]:
-    "\<lbrakk>A=B; \<And>x y. x \<in>B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow>
-     Replace A P = Replace B Q"
-by (rule equality_iffI) (simp add: Replace_iff)
-*)
 
 
 subsection \<open>Consequences of elem-induction (foundation)\<close>
@@ -665,6 +584,29 @@ lemma elem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
 
 lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: elem_irreflE)
+
+
+subsection \<open>Further types\<close>
+
+subsubsection \<open> Type of elements of a given set \<close>
+
+definition element :: "set \<Rightarrow> type"
+  where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
+
+lemma element_type_iff: "x : element A \<longleftrightarrow> x \<in> A"
+  unfolding element_typedef by auto
+
+lemma element_typeI: "x \<in> A \<Longrightarrow> x : element A"
+  unfolding element_type_iff .
+
+lemma element_typeE: "x : element A \<Longrightarrow> x \<in> A"
+  unfolding element_type_iff .
+
+
+subsubsection \<open>Type of subsets of a given set\<close>
+
+abbreviation subset :: "set \<Rightarrow> type"
+  where "subset A \<equiv> element (Pow A)"
 
 
 end

@@ -1,11 +1,26 @@
-session Typed_Set_Theory = "HOL-Number_Theory" +
+session Isabelle_Set = "HOL" +
   description
-    {* Set theory with types on top. *}
+    \<open> Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL \<close>
   sessions
     "HOL-Eisbach"
-
   theories
+  (* Types on top of Isabelle/Pure *)
+	"Soft_Types/Soft_Types"
 
+  (* Tarski-Grothendieck Set Theory on top of HOL. *)
+	"Isabelle_Set/Isabelle_Set"
+
+  (* Examples and compatibility layers *)
+	"Isabelle_Set/Examples/Typing_Examples"
+	"Isabelle_Set/ZF_Compatibility"
+
+
+session Typed_Set_Theory = "HOL-Number_Theory" +
+  description
+    \<open> Set theory with types on top. \<close>
+  sessions
+    "HOL-Eisbach"
+  theories
   (* Types on top of Isabelle/Pure *)
 	"Soft_Types/Soft_Types"
  
@@ -22,8 +37,7 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
   (* Not currently working:
   "Isabelle_Mizar/mizar_import"
 	"Isabelle_Mizar/mizar_string"
-	"Isabelle_Mizar/mizar_struct"
-  *)
+	"Isabelle_Mizar/mizar_struct" *)
 
 
   (* MML Material *)
@@ -66,28 +80,9 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
 	"MML/algstr_0"
 	"MML/rlvect_1"
 	"MML/setfam_1"
-	"MML/z2"
-	*)
-
+	"MML/z2" *)
 
   (* Some more material from soft type experiments in Isabelle/ZF.
-     These should be adapted to Tarski-Grothendieck to be compatible with the Mizar foundation.
-	*)
+  These should be adapted to Tarski-Grothendieck to be compatible with the Mizar foundation. *)
 	"tests/test"
 	"tests/Old_ZF_Experiments/ZF_Typing_Examples"
-
-session Isabelle_Set = "HOL" +
-  description
-    {* Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL *}
-  sessions
-    "HOL-Eisbach"
-
-  theories
-
-  (* Types on top of Isabelle/Pure *)
-	"Soft_Types/Soft_Types"
-
-  (* Tarski-Grothendieck Set Theory on top of HOL. *)
-	"Isabelle_Set/Set_Theory"
-	"Isabelle_Set/Pair"
-  "Isabelle_Set/Relations"

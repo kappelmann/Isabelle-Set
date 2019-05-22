@@ -97,73 +97,72 @@ lemma pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>f
   by simp
 
 
-definition KPair :: "set \<Rightarrow> set \<Rightarrow> set"
-  where "KPair a b \<equiv> {{a}, {a, b}}"
+text \<open>The definition above is equivalent to this more standard one:\<close>
 
-lemma Pair_eq_KPair: "Pair a b = KPair a b"
-  unfolding Pair_def KPair_def by extensionality
+lemma Kuratowski_Pair_def: "Pair a b = {{a}, {a, b}}"
+  unfolding Pair_def by extensionality
 
 
 subsection \<open>Disjoint union of a set-indexed family of sets\<close>
 
 text \<open>Generalizes Cartesian product\<close>
 
-definition Disj_Union :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  where "Disj_Union A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x,y\<rangle>}"
+definition DUnion :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+  where "DUnion A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x,y\<rangle>}"
 
 syntax
   "_Disj_UNION" :: "[pttrn, set, set \<Rightarrow> set] \<Rightarrow> set" ("\<Coprod>_ \<in> _./ _" [0, 0, 100])
 translations
-  "\<Coprod>x \<in> A. B" \<rightleftharpoons> "CONST Disj_Union A (\<lambda>x. B)"
+  "\<Coprod>x \<in> A. B" \<rightleftharpoons> "CONST DUnion A (\<lambda>x. B)"
 
 abbreviation cart_prod :: "set \<Rightarrow> set \<Rightarrow> set" (infixr "\<times>" 80)
   where "A \<times> B \<equiv> \<Coprod>_ \<in> A. B"
 
-lemma Disj_Union_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
-  by (auto simp: Disj_Union_def)
+lemma DUnion_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
+  by (auto simp: DUnion_def)
 
-lemma Disj_UnionI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x)"
+lemma DUnionI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x)"
   by simp
 
-lemmas Disj_UnionD1 = Disj_Union_iff [THEN iffD1, THEN conjunct1]
-lemmas Disj_UnionD2 = Disj_Union_iff [THEN iffD1, THEN conjunct2]
+lemmas DUnionD1 = DUnion_iff [THEN iffD1, THEN conjunct1]
+lemmas DUnionD2 = DUnion_iff [THEN iffD1, THEN conjunct2]
 
 (* The general elimination rule *)
-lemma Disj_UnionE [elim!]:
+lemma DUnionE [elim!]:
   "\<lbrakk>c \<in> \<Coprod>x \<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x; c = \<langle>x, y\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (unfold Disj_Union_def, blast)
+  by (unfold DUnion_def, blast)
 
-lemma Disj_UnionE2 [elim!]:
+lemma DUnionE2 [elim!]:
   "\<lbrakk>\<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x); \<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (unfold Disj_Union_def, blast)
+  by (unfold DUnion_def, blast)
 
-lemma Disj_Union_cong:
+lemma DUnion_cong:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Coprod>x \<in> A. (B x) = \<Coprod>x \<in> A'. (B' x)"
-  by (simp add: Disj_Union_def)
+  by (simp add: DUnion_def)
 
-lemma Disj_Union_empty1 [simp]: "\<Coprod>x \<in> {}. (B x) = {}"
+lemma DUnion_empty1 [simp]: "\<Coprod>x \<in> {}. (B x) = {}"
   by extensionality
 
-lemma Disj_Union_empty2 [simp]: "A \<times> {} = {}"
+lemma DUnion_empty2 [simp]: "A \<times> {} = {}"
   by extensionality
 
-lemma Disj_Union_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
+lemma DUnion_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
   by (auto intro!: equality_iffI)
 
 
 subsection \<open>Projections @{term fst} and @{term snd} for disjoint unions\<close>
 
-lemma Disj_Union_fst: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> fst p \<in> A"
+lemma DUnion_fst: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
 
-lemma Disj_Union_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B(fst p)"
+lemma DUnion_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B(fst p)"
   by auto
 
-lemma Disj_Union_pair [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma DUnion_pair [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
 
 corollary cartesian_prod_pair: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
-  by (fact Disj_Union_pair)
+  by (fact DUnion_pair)
 
 
 subsection \<open>Disjoint union as sigma type\<close>
@@ -188,7 +187,7 @@ lemma split [simp]: "split f \<langle>a, b\<rangle> \<equiv> f a b"
 lemma split_type:
   "\<lbrakk>p \<in> \<Coprod>x \<in> A. (B x); \<And>x y.\<lbrakk>x \<in> A; y \<in> B x\<rbrakk> \<Longrightarrow> c x y \<in> C \<langle>x,y\<rangle>
     \<rbrakk> \<Longrightarrow> split c p \<in> C p"
-  by (erule Disj_UnionE, auto)
+  by (erule DUnionE, auto)
 
 lemma expand_split:
   "u \<in> A \<times> B \<Longrightarrow> R (split c u) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B. u = \<langle>x,y\<rangle> \<longrightarrow> R (c x y))"
@@ -206,13 +205,25 @@ lemma splitD: "split R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
 
 text \<open>Complex rules for disjoint union.\<close>
 
-lemma split_paired_Bex_Disj_Union [simp]:
+lemma split_paired_Bex_DUnion [simp]:
   "(\<exists>z \<in> \<Coprod>x \<in> A. (B x). P z) \<longleftrightarrow> (\<exists>x \<in> A. \<exists>y \<in> B x. P \<langle>x, y\<rangle>)"
   by blast
 
-lemma split_paired_Ball_Disj_Union [simp]:
+lemma split_paired_Ball_DUnion [simp]:
   "(\<forall>z \<in> \<Coprod>x \<in> A. (B x). P z) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B x. P \<langle>x,y\<rangle>)"
   by blast
+
+
+subsection \<open>Typing rules\<close>
+
+lemma Pair_type [type]: "Pair : [x: element A] \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
+proof (intro Pi_typeI)
+  fix x y assume x: "x : element A" and y: "y : element (B x)"
+  from x have "x \<in> A" by (rule element_typeE)
+  moreover from y have "y \<in> B x" by (rule element_typeE)
+  ultimately have "\<langle>x, y\<rangle> \<in> DUnion A B" by (rule DUnionI)
+  then show "\<langle>x, y\<rangle> : element (DUnion A B)" by (rule element_typeI)
+qed
 
 
 end

@@ -41,11 +41,11 @@ qed
 lemma relation_subsetE [elim]: "\<lbrakk>A \<subseteq> R; R : relation\<rbrakk> \<Longrightarrow> A : relation"
   unfolding relation_typedef by auto
 
-lemma Disj_Union_rel: "\<Coprod>x \<in> A. (B x) : relation"
+lemma DUnion_rel: "\<Coprod>x \<in> A. (B x) : relation"
   unfolding relation_typedef by auto
 
 corollary cartesian_prod_rel: "A \<times> B : relation"
-  by (fact Disj_Union_rel)
+  by (fact DUnion_rel)
 
 
 subsection \<open>Converse relations\<close>
