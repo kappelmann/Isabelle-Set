@@ -23,7 +23,7 @@ axiomatization
 definition has_type :: "'a::{} \<Rightarrow> 'a type \<Rightarrow> prop" (infix ":::" 40)
   where "x ::: T \<equiv> pred_of T x"
 
-lemma has_type_Type[simp]: "x ::: Type P \<equiv> P x"
+lemma has_type_Type_iff[simp]: "x ::: Type P \<equiv> P x"
   unfolding has_type_def pred_of_Type .
 
 
@@ -47,7 +47,7 @@ term "t ::: (x : set A) \<Rightarrow> (set (A + B))"
 lemma Pi_typeI:
   assumes a: "\<And>(x::'a::{}). x ::: A \<Longrightarrow> f x ::: B x"
   shows "f ::: (x:A) \<Rightarrow> B x"
-  unfolding Pi_type_def has_type_Type
+  unfolding Pi_type_def has_type_Type_iff
   by (rule a)
   
 lemma Pi_typeE:
@@ -57,7 +57,7 @@ lemma Pi_typeE:
 proof -
   from 2
   show "PROP ?thesis"
-    by (rule 1[unfolded Pi_type_def has_type_Type, rule_format])
+    by (rule 1[unfolded Pi_type_def has_type_Type_iff, rule_format])
 qed
 
 (* Implicit version. Currently unused
@@ -78,7 +78,7 @@ definition Set :: "i type"
   where "Set \<equiv> Type (\<lambda>x::i. (x == x))"
 
 lemma Set_TypeI: "(x::i) ::: Set"
-  unfolding Set_def has_type_Type .
+  unfolding Set_def has_type_Type_iff .
 
 
 subsection \<open> Type of elements of a given set \<close>
@@ -87,10 +87,10 @@ definition set :: "i \<Rightarrow> i type"
   where "set A == Type (%x. Trueprop (x \<in> A))"
 
 lemma set_typeI: "x \<in> A \<Longrightarrow> x ::: set A"
-  unfolding set_def has_type_Type .
+  unfolding set_def has_type_Type_iff .
 
 lemma set_typeE: "x ::: set A \<Longrightarrow> x \<in> A"
-  unfolding set_def has_type_Type .
+  unfolding set_def has_type_Type_iff .
 
 
 subsection \<open> Type of object-level propositions \<close>
@@ -99,7 +99,7 @@ definition o :: "o type"
   where "o \<equiv> Type (\<lambda>x::o. (x == x))"
 
 lemma o_TypeI: "(P::o) ::: o"
-  unfolding o_def has_type_Type .
+  unfolding o_def has_type_Type_iff .
 
 
 

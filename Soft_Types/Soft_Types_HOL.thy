@@ -20,7 +20,7 @@ where
 definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
   where "x : T \<equiv> pred_of T x"
 
-lemma has_type_Type [simp]: "x : Type P \<equiv> P x"
+lemma has_type_Type_iff [simp]: "x : Type P \<equiv> P x"
   unfolding has_type_def pred_of_Type .
 
 lemma has_typeI [intro]: "P x \<Longrightarrow> x : Type P"
@@ -74,7 +74,7 @@ translations
 lemma Pi_typeI:
   assumes "\<And>x. x : A \<Longrightarrow> f x : B x"
   shows "f : [x : A] \<Rightarrow> B x"
-  unfolding Pi_typedef has_type_Type
+  unfolding Pi_typedef has_type_Type_iff
   using assms by auto
 
 lemma Pi_typeE:
@@ -84,28 +84,28 @@ lemma Pi_typeE:
 proof -
   from 2
   show "?thesis"
-  by (rule 1[unfolded Pi_typedef has_type_Type Soft_Ball_def, rule_format])
+  by (rule 1[unfolded Pi_typedef has_type_Type_iff Soft_Ball_def, rule_format])
 qed
 
 
 subsection \<open>Intersections\<close>
 
 definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
-where Int_typedef: "A \<bar> B \<equiv> Type (\<lambda>x. x : A \<and> x : B)"
+  where Int_typedef: "A \<bar> B \<equiv> Type (\<lambda>x. x : A \<and> x : B)"
 
 lemma Int_TypeI [intro?]:
   "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B"
-  unfolding Int_typedef has_type_Type
+  unfolding Int_typedef has_type_Type_iff
   by auto
 
 lemma Int_TypeD1:
   "x : A \<bar> B \<Longrightarrow> x : A"
-  unfolding Int_typedef has_type_Type
+  unfolding Int_typedef has_type_Type_iff
   by auto
 
 lemma Int_TypeD2:
   "x : A \<bar> B \<Longrightarrow> x : B"
-  unfolding Int_typedef has_type_Type
+  unfolding Int_typedef has_type_Type_iff
   by auto
 
 
@@ -133,7 +133,8 @@ definition bool :: "bool type"
 lemma all_formulas_bool: "P : bool"
   unfolding bool_typedef by auto
 
-lemma imp_type[type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
+(* Is this used anywhere? --Josh *)
+lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
 
 

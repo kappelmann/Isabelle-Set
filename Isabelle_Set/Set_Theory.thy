@@ -25,16 +25,17 @@ definition set :: type
 lemma all_sets_set: "x : set"
   unfolding set_typedef by auto
 
-
 text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
 
 lemma
-  elem_type[type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
-  eq_type[type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
-  empty_set_type[type]: "{} : set" and
-  Pow_type[type]: "Pow : set \<Rightarrow> set" and
-  Union_type[type]: "Union : set \<Rightarrow> set" and
-  Repl_type[type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+  elem_type [type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
+  eq_type [type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
+    (* ^ Really, A \<Rightarrow> B \<Rightarrow> bool, so I'm not sure how much more useful this is compared to
+    set \<Rightarrow> set \<Rightarrow> bool *)
+  empty_set_type [type]: "{} : set" and
+  Pow_type [type]: "Pow : set \<Rightarrow> set" and
+  Union_type [type]: "Union : set \<Rightarrow> set" and
+  Repl_type [type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   unfolding Pi_typedef by (auto intro: all_sets_set all_formulas_bool)
 
 
@@ -48,67 +49,6 @@ lemmas
   Union_rule [iff] = Union_axiom[rule_format] and
   Pow_rule [iff] = Pow_axiom[rule_format] and
   Replacement_rule [iff] = Replacement_axiom[rule_format]
-
-
-subsection \<open>Rules for subsets\<close>
-
-lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
-  by (simp add: subset_def)
-
-lemma subsetE [elim]: "\<lbrakk>A \<subseteq> B; c \<in> A\<rbrakk> \<Longrightarrow> c \<in> B"
-  by (unfold subset_def) auto
-
-lemma subsetD: "A \<subseteq> B \<Longrightarrow> c \<in> A \<longrightarrow> c \<in> B"
-  by auto
-
-lemma subsetCE [elim]: "\<lbrakk>A \<subseteq> B; c \<notin> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (simp add: subset_def, blast)
-
-lemma rev_subsetE: "\<lbrakk>c \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<in> B"
-  by blast
-
-lemma contra_subsetE: "\<lbrakk>A \<subseteq> B; c \<notin> B\<rbrakk> \<Longrightarrow> c \<notin> A"
-  by blast
-
-lemma rev_contra_subsetE: "\<lbrakk>c \<notin> B; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<notin> A"
-  by blast
-
-lemma subset_refl [simp]: "A \<subseteq> A"
-  by blast
-
-lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> A \<subseteq> C"
-  by blast
-
-(* LCP: Useful for proving A \<subseteq> B by rewriting in some cases *)
-lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
-  unfolding subset_def ..
-
-text \<open>For calculations:\<close>
-
-declare
-  subsetE [trans]
-  rev_subsetE [trans]
-  subset_trans [trans]
-
-
-subsection \<open>Rules for equality\<close>
-
-lemma equality_iffI: "(\<And>x. x \<in> A \<longleftrightarrow> x \<in> B) \<Longrightarrow> A = B"
-  by (rule extensionality) auto
-
-lemma equalityE: "\<lbrakk>A = B; \<lbrakk>A \<subseteq> B ; B \<subseteq> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by blast
-
-lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> P; \<lbrakk>c \<notin> A; c \<notin> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (erule equalityE, blast)
-
-lemma equality_iffD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
-  by auto
-
-method extensionality = (
-    (rule extensionality)?,
-    auto intro: equality_iffI dest: equality_iffD
-  ) \<comment>\<open>Frequently used\<close>
 
 
 subsection \<open>Bounded Quantifiers\<close>
@@ -178,6 +118,67 @@ lemma bex_cong [cong]:
   by (simp add: Bex_def cong: conj_cong)
 
 
+subsection \<open>Subsets\<close>
+
+lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
+  by (simp add: subset_def)
+
+lemma subsetE [elim]: "\<lbrakk>A \<subseteq> B; c \<in> A\<rbrakk> \<Longrightarrow> c \<in> B"
+  by (unfold subset_def) auto
+
+lemma subsetD: "A \<subseteq> B \<Longrightarrow> c \<in> A \<longrightarrow> c \<in> B"
+  by auto
+
+lemma subsetCE [elim]: "\<lbrakk>A \<subseteq> B; c \<notin> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  by (simp add: subset_def, blast)
+
+lemma rev_subsetE: "\<lbrakk>c \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<in> B"
+  by blast
+
+lemma contra_subsetE: "\<lbrakk>A \<subseteq> B; c \<notin> B\<rbrakk> \<Longrightarrow> c \<notin> A"
+  by blast
+
+lemma rev_contra_subsetE: "\<lbrakk>c \<notin> B; A \<subseteq> B\<rbrakk> \<Longrightarrow> c \<notin> A"
+  by blast
+
+lemma subset_refl [simp]: "A \<subseteq> A"
+  by blast
+
+lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> A \<subseteq> C"
+  by blast
+
+(* LCP: Useful for proving A \<subseteq> B by rewriting in some cases *)
+lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
+  unfolding subset_def ..
+
+text \<open>For calculations:\<close>
+
+declare
+  subsetE [trans]
+  rev_subsetE [trans]
+  subset_trans [trans]
+
+
+subsection \<open>Equality\<close>
+
+lemma equality_iffI: "(\<And>x. x \<in> A \<longleftrightarrow> x \<in> B) \<Longrightarrow> A = B"
+  by (rule extensionality) auto
+
+lemma equalityE: "\<lbrakk>A = B; \<lbrakk>A \<subseteq> B ; B \<subseteq> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  by blast
+
+lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> P; \<lbrakk>c \<notin> A; c \<notin> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  by (erule equalityE, blast)
+
+lemma equality_iffD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
+  by auto
+
+method extensionality = (
+    (rule extensionality)?,
+    auto intro: equality_iffI dest: equality_iffD
+  ) \<comment>\<open>Frequently used\<close>
+
+
 subsection \<open>Replacement\<close>
 
 syntax
@@ -218,7 +219,7 @@ lemma Repl_is_empty[iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: equality_iffD intro!: equality_iffI)
 
 
-subsection \<open>Rules for the empty set\<close>
+subsection \<open>Empty set\<close>
 
 lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
   by auto
@@ -357,7 +358,7 @@ lemma Upair_eq_Cons [simp]: "Upair a b = {a, b}"
   by extensionality
 
 
-subsection \<open>Set comprehension notation\<close>
+subsection \<open>Set comprehension\<close>
 
 text \<open>This is also known as separation.\<close>
 
@@ -395,8 +396,6 @@ translations
   "\<Union>x \<in> A. B" \<rightleftharpoons> "CONST Union {B. x \<in> A}"
   "\<Inter>x \<in> A. B" \<rightleftharpoons> "CONST Inter {B. x \<in> A}"
 
-
-subsection \<open>Rules for unions and intersections of families\<close>
 
 lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
   by (simp add: Bex_def, blast)
@@ -520,12 +519,7 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
 subsection \<open>Definite description\<close>
 
 text \<open>
-<<<<<<< HEAD
-We just reuse HOL's description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems.
-=======
-We just reuse HOLs description operator, which works uniformly on the set type, so we do not need
-further definitions or theorems.
->>>>>>> 58f09130bc7cbaa60fefa6e67302c2c632ae74cb
+We just reuse HOL's description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems
 
 Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where
 the operator would return the empty set.
@@ -596,13 +590,14 @@ lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: elem_irreflE)
 
 
-subsection \<open>Further types\<close>
+subsection \<open>More soft types\<close>
 
-subsubsection \<open> Type of elements of a given set \<close>
+subsubsection \<open>Elements of a given set\<close>
 
 definition element :: "set \<Rightarrow> type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
+(* Josh -- Ideally, we'd like to automate reasoning of the following kind *)
 lemma element_type_iff: "x : element A \<longleftrightarrow> x \<in> A"
   unfolding element_typedef by auto
 
@@ -613,10 +608,29 @@ lemma element_typeE: "x : element A \<Longrightarrow> x \<in> A"
   unfolding element_type_iff .
 
 
-subsubsection \<open>Type of subsets of a given set\<close>
+subsubsection \<open>Subsets of a given set\<close>
 
 abbreviation subset :: "set \<Rightarrow> type"
   where "subset A \<equiv> element (Pow A)"
+
+lemma subset_type_iff: "B : subset A \<longleftrightarrow> B \<subseteq> A"
+  unfolding element_typedef by auto
+
+
+subsubsection \<open>Collections of sets of a given type T\<close>
+
+definition collection :: "type \<Rightarrow> type"
+  where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
+
+
+subsubsection \<open>Refinements of the axiomatized constants\<close>
+
+lemma
+  [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
+  [type]: "Union : collection (collection T) \<Rightarrow> collection T" and
+  [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S"
+  unfolding collection_typedef by (intro Pi_typeI, auto elim: Pi_typeE)+
+    (* ^ Using Pi_typeI, Pi_typeE etc. should be automated! (?) *)
 
 
 end

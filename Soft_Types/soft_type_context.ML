@@ -33,8 +33,7 @@ struct
 
 
   (* Breaks a typing judgment into its term and type parts.
-
-    Accepts both pure judgement form or embedded into HOL.Trueprop.
+     Accepts both pure judgement form or embedded into HOL.Trueprop.
    *)
   fun dest_typing tm =
       case tm of
@@ -48,7 +47,7 @@ struct
       val (x, _) = dest_typing (Thm.prop_of thm)
     in 
       put x thm ctxt
-    end; 
+    end;
 
 
   val _ = Theory.setup (Attrib.setup @{binding type}

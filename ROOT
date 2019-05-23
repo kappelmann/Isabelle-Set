@@ -11,8 +11,7 @@ session Isabelle_Set = "HOL" +
 	"Isabelle_Set/Isabelle_Set"
 
   (* Examples and compatibility layers *)
-	"Isabelle_Set/Examples/Typing_Examples"
-	"Isabelle_Set/ZF_Compatibility"
+  "Isabelle_Set/ZF_Compatibility"
 
 
 session Typed_Set_Theory = "HOL-Number_Theory" +

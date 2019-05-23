@@ -1,13 +1,18 @@
+(* Soft types library for the Pure logic.
+Work on this version is deprioritized in favor of the version for HOL, see Soft_Types_HOL.thy.
+
+Alex Krauss and Josh Chen, May 2019 *)
+
 theory Soft_Types
-  imports Pure
+imports Pure
+
 begin
 
-
 text \<open>
-  We define a meta-type of types, which is isomorphic to Pure predicates, that is
-  @{typ "'a => prop"}. Pi-types and intersections can then be introduced as definitions.
+We define a meta-type of types, which is isomorphic to Pure predicates, that is @{typ "'a => prop"}.
+Pi-types and intersections can then be introduced as definitions.
   
-  We define some syntax translations to introduce a telescope-like syntax.
+We define some syntax translations to introduce a telescope-like syntax.
 \<close>
 
 subsection \<open> Notion of soft type \<close>
@@ -26,7 +31,7 @@ axiomatization
 definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> prop" (infix ":::" 5)
   where "x ::: T \<equiv> pred_of T x"
 
-lemma has_type_Type[simp]: "x ::: Type P \<equiv> P x"
+lemma has_type_Type_iff[simp]: "x ::: Type P \<equiv> P x"
   unfolding has_type_def pred_of_Type .
 
 
@@ -58,7 +63,7 @@ term "(f: (x:A) \<Rightarrow> B x) \<Rightarrow> C f"
 lemma Pi_typeI:
   assumes "\<And>x. x ::: A \<Longrightarrow> f x ::: B x"
   shows "f ::: (x : A) \<Rightarrow> B x"
-  unfolding Pi_type_def has_type_Type
+  unfolding Pi_type_def has_type_Type_iff
   by fact
 
 lemma Pi_typeE:
@@ -68,7 +73,7 @@ lemma Pi_typeE:
 proof -
   from 2
   show "PROP ?thesis"
-  by (rule 1[unfolded Pi_type_def has_type_Type, rule_format])
+  by (rule 1[unfolded Pi_type_def has_type_Type_iff, rule_format])
 qed
 
 
@@ -79,17 +84,17 @@ where "A \<bar> B \<equiv> Type (\<lambda>x. (x ::: A &&& x ::: B))"
 
 lemma Int_TypeI:
   "x ::: A \<Longrightarrow> x ::: B \<Longrightarrow> x ::: A \<bar> B"
-  unfolding Int_Type_def has_type_Type
+  unfolding Int_Type_def has_type_Type_iff
   by (rule conjunctionI)
 
 lemma Int_TypeD1:
   "x ::: A \<bar> B \<Longrightarrow> x ::: A"
-  unfolding Int_Type_def has_type_Type
+  unfolding Int_Type_def has_type_Type_iff
   by (rule conjunctionD1)
 
 lemma Int_TypeD2:
   "x ::: A \<bar> B \<Longrightarrow> x ::: B"
-  unfolding Int_Type_def has_type_Type
+  unfolding Int_Type_def has_type_Type_iff
   by (rule conjunctionD2)
 
 

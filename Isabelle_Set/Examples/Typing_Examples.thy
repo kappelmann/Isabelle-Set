@@ -3,17 +3,25 @@ theory Typing_Examples
 begin
 
 lemma empty_type[type]: "{} : subset A"
-  unfolding element_type_iff Pow_rule by auto
+  unfolding element_typedef by auto
 
 text \<open>
   This currently needs to be restricted due to a deficiency in the 
   type inference algorithm.
 \<close>
-lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> bool) \<Rightarrow> bool"
+lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> prop) \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
 
-lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
+lemma mem_type[type]: "(\<in>) : subset A \<Rightarrow> element A \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
+
+(* Note also: *)
+lemma All_type_triv: "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> bool"
+  by (intro Pi_typeI all_formulas_bool)
+(* and *)
+lemma mem_type_triv: "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
+  by (intro Pi_typeI all_formulas_bool)
+
 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
   by (intro Pi_typeI, unfold element_type_iff Pow_rule) auto

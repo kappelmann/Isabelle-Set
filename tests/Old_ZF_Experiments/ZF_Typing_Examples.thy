@@ -8,7 +8,7 @@ definition Set :: "i type"
   where "Set \<equiv> Type (\<lambda>x::i. (x == x))"
 
 lemma Set_TypeI: "(x::i) ::: Set"
-  unfolding Set_def has_type_Type .
+  unfolding Set_def has_type_Type_iff .
 
 
 subsection \<open> Type of elements of a given set \<close>
@@ -17,13 +17,13 @@ definition set :: "i \<Rightarrow> i type"
   where "set A == Type (%x. Trueprop (x \<in> A))"
 
 lemma set_typeI: "x \<in> A \<Longrightarrow> x ::: set A"
-  unfolding set_def has_type_Type .
+  unfolding set_def has_type_Type_iff .
 
 lemma set_typeE: "x ::: set A \<Longrightarrow> x \<in> A"
-  unfolding set_def has_type_Type .
+  unfolding set_def has_type_Type_iff .
 
 lemma set_type_iff: "(x ::: set A) == Trueprop (x \<in> A)"
-  unfolding set_def has_type_Type .
+  unfolding set_def has_type_Type_iff .
 
 
 subsection \<open> Type of object-level propositions \<close>
@@ -32,7 +32,7 @@ definition o :: "o type"
   where "o \<equiv> Type (\<lambda>x::o. (x == x))"
 
 lemma o_TypeI: "(P::o) ::: o"
-  unfolding o_def has_type_Type .
+  unfolding o_def has_type_Type_iff .
 
 
 subsection \<open> Type of subsets of a given set \<close>
