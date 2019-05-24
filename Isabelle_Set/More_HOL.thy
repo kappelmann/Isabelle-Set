@@ -27,5 +27,7 @@ subsection \<open>Additional logical rules\<close>
 lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
   by blast
 
+lemma contrapos: "P \<longrightarrow> Q \<Longrightarrow> \<not>Q \<longrightarrow> \<not>P" by blast
+
 
 end

@@ -218,6 +218,9 @@ lemma Repl_empty[iff]: "{f x. x \<in> {}} = {}"
 lemma Repl_is_empty[iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: equality_iffD intro!: equality_iffI)
 
+lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
+  by extensionality
+
 
 subsection \<open>Empty set\<close>
 
@@ -376,6 +379,74 @@ lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in>
   by (auto simp: Collect_def)
 
 
+subsection \<open>Relation-based replacement\<close>
+
+text \<open>Replacement in predicate form.\<close>
+
+definition Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
+  where "Replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
+
+syntax
+  "_GenRepl"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ |/ _ \<in> _, _})")
+  "_GenRepl'"  :: "[pttrn, pttrn, set, bool] => set"  ("(1{_ ./ _ \<in> _, _})")
+translations
+  "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST Replace A (\<lambda>x y. Q)"
+  "{y . x \<in> A, Q}" \<rightharpoonup> "CONST Replace A (\<lambda>x y. Q)"
+
+
+lemma Replace_iff:
+  "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
+proof -
+  have "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))"
+    using Replace_def by auto
+  also have "... \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
+  proof (rule bex_cong[OF refl])
+    fix x assume "x \<in> A"
+    show
+      "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b)"
+      (is "?lhs \<longleftrightarrow> ?rhs")
+    proof
+      assume "?lhs"
+      then have ex1: "\<exists>!y. P x y" and b: "b = (THE y. P x y)" by auto
+      show ?rhs
+      proof
+        from ex1 show "P x b" unfolding b by (rule theI')
+        with ex1 show "\<forall>y. P x y \<longrightarrow> y = b" unfolding Ex1_def by blast
+      qed
+    next
+      assume ?rhs
+      then have P: "P x b" and uniq: "\<And>y. P x y \<Longrightarrow> y = b" by auto
+      show ?lhs
+      proof
+        from P uniq
+        show "\<exists>!y. P x y" by (rule ex1I)
+        from this P
+        show "b = (THE y. P x y)" by (rule the1_equality[symmetric])
+      qed
+    qed
+  qed
+  ultimately show ?thesis by auto
+qed
+
+(* Introduction; there must be a unique y such that P x y, namely y = b. *)
+lemma ReplaceI [intro]: "\<lbrakk>P x b; x \<in> A; \<And>y. P x y \<Longrightarrow> y = b\<rbrakk> \<Longrightarrow> b \<in> {y | x \<in> A, P x y}"
+  by (rule Replace_iff [THEN iffD2], blast)
+
+(* Elimination; may assume there is a unique y such that P x y, namely y = b. *)
+lemma ReplaceE:
+  "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
+
+(* As above but without the (generally useless) 3rd assumption *)
+lemma ReplaceE2 [elim!]:
+  "\<lbrakk>b \<in> {y. x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  by (erule ReplaceE, blast)
+
+lemma Replace_cong [cong]:
+  "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> Replace A P = Replace B Q"
+  by (rule equality_iffI) (simp add: Replace_iff)
+
+
 subsection \<open>Union and intersection\<close>
 
 definition Inter :: "set => set"  ("\<Inter>_" [90] 90)
@@ -482,6 +553,9 @@ lemma UnE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; \<lbr
 lemma UnCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarrow> c \<in> A \<union> B"
   by auto
 
+lemma Un_commute [simp]: "A \<union> B = B \<union> A"
+  by extensionality
+
 lemma IntI [intro!]: "\<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> c \<in> A \<inter> B"
   by simp
 
@@ -493,6 +567,12 @@ lemma IntD2: "c \<in> A \<inter> B \<Longrightarrow> c \<in> B"
 
 lemma IntE [elim!]: "\<lbrakk>c \<in> A \<inter> B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by simp
+
+lemma Int_empty_iff [iff]: "(\<forall>a \<in> A. a \<notin> B) \<longleftrightarrow> A \<inter> B = {}"
+  by auto
+
+lemma Int_commute [simp]: "A \<inter> B = B \<inter> A"
+  by extensionality
 
 
 subsection \<open>Set Difference\<close>
@@ -516,55 +596,17 @@ lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<
   by simp
 
 
-subsection \<open>Definite description\<close>
+subsection \<open>\<in>-induction\<close>
 
-text \<open>
-We just reuse HOL's description operator, which works uniformly on the rigid set type, so we do not need further definitions or theorems
+lemma foundation: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter> X = {}"
+  using elem_induct_axiom[of "\<lambda>x. x \<notin> X"] by auto
 
-Note that the result is unspecified if the predicate is not unique, unlike in Isabelle/ZF, where
-the operator would return the empty set.
-\<close>
-(* Josh -- I think this is a good idea; definite description should be a feature of
-the logic and not the set theory *)
-
-
-subsection \<open>More replacement\<close>
-
-lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
-  by extensionality
-
-term "THE (x::set). P x"
-
-
-subsection \<open>Consequences of elem-induction (foundation)\<close>
-
-text \<open>Isabelle/ZF's formulation of foundation, for compatibility.\<close>
-
-lemma foundation: "A = {} \<or> (\<exists>x \<in> A. \<forall>y \<in> x. y \<notin> A)"
-proof (rule disjCI2)
-  assume "A \<noteq> {}"
-  then obtain x where "x \<in> A" by (rule not_emptyE)
-  then show "(\<exists>y \<in> A. \<forall>z \<in> y. z \<notin> A)"
-  proof (induct x arbitrary: A rule: elem_induct_rule)
-    fix x u assume
-      x: "x \<in> u" and
-      IH: "\<And>z u'. z \<in> x \<Longrightarrow> z \<in> u' \<Longrightarrow> (\<exists>y \<in> u'. \<forall>w \<in> y. w \<notin> u')"
-    then show "\<exists>y \<in> u. \<forall>w \<in> y. w \<notin> u"
-    proof (cases "\<forall>z \<in> x. z \<notin> u")
-      case True from this x show ?thesis by (rule bexI)
-    next
-      case False
-      then obtain y where "y \<in> x" and "y \<in> u"
-        by (auto elim: not_emptyE)
-      then show ?thesis by (rule IH)
-    qed
-  qed
-qed
-
+lemma foundation2: "X = {} \<or> (\<exists>Y \<in> X. \<forall>y \<in> Y. y \<notin> X)"
+  using foundation by blast
 
 lemma elem_asymE: "\<lbrakk>a \<in> b; \<not>P \<Longrightarrow> b \<in> a\<rbrakk> \<Longrightarrow> P"
   apply (rule classical)
-  apply (rule_tac A1 = "{a,b}" in foundation [THEN disjE])
+  apply (rule_tac X1 = "{a,b}" in foundation2 [THEN disjE])
   apply (blast elim!: equalityE)+
   done
 
@@ -575,8 +617,8 @@ lemma elem_irreflE: "a \<in> a \<Longrightarrow> P"
   by (blast intro: elem_asymE)
 
 text \<open>
-LCP: @{thm elem_irreflE} should NOT be added to default databases: it would be tried on most goals,
-making proofs slower!
+LCP: @{thm elem_irreflE} should NOT be added to default databases:
+it would be tried on most goals, making proofs slower!
 \<close>
 
 lemma elem_irrefl: "a \<notin> a"
@@ -623,7 +665,7 @@ definition collection :: "type \<Rightarrow> type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 
-subsubsection \<open>Refinements of the axiomatized constants\<close>
+subsubsection \<open>Refined types for axiomatized constants\<close>
 
 lemma
   [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
