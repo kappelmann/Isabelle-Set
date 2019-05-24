@@ -25,16 +25,29 @@ qed (rule all_sets_set)
 theorem tarski_0_5: "x \<in> X \<longrightarrow> (\<exists>Y. Y \<in> X \<and> \<not>(\<exists>x. x \<in> X \<and> x \<in> Y))"
   using elem_induct_axiom[of "\<lambda>x. x \<notin> X"] by blast
 
-lemma tarski_0_sch_1:
-  "\<lbrakk>A : set; \<forall>x y z. P x y \<and> P x z \<longrightarrow> y = z\<rbrakk> \<Longrightarrow> \<exists>Y. \<forall>y. y \<in> Y \<longleftrightarrow> (\<exists>x. x \<in> A \<and> P x y)"
-(* proof -
-  assume asm: "\<forall>x y z. P x y \<and> P x z \<longrightarrow> y = z"
-  let ?F = "\<lambda>x. (THE y. P x y)"
-  have "\<forall>y. y \<in> {?F x | x \<in> A} \<longleftrightarrow> (\<exists>x. x \<in> A \<and> P x y)"
+theorem tarski_0_sch_1:
+  assumes "A : set" and "\<forall>x y z. P x y \<and> P x z \<longrightarrow> y = z"
+  shows "\<exists>Y. \<forall>y. y \<in> Y \<longleftrightarrow> (\<exists>x. x \<in> A \<and> P x y)"
+proof
+  let ?Y = "{y | x \<in> A, P x y}"
+  show "\<forall>y. y \<in> ?Y \<longleftrightarrow> (\<exists>x. x \<in> A \<and> P x y)"
   proof (rule, rule)
-    fix y assume "y \<in> {THE y. P x y | x \<in> A}"
-    then obtain x where "x \<in> A" and "y = (THE y. P x y)"
-      by (auto elim: ReplD)
-    hence "P x y" apply simp apply (rule theI') *)
+    fix y assume "y \<in> ?Y"
+    then obtain x where "x \<in> A" and "P x y" by auto
+    thus "\<exists>x. x \<in> A \<and> P x y" by auto
+  next
+    fix y assume "\<exists>x. x \<in> A \<and> P x y"
+    then obtain x where
+      1: "x \<in> A" and
+      2: "P x y"
+      by auto
+    show "y \<in> {y | x \<in> A, P x y}"
+    proof
+      fix u assume "P x u"
+      with 2 assms(2) show "u = y" by auto
+    qed (fact 1 2)+
+  qed
+qed
+
 
 end
