@@ -115,7 +115,7 @@ definition is_subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" ("(_
   where "A \<prec> B \<equiv> \<forall>x : A. pred_of A x \<longrightarrow> pred_of B x"
 
 
-subsection \<open>Some tooling\<close>
+subsection \<open>Tooling\<close>
 
 named_theorems type_simp
 

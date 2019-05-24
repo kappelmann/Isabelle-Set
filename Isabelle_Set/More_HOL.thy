@@ -24,8 +24,7 @@ no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 
 subsection \<open>Additional logical rules\<close>
 
-lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B"
-  by blast
+lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B" by blast
 
 lemma contrapos: "P \<longrightarrow> Q \<Longrightarrow> \<not>Q \<longrightarrow> \<not>P" by blast
 

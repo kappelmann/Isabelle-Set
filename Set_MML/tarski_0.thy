@@ -1,9 +1,9 @@
+section \<open>TARSKI_0\<close>
+
 theory tarski_0
 imports "../Isabelle_Set/Set_Theory"
 
 begin
-
-section \<open>TARSKI_0\<close>
 
 theorem tarski_0_1: "\<forall>x. x : set" using all_sets_set ..
 

@@ -675,4 +675,13 @@ lemma
     (* ^ Using Pi_typeI, Pi_typeE etc. should be automated! (?) *)
 
 
+(* Testing *)
+ML \<open>
+val ctxt = @{context};
+val context = (Context.Proof ctxt);
+
+Soft_Type_Context.get context @{term "Union"}
+\<close>
+
+
 end

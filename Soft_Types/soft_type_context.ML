@@ -31,7 +31,6 @@ struct
   fun put t sty = Ctxt.map (put_sty t sty);
   fun get ctxt t = get_sty (Ctxt.get ctxt) t;
 
-
   (* Breaks a typing judgment into its term and type parts.
      Accepts both pure judgement form or embedded into HOL.Trueprop.
    *)
@@ -43,15 +42,12 @@ struct
 
 
   fun add_typing thm ctxt =
-    let
-      val (x, _) = dest_typing (Thm.prop_of thm)
-    in 
-      put x thm ctxt
+    let val (x, _) = dest_typing (Thm.prop_of thm)
+    in put x thm ctxt
     end;
 
-
   val _ = Theory.setup (Attrib.setup @{binding type}
-    (Scan.succeed (Thm.declaration_attribute add_typing)) "define a soft type")
+    (Scan.succeed (Thm.declaration_attribute add_typing)) "Declare a soft type")
 
 
 end

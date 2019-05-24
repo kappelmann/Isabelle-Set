@@ -217,14 +217,8 @@ lemma split_paired_Ball_DUnion [simp]:
 
 subsection \<open>Typing rules\<close>
 
-lemma Pair_type [type]: "Pair : [x: element A] \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
-proof (intro Pi_typeI)
-  fix x y assume x: "x : element A" and y: "y : element (B x)"
-  from x have "x \<in> A" by (rule element_typeE)
-  moreover from y have "y \<in> B x" by (rule element_typeE)
-  ultimately have "\<langle>x, y\<rangle> \<in> DUnion A B" by (rule DUnionI)
-  then show "\<langle>x, y\<rangle> : element (DUnion A B)" by (rule element_typeI)
-qed
+lemma Pair_type [type]: "Pair : [x: element A] \<Rightarrow> element (B x) \<Rightarrow> element (\<Coprod>x \<in> A. (B x))"
+  unfolding element_typedef by (intro Pi_typeI) auto
 
 
 end
