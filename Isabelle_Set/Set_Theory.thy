@@ -680,7 +680,7 @@ ML \<open>
 val ctxt = @{context};
 val context = (Context.Proof ctxt);
 
-Soft_Type_Context.get context @{term "Union"}
+Soft_Type_Context.get_current_type context @{term "Union"}
 \<close>
 
 

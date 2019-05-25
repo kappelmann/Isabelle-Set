@@ -209,7 +209,7 @@ fun unify_constraints ctxt constraints fresh_idx =
 fun infer_type ctxt ts = 
   let
     val const_types = 
-      Option.map (#2 o Soft_Type_Context.dest_typing o Thm.prop_of) o Soft_Type_Context.get (Context.Proof ctxt)
+      Option.map (#2 o Soft_Type_Context.dest_typing o Thm.prop_of) o Soft_Type_Context.get_current_type (Context.Proof ctxt)
 
     val ictxt = Inference_Context {
         const_types = const_types,
