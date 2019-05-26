@@ -11,21 +11,28 @@ Symbols are either free variables (declared in the context) or constants.
 structure Soft_Type_Context =
 struct
 
-(* Breaks a typing judgment into its term and type parts.
-   Accepts both pure judgement form or embedded into HOL.Trueprop. *)
+(*** Utility functions ***)
+
+(*
+Breaks a typing judgment into its term and type parts.
+Accepts both pure judgement form or embedded into HOL.Trueprop.
+*)
 fun dest_typing tm =
-    case tm of
-      Const (@{const_name has_type}, _) $ t $ T => (t, T)
-    | Const ("HOL.Trueprop", _) $ (Const (@{const_name has_type}, _) $ t $ T) => (t, T)
-    | _ => Exn.error ("dest_typing: not a typing judgment" ^ \<^make_string> tm)
+  case tm of
+    Const (@{const_name has_type}, _) $ t $ T => (t, T)
+  | Const ("HOL.Trueprop", _) $ (Const (@{const_name has_type}, _) $ t $ T) => (t, T)
+  | _ => Exn.error ("dest_typing: not a typing judgment" ^ \<^make_string> tm)
 
 
+(*** Data slots ***)
+(*
+For any given term, we hold two separate collections of typing statements:
+1. Its currently-used soft type.
+2. The collection of all known (previously proven) types .
+*)
 
-(* For any given term, we hold two separate collections of typing statements:
-   1. Its currently-used soft type.
-   2. The collection of all known (previously proven) types . *)
+(** Slot for the current soft type of a term **)
 
-(* Context data for currently used soft types of terms. *)
 structure Current_Type = Generic_Data(
   type T = thm Termtab.table * thm Symtab.table;
   val empty = (Termtab.empty, Symtab.empty);
@@ -41,22 +48,24 @@ fun put_CT (Const (n, _)) sty = apsnd (Symtab.update (n, sty))
 fun get_CT tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
   | get_CT tabs t = Termtab.lookup (fst tabs) t
 
-(* Canonical get_current_type and put_current_type operations for the current type *)
+(*
+Canonical get and put operations for the current type
+*)
 fun put_current_type t sty = Current_Type.map (put_CT t sty);
 fun get_current_type ctxt t = get_CT (Current_Type.get ctxt) t;
 
-fun add_typing thm ctxt = (* Josh -- updates typing of a term. Should change function name. *)
+fun declare_current_type thm ctxt =
   let val (x, _) = dest_typing (Thm.prop_of thm)
   in put_current_type x thm ctxt
   end;
 
 val _ = Theory.setup (Attrib.setup @{binding type}
-  (Scan.succeed (Thm.declaration_attribute add_typing)) "Declare a soft type")
+  (Scan.succeed (Thm.declaration_attribute declare_current_type)) "Declare current soft type")
 
 
+(** Slot for all known types of a term **)
 
-(* Additional context data storing all known soft types of terms. *)
-structure More_Ctxt = Generic_Data(
+structure Known_Types = Generic_Data(
   type T = thm Item_Net.T * thm Item_Net.T
   val empty = (
     Item_Net.init Thm.eq_thm_prop (single o (#1 o dest_typing) o Thm.prop_of),
