@@ -52,42 +52,35 @@ theorem tarski_def_4_prop: "\<forall>x. x \<in> \<Union>X \<longleftrightarrow> 
 theorem tarski_th_3: "x \<in> X \<longrightarrow> (\<exists>Y. Y \<in> X \<and> \<not>(\<exists>x. x \<in> X \<and> x \<in> Y))"
   by (fact tarski_0_5)
 
-(*
+theorem tarski_redef_1: "asymmetry set (\<lambda>x X. x \<in> X)"
+proof rule+
+  fix a b assume "a : set" "b : set"
+  assume
+  A1: "a \<in> b \<and> b \<in> a"
+  hence
+  A3: "a \<in> {a, b} \<and> b \<in> {a, b}" by auto
+  from tarski_0_5 obtain y where
+  A4: "y \<in> {a, b} \<and> (\<nexists>x. x \<in> {a, b} \<and> x \<in> y)" by blast
+  hence "y = a \<or> y = b" by auto
+  thus False using A1 A3 A4 by auto
+qed
 
-mtheorem prefix_in_asymmetry:
-  "asymmetry set prefix_in"
-proof purify
-  {
-    fix a b assume "a be set" and "b be set"
-    assume
-    A1: "a in b \<and> b in a"
-    let ?X = "{a, b}"
-    have
-    A3: "a in ?X \<and> b in ?X" using tarski_def_2 by auto
-    obtain Y where "Y is set" and
-    A4: "Y in ?X \<and> \<not>(\<exists>x: object. x in ?X \<and> x in Y)" using A3 tarski_0_5 by fastforce
-    have "Y = a \<or> Y = b" using A4 tarski_def_2 by auto
-    hence False using A1 A3 A4 by auto
-  }
-  thus "\<And>x1 x2. \<lbrakk>x1 be set; x2 be set; x1 in x2 \<and> x2 in x1\<rbrakk> \<Longrightarrow> False" by auto
-qed auto
+theorem tarski_sch_1:
+  assumes "A : set" and "\<forall>x y z. P x y \<and> P x z \<longrightarrow> y = z"
+  shows "\<exists>Y. \<forall>y. y \<in> Y \<longleftrightarrow> (\<exists>x. x \<in> A \<and> P x y)"
+  using assms by (fact tarski_0_sch_1)
 
-lemmas tarski_sch_1 = tarski_0_sch_1
+definition tarski_def_5 :: "[set, set] \<Rightarrow> set" ("([_, _])")
+  where "[x, y] \<equiv> {{x, y}, {x}}"
 
-mdef tarski_def_5 ("[_ , _]") where
-  mlet "x be object", "y be object"
-  "func [x,y] \<rightarrow> object equals
-    {{x, y}, {x}}"
-  by auto
-  
-mdef tarski_def_6 ("_,_ are'_equipotent" [100,100]) where
-  mlet "X be set","Y be set"
-  "pred X, Y are_equipotent means
-    ex Z st
-    (for x st x in X ex y st y in Y \<and> [x,y] in Z) \<and>
-    (for y st y in Y ex x st x in X \<and> [x,y] in Z) \<and>
-    (for x,y,z,u st [x,y] in Z \<and> [z,u] in Z holds x = z \<longleftrightarrow> y = u)" .
-*)
+axiomatization tarski_def_6 :: "[set, set] \<Rightarrow> bool" ("(_, _ are'_equipotent)")
+  where tarski_def_6:
+  "\<lbrakk>X : set; Y : set\<rbrakk> \<Longrightarrow>
+    (X, Y are_equipotent) \<longleftrightarrow> (\<exists>Z.
+      (\<forall>x. x \<in> X \<longrightarrow> (\<exists>y. y \<in> Y \<and> [x, y] \<in> Z)) \<and>
+      (\<forall>y. y \<in> Y \<longrightarrow> (\<exists>x. x \<in> X \<and> [x, y] \<in> Z)) \<and>
+      (\<forall>x y z u. ([x, y] \<in> Z \<and> [z, u] \<in> Z) \<longrightarrow> (x = z \<longleftrightarrow> y = u)))"
+
 
 end
 
