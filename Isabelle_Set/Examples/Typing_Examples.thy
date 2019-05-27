@@ -9,10 +9,10 @@ text \<open>
   This currently needs to be restricted due to a deficiency in the 
   type inference algorithm.
 \<close>
-lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> prop) \<Rightarrow> bool"
+lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> bool) \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
 
-lemma mem_type[type]: "(\<in>) : subset A \<Rightarrow> element A \<Rightarrow> bool"
+lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
 
 (* Note also: *)
