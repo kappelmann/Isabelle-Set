@@ -9,6 +9,7 @@ subsection \<open>Relations\<close>
 
 definition relation :: type
   where relation_typedef: "relation = Type (\<lambda>R. \<forall>z \<in> R. \<exists>x y. z = \<langle>x, y\<rangle>)"
+(* redefine as subset (A \<times> B)? *)
 
 definition domain :: "set \<Rightarrow> set"
   where "domain R \<equiv> {fst p | p \<in> R}"
@@ -57,7 +58,7 @@ definition converse :: "set \<Rightarrow> set" \<comment>\<open>converse of rela
 text \<open>Alternative definition for the range of a relation\<close>
 
 lemma range_def2: "range R = domain (converse R)"
-  unfolding relation_typedef range_def domain_def converse_def
+  unfolding range_def domain_def converse_def
   by auto
 
 
@@ -83,6 +84,9 @@ lemma converse_subset:
   unfolding converse_def by (auto simp: relation_typedef)
 
 (* Our first example of a soft type rule! *)
+(* lemma converse_type: "converse: relation \<Rightarrow> relation"
+  sorry *)
+
 lemma converse_rel: "R : relation \<Longrightarrow> converse R : relation"
   using
     relation_subsetI[of R]

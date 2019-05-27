@@ -1,9 +1,11 @@
 section \<open>TARSKI_0\<close>
 
 theory tarski_0
-imports "../Isabelle_Set/Set_Theory"
+imports MML_setup
 
 begin
+
+(* reserve X,Y,Z for set *)
 
 theorem tarski_0_1: "\<forall>x. x : set" using all_sets_set ..
 
