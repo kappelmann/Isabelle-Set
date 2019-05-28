@@ -4,8 +4,8 @@ session Isabelle_Set = "HOL" +
   sessions
     "HOL-Eisbach"
   theories
-  (* Types on top of Isabelle/Pure *)
-	"Soft_Types/Soft_Types"
+  (* Types on top of Isabelle/HOL *)
+	"Soft_Types/Soft_Types_HOL"
 
   (* Tarski-Grothendieck Set Theory on top of HOL. *)
 	"Isabelle_Set/Isabelle_Set"
