@@ -79,4 +79,10 @@ lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by extensionality
 
 
+subsection \<open>Functions\<close>
+
+definition function :: "[set, set] \<Rightarrow> set type"
+  where "function A B \<equiv> Type (\<lambda>f. f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f))"
+
+
 end

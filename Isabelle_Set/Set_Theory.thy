@@ -57,12 +57,17 @@ definition Ball :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> boo
 definition Bex :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool"
   where "Bex A P \<equiv> \<exists>x. x \<in> A \<and> P x"
 
+definition Bex1 :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool"
+  where "Bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
+
 syntax
   "_Ball" :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<forall>_ \<in> _./ _)" 10)
   "_Bex"  :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<exists>_ \<in> _./ _)" 10)
+  "_Bex1" :: "[pttrn, set, bool] \<Rightarrow> bool"  ("(3\<exists>!_ \<in> _./ _)" 10)
 translations
   "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST Ball A (\<lambda>x. P)"
   "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST Bex A (\<lambda>x. P)"
+  "\<exists>!x \<in> A. P" \<rightleftharpoons> "CONST Bex1 A (\<lambda>x. P)"
 
 
 lemma ballI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
@@ -114,6 +119,25 @@ lemma bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists
 lemma bex_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>x \<in> A. P x) \<longleftrightarrow> (\<exists>x \<in> A'. P' x)"
   by (simp add: Bex_def cong: conj_cong)
+
+lemma bex1I [intro]: "\<lbrakk>P x; x \<in> A; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+  by (simp add: Bex1_def, blast)
+
+lemma rev_bex1I: "\<lbrakk>x \<in> A; P x; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+  by blast
+
+lemma bex1E [elim!]: "\<lbrakk>\<exists>!x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  by (simp add: Bex1_def, blast)
+
+lemma bex1_triv [simp]: "(\<exists>!x \<in> A. P) \<longleftrightarrow> ((\<exists>!x. x \<in> A) \<and> P)"
+  by (auto simp add: Bex1_def)
+
+lemma bex1_cong [cong]:
+  "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>!x \<in> A. P x) \<longleftrightarrow> (\<exists>!x \<in> A'. P' x)"
+  by (simp add: Bex1_def cong: conj_cong)
+
+lemma bex1_implies_bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
+  by auto
 
 
 subsection \<open>Subsets\<close>
