@@ -6,7 +6,11 @@ lemma empty_type[type]: "{} : subset A"
   unfolding element_typedef by auto
 
 text \<open>
-  This currently needs to be restricted due to a deficiency in the 
+  The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
+  type is trivial. But their formulation reflects the way we want to use the quantifier and
+  and the membership relation in well-typed terms.
+
+  The rule for HOL.All currently needs to be restricted due to a deficiency in the 
   type inference algorithm.
 \<close>
 lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> bool) \<Rightarrow> bool"
@@ -15,16 +19,17 @@ lemma All_type[type]: "HOL.All : ((A::type) \<Rightarrow> bool) \<Rightarrow> bo
 lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI all_formulas_bool)
 
-(* Note also: *)
-lemma All_type_triv: "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> bool"
-  by (intro Pi_typeI all_formulas_bool)
-(* and *)
-lemma mem_type_triv: "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
-  by (intro Pi_typeI all_formulas_bool)
-
-
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
   by (intro Pi_typeI, unfold element_type_iff Pow_rule) auto
+
+
+text \<open>The following statements are also provable, but not helpful:\<close>
+
+lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> bool"
+  by (intro Pi_typeI all_formulas_bool)
+
+lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
+  by (intro Pi_typeI all_formulas_bool)
 
 
 
@@ -151,7 +156,7 @@ end
 subsection \<open> Further examples \<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  \<^term_pattern>\<open>\<lambda>x. Pair\<close>
+  \<^term_pattern>\<open>\<lambda>(x::set). Pair\<close>
 ]\<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
