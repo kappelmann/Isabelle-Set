@@ -17,7 +17,8 @@ end;
 structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
 struct
 
-  val soft_type_inference = Config.declare_bool ("soft_type_inference", \<^here>) (K false)
+  val soft_type_inference = 
+    Config.bool (Config.declare ("soft_type_inference", \<^here>) (K (Config.Bool false)))
 
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
