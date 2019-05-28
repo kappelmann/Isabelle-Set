@@ -17,9 +17,7 @@ subsection \<open>Soft types\<close>
 
 text \<open>Set up soft types corresponding to the types of sets and propositions.\<close>
 
-type_synonym type = "set type"
-
-definition set :: type
+definition set :: "set type"
   where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
 
 lemma all_sets_set: "x : set"
@@ -636,7 +634,7 @@ subsection \<open>More soft types\<close>
 
 subsubsection \<open>Elements of a given set\<close>
 
-definition element :: "set \<Rightarrow> type"
+definition element :: "set \<Rightarrow> set type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
 (* Josh -- Ideally, we'd like to automate reasoning of the following kind *)
@@ -652,7 +650,7 @@ lemma element_typeE: "x : element A \<Longrightarrow> x \<in> A"
 
 subsubsection \<open>Subsets of a given set\<close>
 
-abbreviation subset :: "set \<Rightarrow> type"
+abbreviation subset :: "set \<Rightarrow> set type"
   where "subset A \<equiv> element (Pow A)"
 
 lemma subset_type_iff: "B : subset A \<longleftrightarrow> B \<subseteq> A"
@@ -661,7 +659,7 @@ lemma subset_type_iff: "B : subset A \<longleftrightarrow> B \<subseteq> A"
 
 subsubsection \<open>Collections of sets of a given type T\<close>
 
-definition collection :: "type \<Rightarrow> type"
+definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 

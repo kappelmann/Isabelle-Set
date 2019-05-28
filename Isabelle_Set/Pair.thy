@@ -159,11 +159,11 @@ lemma DUnion_fst: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> fst p \<i
 lemma DUnion_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B(fst p)"
   by auto
 
-lemma DUnion_pair [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma DUnion_elem_conv [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
 
-corollary cartesian_prod_pair: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
-  by (fact DUnion_pair)
+corollary cartesian_prod_elem_conv [simp]: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+  by (fact DUnion_elem_conv)
 
 
 subsection \<open>Disjoint union as sigma type\<close>
