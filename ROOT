@@ -12,6 +12,7 @@ session Isabelle_Set = "HOL" +
 
   (* Examples and compatibility layers *)
   "Isabelle_Set/Examples/Typing_Examples"
+  "Isabelle_Set/Examples/Implicit_Args"
   "Isabelle_Set/ZF_Compatibility"
 
   (* MML ported to new logic *)

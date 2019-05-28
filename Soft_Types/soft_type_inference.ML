@@ -7,13 +7,19 @@ Soft type inference.
 signature SOFT_TYPE_INFERENCE =
 sig
 
-
   val print_inferred_types: Proof.context -> term list -> unit;
+  val elaborate: Proof.context -> term list -> term list
+
+  val soft_type_inference : bool Config.T
 
 end;
 
 structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
 struct
+
+  val soft_type_inference = 
+    Config.bool (Config.declare ("soft_type_inference", \<^here>) (K (Config.Bool false)))
+
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
   fun map_aterms_lev f =
@@ -188,12 +194,36 @@ struct
             "--> " ^ Syntax.string_of_term ctxt sT]))
      end
 
+
+fun collect_constraints_prop ctxt
+    (Gamma : inference_context)
+    (Delta : (string * term * typ) list)
+    (t : term) =
+  case t of
+    Const ("HOL.Trueprop", _) $ arg =>
+      collect_constraints ctxt Gamma Delta arg NONE |> snd
+  | Const ("Pure.implies", _) $ u $ s =>
+      let
+        val Gamma1 = collect_constraints_prop ctxt Gamma Delta u
+        val Gamma2 = collect_constraints_prop ctxt Gamma1 Delta s
+      in Gamma2 end
+  | Const ("Pure.all", _) $ Abs (x, T, b) =>
+      let
+        (* Invent variable for the domain *)
+        val (stvar, Gamma2) = fresh_variable T Gamma Delta
+        (* Inner context *)
+        val Delta' = incr_bounds ((x, stvar, T) :: Delta)
+      in
+        collect_constraints_prop ctxt Gamma2 Delta' b
+      end
+  | Const ("Pure.type", _) => Gamma
+  | _ => collect_constraints ctxt Gamma Delta t NONE |> snd
+
+
 datatype infer_result =
   Infer_Result of {
     elaborated_terms: term list,
-    term_types: term list,
-    variable_types: (term * term) list,
-    constraints: (term * term) list
+    variable_types: (term * term) list
   }
 
 
@@ -211,21 +241,22 @@ fun infer_type ctxt ts =
     val const_types = 
       Option.map (#2 o Soft_Type_Context.dest_typing o Thm.prop_of) o Soft_Type_Context.get_current_type (Context.Proof ctxt)
 
+    val maxidx = fold Term.maxidx_term ts ~1
+
     val ictxt = Inference_Context {
         const_types = const_types,
         var_types = Termtab.empty,
         constraints = [],
-        fresh_idx = 0
+        fresh_idx = maxidx + 1
       }
-    val (sTs, Inference_Context {constraints, var_types, fresh_idx, ...}) =
-       fold_map (fn t => fn c => collect_constraints' ctxt c [] t NONE) ts ictxt
+    val Inference_Context {constraints, var_types, fresh_idx, ...} =
+       fold (fn t => fn c => collect_constraints_prop ctxt c [] t) ts ictxt
     
     val _ = Output.tracing "Original constraints: "   
     val _ = map (trace_constraint ctxt NONE) constraints
 
     val env = unify_constraints ctxt constraints fresh_idx
     fun instantiate t = instantiate_term env t
-    val term_types = map instantiate sTs
     val elaborated_terms = map instantiate ts
 
     val types_for_vars =
@@ -234,15 +265,13 @@ fun infer_type ctxt ts =
   in
     Infer_Result {
       elaborated_terms = elaborated_terms,
-      term_types = term_types,
-      variable_types = types_for_vars,
-      constraints = []
+      variable_types = types_for_vars
     }
   end 
 
 fun print_inferred_types ctxt ts = 
   let
-    val Infer_Result {elaborated_terms, term_types, variable_types, constraints } = infer_type ctxt ts
+    val Infer_Result {elaborated_terms, variable_types } = infer_type ctxt ts
 
     fun section header content = header :: map (prefix "  ") content
 
@@ -251,12 +280,44 @@ fun print_inferred_types ctxt ts =
     val _ = Output.writeln (cat_lines ("--- Inference result ---" ::
       flat [
         section "Instantiated terms" (map pr_term elaborated_terms),
-        section "Types of terms" (map pr_term term_types),
-        section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types),
-        section "Constraints" (map (fn (s, t) => pr_term s ^ " = " ^ pr_term t) constraints)
+        section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types)
       ]))
 
   in () end 
+
+
+(* Replaces the special frees inserted for implicit arguments with unification variables *)
+
+fun replace_implicit Ts (t as Free (n, T)) i =
+     if String.isPrefix "_implicit_" n
+     then let val name = unprefix "_implicit_" n
+       in (list_comb (Var ((name, i), Ts ---> T), map_range Bound (length Ts)), i + 1) end
+     else (t, i)
+  | replace_implicit Ts (Abs (x, T, t)) i =
+      let val (t', i') = replace_implicit (T :: Ts) t i
+      in (Abs (x, T, t'), i') end
+  | replace_implicit Ts (t $ u) i =
+      let
+        val (t', i') = replace_implicit Ts t i;
+        val (u', i'') = replace_implicit Ts u i';
+      in (t' $ u', i'') end
+  | replace_implicit _ a i = (a, i);
+
+val replace_implicit_patterns = replace_implicit [];
+
+
+
+
+fun elaborate ctxt ts =
+  let
+    val (ts', _) = fold_map replace_implicit_patterns ts 0
+    val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
+    (* We discard the resulting context, since the terms will be re-declared using auto-fixes
+       later *)
+    val (ets', _) = Variable.import_terms true elaborated_terms ctxt
+  in
+    ets'
+  end
 
 
 (* Useful antiquotation for testing *)
