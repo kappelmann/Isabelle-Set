@@ -2,6 +2,7 @@ theory Implicit_Args
   imports "../Pair"
 begin
 
+
 axiomatization
   List :: "set \<Rightarrow> set"
   and Nil :: "set \<Rightarrow> set"
@@ -22,13 +23,10 @@ val implicit_table =
    (\<^const_name>\<open>append\<close>, ["A"]) 
  ]
 
-fun mk_special_Free name =
-  Free ("_implicit_" ^ name, dummyT)
-
-fun insert_dummies (t as Const (n, T)) =
+fun insert_dummies (t as Const (n, _)) =
     (case implicit_table n of
       NONE => t
-    | SOME names => list_comb (t, map mk_special_Free names))
+    | SOME names => list_comb (t, map (fn n => Implicit_Arguments.mk_iarg n dummyT) names))
   | insert_dummies t = t
 
 val insert_implicits = Term.map_aterms insert_dummies

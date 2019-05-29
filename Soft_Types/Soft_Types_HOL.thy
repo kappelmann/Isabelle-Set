@@ -1,7 +1,7 @@
 section \<open>Soft types for HOL\<close>
 
 theory Soft_Types_HOL
-imports HOL.HOL
+imports HOL.HOL Implicit_Arguments
 
 begin
 
