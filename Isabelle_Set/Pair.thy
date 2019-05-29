@@ -53,12 +53,12 @@ translations
   "\<langle>x, y\<rangle>" \<rightleftharpoons> "CONST Pair x y"
 
 
-lemma Pair_iff [simp]: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<longleftrightarrow> a = c \<and> b = d"
+lemma Pair_eq_iff [simp]: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<longleftrightarrow> a = c \<and> b = d"
   by (simp add: Pair_def doubleton_eq_iff) blast
 
-lemmas Pair_inject = Pair_iff [THEN iffD1, THEN conjE, elim!]
-lemmas Pair_inject1 = Pair_iff [THEN iffD1, THEN conjunct1]
-lemmas Pair_inject2 = Pair_iff [THEN iffD1, THEN conjunct2]
+lemmas Pair_inject = Pair_eq_iff [THEN iffD1, THEN conjE, elim!]
+lemmas Pair_inject1 = Pair_eq_iff [THEN iffD1, THEN conjunct1]
+lemmas Pair_inject2 = Pair_eq_iff [THEN iffD1, THEN conjunct2]
 
 lemma Pair_not_empty: "\<langle>a, b\<rangle> \<noteq> {}"
   apply (unfold Pair_def)

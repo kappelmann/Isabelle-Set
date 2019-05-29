@@ -65,11 +65,13 @@ text \<open>Remark: @{const ZF_closed} is a second-order statement.\<close>
 axiomatization
   Univ :: "set \<Rightarrow> set"
 where
-  Univ_member: "X \<in> Univ X"
+  Univ_elem: "X \<in> Univ X"
 and
   Univ_transitive: "transitive (Univ X)"
 and
   Univ_ZF_closed: "ZF_closed (Univ X)"
+and
+  Univ_min: "\<lbrakk>X \<in> U; transitive U; ZF_closed U\<rbrakk> \<Longrightarrow> Univ X \<subseteq> U"
 
 
 end

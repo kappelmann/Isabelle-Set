@@ -53,17 +53,7 @@ theorem tarski_th_3: "x \<in> X \<longrightarrow> (\<exists>Y. Y \<in> X \<and> 
   by (fact tarski_0_5)
 
 theorem tarski_redef_1: "asymmetry set (\<lambda>x X. x \<in> X)"
-proof rule+
-  fix a b assume "a : set" "b : set"
-  assume
-  A1: "a \<in> b \<and> b \<in> a"
-  hence
-  A3: "a \<in> {a, b} \<and> b \<in> {a, b}" by auto
-  from tarski_0_5 obtain y where
-  A4: "y \<in> {a, b} \<and> (\<nexists>x. x \<in> {a, b} \<and> x \<in> y)" by blast
-  hence "y = a \<or> y = b" by auto
-  thus False using A1 A3 A4 by auto
-qed
+  using elem_asym by auto
 
 theorem tarski_sch_1:
   assumes "A : set" and "\<forall>x y z. P x y \<and> P x z \<longrightarrow> y = z"
@@ -73,6 +63,7 @@ theorem tarski_sch_1:
 definition tarski_def_5 :: "[set, set] \<Rightarrow> set" ("([_, _])")
   where "[x, y] \<equiv> {{x, y}, {x}}"
 
+(* Josh -- I'm not yet certain about the best formulation of predicates with parameters *)
 axiomatization tarski_def_6 :: "[set, set] \<Rightarrow> bool" ("(_, _ are'_equipotent)")
   where tarski_def_6:
   "\<lbrakk>X : set; Y : set\<rbrakk> \<Longrightarrow>

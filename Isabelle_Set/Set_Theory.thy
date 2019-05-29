@@ -322,7 +322,7 @@ subsection \<open>Finite sets\<close>
 text \<open>The unordered pair is defined using replacement. We then use it to define finite sets.\<close>
 
 definition Upair :: "set \<Rightarrow> set \<Rightarrow> set"
-  where "Upair a b = {if i = {} then a else b. i \<in> Pow (Pow {})}"
+  where "Upair a b = {if i = {} then a else b | i \<in> Pow (Pow {})}"
 
 lemma Upair_elems [iff]: "x \<in> Upair a b \<longleftrightarrow> x = a \<or> x = b"
   by (auto simp: Upair_def)
@@ -403,7 +403,7 @@ lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in>
 
 subsection \<open>Relation-based replacement\<close>
 
-text \<open>Replacement in predicate form.\<close>
+text \<open>Replacement in predicate form, as in ZF.\<close>
 
 definition Replace :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set"
   where "Replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
