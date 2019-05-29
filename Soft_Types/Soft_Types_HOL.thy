@@ -67,7 +67,6 @@ abbreviation function_space :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a 
 nonterminal tel_lhs
 
 syntax
-  "_tel_simple" :: "logic \<Rightarrow> tel_lhs" ("_" [51] 52)
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
