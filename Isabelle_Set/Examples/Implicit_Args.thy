@@ -2,15 +2,16 @@ theory Implicit_Args
   imports "../Pair"
 begin
 
+
 axiomatization
   List :: "set \<Rightarrow> set"
   and Nil :: "set \<Rightarrow> set"
   and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where
-    Nil_type[type]: "Nil : [A: set] \<Rightarrow> element (List A)"
-    and Cons_type[type]: "Cons : [A: set] \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
-    and append_type[type]: "append : [A: set] \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+    Nil_type[type]: "Nil : (A: set) \<Rightarrow> element (List A)"
+    and Cons_type[type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    and append_type[type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
 
 ML \<open>
@@ -22,13 +23,10 @@ val implicit_table =
    (\<^const_name>\<open>append\<close>, ["A"]) 
  ]
 
-fun mk_special_Free name =
-  Free ("_implicit_" ^ name, dummyT)
-
-fun insert_dummies (t as Const (n, T)) =
+fun insert_dummies (t as Const (n, _)) =
     (case implicit_table n of
       NONE => t
-    | SOME names => list_comb (t, map mk_special_Free names))
+    | SOME names => list_comb (t, map (fn n => Implicit_Arguments.mk_iarg n dummyT) names))
   | insert_dummies t = t
 
 val insert_implicits = Term.map_aterms insert_dummies

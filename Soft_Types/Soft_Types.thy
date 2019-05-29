@@ -4,7 +4,7 @@ Work on this version is deprioritized in favor of the version for HOL, see Soft_
 Alex Krauss and Josh Chen, May 2019 *)
 
 theory Soft_Types
-imports Pure
+imports Pure Implicit_Arguments
 
 begin
 

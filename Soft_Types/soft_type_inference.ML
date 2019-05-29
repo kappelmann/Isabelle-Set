@@ -286,31 +286,10 @@ fun print_inferred_types ctxt ts =
   in () end 
 
 
-(* Replaces the special frees inserted for implicit arguments with unification variables *)
-
-fun replace_implicit Ts (t as Free (n, T)) i =
-     if String.isPrefix "_implicit_" n
-     then let val name = unprefix "_implicit_" n
-       in (list_comb (Var ((name, i), Ts ---> T), map_range Bound (length Ts)), i + 1) end
-     else (t, i)
-  | replace_implicit Ts (Abs (x, T, t)) i =
-      let val (t', i') = replace_implicit (T :: Ts) t i
-      in (Abs (x, T, t'), i') end
-  | replace_implicit Ts (t $ u) i =
-      let
-        val (t', i') = replace_implicit Ts t i;
-        val (u', i'') = replace_implicit Ts u i';
-      in (t' $ u', i'') end
-  | replace_implicit _ a i = (a, i);
-
-val replace_implicit_patterns = replace_implicit [];
-
-
-
 
 fun elaborate ctxt ts =
   let
-    val (ts', _) = fold_map replace_implicit_patterns ts 0
+    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
     val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
     (* We discard the resulting context, since the terms will be re-declared using auto-fixes
        later *)
