@@ -68,21 +68,20 @@ nonterminal tel_lhs
 
 syntax
   "_tel_simple" :: "logic \<Rightarrow> tel_lhs" ("_" [51] 52)
-  "_telescopelhs" :: "pttrn \<Rightarrow> logic \<Rightarrow> tel_lhs" ("[_ : _]" [51, 50] 52)
-  "_telescope" :: "tel_lhs \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
+  "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
+  "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
-  "[x : A] \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
 
 
 lemma Pi_typeI:
   assumes "\<And>x. x : A \<Longrightarrow> f x : B x"
-  shows "f : [x : A] \<Rightarrow> B x"
+  shows "f : (x : A) \<Rightarrow> B x"
   unfolding Pi_typedef has_type_Type_iff
   using assms by auto
 
 lemma Pi_typeE:
-  assumes 1: "f : [x : A] \<Rightarrow> B x"
+  assumes 1: "f : (x : A) \<Rightarrow> B x"
   assumes 2: "x : A"
   shows "f x : B x"
 proof -

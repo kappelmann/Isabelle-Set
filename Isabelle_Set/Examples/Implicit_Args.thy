@@ -8,9 +8,9 @@ axiomatization
   and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where
-    Nil_type[type]: "Nil : [A: set] \<Rightarrow> element (List A)"
-    and Cons_type[type]: "Cons : [A: set] \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
-    and append_type[type]: "append : [A: set] \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+    Nil_type[type]: "Nil : (A: set) \<Rightarrow> element (List A)"
+    and Cons_type[type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    and append_type[type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
 
 ML \<open>
