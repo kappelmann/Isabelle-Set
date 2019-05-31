@@ -207,6 +207,11 @@ fun collect_constraints_prop ctxt
         val Gamma1 = collect_constraints_prop ctxt Gamma Delta u
         val Gamma2 = collect_constraints_prop ctxt Gamma1 Delta s
       in Gamma2 end
+  | Const ("Pure.eq", _) $ u $ s =>
+      let
+        val Gamma1 = collect_constraints_prop ctxt Gamma Delta u
+        val Gamma2 = collect_constraints_prop ctxt Gamma1 Delta s
+      in Gamma2 end
   | Const ("Pure.all", _) $ Abs (x, T, b) =>
       let
         (* Invent variable for the domain *)

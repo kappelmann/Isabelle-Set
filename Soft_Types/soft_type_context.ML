@@ -65,18 +65,6 @@ structure Known_Types = Generic_Data(
   val merge = apply2 Item_Net.merge
 )
 
-(** Implicit argument declarations for a constant **)
-
-structure Implicit_Arguments = Generic_Data(
-  type T = string list Symtab.table;
-  val empty = Symtab.empty;
-  val extend = I;
-  fun merge (a, b) = Symtab.merge (op =) (a, b);
-)
-
-fun get_implicits ctxt n = Symtab.lookup (Implicit_Arguments.get ctxt) n |> the_default []
-fun put_implicit n xs = Implicit_Arguments.map (Symtab.update (n, xs))
-
 
 
 (** attribute [type] **)
@@ -89,12 +77,11 @@ fun extract_param_names 0 _ = []
 fun declare_current_type implicit thm ctxt =
   let
     val (x, st) = dest_typing (Thm.prop_of thm)
-    val _ = Output.tracing ("[type] " ^ \<^make_string> st)
     val names = extract_param_names (the_default 0 implicit) st
   in
     ctxt
     |> put_current_type x thm
-    |> (if is_Const x then put_implicit (fst (dest_Const x)) names else I)
+    |> (if is_Const x then Implicit_Arguments.put_implicit (fst (dest_Const x)) names else I)
   end;
 
 val _ = Theory.setup (Attrib.setup @{binding type}
