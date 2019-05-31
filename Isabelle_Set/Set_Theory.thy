@@ -378,6 +378,8 @@ translations
 lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: Collect_def)
 
+lemma CollectD: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A"
+  by auto
 
 subsection \<open>Relation-based replacement\<close>
 

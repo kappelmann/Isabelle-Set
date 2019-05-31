@@ -3,6 +3,8 @@ imports
   Set_Theory
   Pair
   Relations
+  Function
+  Monoids
 
 begin
 
