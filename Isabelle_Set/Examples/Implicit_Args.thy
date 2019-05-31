@@ -15,11 +15,8 @@ axiomatization
 
 
 
+declare [[soft_type_inference]]
 
-
-ML \<open> Context.>> (
-  Syntax_Phases.term_check 5 "elaboration" Soft_Type_Inference.elaborate
-) \<close>
 
 
 lemma "Cons x Nil = ys"

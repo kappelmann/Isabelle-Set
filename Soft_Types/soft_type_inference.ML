@@ -17,8 +17,7 @@ end;
 structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
 struct
 
-  val soft_type_inference = 
-    Config.bool (Config.declare ("soft_type_inference", \<^here>) (K (Config.Bool false)))
+  val soft_type_inference = Attrib.setup_config_bool \<^binding>\<open>soft_type_inference\<close> (K false)
 
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
@@ -292,15 +291,21 @@ fun print_inferred_types ctxt ts =
 
 
 fun elaborate ctxt ts =
-  let
-    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-    val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
-    (* We discard the resulting context, since the terms will be re-declared using auto-fixes
-       later *)
-    val (ets', _) = Variable.import_terms true elaborated_terms ctxt
-  in
-    ets'
-  end
+  if Config.get ctxt soft_type_inference then
+    let
+      val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
+      val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
+      (* We discard the resulting context, since the terms will be re-declared using auto-fixes
+         later *)
+      val (ets', _) = Variable.import_terms true elaborated_terms ctxt
+    in
+      ets'
+    end
+  else ts;
+
+(* No effect until activated in the configuration *)
+val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" elaborate)
+
 
 
 (* Useful antiquotation for testing *)
