@@ -110,25 +110,24 @@ struct
     (expected_type : term option)
     : (term * inference_context) =
     case t of 
-      Const (n, _) => 
-        (case get_const_type Gamma t of
-          SOME st => 
-            let   
-              (* Ensure that unification variables are fresh for each constant occurrence
-                 and make them depend on the current binders. *)
-              val binder_types = rev (map #3 Delta)
-              val bounds = (length Delta - 1) downto 0
-              val idx = fresh_idx Gamma
-              fun lift_var d (Var ((n, 0), T)) =
-                    Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
-                | lift_var _ (Var _) = error "Illegal Var index"
-                | lift_var _ t = t
-              val const_type = map_aterms_lev lift_var st
-              val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
-            in
-              (const_type, incr Gamma)
-            end
-        | NONE => error ("Cannot resolve type of constant " ^ quote n))
+      Const (n, T) => 
+        let
+          (* If constant type cannot be found, invent a generic type *)
+          val st = (case get_const_type Gamma t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
+          (* Ensure that unification variables are fresh for each constant occurrence
+             and make them depend on the current binders. *)
+          val binder_types = rev (map #3 Delta)
+          val bounds = (length Delta - 1) downto 0
+          val idx = fresh_idx Gamma
+          fun lift_var d (Var ((n, 0), T)) =
+                Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
+            | lift_var _ (Var _) = error "Illegal Var index"
+            | lift_var _ t = t
+          val const_type = map_aterms_lev lift_var st
+          val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
+        in
+          (const_type, incr Gamma)
+        end
     | s $ u => 
         let
           val (fun_type, Gamma1) = 

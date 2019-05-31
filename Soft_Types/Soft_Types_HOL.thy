@@ -117,6 +117,15 @@ definition is_subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" ("(_
   where "A \<prec> B \<equiv> \<forall>x : A. pred_of A x \<longrightarrow> pred_of B x"
 
 
+subsection "The any type, which does not tell us anything about the value"
+
+definition any :: "'a type"
+  where any_typedef: "any = Type (\<lambda>_. True)"
+
+lemma any_TypeI: "x : any"
+  unfolding any_typedef by auto
+
+
 subsection \<open>Tooling\<close>
 
 named_theorems type_simp
@@ -127,16 +136,6 @@ ML_file "unification.ML"
 ML_file "soft_type_inference.ML"
 
 
-subsection \<open>Bool type\<close>
-
-definition bool :: "bool type"
-  where bool_typedef: "bool \<equiv> Type (\<lambda>_. True)"
-
-lemma all_formulas_bool: "P : bool"
-  unfolding bool_typedef by auto
-
-lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
-  by (intro Pi_typeI all_formulas_bool)
 
 
 end

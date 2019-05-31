@@ -98,6 +98,16 @@ lemma Int_TypeD2:
   by (rule conjunctionD2)
 
 
+subsection "The any type, which does not tell us anything about the value"
+
+definition any :: "'a type"
+  where any_typedef: "any \<equiv> Type (\<lambda>x. (x == x))"
+
+lemma any_TypeI: "x ::: any"
+  unfolding any_typedef has_type_Type_iff .
+
+
+
 subsection \<open> Some Tooling \<close>
 
 named_theorems type_simp

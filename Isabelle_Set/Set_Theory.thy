@@ -19,24 +19,24 @@ text \<open>Set up soft types corresponding to the types of sets and proposition
 
 type_synonym type = "set type"
 
-definition set :: type
-  where set_typedef: "set \<equiv> Type (\<lambda>_. True)"
+abbreviation set :: type
+  where "set \<equiv> any"
 
-lemma all_sets_set: "x : set"
-  unfolding set_typedef by auto
+lemma all_sets_set: "x : set" (* compatibility *)
+  by (rule any_TypeI)
 
 text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
 
 lemma
-  elem_type [type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> bool" and
-  eq_type [type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> bool" and
+  elem_type [type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> any" and
+  eq_type [type]: "((=)::(set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> any" and
     (* ^ Really, A \<Rightarrow> B \<Rightarrow> bool, so I'm not sure how much more useful this is compared to
     set \<Rightarrow> set \<Rightarrow> bool *)
   empty_set_type [type]: "{} : set" and
   Pow_type [type]: "Pow : set \<Rightarrow> set" and
   Union_type [type]: "Union : set \<Rightarrow> set" and
   Repl_type [type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  unfolding Pi_typedef by (auto intro: all_sets_set all_formulas_bool)
+  unfolding Pi_typedef by (auto intro: all_sets_set any_TypeI)
 
 
 subsection \<open>Foundational axioms as rules\<close>
