@@ -218,7 +218,7 @@ lemma split_paired_Ball_DUnion [simp]:
 subsection \<open>Typing rules\<close>
 
 lemma Pair_type [type]: "Pair : (x: element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
-  unfolding element_typedef by (intro Pi_typeI) auto
+  by stauto
 
 
 end

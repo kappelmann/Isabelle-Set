@@ -1,4 +1,4 @@
-section \<open>Binary relations and functions\<close>
+section \<open>Binary relations\<close>
 
 theory Relations
 imports Pair
@@ -20,33 +20,30 @@ definition field :: "set \<Rightarrow> set"
   where "field R \<equiv> domain R \<union> range R"
 
 
-lemma relation_type_iff: "R : relation A B \<longleftrightarrow> R \<subseteq> A \<times> B"
+lemma relation_type_iff [stiff]: "R : relation A B \<longleftrightarrow> R \<subseteq> A \<times> B"
   using element_type_iff by auto
 
-lemma relation_typeI: "R \<subseteq> A \<times> B \<Longrightarrow> R : relation A B"
-  using relation_type_iff ..
-
-lemma relation_typeE: "R : relation A B \<Longrightarrow> R \<subseteq> A \<times> B"
-  using relation_type_iff ..
+lemma relation_typeI [stintro]: "R \<subseteq> A \<times> B \<Longrightarrow> R : relation A B" by stauto
+lemma relation_typeE [stelim]: "R : relation A B \<Longrightarrow> R \<subseteq> A \<times> B" by stauto
 
 lemma subset_relation [elim]: "\<lbrakk>S \<subseteq> R; R : relation A B\<rbrakk> \<Longrightarrow> S : relation A B"
-  using relation_type_iff by auto
+  by stauto
 
 lemma DUnion_relation: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. B x)"
-  using relation_type_iff by auto
+  by stauto
 
 lemma collect_relation:
   assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
   shows "{\<langle>f x, g x\<rangle>. x \<in> X} : relation A B"
-  
+  using assms by stauto
 
-lemma domainE: 
-  assumes "R: relation" "a \<in> domain R"
+lemma relation_domainE: 
+  assumes "a \<in> domain R" and "R: relation A B"
   shows "\<exists>y. \<langle>a, y\<rangle> \<in> R"
 proof -
   from `a \<in> domain R` obtain p where "p \<in> R" "a = fst p" unfolding domain_def by auto
-  with `R: relation`
-  have "\<langle>a, snd p\<rangle> \<in> R" unfolding relation_typedef by auto
+  with `R: relation A B`
+  have "\<langle>a, snd p\<rangle> \<in> R" by stauto
   thus ?thesis ..
 qed
 
@@ -66,8 +63,7 @@ lemma range_def2: "range R = domain (converse R)"
 
 lemma converse_iff [simp]:
   "R : relation A B \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
-  unfolding converse_def element_typedef
-  by auto
+  unfolding converse_def by stauto
 
 lemma converseI [intro!]:
   "\<lbrakk>\<langle>a, b\<rangle> \<in> R; R : relation A B\<rbrakk> \<Longrightarrow> \<langle>b, a\<rangle> \<in> converse R"
@@ -79,19 +75,17 @@ lemma converseD:
 
 lemma converseE [elim!]:
   "\<lbrakk>p \<in> converse R; \<And>x y. \<lbrakk>p = \<langle>y, x\<rangle>; \<langle>x, y\<rangle> \<in> R\<rbrakk> \<Longrightarrow> P; R : relation A B\<rbrakk> \<Longrightarrow> P"
-  unfolding element_typedef converse_def by auto
+  unfolding converse_def by stauto
 
 
 lemma converse_typeI [intro]: "R : relation A B \<Longrightarrow> converse R : relation B A"
-  unfolding element_typedef converse_def by auto
+  unfolding converse_def by stauto
 
 lemma converse_type [type]: "converse: relation A B \<Rightarrow> relation B A"
-  using Pi_typeI[of "relation A B" converse "\<lambda>_. relation B A"]
-  by auto
+  by stauto
 
 lemma converse_involution: "R : relation A B \<Longrightarrow> converse (converse R) = R"
-  unfolding converse_def element_typedef
-  by (extensionality, rule+) auto  
+  by extensionality stauto
 
 lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
   unfolding converse_def by extensionality
@@ -108,11 +102,13 @@ lemma domain_Cons [simp]: "domain (Cons \<langle>x, y\<rangle> A) = Cons x (doma
 lemma domain_empty [simp]: "domain {} = {}"
   unfolding domain_def by auto
 
-lemma empty_relation[intro]: "{} : relation"
-  unfolding relation_typedef by auto
+lemma empty_relation [intro]: "{} : relation A B"
+  by stauto
 
-lemma relation_Cons [simp]: "Cons \<langle>x, y\<rangle> A : relation \<longleftrightarrow> A : relation"
-  unfolding relation_typedef by auto
+lemma relation_Cons_iff [iff]:
+  assumes "x : element A" and "y : element B"
+  shows "Cons \<langle>x, y\<rangle> X : relation A B \<longleftrightarrow> X : relation A B"
+  using assms by stauto
 
 
 subsection \<open>Properties of relations\<close>
@@ -137,7 +133,7 @@ abbreviation transitive :: "set \<Rightarrow> bool"
 abbreviation total :: "set \<Rightarrow> bool"
   where "total R \<equiv> \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
-(* Should define these properties as adjectives. But how exactly... *)
+(* Should define these properties as adjectives. But how exactly?... *)
 
 
 subsection \<open>Partial orders\<close>
@@ -147,12 +143,6 @@ definition porder :: "set \<Rightarrow> set type"
 
 definition sporder :: "set \<Rightarrow> set type"
   where "sporder P \<equiv> relation P P \<bar> Type (\<lambda>R. irreflexive R \<and> transitive R)"
-
-
-subsection \<open>Functions\<close>
-
-definition function :: "[set, set] \<Rightarrow> set type"
-  where "function A B \<equiv> relation A B \<bar> Type (\<lambda>f. \<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
 
 
 end

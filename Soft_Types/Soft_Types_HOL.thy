@@ -14,7 +14,7 @@ text \<open>HOL version of the soft types library, using @{typ bool} instead of 
 declare[[eta_contract=false]]
 
 
-subsection \<open>Automation\<close>
+subsection \<open>Named theorems and automation\<close>
 
 named_theorems stintro
 named_theorems stelim
@@ -22,11 +22,21 @@ named_theorems stdest
 named_theorems stiff
 named_theorems stsimp
 
-method stauto declares stintro stelim stdest stiff stsimp = (
-  (auto intro: stintro elim: stelim simp: stiff)?;
-  ((elim stelim | drule stdest | intro stintro | simp add: stsimp)+,
-    stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp)
-)
+named_theorems stsub \<comment>\<open>For subtyping judgments\<close>
+named_theorems typedef \<comment>\<open>For smart unfolding\<close>
+  (* ^ To be implemented.. *)
+
+method stauto declares stintro stelim stdest stiff stsimp =
+  (auto intro: stintro elim: stelim simp: stiff;
+  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
+| (elim stelim;
+  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
+| (drule stdest;
+  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
+| (intro stintro;
+  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
+| (simp add: stsimp;
+  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
 
 
 subsection \<open>Basic definitions\<close>
@@ -127,8 +137,15 @@ lemma Int_typeD2 [stdest]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
 
 subsection \<open>Subtypes\<close>
 
-definition is_subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" ("(_ \<prec> _)")
-  where "A \<prec> B \<equiv> \<forall>x : A. pred_of A x \<longrightarrow> pred_of B x"
+definition subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" (infix "\<prec>" 50)
+  where subtype_iff [iff]: "A \<prec> B \<longleftrightarrow> (\<forall>x : A. x : B)"
+
+lemma subtypeI [stintro]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longrightarrow> A \<prec> B" by auto
+
+lemma subtypeE [elim]: "\<lbrakk>A \<prec> B; \<And>x. (x : B \<Longrightarrow> P); x : A\<rbrakk> \<Longrightarrow> P"
+  by (drule Soft_BallI) auto
+
+lemma subtypeD [stdest]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B" by auto
 
 
 subsection \<open>The ``any'' type\<close>

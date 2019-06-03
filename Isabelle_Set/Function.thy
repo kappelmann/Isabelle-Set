@@ -4,21 +4,22 @@
 Based on earlier work in Isabelle/ZF by Larry Paulson.
 *)
 
-section\<open>Functions, Function Spaces, Lambda-Abstraction\<close>
+section \<open>Functions, Function Spaces, Lambda-Abstraction\<close>
 
-theory Function imports Relations begin
+theory Function
+imports Relations
 
+begin
 
-subsection \<open>Type of functions\<close>
+definition function :: "[set, set] \<Rightarrow> set type"
+  where function_typedef: "function A B \<equiv> relation A B \<bar> Type (\<lambda>f. \<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
 
-text \<open>Conceptually, functions are a subtype of relations, but we do not have subtyping yet.\<close>
+lemma function_type_iff [stiff]:
+  "f : function A B \<longleftrightarrow> f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
+  using function_typedef by stauto
 
-definition "function" :: type
-  where function_typedef: 
-  "function = Type (\<lambda>r. (r : relation) \<and> (\<forall>x y. \<langle>x,y\<rangle> \<in> r \<longrightarrow> (\<forall>y'. \<langle>x,y'\<rangle> \<in> r \<longrightarrow> y = y')))"
-
-lemma function_is_relation: "f : function \<Longrightarrow> f : relation"
-  unfolding function_typedef by auto
+lemma function_is_relation: "function A B \<prec> relation A B"
+  by stauto
 
 lemma functionI:
      "r: relation \<Longrightarrow> [| !!x y y'. [| \<langle>x,y\<rangle>\<in>r; \<langle>x,y'\<rangle>\<in>r |] ==> y=y' |] ==> r : function"
@@ -124,7 +125,7 @@ lemma apply_equality: "[| \<langle>a,b\<rangle>\<in> f;  f \<in> Pi A B |] ==> f
 
 lemma Pi_memberD: "[| f \<in> Pi A B;  c \<in> f |] ==> \<exists>x\<in>A.  c = \<langle>x,f`x\<rangle>"
 apply (frule fun_is_rel)
-apply (blast dest: apply_equality)
+apply (blast dest: apply_equality
 done
 
 lemma function_apply_Pair: 
