@@ -302,10 +302,15 @@ fun elaborate ctxt ts =
 val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" elaborate)
 
 
-
 (* Useful antiquotation for testing *)
+
+fun read_term_dummies ctxt s =
+  #1 (Term.replace_dummy_patterns (Syntax.read_term (Proof_Context.allow_dummies ctxt) s) 1);
+
 val _ = Theory.setup (
-   ML_Antiquotation.inline \<^binding>\<open>term_pattern\<close> (Args.term_pattern >> (ML_Syntax.atomic o ML_Syntax.print_term)))
+  ML_Antiquotation.inline_embedded \<^binding>\<open>term_dummies\<close>
+    (Scan.peek (Args.named_term o read_term_dummies o Context.proof_of)
+      >> (ML_Syntax.atomic o ML_Syntax.print_term)))
 
 
 end

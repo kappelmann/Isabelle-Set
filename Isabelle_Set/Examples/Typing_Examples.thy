@@ -51,7 +51,7 @@ ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
 ]\<close>
 
 ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "Cons _ x xs"}
+  @{term_dummies "Cons _ x xs"}
 ]\<close>
 
 ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
@@ -102,8 +102,8 @@ Soft_Type_Inference.print_inferred_types @{context} [
 ML \<open>
 
 Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
-  @{term_pattern "append _ (Nil _) ys = ys"} 
+  @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
+  @{term_dummies "append _ (Nil _) ys = ys"} 
 ]
 \<close>
 
@@ -145,7 +145,7 @@ begin
 
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "vappend _ _ _ (VCons _ _ x xs) ys
+  @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
    = VCons _ _ x (vappend _ _ _ xs ys)"}
 ]\<close>
 
@@ -156,20 +156,20 @@ end
 subsection \<open> Further examples \<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  \<^term_pattern>\<open>\<lambda>(x::set). Pair\<close>
+  \<^term_dummies>\<open>\<lambda>(x::set). Pair\<close>
 ]\<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "{{}}"}
+  @{term_dummies "{{}}"}
 ]\<close>
 
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "{x, y}"}
+  @{term_dummies "{x, y}"}
 ]\<close>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
-  @{term_pattern "\<lambda>y. Pair {} y"}
+  @{term_dummies "\<lambda>y. Pair {} y"}
 ]\<close>
 ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
   @{term "\<lambda>x. Pair x"}
