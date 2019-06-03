@@ -19,7 +19,6 @@ struct
 
   val soft_type_inference = Attrib.setup_config_bool \<^binding>\<open>soft_type_inference\<close> (K false)
 
-
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
   fun map_aterms_lev f =
     let fun mapt l (Abs (n, T, b)) = Abs (n, T, mapt (l + 1) b)
@@ -99,7 +98,7 @@ struct
       then error (cat_lines ["Bad types in constraint:", 
           "  Constraint: " ^ pr_equation ctxt eqn,
           "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
-      else Output.tracing ("Constraint: " ^ pr_equation ctxt eqn ^ context_msg)
+      else Soft_Type.tracing ctxt ("Constraint: " ^ pr_equation ctxt eqn ^ context_msg)
     end
 
   fun collect_constraints ctxt
@@ -123,7 +122,7 @@ struct
             | lift_var _ (Var _) = error "Illegal Var index"
             | lift_var _ t = t
           val const_type = map_aterms_lev lift_var st
-          val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
+          val _ = Soft_Type.tracing ctxt ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
         in
           (const_type, incr Gamma)
         end
@@ -181,13 +180,13 @@ struct
 
    and collect_constraints' ctxt Gamma Delta t expected_type =
      let 
-       val _ = Output.tracing (cat_lines [
+       val _ = Soft_Type.tracing ctxt (cat_lines [
          "collect_constraints:",
          "  \<Delta> = " ^ @{make_string} Delta,
          "  t = " ^ Syntax.string_of_term ctxt t])
      in
       collect_constraints ctxt Gamma Delta t expected_type
-      |> tap (fn (sT, _) => Output.tracing (cat_lines [
+      |> tap (fn (sT, _) => Soft_Type.tracing ctxt (cat_lines [
             "### " ^ Syntax.string_of_term ctxt t,
             "--> " ^ Syntax.string_of_term ctxt sT]))
      end
@@ -255,7 +254,7 @@ fun infer_type ctxt ts =
     val Inference_Context {constraints, var_types, fresh_idx, ...} =
        fold (fn t => fn c => collect_constraints_prop ctxt c [] t) ts ictxt
     
-    val _ = Output.tracing "Original constraints: "   
+    val _ = Soft_Type.tracing ctxt "Original constraints: "   
     val _ = map (trace_constraint ctxt NONE) constraints
 
     val env = unify_constraints ctxt constraints fresh_idx
