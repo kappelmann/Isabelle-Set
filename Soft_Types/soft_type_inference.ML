@@ -17,8 +17,7 @@ end;
 structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
 struct
 
-  val soft_type_inference = 
-    Config.bool (Config.declare ("soft_type_inference", \<^here>) (K (Config.Bool false)))
+  val soft_type_inference = Attrib.setup_config_bool \<^binding>\<open>soft_type_inference\<close> (K false)
 
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
@@ -110,25 +109,24 @@ struct
     (expected_type : term option)
     : (term * inference_context) =
     case t of 
-      Const (n, _) => 
-        (case get_const_type Gamma t of
-          SOME st => 
-            let   
-              (* Ensure that unification variables are fresh for each constant occurrence
-                 and make them depend on the current binders. *)
-              val binder_types = rev (map #3 Delta)
-              val bounds = (length Delta - 1) downto 0
-              val idx = fresh_idx Gamma
-              fun lift_var d (Var ((n, 0), T)) =
-                    Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
-                | lift_var _ (Var _) = error "Illegal Var index"
-                | lift_var _ t = t
-              val const_type = map_aterms_lev lift_var st
-              val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
-            in
-              (const_type, incr Gamma)
-            end
-        | NONE => error ("Cannot resolve type of constant " ^ quote n))
+      Const (n, T) => 
+        let
+          (* If constant type cannot be found, invent a generic type *)
+          val st = (case get_const_type Gamma t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
+          (* Ensure that unification variables are fresh for each constant occurrence
+             and make them depend on the current binders. *)
+          val binder_types = rev (map #3 Delta)
+          val bounds = (length Delta - 1) downto 0
+          val idx = fresh_idx Gamma
+          fun lift_var d (Var ((n, 0), T)) =
+                Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
+            | lift_var _ (Var _) = error "Illegal Var index"
+            | lift_var _ t = t
+          val const_type = map_aterms_lev lift_var st
+          val _ = Output.tracing ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
+        in
+          (const_type, incr Gamma)
+        end
     | s $ u => 
         let
           val (fun_type, Gamma1) = 
@@ -203,6 +201,11 @@ fun collect_constraints_prop ctxt
     Const ("HOL.Trueprop", _) $ arg =>
       collect_constraints ctxt Gamma Delta arg NONE |> snd
   | Const ("Pure.implies", _) $ u $ s =>
+      let
+        val Gamma1 = collect_constraints_prop ctxt Gamma Delta u
+        val Gamma2 = collect_constraints_prop ctxt Gamma1 Delta s
+      in Gamma2 end
+  | Const ("Pure.eq", _) $ u $ s =>
       let
         val Gamma1 = collect_constraints_prop ctxt Gamma Delta u
         val Gamma2 = collect_constraints_prop ctxt Gamma1 Delta s
@@ -288,15 +291,21 @@ fun print_inferred_types ctxt ts =
 
 
 fun elaborate ctxt ts =
-  let
-    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-    val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
-    (* We discard the resulting context, since the terms will be re-declared using auto-fixes
-       later *)
-    val (ets', _) = Variable.import_terms true elaborated_terms ctxt
-  in
-    ets'
-  end
+  if Config.get ctxt soft_type_inference then
+    let
+      val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
+      val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
+      (* We discard the resulting context, since the terms will be re-declared using auto-fixes
+         later *)
+      val (ets', _) = Variable.import_terms true elaborated_terms ctxt
+    in
+      ets'
+    end
+  else ts;
+
+(* No effect until activated in the configuration *)
+val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" elaborate)
+
 
 
 (* Useful antiquotation for testing *)

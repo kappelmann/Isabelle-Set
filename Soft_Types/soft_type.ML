@@ -17,6 +17,9 @@ val typeT: typ -> typ
 
 (* Constants for the term representation *)
 val Pi_const: typ -> typ -> term
+val any: typ -> term
+
+val mk_any_fun: typ -> term
 
 datatype judgement =
   Judgement of term * term
@@ -40,6 +43,21 @@ fun Pi_const Ta Tb =
     @{const_name "Pi_type"},
     typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb)
   )
+
+fun any T = Const (@{const_name "any"}, typeT T)
+
+
+fun mk_any_fun T =
+  let
+    val (binderTs, bodyT) = strip_type T
+    val names = Name.invent_list [] "a" (length binderTs)
+  in
+    (any bodyT, bodyT)
+    |> fold_rev (fn (n, S) => fn (t, T) => 
+      (Pi_const S T $ Var ((n, 0), typeT S) $ Abs ("uu_", S, t), S --> T)) (names ~~ binderTs)
+    |> fst
+  end
+
 
 datatype judgement =
   Judgement of term * term

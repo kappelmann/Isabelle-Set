@@ -48,22 +48,12 @@ fun put_CT (Const (n, _)) sty = apsnd (Symtab.update (n, sty))
 fun get_CT tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
   | get_CT tabs t = Termtab.lookup (fst tabs) t
 
-(*
-Canonical get and put operations for the current type
-*)
 fun put_current_type t sty = Current_Type.map (put_CT t sty);
 fun get_current_type ctxt t = get_CT (Current_Type.get ctxt) t;
 
-fun declare_current_type thm ctxt =
-  let val (x, _) = dest_typing (Thm.prop_of thm)
-  in put_current_type x thm ctxt
-  end;
-
-val _ = Theory.setup (Attrib.setup @{binding type}
-  (Scan.succeed (Thm.declaration_attribute declare_current_type)) "Declare current soft type")
 
 
-(** Slot for all known types of a term **)
+(** All known types of a term **)
 
 structure Known_Types = Generic_Data(
   type T = thm Item_Net.T * thm Item_Net.T
@@ -74,6 +64,31 @@ structure Known_Types = Generic_Data(
   val extend = I
   val merge = apply2 Item_Net.merge
 )
+
+
+
+(** attribute [type] **)
+
+fun extract_param_names 0 _ = []
+  | extract_param_names i (Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs (n, _, b)) =
+      n :: extract_param_names (i - 1) b
+  | extract_param_names i _ = replicate i ""
+
+fun declare_current_type implicit thm ctxt =
+  let
+    val (x, st) = dest_typing (Thm.prop_of thm)
+    val names = extract_param_names (the_default 0 implicit) st
+  in
+    ctxt
+    |> put_current_type x thm
+    |> (if is_Const x then Implicit_Arguments.put_implicit (fst (dest_Const x)) names else I)
+  end;
+
+val _ = Theory.setup (Attrib.setup @{binding type}
+  (Scan.lift 
+    (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int) >> (fn implicit =>
+      Thm.declaration_attribute (declare_current_type implicit)))) "Declare current soft type")
+
 
 
 end

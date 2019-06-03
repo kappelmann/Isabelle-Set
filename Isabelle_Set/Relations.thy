@@ -29,6 +29,19 @@ lemma DUnion_rel: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. B 
 lemma relation_elem_subsetI: "\<lbrakk>p \<in> R; R : relation A B\<rbrakk> \<Longrightarrow> p \<in> A \<times> B"
   unfolding element_typedef by auto
 
+lemma relation_collectI: "{\<langle>f x, g x\<rangle>. x \<in> A} : relation"
+  unfolding relation_typedef by auto
+
+lemma domainE: 
+  assumes "R: relation" "a \<in> domain R"
+  shows "\<exists>y. \<langle>a, y\<rangle> \<in> R"
+proof -
+  from `a \<in> domain R` obtain p where "p \<in> R" "a = fst p" unfolding domain_def by auto
+  with `R: relation`
+  have "\<langle>a, snd p\<rangle> \<in> R" unfolding relation_typedef by auto
+  thus ?thesis ..
+qed
+
 
 subsection \<open>Converse relations\<close>
 
@@ -77,6 +90,21 @@ lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
 
 lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by extensionality
+
+lemma domain_Collect [simp]: "domain {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
+  unfolding domain_def by auto
+
+lemma domain_Cons [simp]: "domain (Cons \<langle>x, y\<rangle> A) = Cons x (domain A)"
+  unfolding domain_def by extensionality
+
+lemma domain_empty [simp]: "domain {} = {}"
+  unfolding domain_def by auto
+
+lemma empty_relation[intro]: "{} : relation"
+  unfolding relation_typedef by auto
+
+lemma relation_Cons [simp]: "Cons \<langle>x, y\<rangle> A : relation \<longleftrightarrow> A : relation"
+  unfolding relation_typedef by auto
 
 
 subsection \<open>Properties of relations\<close>
