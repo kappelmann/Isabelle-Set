@@ -29,6 +29,9 @@ val read_judgement: Proof.context -> term -> judgement
 val mk_judgement: judgement -> term
 val is_judgement: term -> bool
 
+val trace_soft_types: bool Config.T
+val tracing: Proof.context -> string -> unit 
+
 end
 
 
@@ -77,5 +80,11 @@ fun is_judgement tm =
   case tm of 
     Const (@{const_name "has_type"}, _) $ _ $ _ => true
   | _ => false
+
+
+(* tracing, controlled by a flag *)
+
+val trace_soft_types = Attrib.setup_config_bool \<^binding>\<open>trace_soft_types\<close> (K false)
+fun tracing ctxt = if Config.get ctxt trace_soft_types then Output.tracing else K ()
 
 end

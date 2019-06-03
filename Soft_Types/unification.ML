@@ -297,7 +297,7 @@ datatype pos_type = Eq | NotEq | Unknown
 
 fun unify ctxt (u as UP {eqns, postponed, subst, ...}) =
   let 
-    val _ = Output.tracing (pr_unification_problem ctxt u)
+    val _ = Soft_Type.tracing ctxt (pr_unification_problem ctxt u)
   in
     case (eqns, postponed) of 
        ((eqn as (_, (lhs, rhs), _)) :: _, _) => 
