@@ -79,10 +79,44 @@ lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by extensionality
 
 
+subsection \<open>Properties of relations\<close>
+
+abbreviation reflexive :: "set \<Rightarrow> bool"
+  where "reflexive R \<equiv> \<forall>x \<in> domain R. \<langle>x, x\<rangle> \<in> R"
+
+abbreviation irreflexive :: "set \<Rightarrow> bool"
+  where "irreflexive R \<equiv> \<forall>x \<in> domain R. \<langle>x, x\<rangle> \<notin> R"
+
+abbreviation symmetric :: "set \<Rightarrow> bool"
+  where "symmetric R \<equiv> \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<longrightarrow> \<langle>y, x\<rangle> \<in> R"
+
+abbreviation antisymmetric :: "set \<Rightarrow> bool"
+  where "antisymmetric R \<equiv>
+    \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, x\<rangle> \<in> R \<longrightarrow> x = y"
+
+abbreviation transitive :: "set \<Rightarrow> bool"
+  where "transitive R \<equiv>
+    \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<forall>z \<in> domain R. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, z\<rangle> \<in> R \<longrightarrow> \<langle>x, z\<rangle> \<in> R"
+
+abbreviation total :: "set \<Rightarrow> bool"
+  where "total R \<equiv> \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
+
+(* Should define these properties as adjectives. But how exactly... *)
+
+
+subsection \<open>Partial orders\<close>
+
+definition porder :: "set \<Rightarrow> set type"
+  where "porder P \<equiv> relation P P \<bar> Type (\<lambda>R. reflexive R \<and> antisymmetric R \<and> transitive R)"
+
+definition sporder :: "set \<Rightarrow> set type"
+  where "sporder P \<equiv> relation P P \<bar> Type (\<lambda>R. irreflexive R \<and> transitive R)"
+
+
 subsection \<open>Functions\<close>
 
 definition function :: "[set, set] \<Rightarrow> set type"
-  where "function A B \<equiv> Type (\<lambda>f. f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f))"
+  where "function A B \<equiv> relation A B \<bar> Type (\<lambda>f. \<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
 
 
 end

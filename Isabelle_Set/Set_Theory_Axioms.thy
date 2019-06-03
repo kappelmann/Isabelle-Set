@@ -49,8 +49,8 @@ containing the set.
 This is the Tarski axiom.
 \<close>
 
-definition transitive :: "set \<Rightarrow> bool"
-  where "transitive X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
+definition epsilon_transitive :: "set \<Rightarrow> bool"
+  where "epsilon_transitive X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
 
 definition ZF_closed :: "set \<Rightarrow> bool"
   where "ZF_closed U \<equiv> (
@@ -67,11 +67,11 @@ axiomatization
 where
   Univ_elem: "X \<in> Univ X"
 and
-  Univ_transitive: "transitive (Univ X)"
+  Univ_transitive: "epsilon_transitive (Univ X)"
 and
   Univ_ZF_closed: "ZF_closed (Univ X)"
 and
-  Univ_min: "\<lbrakk>X \<in> U; transitive U; ZF_closed U\<rbrakk> \<Longrightarrow> Univ X \<subseteq> U"
+  Univ_min: "\<lbrakk>X \<in> U; epsilon_transitive U; ZF_closed U\<rbrakk> \<Longrightarrow> Univ X \<subseteq> U"
 
 
 end
