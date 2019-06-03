@@ -5,6 +5,13 @@ imports "../Isabelle_Set/Set_Theory"
 
 begin
 
+subsection \<open>Basic soft types\<close>
+
+abbreviation set :: "set type"
+  where "set \<equiv> any"
+
+lemma all_sets_set [intro]: "x : set" using any_typeI .
+
 subsection \<open>Some abbreviations\<close>
 
 abbreviation (input) prefix_asymmetry ("asymmetry _ _")
@@ -33,5 +40,6 @@ abbreviation (input) prefix_idempotence ("idempotence _ _")
 
 abbreviation (input) prefix_commutativity ("commutativity _ _")
   where "commutativity dom B \<equiv> \<forall>x1 : dom. \<forall>x2 : dom. B x1 x2 = B x2 x1"
+
 
 end

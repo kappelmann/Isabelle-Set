@@ -103,7 +103,7 @@ subsection "The any type, which does not tell us anything about the value"
 definition any :: "'a type"
   where any_typedef: "any \<equiv> Type (\<lambda>x. (x == x))"
 
-lemma any_TypeI: "x ::: any"
+lemma any_typeI: "x ::: any"
   unfolding any_typedef has_type_Type_iff .
 
 

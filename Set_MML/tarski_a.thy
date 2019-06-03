@@ -16,7 +16,7 @@ apply (rule conjI) defer defer
 proof -
   fix N
 
-  show "N \<in> Univ N" by (fact Univ_member)
+  show "N \<in> Univ N" by (fact Univ_elem)
 
   show "\<forall>X Y. X \<in> Univ N \<and> Y \<subseteq> X \<longrightarrow> Y \<in> Univ N"
   proof rule+
@@ -27,7 +27,7 @@ proof -
       using Univ_ZF_closed unfolding ZF_closed_def by auto
     with 1 have "Y \<in> Pow X" by auto
     with 2 show "Y \<in> Univ N"
-      using Univ_transitive unfolding transitive_def by auto
+      using Univ_transitive unfolding epsilon_transitive_def by auto
   qed
 
   show "\<forall>X. X \<in> Univ N \<longrightarrow> (\<exists>Z. Z \<in> Univ N \<and> (\<forall>Y. Y \<subseteq> X \<longrightarrow> Y \<in> Z))"

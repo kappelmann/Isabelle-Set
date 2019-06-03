@@ -7,7 +7,7 @@ begin
 
 (* reserve X,Y,Z for set *)
 
-theorem tarski_0_1: "\<forall>x. x : set" using all_sets_set ..
+theorem tarski_0_1: "\<forall>x. x : set" by auto
 
 theorem tarski_0_2: "(\<forall>x. x \<in> X \<longleftrightarrow> x \<in> Y) \<longrightarrow> X = Y" by extensionality
 

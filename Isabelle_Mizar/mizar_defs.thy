@@ -180,12 +180,12 @@ shows "df be ty \<and> (x be ty \<and> prop(x) \<longrightarrow> x = df) \<and> 
 unfolding df func_means_def
 proof (intro conjI)
   have *: "\<exists>\<^sub>Lx. x be define_ty(ty, \<lambda>_. True, prop)"
-    using Bex_def m ex by auto
+    using Bex_def m ex by stauto
   hence **: "theProp(ty,prop) be define_ty(ty, \<lambda>_. True, prop)"
     using choice_ax inhabited_def by blast
-  thus "theProp(ty,prop) be ty" by auto
-  show "prop(theProp(ty,prop))" using * ** by auto
-  show "x be ty \<and> prop(x) \<longrightarrow> x = theProp(ty, prop)" using un ** by auto
+  thus "theProp(ty,prop) be ty" by stauto
+  show "prop(theProp(ty,prop))" using * ** by stauto
+  show "x be ty \<and> prop(x) \<longrightarrow> x = theProp(ty, prop)" using un ** by stauto
 qed
   
 lemma func_assume_means_property:
@@ -666,7 +666,7 @@ shows "(X be ty \<longrightarrow> prop(X) \<longrightarrow> X is df) \<and>
         (X be ty \<longrightarrow> \<not>prop(X) \<longrightarrow> X is non df) \<and>
         (X be ty \<longrightarrow> (X is df \<longleftrightarrow> prop(X)))"
   using attr_means_def assms
-  by auto
+  by stauto
 
 lemma attr_assume_means_property:
 assumes "assume as attr df for ty means prop"
@@ -676,7 +676,7 @@ shows "(X be ty \<longrightarrow> as(X) \<longrightarrow> prop(X) \<longrightarr
         (X be ty \<longrightarrow> as(X) \<longrightarrow> (X is df \<longleftrightarrow> prop(X)))"
   using define_ty_property[of assms object "\<lambda>it. it be ty \<and> as(it)" "prop" X] assms
   unfolding attr_assume_means_def
-  by auto
+  by stauto
             
 lemma attr_means_if1_property:
 assumes "attr df for ty means prop1 if case1 otherwise prop_o"

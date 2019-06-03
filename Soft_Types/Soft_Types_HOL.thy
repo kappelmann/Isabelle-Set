@@ -156,7 +156,7 @@ text \<open>Used to reflect rigid types back into the soft type system.\<close>
 definition any :: "'a type"
   where any_typedef: "any = Type (\<lambda>_. True)"
 
-lemma any_TypeI: "x : any"
+lemma any_typeI: "x : any"
   unfolding any_typedef by stauto
 
 
