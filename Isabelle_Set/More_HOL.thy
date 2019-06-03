@@ -1,9 +1,5 @@
 theory More_HOL
-imports
-  HOL.HOL
-  "../Soft_Types/Soft_Types_HOL" (* <-- Needs to go before Eisbach, for some reason *)
-  "HOL-Eisbach.Eisbach"
-  "HOL-Eisbach.Eisbach_Tools"
+imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 

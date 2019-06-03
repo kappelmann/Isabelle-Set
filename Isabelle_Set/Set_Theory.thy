@@ -13,28 +13,6 @@ abbreviation not_elem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
 
-subsection \<open>Soft types\<close>
-
-abbreviation set :: "set type"
-  where "set \<equiv> any"
-
-lemma all_sets_set: "x : set" (* compatibility *)
-  by (rule any_TypeI)
-
-text \<open>Show the corresponding soft types for the axiomatized constants.\<close>
-
-lemma
-  elem_type [type]: "(\<in>) : set \<Rightarrow> set \<Rightarrow> any" and
-  eq_type [type]: "((=) :: (set \<Rightarrow> set \<Rightarrow> bool)) : A \<Rightarrow> A \<Rightarrow> any" and
-    (* ^ Really, A \<Rightarrow> B \<Rightarrow> bool, so I'm not sure how much more useful this is compared to
-    set \<Rightarrow> set \<Rightarrow> bool *)
-  empty_set_type [type]: "{} : set" and
-  Pow_type [type]: "Pow : set \<Rightarrow> set" and
-  Union_type [type]: "Union : set \<Rightarrow> set" and
-  Repl_type [type]: "Repl : set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  unfolding Pi_typedef by (auto intro: all_sets_set any_TypeI)
-
-
 subsection \<open>Foundational axioms as rules\<close>
 
 lemma empty_rule [simp]: "x \<notin> {}" using empty_axiom by blast
@@ -68,73 +46,73 @@ translations
   "\<exists>!x \<in> A. P" \<rightleftharpoons> "CONST Bex1 A (\<lambda>x. P)"
 
 
-lemma ballI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
+lemma BallI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
   by (simp add: Ball_def)
 
-lemma bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
+lemma Bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
   by (simp add: Ball_def)
 
-lemma rev_ballE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+lemma rev_BallE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: Ball_def, blast)
 
-lemma ballE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+lemma BallE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by blast
 
 (* LCP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
-lemma ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
+lemma Ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
   by (simp add: Ball_def)
 
-lemma ball_cong [cong]:
+lemma Ball_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<forall>x \<in> A. P x) \<longleftrightarrow> (\<forall>x \<in> A'. P' x)"
   by (simp add: Ball_def)
 
-lemma atomize_ball:
+lemma atomize_Ball:
   "(\<And>x. x \<in> A \<Longrightarrow> P x) \<equiv> Trueprop (\<forall>x \<in> A. P x)"
   by (simp only: Ball_def atomize_all atomize_imp)
 
 lemmas
-  [symmetric, rulify] = atomize_ball and
-  [symmetric, defn] = atomize_ball
+  [symmetric, rulify] = atomize_Ball and
+  [symmetric, defn] = atomize_Ball
 
-lemma bexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma BexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by (simp add: Bex_def, blast)
 
 (* LCP: The best argument order when there is only one @{term "x \<in> A"} *)
-lemma rev_bexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma rev_BexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
 (* LCP: Not of the general form for such rules. The existential quantifier becomes universal. *)
-lemma bexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma BexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
-lemma bexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+lemma BexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: Bex_def, blast)
 
 (* LCP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is nonempty *)
-lemma bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
+lemma Bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
   by (simp add: Bex_def)
 
-lemma bex_cong [cong]:
+lemma Bex_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>x \<in> A. P x) \<longleftrightarrow> (\<exists>x \<in> A'. P' x)"
   by (simp add: Bex_def cong: conj_cong)
 
-lemma bex1I [intro]: "\<lbrakk>P x; x \<in> A; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+lemma Bex1I [intro]: "\<lbrakk>P x; x \<in> A; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
   by (simp add: Bex1_def, blast)
 
-lemma rev_bex1I: "\<lbrakk>x \<in> A; P x; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+lemma rev_Bex1I: "\<lbrakk>x \<in> A; P x; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
   by blast
 
-lemma bex1E [elim!]: "\<lbrakk>\<exists>!x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+lemma Bex1E [elim!]: "\<lbrakk>\<exists>!x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: Bex1_def, blast)
 
-lemma bex1_triv [simp]: "(\<exists>!x \<in> A. P) \<longleftrightarrow> ((\<exists>!x. x \<in> A) \<and> P)"
+lemma Bex1_triv [simp]: "(\<exists>!x \<in> A. P) \<longleftrightarrow> ((\<exists>!x. x \<in> A) \<and> P)"
   by (auto simp add: Bex1_def)
 
-lemma bex1_cong [cong]:
+lemma Bex1_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>!x \<in> A. P x) \<longleftrightarrow> (\<exists>!x \<in> A'. P' x)"
   by (simp add: Bex1_def cong: conj_cong)
 
-lemma bex1_implies_bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma Bex1_implies_Bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
   by auto
 
 
@@ -422,7 +400,7 @@ proof -
   have "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))"
     using Replace_def by auto
   also have "... \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
-  proof (rule bex_cong[OF refl])
+  proof (rule Bex_cong[OF refl])
     fix x assume "x \<in> A"
     show
       "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b)"
@@ -457,7 +435,7 @@ lemma ReplaceI [intro]: "\<lbrakk>P x b; x \<in> A; \<And>y. P x y \<Longrightar
 (* Elimination; may assume there is a unique y such that P x y, namely y = b. *)
 lemma ReplaceE:
   "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-  by (rule Replace_iff [THEN iffD1, THEN bexE], simp+)
+  by (rule Replace_iff [THEN iffD1, THEN BexE], simp+)
 
 (* As above but without the (generally useless) 3rd assumption *)
 lemma ReplaceE2 [elim!]:
@@ -661,15 +639,12 @@ subsubsection \<open>Elements of a given set\<close>
 definition element :: "set \<Rightarrow> set type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
-(* Josh -- Ideally, we'd like to automate reasoning of the following kind *)
-lemma element_type_iff: "x : element A \<longleftrightarrow> x \<in> A"
-  unfolding element_typedef by auto
+(* Josh -- Ideally, we'd like to smartly automate unfolding of typedefs *)
+lemma element_type_iff [stiff]: "x : element A \<longleftrightarrow> x \<in> A"
+  using element_typedef by stauto
 
-lemma element_typeI: "x \<in> A \<Longrightarrow> x : element A"
-  unfolding element_type_iff .
-
-lemma element_typeE: "x : element A \<Longrightarrow> x \<in> A"
-  unfolding element_type_iff .
+lemma element_typeI [stintro]: "x \<in> A \<Longrightarrow> x : element A" by stauto
+lemma element_typeE [stelim]: "x : element A \<Longrightarrow> x \<in> A" by stauto
 
 
 subsubsection \<open>Subsets of a given set\<close>
@@ -677,14 +652,26 @@ subsubsection \<open>Subsets of a given set\<close>
 abbreviation subset :: "set \<Rightarrow> set type"
   where "subset A \<equiv> element (Pow A)"
 
-lemma subset_type_iff: "B : subset A \<longleftrightarrow> B \<subseteq> A"
-  unfolding element_typedef by auto
+lemma subset_type_iff [stiff]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
+  by stauto
+
+lemma subset_typeI [stintro]: "B \<subseteq> A \<Longrightarrow> B : subset A"
+  by stauto
+
+lemma subset_typeE [stelim]: "B : subset A \<Longrightarrow> B \<subseteq> A"
+  by stauto
 
 
 subsubsection \<open>Collections of sets of a given type T\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
+
+lemma collection_type_iff [stiff]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
+  using collection_typedef by stauto
+
+lemma collection_typeI [stintro]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" by stauto
+lemma collection_typeE [stelim]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T" by stauto
 
 
 subsubsection \<open>Refined types for axiomatized constants\<close>
@@ -693,17 +680,8 @@ lemma
   [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
   [type]: "Union : collection (collection T) \<Rightarrow> collection T" and
   [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S"
-  unfolding collection_typedef by (intro Pi_typeI, auto elim: Pi_typeE)+
+  using collection_type_iff by (intro Pi_typeI, auto elim: Pi_typeE)+
     (* ^ Using Pi_typeI, Pi_typeE etc. should be automated! (?) *)
-
-
-(* Testing *)
-ML \<open>
-val ctxt = @{context};
-val context = (Context.Proof ctxt);
-
-Soft_Type_Context.get_current_type context @{term "Union"}
-\<close>
 
 
 end

@@ -1,7 +1,11 @@
 section \<open>Soft types for HOL\<close>
 
 theory Soft_Types_HOL
-imports HOL.HOL Implicit_Arguments
+imports
+  HOL.HOL
+  Implicit_Arguments
+  "HOL-Eisbach.Eisbach"
+  "HOL-Eisbach.Eisbach_Tools"
 
 begin
 
@@ -9,22 +13,40 @@ text \<open>HOL version of the soft types library, using @{typ bool} instead of 
 
 declare[[eta_contract=false]]
 
+
+subsection \<open>Automation\<close>
+
+named_theorems stintro
+named_theorems stelim
+named_theorems stdest
+named_theorems stiff
+named_theorems stsimp
+
+method stauto declares stintro stelim stdest stiff stsimp = (
+  (auto intro: stintro elim: stelim simp: stiff)?;
+  ((elim stelim | drule stdest | intro stintro | simp add: stsimp)+,
+    stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp)
+)
+
+
+subsection \<open>Basic definitions\<close>
+
 typedecl 'a type
 
 axiomatization 
   Type :: "('a \<Rightarrow> bool) \<Rightarrow> 'a type" and
   pred_of :: "'a type \<Rightarrow> 'a \<Rightarrow> bool"
 where
-  pred_of_Type: "pred_of (Type t) \<equiv> t"
+  pred_of_type: "pred_of (Type t) \<equiv> t"
 
 definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
   where "x : T \<equiv> pred_of T x"
 
-lemma has_type_Type_iff [simp]: "x : Type P \<equiv> P x"
-  unfolding has_type_def pred_of_Type .
+lemma has_type_iff [stiff]: "x : Type P \<longleftrightarrow> P x"
+  unfolding has_type_def pred_of_type ..
 
-lemma has_typeI [intro]: "P x \<Longrightarrow> x : Type P"
-  by auto
+lemma has_typeI [stintro]: "P x \<Longrightarrow> x : Type P" by stauto
+lemma has_typeE [stelim]: "x : Type P \<Longrightarrow> P x" by stauto
 
 
 subsection \<open>Bounded quantifiers\<close>
@@ -46,11 +68,14 @@ translations
 lemma Soft_BallI [intro]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
   unfolding Soft_Ball_def by auto
 
-lemma Soft_BexI [intro]: "\<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> \<exists>x : A. P x"
-  unfolding Soft_Bex_def by auto
-
 lemma Soft_BallE [elim]: "\<lbrakk>\<forall>x : A. P x; \<And>x. (x : A \<Longrightarrow> P x) \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   unfolding Soft_Ball_def by auto
+
+lemma Soft_BallE' [elim]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
+  unfolding Soft_Ball_def by auto
+
+lemma Soft_BexI [intro]: "\<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> \<exists>x : A. P x"
+  unfolding Soft_Bex_def by auto
 
 lemma Soft_BexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   unfolding Soft_Bex_def by auto
@@ -72,22 +97,18 @@ translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
 
+lemma Pi_type_iff [stiff]: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x : \<sigma>. f x : \<tau> x)"
+  unfolding Pi_typedef by stauto
 
-lemma Pi_typeI:
+lemma Pi_typeI [stintro]:
   assumes "\<And>x. x : A \<Longrightarrow> f x : B x"
   shows "f : (x : A) \<Rightarrow> B x"
-  unfolding Pi_typedef has_type_Type_iff
-  using assms by auto
+  using assms by stauto
 
-lemma Pi_typeE:
-  assumes 1: "f : (x : A) \<Rightarrow> B x"
-  assumes 2: "x : A"
+lemma Pi_typeE [stelim]:
+  assumes "f : (x : A) \<Rightarrow> B x" and "x : A"
   shows "f x : B x"
-proof -
-  from 2
-  show "?thesis"
-  by (rule 1[unfolded Pi_typedef has_type_Type_iff Soft_Ball_def, rule_format])
-qed
+  using assms by stauto
 
 
 subsection \<open>Intersections\<close>
@@ -95,20 +116,13 @@ subsection \<open>Intersections\<close>
 definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
   where Int_typedef: "A \<bar> B \<equiv> Type (\<lambda>x. x : A \<and> x : B)"
 
-lemma Int_TypeI [intro?]:
-  "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B"
-  unfolding Int_typedef has_type_Type_iff
-  by auto
+lemma Int_type_iff [stiff]: "x : A \<bar> B \<longleftrightarrow> x : A \<and> x : B"
+  unfolding Int_typedef by stauto
 
-lemma Int_TypeD1:
-  "x : A \<bar> B \<Longrightarrow> x : A"
-  unfolding Int_typedef has_type_Type_iff
-  by auto
+lemma Int_typeI [stintro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" by stauto
 
-lemma Int_TypeD2:
-  "x : A \<bar> B \<Longrightarrow> x : B"
-  unfolding Int_typedef has_type_Type_iff
-  by auto
+lemma Int_typeD1 [stdest]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
+lemma Int_typeD2 [stdest]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
 
 
 subsection \<open>Subtypes\<close>
@@ -126,7 +140,7 @@ definition any :: "'a type"
   where any_typedef: "any = Type (\<lambda>_. True)"
 
 lemma any_TypeI: "x : any"
-  unfolding any_typedef by auto
+  unfolding any_typedef by stauto
 
 
 subsection \<open>Tooling\<close>

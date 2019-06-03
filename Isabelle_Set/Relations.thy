@@ -20,17 +20,25 @@ definition field :: "set \<Rightarrow> set"
   where "field R \<equiv> domain R \<union> range R"
 
 
-lemma relation_subsetE [elim]: "\<lbrakk>S \<subseteq> R; R : relation A B\<rbrakk> \<Longrightarrow> S : relation A B"
-  unfolding element_typedef by auto
+lemma relation_type_iff: "R : relation A B \<longleftrightarrow> R \<subseteq> A \<times> B"
+  using element_type_iff by auto
 
-lemma DUnion_rel: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. B x)"
-  unfolding element_typedef by auto
+lemma relation_typeI: "R \<subseteq> A \<times> B \<Longrightarrow> R : relation A B"
+  using relation_type_iff ..
 
-lemma relation_elem_subsetI: "\<lbrakk>p \<in> R; R : relation A B\<rbrakk> \<Longrightarrow> p \<in> A \<times> B"
-  unfolding element_typedef by auto
+lemma relation_typeE: "R : relation A B \<Longrightarrow> R \<subseteq> A \<times> B"
+  using relation_type_iff ..
 
-lemma relation_collectI: "{\<langle>f x, g x\<rangle>. x \<in> A} : relation"
-  unfolding relation_typedef by auto
+lemma subset_relation [elim]: "\<lbrakk>S \<subseteq> R; R : relation A B\<rbrakk> \<Longrightarrow> S : relation A B"
+  using relation_type_iff by auto
+
+lemma DUnion_relation: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. B x)"
+  using relation_type_iff by auto
+
+lemma collect_relation:
+  assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
+  shows "{\<langle>f x, g x\<rangle>. x \<in> X} : relation A B"
+  
 
 lemma domainE: 
   assumes "R: relation" "a \<in> domain R"
