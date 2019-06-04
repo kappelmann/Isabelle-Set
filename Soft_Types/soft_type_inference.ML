@@ -229,9 +229,9 @@ datatype infer_result =
 fun unify_constraints ctxt constraints fresh_idx =
   let
     val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
-    val up = init_up constraints fresh_idx type_simps
+    val up = init_up constraints fresh_idx
   in 
-    unify ctxt up
+    unify ctxt type_simps up
   end
 
 fun infer_type ctxt ts = 
