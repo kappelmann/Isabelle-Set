@@ -267,29 +267,31 @@ fun infer_type ctxt ts =
     }
   end 
 
-fun print_inferred_types ctxt ts = 
-  let
-    val Infer_Result {elaborated_terms, variable_types } = infer_type ctxt ts
 
+fun trace_infer_result ctxt (Infer_Result {elaborated_terms, variable_types }) =
+  let
     fun section header content = header :: map (prefix "  ") content
 
     val pr_term = Syntax.string_of_term ctxt
-
-    val _ = Output.writeln (cat_lines ("--- Inference result ---" ::
+  in
+    Soft_Type.tracing ctxt (cat_lines ("--- Inference result ---" ::
       flat [
         section "Instantiated terms" (map pr_term elaborated_terms),
         section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types)
       ]))
+  end
 
-  in () end 
-
+fun print_inferred_types ctxt ts = trace_infer_result ctxt (infer_type ctxt ts)
 
 
 fun elaborate ctxt ts =
   if Config.get ctxt soft_type_inference then
     let
       val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-      val Infer_Result {elaborated_terms, ... } = infer_type ctxt ts'
+      val Infer_Result {elaborated_terms, ... } =
+        infer_type ctxt ts'
+        |> tap (trace_infer_result ctxt)
+
       (* We discard the resulting context, since the terms will be re-declared using auto-fixes
          later *)
       val (ets', _) = Variable.import_terms true elaborated_terms ctxt
