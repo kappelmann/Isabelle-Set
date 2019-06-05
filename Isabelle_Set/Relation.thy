@@ -1,6 +1,6 @@
 section \<open>Binary relations\<close>
 
-theory Relations
+theory Relation
 imports Pair
 
 begin

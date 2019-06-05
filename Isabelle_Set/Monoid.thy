@@ -1,6 +1,6 @@
 section \<open>Monoids as an example of soft-typed structures\<close>
 
-theory Monoids
+theory Monoid
 imports Function
 
 begin
@@ -19,7 +19,7 @@ definition Monoid_Set :: "set \<Rightarrow> set" where
       (\<forall>x\<in>A. add`x`neut = x) \<and>
       (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. add`(add`x`y)`z = add`x`(add`y`z))}"
 
-abbreviation Monoid :: "set \<Rightarrow> type" where
+abbreviation Monoid :: "set \<Rightarrow> set type" where
   "Monoid A \<equiv> element (Monoid_Set A)"
 
 
@@ -41,8 +41,9 @@ lemma monoid_add_type[type]: "monoid_add : Monoid A \<Rightarrow> element A \<Ri
   apply (intro Pi_typeI) 
   apply (unfold element_type_iff monoid_add_def Monoid_Set_def)
   apply (drule CollectD)
+  apply (intro funE)
   apply auto
-  by (intro apply_funtype)
+done
  
 
 lemma
@@ -65,7 +66,7 @@ definition Group_Set :: "set \<Rightarrow> set" where
       (\<forall>x\<in>A. add`(inv`x)`x = neut) \<and>
       (\<forall>x\<in>A. add`x`(inv`x) = neut)}"
 
-abbreviation Group :: "set \<Rightarrow> type" where
+abbreviation Group :: "set \<Rightarrow> set type" where
   "Group A \<equiv> element (Group_Set A)"
 
 
