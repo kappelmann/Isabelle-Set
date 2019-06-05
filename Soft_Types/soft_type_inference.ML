@@ -47,25 +47,20 @@ struct
   fun map_up f (Inference_Context {const_types, var_types, up}) =
     Inference_Context {const_types=const_types, var_types=var_types, up = f up}
 
-  fun add_constraint 
-         (c as (_, (lhs, rhs), _)) 
-         (Gamma as Inference_Context {const_types, var_types, up}) =
+  fun add_constraint ctxt (c as (_, (lhs, rhs), _)) Gamma =
     if lhs aconv rhs (* Skip trivial constraints *)
     then Gamma
-    else Inference_Context {const_types=const_types, var_types=var_types,
-           up = Unification.add_equation c up};
+    else map_up (Unification.add_equation ctxt c) Gamma
+
   
   fun fresh_idx (Gamma as Inference_Context {up, ...}) =
     let val (i, up') = Unification.fresh_idx up
     in (i, map_up (K up') Gamma) end
 
-  type preproc_context = 
-    (string * term * typ) list
-
-  fun context_types (Delta : preproc_context) =
+  fun context_types (Delta : Unification.binder list) =
     map (#3) Delta
 
-  fun incr_bounds (Delta : preproc_context) =
+  fun incr_bounds (Delta : Unification.binder list) =
     map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
 
   fun fresh_variable T Delta Gamma =
@@ -88,17 +83,6 @@ struct
       (stv, add_free (v, stv) Gamma1)
     end
 
-  fun trace_constraint ctxt t (eqn as (_, (lhs, rhs), _)) =
-    let
-      val context_msg = 
-        (case t of SOME t' => " (collected from " ^ Syntax.string_of_term ctxt t' ^ ")" | _ => "")
-    in                        
-      if (fastype_of lhs <> fastype_of rhs)
-      then error (cat_lines ["Bad types in constraint:", 
-          "  Constraint: " ^ Unification.pr_equation ctxt eqn,
-          "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
-      else Soft_Type.tracing ctxt ("Constraint: " ^ Unification.pr_equation ctxt eqn ^ context_msg)
-    end
 
   fun collect_constraints ctxt
     (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
@@ -121,7 +105,6 @@ struct
             | lift_var _ (Var _) = error "Illegal Var index"
             | lift_var _ t = t
           val const_type = map_aterms_lev lift_var st
-          val _ = Soft_Type.tracing ctxt ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
         in
           (const_type, Gamma1)
         end
@@ -133,10 +116,9 @@ struct
           val Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B) = fun_type
           val (u_st, Gamma2) = collect_constraints' ctxt Delta u Gamma1 (SOME A)
           val new_constraint = (Delta, (u_st, A), ())
-            |> tap (trace_constraint ctxt (SOME t))
           val application_type = Term.subst_bound (u, B)
         in
-          (application_type, add_constraint new_constraint Gamma2)
+          (application_type, add_constraint ctxt new_constraint Gamma2)
         end
     | Bound i => (#2 (nth Delta i), Gamma)
     | Abs (x, T, body) => 
@@ -179,15 +161,12 @@ struct
 
    and collect_constraints' ctxt Delta t Gamma expected_type =
      let 
-       val _ = Soft_Type.tracing ctxt (cat_lines [
-         "collect_constraints:",
-         "  \<Delta> = " ^ @{make_string} Delta,
-         "  t = " ^ Syntax.string_of_term ctxt t])
+       fun inst t = Term.subst_bounds (map (fn (n, _, T) => Free (n, T)) Delta, t)
+       fun pr_term t = Syntax.string_of_term ctxt (inst t)
      in
       collect_constraints ctxt Delta t Gamma expected_type
-      |> tap (fn (sT, _) => Soft_Type.tracing ctxt (cat_lines [
-            "### " ^ Syntax.string_of_term ctxt t,
-            "--> " ^ Syntax.string_of_term ctxt sT]))
+      |> tap (fn (sT, _) => Soft_Type.tracing ctxt (
+            Unification.pr_binders Delta ^ " |- " ^ pr_term t ^ " : " ^ pr_term sT))
      end
 
 
