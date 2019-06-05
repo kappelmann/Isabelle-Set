@@ -15,6 +15,9 @@ session Isabelle_Set = "HOL" +
   "Isabelle_Set/Examples/Implicit_Args"
   "Isabelle_Set/ZF_Compatibility"
 
+  (* Variations on the axioms, proposed by Karol *)
+  "Isabelle_Set/Set_Theory_Axioms_T"
+
   (* MML ported to new logic *)
   "Set_MML/tarski_0"
   "Set_MML/tarski"
