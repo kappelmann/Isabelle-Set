@@ -4,7 +4,7 @@
 Based on earlier work in Isabelle/ZF by Larry Paulson.
 *)
 
-section \<open>Functions, Function Spaces, Lambda-Abstraction\<close>
+section \<open>Functions, function spaces, and lambda abstraction\<close>
 
 theory Function
 imports Relations
@@ -12,31 +12,57 @@ imports Relations
 begin
 
 definition function :: "[set, set] \<Rightarrow> set type"
-  where function_typedef: "function A B \<equiv> relation A B \<bar> Type (\<lambda>f. \<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
+  where function_typedef:
+  "function A B \<equiv>
+    relation A B
+  \<bar> Type (\<lambda>f. domain f = A \<and> (\<forall>x y y'. \<langle>x, y\<rangle> \<in> f \<and> \<langle>x, y'\<rangle> \<in> f \<longrightarrow> y = y'))"
 
-lemma function_type_iff [stiff]:
-  "f : function A B \<longleftrightarrow> f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y \<in> B. \<langle>x, y\<rangle> \<in> f)"
+lemma function_type_iff [iff_st]:
+  "f : function A B \<longleftrightarrow>
+    f : relation A B \<and> domain f = A \<and> (\<forall>x y y'. \<langle>x, y\<rangle> \<in> f \<and> \<langle>x, y'\<rangle> \<in> f \<longrightarrow> y = y')"
   using function_typedef by stauto
 
-lemma function_is_relation: "function A B \<prec> relation A B"
+lemma function_typeI [intro_st]:
+  assumes "f: relation A B" and "domain f = A" and "\<And>x y y'. \<lbrakk>\<langle>x, y\<rangle> \<in> f; \<langle>x, y'\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y = y'"
+  shows "f : function A B"
+  using assms function_type_iff by auto
+
+lemma function_is_relation [subtype]: "function A B \<prec> relation A B"
   by stauto
 
-lemma functionI:
-     "r: relation \<Longrightarrow> [| !!x y y'. [| \<langle>x,y\<rangle>\<in>r; \<langle>x,y'\<rangle>\<in>r |] ==> y=y' |] ==> r : function"
-  unfolding function_typedef by auto
+lemma function_type_iff2 [iff_st]:
+  "f : function A B \<longleftrightarrow> f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f)"
+proof auto
+  assume f_fun: "f : function A B"
+  thus f_rel: "f : relation A B" by stauto
 
-lemma empty_function[intro]: "{} : function"
-  unfolding function_typedef by auto
+  fix x assume asm: "x \<in> A"
+  have "domain f = A" using f_fun by stauto
+  hence "x \<in> domain f" using asm by simp
+  thus "\<exists>y. \<langle>x, y\<rangle> \<in> f" using f_rel by (intro domainE)
 
-lemma singleton_function[intro]: "{\<langle>x, y\<rangle>} : function"
-  unfolding function_typedef by auto
+  fix y y' assume "\<langle>x, y\<rangle> \<in> f" and "\<langle>x, y'\<rangle> \<in> f"
+  thus "y = y'" using f_fun function_type_iff by auto
+next
+  assume f_rel: "f : relation A B" and uniq: "\<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f"
+  hence "\<forall>x \<in> A. (\<exists>y. \<langle>x, y\<rangle> \<in> f)" by auto
+  hence "A \<subseteq> domain f" using f_rel by (auto intro: domainI)
+  moreover have "domain f \<subseteq> A" using f_rel domain_subset by auto
+  ultimately have "domain f = A" by extensionality
+  thus "f : function A B" using function_type_iff f_rel uniq by stauto
+qed
+
+lemma empty_function [intro]: "{} : function {} B"
+  by stauto
+
+lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} : function {x} B"
+  by stauto
 
 
-
-subsection \<open>Set-theoretic function space\<close>
+subsection \<open>Set-theoretic dependent function space\<close>
 
 definition Pi :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  where "Pi A B == {f\<in>Pow(DUnion A B). A\<subseteq>domain(f) \<and> f: function}"
+  where "Pi A B \<equiv> {f \<in> Pow (\<Coprod>x \<in> A. (B x)) | A \<subseteq> domain(f) \<and> f: function}"
 
 abbreviation function_space :: "set \<Rightarrow> set \<Rightarrow> set"  (infixr "\<rightarrow>" 60)
   where "A \<rightarrow> B \<equiv> Pi A (\<lambda>_. B)"
@@ -181,7 +207,7 @@ lemma domain_type: "[| \<langle>a,b\<rangle> \<in> f;  f \<in> Pi A B |] ==> a \
 by (blast dest: fun_is_rel)
 
 lemma range_type: "[| \<langle>a,b\<rangle> \<in> f;  f \<in> Pi A B |] ==> b \<in> B(a)"
-by (blast dest: fun_is_rel)
+by (blast dest: fun_is_rel
 
 lemma Pair_mem_PiD: "[| \<langle>a,b\<rangle>\<in> f;  f \<in> Pi A B |] ==> a \<in> A \<and> b \<in> B(a) \<and> f`a = b"
 by (blast intro: domain_type range_type apply_equality)

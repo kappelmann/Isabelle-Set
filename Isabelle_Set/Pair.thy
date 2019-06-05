@@ -1,4 +1,4 @@
-section \<open>Ordered Pairs\<close>
+section \<open>Ordered pairs\<close>
 
 text \<open>
 Based heavily on code copied directly from the theory file ZF/pair.thy
@@ -116,13 +116,16 @@ syntax
 translations
   "\<Coprod>x \<in> A. B" \<rightleftharpoons> "CONST DUnion A (\<lambda>x. B)"
 
-abbreviation cart_prod :: "set \<Rightarrow> set \<Rightarrow> set" (infixr "\<times>" 80)
+abbreviation product :: "set \<Rightarrow> set \<Rightarrow> set" (infixr "\<times>" 80)
   where "A \<times> B \<equiv> \<Coprod>_ \<in> A. B"
 
 lemma DUnion_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
   by (auto simp: DUnion_def)
 
 lemma DUnionI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Coprod>x \<in> A. (B x)"
+  by simp
+
+lemma DUnionI2 [elim]: "\<lbrakk>p = \<langle>a, b\<rangle>; a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> p \<in> \<Coprod>x \<in> A. (B x)"
   by simp
 
 lemmas DUnionD1 = DUnion_iff [THEN iffD1, THEN conjunct1]
@@ -141,14 +144,17 @@ lemma DUnion_cong:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Coprod>x \<in> A. (B x) = \<Coprod>x \<in> A'. (B' x)"
   by (simp add: DUnion_def)
 
-lemma DUnion_empty1 [simp]: "\<Coprod>x \<in> {}. (B x) = {}"
+lemma DUnion_empty_family [simp]: "\<Coprod>x \<in> {}. (B x) = {}"
   by extensionality
 
-lemma DUnion_empty2 [simp]: "A \<times> {} = {}"
+lemma DUnion_empty_sets [simp]: "\<Coprod>x \<in> A. {} = {}"
   by extensionality
 
 lemma DUnion_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
   by (auto intro!: equality_iffI)
+
+lemma product_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
+  by extensionality
 
 
 subsection \<open>Projections @{term fst} and @{term snd} for disjoint unions\<close>
@@ -162,7 +168,7 @@ lemma DUnion_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<i
 lemma DUnion_elem_conv [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
 
-corollary cartesian_prod_elem_conv [simp]: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+corollary product_elem_conv [simp]: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by (fact DUnion_elem_conv)
 
 

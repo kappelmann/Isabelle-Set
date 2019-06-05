@@ -20,7 +20,7 @@ lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> 
   by (intro Pi_typeI any_typeI)
 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
-  by (intro Pi_typeI, unfold element_type_iff Pow_rule) auto
+  by (intro Pi_typeI, unfold element_type_iff Pow_rule) stauto
 
 
 text \<open>The following statements are also provable, but not helpful:\<close>

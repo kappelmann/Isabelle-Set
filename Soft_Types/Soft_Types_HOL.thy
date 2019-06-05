@@ -16,27 +16,32 @@ declare[[eta_contract=false]]
 
 subsection \<open>Named theorems and automation\<close>
 
-named_theorems stintro
-named_theorems stelim
-named_theorems stdest
-named_theorems stiff
-named_theorems stsimp
+named_theorems intro_st
+named_theorems elim_st
+named_theorems dest_st
+named_theorems iff_st
+named_theorems simp_st
 
-named_theorems stsub \<comment>\<open>For subtyping judgments\<close>
+named_theorems subtype \<comment>\<open>For subtyping judgments\<close>
 named_theorems typedef \<comment>\<open>For smart unfolding\<close>
   (* ^ To be implemented.. *)
 
-method stauto declares stintro stelim stdest stiff stsimp =
-  (auto intro: stintro elim: stelim simp: stiff;
-  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
-| (elim stelim;
-  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
-| (drule stdest;
-  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
-| (intro stintro;
-  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
-| (simp add: stsimp;
-  solves\<open>stauto stintro: stintro stelim: stelim stdest: stdest stiff: stiff stsimp: stsimp\<close>)
+method stauto declares intro_st elim_st dest_st iff_st simp_st =
+  (auto intro: intro_st elim: elim_st simp: iff_st;
+  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
+    iff_st: iff_st simp_st: simp_st\<close>)
+| (elim elim_st;
+  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
+    iff_st: iff_st simp_st: simp_st\<close>)
+| (drule dest_st;
+  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
+    iff_st: iff_st simp_st: simp_st\<close>)
+| (intro intro_st;
+  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
+    iff_st: iff_st simp_st: simp_st\<close>)
+| (simp add: simp_st;
+  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
+    iff_st: iff_st simp_st: simp_st\<close>)
 
 
 subsection \<open>Basic definitions\<close>
@@ -52,11 +57,11 @@ where
 definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
   where "x : T \<equiv> pred_of T x"
 
-lemma has_type_iff [stiff]: "x : Type P \<longleftrightarrow> P x"
+lemma has_type_iff [iff_st]: "x : Type P \<longleftrightarrow> P x"
   unfolding has_type_def pred_of_type ..
 
-lemma has_typeI [stintro]: "P x \<Longrightarrow> x : Type P" by stauto
-lemma has_typeE [stelim]: "x : Type P \<Longrightarrow> P x" by stauto
+lemma has_typeI [intro_st]: "P x \<Longrightarrow> x : Type P" by stauto
+lemma has_typeE [elim_st]: "x : Type P \<Longrightarrow> P x" by stauto
 
 
 subsection \<open>Bounded quantifiers\<close>
@@ -107,15 +112,15 @@ translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
 
-lemma Pi_type_iff [stiff]: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x : \<sigma>. f x : \<tau> x)"
+lemma Pi_type_iff [iff_st]: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x : \<sigma>. f x : \<tau> x)"
   unfolding Pi_typedef by stauto
 
-lemma Pi_typeI [stintro]:
+lemma Pi_typeI [intro_st]:
   assumes "\<And>x. x : A \<Longrightarrow> f x : B x"
   shows "f : (x : A) \<Rightarrow> B x"
   using assms by stauto
 
-lemma Pi_typeE [stelim]:
+lemma Pi_typeE [elim_st]:
   assumes "f : (x : A) \<Rightarrow> B x" and "x : A"
   shows "f x : B x"
   using assms by stauto
@@ -126,13 +131,13 @@ subsection \<open>Intersections\<close>
 definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
   where Int_typedef: "A \<bar> B \<equiv> Type (\<lambda>x. x : A \<and> x : B)"
 
-lemma Int_type_iff [stiff]: "x : A \<bar> B \<longleftrightarrow> x : A \<and> x : B"
+lemma Int_type_iff [iff_st]: "x : A \<bar> B \<longleftrightarrow> x : A \<and> x : B"
   unfolding Int_typedef by stauto
 
-lemma Int_typeI [stintro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" by stauto
+lemma Int_typeI [intro_st]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" by stauto
 
-lemma Int_typeD1 [stdest]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
-lemma Int_typeD2 [stdest]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
+lemma Int_typeD1 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
+lemma Int_typeD2 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
 
 
 subsection \<open>Subtypes\<close>
@@ -140,12 +145,12 @@ subsection \<open>Subtypes\<close>
 definition subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" (infix "\<prec>" 50)
   where subtype_iff [iff]: "A \<prec> B \<longleftrightarrow> (\<forall>x : A. x : B)"
 
-lemma subtypeI [stintro]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longrightarrow> A \<prec> B" by auto
+lemma subtypeI [intro_st]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longrightarrow> A \<prec> B" by auto
 
 lemma subtypeE [elim]: "\<lbrakk>A \<prec> B; \<And>x. (x : B \<Longrightarrow> P); x : A\<rbrakk> \<Longrightarrow> P"
   by (drule Soft_BallI) auto
 
-lemma subtypeD [stdest]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B" by auto
+lemma subtypeD [dest_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B" by auto
 
 
 subsection \<open>The ``any'' type\<close>

@@ -5,10 +5,8 @@ imports Pair
 
 begin
 
-subsection \<open>Relations\<close>
-
 abbreviation relation :: "[set, set] \<Rightarrow> set type"
-  where "relation A B \<equiv> subset (A \<times> B)"
+  where "relation A B \<equiv> element (Pow (A \<times> B))"
 
 definition domain :: "set \<Rightarrow> set"
   where "domain R \<equiv> {fst p | p \<in> R}"
@@ -20,32 +18,88 @@ definition field :: "set \<Rightarrow> set"
   where "field R \<equiv> domain R \<union> range R"
 
 
-lemma relation_type_iff [stiff]: "R : relation A B \<longleftrightarrow> R \<subseteq> A \<times> B"
-  using element_type_iff by auto
+lemma relation_type_iff [iff_st]: "R : relation A B \<longleftrightarrow> R \<subseteq> A \<times> B"
+  by stauto
 
-lemma relation_typeI [stintro]: "R \<subseteq> A \<times> B \<Longrightarrow> R : relation A B" by stauto
-lemma relation_typeE [stelim]: "R : relation A B \<Longrightarrow> R \<subseteq> A \<times> B" by stauto
+lemma relation_typeI [intro_st]: "R \<subseteq> A \<times> B \<Longrightarrow> R : relation A B"
+  by stauto
+
+lemma relation_typeE [elim_st]: "R : relation A B \<Longrightarrow> R \<subseteq> A \<times> B"
+  by stauto
+
+lemma relation_elem_conv [simp]: "\<lbrakk>R : relation A B; p \<in> R\<rbrakk> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+  by stauto
+
+
+text \<open>Various relations\<close>
+
+lemma empty_relation [intro]: "{} : relation A B"
+  by stauto
 
 lemma subset_relation [elim]: "\<lbrakk>S \<subseteq> R; R : relation A B\<rbrakk> \<Longrightarrow> S : relation A B"
   by stauto
 
-lemma DUnion_relation: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. B x)"
+lemma DUnion_relation: "\<Coprod>x \<in> A. (B x) : relation A (\<Union>x \<in> A. (B x))"
   by stauto
 
-lemma collect_relation:
+lemma Collect_relation:
   assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
   shows "{\<langle>f x, g x\<rangle>. x \<in> X} : relation A B"
   using assms by stauto
 
-lemma relation_domainE: 
-  assumes "a \<in> domain R" and "R: relation A B"
-  shows "\<exists>y. \<langle>a, y\<rangle> \<in> R"
+lemma relation_Cons_iff [iff]:
+  assumes "x : element A" and "y : element B"
+  shows "Cons \<langle>x, y\<rangle> X : relation A B \<longleftrightarrow> X : relation A B"
+  using assms by stauto
+
+
+subsection \<open>Domain and range\<close>
+
+lemma domainI: "\<lbrakk>\<langle>x, y\<rangle> \<in> R; R : relation A B\<rbrakk> \<Longrightarrow> x \<in> domain R"
+  unfolding domain_def by auto
+
+lemma domainE: "\<lbrakk>x \<in> domain R; R: relation A B\<rbrakk> \<Longrightarrow> \<exists>y. \<langle>x, y\<rangle> \<in> R"
 proof -
-  from `a \<in> domain R` obtain p where "p \<in> R" "a = fst p" unfolding domain_def by auto
-  with `R: relation A B`
-  have "\<langle>a, snd p\<rangle> \<in> R" by stauto
+  assume assms: "x \<in> domain R" "R: relation A B"
+  then obtain p where "p \<in> R" and "x = fst p" unfolding domain_def by auto
+  with assms have "\<langle>x, snd p\<rangle> \<in> R" by stauto
   thus ?thesis ..
 qed
+
+lemma rangeI: "\<lbrakk>\<langle>x, y\<rangle> \<in> R; R : relation A B\<rbrakk> \<Longrightarrow> y \<in> range R"
+  unfolding range_def by auto
+
+lemma rangeE: "\<lbrakk>y \<in> range R; R: relation A B\<rbrakk> \<Longrightarrow> \<exists>x. \<langle>x, y\<rangle> \<in> R"
+proof -
+  assume assms: "y \<in> range R" "R: relation A B"
+  then obtain p where "p \<in> R" and "y = snd p" unfolding range_def by auto
+  with assms have "\<langle>fst p, y\<rangle> \<in> R" by stauto
+  thus ?thesis ..
+qed
+
+lemma domain_empty [simp]: "domain {} = {}"
+  unfolding domain_def by auto
+
+lemma range_empty [simp]: "range {} = {}"
+  unfolding range_def by auto
+
+lemma domain_subset: "R : relation A B \<Longrightarrow> domain R \<subseteq> A"
+  unfolding domain_def by stauto
+
+lemma range_subset: "R : relation A B \<Longrightarrow> range R \<subseteq> B"
+  unfolding range_def by stauto
+
+lemma domain_Collect [simp]: "domain {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
+  unfolding domain_def by auto
+
+lemma range_Collect [simp]: "range {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
+  unfolding range_def by auto
+
+lemma domain_Cons [simp]: "domain (Cons \<langle>x, y\<rangle> A) = Cons x (domain A)"
+  unfolding domain_def by extensionality
+
+lemma range_Cons [simp]: "range (Cons \<langle>x, y\<rangle> A) = Cons y (range A)"
+  unfolding range_def by extensionality
 
 
 subsection \<open>Converse relations\<close>
@@ -93,23 +147,6 @@ lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
 lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by extensionality
 
-lemma domain_Collect [simp]: "domain {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
-  unfolding domain_def by auto
-
-lemma domain_Cons [simp]: "domain (Cons \<langle>x, y\<rangle> A) = Cons x (domain A)"
-  unfolding domain_def by extensionality
-
-lemma domain_empty [simp]: "domain {} = {}"
-  unfolding domain_def by auto
-
-lemma empty_relation [intro]: "{} : relation A B"
-  by stauto
-
-lemma relation_Cons_iff [iff]:
-  assumes "x : element A" and "y : element B"
-  shows "Cons \<langle>x, y\<rangle> X : relation A B \<longleftrightarrow> X : relation A B"
-  using assms by stauto
-
 
 subsection \<open>Properties of relations\<close>
 
@@ -138,11 +175,11 @@ abbreviation total :: "set \<Rightarrow> bool"
 
 subsection \<open>Partial orders\<close>
 
-definition porder :: "set \<Rightarrow> set type"
-  where "porder P \<equiv> relation P P \<bar> Type (\<lambda>R. reflexive R \<and> antisymmetric R \<and> transitive R)"
+definition partial_order :: "set \<Rightarrow> set type"
+  where "partial_order P \<equiv> relation P P \<bar> Type (\<lambda>R. reflexive R \<and> antisymmetric R \<and> transitive R)"
 
-definition sporder :: "set \<Rightarrow> set type"
-  where "sporder P \<equiv> relation P P \<bar> Type (\<lambda>R. irreflexive R \<and> transitive R)"
+definition strict_partial_order :: "set \<Rightarrow> set type"
+  where "strict_partial_order P \<equiv> relation P P \<bar> Type (\<lambda>R. irreflexive R \<and> transitive R)"
 
 
 end

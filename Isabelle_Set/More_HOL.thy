@@ -3,7 +3,6 @@ imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 
-
 subsection \<open>Notational setup\<close>
 
 text \<open>Get rid of HOL-specific syntax which would conflict with set-theoretic syntax.\<close>
@@ -23,6 +22,8 @@ subsection \<open>Additional logical rules\<close>
 lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B" by blast
 
 lemma contrapos: "P \<longrightarrow> Q \<Longrightarrow> \<not>Q \<longrightarrow> \<not>P" by blast
+
+lemma ex1_conv1: "(\<exists>!x. P x) \<longleftrightarrow> (\<exists>x. P x) \<and> (\<forall>x x'. P x \<and> P x' \<longrightarrow> x = x')" by blast
 
 
 end

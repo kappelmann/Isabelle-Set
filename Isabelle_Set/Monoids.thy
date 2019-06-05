@@ -1,7 +1,8 @@
-section \<open>Monoids as an example of soft-typed structures.\<close>
+section \<open>Monoids as an example of soft-typed structures\<close>
 
 theory Monoids
-  imports Function
+imports Function
+
 begin
 
 text \<open>
