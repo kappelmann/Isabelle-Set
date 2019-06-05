@@ -4,30 +4,88 @@
 Higher-Order Pattern unification, which can deal with rewrite rules.
 
 *)
+signature UNIFICATION = sig
+
+  type substitution = term Vartab.table
+
+  type binder = string * term * typ
+  type 'o equation = binder list * (term * term) * 'o
+  type 'o unification_problem 
+
+  val pr_equation: Proof.context -> 'o equation -> string
+
+  val init: int -> 'o unification_problem
+
+  val add_equation: 'o equation -> 'o unification_problem -> 'o unification_problem
+
+  val is_finished: 'o unification_problem -> bool
+  val instantiate: 'o unification_problem -> term -> term
+
+  val unify: Proof.context -> thm list -> 'o unification_problem -> 'o unification_problem
+  
+
+end
 
 
+
+structure Unification : UNIFICATION =
+struct
 
 type substitution = term Vartab.table
+
+type binder = string * term * typ
+type 'o equation = binder list * (term * term) * 'o
+
+datatype 'o unification_problem = UP of {
+  eqns: 'o equation list,              (* The worklist of equations, with origin information *)
+  postponed : 'o equation list,        (* Postponed equations, to be retried later *)
+  subst: substitution,                   (* The current substitution *)
+  fresh_idx: int                         (* Index for generating unification variables *)
+}
+
+
+(* Basic operations on unification problems *)
+
+fun origin_of (_, _, or) = or
+
+fun up_map_eqns f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
+  = UP { eqns=f eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx }
+
+fun up_map_postponed f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
+  = UP { eqns=eqns, postponed=f postponed, subst=subst, fresh_idx=fresh_idx }
+
+fun up_map_subst f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
+  = UP { eqns=eqns, postponed=postponed, subst=f subst, fresh_idx=fresh_idx }
+
+fun up_map_fresh_idx f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
+  = UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=f fresh_idx }
+
+fun postpone_current_equation (UP { eqns=eqn::eqns, postponed, subst, fresh_idx })
+  = UP { eqns=eqns, postponed=eqn::postponed, subst=subst, fresh_idx=fresh_idx }
+
+fun up_get_subst (UP { subst, ... })
+  = subst
+
+fun up_get_fresh_idx (UP { fresh_idx, ...}) = fresh_idx
+
+fun init fresh_idx =
+ UP { eqns=[], postponed=[], subst=Vartab.empty, fresh_idx=fresh_idx }
+
+fun is_finished (UP { eqns=[], postponed=[], ...}) = true
+  | is_finished _ = false
+
+
+fun add_equation eqn = up_map_eqns (cons eqn)
+
+
+
+(* Tracing *)
 
 fun pr_subst pr_term (theta: substitution) =
   Vartab.dest theta
   |> map (fn ((n, ix), t) => "?" ^ n ^ string_of_int ix ^ " ~-> " ^ pr_term t)
 
-
-
-type binder = string * term * typ
-type 'o u_equation = binder list * (term * term) * 'o
-
 fun pr_binders (bs : binder list) = map (enclose "[" "]" o #1) (rev bs) |> space_implode " "
-
-datatype 'o unification_problem = UP of {
-  eqns: 'o u_equation list,              (* The worklist of equations, with origin information *)
-  postponed : 'o u_equation list,        (* Postponed equations, to be retried later *)
-  subst: substitution,                   (* The current substitution *)
-  fresh_idx: int                         (* Index for generating unification variables *)
-}
-
-fun origin_of (_, _, or) = or
 
 fun pr_equation ctxt (bs, (s, t), _) =
   let
@@ -52,31 +110,7 @@ fun pr_unification_problem ctxt (UP { eqns, postponed, subst, ... }) =
   end
 
 
-fun up_map_eqns f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
-  = UP { eqns=f eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx }
 
-fun up_map_postponed f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
-  = UP { eqns=eqns, postponed=f postponed, subst=subst, fresh_idx=fresh_idx }
-
-fun up_map_subst f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
-  = UP { eqns=eqns, postponed=postponed, subst=f subst, fresh_idx=fresh_idx }
-
-fun up_map_fresh_idx f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=fresh_idx })
-  = UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=f fresh_idx }
-
-fun postpone_current_equation (UP { eqns=eqn::eqns, postponed, subst, fresh_idx })
-  = UP { eqns=eqns, postponed=eqn::postponed, subst=subst, fresh_idx=fresh_idx }
-
-fun up_get_subst (UP { subst, ... })
-  = subst
-
-fun up_get_fresh_idx (UP { fresh_idx, ...}) = fresh_idx
-
-fun init_up eqns fresh_idx =
- UP { eqns=eqns, postponed=[], subst=Vartab.empty, fresh_idx=fresh_idx }
-
-fun up_is_finished (UP { eqns=[], postponed=[], ...}) = true
-  | up_is_finished _ = false
 
 (* Occurs check. Note that we do not apply substitutions here, since we assume that they
 have already been applied *)
@@ -105,6 +139,10 @@ fun instantiate_term theta t =
 
 fun instantiate_eqn theta (bs, (lhs, rhs), or) =
   (bs, (instantiate_term theta lhs, instantiate_term theta rhs), or)
+
+
+fun instantiate up = instantiate_term (up_get_subst up)
+
 
 
 
@@ -411,7 +449,7 @@ fun unify ctxt rews (u as UP {eqns, postponed, subst, ...}) =
   let 
     val _ = Soft_Type.tracing ctxt (pr_unification_problem ctxt u)
   in
-    if up_is_finished u then subst
+    if is_finished u then u
     else let
       val next = case (eqns, postponed) of 
          ((eqn as (_, (lhs, rhs), _)) :: _, _) => 
@@ -421,4 +459,11 @@ fun unify ctxt rews (u as UP {eqns, postponed, subst, ...}) =
          | ([], ps) => try_rewrite ctxt rews u ps
       in unify ctxt rews next end
   end
+
+
+
+
+end
+
+
 

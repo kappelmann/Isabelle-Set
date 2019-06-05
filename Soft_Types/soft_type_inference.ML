@@ -33,7 +33,7 @@ struct
   datatype inference_context = Inference_Context of {
     const_types: term -> term option,
     var_types: term Termtab.table,
-    constraints: unit u_equation list,
+    constraints: unit Unification.equation list,
     fresh_idx: int
   }
 
@@ -96,9 +96,9 @@ struct
     in                        
       if (fastype_of lhs <> fastype_of rhs)
       then error (cat_lines ["Bad types in constraint:", 
-          "  Constraint: " ^ pr_equation ctxt eqn,
+          "  Constraint: " ^ Unification.pr_equation ctxt eqn,
           "  Term: "^ (Option.map (Syntax.string_of_term ctxt) t |> the_default "-")])
-      else Soft_Type.tracing ctxt ("Constraint: " ^ pr_equation ctxt eqn ^ context_msg)
+      else Soft_Type.tracing ctxt ("Constraint: " ^ Unification.pr_equation ctxt eqn ^ context_msg)
     end
 
   fun collect_constraints ctxt
@@ -229,9 +229,10 @@ datatype infer_result =
 fun unify_constraints ctxt constraints fresh_idx =
   let
     val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
-    val up = init_up constraints fresh_idx
+    val up = Unification.init fresh_idx
+      |> fold_rev Unification.add_equation constraints
   in 
-    unify ctxt type_simps up
+    Unification.unify ctxt type_simps up
   end
 
 fun infer_type ctxt ts = 
@@ -253,8 +254,8 @@ fun infer_type ctxt ts =
     val _ = Soft_Type.tracing ctxt "Original constraints: "   
     val _ = map (trace_constraint ctxt NONE) constraints
 
-    val env = unify_constraints ctxt constraints fresh_idx
-    fun instantiate t = instantiate_term env t
+    val up' = unify_constraints ctxt constraints fresh_idx
+    fun instantiate t = Unification.instantiate up' t
     val elaborated_terms = map instantiate ts
 
     val types_for_vars =
