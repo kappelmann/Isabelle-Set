@@ -33,8 +33,7 @@ struct
   datatype inference_context = Inference_Context of {
     const_types: term -> term option,
     var_types: term Termtab.table,
-    constraints: unit Unification.equation list,
-    fresh_idx: int
+    up: unit Unification.unification_problem
   }
 
   fun get_const_type (Inference_Context {const_types, ...}) (c : term) =
@@ -45,15 +44,20 @@ struct
       SOME sty => SOME sty
     | NONE => Termtab.lookup var_types v;
   
+  fun map_up f (Inference_Context {const_types, var_types, up}) =
+    Inference_Context {const_types=const_types, var_types=var_types, up = f up}
+
   fun add_constraint 
          (c as (_, (lhs, rhs), _)) 
-         (Gamma as Inference_Context {const_types, var_types, constraints, fresh_idx}) =
+         (Gamma as Inference_Context {const_types, var_types, up}) =
     if lhs aconv rhs (* Skip trivial constraints *)
     then Gamma
     else Inference_Context {const_types=const_types, var_types=var_types,
-           constraints = insert (op =) c constraints,
-           fresh_idx=fresh_idx};
+           up = Unification.add_equation c up};
   
+  fun fresh_idx (Gamma as Inference_Context {up, ...}) =
+    let val (i, up') = Unification.fresh_idx up
+    in (i, map_up (K up') Gamma) end
 
   type preproc_context = 
     (string * term * typ) list
@@ -64,23 +68,18 @@ struct
   fun incr_bounds (Delta : preproc_context) =
     map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
 
-  fun incr (Inference_Context {const_types, var_types, constraints, fresh_idx}) =
-    Inference_Context {const_types=const_types, var_types=var_types, constraints=constraints, fresh_idx=fresh_idx + 1}
-
-  fun fresh_idx (Inference_Context {fresh_idx, ...}) =
-    fresh_idx
-
   fun fresh_variable T Delta Gamma =
     let
       val var_type = context_types Delta ---> Soft_Type.typeT T
+      val (i, Gamma') = fresh_idx Gamma
     in
-      (Term.list_comb (Var (("UU", fresh_idx Gamma), var_type), 
+      (Term.list_comb (Var (("UU", i), var_type), 
         map Bound ((length Delta) -1 downto 0)),
-      incr Gamma)
+      Gamma')
     end
 
-  fun add_free (v, st) (Inference_Context {const_types, var_types, constraints, fresh_idx}) =
-    Inference_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, constraints=constraints, fresh_idx=fresh_idx};
+  fun add_free (v, st) (Inference_Context {const_types, var_types, up}) =
+    Inference_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, up=up};
 
   fun fix_var_type Delta v T Gamma =
     let
@@ -116,7 +115,7 @@ struct
              and make them depend on the current binders. *)
           val binder_types = rev (map #3 Delta)
           val bounds = (length Delta - 1) downto 0
-          val idx = fresh_idx Gamma
+          val (idx, Gamma1) = fresh_idx Gamma
           fun lift_var d (Var ((n, 0), T)) =
                 Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
             | lift_var _ (Var _) = error "Illegal Var index"
@@ -124,7 +123,7 @@ struct
           val const_type = map_aterms_lev lift_var st
           val _ = Soft_Type.tracing ctxt ("Using Const of type " ^ Syntax.string_of_term ctxt const_type)
         in
-          (const_type, incr Gamma)
+          (const_type, Gamma1)
         end
     | s $ u => 
         let
@@ -225,16 +224,6 @@ datatype infer_result =
   }
 
 
-
-fun unify_constraints ctxt constraints fresh_idx =
-  let
-    val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
-    val up = Unification.init fresh_idx
-      |> fold_rev Unification.add_equation constraints
-  in 
-    Unification.unify ctxt type_simps up
-  end
-
 fun infer_type ctxt ts = 
   let
     val const_types = 
@@ -245,16 +234,13 @@ fun infer_type ctxt ts =
     val ictxt = Inference_Context {
         const_types = const_types,
         var_types = Termtab.empty,
-        constraints = [],
-        fresh_idx = maxidx + 1
+        up = Unification.init (maxidx + 1)
       }
-    val Inference_Context {constraints, var_types, fresh_idx, ...} =
+    val Inference_Context {up, var_types, ...} =
        fold (collect_constraints_prop ctxt []) ts ictxt
-    
-    val _ = Soft_Type.tracing ctxt "Original constraints: "   
-    val _ = map (trace_constraint ctxt NONE) constraints
 
-    val up' = unify_constraints ctxt constraints fresh_idx
+    val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
+    val up' = Unification.unify ctxt type_simps up
     fun instantiate t = Unification.instantiate up' t
     val elaborated_terms = map instantiate ts
 

@@ -6,8 +6,6 @@ Higher-Order Pattern unification, which can deal with rewrite rules.
 *)
 signature UNIFICATION = sig
 
-  type substitution = term Vartab.table
-
   type binder = string * term * typ
   type 'o equation = binder list * (term * term) * 'o
   type 'o unification_problem 
@@ -17,6 +15,7 @@ signature UNIFICATION = sig
   val init: int -> 'o unification_problem
 
   val add_equation: 'o equation -> 'o unification_problem -> 'o unification_problem
+  val fresh_idx: 'o unification_problem -> int * 'o unification_problem
 
   val is_finished: 'o unification_problem -> bool
   val instantiate: 'o unification_problem -> term -> term
@@ -63,10 +62,15 @@ fun up_map_fresh_idx f (UP { eqns=eqns, postponed=postponed, subst=subst, fresh_
 fun postpone_current_equation (UP { eqns=eqn::eqns, postponed, subst, fresh_idx })
   = UP { eqns=eqns, postponed=eqn::postponed, subst=subst, fresh_idx=fresh_idx }
 
+fun fresh_idx (UP {eqns, postponed, subst, fresh_idx=i}) =
+  (i, UP { eqns=eqns, postponed=postponed, subst=subst, fresh_idx=i+1 })
+
 fun up_get_subst (UP { subst, ... })
   = subst
 
-fun up_get_fresh_idx (UP { fresh_idx, ...}) = fresh_idx
+fun up_get_fresh_idx up = fst (fresh_idx up)
+
+
 
 fun init fresh_idx =
  UP { eqns=[], postponed=[], subst=Vartab.empty, fresh_idx=fresh_idx }
@@ -324,9 +328,6 @@ fun project_vars idxs t theta fresh_idx =
         | (t, rs) => fold_map (proj d) rs (theta, fresh_idx) |> apfst (curry list_comb t)  (* Const, Free, Bound *)
         
 in proj 0 t (theta, fresh_idx) end
-
-
-datatype pos_type = Eq | NotEq | Unknown
 
 
 (* Tries to rewrite a blocked equation. Rewriting must occur at the head, since the head symbol
