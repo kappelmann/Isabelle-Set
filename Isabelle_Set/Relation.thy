@@ -5,8 +5,12 @@ imports Pair
 
 begin
 
+
+abbreviation relations :: "[set, set] \<Rightarrow> set"
+  where "relations A B \<equiv> Pow (A \<times> B)"
+
 abbreviation relation :: "[set, set] \<Rightarrow> set type"
-  where "relation A B \<equiv> element (Pow (A \<times> B))"
+  where "relation A B \<equiv> element (relations A B)"
 
 definition domain :: "set \<Rightarrow> set"
   where "domain R \<equiv> {fst p | p \<in> R}"
