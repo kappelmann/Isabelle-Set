@@ -87,7 +87,6 @@ proof (unfold Pair_def)
   ultimately show "P" by (rule elem_asymE)
 qed
 
-
 lemma fst_conv [simp]: "fst(\<langle>a,b\<rangle>) = a"
   by (simp add: fst_def)
 
