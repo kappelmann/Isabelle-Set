@@ -18,6 +18,8 @@ signature UNIFICATION = sig
   val add_equation: Proof.context -> 'o equation -> 'o unification_problem -> 'o unification_problem
   val fresh_idx: 'o unification_problem -> int * 'o unification_problem
 
+  val simplify: Proof.context -> 'o unification_problem -> 'o unification_problem
+
   val is_finished: 'o unification_problem -> bool
   val instantiate: 'o unification_problem -> term -> term
 
@@ -113,16 +115,6 @@ fun pr_unification_problem ctxt (UP { eqns, postponed, subst, ... }) =
 
 
 
-(* Operations *)
-
-fun add_equation ctxt eqn = 
-  let
-    val _ = Soft_Type.tracing ctxt ("Adding Constraint: " ^ pr_equation ctxt eqn)
-  in
-    up_map_eqns (cons eqn)
-  end
-
-
 
 
 (* Occurs check. Note that we do not apply substitutions here, since we assume that they
@@ -169,17 +161,6 @@ fun map_bound_indices f =
           | mpb d (u1 $ u2) = mpb d u1 $ mpb d u2
           | mpb _ t = t
     in mpb 0 end
-
-
-
-(* Collects the bound variable indices as they appear as an argument of a unification variable.
-  At the same time, checks that they are mutually distinct. *)
-fun collect_bound_idxs [] = []
-  | collect_bound_idxs (Bound i ::bs) =
-      let val is = collect_bound_idxs bs
-      in if member (op =) is i then error "Not a pattern" else i::is end
-  | collect_bound_idxs _ = error "Not a pattern"
-
 
 
 fun the_fail msg opt = case opt of SOME x => x | _ => raise Fail msg
@@ -261,9 +242,8 @@ fun rewrite_eqns ctxt rews eqns =
   - rhs does not contain other variables than the xs in rigid positions.
   - rhs does not contain ?F.
 *)
-fun is_pattern F xs rhs =
+fun can_replace F xs rhs =
   let
-
     fun check_arg idxs t = case t of
         Bound _ => true (* Other variables can be projected away in this position *)
       | _ => subset (op =) (Term.loose_bnos t, idxs)
@@ -279,7 +259,9 @@ fun is_pattern F xs rhs =
 
     val bvs =  map (fn s => case s of Bound i => i | _ => ~1) xs
     val is_lhs_linear = 
-      not (has_duplicates (op =) bvs) andalso forall (fn i => (i >= 0)) bvs
+      is_Var F
+      andalso not (has_duplicates (op =) bvs)
+      andalso forall (fn i => (i >= 0)) bvs
   in 
     is_lhs_linear 
     andalso check_allowed_bounds bvs rhs
@@ -376,7 +358,7 @@ and flexrigid bs u F ss t =
       else let
         val bound_by_F = 
           map (fn s => case s of Bound i => i | _ => error "Not a pattern") ss
-        val _ = if not (is_pattern F ss t)
+        val _ = if not (can_replace F ss t)
                 then error ("Equation is not a pattern: " ^ @{make_string} (F, ss, t)) else ()
         val theta = up_get_subst u
         val fresh_idx = up_get_fresh_idx u
@@ -419,16 +401,28 @@ fun flexflex_same u F ss ts =
   end
 
 fun flexflex_different bs u F ss G ts =
-  let
-    val left_idxs = collect_bound_idxs ss
-    val right_idxs = collect_bound_idxs ts
-  in
-    if subset (op =) (right_idxs, left_idxs)
+    if can_replace F ss (list_comb (G, ts))
     then flexrigid bs u F ss (list_comb (G, ts))
-    else if subset (op =) (left_idxs, right_idxs)
+    else if can_replace G ts (list_comb (F, ss))
     then flexrigid bs u G ts (list_comb (F, ss))
-    else error "FlexFlex: Variable intersection case unimplemented"
+    else error ("FlexFlex: Variable intersection or nonlinear case unimplemented.")
+
+
+(* cf. clone in soft_type_inference.ML *)
+fun incr_bounds (Delta: binder list) =
+  map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
+  
+fun abs_decompose u (Abs (n, T, b1)) (Abs (m, _, b2)) (bs, _, or) =
+  let
+    val name = if (n = "") then m else n
+    val bs1 = incr_bounds ((name, Term.dummy, T) :: bs)
+    val eqn1 = (bs1, (b1, b2), or)
+  in
+    up_map_eqns (cons eqn1 o tl) u  
   end
+  | abs_decompose _ _ _ _ = raise Match
+
+
 
 fun cases u (eqn as (bs, (lhs, rhs), _)) = 
       let
@@ -446,16 +440,57 @@ fun cases u (eqn as (bs, (lhs, rhs), _)) =
       | (Free _, Free _)      => rigidrigid u eqn lhd ss rhd ts
       | (Const _, Free _)     => rigidrigid u eqn lhd ss rhd ts
       | (Free _, Const _)     => rigidrigid u eqn lhd ss rhd ts
+      | (Abs _, Abs _)        => abs_decompose u lhs rhs eqn 
       | (Const _, Bound _)      => error "Const-Bound clash"
       | (Free _, Bound _)     => error "Free-Bound clash"
       | (Bound _, Const _)    => error "Clash"
       | (Bound _, Free _)      => error "Clash"
-      | _                     => error "Case not implemented"
+      | _                     => error ("Case not implemented: " ^ \<^make_string> (lhs', rhs'))
       end
+
+
+
+
+fun is_eqn_trivial (_, (lhs, rhs), _) = lhs aconv rhs
+
+
+(*
+  Tries to simplify the unification problem, making "progress" towards solving it.
+  This includes decomposition of equations and applying pattern substitution and projection
+  but no rewriting
+*)
+fun simplify ctxt (u as UP {eqns, ...}) =
+  case eqns of 
+    [] => u
+          |> tap (Soft_Type.tracing ctxt o pr_unification_problem ctxt)
+  | eqn :: _ => 
+    if is_eqn_trivial eqn then simplify ctxt (up_map_eqns tl u)
+    else let
+      val _ = Soft_Type.tracing ctxt ("Simplifying " ^ pr_equation ctxt eqn)
+    in 
+      simplify ctxt (cases u eqn)
+    end
+
+
+
+
+
+
+fun add_equation ctxt eqn up = 
+  let
+    val eqn1 = instantiate_eqn (up_get_subst up) eqn
+    val _ = Soft_Type.tracing ctxt ("Adding Constraint: " ^ pr_equation ctxt eqn1)
+  in
+    up 
+    |> up_map_eqns (cons eqn1)
+    |> simplify ctxt
+  end
+
+
 
 (* Unification *)
 
-fun unify ctxt rews (u as UP {eqns, postponed, subst, ...}) =
+fun unify ctxt rews (u as UP {eqns, postponed, ...}) =
   let 
     val _ = Soft_Type.tracing ctxt (pr_unification_problem ctxt u)
   in

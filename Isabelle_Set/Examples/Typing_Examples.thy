@@ -31,6 +31,8 @@ lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> any"
 lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> any"
   by (intro Pi_typeI any_typeI)
 
+declare [[ trace_soft_types ]]
+
 
 
 text \<open> Example: Inferring types for list append \<close>
