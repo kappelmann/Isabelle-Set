@@ -10,11 +10,12 @@ signature UNIFICATION = sig
   type 'o equation = binder list * (term * term) * 'o
   type 'o unification_problem 
 
+  val pr_binders: binder list -> string
   val pr_equation: Proof.context -> 'o equation -> string
 
   val init: int -> 'o unification_problem
 
-  val add_equation: 'o equation -> 'o unification_problem -> 'o unification_problem
+  val add_equation: Proof.context -> 'o equation -> 'o unification_problem -> 'o unification_problem
   val fresh_idx: 'o unification_problem -> int * 'o unification_problem
 
   val is_finished: 'o unification_problem -> bool
@@ -79,9 +80,6 @@ fun is_finished (UP { eqns=[], postponed=[], ...}) = true
   | is_finished _ = false
 
 
-fun add_equation eqn = up_map_eqns (cons eqn)
-
-
 
 (* Tracing *)
 
@@ -111,6 +109,17 @@ fun pr_unification_problem ctxt (UP { eqns, postponed, subst, ... }) =
         section "Postponed" (map (pr_equation ctxt) postponed),
         section "Subst" (pr_subst pr_term subst)
       ])
+  end
+
+
+
+(* Operations *)
+
+fun add_equation ctxt eqn = 
+  let
+    val _ = Soft_Type.tracing ctxt ("Adding Constraint: " ^ pr_equation ctxt eqn)
+  in
+    up_map_eqns (cons eqn)
   end
 
 

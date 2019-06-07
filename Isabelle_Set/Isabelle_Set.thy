@@ -2,9 +2,9 @@ theory Isabelle_Set
 imports
   Set_Theory
   Pair
-  Relations
-  (* Function
-  Monoids *)
+  Relation
+  Function
+  Monoid
 
 begin
 

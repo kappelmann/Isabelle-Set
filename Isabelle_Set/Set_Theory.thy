@@ -7,7 +7,7 @@ begin
 
 subsection \<open>Preliminaries\<close>
 
-declare[[eta_contract=false]]
+declare [[eta_contract=false]]
 
 abbreviation not_elem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
@@ -207,17 +207,17 @@ lemma Repl_cong [cong]:
   "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> {f x. x \<in> A} = {g x. x \<in> B}"
   by extensionality
 
-lemma triv_Repl [simp]: "{x. x \<in> A} = A"
-  by extensionality
-
-lemma Repl_empty[iff]: "{f x. x \<in> {}} = {}"
-  by extensionality
-
-lemma Repl_is_empty[iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
-  by (auto dest: equality_iffD intro!: equality_iffI)
-
 lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
   by extensionality
+
+lemma Repl_triv [simp]: "{x. x \<in> A} = A"
+  by extensionality
+
+lemma Repl_empty [iff]: "{f x. x \<in> {}} = {}"
+  by extensionality
+
+lemma Repl_is_empty [iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
+  by (auto dest: equality_iffD intro!: equality_iffI)
 
 
 subsection \<open>Empty set\<close>
@@ -264,33 +264,8 @@ lemma Pow_bottom: "{} \<in> Pow A"
 lemma Pow_top: "A \<in> Pow A"
   by auto
 
-lemma Pow_elems: "x \<in> Pow {} \<longleftrightarrow> x = {}"
+lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
   by auto
-
-lemma Pow_Pow_elems: "x \<in> Pow (Pow {}) \<longleftrightarrow> x = Pow {} \<or> x = {}"
-proof
-  assume "x \<in> Pow (Pow {})"
-  then have subset: "x \<subseteq> Pow {}" ..
-
-  show "x = Pow {} \<or> x = {}"
-  proof (cases "{} \<in> x")
-    case True
-    then have "Pow {} \<subseteq> x"
-      by (auto simp: Pow_elems)
-    with subset have "x = Pow {}" by (rule extensionality)
-    thus ?thesis ..
-  next
-    case False
-    have "x = {}" 
-    proof (rule equals_emptyI)
-      fix y assume y: "y \<in> x"
-      with subset have "y \<in> Pow {}" ..
-      with Pow_elems have "y = {}" by simp
-      with False y show False by auto
-    qed
-    thus ?thesis ..
-  qed
-qed auto
 
 
 subsection \<open>Finite sets\<close>
@@ -350,6 +325,17 @@ translations
 lemma singleton_eq_iff [iff]: "{a} = {b} \<longleftrightarrow> a = b"
   by extensionality
 
+lemma singleton_elem_iff: "x \<in> {a} \<longleftrightarrow> x = a" by auto
+
+lemma singleton_elemD: "x \<in> {a} \<Longrightarrow> x = a" by auto
+lemma singleton_elemI: "a \<in> {a}" by auto
+
+lemma Pow_singleton: "Pow {a} = {{}, {a}}"
+  by extensionality
+
+corollary Pow_singleton_elems: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
+  using Pow_singleton by auto
+
 lemma doubleton_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
   by extensionality
 
@@ -357,6 +343,7 @@ lemma doubleton_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b =
 so that there's no difference to the user. *)
 lemma Upair_eq_Cons [simp]: "Upair a b = {a, b}"
   by extensionality
+
 
 
 subsection \<open>Set comprehension\<close>
@@ -379,7 +366,12 @@ lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in>
 lemma CollectD: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A"
   by auto
 
-subsection \<open>Relation-based replacement\<close>
+
+subsection \<open>More replacement\<close>
+
+lemma Repl_singleton: "{f x | x \<in> {a}} = {f a}"
+  by extensionality
+
 
 text \<open>Replacement in predicate form, as in ZF.\<close>
 
@@ -460,65 +452,69 @@ lemma Inter_empty [simp]: "\<Inter>{} = {}"
 
 
 syntax
-  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" 10)
-  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_ \<in> _./ _)" 10)
+  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" [0, 0, 100])
+  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_ \<in> _./ _)" [0, 0, 100])
 translations
-  \<comment>\<open>@{term "\<Union>x \<in> A. B x"} abbreviates @{term "\<Union>({B x. x \<in> A})"}\<close>
+  \<comment>\<open>@{term "\<Union>x \<in> A. (B x)"} abbreviates @{term "\<Union>({B x. x \<in> A})"}\<close>
   "\<Union>x \<in> A. B" \<rightleftharpoons> "CONST Union {B. x \<in> A}"
   "\<Inter>x \<in> A. B" \<rightleftharpoons> "CONST Inter {B. x \<in> A}"
 
 
-lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
+lemma UN_iff [iff]: "b \<in> \<Union>x \<in> A. (B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
   by (simp add: Bex_def, blast)
 
 text \<open>LCP: The order of the premises presupposes that A is rigid; b may be flexible\<close>
 
-lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x \<in> A. B x)"
+lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> \<Union>x \<in> A. (B x)"
   by (simp, blast)
 
-lemma UN_E [elim!]: "\<lbrakk>b \<in> (\<Union>x \<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+lemma UN_E [elim!]: "\<lbrakk>b \<in> \<Union>x \<in> A. (B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by blast
 
-lemma UN_cong: "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> (\<Union>x \<in> A. C x) = (\<Union>x \<in> B. D x)"
+lemma UN_cong: "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> \<Union>x \<in> A. (C x) = \<Union>x \<in> B. (D x)"
   by simp
+
+lemma UN_const: "A \<noteq> {} \<Longrightarrow> \<Union>x \<in> A. B = B"
+  by extensionality
+
+lemma UN_empty_family: "\<Union>x \<in> {}. B = {}"
+  by extensionality
+
+lemma UN_empty_sets: "\<Union>x \<in> A. {} = {}"
+  by extensionality
 
 lemma Inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in> C. A \<in> x) \<and> C \<noteq> {}"
   unfolding Inter_def Ball_def
   by (force elim: not_emptyE)
+
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
 
 lemma InterI [intro!]: "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C \<noteq> {}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>C"
   by auto
 
-
-text \<open>
-LCP: A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when
-B \<in> C does not!  This rule is analogous to "spec".
-\<close>
-
+(* LCP: A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when
+B \<in> C does not! This rule is analogous to "spec". *)
 lemma InterD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
   by auto
 
-
-text \<open>LCP: "Classical" elimination rule -- does not require exhibiting @{term "B \<in> C"}\<close>
-
+(* LCP: "Classical" elimination rule -- does not require exhibiting @{term "B \<in> C"} *)
 lemma InterE [elim]: "\<lbrakk>A \<in> \<Inter>C; B \<notin> C \<Longrightarrow> R; A \<in> B \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by auto
 
 
-text \<open>@{term "\<Inter>x \<in> A. B x"} abbreviates @{term "\<Inter>({B x. x \<in> A})"}\<close>
+text \<open>@{term "\<Inter>x \<in> A. (B x)"} abbreviates @{term "\<Inter>({B x. x \<in> A})"}\<close>
 
-lemma INT_iff: "b \<in> (\<Inter>x \<in> A. B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
+lemma INT_iff: "b \<in> \<Inter>x \<in> A. (B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
   by auto
   
-lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b \<in> B x; A \<noteq> {}\<rbrakk> \<Longrightarrow> b \<in> (\<Inter>x \<in> A. B x)"
+lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b \<in> B x; A \<noteq> {}\<rbrakk> \<Longrightarrow> b \<in> \<Inter>x \<in> A. (B x)"
   by blast
 
-lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B a"
+lemma INT_E: "\<lbrakk>b \<in> \<Inter>x \<in> A. (B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B a"
   by blast
 
-lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x = D x) \<Longrightarrow> (\<Inter>x \<in> A. C x) = (\<Inter>x \<in> B. D x)"
+lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x = D x) \<Longrightarrow> \<Inter>x \<in> A. (C x) = \<Inter>x \<in> B. (D x)"
   by simp
 
 
@@ -632,7 +628,7 @@ lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: elem_irreflE)
 
 
-subsection \<open>More soft types\<close>
+subsection \<open>Fundamental soft types\<close>
 
 subsubsection \<open>Elements of a given set\<close>
 
@@ -640,11 +636,14 @@ definition element :: "set \<Rightarrow> set type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
 (* Josh -- Ideally, we'd like to smartly automate unfolding of typedefs *)
-lemma element_type_iff [stiff]: "x : element A \<longleftrightarrow> x \<in> A"
+lemma element_type_iff [iff_st]: "x : element A \<longleftrightarrow> x \<in> A"
   using element_typedef by stauto
 
-lemma element_typeI [stintro]: "x \<in> A \<Longrightarrow> x : element A" by stauto
-lemma element_typeE [stelim]: "x : element A \<Longrightarrow> x \<in> A" by stauto
+lemma element_typeI [intro_st]: "x \<in> A \<Longrightarrow> x : element A"
+  by stauto
+
+lemma element_typeE [elim_st]: "x : element A \<Longrightarrow> x \<in> A"
+  by stauto
 
 
 subsubsection \<open>Subsets of a given set\<close>
@@ -652,13 +651,13 @@ subsubsection \<open>Subsets of a given set\<close>
 abbreviation subset :: "set \<Rightarrow> set type"
   where "subset A \<equiv> element (Pow A)"
 
-lemma subset_type_iff [stiff]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
+lemma subset_type_iff [iff_st]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
   by stauto
 
-lemma subset_typeI [stintro]: "B \<subseteq> A \<Longrightarrow> B : subset A"
+lemma subset_typeI [intro_st]: "B \<subseteq> A \<Longrightarrow> B : subset A"
   by stauto
 
-lemma subset_typeE [stelim]: "B : subset A \<Longrightarrow> B \<subseteq> A"
+lemma subset_typeE [elim_st]: "B : subset A \<Longrightarrow> B \<subseteq> A"
   by stauto
 
 
@@ -667,11 +666,11 @@ subsubsection \<open>Collections of sets of a given type T\<close>
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-lemma collection_type_iff [stiff]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
+lemma collection_type_iff [iff_st]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
   using collection_typedef by stauto
 
-lemma collection_typeI [stintro]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" by stauto
-lemma collection_typeE [stelim]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T" by stauto
+lemma collection_typeI [intro_st]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" by stauto
+lemma collection_typeE [elim_st]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T" by stauto
 
 
 subsubsection \<open>Refined types for axiomatized constants\<close>

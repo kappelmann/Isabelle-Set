@@ -197,7 +197,7 @@ abbreviation (input) theProp
   where "theProp(ty, prop) \<equiv> the define_ty(ty, \<lambda>_. True, prop)"
 
 lemma ty_intersection: "(x be t1 \<bar> t2) \<longleftrightarrow> (x be t1 \<and> x be t2)"
-  by (stauto stintro: Int_typeI Int_typeD1 Int_typeD2)
+  by (stauto intro_st: Int_typeI Int_typeD1 Int_typeD2)
 
 definition NON ("non _" [102] 101)
   where "non A \<equiv> define_ty(object, \<lambda>_. True, \<lambda>x. \<not> x is A)"
