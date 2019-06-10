@@ -365,3 +365,4 @@ proof
   hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
 oops
 
+end
