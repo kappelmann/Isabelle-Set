@@ -5,7 +5,6 @@ imports
   Relation
   Function
   Monoid
-  KPTest
 
 begin
 

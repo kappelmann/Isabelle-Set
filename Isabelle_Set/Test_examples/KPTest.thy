@@ -1,16 +1,10 @@
-
 theory KPTest
-  imports Ordinal Function
-  
+imports "../Ordinal" "../Function"
 
 begin
 
-lemma ballI : "\<lbrakk>\<And>x. P x\<rbrakk> \<Longrightarrow> \<forall>x. P x"
-  by simp
-
-
-(*Brown, C.E.: Reconsidering Pairs and Functions as Sets. J. Autom. Reasoning
-55(3), 199 - 210 (Oct 2015) 
+(*Brown, C.E.: Reconsidering Pairs and Functions as Sets.
+J. Autom. Reasoning 55(3), 199 - 210 (Oct 2015) 
 
 Theorem 1
 *)
@@ -166,7 +160,7 @@ theorem VTh2_4:
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(rule ballI, rule impI)
+  proof(rule allI, rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -201,7 +195,7 @@ theorem VTh2_6:
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(rule ballI,rule impI)
+  proof(rule allI,rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -228,17 +222,17 @@ proof
   then show "VV Y \<subseteq> VV X" using VTh2_6 by auto
 qed
 
-theorem in_prop:
-  "\<not> x \<in> x" sorry
+lemmas in_prop = elem_irrefl
 
 theorem Regularity:
-  "x \<in> X \<Longrightarrow> \<exists> y. y \<in> X \<and> y \<inter> X={}" sorry
+  "x \<in> X \<Longrightarrow> \<exists> y. y \<in> X \<and> y \<inter> X={}"
+  using foundation by blast
 
 
 theorem Muzukashi:
   assumes "epsilon_transitive U" "ZF_closed U" 
           "X \<subseteq>  U" "X \<notin> U"
-  shows     "\<exists> b . (b : { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
+  shows     "\<exists> b . (b \<in> { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
 proof
   let ?Lamb ="{ x \<in> U | ordinal x}"
   let ?D= "?Lamb"
@@ -256,7 +250,7 @@ proof
     assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
     show "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
          (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-    proof(intro iffI ballI impI)
+    proof(intro iffI allI impI)
       fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))" "z \<in> ?D"
       hence "\<exists> b. b \<in> a \<and> h b = z" by auto
       then show "\<exists> b. b \<in> a \<and> k b = z" using hk by auto 
@@ -267,7 +261,7 @@ proof
     qed
   qed
   have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
-  proof(intro ballI impI)
+  proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
      assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
     fix x
@@ -280,13 +274,13 @@ proof
     qed
   qed
   have C10: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<Longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
-  proof(intro ballI impI)
+  proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
     fix x assume A: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)" "Q a h x"
     hence "?P a x h" unfolding QDef by blast
     hence P: "?P a x k" using C8[OF A(1)] by auto
     have "\<forall>y. ?P a y k \<longrightarrow> VV x \<subseteq> VV y" 
-    proof(intro ballI impI)
+    proof(intro allI impI)
       fix y assume "?P a y k"
       hence "?P a y h" using C8[of a k h] A by auto
       then show  "VV x \<subseteq> VV y" using A(2) QDef by auto
@@ -358,7 +352,7 @@ proof
   qed
 
   have C11: "C F" unfolding C_def
-  proof(intro ballI impI)
+  proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
     fix x assume hk: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)"
     obtain x where
@@ -369,5 +363,5 @@ proof
   qed
 
   hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
-qed
+oops
 
