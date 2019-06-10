@@ -150,8 +150,8 @@ lemma subtypeI [intro_st]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longright
 lemma subtypeE [elim]: "\<lbrakk>A \<prec> B; \<And>x. (x : B \<Longrightarrow> P); x : A\<rbrakk> \<Longrightarrow> P"
   by (drule Soft_BallI) auto
 
-lemma subtypeD [dest_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B" by auto
-
+lemma subtypeD [elim_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B"
+  by auto
 
 subsection \<open>The ``any'' type\<close>
 

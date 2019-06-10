@@ -363,7 +363,13 @@ translations
 lemma Collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: Collect_def)
 
-lemma CollectD: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A"
+lemma CollectI [intro]: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x \<in> {y \<in> A | P y}"
+  by auto
+
+lemma CollectD1: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A"
+  by auto
+
+lemma CollectD2: "x \<in> {y \<in> A | P y} \<Longrightarrow> P x"
   by auto
 
 
