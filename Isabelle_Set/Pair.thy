@@ -93,7 +93,7 @@ lemma fst_conv [simp]: "fst(\<langle>a,b\<rangle>) = a"
 lemma snd_conv [simp]: "snd(\<langle>a,b\<rangle>) = b"
   by (simp add: snd_def)
 
-lemma pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma Pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by simp
 
 
@@ -161,7 +161,7 @@ subsection \<open>Projections @{term fst} and @{term snd} for disjoint unions\<c
 lemma DUnion_fst: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
 
-lemma DUnion_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B(fst p)"
+lemma DUnion_snd: "p \<in> \<Coprod>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B (fst p)"
   by auto
 
 lemma DUnion_elem_conv [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"

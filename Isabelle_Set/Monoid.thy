@@ -40,9 +40,8 @@ lemma monoid_neut_type[type]: "monoid_neut : Monoid A \<Rightarrow> element A"
 lemma monoid_add_type[type]: "monoid_add : Monoid A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   apply (intro Pi_typeI) 
   apply (unfold element_type_iff monoid_add_def Monoid_Set_def)
-  apply (drule CollectD)
-  apply (intro funE)
-  apply auto
+  apply (drule CollectD1)
+  apply (intro functionE; auto?)+
 done
  
 
