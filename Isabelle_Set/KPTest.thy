@@ -5,6 +5,9 @@ theory KPTest
 
 begin
 
+lemma ballI : "\<lbrakk>\<And>x. P x\<rbrakk> \<Longrightarrow> \<forall>x. P x"
+  by simp
+
 
 (*Brown, C.E.: Reconsidering Pairs and Functions as Sets. J. Autom. Reasoning
 55(3), 199 - 210 (Oct 2015) 
@@ -70,7 +73,7 @@ qed
 
 lemma Lm4:
    "C \<Phi> \<longrightarrow> (\<forall> X Y Z . (G \<Phi> X Y \<longrightarrow> G \<Phi> X Z \<longrightarrow> Y = Z))"
-proof(standard)
+proof
   assume CPhi: "C \<Phi>"
   let ?P ="\<lambda> X. (\<forall> Y Z . (G \<Phi> X Y \<longrightarrow> G \<Phi> X Z \<longrightarrow> Y = Z))"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?P x) \<longrightarrow> ?P X"
@@ -163,7 +166,7 @@ theorem VTh2_4:
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(standard,standard)
+  proof(rule ballI, rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -193,13 +196,12 @@ proof
   hence "VV X \<subseteq> VV x" using VTh2_4 by auto 
   then show "VV X \<in> VV Y" using x VTh2_1[of x Y "VV X"] by auto
 qed
-
 theorem VTh2_6:
   "X \<in> VV Y \<or> VV Y \<subseteq> VV X"
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(standard,standard)
+  proof(rule ballI,rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -238,34 +240,35 @@ theorem Muzukashi:
           "X \<subseteq>  U" "X \<notin> U"
   shows     "\<exists> b . (b : { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
 proof
-  let ?D= "X"
   let ?Lamb ="{ x \<in> U | ordinal x}"
-  let ?P = "\<lambda> a x f . (x \<in> X \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x))\<or> (x = ?D \<and> (\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)))"
+  let ?D= "?Lamb"
+  let ?P = "\<lambda> a x f . (x \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x))\<or> (x = ?D \<and> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)))"
   obtain  Q where 
-    QDef: "Q == \<lambda> a f x . ?P a x f \<and> (\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
+    QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and> (\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
   obtain  F where
      FDef: "F\<equiv> \<lambda> a f . THE x. Q a f x" by simp
   let ?f=  "R_CB F"
   let ?g = "\<lambda> y . THE a . a \<in> ?Lamb \<and> ?f a = y"
-  have C0:" (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<longrightarrow>
-          (\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
-         (\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-  proof
-     assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
-    show "(\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
-         (\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))" 
-    proof(auto)
-      fix z assume "(\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))" "z \<in> X"
+  have C0:"\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow>
+          (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
+  proof-
+    fix a ::set fix h k ::"set \<Rightarrow> set" 
+    assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
+    show "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
+         (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
+    proof(intro iffI ballI impI)
+      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))" "z \<in> ?D"
       hence "\<exists> b. b \<in> a \<and> h b = z" by auto
       then show "\<exists> b. b \<in> a \<and> k b = z" using hk by auto 
     next 
-      fix z assume "(\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))" "z \<in> X"
+      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))" "z \<in> ?D"
       hence "\<exists> b. b \<in> a \<and> k b = z" by auto
       then show "\<exists> b. b \<in> a \<and> h b = z" using hk by auto 
     qed
   qed
-  have  C8: "(\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
-  proof(standard,standard,standard) 
+  have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
+  proof(intro ballI impI)
+    fix a ::set fix h k ::"set \<Rightarrow> set" 
      assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
     fix x
     assume x: "?P a x h"
@@ -276,36 +279,70 @@ proof
       case False then show ?thesis using x hk in_prop C0 by blast
     qed
   qed
-  have C10: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
-  
-
-  have C11: "\<forall>a. \<forall> h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<longrightarrow> (\<forall>x. Q a h x = Q a k x)" by auto
-
-
-  have H1: "\<forall> a f. \<exists> x. ?P a x f"
-  proof(standard,standard)
-    fix a f
-    show "\<exists> x. ?P a x f" by (cases "\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)",auto)
+  have C10: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<Longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
+  proof(intro ballI impI)
+    fix a ::set fix h k ::"set \<Rightarrow> set" 
+    fix x assume A: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)" "Q a h x"
+    hence "?P a x h" unfolding QDef by blast
+    hence P: "?P a x k" using C8[OF A(1)] by auto
+    have "\<forall>y. ?P a y k \<longrightarrow> VV x \<subseteq> VV y" 
+    proof(intro ballI impI)
+      fix y assume "?P a y k"
+      hence "?P a y h" using C8[of a k h] A by auto
+      then show  "VV x \<subseteq> VV y" using A(2) QDef by auto
+    qed
+    then show "Q a k x" using P QDef by auto
   qed
-
+  have C_x: "\<And> a h x y .  Q a h x \<and> Q a h y \<Longrightarrow> x = y"
+  proof-
+    fix a ::set fix h ::"set \<Rightarrow> set" 
+    fix x y assume A: "Q a h x \<and> Q a h y"
+    hence P:"?P a x h" "?P a y h" unfolding QDef by auto+
+    show "x=y" 
+    proof(cases "(\<forall>y. y \<in> ?D \<longrightarrow> (\<exists>b. b \<in> a \<and> h b = y))")
+      case True
+        hence "x=?D" "y=?D" using P by auto
+        thus ?thesis by auto
+      next case F: False
+        hence "ordinal x" "ordinal y" using P by auto 
+        hence C: "x \<in> y \<or> x = y \<or> y \<in> x" using trichotomy by auto
+        have "VV x \<subseteq> VV y" "VV y \<subseteq> VV x" using A P unfolding QDef by blast+
+        hence E: "VV x =VV y" using extensionality_axiom VTh2_3 by auto
+        have C1: "\<not> x \<in> y"
+        proof
+          assume "x \<in> y"
+          hence "x \<in> VV y" using VTh2_3 by auto
+          hence "VV x \<in> VV y" using VTh2_5 by auto 
+          thus "False" using E in_prop by auto
+        qed
+        have C2: "\<not> y \<in> x"
+        proof
+          assume "y \<in> x"
+          hence "y \<in> VV x" using VTh2_3 by auto
+          hence "VV y \<in> VV x" using VTh2_5 by auto 
+          thus "False" using E in_prop by auto
+        qed
+        thus "x=y" using C C1 by simp
+    qed
+  qed
   have H2: "\<forall> a f. \<exists> x. Q a f x"
   proof(standard,standard)
     fix a f
     show "\<exists> x. Q a f x" 
-    proof (cases "\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)")
+    proof (cases "\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)")
       case True
         hence "Q a f ?D" using QDef by auto
         then show ?thesis by auto
       next 
         case F: False
         then obtain y where
-           y: "y \<in> X \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> y)" by auto
-        let ?M = "{ VV x | x \<in> { xx \<in> X | (?P a xx f)}}"
+           y: "y \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> y)" by auto
+        let ?M = "{ VV x | x \<in> { xx \<in> ?D | (?P a xx f)}}"
         have "VV y \<in> ?M" using y by auto
         then obtain vv where
           vv:  " vv \<in> ?M \<and> vv \<inter> ?M={}" using  Regularity[of "VV y" ?M] by blast
         then obtain v where
-          v: "vv = VV v \<and> v \<in> { xx \<in> X | (?P a xx f)}" by auto
+          v: "vv = VV v \<and> v \<in> { xx \<in> ?D | (?P a xx f)}" by auto
         have "Q a f v" unfolding QDef
         proof
           show "?P a v f" using v by auto
@@ -320,48 +357,17 @@ proof
     qed
   qed
 
-
-  have "\<forall>a. \<forall> h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<longrightarrow> F a h = F a k"
-  proof(standard,standard,standard,standard)
-    fix a::set 
-    fix h k :: "set \<Rightarrow> set" assume hk: "\<forall>b. b \<in> a \<longrightarrow>  h b = k b"
-    have Q: "\<forall> x w. Q a h x \<and> Q a h w \<longrightarrow> x = w" sorry
-    obtain x where 
-      x: "Q a h x" using H2[rule_format, of a h] by blast
-    have "F a h =x" unfolding FDef using x Q by blast
-    
-    show " F a h = F a k"
-    proof-
-      have "Q a h (F a h)" unfolding FDef using Q x by auto
-     obtain  F where
-     FDef: "F\<equiv> \<lambda> a f . THE x. Q a f x" by simp
-
-*)
-(*x \<in> X \<and> (\<forall>b. b \<in> a \<and> h b \<noteq> x)*)
-
+  have C11: "C F" unfolding C_def
+  proof(intro ballI impI)
+    fix a ::set fix h k ::"set \<Rightarrow> set" 
+    fix x assume hk: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)"
+    obtain x where
+       Q: "Q a h x" using H2 by auto
+     hence "Q a k x" using  C10 hk by auto
+     hence " F a h = x" " F a k = x" unfolding FDef using Q C_x by blast+
+     thus "F a h = F a k" by auto
   qed
 
-(*have C11: "\<forall>a. \<forall> h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<longrightarrow> ?Q a h = ?Q a k"
-  proof(standard,standard,standard,standard)
-    fix a h k assume "\<forall>b. b \<in> a \<longrightarrow>  h b = k b"
-    
-      qed
-      
-      using QDef extensionality_axiom by auto*)
-
-  have C0: "C F" unfolding C_def
-  proof-(*standard,standard,standard,standard*) 
-    fix f g :: "set \<Rightarrow> set" 
-    let ?P = "\<lambda> Y. (\<forall>x. x \<in> Y \<longrightarrow> f x = g x) \<longrightarrow> F Y f = F Y g"
-    have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?P x) \<longrightarrow> ?P X"
-    proof(auto)
-      fix Y  assume "\<forall>x. x \<in> Y \<longrightarrow> (\<forall>xa. xa \<in> x \<longrightarrow> f xa = g xa) \<longrightarrow> F x f = F x g"
-              "\<forall>x. x \<in> Y \<longrightarrow> f x = g x" 
-      show" F Y f = F Y g" sorry
-    qed
-     
- 
-  qed
-
+  hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
 qed
 
