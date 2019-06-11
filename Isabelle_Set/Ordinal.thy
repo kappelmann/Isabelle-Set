@@ -1,5 +1,5 @@
 theory Ordinal
-imports Pair
+imports Set_Theory
 
 begin
 
