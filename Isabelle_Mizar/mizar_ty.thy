@@ -143,10 +143,14 @@ val clus_acparser =
   let
     val check_typing_concl = fn thm =>
       let
+        val tm_concl_of = dest_Trueprop o Thm.concl_of
         val not_all_typing_concls =
           (exists not) o (map (is_typing o Thm.concl_of)) o dest_concl_conjs
       in
-        if not_all_typing_concls thm then Exn.error "Not a typing rule" else I
+        if not_all_typing_concls thm
+          then if tm_concl_of thm = @{term "HOL.True"} then I
+          else (@{print} (Thm.prop_of thm); Exn.error "Not a typing rule")
+        else I
       end
   in
     Attrib.add_del

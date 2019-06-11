@@ -108,9 +108,9 @@ proof
 qed auto
 
 mtheorem xboole_0_def_3_assoc: "X \<union> (Y \<union> Z) = (X \<union> Y) \<union> Z"
-  using xboole_0_def_3 by (intro ballI tarski_0_2a) infer_auto
+  using xboole_0_def_3 tarski_0_2 by infer_auto
 mtheorem xboole_0_def_3_idem2[simp]: "X \<union> (X \<union> Z) = X \<union> Z"
-  using xboole_0_def_3 by (intro ballI tarski_0_2a) infer_auto
+  using xboole_0_def_3 tarski_0_2 by infer_auto
 lemmas xboole_0_def_3_ac = xboole_0_def_3_assoc xboole_0_def_3_commutativity xboole_0_def_3_idempotence xboole_0_def_3_ty
 
 mdef xboole_0_def_4 (infixl "\<inter>" 70) where
@@ -182,7 +182,7 @@ proof -
       have "x in A1 \<longleftrightarrow> (x in X \<and> \<not> x in Y)" using A1 T1 by auto
       then have "x in A1 \<longleftrightarrow> x in A2" using A2 T1 by auto
   }
-  thus "A1 = A2" by (intro tarski_th_2) infer_auto
+  thus "A1 = A2" using tarski_th_2 by infer_auto
 qed simp
 text_raw {*\DefineSnippet{xboole_0_def_6}{*}
 mdef xboole_0_def_6 (infixl "\\+\\" 65) where
@@ -228,7 +228,7 @@ syntax "xboole_0.xboole_0_def_8" :: "Set \<Rightarrow> Set \<Rightarrow> o" (inf
 
 text_raw {*\DefineSnippet{xboole_0_def_8_irreflexivity}{*}
 mtheorem xboole_0_def_8_irreflexivity:
-  "irreflexive set xboole_0_def_8" using xboole_0_def_8E by auto
+  "irreflexivity set xboole_0_def_8" using xboole_0_def_8E by auto
 text_raw {*}%EndSnippet*}
 
 text_raw {*\DefineSnippet{xboole_0_def_8_asymmetry}{*}
@@ -251,7 +251,7 @@ proof(intro ballI)
         have "x in Y \<longrightarrow> x in X" using tarski_def_3E xboole_0_def_8E A2 by infer_auto
         hence "x in X \<longleftrightarrow> x in Y" using A3 by auto
      }
-    hence "X = Y" by (intro tarski_th_2) infer_auto
+    hence "X = Y" using tarski_th_2 by infer_auto
     thus "False" using A1 xboole_0_def_8 by infer_auto
   qed
 qed
@@ -282,7 +282,7 @@ proof
                  have "x in Y \<longrightarrow> x in X" using tarski_def_3E[of Y X] A1 by infer_auto
                  hence "x in X \<longleftrightarrow> x in Y" using A2 by auto
               }
-            thus "X=Y" by (intro tarski_th_2) infer_auto
+            thus "X=Y" using tarski_th_2 by infer_auto
           qed
      qed
    qed
@@ -358,7 +358,7 @@ proof
   assume A1: "X is empty"
   hence "not (ex x st x in X)" using xboole_0_def_1(1) by infer_auto
   hence "\<forall>x.  x in {} \<longleftrightarrow> x in X" using xboole_0_def_1(1) by infer_auto
-  thus "X = {}" by (intro tarski_th_2) infer_auto
+  thus "X = {}" using tarski_th_2 by infer_auto
 qed
 
 lemma xb1: "x in X \<longrightarrow> X \<noteq> {}"
@@ -414,7 +414,7 @@ mscheme xboole_0_sch_2:
    "for x being object holds x in X1 \<longleftrightarrow> P(x) \<Longrightarrow>
     for x being object holds x in X2 \<longleftrightarrow> P(x) \<Longrightarrow>
     X1 = X2"
-  by (intro tarski_th_2) infer_auto
+  using tarski_th_2 by infer_auto
 
 lemmas xboole_0_sch_3 = xboole_0_sch_2
 

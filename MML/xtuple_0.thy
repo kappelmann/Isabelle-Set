@@ -217,7 +217,7 @@ next
         have "x in X1 \<longleftrightarrow> (ex y st [x,y] in X)" using A3 by simp
         hence "x in X1 \<longleftrightarrow> x in X2" using A4 by simp
        }
-    thus "X1 = X2" by (intro tarski_th_2) infer_auto
+    thus "X1 = X2" using tarski_th_2 by infer_auto
   qed
 
 

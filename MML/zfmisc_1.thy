@@ -1,5 +1,5 @@
 theory zfmisc_1
-imports xboole_0 xfamily xtuple_0
+imports xboole_0 xfamily xtuple_0 tarski_a
 begin
 
 reserve x,y,z,x1,x2,y1,y2 for object
@@ -20,8 +20,8 @@ proof-
        obtain M where
           [ty]: "M be set" and A1: "X in M" "(for X,Y holds X in M \<and> Y c= X \<longrightarrow> Y in M) \<and>
             (for X st X in M ex Z st Z in M \<and> (for Y st Y c= X holds Y in Z)) \<and>
-            (\<forall>X.  X c= M \<longrightarrow> (X, M areequipotent \<or> X in M))"
-         using tarski_a_th_1[THEN bspec, of X] ex ty by blast
+            (\<forall>X.  X c= M \<longrightarrow> (X, M are_equipotent \<or> X in M))"
+         using tarski_a_th_1[of X] ex ty by blast
      obtain IT where
           [ty]:"IT be set" and A2: "for Y being object holds (Y in IT \<longleftrightarrow> Y in M \<and> Y c= X)"
           using xboole_0_sch_1[of M ?IT] by infer_auto
@@ -155,8 +155,7 @@ mtheorem
    
 mtheorem zfmisc_1_th_28:
   "[:{x},{y}:] = {[x,y]}"
-proof
-  show "[:{x},{y}:] be set" "{[x,y]} be set" by infer_auto
+proof (rule tarski_th_2[rule_format, OF ballI, OF _ object_exists] object_root)
   fix z
   show "z in [:{x},{y}:] \<longleftrightarrow> z in {[x,y]}"
     proof (rule iffI3)
@@ -261,7 +260,7 @@ reserve X,Y,N,M for set
 mtheorem zfmisc_1_th_112:
   "\<exists>M. N in M \<and> (\<forall>X,Y. X in M \<and> Y \<subseteq> X \<longrightarrow> Y in M) \<and>
     (\<forall>X. X in M \<longrightarrow> bool X in M) \<and>
-    (\<forall>X. X \<subseteq> M \<longrightarrow> X,M areequipotent \<or> X in M)"
+    (\<forall>X. X \<subseteq> M \<longrightarrow> X,M are_equipotent \<or> X in M)"
 text_raw {*}%EndSnippet*}
 proof-
   obtain M where
@@ -269,8 +268,8 @@ proof-
     A1: "N in M" and
     A2: "\<forall>X : set. \<forall>Y : set. X in M \<and> Y \<subseteq> X \<longrightarrow> Y in M" and
     A3: "\<forall>X : set. X in M \<longrightarrow> (\<exists>Z : set. Z in M \<and> (\<forall>Y : set. Y \<subseteq> X \<longrightarrow> Y in Z))" and
-    A4: "\<forall>X : set. X \<subseteq> M \<longrightarrow> X,M areequipotent \<or> X in M"
-    using tarski_a_th_1[THEN bspec,of N,simplified] all_set by auto
+    A4: "\<forall>X : set. X \<subseteq> M \<longrightarrow> X,M are_equipotent \<or> X in M"
+    using tarski_a_th_1[of N,simplified] all_set by auto
   show ?thesis
   proof (intro bexI conjI)
     show "N in M" using A1 .
@@ -293,12 +292,12 @@ proof-
       }
       thus "bool X in M"
         using
-        A2[THEN bspec,THEN bspec,simplified,rule_format,OF all_set,where ?x="bool X"]
+        A2[THEN bspec,THEN bspec,simplified,rule_format,where ?x="bool X"]
         A5
         tarski_def_3I
         by infer_auto
     qed infer_auto
-  show "\<forall>X : set. X \<subseteq> M \<longrightarrow> X,M areequipotent \<or> X in M" using A4 .
+  show "\<forall>X : set. X \<subseteq> M \<longrightarrow> X,M are_equipotent \<or> X in M" using A4 .
   qed infer_auto
 qed
 
