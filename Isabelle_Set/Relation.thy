@@ -173,18 +173,16 @@ abbreviation transitive :: "set \<Rightarrow> bool"
 abbreviation total :: "set \<Rightarrow> bool"
   where "total R \<equiv> \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
-(* Should define these properties as adjectives. But how exactly?... *)
-
 
 subsection \<open>Partial orders\<close>
 
 definition partial_order :: "set \<Rightarrow> set type"
   where "partial_order P \<equiv>
-    element (relations P P) \<bar> Type (\<lambda>R. reflexive R \<and> antisymmetric R \<and> transitive R)"
+    reflexive \<cdot> transitive \<cdot> antisymmetric \<cdot> element (relations P P)"
 
 definition strict_partial_order :: "set \<Rightarrow> set type"
   where "strict_partial_order P \<equiv>
-    element (relations P P) \<bar> Type (\<lambda>R. irreflexive R \<and> transitive R)"
+    irreflexive \<cdot> transitive \<cdot> element (relations P P)"
 
 
 end
