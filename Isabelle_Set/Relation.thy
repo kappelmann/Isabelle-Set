@@ -174,15 +174,19 @@ abbreviation total :: "set \<Rightarrow> bool"
   where "total R \<equiv> \<forall>x \<in> domain R. \<forall>y \<in> domain R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
 
-subsection \<open>Partial orders\<close>
+subsection \<open>Partial and total orders\<close>
 
 definition partial_order :: "set \<Rightarrow> set type"
-  where "partial_order P \<equiv>
-    reflexive \<cdot> transitive \<cdot> antisymmetric \<cdot> element (relations P P)"
+  where partial_order_typedef:
+  "partial_order P \<equiv> reflexive \<cdot> transitive \<cdot> antisymmetric \<cdot> element (relations P P)"
 
 definition strict_partial_order :: "set \<Rightarrow> set type"
-  where "strict_partial_order P \<equiv>
-    irreflexive \<cdot> transitive \<cdot> element (relations P P)"
+  where strict_partial_order_typedef:
+  "strict_partial_order P \<equiv> irreflexive \<cdot> transitive \<cdot> element (relations P P)"
+
+definition total_order :: "set \<Rightarrow> set type"
+  where total_order_typedef:
+  "total_order P \<equiv> total \<cdot> partial_order P"
 
 
 end
