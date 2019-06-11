@@ -232,9 +232,9 @@ theorem Regularity:
 theorem Muzukashi:
   assumes "epsilon_transitive U" "ZF_closed U" 
           "X \<subseteq>  U" "X \<notin> U"
-  shows     "\<exists> b . (b \<in> { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
+  shows     "\<exists> b . (b \<in> { x \<in> U | x : Ord} \<rightarrow> X) \<and> bijection b"
 proof
-  let ?Lamb ="{ x \<in> U | ordinal x}"
+  let ?Lamb ="{ x \<in> U | x : Ord}"
   let ?D= "?Lamb"
   let ?P = "\<lambda> a x f . (x \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x))\<or> (x = ?D \<and> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)))"
   obtain  Q where 
@@ -298,8 +298,8 @@ proof
         hence "x=?D" "y=?D" using P by auto
         thus ?thesis by auto
       next case F: False
-        hence "ordinal x" "ordinal y" using P by auto 
-        hence C: "x \<in> y \<or> x = y \<or> y \<in> x" using trichotomy by auto
+        hence "x : Ord" "y : Ord" using P by auto 
+        hence C: "x \<in> y \<or> x = y \<or> y \<in> x" using Ord_trichotomy by auto
         have "VV x \<subseteq> VV y" "VV y \<subseteq> VV x" using A P unfolding QDef by blast+
         hence E: "VV x =VV y" using extensionality_axiom VTh2_3 by auto
         have C1: "\<not> x \<in> y"
