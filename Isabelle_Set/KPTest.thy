@@ -1,12 +1,8 @@
 
 theory KPTest
-  imports Ordinal Function
-  
+  imports Ordinal Function  
 
 begin
-
-lemma ballI : "\<lbrakk>\<And>x. P x\<rbrakk> \<Longrightarrow> \<forall>x. P x"
-  by simp
 
 
 (*Brown, C.E.: Reconsidering Pairs and Functions as Sets. J. Autom. Reasoning
@@ -166,7 +162,7 @@ theorem VTh2_4:
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(rule ballI, rule impI)
+  proof(rule allI, rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<subseteq> VV Y \<longrightarrow> VV X \<subseteq> VV Y"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -201,7 +197,7 @@ theorem VTh2_6:
 proof-
   let ?PX = "\<lambda> X .\<forall> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof(rule ballI,rule impI)
+  proof(rule allI,rule impI)
     fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x"
     let ?PY = "\<lambda> Y. X \<in> VV Y \<or> VV Y \<subseteq> VV X"
     have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
@@ -228,146 +224,215 @@ proof
   then show "VV Y \<subseteq> VV X" using VTh2_6 by auto
 qed
 
+
+
 theorem in_prop:
-  "\<not> x \<in> x" sorry
+  " x  \<notin> x"
+proof-
+  let ?IN = "\<lambda> x. x  \<notin> x"
+  have I:"\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?IN x) \<longrightarrow> ?IN X" by auto
+  have "\<forall>X. (?IN X)" using elem_induct_axiom[rule_format,of ?IN ] by blast
+  then show " x \<notin> x" by auto
+qed
+
+
+lemma contraposR: "\<not>P \<longrightarrow> \<not>Q \<Longrightarrow> Q \<longrightarrow> P" by blast
 
 theorem Regularity:
-  "x \<in> X \<Longrightarrow> \<exists> y. y \<in> X \<and> y \<inter> X={}" sorry
+  "x \<in> X \<longrightarrow> (\<exists> y. y \<in> X \<and> y \<inter> X={})"
+proof(rule contraposR,rule impI)
+  assume E: "\<not> (\<exists> y. y \<in> X \<and> y \<inter> X={})"      
+  let ?IN="\<lambda> x. x \<notin> X"
+  have "\<forall>A. (\<forall>x. x \<in> A \<longrightarrow> ?IN x) \<longrightarrow> ?IN A" using E by auto
+  then show "x \<notin> X" using elem_induct_axiom[of ?IN] by blast
+qed
+
+theorem CB_Th_3:
+  assumes "epsilon_transitive U" "ZF_closed U" 
+  shows "\<forall>X. X  \<in> U \<longrightarrow> VV X \<in> U"
+proof-
+  let ?H = "\<lambda> X. X  \<in> U \<longrightarrow> VV X \<in> U"
+  have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?H x) \<longrightarrow> ?H X"
+  proof(intro allI impI)
+    let ?PV = "\<lambda> x . Pow (VV x)"
+    fix X assume IH: "\<forall>x. x \<in> X \<longrightarrow> ?H x" "X \<in> U"
+    have "\<forall>x. x \<in> X \<longrightarrow> ?PV x \<in> U"
+    proof(intro allI impI)
+      have XU: "X \<subseteq> U" using assms(1) epsilon_transitive_def IH by auto 
+      fix x assume "x \<in> X"
+      hence "VV x \<in> U" using XU IH by auto
+      thus  "?PV x \<in> U" using assms(2) ZF_closed_def by auto
+    qed
+    hence "{?PV  x| x \<in> X} \<in> U" using IH assms(2) ZF_closed_def[of U] by auto
+    hence "\<Union>x \<in> X. (Pow (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
+    then show "VV X \<in> U" using VTh1[rule_format, of X] by auto
+  qed
+  then show "\<forall>X. ?H X" using elem_induct_axiom[of ?H] by blast
+qed
 
 
 theorem Muzukashi:
   assumes "epsilon_transitive U" "ZF_closed U" 
           "X \<subseteq>  U" "X \<notin> U"
-  shows     "\<exists> b . (b : { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
+  shows   "\<exists> b . (b : { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
 proof
   let ?Lamb ="{ x \<in> U | ordinal x}"
-  let ?D= "?Lamb"
-  let ?P = "\<lambda> a x f . (x \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x))\<or> (x = ?D \<and> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)))"
+  let ?P = "\<lambda> a x f . x \<in> X\<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x)"
   obtain  Q where 
-    QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and> (\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
+    QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and>(\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
   obtain  F where
-     FDef: "F\<equiv> \<lambda> a f . THE x. Q a f x" by simp
+     FDef: "F\<equiv> \<lambda> a f . (THE  x. Q a f x)" by simp
   let ?f=  "R_CB F"
-  let ?g = "\<lambda> y . THE a . a \<in> ?Lamb \<and> ?f a = y"
-  have C0:"\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow>
-          (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-  proof-
-    fix a ::set fix h k ::"set \<Rightarrow> set" 
-    assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
-    show "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
-         (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-    proof(intro iffI ballI impI)
-      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))" "z \<in> ?D"
-      hence "\<exists> b. b \<in> a \<and> h b = z" by auto
-      then show "\<exists> b. b \<in> a \<and> k b = z" using hk by auto 
-    next 
-      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))" "z \<in> ?D"
-      hence "\<exists> b. b \<in> a \<and> k b = z" by auto
-      then show "\<exists> b. b \<in> a \<and> h b = z" using hk by auto 
-    qed
-  qed
+  let ?g = "\<lambda> y .THE a . a \<in> ?Lamb \<and> ?f a = y"
   have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
-  proof(intro ballI impI)
-    fix a ::set fix h k ::"set \<Rightarrow> set" 
-     assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
-    fix x
-    assume x: "?P a x h"
-    show "?P a x k" 
-    proof  (cases "\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y)")
-      case True then show ?thesis using x hk C0 by blast
-    next
-      case False then show ?thesis using x hk in_prop C0 by blast
-    qed
-  qed
+   using in_prop by blast
   have C10: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<Longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
-  proof(intro ballI impI)
+  proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
     fix x assume A: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)" "Q a h x"
-    hence "?P a x h" unfolding QDef by blast
-    hence P: "?P a x k" using C8[OF A(1)] by auto
+    hence P: "?P a x k"  unfolding QDef using C8[OF A(1)] by auto
     have "\<forall>y. ?P a y k \<longrightarrow> VV x \<subseteq> VV y" 
-    proof(intro ballI impI)
+    proof(intro allI impI)
       fix y assume "?P a y k"
       hence "?P a y h" using C8[of a k h] A by auto
-      then show  "VV x \<subseteq> VV y" using A(2) QDef by auto
+      then show  "VV x \<subseteq> VV y" using A QDef by auto
     qed
     then show "Q a k x" using P QDef by auto
   qed
-  have C_x: "\<And> a h x y .  Q a h x \<and> Q a h y \<Longrightarrow> x = y"
-  proof-
-    fix a ::set fix h ::"set \<Rightarrow> set" 
-    fix x y assume A: "Q a h x \<and> Q a h y"
-    hence P:"?P a x h" "?P a y h" unfolding QDef by auto+
-    show "x=y" 
-    proof(cases "(\<forall>y. y \<in> ?D \<longrightarrow> (\<exists>b. b \<in> a \<and> h b = y))")
-      case True
-        hence "x=?D" "y=?D" using P by auto
-        thus ?thesis by auto
-      next case F: False
-        hence "ordinal x" "ordinal y" using P by auto 
-        hence C: "x \<in> y \<or> x = y \<or> y \<in> x" using trichotomy by auto
-        have "VV x \<subseteq> VV y" "VV y \<subseteq> VV x" using A P unfolding QDef by blast+
-        hence E: "VV x =VV y" using extensionality_axiom VTh2_3 by auto
-        have C1: "\<not> x \<in> y"
-        proof
-          assume "x \<in> y"
-          hence "x \<in> VV y" using VTh2_3 by auto
-          hence "VV x \<in> VV y" using VTh2_5 by auto 
-          thus "False" using E in_prop by auto
-        qed
-        have C2: "\<not> y \<in> x"
-        proof
-          assume "y \<in> x"
-          hence "y \<in> VV x" using VTh2_3 by auto
-          hence "VV y \<in> VV x" using VTh2_5 by auto 
-          thus "False" using E in_prop by auto
-        qed
-        thus "x=y" using C C1 by simp
-    qed
-  qed
-  have H2: "\<forall> a f. \<exists> x. Q a f x"
-  proof(standard,standard)
-    fix a f
-    show "\<exists> x. Q a f x" 
-    proof (cases "\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)")
-      case True
-        hence "Q a f ?D" using QDef by auto
-        then show ?thesis by auto
-      next 
-        case F: False
-        then obtain y where
-           y: "y \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> y)" by auto
-        let ?M = "{ VV x | x \<in> { xx \<in> ?D | (?P a xx f)}}"
-        have "VV y \<in> ?M" using y by auto
-        then obtain vv where
-          vv:  " vv \<in> ?M \<and> vv \<inter> ?M={}" using  Regularity[of "VV y" ?M] by blast
-        then obtain v where
-          v: "vv = VV v \<and> v \<in> { xx \<in> ?D | (?P a xx f)}" by auto
-        have "Q a f v" unfolding QDef
-        proof
-          show "?P a v f" using v by auto
-          show "\<forall>y. ?P a y f \<longrightarrow> VV v \<subseteq> VV y"
-          proof(standard,standard)
-            fix y assume P: "?P a y f"
-            hence V: "VV y \<in> ?M" using P F by auto
-            then show "VV v \<subseteq> VV y" using VTh2_7[of y v] v vv by auto
-          qed
-        qed  
-        then show ?thesis by auto
-    qed
-  qed
-
   have C11: "C F" unfolding C_def
-  proof(intro ballI impI)
+  proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
     fix x assume hk: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)"
-    obtain x where
-       Q: "Q a h x" using H2 by auto
-     hence "Q a k x" using  C10 hk by auto
-     hence " F a h = x" " F a k = x" unfolding FDef using Q C_x by blast+
-     thus "F a h = F a k" by auto
+    have "Q a h = Q a k" unfolding QDef using hk by auto
+    then show "F a h = F a k" using FDef by auto
   qed
-
   hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
-qed
+  have C2:"\<And> a. a \<in> ?Lamb \<Longrightarrow> Q a ?f (?f a)"
+  proof-
+    fix a assume A:"a \<in> ?Lamb"
+    let ?I = "\<lambda> x. x \<in> ?Lamb \<longrightarrow> Q x ?f (?f x)"
+    have " \<forall>a. (\<forall>x. x \<in> a \<longrightarrow> ?I x) \<longrightarrow> ?I a"
+    proof(intro allI impI)
+      fix a assume HI: "\<forall>x. x \<in> a \<longrightarrow> ?I x"
+      assume a:"a \<in> ?Lamb"
+      hence O: "a \<in> U \<and> ordinal a" by auto
+      hence P: "Pow a \<subseteq> U" using assms ZF_closed_def epsilon_transitive_def[of U] by auto 
+      have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
+      proof(intro impI)
+        fix b assume b: "b \<in> a"
+        hence " b \<subseteq> a" using O unfolding ordinal_def using epsilon_transitive_def[of a] by auto
+        hence "b \<in> U" "ordinal b" using P ord_th2 O b by auto
+        then show "Q b ?f (?f b)" using b HI by auto
+      qed
+      have C14: "\<And> b. b \<in> a \<longrightarrow> ?f b \<in> X"
+      proof
+        fix b assume "b \<in> a"
+        hence "Q b ?f (?f b)" using C13 by auto
+        then show "?f b \<in> X"  unfolding QDef by auto
+      qed      
+      have C15: "{?f b|b \<in> a} \<subseteq> X" using C14 by auto
+      have C14_1: "\<forall> b. b \<in> a \<longrightarrow> ?f b \<in> U" using C14 assms(3) by auto 
+      have C16: "{?f b|b \<in> a} \<in> U" using assms(2) unfolding ZF_closed_def using C14_1 O by auto 
+      have C17: "\<not> (\<forall> x. \<not>?P a x ?f)"
+      proof
+        assume "\<forall> x. \<not>?P a x ?f"
+        hence "X \<subseteq> {?f b|b \<in> a}"  by auto
+        hence "X = {?f b|b \<in> a}" using C15 extensionality_axiom by auto
+        then show False using C16 assms by auto
+      qed
+      then obtain xx where
+        xx: "?P a xx ?f" by auto
+      let ?Pa = "{x \<in> X | \<forall>b. b \<in> a \<longrightarrow> ?f b \<noteq> x}"
+      let ?Va = "{VV x | x \<in> ?Pa}"
+      have "VV xx \<in> ?Va" using xx by auto
+      then obtain v where
+        v: "v \<in> ?Va \<and> v \<inter> ?Va={}" using Regularity[of "VV xx" "?Va"] by auto 
+      then obtain x where
+       x: "v = VV x \<and> ?P a x ?f" by auto
+      have "\<forall>y. ?P a y ?f \<longrightarrow> VV x \<subseteq> VV y" using x v VTh2_7[of _ x] by auto 
+      hence C18: "Q a ?f x" unfolding QDef using x by auto 
+      have C19: "F a ?f =  (THE x. Q a ?f x)" using FDef by auto
+      have "F a ?f = ?f a" using C1 FDef by auto
+    (*  have "\<And> z t . Q a ?f z\<and>Q a ?f t \<longrightarrow> z =t"
+      proof
+        fix z t assume QQ: "Q a ?f z\<and>Q a ?f t"
+        hence PP: "?P a z ?f" "?P a t ?f" unfolding QDef by auto
+        hence "VV z \<subseteq> VV t" "VV t \<subseteq> VV z" using QQ unfolding QDef by auto
+        hence "VV z = VV t" using extensionality_axiom by auto
+        have "z \<in> a"using PP sorry
+        show "z=t" sorry
+      qed
+      hence "(THE  z. (Q a ?f z)) =  x " using C18 by auto
+      hence "x = F a ?f" "F a ?f = ?f a" using C1 FDef by auto*)
+      then show "Q a ?f (?f a)" using C18 C19 sorry
+    qed
+    then show "Q a ?f (?f a)" using A  elem_induct_axiom[of ?I] by blast
+  qed
+  have C3: "\<And> a. a \<in> ?Lamb \<Longrightarrow> ?f a \<in> X"
+  proof-
+    fix a assume "a \<in> ?Lamb"
+    hence "Q a ?f (?f a)" using C2 by auto
+    then show  "?f a \<in> X" unfolding QDef by auto
+  qed
+  have C4:"\<And> a b. a \<in> ?Lamb \<and> b \<in> ?Lamb \<and> ?f a = ?f b \<Longrightarrow> a = b"
+  proof-
+    fix a b assume AS: "a \<in> ?Lamb \<and> b \<in> ?Lamb \<and> ?f a = ?f b"
+    hence Q:"Q a ?f (?f a)" "Q b ?f (?f b)" using C2[of a] C2[of b] by auto
+    hence P: "?P a (?f a) ?f" "?P b (?f b) ?f" unfolding QDef by auto
+    have "\<not> a \<in> b" "\<not>b\<in> a" using P AS by auto
+    thus "a=b" using AS trichotomy by auto
+  qed
+  have "\<And> x . x \<in> ?Lamb \<Longrightarrow> x \<subseteq> ?Lamb"
+  proof-
+    fix x assume "x \<in> ?Lamb"
+    hence "x \<subseteq> U\<and>ordinal x " using epsilon_transitive_def assms by auto
+    then show "x \<subseteq> ?Lamb" using ord_th2 by auto
+  qed
+  hence E: "epsilon_transitive ?Lamb" using epsilon_transitive_def by auto
+  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding ordinal_def by auto
+  hence "ordinal ?Lamb" using E ordinal_def[of ?Lamb] by simp
+  have C6: "?Lamb = {?g y|y \<in> ?Lamb}" sorry 
+    (*let ?g = "\<lambda> y .THE a . a \<in> ?Lamb \<and> ?f a = y"*)
 
+  have C7:"\<forall>x. x \<in> X \<longrightarrow> (\<exists>a. a \<in> ?Lamb \<and> ?f a = x)"
+  proof(rule allI,rule contraposR,auto)
+    fix x assume A: "\<forall> a. ordinal a \<longrightarrow> a \<in> U \<longrightarrow> ?f a \<noteq> x" "x \<in> X" 
+    have C20: "\<And> a . a \<in> ?Lamb \<Longrightarrow> ?P a x ?f"
+    proof(intro allI impI conjI)
+      fix a assume A1: "a \<in> ?Lamb" show "x \<in> X" using A by auto
+      fix b assume A2: "b \<in> a"
+      hence A3:"ordinal b" using A1 ord_th2 by auto
+      have "a \<subseteq> U" using A1 assms(1)  epsilon_transitive_def by auto
+      then show "?f b \<noteq> x" using A A2 A3 by auto
+    qed   
+    have C21: "\<And> a . a \<in> ?Lamb \<Longrightarrow> VV (?f a) \<subseteq> VV x"
+    proof-
+      fix a assume "a \<in> ?Lamb" 
+      hence "Q a ?f (?f a)" "?P a x ?f" using C2 C20 by auto
+      then show "VV (?f a) \<subseteq> VV x" unfolding QDef by auto  
+    qed
+    have C22: "{?f a|a \<in> ?Lamb} \<in> U"
+    proof-
+      have "x \<in> U" using assms(3) A by auto
+      hence "VV x \<in> U" using assms CB_Th_3 by auto
+      hence "Pow (Pow (VV x)) \<in> U" using assms(2) ZF_closed_def by auto
+      hence P: "Pow (Pow (VV x)) \<subseteq> U" using assms(1) epsilon_transitive_def by auto
+      have "{?f a|a \<in> ?Lamb} \<subseteq> Pow (VV x)"
+      proof
+        fix fa assume "fa \<in> {?f a|a \<in> ?Lamb}"
+        then obtain a where
+           fa: "fa = ?f a \<and> a \<in>?Lamb" by auto
+        hence "fa \<subseteq> VV fa" "VV (?f a) \<subseteq> VV x" using VTh2_3 C21 by auto
+        then show "fa \<in> Pow (VV x)" using fa by auto
+      qed
+      then show "{?f a|a \<in> ?Lamb} \<in> U"  using P by auto
+    qed
+    
+    thm "ZF_closed_def"
+       
+
+
+
+    qed
+  qed
+qed
