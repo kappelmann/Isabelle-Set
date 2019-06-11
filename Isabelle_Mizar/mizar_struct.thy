@@ -128,7 +128,10 @@ text_raw {*}%EndSnippet*}
 
 
 theorem field: "x is (selector \<rightarrow> spec) \<longleftrightarrow>  ((the selector of x) be spec(x) \<and> selector in dom x)"
-  using define_ty_property_true field_def by auto
+  using
+    define_ty_property_true[of x object "\<lambda>x. the selector of x be spec(x) \<and> selector in proj1 x"]
+    field_def
+  by auto
 
 lemmas field_E = field[THEN iffD1,THEN conjunct1]
 
@@ -538,7 +541,7 @@ proof(intro xboole_0_def_10I conjI)
         hence "the a of A2 = A2. a" using the_selector_of_1 A0
            by mauto
         thus "x in A2" using A1 A2 A3 assms(5) D A4 by auto
-    qed mauto
+    qed
      show "A2 c= A1"
     proof(standard,auto)
         fix x
@@ -554,7 +557,7 @@ proof(intro xboole_0_def_10I conjI)
         hence "the a of A1 = A1. a" using the_selector_of_1 A0
            by mauto
         thus "x in A1" using A1 A2 A3 assms(5) D A4 by auto
-    qed mauto
+    qed
 qed
 
 

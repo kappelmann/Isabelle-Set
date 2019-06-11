@@ -2,10 +2,11 @@ theory relat_1
 imports zfmisc_1 subset_1
 begin
 
-reserve x for object
+reserve A,X,X1,X2,Y,Y1,Y2 for set
+reserve a,b,c,d,x,y,z for object
 
 mdef relat_1_def_1 ("Relation'_like")where
-  "attr Relation_like for set means (\<lambda>IT. \<forall>x.  x in IT \<longrightarrow> (ex y, z st x = [y, z]))".
+  "attr Relation_like for set means (\<lambda>IT. \<forall>x. x in IT \<longrightarrow> (ex y, z st x = [y, z]))" .
 
 mtheorem relat_1_cl_1:
   "cluster empty \<rightarrow> Relation_like for set" 
@@ -67,7 +68,7 @@ proof(intro impI, rule conjI)
      hence "[z,y] in R" using A1 tarski_def_1 by simp
      thus "z in dom R" using xtuple_0_def_12 by infer_auto
   qed simp_all
-  thus "dom R = {x}" by (intro tarski_th_2) infer_auto
+  thus "dom R = {x}" using tarski_th_2 by infer_auto
   have "for z being object holds z in rng R \<longleftrightarrow> z in {y}"
   proof (rule ballI,rule iffI3)
      fix z
@@ -86,7 +87,7 @@ proof(intro impI, rule conjI)
      hence "[x,z] in R" using A1 tarski_def_1 by simp
      thus "z in rng R" using xtuple_0_def_13 by infer_auto
   qed simp_all
-  thus "rng R = {y}" by (intro tarski_th_2) infer_auto
+  thus "rng R = {y}" using tarski_th_2 by infer_auto
  qed
 
 mtheorem relat_1_th_7:
@@ -538,11 +539,11 @@ qed
 mtheorem relat_1_cl_20:
    mlet "X be empty \<bar> set"
    "cluster dom X \<rightarrow> empty" 
-  using xboole_0_def_1 xtuple_0_def_12_uniq by infer_auto
+  using xboole_0_def_1 xtuple_0_def_12_uniq by mauto
   
 mtheorem relat_1_cl_21:
    mlet "X be empty \<bar> set"
    "cluster rng X \<rightarrow> empty" 
- using xboole_0_def_1 xtuple_0_def_13_uniq by infer_auto
+ using xboole_0_def_1 xtuple_0_def_13_uniq by mauto
   
 end

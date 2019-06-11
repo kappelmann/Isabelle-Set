@@ -42,6 +42,8 @@ method stauto declares intro_st elim_st dest_st iff_st simp_st =
 | (simp add: simp_st;
   solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
     iff_st: iff_st simp_st: simp_st\<close>)
+| auto intro: intro_st elim: elim_st simp: iff_st
+| elim elim_st | drule dest_st | intro intro_st
 
 
 subsection \<open>Basic definitions\<close>
@@ -140,6 +142,14 @@ lemma Int_typeD1 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
 lemma Int_typeD2 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
 
 
+subsection \<open>Adjectives\<close>
+
+text \<open>We allow adjectives—in the form of predicates on a set—to modify types.\<close>
+
+abbreviation adj_modifier :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
+  where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
+
+
 subsection \<open>Subtypes\<close>
 
 definition subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" (infix "\<prec>" 50)
@@ -150,7 +160,8 @@ lemma subtypeI [intro_st]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longright
 lemma subtypeE [elim]: "\<lbrakk>A \<prec> B; \<And>x. (x : B \<Longrightarrow> P); x : A\<rbrakk> \<Longrightarrow> P"
   by (drule Soft_BallI) auto
 
-lemma subtypeD [dest_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B" by auto
+lemma subtypeD [elim_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B"
+  by auto
 
 
 subsection \<open>The ``any'' type\<close>

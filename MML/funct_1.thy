@@ -1,6 +1,6 @@
 
 theory funct_1
-imports relset_1 "../2_Mizar/mizar_fraenkel"
+imports relset_1 "../Isabelle_Mizar/mizar_fraenkel"
 begin
 
 reserve x,y,z,x1,x2,y1,y2 for object
@@ -47,7 +47,7 @@ proof
        fix x y1 y2
        assume "[x,y1] in (id X)" "[x,y2] in (id X)"
        thus "y1=y2" using relat_1_def_8 by mauto
-    qed mauto
+    qed
 qed
 
 text_raw {*\DefineSnippet{Function}{*}
@@ -197,7 +197,7 @@ proof
                       T6: "x be object" and A5:"x in dom f \<and> y = f . x" using A4 by auto
                       have "[x,y] in f" using A5 funct_1_def_2 by mauto
                       thus "y in rng f" using xtuple_0_def_13 by mauto
-                   qed mauto
+                   qed
                  show "rng f \<subseteq> Y"
               proof (standard,auto)
                 fix y
@@ -206,7 +206,7 @@ proof
                    T9: "x be object" and A6: "[x,y] in f" using xtuple_0_def_13 by mauto
                 hence "x in dom f \<and> y = f . x" using A6 funct_1_th_1[of f y x] by mauto
                 thus "y in Y" using A4 by auto
-              qed mauto
+              qed
            qed mauto
           qed
   qed
@@ -250,7 +250,7 @@ proof-
             then obtain y where
               "y be object" " [x,y] in Q" using xtuple_0_def_12 by mauto
             thus "x in X" using A2 by auto
-          qed mauto
+          qed
           show "X \<subseteq> dom Q"
            proof(standard,auto)
             fix x
@@ -260,7 +260,7 @@ proof-
             hence "y in Y" using A1 B by auto
             hence "[x,y] in Q" using A2 B B1 by mauto
            thus "x in dom Q" using xtuple_0_def_12 by mauto
-          qed mauto
+          qed
         qed mauto
         show "for x st x in X holds P(x,Q. x)"
          proof (intro ballI impI)
@@ -309,14 +309,14 @@ proof-
             then obtain y where
               "y be object" " [x,y] in P" using xtuple_0_def_12 by mauto
             thus "x in X" using A2 by auto
-          qed mauto
+          qed
           show "X \<subseteq> dom P"
            proof(standard,auto)
             fix x
             assume "x in X"
             hence "[x,z] in P" using A2 tarski_def_1 by auto
             thus "x in dom P" using xtuple_0_def_12 by mauto
-          qed mauto
+          qed
         qed mauto
         show "rng P c= {z}"
          proof (standard,auto)
@@ -325,7 +325,7 @@ proof-
             then obtain x where
               "x be object" " [x,y] in P" using xtuple_0_def_13 by mauto
             thus "y in {z}" using A2 by auto
-          qed mauto
+          qed
         show "P be Function" using P by mauto
        qed simp
     qed
@@ -451,7 +451,7 @@ proof(intro ballI xboole_0_def_10I conjI)
     hence A4:"x be Element-of dom f" using Element(6) by mauto
     have "(f|X).x = f. x" using A2 funct_1_th_47 by mauto
     thus "y in { f. x where x be Element-of dom f: x in X}" using A2 Fraenkel_A1_in[of "Element-of dom f"] A3 A4 by mauto
-  qed mauto
+  qed
   show "{ f. x where x be Element-of dom f: x in X} \<subseteq> rng (f|X)"
   proof(standard,auto)
     fix y assume A1: "y in { f. x where x be Element-of dom f: x in X}"
@@ -462,7 +462,7 @@ proof(intro ballI xboole_0_def_10I conjI)
     have "x in (dom f) \<inter> X" using Element(1)[of "proj1 f"] A2 A22 xboole_0_def_4 by mauto
     hence "y = (f|X).x" using A22 funct_1_th_48 by mauto
     thus "y in rng (f|X)" using A3 funct_1_def_3 by mauto
-  qed mauto
+  qed
 qed mauto
 
 mtheorem funct_1_th_49:
@@ -568,7 +568,7 @@ proof -
          hence C1: "x in dom g" using A2 funct_1_th_1[of g "f. x" x] by auto
          have "dom g in ?D" using Set_of_All_in[OF _ T2] by mauto
          thus "x in union ?D" using tarski_def_4[of ?D x] C1 exI[of _ "proj1 g"] by inst_nopass_auto
-       qed mauto
+       qed
     show "union ?D \<subseteq> dom f"
        proof(standard,auto)
          fix x
@@ -582,7 +582,7 @@ proof -
          hence "[x,g. x] in g" using A4(2) A6 funct_1_th_1[of g "g. x" x] by auto
          hence "[x,g. x] in union B" unfolding tarski_def_4[of B "[x, g . x]", simplified ty, OF TrueI] using assms exI[of _ g] T3 by mauto
          thus "x in dom f" using assms funct_1_th_1 by auto
-       qed mauto
+       qed
   qed
   show "rng f = union ?R"
   proof(unfold xboole_0_def_10[OF all_set all_set],rule conjI)
@@ -601,7 +601,7 @@ proof -
          have C2: "y in rng g" using funct_1_def_3[of g] C1 T3 by mauto
          have "rng g in ?R" using Set_of_All_in[OF _ T2] by mauto
          thus "y in union ?R" using C2 tarski_def_4 all_set by auto
-       qed mauto
+       qed
     show "union ?R \<subseteq> rng f"
        proof(standard,auto)
          fix y
@@ -618,7 +618,7 @@ proof -
          have "[x,y] in g" using A7 funct_1_th_1[of g y x] T3 by mauto
          hence "[x,y] in union B" unfolding tarski_def_4[of B "[x, y]",simplified ty,OF TrueI] using assms exI[of _ g] T3 by mauto
          thus "y in rng f" using xtuple_0_def_13 assms by auto
-       qed mauto
+       qed
      qed
    qed
 

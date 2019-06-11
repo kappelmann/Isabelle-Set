@@ -1,5 +1,5 @@
 theory subset_1
-imports zfmisc_1
+imports zfmisc_1 "../Isabelle_Mizar/mizar_fraenkel"
 begin
 
 mtheorem subset_1_cl_1:
@@ -28,7 +28,7 @@ theorem empty2:
 mdef subset_1_def_1      ("Element-of _" [105] 105) where
   mlet "X be set"
   "mode Element-of X \<rightarrow> set means
-   ((\<lambda>it. it in X) if (X is non empty) otherwise (\<lambda>it. it is empty))" 
+   ((\<lambda>it. it in X) if (X is non empty) otherwise (\<lambda>it. it is empty))"
 proof-
   show "(X is non empty \<longrightarrow> (\<exists>x : set. x in X)) \<and> (\<not> X is non empty \<longrightarrow> (\<exists>x : set. x is empty))"
   proof(intro impI conjI)
@@ -39,9 +39,9 @@ proof-
    next
       assume A2: "\<not> X is non empty"
       thus "ex x be set st x is empty " using tarski_0_1 by auto
-    qed  
-qed infer_auto
-print_theorems 
+    qed
+qed auto
+ 
 text_raw {*\DefineSnippet{ElementofP}{*}
 abbreviation (input) ElementofS :: "(Set \<Rightarrow> Set) \<Rightarrow> (Set \<Rightarrow> Ty)" ("Element-of'' _") where
   "Element-of' F \<equiv> \<lambda>it. Element-of F(it)"

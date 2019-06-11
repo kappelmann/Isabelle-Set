@@ -20,7 +20,7 @@ next
     have "x in IT1 \<longleftrightarrow> (x = x1 \<or> x = x2 \<or> x = x3)" using A1 by auto
     hence "x in IT1 \<longleftrightarrow> x in IT2" using A2 by auto
   }
-  thus "IT1 = IT2" using A1 A2 by (intro tarski_th_2) infer_auto
+  thus "IT1 = IT2" using A1 A2 using tarski_th_2 by infer_auto
 qed
 
 mdef enumset1_def_2("{_, _, _, _}") where
@@ -42,7 +42,7 @@ next
     have "x in IT1 \<longleftrightarrow> (x = x1 \<or> x = x2 \<or> x = x3 \<or> x=x4)" using A1 by auto
     hence "x in IT1 \<longleftrightarrow> x in IT2" using A2 by auto
   }
-  thus "IT1 = IT2" using A1 A2 by (intro tarski_th_2) infer_auto
+  thus "IT1 = IT2" using A1 A2 using tarski_th_2 by infer_auto
 qed infer_auto
 
 
@@ -57,7 +57,7 @@ proof-
     have "x in { x1,x1 } \<longleftrightarrow> x = x1" using tarski_def_2 by auto
     hence "x in { x1,x1 } \<longleftrightarrow> x in { x1 }" using tarski_def_1 by auto
   }
-  thus "{ x1,x1 } = { x1 }" by (intro tarski_th_2) infer_auto
+  thus "{ x1,x1 } = { x1 }" using tarski_th_2 by infer_auto
 qed
 
 end

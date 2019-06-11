@@ -13,72 +13,24 @@ imports Relation
 
 begin
 
-subsection \<open>Function soft type\<close>
+subsection \<open>Function spaces\<close>
 
-definition function :: "[set, set] \<Rightarrow> set type" (infixr "\<rightarrow>" 60)
-  where function_typedef:
-  "A \<rightarrow> B \<equiv>
-      relation A B
-    \<bar> Type (\<lambda>f. domain f = A \<and> (\<forall>x y y'. \<langle>x, y\<rangle> \<in> f \<and> \<langle>x, y'\<rangle> \<in> f \<longrightarrow> y = y'))"
+text \<open>...formulated dependently.\<close>
 
-lemma function_type_iff [iff_st]:
-  "f : A \<rightarrow> B \<longleftrightarrow>
-    f : relation A B \<and> domain f = A \<and> (\<forall>x y y'. \<langle>x, y\<rangle> \<in> f \<and> \<langle>x, y'\<rangle> \<in> f \<longrightarrow> y = y')"
-  using function_typedef by stauto
+definition Pi :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
+  where "Pi A B \<equiv> {f \<in> Pow (\<Coprod>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
 
-lemma function_typeI [intro_st]:
-  assumes
-    "f: relation A B"
-    "domain f = A"
-    "\<And>x y y'. \<lbrakk>\<langle>x, y\<rangle> \<in> f; \<langle>x, y'\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y = y'"
-  shows "f : A \<rightarrow> B"
-  using assms function_type_iff by auto
+syntax "_PROD" :: "[pttrn, set, set] => set type" ("(3\<Prod>_ \<in> _./ _)" [0, 0, 100])
+translations "\<Prod>x \<in> A. B" \<rightleftharpoons> "CONST Pi A (\<lambda>x. B)"
 
-lemma function_type_iff_ex1:
-  "f : A \<rightarrow> B \<longleftrightarrow> f : relation A B \<and> (\<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f)"
-proof auto
-  assume f_fun: "f : A \<rightarrow> B"
-  thus f_rel: "f : relation A B" by stauto
-
-  fix x assume asm: "x \<in> A"
-  have "domain f = A" using f_fun by stauto
-  hence "x \<in> domain f" using asm by simp
-  thus "\<exists>y. \<langle>x, y\<rangle> \<in> f" using f_rel by (intro domainE)
-
-  fix y y' assume "\<langle>x, y\<rangle> \<in> f" and "\<langle>x, y'\<rangle> \<in> f"
-  thus "y = y'" using f_fun function_type_iff by auto
-next
-  assume f_rel: "f : relation A B" and uniq: "\<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f"
-  hence "\<forall>x \<in> A. (\<exists>y. \<langle>x, y\<rangle> \<in> f)" by auto
-  hence "A \<subseteq> domain f" using f_rel by (auto intro: domainI)
-  moreover have "domain f \<subseteq> A" using f_rel domain_subset by auto
-  ultimately have "domain f = A" by extensionality
-  thus "f : A \<rightarrow> B" using f_rel uniq by stauto
-qed
-
-lemma function_domainE [elim]: "\<lbrakk>f : A \<rightarrow> B; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f"
-  using function_type_iff_ex1 by auto
-
-lemma function_uniq_val [elim]: "\<lbrakk>f : A \<rightarrow> B; \<langle>x, y\<rangle> \<in> f; \<langle>x, y'\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y = y'"
-  using function_type_iff by auto
-
-lemma function_is_relation [subtype]: "A \<rightarrow> B \<prec> relation A B"
-  by stauto
-
-lemma empty_function [intro]: "{} : {} \<rightarrow> B"
-  by stauto
-
-lemma empty_function_iff [iff]: "f : {} \<rightarrow> B \<longleftrightarrow> f = {}"
-  by stauto
-
-lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} : {x} \<rightarrow> B"
-  by stauto
+abbreviation "nondep_functions" :: "[set, set] \<Rightarrow> set" (infixr "\<rightarrow>" 60)
+  where "A \<rightarrow> B \<equiv> \<Prod>x \<in> A. B"
 
 
 subsection \<open>Lambda abstraction and application\<close>
 
 definition Lambda :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  where "Lambda A b \<equiv> {\<langle>x, b x\<rangle>. x \<in> A}"
+  where "Lambda A b \<equiv> {\<langle>x, b x\<rangle> | x \<in> A}"
 
 syntax "_lam" :: "[pttrn, set, set] => set" ("(3\<lambda>_ \<in> _./ _)" 200)
 translations "\<lambda>x \<in> A. f" \<rightleftharpoons> "CONST Lambda A (\<lambda>x. f)"
@@ -87,22 +39,19 @@ definition "apply" :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "`" 90)
   where "f`x = (THE y. \<langle>x, y\<rangle> \<in> f)"
 
 
-lemma Lambda_elemI [intro]: "a \<in> A \<Longrightarrow> \<langle>a, b a\<rangle> \<in> \<lambda>x \<in> A. b x"
+lemma LambdaI [intro]: "a \<in> A \<Longrightarrow> \<langle>a, b a\<rangle> \<in> \<lambda>x \<in> A. b x"
   unfolding Lambda_def by auto
 
-lemma Lambda_elemE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbrakk>x \<in> A; p = \<langle>x, b x\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+lemma LambdaE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbrakk>x \<in> A; p = \<langle>x, b x\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (simp add: Lambda_def, blast)
 
-lemma Lambda_elemD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
+lemma LambdaD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
   by auto
-
-lemma Lambda_function [intro_st]: "(\<lambda>x \<in> A. b x) : A \<rightarrow> {b x | x \<in> A}"
-  unfolding Lambda_def by stauto
 
 lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) ` a = b a"
   by (auto simp: Lambda_def apply_def)
 
-lemma Lambda_domain [simp]: "domain(\<lambda>x \<in> A. b x) = A"
+lemma Lambda_domain [simp]: "domain (\<lambda>x \<in> A. b x) = A"
   by (auto simp: Lambda_def)
 
 lemma Lambda_cong [cong]:
@@ -113,176 +62,200 @@ lemma Lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x;
   by (auto elim: equalityE)
 
 
-lemma function_apply_conv [simp]: "\<lbrakk>f : A \<rightarrow> B; \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> f`x = y"
-  using apply_def function_domainE by stauto
+subsection \<open>Rules for functions\<close>
 
-lemma function_elemI [intro]: "\<lbrakk>f : A \<rightarrow> B; x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f`x\<rangle> \<in> f"
-proof -
-  assume asm: "f : A \<rightarrow> B" and "x \<in> A"
-  then obtain y where "\<langle>x, y\<rangle> \<in> f" using function_domainE by blast
-  thus "\<langle>x, f`x\<rangle> \<in> f" using asm by auto
-qed
-
-lemma function_elems_conv [simp]: "\<lbrakk>f : A \<rightarrow> B; p \<in> f\<rbrakk> \<Longrightarrow> p = \<langle>fst p, f ` fst p\<rangle>"
-proof -
-  assume assms: "f : A \<rightarrow> B" "p \<in> f"
-  hence *: "\<langle>fst p, snd p\<rangle> \<in> f" by stauto
-  have "p = \<langle>fst p, snd p\<rangle>" using assms by stauto
-  also have "\<langle>fst p, snd p\<rangle> = \<langle>fst p, f ` fst p\<rangle>" using assms * by auto
-  finally show "p = \<langle>fst p, f ` fst p\<rangle>" by simp
-qed
-
-lemma function_graph: "f : A \<rightarrow> B \<Longrightarrow> f = {\<langle>x, f`x\<rangle> | x \<in> A}"
-  by (extensionality, rule, auto, insert DUnion_fst, stauto+)
-
-lemma function_typeE [elim]: "\<lbrakk>f : A \<rightarrow> B; x \<in> A\<rbrakk> \<Longrightarrow> f`x \<in> B"
-proof -
-  assume assms: "f : A \<rightarrow> B" "x \<in> A"
-  hence uniq: "\<exists>!y. \<langle>x, y\<rangle> \<in> f"
-    using function_domainE by auto
-  then obtain y where "\<langle>x, y\<rangle> \<in> f" and "y \<in> B"
-    using assms rangeI range_subset by stauto
-  hence "f`x = y" using apply_def uniq by auto
-  with \<open>y \<in> B\<close> show "f`x \<in> B" by auto
-qed
-
-
-subsection \<open>Function spaces\<close>
-
-text \<open>We formulate function spaces dependently.\<close>
-
-definition Pi :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
-  where "Pi A B \<equiv> {f \<in> Pow (\<Coprod>x \<in> A. (B x)) | f : A \<rightarrow> (\<Union>x \<in> A. (B x))}"
-
-syntax "_PROD" :: "[pttrn, set, set] => set" ("(3\<Prod>_ \<in> _./ _)" [0, 0, 100])
-translations "\<Prod>x \<in> A. B" \<rightleftharpoons> "CONST Pi A (\<lambda>x. B)"
-
-
-text \<open>Nondependent function spaces:\<close>
-
-abbreviation fun :: "set \<Rightarrow> set \<Rightarrow> set" (infixr "\<rightarrow>" 60)
-  where "A \<rightarrow> B \<equiv> Pi A (\<lambda>_. B)"
-
-lemma fun_function_iff [iff]: "f \<in> A \<rightarrow> B \<longleftrightarrow> f : A \<rightarrow> B"
-  unfolding Pi_def by stauto
-
-(* LCP: Conclusion is flexible -- use rule_tac or else funE below! *)
-lemma PiE [intro]:
-  "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); x \<in> A\<rbrakk> \<Longrightarrow> f`x \<in> B x"
+lemma functions_are_relations [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<in> relations A (\<Union>x \<in> A. (B x))"
   unfolding Pi_def by auto
 
-(* LCP: This version is acceptable to the simplifer *)
-lemma funE: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f`a \<in> B"
-  by (fact PiE)
+text \<open>The following lemmas are useful.\<close>
 
-lemma Pi_type_iff [iff_st]:
-  "f \<in> \<Prod>x \<in> A. (B x) \<longleftrightarrow> f : A \<rightarrow> (\<Union>x \<in> A. (B x)) \<and> (\<forall>x \<in> A. f`x \<in> B x)"
-proof (auto simp: Pi_def)
-  assume
-  f_fun: "f : A \<rightarrow> (\<Union>x \<in> A. (B x))" and
-  f_stratified: "\<forall>x \<in> A. f`x \<in> B x"
-
-  fix p assume p_elem: "p \<in> f"
-  show "p \<in> \<Coprod>x \<in> A. (B x)"
-  proof (rule DUnionI2)
-    show "p = \<langle>fst p, f ` fst p\<rangle>" using p_elem f_fun by auto
-    show "fst p \<in> A" using p_elem f_fun by stauto
-    thus "f ` fst p \<in> B (fst p)" using f_stratified by auto
-  qed
+lemma uniq_val_imp: "\<lbrakk>\<exists>!y. \<langle>x, y\<rangle> \<in> f; x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f`x\<rangle> \<in> f"
+proof -
+  assume ex: "\<exists>!y. \<langle>x, y\<rangle> \<in> f" and "x \<in> A"
+  then obtain y where elem: "\<langle>x, y\<rangle> \<in> f" by auto
+  with ex have "f`x = y" using apply_def by auto
+  with elem show "\<langle>x, f`x\<rangle> \<in> f" by simp
 qed
 
-lemma PiI [intro]: "\<lbrakk>f : A \<rightarrow> (\<Union>x \<in> A. (B x)); \<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x\<rbrakk> \<Longrightarrow> f \<in> \<Prod>x \<in> A. (B x)"
-  by stauto
+lemma function_elems: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f`x\<rangle> \<in> f"
+  unfolding Pi_def
+  by (drule CollectD2, drule Bspec, auto intro: uniq_val_imp)
+
+lemma function_domain [elim]:
+  "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> domain f = A"
+apply ((rule extensionality domain_subset functions_are_relations)+, auto)
+proof (simp only: Pi_def, drule CollectD2)
+  fix x assume "x \<in> A" and "\<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f"
+  then obtain y where "\<langle>x, y\<rangle> \<in> f" by auto
+  thus "x \<in> domain f" using domainI by auto
+qed
+
+lemma function_uniq_val [elim]:
+  "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rangle> \<in> f; \<langle>x, y'\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y = y'"
+unfolding Pi_def by auto
+
+lemma function_fibered: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y \<in> B x"
+  unfolding Pi_def by auto
+
+lemma functionI [intro]:
+  assumes
+    f_relation: "f \<in> relations A (\<Union>x \<in> A. (B x))" and
+    uniq_val: "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f" and
+    stratified: "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x"
+  shows "f \<in> \<Prod>x \<in> A. (B x)"
+unfolding Pi_def proof (auto, rule DUnionI2)
+  fix p assume asm: "p \<in> f"
+
+  thus "p = \<langle>fst p, snd p\<rangle>" using f_relation by auto
+  hence *: "\<langle>fst p, snd p\<rangle> \<in> f" using asm by auto
+
+  show fst_elem: "fst p \<in> A" using f_relation asm by auto
+
+  have "\<langle>fst p, f`(fst p)\<rangle> \<in> f"
+    using uniq_val_imp uniq_val[OF \<open>fst p \<in> A\<close>] fst_elem
+    by auto
+  hence eq: "snd p = f`(fst p)" using uniq_val[OF \<open>fst p \<in> A\<close>] * by auto 
+
+  have "f`(fst p) \<in> B (fst p)" using fst_elem stratified by auto
+  thus "snd p \<in> B (fst p)" using eq by simp
+next
+  fix x assume asm: "x \<in> A"
+  thus "\<exists>y. \<langle>x, y\<rangle> \<in> f" using uniq_val by blast
+
+  show "\<And>y y'. \<lbrakk>\<langle>x, y\<rangle> \<in> f; \<langle>x, y'\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y = y'" using uniq_val asm by auto
+qed
+
+(* LCP: Conclusion is flexible -- use rule_tac or else nondep_functionE below! *)
+lemma functionE:
+  assumes "f \<in> \<Prod>x \<in> A. (B x)" and "x \<in> A"
+  shows "f`x \<in> B x"
+proof -
+  from assms function_elems have "\<langle>x, f`x\<rangle> \<in> f" by auto
+  moreover have "f \<subseteq> \<Coprod>x \<in> A. (B x)" using assms(1) unfolding Pi_def by auto
+  ultimately show "f`x \<in> B x" by auto
+qed
+
+(* LCP: This version is acceptable to the simplifer *)
+lemma nondep_functionE: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f`a \<in> B"
+  by (fact functionE)
+
+
+lemma empty_function [intro]: "{} \<in> {} \<rightarrow> B"
+  by auto
+
+lemma empty_function_iff [iff]: "f \<in> {} \<rightarrow> B \<longleftrightarrow> f = {}"
+  unfolding Pi_def by auto
+
+lemma singleton_functionI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
+  unfolding Pi_def by auto
+
+lemma Lambda_function [intro]: "(\<lambda>x \<in> A. b x) \<in> A \<rightarrow> {b x | x \<in> A}"
+  unfolding Lambda_def Pi_def by auto
+
+lemma function_apply_conv [simp]: "\<lbrakk>\<langle>x, y\<rangle> \<in> f; f \<in> \<Prod>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> f`x = y"
+  using apply_def functionE by auto
+
+lemma function_val_conv:
+  assumes "f \<in> \<Prod>x \<in> A. (B x)" and "p \<in> f"
+  shows "f`(fst p) = snd p"
+proof -
+  have "fst p \<in> A" using functions_are_relations[OF assms(1)] assms(2) by auto
+  hence "\<langle>fst p, f`(fst p)\<rangle> \<in> f" using assms function_elems by auto
+  moreover have "\<langle>fst p, snd p\<rangle> \<in> f" using assms unfolding Pi_def by auto
+  ultimately show "f`(fst p) = snd p" using function_uniq_val assms by auto
+qed
+
+lemma function_elems_conv [simp]:
+  assumes "f \<in> \<Prod>x \<in> A. (B x)" and "p \<in> f"
+  shows "\<langle>fst p, f ` fst p\<rangle> = p"
+proof -
+  have "p = \<langle>fst p, snd p\<rangle>"
+    using functions_are_relations[OF assms(1)] assms(2) relation_elem_conv
+    by auto
+  also have "\<langle>fst p, snd p\<rangle> = \<langle>fst p, f ` fst p\<rangle>" using assms function_val_conv by auto
+  finally show "\<langle>fst p, f ` fst p\<rangle> = p" by simp
+qed
+
+lemma function_graph: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f = {\<langle>x, f`x\<rangle> | x \<in> A}"
+  by (extensionality, rule,
+    auto dest: functions_are_relations intro: relations_fst function_elems)
 
 lemma Pi_cong [cong]: "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Prod>x \<in> A. (B x) = \<Prod>x \<in> A'. (B' x)"
   by (simp add: Pi_def cong: DUnion_cong)
 
-lemma Pi_fst [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
-  by stauto
+lemma function_fst [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
+  unfolding Pi_def by auto
 
-lemma Pi_snd [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> snd p \<in> B (fst p)"
-  using Pi_def by auto
+lemma function_snd [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> snd p \<in> B (fst p)"
+  unfolding Pi_def by auto
 
-lemma Pi_pair_fst: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>a, b\<rangle> \<in> f\<rbrakk> \<Longrightarrow> a \<in> A"
-  by stauto
+lemma function_pair_fst: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>a, b\<rangle> \<in> f\<rbrakk> \<Longrightarrow> a \<in> A"
+  unfolding Pi_def by auto
 
-lemma Pi_pair_snd: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>a, b\<rangle> \<in> f\<rbrakk> \<Longrightarrow> b \<in> B a"
-  by stauto
+lemma function_empty_iff [iff]: "f \<in> \<Prod>x \<in> {}. (B x) \<longleftrightarrow> f = {}"
+  unfolding Pi_def by auto
 
-lemma Pi_apply_conv [simp]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>a, b\<rangle> \<in> f\<rbrakk> \<Longrightarrow> f`a = b"
-  by stauto
+lemma function_carrier [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<subseteq> \<Coprod>x \<in> A. (B x)"
+  unfolding Pi_def by auto
 
-lemma Pi_elemI [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); a \<in> A\<rbrakk> \<Longrightarrow> \<langle>a, f`a\<rangle> \<in> f"
-  by stauto
+lemma function_forget [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<in> A \<rightarrow> \<Union>x \<in> A. (B x)"
+  unfolding Pi_def by auto
 
-lemma Pi_elems_conv [simp]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> p = \<langle>fst p, f ` fst p\<rangle>"
-  by stauto
-
-lemma Pi_elem_iff: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> \<langle>a, b\<rangle> \<in> f \<longleftrightarrow> a \<in> A \<and> f`a = b"
-  by stauto
-
-lemma Pi_uniqueness: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>a, b\<rangle> \<in> f; \<langle>a, c\<rangle> \<in> f\<rbrakk> \<Longrightarrow> b = c"
-  by stauto
-
-lemma Pi_empty_iff [iff]: "f \<in> \<Prod>x \<in> {}. (B x) \<longleftrightarrow> f = {}"
-  by stauto
-
-lemma Pi_carrier [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<subseteq> \<Coprod>x \<in> A. (B x)"
-  using Pi_def by auto
-
-lemma Pi_forget [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : A \<rightarrow> \<Union>x \<in> A. (B x)"
-  by stauto
-
-lemma Pi_refine: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x\<rbrakk> \<Longrightarrow> f \<in> \<Prod>x \<in> A. (C x)"
-proof (rule; auto?)
+lemma function_refine: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x\<rbrakk> \<Longrightarrow> f \<in> \<Prod>x \<in> A. (C x)"
+proof (rule functionI; auto)
   assume assms: "f \<in> \<Prod>x \<in> A. (B x)" "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x"
-  show "f : A \<rightarrow> \<Union>x \<in> A. (C x)"
-  proof (rule function_typeI, rule subset_typeI, auto)
-    fix p assume "p \<in> f"
-    hence 1: "p = \<langle>fst p, f ` fst p\<rangle>"
-      and 2: "fst p \<in> A" using assms(1) by auto
-    hence 3: "f ` fst p \<in> C (fst p)" using assms(2) by auto
-    from 1 2 3 show "p \<in> A \<times> \<Union>x \<in> A. (C x)" by auto
-  qed (insert assms(1), stauto, auto)
+
+  { fix p assume p_elem: "p \<in> f"
+    show "p \<in> A \<times> \<Union>x \<in> A. (C x)"
+    apply (intro DUnionI2)
+    apply (auto intro: assms(1) p_elem function_elems_conv function_fst sym)
+    proof rule+
+      show "fst p \<in> A" using assms(1) p_elem by auto
+      thus "f`(fst p) \<in> C (fst p)" using assms(2) by auto
+    qed simp
+  }
+
+  fix x assume "x \<in> A"
+  thus "\<exists>y. \<langle>x, y\<rangle> \<in> f" using assms(1) by (auto intro: function_elems ex1_implies_ex)
 qed
 
-corollary Pi_weaken:
+corollary function_enlarge_range:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> C x\<rbrakk> \<Longrightarrow> f \<in> \<Prod>x \<in> A. (C x)"
 proof -
   assume assms: "f \<in> \<Prod>x \<in> A. (B x)" and "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> C x"
-  hence "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x" by auto
-  thus "f \<in> \<Prod>x \<in> A. (C x)" using Pi_refine assms by blast
+  hence "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x" by (auto intro: functionE)
+  thus "f \<in> \<Prod>x \<in> A. (C x)" using function_refine assms by blast
 qed
 
-lemma fun_weaken: "\<lbrakk>f : A \<rightarrow> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> f : A \<rightarrow> C"
-  by stauto
+corollary nondep_function_enlarge_range: "\<lbrakk>f \<in> A \<rightarrow> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> f \<in> A \<rightarrow> C"
+  using function_enlarge_range by auto
 
 (* LCP: Such functions arise in non-standard datatypes, ZF/ex/Ntree for instance *)
-lemma Pi_Collect_iff:
+lemma function_Collect_iff:
   "f \<in> \<Prod>x \<in> A. {y \<in> B x | P x y} \<longleftrightarrow> f \<in> \<Prod>x \<in> A. (B x) \<and> (\<forall>x \<in> A. P x (f`x))"
-  by (auto, stauto) (blast intro: Pi_refine dest: PiE)
+  by (auto intro: function_refine dest: functionE)
 
-lemma Pi_LambdaI [intro]:
+lemma function_LambdaI [intro]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x \<in> A. b x) \<in> \<Prod>x \<in> A. (B x)"
-  using Pi_def Lambda_def Collect_relation by stauto
+  unfolding Pi_def using Collect_relation by auto
 
-lemma fun_empty_domain [simp]: "{} \<rightarrow> A = {{}}" by extensionality
+lemma function_empty_domain [simp]: "{} \<rightarrow> A = {{}}" by extensionality
 
-lemma Pi_empty_range [simp]: "A \<rightarrow> {} = (if A = {} then {{}} else {})"
-  by auto (unfold Pi_def, blast)
+lemma function_empty_range [simp]: "A \<rightarrow> {} = (if A = {} then {{}} else {})"
+  by (auto simp: Pi_def, extensionality, rule, auto)
 
-lemma singleton_fun [simp]: "{a} \<rightarrow> {b} = {{\<langle>a, b\<rangle>}}"
+lemma singleton_function_conv [simp]: "{a} \<rightarrow> {b} = {{\<langle>a, b\<rangle>}}"
 proof extensionality
-  fix f assume asm: "f : {a} \<rightarrow> {b}"
+  fix f assume asm: "f \<in> {a} \<rightarrow> {b}"
   with function_graph
   have "f = {\<langle>x, f`x\<rangle> | x \<in> {a}}" by auto
   hence 1: "f = {\<langle>a, f`a\<rangle>}" using Repl_singleton by auto
   have "a \<in> {a}" by auto
-  hence 2: "f`a \<in> {b}" using asm function_typeE by blast
+  hence 2: "f`a \<in> {b}" using asm functionE by blast
   from 1 2 show "f = {\<langle>a, b\<rangle>}" by simp
 qed
 
-lemma fun_empty_iff [iff]: "A \<rightarrow> X = {} \<longleftrightarrow> X = {} \<and> A \<noteq> {}"
+lemma nondep_fs_empty_iff [iff]: "A \<rightarrow> X = {} \<longleftrightarrow> X = {} \<and> A \<noteq> {}"
 proof auto
   assume "A \<rightarrow> X = {}" hence "A \<noteq> {}" by auto
   { assume "X \<noteq> {}"
@@ -296,46 +269,53 @@ qed
 
 subsection \<open>Function extensionality\<close>
 
-(*
+lemma function_subset:
+  assumes
+    "f \<in> \<Prod>x \<in> A. (B x)" "g \<in> \<Prod>x \<in> C. (D x)"
+    "A \<subseteq> C"
+    "\<And>x. x \<in> A \<Longrightarrow> f`x = g`x"
+  shows "f \<subseteq> g"
+proof
+  fix p assume asm: "p \<in> f"
+  hence p_comp: "\<langle>fst p, f`(fst p)\<rangle> = p"
+    using function_elems_conv assms(1) by auto
 
-(*LCP: Semi-extensionality!*)
+  have p_elem_A: "fst p \<in> A" using asm assms(1) by auto
+  hence eq: "g`(fst p) = f`(fst p)" using assms(4) by auto
 
-lemma fun_subset:
-    "\<lbrakk>f \<in> Pi A B;  g \<in> Pi C D;  A\<subseteq>C;
-        !!x. x \<in> A \<Longrightarrow> f`x = g`x      \<rbrakk> \<Longrightarrow> f\<subseteq>g"
-by (force dest: Pi_memberD intro: apply_Pair)
+  from assms(3) p_elem_A have p_elem_C: "fst p \<in> C" ..
+  hence "\<langle>fst p, g`(fst p)\<rangle> \<in> g" using function_elems[OF assms(2)] by auto
+  with eq p_comp show "p \<in> g" by auto
+qed
 
-lemma fun_extension:
-    "\<lbrakk>f \<in> Pi A B; g \<in> Pi A D;
-        !!x. x \<in> A \<Longrightarrow> f`x = g`x \<rbrakk> \<Longrightarrow> f=g"
-by (blast del: subsetI intro: subset_refl sym fun_subset)
+lemma funext:
+  "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x); \<And>x. x \<in> A \<Longrightarrow> f`x = g`x\<rbrakk> \<Longrightarrow> f = g"
+  apply (rule extensionality)
+  using function_subset[where ?A=A and ?C=A] subset_refl by auto
 
-lemma eta [simp]: "f \<in> Pi A B \<Longrightarrow> (\<lambda>x\<in>A. f`x) = f"
-apply (rule fun_extension)
-apply (auto simp add: lam_type apply_type beta)
-done
+lemma eta [simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> (\<lambda>x \<in> A. (f`x)) = f"
+  by (auto intro: funext)
 
-lemma fun_extension_iff:
-     "\<lbrakk>f \<in> Pi A B; g \<in> Pi A C\<rbrakk> \<Longrightarrow> (\<forall>a\<in>A. f`a = g`a) \<longleftrightarrow> f=g"
-by (blast intro: fun_extension)
+lemma funext_iff:
+  "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f`a = g`a) \<longleftrightarrow> f = g"
+  by (auto intro: funext)
 
-(*thm by Mark Staples, proof by lcp*)
-lemma fun_subset_eq: "\<lbrakk>f \<in> Pi A B; g \<in> Pi A C\<rbrakk> \<Longrightarrow> f \<subseteq> g \<longleftrightarrow> (f = g)"
-by (blast dest: apply_Pair
-          intro: fun_extension apply_equality [symmetric])
+(* LCP: thm by Mark Staples, proof by lcp *)
+lemma function_subset_eq: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> f \<subseteq> g \<longleftrightarrow> (f = g)"
+  by (blast dest: function_elems intro: funext function_apply_conv[symmetric])
 
 
-(*Every element of Pi(A,B) may be expressed as a lambda abstraction!*)
-lemma Pi_lamE:
-  assumes major: "f \<in> Pi A B"
-      and minor: "!!b. \<lbrakk>\<forall>x\<in>A. b(x)\<in>B(x);  f = (\<lambda>x\<in>A. b(x))\<rbrakk> \<Longrightarrow> P"
+(* LCP: Every element of (Pi A B) may be expressed as a lambda abstraction! *)
+lemma function_LambdaE:
+  assumes
+    major: "f \<in> \<Prod>x \<in> A. (B x)" and
+    minor: "\<And>b. \<lbrakk>\<forall>x \<in> A. b x \<in> B x; f = (\<lambda>x \<in> A. b x)\<rbrakk> \<Longrightarrow> P"
   shows "P"
-apply (rule minor)
-apply (rule_tac [2] eta [symmetric])
-apply (blast intro: major apply_type)+
-done
-
-*)
+  apply (rule minor)
+  apply (rule_tac [2] eta[symmetric])
+  apply (blast intro: major functionE)+
+  apply fact
+  done
 
 
 end
