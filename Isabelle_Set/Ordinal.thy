@@ -70,8 +70,16 @@ subsection \<open>The von Neumann ordinals\<close>
 definition Succ :: "set \<Rightarrow> set"
   where "Succ x \<equiv> x \<union> {x}"
 
-lemma "x : Ord \<Longrightarrow> Succ x : Ord"
+lemma Succ_Ord: "x : Ord \<Longrightarrow> Succ x : Ord"
   unfolding Ord_typedef Succ_def epsilon_transitive_def by stauto blast
+
+lemma Succ_neq [intro]: "x \<noteq> Succ x"
+unfolding Succ_def
+proof (rule, elim equalityE)
+  assume "x \<union> {x} \<subseteq> x"
+  hence "x \<in> x" by auto
+  thus False using elem_irrefl by auto
+qed
 
 
 end
