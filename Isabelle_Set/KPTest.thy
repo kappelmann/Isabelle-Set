@@ -1,5 +1,5 @@
+
 theory KPTest
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
   imports Ordinal Function  
 
 begin
@@ -7,14 +7,6 @@ begin
 
 (*Brown, C.E.: Reconsidering Pairs and Functions as Sets. J. Autom. Reasoning
 55(3), 199 - 210 (Oct 2015) 
-=======
-imports "../Ordinal" "../Function"
-
-begin
-
-(*Brown, C.E.: Reconsidering Pairs and Functions as Sets.
-J. Autom. Reasoning 55(3), 199 - 210 (Oct 2015) 
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
 
 Theorem 1
 *)
@@ -232,7 +224,6 @@ proof
   then show "VV Y \<subseteq> VV X" using VTh2_6 by auto
 qed
 
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
 
 
 theorem in_prop:
@@ -278,72 +269,23 @@ proof-
   qed
   then show "\<forall>X. ?H X" using elem_induct_axiom[of ?H] by blast
 qed
-=======
-lemmas in_prop = elem_irrefl
-
-theorem Regularity:
-  "x \<in> X \<Longrightarrow> \<exists> y. y \<in> X \<and> y \<inter> X={}"
-  using foundation by blast
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
 
 
 theorem Muzukashi:
   assumes "epsilon_transitive U" "ZF_closed U" 
           "X \<subseteq>  U" "X \<notin> U"
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
-  shows   "\<exists> b . (b : { x \<in> U | ordinal x} \<rightarrow> X) \<and> bijection b"
+  shows   "\<exists> b . FunctionOF { x \<in> U | ordinal x} X \<and> bijection b"
 proof
-  let ?Lamb ="{ x \<in> U | ordinal x}"
+  let ?Lamb ="{ x \<in> U |  x:Ord}"
   let ?P = "\<lambda> a x f . x \<in> X\<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x)"
-=======
-  shows     "\<exists> b . (b \<in> { x \<in> U | x : Ord} \<rightarrow> X) \<and> bijection b"
-proof
-  let ?Lamb ="{ x \<in> U | x : Ord}"
-  let ?D= "?Lamb"
-  let ?P = "\<lambda> a x f . (x \<in> ?D \<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x))\<or> (x = ?D \<and> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> f b = y)))"
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
   obtain  Q where 
     QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and>(\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
   obtain  F where
      FDef: "F\<equiv> \<lambda> a f . (THE  x. Q a f x)" by simp
   let ?f=  "R_CB F"
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
   let ?g = "\<lambda> y .THE a . a \<in> ?Lamb \<and> ?f a = y"
   have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
    using in_prop by blast
-=======
-  let ?g = "\<lambda> y . THE a . a \<in> ?Lamb \<and> ?f a = y"
-  have C0:"\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow>
-          (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow> (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-  proof-
-    fix a ::set fix h k ::"set \<Rightarrow> set" 
-    assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
-    show "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))  \<longleftrightarrow>
-         (\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))"
-    proof(intro iffI allI impI)
-      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y))" "z \<in> ?D"
-      hence "\<exists> b. b \<in> a \<and> h b = z" by auto
-      then show "\<exists> b. b \<in> a \<and> k b = z" using hk by auto 
-    next 
-      fix z assume "(\<forall> y. y \<in> ?D \<longrightarrow> (\<exists> b. b \<in> a \<and> k b = y))" "z \<in> ?D"
-      hence "\<exists> b. b \<in> a \<and> k b = z" by auto
-      then show "\<exists> b. b \<in> a \<and> h b = z" using hk by auto 
-    qed
-  qed
-  have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
-  proof(intro allI impI)
-    fix a ::set fix h k ::"set \<Rightarrow> set" 
-     assume hk: "\<forall>b. b \<in> a \<longrightarrow> h b  = k b"
-    fix x
-    assume x: "?P a x h"
-    show "?P a x k" 
-    proof  (cases "\<forall> y. y \<in> X \<longrightarrow> (\<exists> b. b \<in> a \<and> h b = y)")
-      case True then show ?thesis using x hk C0 by blast
-    next
-      case False then show ?thesis using x hk in_prop C0 by blast
-    qed
-  qed
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
   have C10: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<Longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
   proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
@@ -367,20 +309,20 @@ proof
   hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
   have C2:"\<And> a. a \<in> ?Lamb \<Longrightarrow> Q a ?f (?f a)"
   proof-
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
     fix a assume A:"a \<in> ?Lamb"
     let ?I = "\<lambda> x. x \<in> ?Lamb \<longrightarrow> Q x ?f (?f x)"
     have " \<forall>a. (\<forall>x. x \<in> a \<longrightarrow> ?I x) \<longrightarrow> ?I a"
     proof(intro allI impI)
       fix a assume HI: "\<forall>x. x \<in> a \<longrightarrow> ?I x"
       assume a:"a \<in> ?Lamb"
-      hence O: "a \<in> U \<and> ordinal a" by auto
+      hence O: "a \<in> U \<and> a:Ord" by auto
       hence P: "Pow a \<subseteq> U" using assms ZF_closed_def epsilon_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
-        fix b assume b: "b \<in> a"
-        hence " b \<subseteq> a" using O unfolding ordinal_def using epsilon_transitive_def[of a] by auto
-        hence "b \<in> U" "ordinal b" using P ord_th2 O b by auto
+        have E: " epsilon_transitive a" using O unfolding Ord_typedef by stauto
+        fix b assume b: "b \<in> a" 
+        hence " b \<subseteq> a" using E epsilon_transitive_def[of a] by auto
+        hence "b \<in> U" "b:Ord" using P Ord_transitive O b by auto
         then show "Q b ?f (?f b)" using b HI by auto
       qed
       have C14: "\<And> b. b \<in> a \<longrightarrow> ?f b \<in> X"
@@ -424,36 +366,6 @@ proof
       hence "(THE  z. (Q a ?f z)) =  x " using C18 by auto
       hence "x = F a ?f" "F a ?f = ?f a" using C1 FDef by auto*)
       then show "Q a ?f (?f a)" using C18 C19 sorry
-=======
-    fix a ::set fix h ::"set \<Rightarrow> set" 
-    fix x y assume A: "Q a h x \<and> Q a h y"
-    hence P:"?P a x h" "?P a y h" unfolding QDef by auto+
-    show "x=y" 
-    proof(cases "(\<forall>y. y \<in> ?D \<longrightarrow> (\<exists>b. b \<in> a \<and> h b = y))")
-      case True
-        hence "x=?D" "y=?D" using P by auto
-        thus ?thesis by auto
-      next case F: False
-        hence "x : Ord" "y : Ord" using P by auto 
-        hence C: "x \<in> y \<or> x = y \<or> y \<in> x" using Ord_trichotomy by auto
-        have "VV x \<subseteq> VV y" "VV y \<subseteq> VV x" using A P unfolding QDef by blast+
-        hence E: "VV x =VV y" using extensionality_axiom VTh2_3 by auto
-        have C1: "\<not> x \<in> y"
-        proof
-          assume "x \<in> y"
-          hence "x \<in> VV y" using VTh2_3 by auto
-          hence "VV x \<in> VV y" using VTh2_5 by auto 
-          thus "False" using E in_prop by auto
-        qed
-        have C2: "\<not> y \<in> x"
-        proof
-          assume "y \<in> x"
-          hence "y \<in> VV x" using VTh2_3 by auto
-          hence "VV y \<in> VV x" using VTh2_5 by auto 
-          thus "False" using E in_prop by auto
-        qed
-        thus "x=y" using C C1 by simp
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
     qed
     then show "Q a ?f (?f a)" using A  elem_induct_axiom[of ?I] by blast
   qed
@@ -463,36 +375,23 @@ proof
     hence "Q a ?f (?f a)" using C2 by auto
     then show  "?f a \<in> X" unfolding QDef by auto
   qed
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
   have C4:"\<And> a b. a \<in> ?Lamb \<and> b \<in> ?Lamb \<and> ?f a = ?f b \<Longrightarrow> a = b"
   proof-
     fix a b assume AS: "a \<in> ?Lamb \<and> b \<in> ?Lamb \<and> ?f a = ?f b"
     hence Q:"Q a ?f (?f a)" "Q b ?f (?f b)" using C2[of a] C2[of b] by auto
     hence P: "?P a (?f a) ?f" "?P b (?f b) ?f" unfolding QDef by auto
     have "\<not> a \<in> b" "\<not>b\<in> a" using P AS by auto
-    thus "a=b" using AS trichotomy by auto
+    thus "a=b" using AS Ord_trichotomy by auto
   qed
   have "\<And> x . x \<in> ?Lamb \<Longrightarrow> x \<subseteq> ?Lamb"
   proof-
     fix x assume "x \<in> ?Lamb"
-    hence "x \<subseteq> U\<and>ordinal x " using epsilon_transitive_def assms by auto
-    then show "x \<subseteq> ?Lamb" using ord_th2 by auto
-=======
-
-  have C11: "C F" unfolding C_def
-  proof(intro allI impI)
-    fix a ::set fix h k ::"set \<Rightarrow> set" 
-    fix x assume hk: "(\<forall>b. b \<in> a \<longrightarrow>  h b = k b)"
-    obtain x where
-       Q: "Q a h x" using H2 by auto
-     hence "Q a k x" using  C10 hk by auto
-     hence " F a h = x" " F a k = x" unfolding FDef using Q C_x by blast+
-     thus "F a h = F a k" by auto
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
+    hence "x \<subseteq> U\<and> x:Ord " using epsilon_transitive_def assms by auto
+    then show "x \<subseteq> ?Lamb" using Ord_transitive by auto
   qed
   hence E: "epsilon_transitive ?Lamb" using epsilon_transitive_def by auto
-  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding ordinal_def by auto
-  hence "ordinal ?Lamb" using E ordinal_def[of ?Lamb] by simp
+  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding Ord_typedef by stauto 
+  hence "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by stauto 
   have C6: "?Lamb = {?g y|y \<in> ?Lamb}" sorry 
     (*let ?g = "\<lambda> y .THE a . a \<in> ?Lamb \<and> ?f a = y"*)
 
@@ -534,14 +433,7 @@ proof
        
 
 
-<<<<<<< HEAD:Isabelle_Set/KPTest.thy
 
     qed
   qed
 qed
-=======
-  hence C1: "(\<forall> X.?f X = F X ?f)" using Th1 by blast
-oops
-
-end
->>>>>>> b5feecea758d54b6686e13767d8345a5f8d88705:Isabelle_Set/Test_examples/KPTest.thy
