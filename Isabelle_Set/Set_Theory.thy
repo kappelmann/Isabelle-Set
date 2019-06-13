@@ -558,6 +558,12 @@ lemma UnCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarro
 lemma Un_commute [simp]: "A \<union> B = B \<union> A"
   by extensionality
 
+lemma empty_Un_conv [simp]: "{} \<union> A = A"
+  by extensionality
+
+lemma Un_empty_conv [simp]: "A \<union> {} = A"
+  by extensionality
+
 lemma IntI [intro!]: "\<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> c \<in> A \<inter> B"
   by simp
 
