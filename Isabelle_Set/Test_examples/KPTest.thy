@@ -459,7 +459,7 @@ proof
   hence "?T \<in> ?Lamb \<rightarrow> X" by auto
   have "\<And> x y. x \<in>?Lamb \<and> y \<in> ?Lamb \<and> ?T`x = ?T`y \<Longrightarrow> x=y" using C4 by auto
 
-qed
+oops
 
 
 end
