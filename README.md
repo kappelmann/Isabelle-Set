@@ -27,15 +27,15 @@ Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. Th
 
 ## How to build
 
-Compatibility: Isabelle 2018, Isabelle 2019 Release candidates
+Compatibility: Isabelle 2019
 
-  # Build supporting image
-	isabelle build -b HOL-Number_Theory
-	
-	# Build this development
-	isabelle build -D .
+    # Build supporting image
+    isabelle build -b HOL-Number_Theory
+    
+    # Build this development
+    isabelle build -D .
 
-	
+
 ## Automated builds
 
 Automated builds can be found on CircleCI (https://circleci.com/bb/cezaryka/tyset).
