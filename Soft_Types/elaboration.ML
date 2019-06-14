@@ -1,7 +1,7 @@
-(*  Title:      soft_type_inference.ML
+(*  Title:      elaboration.ML
     Author:     Alexander Krauss
 
-Soft type inference.
+Elaboration. Turns a term into a fully specified term, making use of typing information.
 *)
 
 signature ELABORATION =
@@ -29,24 +29,24 @@ struct
 
 
   (* Context \<Gamma>, which maps variables and constants to their types. Also used to collect constraints
-     during inference.
+     during elaboration.
    *)
-  datatype inference_context = Inference_Context of {
+  datatype elaboration_context = Elaboration_Context of {
     const_types: term -> term option,
     var_types: term Termtab.table,
     up: unit Unification.unification_problem
   }
 
-  fun get_const_type (Inference_Context {const_types, ...}) (c : term) =
+  fun get_const_type (Elaboration_Context {const_types, ...}) (c : term) =
     const_types c;
   
-  fun get_var_type (Inference_Context {const_types, var_types, ...}) (v : term) =
+  fun get_var_type (Elaboration_Context {const_types, var_types, ...}) (v : term) =
     case const_types v of
       SOME sty => SOME sty
     | NONE => Termtab.lookup var_types v;
   
-  fun map_up f (Inference_Context {const_types, var_types, up}) =
-    Inference_Context {const_types=const_types, var_types=var_types, up = f up}
+  fun map_up f (Elaboration_Context {const_types, var_types, up}) =
+    Elaboration_Context {const_types=const_types, var_types=var_types, up = f up}
 
   fun add_constraint ctxt (c as (_, (lhs, rhs), _)) Gamma =
     if lhs aconv rhs (* Skip trivial constraints *)
@@ -54,7 +54,7 @@ struct
     else map_up (Unification.add_equation ctxt c) Gamma
 
   
-  fun fresh_idx (Gamma as Inference_Context {up, ...}) =
+  fun fresh_idx (Gamma as Elaboration_Context {up, ...}) =
     let val (i, up') = Unification.fresh_idx up
     in (i, map_up (K up') Gamma) end
 
@@ -74,8 +74,8 @@ struct
       Gamma')
     end
 
-  fun add_free (v, st) (Inference_Context {const_types, var_types, up}) =
-    Inference_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, up=up};
+  fun add_free (v, st) (Elaboration_Context {const_types, var_types, up}) =
+    Elaboration_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, up=up};
 
   fun fix_var_type Delta v T Gamma =
     let
@@ -88,9 +88,9 @@ struct
   fun collect_constraints ctxt
     (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
     (t : term)
-    (Gamma : inference_context)                (* Types of frees and vars, constraints *)
+    (Gamma : elaboration_context)                (* Types of frees and vars, constraints *)
     (expected_type : term option)
-    : (term * inference_context) =
+    : (term * elaboration_context) =
     case t of 
       Const (_, T) => 
         let
@@ -174,7 +174,7 @@ struct
 fun collect_constraints_prop ctxt
     (Delta : (string * term * typ) list)
     (t : term)
-    (Gamma : inference_context) =
+    (Gamma : elaboration_context) =
   case t of
     Const ("HOL.Trueprop", _) $ arg =>
       collect_constraints ctxt Delta arg Gamma NONE |> snd
@@ -197,8 +197,8 @@ fun collect_constraints_prop ctxt
   | _ => collect_constraints ctxt Delta t Gamma NONE |> snd
 
 
-datatype infer_result =
-  Infer_Result of {
+datatype elaboration_result =
+  Elaboration_Result of {
     elaborated_terms: term list,
     variable_types: (term * term) list
   }
@@ -211,12 +211,12 @@ fun infer_type ctxt ts =
 
     val maxidx = fold Term.maxidx_term ts ~1
 
-    val ictxt = Inference_Context {
+    val ictxt = Elaboration_Context {
         const_types = const_types,
         var_types = Termtab.empty,
         up = Unification.init (maxidx + 1)
       }
-    val Inference_Context {up, var_types, ...} =
+    val Elaboration_Context {up, var_types, ...} =
        fold (collect_constraints_prop ctxt []) ts ictxt
 
     val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
@@ -228,20 +228,20 @@ fun infer_type ctxt ts =
       (map Free (fold Term.add_frees elaborated_terms [])) @ (map Var (fold Term.add_vars elaborated_terms []))
       |> map_filter (fn v => case Termtab.lookup var_types v of SOME t => SOME (v, instantiate t) | _ => NONE)
   in
-    Infer_Result {
+    Elaboration_Result {
       elaborated_terms = elaborated_terms,
       variable_types = types_for_vars
     }
   end 
 
 
-fun trace_infer_result ctxt (Infer_Result {elaborated_terms, variable_types }) =
+fun trace_infer_result ctxt (Elaboration_Result {elaborated_terms, variable_types }) =
   let
     fun section header content = header :: map (prefix "  ") content
 
     val pr_term = Syntax.string_of_term ctxt
   in
-    Soft_Type.tracing ctxt (cat_lines ("--- Inference result ---" ::
+    Soft_Type.tracing ctxt (cat_lines ("--- Elaboration result ---" ::
       flat [
         section "Instantiated terms" (map pr_term elaborated_terms),
         section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types)
@@ -255,7 +255,7 @@ fun elaborate_terms ctxt ts =
   if Config.get ctxt auto_elaborate then
     let
       val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-      val Infer_Result {elaborated_terms, ... } =
+      val Elaboration_Result {elaborated_terms, ... } =
         infer_type ctxt ts'
         |> tap (trace_infer_result ctxt)
 
