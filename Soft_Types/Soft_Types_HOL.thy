@@ -186,4 +186,14 @@ ML_file "unification.ML"
 ML_file "soft_type_inference.ML"
 
 
+subsection \<open>Declarations basic HOL material\<close>
+
+abbreviation bool :: "bool type"
+  where "bool == any"
+
+lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
+  by (intro Pi_typeI any_typeI)
+
+
+
 end

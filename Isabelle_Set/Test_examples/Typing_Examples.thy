@@ -13,10 +13,10 @@ text \<open>
   The rule for HOL.All currently needs to be restricted due to a deficiency in the 
   type inference algorithm.
 \<close>
-lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> any) \<Rightarrow> any"
+lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
-lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> any"
+lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
