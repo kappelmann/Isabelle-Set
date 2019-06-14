@@ -183,7 +183,7 @@ named_theorems type_simp
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
 ML_file "unification.ML"
-ML_file "soft_type_inference.ML"
+ML_file "elaboration.ML"
 
 
 subsection \<open>Declarations basic HOL material\<close>

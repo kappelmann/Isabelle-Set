@@ -4,20 +4,21 @@
 Soft type inference.
 *)
 
-signature SOFT_TYPE_INFERENCE =
+signature ELABORATION =
 sig
 
   val print_inferred_types: Proof.context -> term list -> unit;
-  val elaborate: Proof.context -> term list -> term list
 
-  val soft_type_inference : bool Config.T
+  val elaborate_terms: Proof.context -> term list -> term list
+
+  val auto_elaborate : bool Config.T
 
 end;
 
-structure Soft_Type_Inference : SOFT_TYPE_INFERENCE =
+structure Elaboration : ELABORATION =
 struct
 
-  val soft_type_inference = Attrib.setup_config_bool \<^binding>\<open>soft_type_inference\<close> (K false)
+  val auto_elaborate = Attrib.setup_config_bool \<^binding>\<open>auto_elaborate\<close> (K false)
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
   fun map_aterms_lev f =
@@ -250,8 +251,8 @@ fun trace_infer_result ctxt (Infer_Result {elaborated_terms, variable_types }) =
 fun print_inferred_types ctxt ts = trace_infer_result ctxt (infer_type ctxt ts)
 
 
-fun elaborate ctxt ts =
-  if Config.get ctxt soft_type_inference then
+fun elaborate_terms ctxt ts =
+  if Config.get ctxt auto_elaborate then
     let
       val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
       val Infer_Result {elaborated_terms, ... } =
@@ -266,8 +267,12 @@ fun elaborate ctxt ts =
     end
   else ts;
 
+fun auto_elaborate_terms ctxt ts =
+  if Config.get ctxt auto_elaborate then elaborate_terms ctxt ts else ts
+
+
 (* No effect until activated in the configuration *)
-val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" elaborate)
+val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" auto_elaborate_terms)
 
 
 (* Useful antiquotation for testing *)

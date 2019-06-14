@@ -15,7 +15,7 @@ axiomatization
 
 
 
-declare [[soft_type_inference]]
+declare [[auto_elaborate]]
 
 
 
@@ -30,11 +30,11 @@ ML \<open>
 
 
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term "Nil = B"}
 ]\<close>
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term "Cons x xs"}
 ]\<close>
 
