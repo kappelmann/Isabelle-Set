@@ -13,10 +13,10 @@ text \<open>
   The rule for HOL.All currently needs to be restricted due to a deficiency in the 
   type inference algorithm.
 \<close>
-lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> any) \<Rightarrow> any"
+lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
-lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> any"
+lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
@@ -48,19 +48,19 @@ context
 begin
 
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term "Nil A = B"}
 ]\<close>
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term_dummies "Cons _ x xs"}
 ]\<close>
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term "%A. Nil A"}
 ]\<close>
 
-ML \<open>Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open>Elaboration.print_inferred_types @{context} [
   @{term "%A x xs. Cons A x xs = Cons A x xs"}
 ]\<close>
 
@@ -82,20 +82,20 @@ fun starts_with prefix str = is_prefix (op =) (raw_explode prefix) (raw_explode 
 \<close>
 
 ML \<open>
-  (fn _ => Soft_Type_Inference.print_inferred_types @{context} [
+  (fn _ => Elaboration.print_inferred_types @{context} [
      @{term "%A x. Cons A x xs = Cons A x xs"} ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
-  (fn _ => Soft_Type_Inference.print_inferred_types @{context} [
+  (fn _ => Elaboration.print_inferred_types @{context} [
        @{term "%A x. Cons A x xs = Cons A x xs"} ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
 
-Soft_Type_Inference.print_inferred_types @{context} [
+Elaboration.print_inferred_types @{context} [
   @{term "append A (Cons A x xs) ys = Cons A x (append A xs ys)"},
   @{term "append A (Nil A) ys = ys"} 
 ]
@@ -103,7 +103,7 @@ Soft_Type_Inference.print_inferred_types @{context} [
 
 ML \<open>
 
-Soft_Type_Inference.print_inferred_types @{context} [
+Elaboration.print_inferred_types @{context} [
   @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
   @{term_dummies "append _ (Nil _) ys = ys"} 
 ]
@@ -146,7 +146,7 @@ begin
 
 
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
    = VCons _ _ x (vappend _ _ _ xs ys)"}
 ]\<close>
@@ -157,35 +157,35 @@ end
 
 subsection \<open> Further examples \<close>
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   \<^term_dummies>\<open>\<lambda>(x::set). Pair\<close>
 ]\<close>
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term_dummies "{{}}"}
 ]\<close>
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term_dummies "{x, y}"}
 ]\<close>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term_dummies "\<lambda>y. Pair {} y"}
 ]\<close>
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term "\<lambda>x. Pair x"}
 ]\<close>
 
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term "\<lambda>x y. \<langle>x,y\<rangle>"}
 ]\<close>
 
 
 text \<open> Transitivity of a relation \<close>
 
-ML \<open> Soft_Type_Inference.print_inferred_types @{context} [
+ML \<open> Elaboration.print_inferred_types @{context} [
   @{term "\<forall>x y z. \<langle>x,y\<rangle>\<in> r \<longrightarrow> \<langle>y,z\<rangle>\<in> r \<longrightarrow> \<langle>x,z\<rangle>\<in> r"}
 ]\<close>
 

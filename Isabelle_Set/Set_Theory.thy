@@ -642,6 +642,12 @@ lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
 
 subsection \<open>Fundamental soft types\<close>
 
+subsubsection \<open>Type of all sets -- just an abbreviation for \<open>any\<close>.\<close>
+
+abbreviation set :: "set type"
+  where "set \<equiv> any"
+
+
 subsubsection \<open>Elements of a given set\<close>
 
 definition element :: "set \<Rightarrow> set type"
