@@ -10,6 +10,7 @@ Mathematical structures as set-theoretic functions.
 
 theory Structure
 imports Ordinal Function
+(* keywords "struct" "instance" :: thy_decl *)
 
 begin
 
@@ -87,30 +88,36 @@ fun string_to_hash str =
 end
 \<close>
 
-(* test *)
+(* Example *)
 ML_val \<open>Syntax.pretty_term @{context} (Labels.string_to_hash "01")\<close>
 
 
 subsection \<open>Notation and syntax\<close>
 
-text \<open>The following abbreviations are only to define structure syntax.\<close>
-abbreviation (input) "its x \<equiv> \<lambda>it. it`x"
-abbreviation (input) "struct_arg_con lbl typ \<equiv> \<lambda>it. lbl \<in> domain it \<and> it`lbl : typ it"
-
-nonterminal struct_arg and struct_args
+nonterminal struct_arg and struct_args and struct_sig
 
 syntax
-  "_struct_decl" :: "struct_args \<Rightarrow> set type" ("('(# _ #'))")
+  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(| _ | _ |)")
+  ""             :: "pttrn \<Rightarrow> struct_args" ("_")
   ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
   "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
   "_struct_args" :: "struct_arg \<Rightarrow> struct_args \<Rightarrow> struct_args" (infixr "," 40)
+  "_function"    :: "set type \<Rightarrow> set type" ("\<lparr>_\<rparr>")
 
 translations
-  "(# lbl : typ #)" \<rightharpoonup> "CONST Type (CONST struct_arg_con lbl typ)"
-  "(# lbl1 : typ1 , lbl2 : typ2 #)" \<rightharpoonup> "(# lbl1 : typ1 #) \<bar> (# lbl2 : typ2 #)"
+  "| ref | lbl : typ |" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
+  "| ref | lbl1 : typ1, fields |" \<rightharpoonup> "| ref | lbl1 : typ1 | \<bar> | ref | fields |"
+  "\<lparr> ty \<rparr>" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
 
-term "(# carrier: (\<lambda>_. non-empty\<cdot>set) #)"
-term "(# carrier: (\<lambda>_. non-empty\<cdot>set), op: (\<lambda>it. element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier)) #)"
+
+(* Examples *)
+term "\<lparr>| x | carrier: non-empty\<cdot>set |\<rparr>"
+term "\<lparr>| x | carrier: non-empty\<cdot>set, op: element(x`carrier \<rightarrow> x`carrier \<rightarrow> x`carrier) |\<rparr>"
+term "\<lparr>| it |
+  carrier: non-empty\<cdot>set,
+  op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
+  e: element(it`carrier)
+|\<rparr>"
 
 
 end
