@@ -14,6 +14,8 @@ imports Ordinal Function
 begin
 
 
+subsection \<open>Labels for structure fields\<close>
+
 ML \<open>
 structure Labels: sig
   val string_to_hash : string -> term
@@ -85,8 +87,30 @@ fun string_to_hash str =
 end
 \<close>
 
+(* test *)
 ML_val \<open>Syntax.pretty_term @{context} (Labels.string_to_hash "01")\<close>
 
+
+subsection \<open>Notation and syntax\<close>
+
+text \<open>The following abbreviations are only to define structure syntax.\<close>
+abbreviation (input) "its x \<equiv> \<lambda>it. it`x"
+abbreviation (input) "struct_arg_con lbl typ \<equiv> \<lambda>it. lbl \<in> domain it \<and> it`lbl : typ it"
+
+nonterminal struct_arg and struct_args
+
+syntax
+  "_struct_decl" :: "struct_args \<Rightarrow> set type" ("('(# _ #'))")
+  ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
+  "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
+  "_struct_args" :: "struct_arg \<Rightarrow> struct_args \<Rightarrow> struct_args" (infixr "," 40)
+
+translations
+  "(# lbl : typ #)" \<rightharpoonup> "CONST Type (CONST struct_arg_con lbl typ)"
+  "(# lbl1 : typ1 , lbl2 : typ2 #)" \<rightharpoonup> "(# lbl1 : typ1 #) \<bar> (# lbl2 : typ2 #)"
+
+term "(# carrier: (\<lambda>_. non-empty\<cdot>set) #)"
+term "(# carrier: (\<lambda>_. non-empty\<cdot>set), op: (\<lambda>it. element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier)) #)"
 
 
 end

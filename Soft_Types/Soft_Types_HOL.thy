@@ -186,7 +186,7 @@ subsection \<open>Type complement\<close>
 
 text \<open>``non'' modifier gives the complement of a soft type.\<close>
 
-abbreviation non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
+definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
   where "non-P \<equiv> \<lambda>x. \<not> P x"
 
 

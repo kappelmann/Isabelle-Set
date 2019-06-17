@@ -5,8 +5,8 @@ begin
 lemma empty_type[type]: "{} : subset A"
   by stauto
 
-lemma "{} : empty \<cdot> set" unfolding empty_def by stauto
-lemma "{a} : non-empty \<cdot> set" unfolding empty_def by stauto
+lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by stauto
+lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by stauto
 
 text \<open>
   The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
