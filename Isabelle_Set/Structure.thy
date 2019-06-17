@@ -97,7 +97,8 @@ subsection \<open>Notation and syntax\<close>
 nonterminal struct_arg and struct_args and struct_sig
 
 syntax
-  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(| _ | _ |)")
+  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(| _ . _ |)")
+  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(| _ . _ where _ |)")
   ""             :: "pttrn \<Rightarrow> struct_args" ("_")
   ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
   "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
@@ -105,19 +106,31 @@ syntax
   "_function"    :: "set type \<Rightarrow> set type" ("\<lparr>_\<rparr>")
 
 translations
-  "| ref | lbl : typ |" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
-  "| ref | lbl1 : typ1, fields |" \<rightharpoonup> "| ref | lbl1 : typ1 | \<bar> | ref | fields |"
+  "| ref . lbl : typ |" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
+
+  "| ref . lbl1 : typ1, fields |" \<rightharpoonup> "| ref . lbl1 : typ1 | \<bar> | ref . fields |"
+
+  "| ref . lbl : typ where P |" \<rightharpoonup>
+    "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ) \<bar> CONST Type (\<lambda>ref. P)"
+
+  "| ref . lbl1 : typ1, fields where P |" \<rightharpoonup>
+    "| ref . lbl1 : typ1 | \<bar> | ref . fields where P |"
+
   "\<lparr> ty \<rparr>" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
 
 
 (* Examples *)
-term "\<lparr>| x | carrier: non-empty\<cdot>set |\<rparr>"
-term "\<lparr>| x | carrier: non-empty\<cdot>set, op: element(x`carrier \<rightarrow> x`carrier \<rightarrow> x`carrier) |\<rparr>"
-term "\<lparr>| it |
+term "\<lparr>| x. carrier: non-empty\<cdot>set |\<rparr>"
+
+term "\<lparr>| m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) |\<rparr>"
+
+term "\<lparr>| it.
   carrier: non-empty\<cdot>set,
   op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier)
-|\<rparr>"
+  e: element(it`carrier) where
+    \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
+    (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
+  |\<rparr>"
 
 
 end
