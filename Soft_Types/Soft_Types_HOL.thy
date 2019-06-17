@@ -172,8 +172,14 @@ subsection \<open>Adjectives\<close>
 
 text \<open>We allow adjectives—in the form of predicates on a set—to modify types.\<close>
 
-abbreviation adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
+definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
   where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
+
+lemma adj_spec [dest_st]: "x : adj \<cdot> type \<Longrightarrow> adj x"
+  unfolding adjective_def by stauto
+
+lemma type_spec [dest_st]: "x : adj \<cdot> type \<Longrightarrow> x : type"
+  unfolding adjective_def by stauto
 
 
 subsection \<open>Type complement\<close>

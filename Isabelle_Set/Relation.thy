@@ -189,4 +189,20 @@ definition total_order :: "set \<Rightarrow> set type"
   "total_order P \<equiv> total \<cdot> partial_order P"
 
 
+subsection \<open>Soft typing\<close>
+
+definition relation :: "set type"
+  where relation_typedef: "relation \<equiv> Type (\<lambda>R. \<forall>z \<in> R. \<exists>x y. z = \<langle>x, y\<rangle>)"
+
+definition domained :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-domained)" [1000])
+  where "A-domained \<equiv> \<lambda>R. domain R \<subseteq> A"
+
+definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1000])
+  where "B-valued \<equiv> \<lambda>R. range R \<subseteq> B"
+
+lemma relations_relation_type [intro_st]: "R \<in> relations A B \<Longrightarrow> R : A-domained \<cdot> B-valued \<cdot> relation"
+  unfolding domained_def valued_def domain_def range_def relation_typedef adjective_def
+  by stauto
+
+
 end
