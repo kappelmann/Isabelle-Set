@@ -5,6 +5,9 @@ begin
 lemma empty_type[type]: "{} : subset A"
   by stauto
 
+lemma "{} : empty \<cdot> set" unfolding empty_def by stauto
+lemma "{a} : non-empty \<cdot> set" unfolding empty_def by stauto
+
 text \<open>
   The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
   type is trivial. But their formulation reflects the way we want to use the quantifier and

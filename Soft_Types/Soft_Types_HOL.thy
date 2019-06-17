@@ -142,14 +142,6 @@ lemma Int_typeD1 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
 lemma Int_typeD2 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
 
 
-subsection \<open>Adjectives\<close>
-
-text \<open>We allow adjectives—in the form of predicates on a set—to modify types.\<close>
-
-abbreviation adj_modifier :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
-  where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
-
-
 subsection \<open>Subtypes\<close>
 
 definition subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" (infix "\<prec>" 50)
@@ -170,10 +162,26 @@ text \<open>Used to reflect rigid types back into the soft type system.\<close>
   (* Josh -- ^ Not yet sure if this is even useful. *)
 
 definition any :: "'a type"
-  where any_typedef: "any = Type (\<lambda>_. True)"
+  where any_typedef: "any \<equiv> Type (\<lambda>_. True)"
 
-lemma any_typeI: "x : any"
+lemma any_typeI [intro]: "x : any"
   unfolding any_typedef by stauto
+
+
+subsection \<open>Adjectives\<close>
+
+text \<open>We allow adjectives—in the form of predicates on a set—to modify types.\<close>
+
+abbreviation adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
+  where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
+
+
+subsection \<open>Type complement\<close>
+
+text \<open>``non'' modifier gives the complement of a soft type.\<close>
+
+abbreviation non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
+  where "non-P \<equiv> \<lambda>x. \<not> P x"
 
 
 subsection \<open>Tooling\<close>
@@ -186,10 +194,10 @@ ML_file "unification.ML"
 ML_file "elaboration.ML"
 
 
-subsection \<open>Declarations basic HOL material\<close>
+subsection \<open>Basic HOL material\<close>
 
 abbreviation bool :: "bool type"
-  where "bool == any"
+  where "bool \<equiv> any"
 
 lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
