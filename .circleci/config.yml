@@ -2,13 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: makarius/isabelle:Isabelle2018
+      - image: makarius/isabelle:Isabelle2019
 
     steps:
       - checkout
 
       - restore_cache:
-          key: HOL-Number_Theory_Isabelle2018
+          key: HOL-Number_Theory_Isabelle2019
 
       - run:
           name: Build base image
@@ -17,8 +17,8 @@ jobs:
       - save_cache:
           paths:
             - ~/.isabelle
-          key: HOL-Number_Theory_Isabelle2018
-          
+          key: HOL-Number_Theory_Isabelle2019
+
       - run:
           name: Build theories
           command: ~/Isabelle/bin/isabelle build -vD .

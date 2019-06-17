@@ -268,21 +268,140 @@ proof-
 qed
 
 definition AC_axiom where
- "AC_axiom X \<equiv> {} \<notin>  X \<longrightarrow> (\<exists> f. (f \<in> X \<rightarrow> \<Union> X) \<and> (\<forall>A. A\<in> X \<longrightarrow> f` A \<in> A))"
+ "AC_axiom \<equiv> \<forall> X. {} \<notin>  X \<longrightarrow> (\<exists> f. (f \<in> X \<rightarrow> \<Union> X) \<and> (\<forall>A. A\<in> X \<longrightarrow> f` A \<in> A))"
 
-theorem Muzukashi:
-  assumes "epsilon_transitive U" "ZF_closed U" "AC_axiom (Pow X \<setminus> {{}})"
+definition bij where 
+  bij_typedef :"bij X Y \<equiv>  Type( \<lambda> f . f \<in> X\<rightarrow>Y \<and> 
+                        {f`x |x \<in> X} = Y \<and> 
+                        (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2) )" 
+
+lemma bij_type_iff [iff_st]: "f : bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
+                        {f`x |x \<in> X} = Y \<and> 
+                        (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
+  using bij_typedef by stauto
+
+lemma bij_typeI [intro]: "f \<in> X\<rightarrow>Y \<Longrightarrow>
+                        {f`x |x \<in> X} = Y \<Longrightarrow> 
+                        \<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2 \<Longrightarrow> f : bij X Y"
+  using bij_type_iff[of f X Y] by blast
+
+lemma bij_typeE:  " f : bij X Y \<Longrightarrow>
+                        f \<in> X \<rightarrow> Y \<and>
+                        {f`x |x \<in> X} = Y \<and> 
+                        (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
+  using bij_type_iff[of f X Y] by blast
+
+theorem bij_inv:
+  " b:bij X Y \<Longrightarrow> \<exists> i . i:bij Y X"
+proof-
+   assume B: "b: bij X Y"
+  have B1 :"b \<in> X\<rightarrow>Y\<and>
+        {b`x |x \<in> X} = Y \<and>
+        (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> b`x1 = b`x2 \<longrightarrow> x1=x2)" 
+     using bij_typeE[OF B] by blast
+   let ?i = "\<lambda> y. THE x. x \<in> X \<and> b`x =y"
+  let ?I="\<lambda>y \<in> Y. ?i y"
+  have "?I:bij Y X"
+  proof
+    have D1:"{?i y | y \<in> Y} \<subseteq> X"
+    proof
+      fix x assume "x \<in> {?i y | y \<in> Y}"
+      then obtain y where
+        y: "x= ?i y \<and> y\<in> Y" by auto
+      then obtain a where
+        a: "y= b`a \<and> a \<in> X" using B1[THEN conjunct2,THEN conjunct1] by blast
+      hence "?i y = a" using a y B1 by blast
+      thus "x\<in> X" using a y by auto
+    qed
+    have "X \<subseteq> {?i y | y \<in> Y}"
+    proof
+      fix x assume "x\<in>X" 
+      hence "?i (b`x) = x" "b`x \<in> Y" using B1 by blast+
+      thus "x\<in> {?i y | y \<in> Y}" by auto
+    qed
+    hence D: "X={?i y | y \<in> Y}" using D1 extensionality_axiom by auto
+    have "?I \<in> Y \<rightarrow> {?i y | y \<in> Y}"  by auto
+    thus "?I \<in> Y \<rightarrow> X" using D by auto
+    show  "{?I`y |y \<in> Y} = X" using D extensionality_axiom by auto
+    show "\<forall> y1 y2. y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2 \<longrightarrow> y1=y2"
+    proof(intro allI impI)
+      fix y1 y2 assume  A1: "y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2"
+      then obtain a1 a2 where
+        a: "y1= b`a1 \<and> a1 \<in> X" "y2= b`a2 \<and> a2 \<in> X" using B1[THEN conjunct2,THEN conjunct1] by blast
+      hence "?i y1 = a1" "?i y2 = a2" using a A1 B1 by blast+
+      thus "y1=y2" using a A1 by auto
+    qed
+  qed
+  thus "\<exists> i . i:bij Y X" by auto
+qed
+
+theorem bij_prod:
+  " b1:bij X Y \<and> b2:bij Y Z \<Longrightarrow> \<exists> i . i:bij X Z"
+proof-
+  assume B: "b1:bij X Y \<and> b2:bij Y Z"
+  have B1 :"b1 \<in> X\<rightarrow>Y\<and>
+        {b1`x |x \<in> X} = Y \<and>
+        (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> b1`x1 = b1`x2 \<longrightarrow> x1=x2)" 
+     using bij_typeE B by blast
+  have B2 :"b2 \<in> Y\<rightarrow>Z\<and>
+        {b2`x |x \<in> Y} = Z \<and>
+        (\<forall> x1 x2. x1\<in>Y\<and> x2 \<in> Y \<and> b2`x1 = b2`x2 \<longrightarrow> x1=x2)" 
+    using bij_typeE B by blast
+  let ?p="\<lambda>x. (b2` (b1` x))"
+  let ?P="\<lambda>x \<in> X. (?p x)"
+  have "?P:bij X Z"
+  proof
+    have D1: "{?p x | x\<in>X} \<subseteq> Z"
+    proof
+      fix z assume z: "z \<in> {?p x | x\<in>X}"
+      then obtain x where
+         x:"z=?p x \<and> x \<in> X" by auto
+      hence "b1`x \<in> Y" using B1[THEN conjunct2,THEN conjunct1] by auto 
+      hence "b2` (b1`x) \<in> Z" using B2 by auto 
+      thus "z \<in> Z" using x by auto
+    qed
+    have "Z \<subseteq> {?p x | x\<in>X}"
+    proof
+      fix z assume "z \<in> Z"
+      then obtain y where
+       y:"z = b2`y \<and> y \<in> Y" using B2 by blast 
+      then obtain x where
+       x:"y = b1`x \<and> x \<in> X" using B1 by blast 
+      thus "z \<in> {?p x | x\<in>X}" using y by auto
+    qed
+    hence D: "{?p x | x\<in>X} = Z" using D1 extensionality_axiom by auto
+    thus XZ: "?P \<in> X\<rightarrow> Z" by auto
+    show "{?P` x| x\<in> X}=Z" using D extensionality_axiom by auto
+    show "\<forall> x1 x2. x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2 \<longrightarrow> x1=x2"
+    proof(intro allI impI)
+      fix x1 x2 assume A: "x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2"
+      hence B: "b2`(b1`x1) = b2`(b1` x2)" using XZ by auto
+      have "b1`x1\<in>Y" "b1`x2\<in>Y" using A B1 by blast+ 
+      hence "b1`x1 = b1`x2" using A B2[THEN conjunct2,THEN conjunct2,
+       rule_format, of "b1`x1" "b1`x2"  ] B by auto
+      thus "x1=x2" using A B1 [THEN conjunct2,THEN conjunct2,
+       rule_format, of "x1" "x2"] by auto
+    qed
+  qed
+  thus "\<exists> i . i:bij X Z" by auto
+qed
+
+
+theorem CB_Lm_1:
+  assumes "epsilon_transitive U" "ZF_closed U" "AC_axiom"
           "X \<subseteq>  U" "X \<notin> U"
-  shows   "\<exists> b . b \<in> { x \<in> U | x:Ord} \<rightarrow> X \<and> bijection b"
-proof
+  shows   "\<exists> b . b : bij {x \<in> U | x:Ord} X"
+proof-
   let ?Lamb ="{ x \<in> U |  x:Ord}"
   let ?P = "\<lambda> a x f . x \<in> X\<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x)"
   obtain  Q where 
     QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and>(\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
   let ?PowX = "(Pow X) \<setminus> {{}}"
-  have "{} \<notin>  ?PowX" by auto
+  have ACd: "\<And> X. {} \<notin>  X \<Longrightarrow> (\<exists> f. (f \<in> X \<rightarrow> \<Union> X) \<and> (\<forall>A. A\<in> X \<longrightarrow> f` A \<in> A))" 
+     using assms(3) AC_axiom_def by auto
+  have "{} \<notin> ?PowX" by auto
   then obtain AC where
-    AC: "(AC \<in> ?PowX \<rightarrow> \<Union> ?PowX) \<and> (\<forall>A. A\<in> ?PowX \<longrightarrow> AC` A \<in> A)" using assms(3) AC_axiom_def by auto 
+    AC: "(AC \<in> ?PowX \<rightarrow> \<Union> ?PowX) \<and> (\<forall>A. A\<in> ?PowX \<longrightarrow> AC` A \<in> A)" using ACd[of ?PowX] by auto
   obtain  F where
      FDef: "F\<equiv> \<lambda> a f . AC` {x\<in>X| Q a f x}" by simp
   let ?f=  "R_CB F"
@@ -454,13 +573,40 @@ proof
     then show "False" using elem_irrefl OL by auto  
   qed
   let ?T = "\<lambda>x \<in> ?Lamb. ?f x"
+   
+  have "?T : bij ?Lamb X"
+  proof
+    have O1: "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality_axiom[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
+    thus T1: "?T \<in> ?Lamb \<rightarrow> X" by auto
+    have V1: "{?T`x| x\<in> ?Lamb} \<subseteq> X" using C3 by auto
+    have "X \<subseteq> {?T`x| x\<in> ?Lamb}"
+    proof
+      fix t assume "t\<in>X"
+      then obtain  x where
+        x:  " x \<in> ?Lamb \<and> ?f x = t" using C7 by auto
+      hence "?f x = ?T` x" by auto  
+      thus "t\<in> {?T`x| x\<in> ?Lamb}" using x by blast
+    qed
+    thus "{?T`x| x\<in> ?Lamb}=X" using V1 extensionality_axiom[rule_format, of "{?T`x| x\<in> ?Lamb}" X] by auto
+    show "\<forall>x1 x2. x1 \<in> ?Lamb \<and> x2 \<in> ?Lamb \<and> ?T `x1 = ?T ` x2 \<longrightarrow>
+       x1 = x2" using C4 by auto
+  qed
+  thus "\<exists> b . b : bij {x \<in> U | x:Ord} X" by auto
+qed
 
-  have "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality_axiom[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
-  hence "?T \<in> ?Lamb \<rightarrow> X" by auto
-  have "\<And> x y. x \<in>?Lamb \<and> y \<in> ?Lamb \<and> ?T`x = ?T`y \<Longrightarrow> x=y" using C4 by auto
-
-oops
-
+theorem CB_Th_5:
+  assumes "epsilon_transitive U" "ZF_closed U" "AC_axiom"
+      "X \<subseteq>  U" "X \<notin> U"
+  shows "\<exists> b . b : bij X U" 
+proof-
+  have "\<exists> b . b : bij {x \<in> U | x:Ord} X" using CB_Lm_1 assms by auto
+  then obtain b where
+    b:  "b: bij X {x \<in> U | x:Ord}" using bij_inv by blast
+  have "U \<subseteq> U" "U \<notin> U" using elem_irrefl by auto
+  then obtain c where
+    "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms by blast
+  thus "\<exists> b . b : bij X U" using bij_prod b by auto 
+qed
 
 end
 
