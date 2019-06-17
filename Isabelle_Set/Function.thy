@@ -228,7 +228,7 @@ proof -
 qed
 
 corollary nondep_function_enlarge_range: "\<lbrakk>f \<in> A \<rightarrow> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> f \<in> A \<rightarrow> C"
-  using function_enlarge_range by auto
+  by (rule function_enlarge_range)
 
 (* LCP: Such functions arise in non-standard datatypes, ZF/ex/Ntree for instance *)
 lemma function_Collect_iff:

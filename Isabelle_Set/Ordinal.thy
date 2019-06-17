@@ -77,9 +77,11 @@ lemma Succ_neq [intro]: "x \<noteq> Succ x"
 unfolding Succ_def
 proof (rule, elim equalityE)
   assume "x \<union> {x} \<subseteq> x"
-  hence "x \<in> x" by auto
   thus False using elem_irrefl by auto
 qed
+
+lemma Succ_elem: "x \<in> Succ x"
+  unfolding Succ_def by auto
 
 
 end
