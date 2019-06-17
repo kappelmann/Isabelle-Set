@@ -41,7 +41,7 @@ lemma monoid_add_type[type]: "monoid_add : Monoid A \<Rightarrow> element A \<Ri
   apply (intro Pi_typeI) 
   apply (unfold element_type_iff monoid_add_def Monoid_Set_def)
   apply (drule CollectD1)
-  apply (intro functionE; auto?)+
+  apply (intro PiE; auto?)+
 done
  
 
