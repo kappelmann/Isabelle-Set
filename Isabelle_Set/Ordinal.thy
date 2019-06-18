@@ -1,6 +1,5 @@
 theory Ordinal
 imports Set_Theory
-
 begin
 
 definition Ord :: "set type" where
@@ -12,46 +11,38 @@ lemma empty_ordinal [intro!]: "{} : Ord"
 lemma Ord_transitive [elim]: "\<lbrakk>y \<in> x; x : Ord\<rbrakk> \<Longrightarrow> y : Ord"
   unfolding Ord_typedef epsilon_transitive_def by stauto blast+
 
+lemma Ord_elem_subset: "\<lbrakk>x : Ord; y \<in> x\<rbrakk> \<Longrightarrow> y \<subseteq> x"
+  unfolding Ord_typedef epsilon_transitive_def by stauto
+
+
 (* Adaptation of an Egal proof originally formulated by Chad E. Brown *)
-lemma Ord_trichotomy:
-  "\<lbrakk>X : Ord; Y : Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
-proof -
-  let ?PX = "\<lambda>X. X : Ord \<longrightarrow> (\<forall>Y. Y : Ord \<longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X)"
-  have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?PX x) \<longrightarrow> ?PX X"
-  proof (rule, rule, rule)
-    fix X assume AX: "\<forall>x. x \<in> X \<longrightarrow> ?PX x" "X : Ord"
-    let ?PY = "\<lambda>Y. Y : Ord \<longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
-    have "\<forall>Y. (\<forall>y. y \<in> Y \<longrightarrow> ?PY y) \<longrightarrow> ?PY Y"
-    proof (rule, rule, rule)
-      fix Y assume AY: "\<forall>y. y \<in> Y \<longrightarrow> ?PY y" "Y : Ord"
-      have "X \<notin> Y \<and> Y \<notin> X \<longrightarrow> X = Y"
-      proof
-        assume Ain: "X \<notin> Y \<and> Y \<notin> X"
-        have XY: "X \<subseteq> Y"
-        proof
-          fix x assume xX: "x \<in> X"
-          have SxX: "x \<subseteq> X"
-            using xX AX(2) unfolding Ord_typedef epsilon_transitive_def by stauto
-          have "x : Ord" using Ord_transitive xX AX by auto
-          then show "x \<in> Y" using AX xX AY Ain SxX by auto
-        qed
-        have "Y \<subseteq> X"
-        proof
-          fix y assume yY: "y \<in> Y"
-          have SyY: "y \<subseteq> Y"
-            using yY AY(2) unfolding Ord_typedef epsilon_transitive_def by stauto
-          have "y : Ord" using Ord_transitive yY AY by auto
-          then show "y \<in> X" using AX yY AY Ain SyY by auto
-        qed
-        then show "X = Y" using XY extensionality by auto
-      qed
-      thus "X \<in> Y \<or> X = Y \<or> Y \<in> X" by auto
+lemma Ord_trichotomy_aux:
+  "X : Ord \<Longrightarrow> Y : Ord \<Longrightarrow> X \<notin> Y \<Longrightarrow> Y \<notin> X \<Longrightarrow> X = Y"
+proof (induction X Y rule: elem_double_induct)
+  fix X Y
+  assume Ord: "X : Ord" "Y : Ord"
+  assume IH1: "\<And>x Y. x \<in> X \<Longrightarrow> x : Ord \<Longrightarrow> Y : Ord \<Longrightarrow> x \<notin> Y \<Longrightarrow> Y \<notin> x \<Longrightarrow> x = Y"
+  assume IH2: "\<And>y. y \<in> Y \<Longrightarrow> X : Ord \<Longrightarrow> y : Ord \<Longrightarrow> X \<notin> y \<Longrightarrow> y \<notin> X \<Longrightarrow> X = y"
+  assume a: "X \<notin> Y" "Y \<notin> X"
+  show "X = Y"
+  proof (rule extensionality)
+    show "X \<subseteq> Y" 
+    proof
+      fix x assume "x \<in> X"
+      with Ord have "x \<subseteq> X" "x : Ord" by (auto elim!: Ord_elem_subset Ord_transitive)
+      with a Ord IH1[of x Y] `x \<in> X` show "x \<in> Y" by blast
     qed
-    then show " \<forall>Y. ?PY Y" using elem_induct_axiom[of ?PY] by blast
+    show "Y \<subseteq> X"
+    proof
+      fix y assume "y \<in> Y"
+      with Ord have "y \<subseteq> Y" "y : Ord" by (auto elim!: Ord_elem_subset Ord_transitive)
+      with a Ord IH2[of y] `y \<in> Y` show "y \<in> X" by blast
+    qed
   qed
-  hence "\<forall>X. ?PX X" using elem_induct_axiom[of ?PX] by blast
-  thus "\<lbrakk>X : Ord; Y : Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X" by blast
 qed
+
+lemma Ord_trichotomy: "\<lbrakk>X : Ord; Y : Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
+  using Ord_trichotomy_aux by blast
 
 abbreviation epsilon_well_ordered :: "set \<Rightarrow> bool"
   where "epsilon_well_ordered x \<equiv> \<forall>y. y \<subseteq> x \<and> y \<noteq> {} \<longrightarrow> (\<exists>!u \<in> y. \<not>(\<exists>v \<in> y. v \<in> u))"
