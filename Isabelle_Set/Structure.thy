@@ -10,7 +10,7 @@ Mathematical structures as set-theoretic functions.
 
 theory Structure
 imports Ordinal Function
-(* keywords "struct" "instance" :: thy_decl *)
+keywords "struct" :: thy_decl
 
 begin
 
@@ -97,40 +97,56 @@ subsection \<open>Notation and syntax\<close>
 nonterminal struct_arg and struct_args and struct_sig
 
 syntax
-  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(| _ . _ |)")
-  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(| _ . _ where _ |)")
+  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(; _ . _ ;)")
+  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(; _ . _ where _ ;)")
   ""             :: "pttrn \<Rightarrow> struct_args" ("_")
   ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
   "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
   "_struct_args" :: "struct_arg \<Rightarrow> struct_args \<Rightarrow> struct_args" (infixr "," 40)
-  "_function"    :: "set type \<Rightarrow> set type" ("\<lparr>_\<rparr>")
+  "_struct"    :: "set type \<Rightarrow> set type" ("'(;_;')")
 
 translations
-  "| ref . lbl : typ |" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
-
-  "| ref . lbl1 : typ1, fields |" \<rightharpoonup> "| ref . lbl1 : typ1 | \<bar> | ref . fields |"
-
-  "| ref . lbl : typ where P |" \<rightharpoonup>
+  "(; ty ;)" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
+  "; ref . lbl : typ ;" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
+  "; ref . lbl1 : typ1, fields ;" \<rightharpoonup> "; ref . lbl1 : typ1 ; \<bar> ; ref . fields ;"
+  "; ref . lbl : typ where P ;" \<rightharpoonup>
     "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ) \<bar> CONST Type (\<lambda>ref. P)"
-
-  "| ref . lbl1 : typ1, fields where P |" \<rightharpoonup>
-    "| ref . lbl1 : typ1 | \<bar> | ref . fields where P |"
-
-  "\<lparr> ty \<rparr>" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
+  "; ref . lbl1 : typ1, fields where P ;" \<rightharpoonup>
+    "; ref . lbl1 : typ1 ; \<bar> ; ref . fields where P ;"
 
 
 (* Examples *)
-term "\<lparr>| x. carrier: non-empty\<cdot>set |\<rparr>"
+term "(;; x. carrier: non-empty\<cdot>set ;;)"
 
-term "\<lparr>| m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) |\<rparr>"
+term "(;; m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"
 
-term "\<lparr>| it.
+term "(;; it.
   carrier: non-empty\<cdot>set,
   op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
   e: element(it`carrier) where
     \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
     (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
-  |\<rparr>"
+  ;;)"
+
+
+(* Testing *)
+ML \<open>
+Outer_Syntax.local_theory
+  @{command_keyword struct}
+  "Declare structure definitions"
+  let
+    val parser = Parse.text -- (Parse.$$$ "=" |-- Parse.term)
+    fun print_info (name : string, def) lthy = (
+      @{print} name;
+      @{print} (Syntax.read_term lthy def); lthy);
+  in
+    (parser >> (fn (name : string, tm) => fn lthy => print_info (name, tm) lthy))
+  end
+\<close>
+
+term "(;; m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"
+struct magma = "(;; m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"
+
 
 
 end
