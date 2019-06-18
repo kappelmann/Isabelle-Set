@@ -222,7 +222,15 @@ lemma split_paired_Ball_DUnion [simp]:
 
 subsection \<open>Typing rules\<close>
 
-lemma Pair_type [type]: "Pair : (x: element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
+lemma Pair_type [type]: "Pair : element A \<Rightarrow> element B \<Rightarrow> element (A \<times> B)"
+  by stauto
+
+text \<open> 
+  The following is more general, but also makes elaboration more complex, so
+  we do not declare it by default for now.
+\<close>
+
+lemma Pair_dependent_type: "Pair : (x: element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
   by stauto
 
 
