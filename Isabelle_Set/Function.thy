@@ -331,12 +331,19 @@ definition function :: "set type"
 definition total :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-total)" [1000])
   where "A-total \<equiv> \<lambda>f. domain f = A"
 
+lemma Pi_relation_type [dest_st]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : relation"
+  by (drule Pi_relations, drule relations_relation_type) stauto
+
 lemma Pi_function_type [intro_st]: "f \<in> Pi A B \<Longrightarrow> f : A-total \<cdot> function"
   unfolding function_typedef uniq_valued_def total_def adjective_def
-  apply stauto
-  apply (drule Pi_relations, drule relations_relation_type)
-  apply stauto
-  done
+  by stauto
 
+lemma functions_function_type [intro_st]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<cdot> B-valued \<cdot> function"
+  unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
+  apply stauto
+  using range_subset
+  by blast stauto
+
+  
 
 end
