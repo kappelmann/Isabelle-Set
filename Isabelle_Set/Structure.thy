@@ -218,7 +218,7 @@ thm magma_typedef
 
 lemma "G : magma"
   unfolding magma_typedef
-
+  oops
 
 
 end
