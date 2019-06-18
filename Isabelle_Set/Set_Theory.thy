@@ -639,6 +639,22 @@ lemma elem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
 lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: elem_irreflE)
 
+lemma elem_double_induct:
+  fixes X Y :: set
+  assumes IH: "\<And>X Y. 
+          (\<And>x Y. x \<in> X \<Longrightarrow> P x Y) \<Longrightarrow>
+          (\<And>y. y \<in> Y \<Longrightarrow> P X y)
+          \<Longrightarrow> P X Y"
+  shows "P X Y"
+proof (induction X arbitrary: Y rule: elem_induct_rule)
+  fix X Y assume 1: "\<And>x Y. x \<in> X \<Longrightarrow> P x Y"
+  show "P X Y"
+  proof (induction Y rule: elem_induct_rule)
+    fix Y assume "\<And>y. y \<in> Y \<Longrightarrow> P X y"
+    with 1 show "P X Y" by (rule IH)
+  qed
+qed
+
 
 subsection \<open>Fundamental soft types\<close>
 

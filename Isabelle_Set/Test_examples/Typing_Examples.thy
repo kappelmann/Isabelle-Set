@@ -185,6 +185,10 @@ ML \<open> Elaboration.print_inferred_types @{context} [
   @{term "\<lambda>x y. \<langle>x,y\<rangle>"}
 ]\<close>
 
+ML \<open> Elaboration.print_inferred_types @{context} [
+  @{term "\<langle>x,y\<rangle> = \<langle>y,x\<rangle>"}
+]\<close>
+
 
 text \<open> Transitivity of a relation \<close>
 
