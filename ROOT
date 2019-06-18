@@ -11,9 +11,10 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Examples and compatibility layers *)
-    "Isabelle_Set/Test_examples/KPTest"
-    "Isabelle_Set/Test_examples/Typing_Examples"
-    "Isabelle_Set/Test_examples/Implicit_Args"
+    "Isabelle_Set/Test_Examples/KPTest"
+    "Isabelle_Set/Test_Examples/Typing_Examples"
+    "Isabelle_Set/Test_Examples/Structure_Examples"
+    "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/ZF_Compatibility"
 
     (* Variations on the axioms, proposed by Karol *)
