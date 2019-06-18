@@ -88,9 +88,6 @@ fun string_to_hash str =
 end
 \<close>
 
-(* Example *)
-ML_val \<open>Syntax.pretty_term @{context} (Labels.string_to_hash "000")\<close>
-
 
 subsection \<open>Notation and syntax\<close>
 
@@ -115,72 +112,30 @@ translations
     "; ref . lbl1 : typ1 ; \<bar> ; ref . fields where P ;"
 
 
-(* Examples *)
-term "(;; x. carrier: non-empty\<cdot>set ;;)"
-
-term "(;; m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"
-
-term "(;; it.
-  carrier: non-empty\<cdot>set,
-  op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier) where
-    \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
-    (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
-  ;;)"
-
-
 ML \<open>
-fun get_labels tm =
-  let fun get_labels' tm (lbls as (existing, new)) = case tm of
-      @{const elem} $ Free (lbl, _) $ (@{const domain} $ Bound 0) => (existing, lbl :: new)
-    | @{const elem} $ Const (lbl, _) $ (@{const domain} $ Bound 0) => (lbl :: existing, new)
-    | t1 $ t2 => (
-        fst (get_labels' t1 lbls) @ fst (get_labels' t2 lbls), 
-        snd (get_labels' t1 lbls) @ snd (get_labels' t2 lbls))
-    | Abs (_, _, t) => get_labels' t lbls
-    | _ => lbls
-  in
-    get_labels' tm ([], [])
-  end
-
-val has_dup_labels = has_duplicates (fn tup => (String.compare tup) = EQUAL)
-\<close>
-
-ML_val \<open>
-
-get_labels @{term "(;; it.
-  carrier: non-empty\<cdot>set,
-  op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier) where
-    \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
-    (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
-  ;;)"};
-
-(has_dup_labels o (op @) o get_labels) @{term "(;; x. carrier: non-empty\<cdot>set ;;)"};
-
-(has_dup_labels o (op @) o get_labels) @{term "(;; m. carrier: non-empty\<cdot>set, op: element(m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"};
-
-(has_dup_labels o (op @) o get_labels) @{term "(;; it.
-  carrier: set,
-  carrier: non-empty\<cdot>set,
-  op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier) where
-    \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
-    (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
-  ;;)"}
-\<close>
-
-(* Testing *)
-ML \<open>
-Outer_Syntax.local_theory
-  @{command_keyword struct}
-  "Declare structure definitions"
+Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitions"
   let
     val parser = Parse.text -- (Parse.$$$ "=" |-- Parse.term)
 
     fun struct_cmd (name: string, struct_def_str) lthy =
       let
+        fun get_labels tm =
+          let fun get_labels' tm (lbls as (existing, new)) = case tm of
+              @{const elem} $ Free (lbl, _) $ (@{const domain} $ Bound 0) => (existing, lbl :: new)
+            | @{const elem} $ Const (lbl, _) $ (@{const domain} $ Bound 0) => (lbl :: existing, new)
+            | t1 $ t2 => (
+                fst (get_labels' t1 lbls) @ fst (get_labels' t2 lbls), 
+                snd (get_labels' t1 lbls) @ snd (get_labels' t2 lbls))
+            | Abs (_, _, t) => get_labels' t lbls
+            | _ => lbls
+          in
+            get_labels' tm ([], [])
+          end
+
+        val has_dup_labels = has_duplicates (fn tup => (String.compare tup) = EQUAL)
+
         val struct_def = Syntax.read_term lthy struct_def_str
+
         val (existing_lbls, new_lbls) = get_labels struct_def
 
         (* Check for duplicate labels *)
@@ -193,17 +148,24 @@ Outer_Syntax.local_theory
         fun define_label lbl = snd o (
           Local_Theory.define (
               (Binding.qualified_name lbl, NoSyn),
-              ((Binding.qualified_name (lbl ^ "_def"), []), Labels.string_to_hash lbl)
+              ((Binding.qualified_name (lbl ^ "_lbldef"), []), Labels.string_to_hash lbl)
           ))
 
         (* Define structure type *)
         fun define_struct_type lthy =
-          snd (Local_Theory.define
-            ((Binding.qualified_name name, NoSyn),
-             ((Binding.qualified_name (name ^ "_typedef"), []),
-              Syntax.read_term lthy struct_def_str))
-            lthy
-          )
+          let val ((Free(name, _), (_, def)), lthy') =
+            Local_Theory.define (
+                (Binding.qualified_name name, NoSyn),
+                ((Binding.qualified_name (name ^ "_typedef"), []),
+                  Syntax.read_term lthy struct_def_str)
+              ) lthy
+          in
+            Output.information (
+              "Structure declaration \"" ^ name ^ "\":\n  " ^
+              (Syntax.string_of_term lthy' (Thm.prop_of def))
+            );
+            lthy'
+          end
       in
         (new_lbls |> fold (define_label)) lthy |> define_struct_type
       end
@@ -211,14 +173,6 @@ Outer_Syntax.local_theory
     (parser >> (fn (name, def) => fn lthy => struct_cmd (name, def) lthy))
   end
 \<close>
-
-struct magma = "(;; m. carrier: non-empty\<cdot>set, op: element (m`carrier \<rightarrow> m`carrier \<rightarrow> m`carrier) ;;)"
-
-thm magma_typedef
-
-lemma "G : magma"
-  unfolding magma_typedef
-  oops
 
 
 end

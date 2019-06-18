@@ -5,6 +5,7 @@ imports
   Pair
   Relation
   Function
+  Structure
   Monoid
 
 begin
