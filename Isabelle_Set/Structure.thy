@@ -99,18 +99,17 @@ syntax
   ""             :: "pttrn \<Rightarrow> struct_args" ("_")
   ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
   "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
-  "_struct_args" :: "struct_arg \<Rightarrow> struct_args \<Rightarrow> struct_args" (infixr "," 40)
+  "_struct_args" :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("(1_ ,/ _)" [40, 41] 40)
   "_struct"    :: "set type \<Rightarrow> set type" ("'(;_;')")
 
 translations
   "(; ty ;)" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
   "; ref . lbl : typ ;" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
-  "; ref . lbl1 : typ1, fields ;" \<rightharpoonup> "; ref . lbl1 : typ1 ; \<bar> ; ref . fields ;"
-  "; ref . lbl : typ where P ;" \<rightharpoonup>
-    "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ) \<bar> CONST Type (\<lambda>ref. P)"
-  "; ref . lbl1 : typ1, fields where P ;" \<rightharpoonup>
-    "; ref . lbl1 : typ1 ; \<bar> ; ref . fields where P ;"
+  "; ref . fields, lbl : typ ;" \<rightharpoonup> "; ref . fields ; \<bar> ; ref . lbl : typ ;"
+  "; ref . fields where P ;" \<rightharpoonup> "; ref . fields ; \<bar> CONST Type (\<lambda>ref. P)"
 
+
+text \<open>Structure declaration keyword:\<close>
 
 ML \<open>
 Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitions"
@@ -119,6 +118,8 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
 
     fun struct_cmd (name: string, struct_def_str) lthy =
       let
+        (* Get the field labels used in the structure declaration.
+           Relies on the specific form of the translations defined above! *)
         fun get_labels tm =
           let fun get_labels' tm (lbls as (existing, new)) = case tm of
               @{const elem} $ Free (lbl, _) $ (@{const domain} $ Bound 0) => (existing, lbl :: new)
@@ -147,23 +148,24 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
         (* Define hashes for new labels *)
         fun define_label lbl = snd o (
           Local_Theory.define (
-              (Binding.qualified_name lbl, NoSyn),
-              ((Binding.qualified_name (lbl ^ "_lbldef"), []), Labels.string_to_hash lbl)
+            (Binding.qualified_name lbl, NoSyn),
+            ((Binding.qualified_name (lbl ^ "_lbldef"), []), Labels.string_to_hash lbl)
           ))
+
+        (* Print information *)
+        fun print_info name def =
+          Output.information ("Structure declaration \"" ^ name ^ "\":\n " ^ def)
 
         (* Define structure type *)
         fun define_struct_type lthy =
           let val ((Free(name, _), (_, def)), lthy') =
             Local_Theory.define (
-                (Binding.qualified_name name, NoSyn),
-                ((Binding.qualified_name (name ^ "_typedef"), []),
-                  Syntax.read_term lthy struct_def_str)
-              ) lthy
+              (Binding.qualified_name name, NoSyn),
+              ((Binding.qualified_name (name ^ "_typedef"), []),
+                Syntax.read_term lthy struct_def_str)
+            ) lthy
           in
-            Output.information (
-              "Structure declaration \"" ^ name ^ "\":\n  " ^
-              (Syntax.string_of_term lthy' (Thm.prop_of def))
-            );
+            print_info name (Syntax.string_of_term lthy' (Thm.prop_of def));
             lthy'
           end
       in
@@ -173,6 +175,7 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
     (parser >> (fn (name, def) => fn lthy => struct_cmd (name, def) lthy))
   end
 \<close>
+
 
 
 end

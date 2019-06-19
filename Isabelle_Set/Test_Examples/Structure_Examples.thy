@@ -3,7 +3,6 @@ imports "../Isabelle_Set"
 
 begin
 
-definition a where "a \<equiv> {}"
 
 term "(;; x. carrier: non-empty\<cdot>set ;;)"
 
@@ -16,7 +15,6 @@ term "(;; it.
     \<forall>x \<in> it`carrier. op`x`e = x \<and> op`e`x = x \<and>
     (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. op`x`(op`y`z) = op`(op`x`y)`z)
   ;;)"
-
 
 struct magma = "(;; it.
   carrier: non-empty\<cdot>set,
