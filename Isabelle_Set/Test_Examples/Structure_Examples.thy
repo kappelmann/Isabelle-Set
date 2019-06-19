@@ -20,10 +20,11 @@ subsection \<open>Monoids\<close>
 struct monoid = "(;; it.
   carrier: non-empty\<cdot>set,
   op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier) where
-    \<forall>x \<in> it`carrier. it`op`x`e = x \<and> it`op`e`x = x \<and>
-    (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. it`op`x`(it`op`y`z) = it`op`(it`op`x`y)`z)
-  ;;)"
+  e: element(it`carrier)
+where
+  \<forall>x \<in> it`carrier. it`op`x`e = x \<and> it`op`e`x = x \<and>
+  (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. it`op`x`(it`op`y`z) = it`op`(it`op`x`y)`z)
+;;)"
 
 
 text \<open>Define the additive monoid Z2:\<close>

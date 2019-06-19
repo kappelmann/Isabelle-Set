@@ -168,8 +168,15 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
             print_info name (Syntax.string_of_term lthy' (Thm.prop_of def));
             lthy'
           end
+
+        (* Placeholder: generate typing judgments for the structure fields *)
+        fun gen_typings _ = ()
+
+        (* Placeholder: generate definitional axioms as theorems *)
+        fun gen_conditions _ = ()
       in
         (new_lbls |> fold (define_label)) lthy |> define_struct_type
+          (* |> gen_typings |> gen_conditions *)
       end
   in
     (parser >> (fn (name, def) => fn lthy => struct_cmd (name, def) lthy))
