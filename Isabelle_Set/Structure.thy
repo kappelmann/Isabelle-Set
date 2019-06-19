@@ -94,13 +94,13 @@ subsection \<open>Notation and syntax\<close>
 nonterminal struct_arg and struct_args and struct_sig
 
 syntax
-  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(; _ . _ ;)")
-  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(; _ . _ where _ ;)")
-  ""             :: "pttrn \<Rightarrow> struct_args" ("_")
-  ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
   "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
   "_struct_args" :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("(1_ ,/ _)" [40, 41] 40)
-  "_struct"    :: "set type \<Rightarrow> set type" ("'(;_;')")
+  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(; _ . _ ;)")
+  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(; _ . _ where _ ;)")
+  "_struct"      :: "set type \<Rightarrow> set type" ("'(;_;')")
+  ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
+  ""             :: "pttrn \<Rightarrow> struct_args" ("_")
 
 translations
   "(; ty ;)" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
@@ -176,6 +176,21 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
   end
 \<close>
 
+
+text \<open>Structure instance definitions, essentially just syntactic sugar:\<close>
+
+nonterminal instance_arg and instance_args
+
+syntax
+  "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix ":=" 45)
+  "_instance_args" :: "instance_arg \<Rightarrow> instance_args \<Rightarrow> instance_args" ("(1_ ,/ _)" [41, 40] 40)
+  "_instance"      :: "instance_args \<Rightarrow> set" ("[;; _ ;;]")
+  ""               :: "instance_arg \<Rightarrow> instance_args" ("_")
+  ""               :: "pttrn \<Rightarrow> instance_args" ("_")
+
+translations
+  "[;; lbl := val ;;]" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
+  "[;; lbl := val, fields ;;]" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> [;; fields ;;]"
 
 
 end
