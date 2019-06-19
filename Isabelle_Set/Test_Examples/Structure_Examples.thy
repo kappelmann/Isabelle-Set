@@ -15,9 +15,9 @@ thm magma_typedef
 thm carrier_lbldef
 
 
-subsection \<open>Groups\<close>
+subsection \<open>Monoids\<close>
 
-struct group = "(;; it.
+struct monoid = "(;; it.
   carrier: non-empty\<cdot>set,
   op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
   e: element(it`carrier) where
@@ -26,7 +26,7 @@ struct group = "(;; it.
   ;;)"
 
 
-text \<open>Define the additive group Z2:\<close>
+text \<open>Define the additive monoid Z2:\<close>
 
 definition zero ("0") where "0 \<equiv> {}"
 definition one ("1") where "1 \<equiv> Succ 0"
@@ -37,8 +37,8 @@ definition "Z2 \<equiv> [;;
 ;;]"
 
 
-lemma "Z2 : group"
-unfolding group_typedef adjective_def
+lemma "Z2 : monoid"
+unfolding monoid_typedef adjective_def
 proof (stauto intro_st: Int_typeI)
   oops
 
