@@ -1,3 +1,6 @@
+
+
+
 section \<open>Soft types for HOL\<close>
 
 theory Soft_Types_HOL
@@ -193,10 +196,13 @@ definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" 
 subsection \<open>Tooling\<close>
 
 named_theorems type_simp
+named_theorems type_instance
+
 
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
 ML_file "unification.ML"
+ML_file "type_classes.ML"
 ML_file "elaboration.ML"
 
 

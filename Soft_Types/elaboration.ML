@@ -250,20 +250,24 @@ fun trace_infer_result ctxt (Elaboration_Result {elaborated_terms, variable_type
 
 fun print_inferred_types ctxt ts = trace_infer_result ctxt (infer_type ctxt ts)
 
-
 fun elaborate_terms ctxt ts =
   if Config.get ctxt auto_elaborate then
     let
       val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-      val Elaboration_Result {elaborated_terms, ... } =
+      val Elaboration_Result {elaborated_terms, variable_types } =
         infer_type ctxt ts'
         |> tap (trace_infer_result ctxt)
 
+      val (env, subst) = Type_Classes.refine_classes ctxt variable_types
+      val ets' = map (Envir.norm_term subst) elaborated_terms
+
       (* We discard the resulting context, since the terms will be re-declared using auto-fixes
          later *)
-      val (ets', _) = Variable.import_terms true elaborated_terms ctxt
+      val (ets'', _) = Variable.import_terms true ets' ctxt
+      val _ = Soft_Type.tracing ctxt (cat_lines ("Elaborated terms:"
+        :: map (Syntax.string_of_term ctxt) ets''))
     in
-      ets'
+      ets''
     end
   else ts;
 

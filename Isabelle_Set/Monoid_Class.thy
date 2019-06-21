@@ -6,7 +6,7 @@ imports Function
 begin
 
 text \<open>
-  We define monoids as a structure (though without tool support) and experiment how it can interact
+  We define monoids as a soft type class (though without tool support) and experiment how it can interact
   with implicit arguments and type inference.
 
   Structures are modelled as sets that contain the operations, but are parametrized over the carrier
@@ -31,10 +31,10 @@ definition monoid_add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> 
 definition monoid_neut :: "set \<Rightarrow> set" where
   "monoid_neut M = snd M"
 
-lemma monoid_neut_type[type]: "monoid_neut : Monoid A \<Rightarrow> element A"
+lemma monoid_neut_type[type]: "monoid_neut : (M : Monoid A) \<Rightarrow> element A"
   by (rule Pi_typeI) (auto simp: monoid_neut_def Monoid_def element_type_iff)
 
-lemma monoid_add_type[type]: "monoid_add : Monoid A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+lemma monoid_add_type[type]: "monoid_add : (M : Monoid A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   apply (intro Pi_typeI) 
   apply (unfold element_type_iff monoid_add_def Monoid_def)
   apply (drule CollectD1)
@@ -52,6 +52,57 @@ lemma
   using assms unfolding monoid_add_def monoid_neut_def Monoid_def
   by (auto simp: element_type_iff) blast
 
+
+
+subsection \<open>An (artificial) instance\<close>
+
+
+
+consts
+  Nat :: set
+  zero :: set
+  plus :: set
+
+
+definition
+  "Nat_monoid \<equiv> \<langle>plus, zero\<rangle>"
+
+axiomatization (* TODO derive this *)
+where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
+
+
+definition
+  "pair_monoid A B m1 m2 \<equiv> \<langle>\<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>monoid_add m1 a1 a2, monoid_add m2 b1 b2\<rangle>,
+     \<langle>monoid_neut m1, monoid_neut m2\<rangle>\<rangle>"
+
+axiomatization (* TODO derive this *)
+where pair_monoid_type[type]:
+  "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
+
+lemma pair_monoid_instance[type_instance]:
+  "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
+  by (rule pair_monoid_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
+
+
+declare monoid_neut_type[type implicit: 1]
+declare monoid_add_type[type implicit: 1]
+
+
+declare [[auto_elaborate, trace_soft_types]]
+
+
+lemma "monoid_add monoid_neut \<langle>x, y\<rangle> = \<langle>x, y\<rangle>"
+  oops
+
+lemma "monoid_add (monoid_add x y) z = monoid_add x (monoid_add y z)"
+  oops
+
+lemma "monoid_add x y = monoid_add z w \<and> monoid_add u v = monoid_neut"
+  oops
+
+
+
+declare [[auto_elaborate = false]]
 
 
 subsection \<open>Extension to Group\<close>
