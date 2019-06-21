@@ -405,7 +405,7 @@ fun flexflex_different bs u F ss G ts =
     then flexrigid bs u F ss (list_comb (G, ts))
     else if can_replace G ts (list_comb (F, ss))
     then flexrigid bs u G ts (list_comb (F, ss))
-    else error ("FlexFlex: Variable intersection or nonlinear case unimplemented.")
+    else error ("FlexFlex: non-pattern equality.")
 
 
 (* cf. clone in soft_type_inference.ML *)
