@@ -31,8 +31,6 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
   sessions
     "HOL-Eisbach"
   theories
-    (* Types on top of Isabelle/Pure *)
-    "Soft_Types/Soft_Types"
 
     (* Isabelle/Mizar Foundation, Type System, and foundational MML *)
     "Isabelle_Mizar/mizar_HOL"
