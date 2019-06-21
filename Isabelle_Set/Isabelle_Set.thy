@@ -6,7 +6,7 @@ imports
   Relation
   Function
   Structure
-  Monoid
+  Monoid_Structure
   Monoid_Class
 
 begin

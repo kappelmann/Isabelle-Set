@@ -1,24 +1,9 @@
 section \<open>Monoids as an example of soft-typed structures\<close>
 
-theory Monoid
+theory Monoid_Structure
 imports Structure
 
 begin
-
-text \<open>
-Here we define monoids as a structure (though without tool support) and experiment how it
-can interact with implicit arguments and type inference.
-
-Structures are modelled as sets that contain the operations, but are parametrized over the carrier
-sets.
-\<close>
-
-definition Monoid :: "set \<Rightarrow> set type" where
-  "Monoid A = element {\<langle>add, neut\<rangle> \<in> (A \<rightarrow> A \<rightarrow> A)\<times>A.
-      (\<forall>x\<in>A. add`neut`x = x) \<and>
-      (\<forall>x\<in>A. add`x`neut = x) \<and>
-      (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. add`(add`x`y)`z = add`x`(add`y`z))}"
-
 
 text \<open>Here we define monoids using the experimental new structure mechanism.\<close>
 
@@ -59,34 +44,6 @@ Now we define the global operations as projections. Here, we also convert the se
 to meta functions. The axioms can then be derived.
 \<close>
 
-definition Monoid_add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" where
-  "Monoid_add M = (%x y. fst M ` x ` y)"
-
-definition Monoid_neut :: "set \<Rightarrow> set" where
-  "Monoid_neut M = snd M"
-
-lemma Monoid_neut_type[type]: "Monoid_neut : Monoid A \<Rightarrow> element A"
-  by (rule Pi_typeI) (auto simp: Monoid_neut_def Monoid_def element_type_iff)
-
-lemma Monoid_add_type[type]: "Monoid_add : Monoid A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  apply (intro Pi_typeI) 
-  apply (unfold element_type_iff Monoid_add_def Monoid_def)
-  apply (drule CollectD1)
-  apply (intro PiE; auto?)+
-done
-
-lemma
-  assumes "M : Monoid A"
-  shows 
-  Monoid_left_neut: "x \<in> A \<Longrightarrow> Monoid_add M (Monoid_neut M) x = x" and
-  Monoid_right_neut: "x \<in> A \<Longrightarrow> Monoid_add M x (Monoid_neut M) = x" and
-  Monoid_assoc: "x \<in> A \<Longrightarrow> y \<in> A \<Longrightarrow> z \<in> A \<Longrightarrow> Monoid_add M (Monoid_add M x y) z = Monoid_add M x (Monoid_add M y z)"
-
-  using assms unfolding Monoid_add_def Monoid_neut_def Monoid_def
-  by (auto simp: element_type_iff) blast
-
-
-text \<open>The same, but for structures:\<close>
 
 definition monoid_add :: "[set, set, set] \<Rightarrow> set" where
   "monoid_add M = (\<lambda>x y. M`op ` x ` y)"
@@ -123,21 +80,6 @@ lemma
 
 subsection \<open>Extension to groups\<close>
 
-definition Group :: "set \<Rightarrow> set type" where
-  "Group A = element {\<langle>add, neut, inv\<rangle> \<in> (A \<rightarrow> A \<rightarrow> A)\<times>A\<times>(A \<rightarrow> A).
-      \<langle>add,neut\<rangle> : Monoid A \<and> 
-      (\<forall>x\<in>A. add`(inv`x)`x = neut) \<and>
-      (\<forall>x\<in>A. add`x`(inv`x) = neut)}"
-
-definition to_Monoid :: "set \<Rightarrow> set"
-  where
-  "to_Monoid G = \<langle>fst G, fst (snd G)\<rangle>"
-
-lemma Group_is_Monoid: "G : Group A \<Longrightarrow> to_Monoid G : Monoid A"
-  by (auto simp: element_type_iff to_Monoid_def Group_def)
-
-
-text \<open>Using structures:\<close>
 
 struct group = "; G.
   inv: element (G`carrier \<rightarrow> G`carrier)
