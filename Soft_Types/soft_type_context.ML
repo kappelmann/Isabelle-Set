@@ -11,19 +11,6 @@ Symbols are either free variables (declared in the context) or constants.
 structure Soft_Type_Context =
 struct
 
-(*** Utility functions ***)
-
-(*
-Breaks a typing judgment into its term and type parts.
-Accepts both pure judgement form or embedded into HOL.Trueprop.
-*)
-fun dest_typing tm =
-  case tm of
-    Const (@{const_name has_type}, _) $ t $ T => (t, T)
-  | Const ("HOL.Trueprop", _) $ (Const (@{const_name has_type}, _) $ t $ T) => (t, T)
-  | _ => Exn.error ("dest_typing: not a typing judgment" ^ \<^make_string> tm)
-
-
 (*** Data slots ***)
 (*
 For any given term, we hold two separate collections of typing statements:
@@ -58,8 +45,8 @@ fun get_current_type ctxt t = get_CT (Current_Type.get ctxt) t;
 structure Known_Types = Generic_Data(
   type T = thm Item_Net.T * thm Item_Net.T
   val empty = (
-    Item_Net.init Thm.eq_thm_prop (single o (#1 o dest_typing) o Thm.prop_of),
-    Item_Net.init Thm.eq_thm_prop (single o (#1 o dest_typing) o Thm.prop_of)
+    Item_Net.init Thm.eq_thm_prop (single o (#1 o Soft_Type.dest_typing) o Thm.prop_of),
+    Item_Net.init Thm.eq_thm_prop (single o (#1 o Soft_Type.dest_typing) o Thm.prop_of)
   )
   val extend = I
   val merge = apply2 Item_Net.merge
@@ -76,7 +63,7 @@ fun extract_param_names 0 _ = []
 
 fun declare_current_type implicit thm ctxt =
   let
-    val (x, st) = dest_typing (Thm.prop_of thm)
+    val (x, st) = Soft_Type.dest_typing (Thm.prop_of thm)
     val names = extract_param_names (the_default 0 implicit) st
   in
     ctxt
