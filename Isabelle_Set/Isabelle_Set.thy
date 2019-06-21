@@ -7,6 +7,7 @@ imports
   Function
   Structure
   Monoid
+  Monoid_Class
 
 begin
 
