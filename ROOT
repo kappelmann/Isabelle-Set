@@ -92,7 +92,4 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
     "MML/setfam_1"
     "MML/z2" *)
 
-    (* Some more material from soft type experiments in Isabelle/ZF.
-    These should be adapted to Tarski-Grothendieck to be compatible with the Mizar foundation. *)
     "tests/test"
-    "tests/Old_ZF_Experiments/ZF_Typing_Examples"
