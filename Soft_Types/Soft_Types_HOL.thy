@@ -109,8 +109,6 @@ definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Righta
 abbreviation function_space :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where "function_space A B \<equiv> Pi_type A (\<lambda>_. B)"
 
-nonterminal tel_lhs
-
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
