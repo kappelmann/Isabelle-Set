@@ -92,7 +92,15 @@ struct
     (expected_type : term option)
     : (term * elaboration_context) =
     case t of 
-      Const (_, T) => 
+     (* special case: explicit type annotation *)
+     Const (\<^const_name>\<open>with_type\<close>, _) $ s $ A =>
+       let
+         val (st, Gamma1) = collect_constraints' ctxt Delta s Gamma NONE
+         val new_constraint = (Delta, (st, A), ())
+       in
+         (st, add_constraint ctxt new_constraint Gamma1)
+       end
+    | Const (_, T) => 
         let
           (* If constant type cannot be found, invent a generic type *)
           val st = (case get_const_type Gamma t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
@@ -250,26 +258,54 @@ fun trace_infer_result ctxt (Elaboration_Result {elaborated_terms, variable_type
 
 fun print_inferred_types ctxt ts = trace_infer_result ctxt (infer_type ctxt ts)
 
+fun annotate_terms env ts =
+  let
+    fun annot_var t env =
+      case AList.lookup (op aconv) env t of
+          SOME st => (Soft_Type.annotate st t, AList.delete (op aconv) t env)
+        | NONE => (t, env)
+    fun annot t env = case t of
+        Var _ => annot_var t env
+      | Free _ => annot_var t env
+      | Const (\<^const_name>\<open>with_type\<close>, T) $ u $ A =>
+         if is_Free u orelse is_Var u
+         then (t, AList.delete (op aconv) u env)
+         else let val (u', env') = annot u env in
+           (Const (\<^const_name>\<open>with_type\<close>, T) $ u' $ A, env')
+         end
+      | Const _ => (t, env)
+      | s $ u => 
+          let
+            val (s', env') = annot s env
+            val (u', env'') = annot u env'
+          in (s' $ u', env'') end
+      | Abs (x, T, b) => let val (b', env') = annot b env in (Abs (x, T, b'), env') end
+      | Bound i => (Bound i, env)
+  in
+    fst (fold_map annot ts env)
+  end
+
 fun elaborate_terms ctxt ts =
-  if Config.get ctxt auto_elaborate then
-    let
-      val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-      val Elaboration_Result {elaborated_terms, variable_types } =
-        infer_type ctxt ts'
-        |> tap (trace_infer_result ctxt)
+  let
+    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
+    val Elaboration_Result {elaborated_terms, variable_types } =
+      infer_type ctxt ts'
+      |> tap (trace_infer_result ctxt)
 
-      val (env, subst) = Type_Classes.refine_classes ctxt variable_types
-      val ets' = map (Envir.norm_term subst) elaborated_terms
+    val (ets', variable_types') = Type_Classes.refine_classes ctxt elaborated_terms variable_types
 
-      (* We discard the resulting context, since the terms will be re-declared using auto-fixes
-         later *)
-      val (ets'', _) = Variable.import_terms true ets' ctxt
-      val _ = Soft_Type.tracing ctxt (cat_lines ("Elaborated terms:"
-        :: map (Syntax.string_of_term ctxt) ets''))
-    in
-      ets''
-    end
-  else ts;
+    (* Insert information about the variables into the elaborated terms *)
+    val ets'' = annotate_terms variable_types' ets'
+
+    (* We discard the resulting context, since the terms will be re-declared using auto-fixes
+       later *)
+    val (ets''', _) = Variable.import_terms true ets'' ctxt
+
+    val _ = Soft_Type.tracing ctxt (cat_lines ("Elaborated terms:"
+      :: map (Syntax.string_of_term ctxt) ets'''))
+  in
+    ets'''
+  end
 
 fun auto_elaborate_terms ctxt ts =
   if Config.get ctxt auto_elaborate then elaborate_terms ctxt ts else ts

@@ -51,19 +51,19 @@ context
 begin
 
 
-ML \<open>Elaboration.print_inferred_types @{context} [
+ML \<open>Elaboration.elaborate_terms @{context} [
   @{term "Nil A = B"}
 ]\<close>
 
-ML \<open>Elaboration.print_inferred_types @{context} [
-  @{term_dummies "Cons _ x xs"}
+ML \<open>Elaboration.elaborate_terms @{context} [
+  @{term "Cons \<implicit>A x xs"}
 ]\<close>
 
-ML \<open>Elaboration.print_inferred_types @{context} [
+ML \<open>Elaboration.elaborate_terms @{context} [
   @{term "%A. Nil A"}
 ]\<close>
 
-ML \<open>Elaboration.print_inferred_types @{context} [
+ML \<open>Elaboration.elaborate_terms @{context} [
   @{term "%A x xs. Cons A x xs = Cons A x xs"}
 ]\<close>
 
@@ -85,20 +85,20 @@ fun starts_with prefix str = is_prefix (op =) (raw_explode prefix) (raw_explode 
 \<close>
 
 ML \<open>
-  (fn _ => Elaboration.print_inferred_types @{context} [
+  (fn _ => Elaboration.elaborate_terms @{context} [
      @{term "%A x. Cons A x xs = Cons A x xs"} ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
-  (fn _ => Elaboration.print_inferred_types @{context} [
+  (fn _ => Elaboration.elaborate_terms @{context} [
        @{term "%A x. Cons A x xs = Cons A x xs"} ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
 
-Elaboration.print_inferred_types @{context} [
+Elaboration.elaborate_terms @{context} [
   @{term "append A (Cons A x xs) ys = Cons A x (append A xs ys)"},
   @{term "append A (Nil A) ys = ys"} 
 ]
@@ -106,7 +106,7 @@ Elaboration.print_inferred_types @{context} [
 
 ML \<open>
 
-Elaboration.print_inferred_types @{context} [
+Elaboration.elaborate_terms @{context} [
   @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
   @{term_dummies "append _ (Nil _) ys = ys"} 
 ]
@@ -149,7 +149,7 @@ begin
 
 
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
    = VCons _ _ x (vappend _ _ _ xs ys)"}
 ]\<close>
@@ -160,40 +160,40 @@ end
 
 subsection \<open> Further examples \<close>
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   \<^term_dummies>\<open>\<lambda>(x::set). Pair\<close>
 ]\<close>
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "{{}}"}
 ]\<close>
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "{x, y}"}
 ]\<close>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "\<lambda>y. Pair {} y"}
 ]\<close>
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term "\<lambda>x. Pair x"}
 ]\<close>
 
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term "\<lambda>x y. \<langle>x,y\<rangle>"}
 ]\<close>
 
-ML \<open> Elaboration.print_inferred_types @{context} [
+ML \<open> Elaboration.elaborate_terms @{context} [
   @{term "\<langle>x,y\<rangle> = \<langle>y,x\<rangle>"}
 ]\<close>
 
 
 text \<open> Transitivity of a relation \<close>
 
-ML \<open> Elaboration.print_inferred_types @{context} [
-  @{term "\<forall>x y z. \<langle>x,y\<rangle>\<in> r \<longrightarrow> \<langle>y,z\<rangle>\<in> r \<longrightarrow> \<langle>x,z\<rangle>\<in> r"}
+ML \<open> Elaboration.elaborate_terms @{context} [
+  @{term "\<forall>x y z. \<langle>x,y\<rangle> \<in> r \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r"}
 ]\<close>
 
 

@@ -30,11 +30,11 @@ ML \<open>
 
 
 
-ML \<open>Elaboration.print_inferred_types @{context} [
+ML \<open>Elaboration.elaborate_terms @{context} [
   @{term "Nil = B"}
 ]\<close>
 
-ML \<open>Elaboration.print_inferred_types @{context} [
+ML \<open>Elaboration.elaborate_terms @{context} [
   @{term "Cons x xs"}
 ]\<close>
 
