@@ -68,7 +68,6 @@ lemma has_type_iff [iff_st]: "x : Type P \<longleftrightarrow> P x"
 lemma has_typeI [intro_st]: "P x \<Longrightarrow> x : Type P" by stauto
 lemma has_typeE [elim_st]: "x : Type P \<Longrightarrow> P x" by stauto
 
-
 subsection \<open>Bounded quantifiers\<close>
 
 definition Soft_Ball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
@@ -128,6 +127,11 @@ lemma Pi_typeE [elim_st]:
   shows "f x : B x"
   using assms by stauto
 
+
+subsection \<open>Type annotations\<close>
+
+definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
+  where "with_type x A \<equiv> x"
 
 subsection \<open>Intersections\<close>
 
@@ -212,6 +216,7 @@ abbreviation bool :: "bool type"
 lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
+declare with_type_def[type_simp]
 
 
 end

@@ -22,6 +22,11 @@ val is_typing: term -> bool
 val any: typ -> term
 val mk_any_fun: typ -> term
 
+(* Type annotations *)
+val annotate: term -> term -> term
+(*val get_annotations: term -> (term * term) list
+val strip_annotations: term -> term*)
+
 (* Tracing *)
 val trace_soft_types: bool Config.T
 val tracing: Proof.context -> string -> unit 
@@ -67,6 +72,11 @@ fun mk_any_fun T =
       (Pi_const S T $ Var ((n, 0), typeT S) $ Abs ("uu_", S, t), S --> T)) (names ~~ binderTs)
     |> fst
   end
+
+
+fun with_type_const T = Const (\<^const_name>\<open>with_type\<close>, T --> typeT T --> T)
+
+fun annotate soft_type t = with_type_const (fastype_of t) $ t $ soft_type
 
 
 (* tracing, controlled by a flag *)
