@@ -27,7 +27,7 @@ Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. Th
 
 ## How to build
 
-Compatibility: Isabelle 2019
+Compatibility: Isabelle repository version (as specified in file ISABELLE_VERSION)
 
     # Build supporting image
     isabelle build -b HOL-Number_Theory
