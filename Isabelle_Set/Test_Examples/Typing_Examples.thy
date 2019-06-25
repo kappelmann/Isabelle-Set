@@ -51,21 +51,30 @@ context
 begin
 
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "Nil A = B"}
-]\<close>
+ML \<open>
+  [\<^term>\<open>Nil A = B\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>Nil (A :> set) = (B :> element (List A))\<close>]
+\<close>
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "Cons \<implicit>A x xs"}
-]\<close>
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "%A. Nil A"}
-]\<close>
+ML \<open>
+  [\<^term>\<open>Cons \<implicit>A x xs\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>Cons (A :> set) (x :> element A) (xs :> element (List A))\<close>]
+\<close>
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "%A x xs. Cons A x xs = Cons A x xs"}
-]\<close>
+ML \<open>
+  [\<^term>\<open>\<lambda>A. Nil A\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>\<lambda>A. Nil A\<close>]
+\<close>
+
+ML \<open>
+  [\<^term>\<open>\<lambda>A. Nil A\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>\<lambda>A. Nil A\<close>]
+\<close>
 
 ML \<open>
 
@@ -97,15 +106,16 @@ ML \<open>
 \<close>
 
 ML \<open>
-
-Elaboration.elaborate_terms @{context} [
-  @{term "append A (Cons A x xs) ys = Cons A x (append A xs ys)"},
-  @{term "append A (Nil A) ys = ys"} 
-]
+  [\<^term>\<open>append A (Cons A x xs) ys = Cons A x (append A xs ys)\<close>,
+   \<^term>\<open>append A (Nil A) ys = ys\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>append (A :> set) (Cons A (x :> element A) (xs :> element (List A))) (ys :> element (List A)) =
+          Cons A x (append A xs ys)\<close>,
+     \<^term>\<open>append A (Nil A) ys = ys\<close>
+     ]
 \<close>
 
 ML \<open>
-
 Elaboration.elaborate_terms @{context} [
   @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
   @{term_dummies "append _ (Nil _) ys = ys"} 
@@ -160,17 +170,20 @@ end
 
 subsection \<open> Further examples \<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  \<^term_dummies>\<open>\<lambda>(x::set). Pair\<close>
-]\<close>
-
+ML \<open>
+  [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
+\<close>
 ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "{{}}"}
 ]\<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "{x, y}"}
-]\<close>
+ML \<open>
+  [\<^term>\<open>{x, y}\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>{x :> element A, y :> element A}\<close>]
+\<close>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Elaboration.elaborate_terms @{context} [
@@ -185,18 +198,20 @@ ML \<open> Elaboration.elaborate_terms @{context} [
   @{term "\<lambda>x y. \<langle>x,y\<rangle>"}
 ]\<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term "\<langle>x,y\<rangle> = \<langle>y,x\<rangle>"}
-]\<close>
+ML \<open>
+  [\<^term>\<open>\<langle>x,y\<rangle> = \<langle>y,x\<rangle>\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>\<langle>x :> element B,y :> element B\<rangle> = \<langle>y,x\<rangle>\<close>]
+\<close>
 
 
 text \<open> Transitivity of a relation \<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term "\<forall>x y z. \<langle>x,y\<rangle> \<in> r \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r"}
-]\<close>
-
-
+ML \<open>
+  [\<^term>\<open>\<forall>x y z. \<langle>x,y\<rangle> \<in> r \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r\<close>]
+  |> Elaboration.assert_result \<^context>
+    [\<^term>\<open>\<forall>x y z. \<langle>x,y\<rangle> \<in> (r :> subset (B \<times> B)) \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r\<close>]
+\<close>
 
 
 end

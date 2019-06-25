@@ -13,6 +13,9 @@ sig
 
   val auto_elaborate : bool Config.T
 
+
+  val assert_result: Proof.context -> term list -> term list -> term list
+
 end;
 
 structure Elaboration : ELABORATION =
@@ -313,6 +316,25 @@ fun auto_elaborate_terms ctxt ts =
 
 (* No effect until activated in the configuration *)
 val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" auto_elaborate_terms)
+
+
+(* Testing *)
+
+
+fun assert_result ctxt expected ts =
+  let
+    val result = elaborate_terms ctxt ts
+    fun section header content = header :: map (prefix "  ") content
+
+    val pr_term = Syntax.string_of_term ctxt
+  in
+    if result <> expected
+    then error (cat_lines (flat [
+        section "Expected result:" (map pr_term expected),
+        section "Actual result:" (map pr_term result)]))
+    else result
+end
+
 
 
 (* Useful antiquotation for testing *)
