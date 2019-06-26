@@ -84,20 +84,24 @@ lemma pair_monoid_instance[type_instance]:
   by (rule pair_monoid_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
 
 
+abbreviation monoid_add_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 60)
+  where
+  "monoid_add_implicit x y \<equiv> monoid_add \<implicit>M x y"
+
+
 declare monoid_neut_type[type implicit: 1]
 declare monoid_add_type[type implicit: 1]
 
 
 declare [[auto_elaborate, trace_soft_types]]
 
-
 lemma "monoid_add monoid_neut \<langle>x, y\<rangle> = \<langle>x, y\<rangle>"
   oops
 
-lemma "monoid_add (monoid_add x y) z = monoid_add x (monoid_add y z)"
+lemma "x + (y + z) = x + y + z"
   oops
 
-lemma "monoid_add x y = monoid_add z w \<and> monoid_add u v = monoid_neut"
+lemma "x + y = z + w \<and> u + v = monoid_neut"
   oops
 
 
