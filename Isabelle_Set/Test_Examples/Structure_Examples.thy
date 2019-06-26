@@ -1,6 +1,5 @@
 theory Structure_Examples
-imports "../Isabelle_Set"
-
+imports "../Structure"
 begin
 
 
