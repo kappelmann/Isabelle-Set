@@ -19,7 +19,9 @@ struct
 (* For now, hardcode this information, which must be configurable *)
 fun is_class_type t =
   case t of
-    Const ("Monoid_Class.Monoid", _) $ _ => true
+    Const ("Monoid_Class.Plus", _) $ _ => true
+  | Const ("Monoid_Class.Zero", _) $ _ => true
+  | Const ("Monoid_Class.Monoid", _) $ _ => true
   | _ => false
 
 

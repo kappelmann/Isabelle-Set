@@ -2,8 +2,41 @@ section \<open>Monoids as an example of soft-typed structures\<close>
 
 theory Monoid_Class
 imports Function
-
 begin
+
+
+definition Plus :: "set \<Rightarrow> set type" where
+  "Plus A = element (A \<rightarrow> A \<rightarrow> A)"
+
+definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" where
+  "plus p = (%x y. p ` x ` y)"
+
+lemma plus_type[type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  apply (intro Pi_typeI) 
+  apply (unfold element_type_iff plus_def Plus_def)
+  apply (intro PiE; auto?)+
+done
+
+abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
+  where "x + y \<equiv> plus \<implicit>M x y"
+
+
+
+
+definition Zero :: "set \<Rightarrow> set type" where
+  "Zero A = element A"
+
+definition zero :: "set \<Rightarrow> set" where
+  "zero z = z"
+
+lemma zero_type[type]: "zero : (Z : Zero A) \<Rightarrow> element A"
+  apply (intro Pi_typeI) 
+  apply (simp add: element_type_iff zero_def Zero_def)
+done
+
+abbreviation zero_implicit :: "set" ("0")
+  where "0 \<equiv> zero \<implicit>Z"
+
 
 text \<open>
   We define monoids as a soft type class (though without tool support) and experiment how it can interact
@@ -60,12 +93,12 @@ subsection \<open>An (artificial) instance\<close>
 
 consts
   Nat :: set
-  zero :: set
-  plus :: set
+  zero_nat :: set
+  plus_nat :: set
 
 
 definition
-  "Nat_monoid \<equiv> \<langle>plus, zero\<rangle>"
+  "Nat_monoid \<equiv> \<langle>plus_nat, zero_nat\<rangle>"
 
 axiomatization (* TODO derive this *)
 where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
@@ -84,16 +117,15 @@ lemma pair_monoid_instance[type_instance]:
   by (rule pair_monoid_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
 
 
-abbreviation monoid_add_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 60)
-  where
-  "monoid_add_implicit x y \<equiv> monoid_add \<implicit>M x y"
-
 
 declare monoid_neut_type[type implicit: 1]
 declare monoid_add_type[type implicit: 1]
 
 
 declare [[auto_elaborate, trace_soft_types]]
+
+lemma "x + 0 = 0 + x"
+  oops
 
 lemma "monoid_add monoid_neut \<langle>x, y\<rangle> = \<langle>x, y\<rangle>"
   oops
