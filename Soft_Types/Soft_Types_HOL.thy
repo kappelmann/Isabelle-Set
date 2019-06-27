@@ -1,6 +1,3 @@
-
-
-
 section \<open>Soft types for HOL\<close>
 
 theory Soft_Types_HOL
@@ -12,12 +9,16 @@ imports
 
 begin
 
-text \<open>HOL version of the soft types library, using @{typ bool} instead of @{typ prop} for the judgments.\<close>
+text \<open>This theory introduces a generic notion of soft types, based on HOL predicates.\<close>
 
 declare[[eta_contract=false]]
 
 
 subsection \<open>Named theorems and automation\<close>
+
+text \<open>
+  Note: This approach to automation is currently very ad-hoc, and should be eliminated.
+\<close>
 
 named_theorems intro_st
 named_theorems elim_st
@@ -50,6 +51,10 @@ method stauto declares intro_st elim_st dest_st iff_st simp_st =
 
 
 subsection \<open>Basic definitions\<close>
+
+text \<open>
+  Soft types are just predicates, but expressed as a different type:
+\<close>
 
 typedecl 'a type
 
@@ -102,6 +107,10 @@ lemma Soft_BexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; 
 
 subsection \<open>Pi types\<close>
 
+text \<open>
+  These are soft-types for meta-level functions.
+\<close>
+
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where Pi_typedef: "Pi_type \<sigma> \<tau> \<equiv> Type (\<lambda>f. \<forall>x : \<sigma>. f x : \<tau> x)"
 
@@ -113,6 +122,12 @@ syntax
 translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
+
+
+text \<open>
+  We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close>  for the dependent function type and simply
+  \<^term>\<open>A \<Rightarrow> B\<close> for the non-dependent version.
+\<close>
 
 lemma Pi_type_iff [iff_st]: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x : \<sigma>. f x : \<tau> x)"
   unfolding Pi_typedef by stauto
@@ -132,6 +147,11 @@ subsection \<open>Type annotations\<close>
 
 definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
   where "with_type x A \<equiv> x"
+
+text \<open>
+  \<^term>\<open>x :> A\<close> annotates \<open>x\<close> with type \<open>A\<close>
+\<close>
+
 
 subsection \<open>Intersections\<close>
 
@@ -172,10 +192,14 @@ definition any :: "'a type"
 lemma any_typeI [intro]: "x : any"
   unfolding any_typedef by stauto
 
+abbreviation bool :: "bool type"
+  where "bool \<equiv> any"
+
+
 
 subsection \<open>Adjectives\<close>
 
-text \<open>We allow adjectives—in the form of predicates on a set—to modify types.\<close>
+text \<open>We allow adjectives—in the form of predicates—to modify types.\<close>
 
 definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
   where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
@@ -189,7 +213,7 @@ lemma type_spec [dest_st]: "x : adj \<cdot> type \<Longrightarrow> x : type"
 
 subsection \<open>Type complement\<close>
 
-text \<open>``non'' modifier gives the complement of a soft type.\<close>
+text \<open>``non'' modifier gives the complement of a predicate.\<close>
 
 definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
   where "non-P \<equiv> \<lambda>x. \<not> P x"
@@ -208,10 +232,7 @@ ML_file "type_classes.ML"
 ML_file "elaboration.ML"
 
 
-subsection \<open>Basic HOL material\<close>
-
-abbreviation bool :: "bool type"
-  where "bool \<equiv> any"
+subsection \<open>Basic declarations for HOL material\<close>
 
 lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)

@@ -18,6 +18,11 @@ syntax
 translations
   "\<implicit> x" \<rightleftharpoons> "CONST implicit_arg (\<lambda>x. CONST implicit_dummy)"
 
+text \<open>
+  So we can now write \<^term>\<open>\<implicit>A\<close> as a placeholder for an implicit argument with name \<open>A\<close>.
+\<close>
+
+
 ML_file "implicit_arguments.ML"
 
 

@@ -2,22 +2,21 @@ theory Typing_Examples
   imports "../Pair"
 begin
 
-lemma empty_type[type]: "{} : subset A"
-  by stauto
-
 lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by stauto
 lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by stauto
 
 text \<open>
   The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
-  type is trivial. But their formulation reflects the way we want to use the quantifier and
-  and the membership relation in well-typed terms. (* Josh -- outdated comment? *)
+  type is trivial. But the rules also determine the behavior of type inference.
 
   The rule for HOL.All currently needs to be restricted due to a deficiency in the 
-  type inference algorithm.
+  elaboration algorithm.
 \<close>
 lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
+
+lemma empty_type[type]: "{} : subset A"
+  by stauto
 
 lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
@@ -38,18 +37,26 @@ declare [[ trace_soft_types ]]
 
 
 
-text \<open> Example: Inferring types for list append \<close>
+subsection \<open> Example: Basic type inference with lists. \<close>
 
-context
-  fixes List :: "set \<Rightarrow> set"
+text \<open>
+  Compared to HOL, the type argument becomes an explicit set argument here:
+\<close>
+
+axiomatization
+  List :: "set \<Rightarrow> set"
     and Nil :: "set \<Rightarrow> set"
     and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes [type]: "Nil : (A: set) \<Rightarrow> element (List A)"
-    and [type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
-    and [type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
-begin
+    where
+      Nil_type[type]: "Nil : (A: set) \<Rightarrow> element (List A)"
+    and List_Cons_type[type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    and append[type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
+text \<open>
+  Currently, these are mostly test cases, as there is no way to insert the inferred pieces into
+  the context.
+\<close>
 
 ML \<open>
   [\<^term>\<open>Nil A = B\<close>]
@@ -122,10 +129,6 @@ Elaboration.elaborate_terms @{context} [
 ]
 \<close>
 
-end
-
-
-
 
 
 
@@ -157,7 +160,9 @@ context
 begin
 
 
-
+text \<open>
+  The base set of the vector and the dimensions are completely inferred:
+\<close>
 
 ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
@@ -168,7 +173,7 @@ ML \<open> Elaboration.elaborate_terms @{context} [
 
 end
 
-subsection \<open> Further examples \<close>
+subsection \<open> Further tests \<close>
 
 ML \<open>
   [\<^term>\<open>\<lambda>(x::set). Pair\<close>]

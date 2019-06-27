@@ -35,7 +35,7 @@ let
       else @{const "Succ"} $ (hash (i-1))
     end
 
-  fun upd (s, v) = HashArray.update (char_hash, s, v)
+  fun upd (s, v) = HashArray.update (char_hash, s, v)  (* cf. Pure/General/table.ML *)
 in
   upd ("0", hash 0);
   upd ("1", hash 1);

@@ -124,7 +124,7 @@ declare monoid_add_type[type implicit: 1]
 
 declare [[auto_elaborate, trace_soft_types]]
 
-lemma "x + 0 = 0 + x"
+lemma "x + 0 = x"
   oops
 
 lemma "monoid_add monoid_neut \<langle>x, y\<rangle> = \<langle>x, y\<rangle>"

@@ -357,7 +357,7 @@ and flexrigid bs u F ss t =
       if occurs F t then error "Occurs check failed"
       else let
         val bound_by_F = 
-          map (fn s => case s of Bound i => i | _ => error "Not a pattern") ss
+          map (fn s => case s of Bound i => i | _ => error ("Not a pattern: " ^ \<^make_string> ss)) ss
         val _ = if not (can_replace F ss t)
                 then error ("Equation is not a pattern: " ^ @{make_string} (F, ss, t)) else ()
         val theta = up_get_subst u
