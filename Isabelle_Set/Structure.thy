@@ -76,25 +76,38 @@ end
 \<close>
 
 
+
+
 subsection \<open>Notation and syntax\<close>
 
-nonterminal struct_arg and struct_args and struct_sig
+
+definition "comp lbl fn = (%x. lbl \<in> domain x \<and> fn (x`lbl) x)"
+definition "K x = (%_. x)"
+
+lemma structure_simps[simp]: 
+  "M : Type (comp A P) \<longleftrightarrow> A \<in> domain M \<and> M : Type (P (M`A))"
+  "M : Type (K Q) \<longleftrightarrow> Q"
+   by (auto simp: K_def comp_def has_type_iff)
+
+
+nonterminal struct_arg and struct_args
 
 syntax
-  "_struct_arg"  :: "set \<Rightarrow> (set \<Rightarrow> set type) \<Rightarrow> struct_arg" (infix ":" 45)
-  "_struct_args" :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("(1_ ,/ _)" [40, 41] 40)
-  "_struct_sig"  :: "pttrn \<Rightarrow> struct_args \<Rightarrow> set type" ("(; _ . _ ;)")
-  "_struct_cond" :: "pttrn \<Rightarrow> struct_args \<Rightarrow> bool \<Rightarrow> set type" ("(; _ . _ where _ ;)")
-  "_struct"      :: "set type \<Rightarrow> set type" ("'(;_;')")
+  "_struct_arg"  :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
+  "_struct_args" :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
+  "_struct_compr"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr>_. _ \<rparr>")
+  "_struct_compr2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
   ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
-  ""             :: "pttrn \<Rightarrow> struct_args" ("_")
 
 translations
-  "(; ty ;)" \<rightharpoonup> "CONST uniq_valued \<cdot> ty"
-  "; ref . lbl : typ ;" \<rightharpoonup> "CONST Type (\<lambda>ref. lbl \<in> CONST domain ref \<and> ref`lbl : typ)"
-  "; ref . fields, lbl : typ ;" \<rightharpoonup> "; ref . fields ; \<bar> ; ref . lbl : typ ;"
-  "; ref . fields where P ;" \<rightharpoonup> "; ref . fields ; \<bar> CONST Type (\<lambda>ref. P)"
+  "_struct_compr B P" \<rightleftharpoons> "_struct_compr2 B (CONST K P)"
+  "_struct_compr2 (_struct_args ARGS (_struct_arg A a)) PR" 
+  \<rightleftharpoons> "_struct_compr2 ARGS (CONST comp A (\<lambda>a. PR))"
+  "_struct_compr2 (_struct_arg A a) PR" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. PR))"
 
+term "\<lparr> (A a). P a \<rparr>"
+term "\<lparr> (A a) (B b). P a b  \<rparr>"
+term "\<lparr> (A a) (B b) (C c). P a b c \<rparr>"
 
 text \<open>Structure declaration keyword:\<close>
 
@@ -107,28 +120,18 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
       let
         (* Get the field labels used in the structure declaration.
            Relies on the specific form of the translations defined above! *)
-        fun get_labels tm =
-          let fun get_labels' tm (lbls as (existing, new)) = case tm of
-              @{const elem} $ Free (lbl, _) $ (@{const domain} $ Bound 0) => (existing, lbl :: new)
-            | @{const elem} $ Const (lbl, _) $ (@{const domain} $ Bound 0) => (lbl :: existing, new)
-            | t1 $ t2 => (
-                fst (get_labels' t1 lbls) @ fst (get_labels' t2 lbls), 
-                snd (get_labels' t1 lbls) @ snd (get_labels' t2 lbls))
-            | Abs (_, _, t) => get_labels' t lbls
-            | _ => lbls
-          in
-            get_labels' tm ([], [])
-          end
-
-        val has_dup_labels = has_duplicates (fn tup => (String.compare tup) = EQUAL)
+        fun get_labels (@{const comp} $ A $ Abs (_, _, t)) = A :: get_labels t
+          | get_labels (Const (@{const_name Type}, _) $ t) = get_labels t
+          | get_labels (Const (@{const_name Int_type}, _) $ _ $ t) = get_labels t
+          | get_labels _ = []
 
         val struct_def = Syntax.read_term lthy struct_def_str
-
-        val (existing_lbls, new_lbls) = get_labels struct_def
+        val labels = get_labels struct_def
+        val new_lbls = filter is_Free labels
 
         (* Check for duplicate labels *)
         val _ =
-          if has_dup_labels (existing_lbls @ new_lbls)
+          if has_duplicates (op =) labels
           then error "Structure type declaration has duplicate labels"
           else ()
 
@@ -162,8 +165,10 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
         (* Placeholder: generate definitional axioms as theorems *)
         fun gen_conditions _ = ()
       in
-        (new_lbls |> fold (define_label)) lthy |> define_struct_type
-          (* |> gen_typings |> gen_conditions *)
+        lthy
+        |> fold (define_label o fst o dest_Free) new_lbls
+        |> define_struct_type
+        (* |> gen_typings |> gen_conditions *)
       end
   in
     (parser >> (fn (name, def) => fn lthy => struct_cmd (name, def) lthy))

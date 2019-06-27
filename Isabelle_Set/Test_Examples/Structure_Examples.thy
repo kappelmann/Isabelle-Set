@@ -5,10 +5,9 @@ begin
 
 subsection \<open>Some structure declarations\<close>
 
-struct magma = "(;; it.
-  carrier: non-empty\<cdot>set,
-  op: element (it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier)
-;;)"
+struct magma = "\<lparr> (carrier A) (op op).
+  A : non-empty\<cdot>set
+  \<and> op : element(A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 thm magma_typedef
 thm carrier_lbldef
@@ -16,14 +15,14 @@ thm carrier_lbldef
 
 subsection \<open>Monoids\<close>
 
-struct monoid = "(;; it.
-  carrier: non-empty\<cdot>set,
-  op: element(it`carrier \<rightarrow> it`carrier \<rightarrow> it`carrier),
-  e: element(it`carrier)
-where
-  \<forall>x \<in> it`carrier. it`op`x`e = x \<and> it`op`e`x = x \<and>
-  (\<forall>x \<in> it`carrier. \<forall>y \<in> it`carrier. \<forall>z \<in> it`carrier. it`op`x`(it`op`y`z) = it`op`(it`op`x`y)`z)
-;;)"
+struct monoid = "\<lparr> (carrier A) (op op) (neut e).
+  A: non-empty\<cdot>set \<and>
+  op: element (A \<rightarrow> A \<rightarrow> A) \<and>
+  e: element A \<and>
+
+  (\<forall>x \<in> A. op`x`e = x \<and> op`e`x = x) \<and>
+  (\<forall>x \<in> A. \<forall>y \<in> A. \<forall>z \<in> A. op`x`(op`y`z) = op`(op`x`y)`z)
+\<rparr>"
 
 
 text \<open>Define the additive monoid Z2:\<close>
@@ -33,7 +32,7 @@ definition one ("1") where "1 \<equiv> Succ 0"
 definition "Z2 \<equiv> [;;
   carrier := {0, 1},
   op := \<lambda>x \<in> {0, 1}. if x = 0 then \<lambda>y \<in> {0, 1}. y else \<lambda>y \<in> {0,1}. if y = 0 then 1 else 0,
-  e := 0
+  neut := 0
 ;;]"
 
 
