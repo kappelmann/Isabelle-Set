@@ -655,6 +655,31 @@ proof (induction X arbitrary: Y rule: elem_induct_rule)
   qed
 qed
 
+lemma cycle3: 
+  assumes "a \<in> b" "b \<in> c" "c \<in> a"
+  shows "False"
+proof -
+  let ?C = "{a, b, c}"
+  have "?C \<noteq> {}" by simp
+  from foundation[OF this]
+  obtain Y where "Y \<in> ?C" "Y \<inter> ?C = {}" by auto
+  from `Y \<in> ?C` have "Y = a \<or> Y = b \<or> Y = c" by simp
+  thus ?thesis
+  proof (elim disjE)
+    assume "Y = a"
+    with assms have "c \<in> Y \<inter> ?C" by auto
+    with `Y \<inter> ?C = {}` show False by auto
+  next
+    assume "Y = b"
+    with assms have "a \<in> Y \<inter> ?C" by auto
+    with `Y \<inter> ?C = {}` show False by auto
+  next
+    assume "Y = c"
+    with assms have "b \<in> Y \<inter> ?C" by auto
+    with `Y \<inter> ?C = {}` show False by auto
+  qed
+qed
+
 
 subsection \<open>Fundamental soft types\<close>
 
