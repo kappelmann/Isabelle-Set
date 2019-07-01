@@ -225,10 +225,8 @@ declare [[auto_elaborate, trace_soft_types]]
 lemma "x + 0 = x"
   oops
 
-(* TODO: check what's wrong here
 lemma "\<langle>x, y\<rangle> + 0 = \<langle>x, y\<rangle>"
   oops
-*)
 
 lemma "x + (y + z) = x + y + z"
   oops

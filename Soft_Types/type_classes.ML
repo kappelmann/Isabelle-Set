@@ -34,17 +34,20 @@ fun pr_subst ctxt (Envir.Envir {tenv, ...}) =
     |> cat_lines
   end
 
+fun maxidx_of_state (goals, env, subst) =
+  Int.max (fold Term.maxidx_term goals (fold Term.maxidx_term env 0), Envir.maxidx_of subst)
 
-fun apply_instance_rule ctxt (rule: thm) (goals: term list, env, subst) =
+fun apply_instance_rule ctxt (rule: thm) (state as (goals: term list, env, subst)) =
   let
+    val rule' = Thm.incr_indexes (maxidx_of_state state + 1) rule
     val head_goal = hd goals
     val _ = Output.tracing ("Attempt Rule " ^ Syntax.string_of_term ctxt 
-      (Thm.prop_of rule) ^ " on: " ^ Syntax.string_of_term ctxt head_goal)
-    val concl = HOLogic.dest_Trueprop (Thm.concl_of rule)
+      (Thm.prop_of rule') ^ " on: " ^ Syntax.string_of_term ctxt head_goal)
+    val concl = HOLogic.dest_Trueprop (Thm.concl_of rule')
     val subst' = Pattern.unify (Context.Proof ctxt) (concl, head_goal) subst
     val _ = Soft_Type.tracing ctxt ("Substitution:\n" ^ pr_subst ctxt subst')
     fun inst t = Envir.norm_term subst' t
-    val subgoals = Thm.prems_of rule
+    val subgoals = Thm.prems_of rule'
     val new_goals = map inst (subgoals @ tl goals)
   in
     SOME (new_goals, map inst env, subst')
