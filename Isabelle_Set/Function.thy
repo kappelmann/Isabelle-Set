@@ -214,7 +214,7 @@ lemma Pi_empty_iff [iff]: "f \<in> \<Prod>x \<in> {}. (B x) \<longleftrightarrow
 lemma Pi_carrier [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<subseteq> \<Coprod>x \<in> A. (B x)"
   unfolding Pi_def by auto
 
-lemma Pi_forget_stratification [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<in> A \<rightarrow> \<Union>x \<in> A. (B x)"
+lemma Pi_forget_stratification [dest]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<in> A \<rightarrow> (\<Union>x \<in> A. B x)"
   unfolding Pi_def by auto
 
 lemma Pi_refine: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x\<rbrakk> \<Longrightarrow> f \<in> \<Prod>x \<in> A. (C x)"
@@ -222,7 +222,7 @@ proof (rule PiI; auto)
   assume assms: "f \<in> \<Prod>x \<in> A. (B x)" "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x"
 
   { fix p assume p_elem: "p \<in> f"
-    show "p \<in> A \<times> \<Union>x \<in> A. (C x)"
+    show "p \<in> A \<times> (\<Union>x \<in> A. C x)"
     apply (intro DUnionI2)
     apply (auto intro: assms(1) p_elem Pi_elems_conv Pi_fst sym)
     proof rule+

@@ -115,6 +115,10 @@ lemma Bex1_cong [cong]:
 lemma Bex1_implies_Bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
   by auto
 
+lemma ball_conj_distrib:
+    "(\<forall>x\<in>A. P x \<and> Q x) \<longleftrightarrow> (\<forall>x\<in>A. P x) \<and> (\<forall>x\<in>A. Q x)"
+  by blast
+
 
 subsection \<open>Subsets\<close>
 
@@ -170,6 +174,9 @@ lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Long
 
 lemma equality_iffD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
   by auto
+
+lemma equalityI2: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B"
+  by (rule extensionality) auto
 
 method extensionality = (
     (rule extensionality)?,
@@ -458,41 +465,106 @@ lemma Inter_empty [simp]: "\<Inter>{} = {}"
 
 
 syntax
-  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" [0, 0, 100])
-  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_ \<in> _./ _)" [0, 0, 100])
+  "_UNION" :: "[pttrn, set, set] => set"  ("(3\<Union>_ \<in> _./ _)" [0, 0, 10]10)
+  "_INTER" :: "[pttrn, set, set] => set"  ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10]10)
 translations
   \<comment>\<open>@{term "\<Union>x \<in> A. (B x)"} abbreviates @{term "\<Union>({B x. x \<in> A})"}\<close>
   "\<Union>x \<in> A. B" \<rightleftharpoons> "CONST Union {B. x \<in> A}"
   "\<Inter>x \<in> A. B" \<rightleftharpoons> "CONST Inter {B. x \<in> A}"
 
 
-lemma UN_iff [iff]: "b \<in> \<Union>x \<in> A. (B x) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
+lemma UN_iff [iff]: "b \<in> (\<Union>x \<in> A. (B x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
   by (simp add: Bex_def, blast)
 
 text \<open>LCP: The order of the premises presupposes that A is rigid; b may be flexible\<close>
 
-lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> \<Union>x \<in> A. (B x)"
+lemma UN_I: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x \<in> A. B x)"
   by (simp, blast)
 
-lemma UN_E [elim!]: "\<lbrakk>b \<in> \<Union>x \<in> A. (B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+lemma UN_E [elim!]: "\<lbrakk>b \<in> (\<Union>x \<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by blast
 
-lemma UN_cong: "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> \<Union>x \<in> A. (C x) = \<Union>x \<in> B. (D x)"
+lemma UN_cong: "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> (\<Union>x \<in> A. C x) = (\<Union>x \<in> B. D x)"
   by simp
 
-lemma UN_const: "A \<noteq> {} \<Longrightarrow> \<Union>x \<in> A. B = B"
+lemma UN_const: "A \<noteq> {} \<Longrightarrow> (\<Union>x \<in> A. B) = B"
   by extensionality
 
-lemma UN_empty_family: "\<Union>x \<in> {}. B = {}"
+lemma UN_empty_family: "(\<Union>x \<in> {}. B) = {}"
   by extensionality
 
-lemma UN_empty_sets: "\<Union>x \<in> A. {} = {}"
+lemma UN_empty_sets: "(\<Union>x \<in> A. {}) = {}"
   by extensionality
 
 lemma Inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in> C. A \<in> x) \<and> C \<noteq> {}"
   unfolding Inter_def Ball_def
   by (force elim: not_emptyE)
 
+lemma UN_subset_iff: "(\<Union>x\<in>A. B x) \<subseteq> C \<longleftrightarrow> (\<forall>x\<in>A. B x \<subseteq> C)"
+by blast
+
+lemma UN_upper: "x\<in>A \<Longrightarrow> B x \<subseteq> (\<Union>x\<in>A. B x)"
+  by blast
+
+lemma UN_least: "[| !!x. x\<in>A ==> B(x)\<subseteq>C |] ==> (\<Union>x\<in>A. B(x)) \<subseteq> C"
+by blast
+
+lemma Union_eq_UN: "\<Union>(A) = (\<Union>x\<in>A. x)"
+  by extensionality
+
+lemma Union_is_empty[simp]: "\<Union>A = {} \<longleftrightarrow> A = {} \<or> A = {{}}"
+proof
+  assume "\<Union>A = {}" show "A = {} \<or> A = {{}}"
+  proof (rule disjCI2)
+    assume "A \<noteq> {}" then obtain x where "x \<in> A" by auto
+    from `\<Union>A = {}` have [simp]: "\<And>x. x \<in> A \<Longrightarrow> x = {}" by auto
+    with `x \<in> A` have "x = {}" by simp
+    with `x \<in> A` have [simp]: "{} \<in> A" by simp
+    show "A = {{}}" by extensionality
+  qed
+qed auto
+
+lemma Inter_eq_INT: "\<Inter>(A) = (\<Inter>x\<in>A. x)"
+  by extensionality
+
+lemma UN_0 [simp]: "(\<Union>i\<in>{}. A i) = {}"
+by blast
+
+lemma UN_singleton: "(\<Union>x\<in>A. {x}) = A"
+  by extensionality
+
+lemma UN_UN_flatten: "(\<Union>x \<in> (\<Union>y\<in>A. B y). C x) = (\<Union>y\<in>A. \<Union>x\<in>B y. C x)"
+  by extensionality
+
+lemma UN_constant [simp]: "(\<Union>y\<in>A. c) = (if A={} then {} else c)"
+  by extensionality
+
+lemma INT_constant [simp]: "(\<Inter>y\<in>A. c) = (if A={} then {} else c)"
+  by extensionality
+
+lemma UN_RepFun [simp]: "(\<Union>y\<in> Repl A f. B(y)) = (\<Union>x\<in>A. B(f(x)))"
+  by extensionality
+
+lemma INT_RepFun [simp]: "(\<Inter>x\<in>Repl A f. B(x)) = (\<Inter>a\<in>A. B(f(a)))"
+by (auto simp add: Inter_def)
+
+lemma INT_Union_eq: "{} \<notin> A \<Longrightarrow>(\<Inter>x\<in>\<Union>(A). B(x)) = (\<Inter>y\<in>A. \<Inter>x\<in>y. B(x))"
+  by (rule equalityI2) (auto)
+
+lemma INT_UN_eq:
+  assumes assms: "\<forall>x\<in>A. B x \<noteq> {}"
+  shows "(\<Inter>z\<in>(\<Union>x\<in>A. B x). C z) = (\<Inter>x\<in>A. \<Inter>z\<in> B x. C z)"
+proof (rule equalityI2) 
+  fix x assume "x \<in> (\<Inter>z\<in>(\<Union>x\<in>A. B x). C z)"
+  with assms show "x \<in> (\<Inter>x\<in>A. \<Inter>z\<in> B x. C z)" by auto
+next
+  fix x assume a: "x \<in> (\<Inter>x\<in>A. \<Inter>z\<in> B x. C z)"
+  then have "A \<noteq> {}" by auto
+  then obtain y where "y \<in> A" by auto
+  with assms have "B y \<noteq> {}" by auto
+  with `y\<in>A` have "{B x | x \<in> A} \<noteq> {{}}" by extensionality
+  with a show "x \<in> (\<Inter>z\<in>(\<Union>x\<in>A. B x). C z)" by auto
+qed
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
 
@@ -511,16 +583,16 @@ lemma InterE [elim]: "\<lbrakk>A \<in> \<Inter>C; B \<notin> C \<Longrightarrow>
 
 text \<open>@{term "\<Inter>x \<in> A. (B x)"} abbreviates @{term "\<Inter>({B x. x \<in> A})"}\<close>
 
-lemma INT_iff: "b \<in> \<Inter>x \<in> A. (B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
+lemma INT_iff: "b \<in> (\<Inter>x \<in> A. B x) \<longleftrightarrow> (\<forall>x \<in> A. b \<in> B x) \<and> A \<noteq> {}"
   by auto
   
-lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b \<in> B x; A \<noteq> {}\<rbrakk> \<Longrightarrow> b \<in> \<Inter>x \<in> A. (B x)"
+lemma INT_I: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> b \<in> B x; A \<noteq> {}\<rbrakk> \<Longrightarrow> b \<in> (\<Inter>x \<in> A. B x)"
   by blast
 
-lemma INT_E: "\<lbrakk>b \<in> \<Inter>x \<in> A. (B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B a"
+lemma INT_E: "\<lbrakk>b \<in> (\<Inter>x \<in> A. B x); a \<in> A\<rbrakk> \<Longrightarrow> b \<in> B a"
   by blast
 
-lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x = D x) \<Longrightarrow> \<Inter>x \<in> A. (C x) = \<Inter>x \<in> B. (D x)"
+lemma INT_cong: "A = B \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> C x = D x) \<Longrightarrow> (\<Inter>x \<in> A. C x) = (\<Inter>x \<in> B. D x)"
   by simp
 
 
@@ -558,11 +630,57 @@ lemma UnCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarro
 lemma Un_commute [simp]: "A \<union> B = B \<union> A"
   by extensionality
 
+lemma Un_left_commute: "A \<union> (B \<union> C) = B \<union> (A \<union> C)"
+  by extensionality
+
 lemma empty_Un_conv [simp]: "{} \<union> A = A"
   by extensionality
 
 lemma Un_empty_conv [simp]: "A \<union> {} = A"
   by extensionality
+
+
+lemma Un_subset_iff: "A \<union> B \<subseteq> C \<longleftrightarrow> A \<subseteq> C \<and> B \<subseteq> C"
+by blast
+
+lemma Un_upper1: "A \<subseteq> A \<union> B"
+by blast
+
+lemma Un_upper2: "B \<subseteq> A \<union> B"
+by blast
+
+lemma Un_least: "[| A\<subseteq>C;  B\<subseteq>C |] ==> A \<union> B \<subseteq> C"
+by blast
+
+lemma Un_absorb [simp]: "A \<union> A = A"
+  by extensionality
+
+lemma Un_left_absorb: "A \<union> (A \<union> B) = A \<union> B"
+  by extensionality
+
+lemma Un_assoc: "(A \<union> B) \<union> C  =  A \<union> (B \<union> C)"
+  by extensionality
+
+(*Union is an AC-operator*)
+lemmas Un_ac = Un_assoc Un_left_absorb Un_commute Un_left_commute
+
+lemma Un_absorb1: "A \<subseteq> B ==> A \<union> B = B"
+  by extensionality
+
+lemma Un_absorb2: "B \<subseteq> A ==> A \<union> B = A"
+  by extensionality
+
+lemma Un_Int_distrib: "(A \<inter> B) \<union> C  =  (A \<union> C) \<inter> (B \<union> C)"
+  by extensionality
+
+lemma subset_Un_iff: "A\<subseteq>B \<longleftrightarrow> A \<union> B = B"
+  by extensionality
+
+lemma subset_Un_iff2: "A\<subseteq>B \<longleftrightarrow> B \<union> A = B"
+  by extensionality
+
+lemma Un_empty [iff]: "(A \<union> B = {}) \<longleftrightarrow> (A = {} \<and> B = {})"
+  by blast
 
 lemma IntI [intro!]: "\<lbrakk>c \<in> A; c \<in> B\<rbrakk> \<Longrightarrow> c \<in> A \<inter> B"
   by simp
@@ -581,6 +699,49 @@ lemma Int_empty_iff [iff]: "(\<forall>a \<in> A. a \<notin> B) \<longleftrightar
 
 lemma Int_commute [simp]: "A \<inter> B = B \<inter> A"
   by extensionality
+
+lemma Un_Int_assoc_iff: "(A \<inter> B) \<union> C = A \<inter> (B \<union> C)  \<longleftrightarrow>  C\<subseteq>A"
+  by extensionality
+
+lemma subset_UN_iff_eq: "A \<subseteq> (\<Union>i\<in>I. B i) \<longleftrightarrow> A = (\<Union>i\<in>I. A \<inter> B i)"
+  by extensionality+
+
+lemma UN_Un: "(\<Union>i\<in> A \<union> B. C(i)) = (\<Union>i\<in> A. C(i)) \<union> (\<Union>i\<in>B. C(i))"
+  by extensionality
+
+lemma INT_Un: "(\<Inter>i\<in>I \<union> J. A(i)) =
+               (if I={} then \<Inter>j\<in>J. A j
+                       else if J={} then \<Inter>i\<in>I. A i
+                       else ((\<Inter>i\<in>I. A i) \<inter> (\<Inter>j\<in>J. A j)))"
+  by extensionality
+
+(*Halmos, Naive Set Theory, page 35.*)
+lemma Int_UN_distrib: "B \<inter> (\<Union>i\<in>I. A(i)) = (\<Union>i\<in>I. B \<inter> A(i))"
+  by extensionality
+
+lemma Un_INT_distrib: "I\<noteq>{} ==> B \<union> (\<Inter>i\<in>I. A(i)) = (\<Inter>i\<in>I. B \<union> A(i))"
+  by extensionality
+
+lemma Int_UN_distrib2:
+     "(\<Union>i\<in>I. A(i)) \<inter> (\<Union>j\<in>J. B(j)) = (\<Union>i\<in>I. \<Union>j\<in>J. A(i) \<inter> B(j))"
+  by extensionality
+
+lemma Un_INT_distrib2: "[| I\<noteq>{};  J\<noteq>{} |] ==>
+      (\<Inter>i\<in>I. A(i)) \<union> (\<Inter>j\<in>J. B(j)) = (\<Inter>i\<in>I. \<Inter>j\<in>J. A(i) \<union> B(j))"
+  by extensionality
+
+lemma UN_Un_distrib:
+     "(\<Union>i\<in>I. A i \<union> B i) = (\<Union>i\<in>I. A i) \<union> (\<Union>i\<in>I. B i)"
+  by extensionality
+
+lemma INT_Int_distrib:
+     "I\<noteq>{} ==> (\<Inter>i\<in>I. A(i) \<inter> B(i)) = (\<Inter>i\<in>I. A(i)) \<inter> (\<Inter>i\<in>I. B(i))"
+  by extensionality
+
+lemma UN_Int_subset:
+     "(\<Union>z\<in>I \<inter> J. A(z)) \<subseteq> (\<Union>z\<in>I. A(z)) \<inter> (\<Union>z\<in>J. A(z))"
+by blast
+
 
 
 subsection \<open>Set Difference\<close>
@@ -602,6 +763,70 @@ lemma DiffD2: "c \<in> A \<setminus> B \<Longrightarrow> c \<notin> B"
 
 lemma DiffE [elim!]: "\<lbrakk>c \<in> A \<setminus> B; \<lbrakk>c \<in> A; c \<notin> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by simp
+
+lemma Diff_subset: "A\<setminus>B \<subseteq> A"
+by blast
+
+lemma Diff_contains: "C\<subseteq>A \<Longrightarrow> C \<inter> B = {} \<Longrightarrow> C \<subseteq> A\<setminus>B"
+by blast
+
+lemma Diff_cancel: "A \<setminus> A = {}"
+by blast
+
+lemma Diff_triv: "A \<inter> B = {} \<Longrightarrow> A \<setminus> B = A"
+  by extensionality
+
+lemma empty_Diff [simp]: "{} \<setminus> A = {}"
+by blast
+
+lemma Diff_0 [simp]: "A \<setminus> {} = A"
+  by extensionality
+
+lemma Diff_eq_0_iff: "A \<setminus> B = {} \<longleftrightarrow> A \<subseteq> B"
+  by extensionality
+
+lemma Diff_disjoint: "A \<inter> (B\<setminus>A) = {}"
+by blast
+
+lemma Diff_partition: "A\<subseteq>B \<Longrightarrow> A \<union> (B\<setminus>A) = B"
+  by extensionality
+
+lemma subset_Un_Diff: "A \<subseteq> B \<union> (A \<setminus> B)"
+by blast
+
+lemma double_complement: "A\<subseteq>B \<Longrightarrow> B\<subseteq>C \<Longrightarrow> B\<setminus>(C\<setminus>A) = A"
+  by extensionality
+
+lemma double_complement_Un: "(A \<union> B) \<setminus> (B\<setminus>A) = A"
+  by extensionality
+
+lemma Un_Int_crazy:
+ "(A \<inter> B) \<union> (B \<inter> C) \<union> (C \<inter> A) = (A \<union> B) \<inter> (B \<union> C) \<inter> (C \<union> A)"
+  by extensionality
+
+lemma Diff_Un: "A \<setminus> (B \<union> C) = (A\<setminus>B) \<inter> (A\<setminus>C)"
+  by extensionality
+
+lemma Diff_Int: "A \<setminus> (B \<inter> C) = (A\<setminus>B) \<union> (A\<setminus>C)"
+  by extensionality
+
+lemma Un_Diff: "(A \<union> B) \<setminus> C = (A \<setminus> C) \<union> (B \<setminus> C)"
+  by extensionality
+
+lemma Int_Diff: "(A \<inter> B) \<setminus> C = A \<inter> (B \<setminus> C)"
+  by extensionality
+
+lemma Diff_Int_distrib: "C \<inter> (A\<setminus>B) = (C \<inter> A) \<setminus> (C \<inter> B)"
+  by extensionality
+
+lemma Diff_Int_distrib2: "(A\<setminus>B) \<inter> C = (A \<inter> C) \<setminus> (B \<inter> C)"
+  by extensionality
+
+lemma Diff_UN: "I\<noteq>{} ==> B \<setminus> (\<Union>i\<in>I. A i) = (\<Inter>i\<in>I. B \<setminus> A i)"
+  by extensionality
+
+lemma Diff_INT: "I\<noteq>{} ==> B \<setminus> (\<Inter>i\<in>I. A i) = (\<Union>i\<in>I. B \<setminus> A i)"
+  by extensionality
 
 
 subsection \<open>\<in>-induction\<close>
