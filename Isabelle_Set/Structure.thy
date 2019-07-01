@@ -81,11 +81,13 @@ end
 subsection \<open>Notation and syntax\<close>
 
 
-definition "comp lbl fn = (%x. lbl \<in> domain x \<and> fn (x`lbl) x)"
+definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool" where
+  "comp lbl fn = (%x. fn (x`lbl) x)"
+
 definition "K x = (%_. x)"
 
 lemma structure_simps[simp]: 
-  "M : Type (comp A P) \<longleftrightarrow> A \<in> domain M \<and> M : Type (P (M`A))"
+  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M`A))"
   "M : Type (K Q) \<longleftrightarrow> Q"
    by (auto simp: K_def comp_def has_type_iff)
 
