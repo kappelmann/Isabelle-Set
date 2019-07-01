@@ -76,17 +76,14 @@ end
 \<close>
 
 
-
-
 subsection \<open>Notation and syntax\<close>
 
+definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  where "comp lbl pred = (\<lambda>x. pred (x`lbl) x)"
 
-definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool" where
-  "comp lbl fn = (%x. fn (x`lbl) x)"
+definition "K x = (\<lambda>_. x)"
 
-definition "K x = (%_. x)"
-
-lemma structure_simps[simp]: 
+lemma structure_simps [simp]: 
   "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M`A))"
   "M : Type (K Q) \<longleftrightarrow> Q"
    by (auto simp: K_def comp_def has_type_iff)
@@ -95,21 +92,18 @@ lemma structure_simps[simp]:
 nonterminal struct_arg and struct_args
 
 syntax
-  "_struct_arg"  :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
-  "_struct_args" :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
-  "_struct_compr"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr>_. _ \<rparr>")
-  "_struct_compr2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
-  ""             :: "struct_arg \<Rightarrow> struct_args" ("_")
+  "_struct_arg"    :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
+  "_struct_args"   :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
+  "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr>_. _ \<rparr>")
+  "_struct_comp2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
+  ""               :: "struct_arg \<Rightarrow> struct_args" ("_")
 
 translations
-  "_struct_compr B P" \<rightleftharpoons> "_struct_compr2 B (CONST K P)"
-  "_struct_compr2 (_struct_args ARGS (_struct_arg A a)) PR" 
-  \<rightleftharpoons> "_struct_compr2 ARGS (CONST comp A (\<lambda>a. PR))"
-  "_struct_compr2 (_struct_arg A a) PR" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. PR))"
+  "_struct_comp args P" \<rightleftharpoons> "_struct_comp2 args (CONST K P)"
+  "_struct_comp2 (_struct_args args (_struct_arg A a)) P" \<rightleftharpoons>
+    "_struct_comp2 args (CONST comp A (\<lambda>a. P))"
+  "_struct_comp2 (_struct_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
 
-term "\<lparr> (A a). P a \<rparr>"
-term "\<lparr> (A a) (B b). P a b  \<rparr>"
-term "\<lparr> (A a) (B b) (C c). P a b c \<rparr>"
 
 text \<open>Structure declaration keyword:\<close>
 
@@ -185,13 +179,13 @@ nonterminal instance_arg and instance_args
 syntax
   "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix ":=" 45)
   "_instance_args" :: "instance_arg \<Rightarrow> instance_args \<Rightarrow> instance_args" ("(1_ ,/ _)" [41, 40] 40)
-  "_instance"      :: "instance_args \<Rightarrow> set" ("[;; _ ;;]")
+  "_instance"      :: "instance_args \<Rightarrow> set" ("\<lparr> _ \<rparr>")
   ""               :: "instance_arg \<Rightarrow> instance_args" ("_")
   ""               :: "pttrn \<Rightarrow> instance_args" ("_")
 
 translations
-  "[;; lbl := val ;;]" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
-  "[;; lbl := val, fields ;;]" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> [;; fields ;;]"
+  "\<lparr> lbl := val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
+  "\<lparr> lbl := val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
 
 
 end

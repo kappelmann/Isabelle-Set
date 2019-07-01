@@ -102,8 +102,8 @@ consts
   plus_nat :: set
 
 
-definition "Nat_Plus \<equiv> [;; PLUS := plus_nat ;;]"
-definition "Nat_Zero \<equiv> [;; ZERO := zero_nat ;;]"
+definition "Nat_Plus \<equiv> \<lparr> PLUS := plus_nat \<rparr>"
+definition "Nat_Zero \<equiv> \<lparr> ZERO := zero_nat \<rparr>"
 definition "Not_Monoid \<equiv> Nat_Plus \<union> Nat_Zero"
 
 axiomatization (* TODO actually construct naturals *)
@@ -112,15 +112,15 @@ where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
 
 definition
   "pair_plus A B p1 p2 \<equiv> 
-    [;; PLUS := \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> ;;]"
+    \<lparr> PLUS := \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
 
 definition
   "pair_zero A B z1 z2 \<equiv>
-    [;; ZERO := \<langle>zero z1, zero z2\<rangle> ;;]"
+    \<lparr> ZERO := \<langle>zero z1, zero z2\<rangle> \<rparr>"
 
 definition (* TODO: Need some form of structure composition: pair_monoid = pair_zero [+] pair_plus *)
   "pair_monoid A B m1 m2 \<equiv>
-    [;; ZERO := pair_zero A B m1 m2 ` ZERO, PLUS := pair_plus A B m1 m2 ` PLUS ;;]"
+    \<lparr> ZERO := pair_zero A B m1 m2 ` ZERO, PLUS := pair_plus A B m1 m2 ` PLUS \<rparr>"
 
 lemma pair_monoid_ZERO[simp]: "pair_monoid A B m1 m2 ` ZERO = pair_zero A B m1 m2 ` ZERO"
   unfolding pair_monoid_def by simp
