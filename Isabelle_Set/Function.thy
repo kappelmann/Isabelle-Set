@@ -61,6 +61,22 @@ lemma lambda_cong [cong]:
 lemma lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
   by (auto elim: equalityE)
 
+lemma apply_singleton[simp]: "{\<langle>x, y\<rangle>} ` x = y"
+  by (auto simp: apply_def)
+
+lemma apply_doubleton1[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` x = a"
+  by (auto simp: apply_def)
+
+lemma apply_doubleton2[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` y = b"
+  by (auto simp: apply_def)
+
+lemma beta_split[simp]:
+  assumes "a \<in> A" "b \<in> B"
+  shows "(\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) ` \<langle>a, b\<rangle> = P a b"
+proof -
+  from assms have "\<langle>a, b\<rangle> \<in> A \<times> B" ..
+  then show ?thesis by auto
+qed
 
 subsection \<open>Rules for functions\<close>
 
