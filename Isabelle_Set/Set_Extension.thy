@@ -30,7 +30,6 @@ text \<open>
   of the bijection in the end, and will not get in the way when reasoning about the newly defined
   set. Primitive operations on \<open>B'\<close> will usually be defined by lifting them over from operations
   on \<open>B\<close>, in the same way as is done for type definitions in HOL.
-
 \<close>
 
 context

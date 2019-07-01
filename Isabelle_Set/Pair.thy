@@ -96,28 +96,16 @@ lemma snd_conv [simp]: "snd(\<langle>a,b\<rangle>) = b"
 lemma Pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by simp
 
+lemma Pair_not_in_fst: "\<langle>a, b\<rangle> \<notin> a"
+  unfolding Pair_def by (auto intro: cycle3)
+
+lemma Pair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
+  unfolding Pair_def by (auto dest: cycle3)
+
 text \<open>The definition above is equivalent to this more standard one:\<close>
 
 lemma Kuratowski_Pair_def: "Pair a b = {{a}, {a, b}}"
   unfolding Pair_def by extensionality
-
-lemma Pair_not_in_fst: "\<langle>a, b\<rangle> \<notin> a"
-proof
-  assume 1: "\<langle>a, b\<rangle> \<in> a"
-  have 2: "a \<in> {a}" by auto
-  have 3: "{a} \<in> \<langle>a, b\<rangle>" unfolding Kuratowski_Pair_def by auto
-
-  from 1 2 3 show False by (rule cycle3)
-qed
-
-lemma Pair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
-proof
-  assume 1: "\<langle>a, b\<rangle> \<in> b"
-  have 2: "b \<in> {a, b}" by auto
-  have 3: "{a, b} \<in> \<langle>a, b\<rangle>" unfolding Pair_def by auto
-
-  from 1 2 3 show False by (rule cycle3)
-qed
 
 
 subsection \<open>Disjoint union of a set-indexed family of sets\<close>
@@ -243,8 +231,8 @@ lemma Pair_type [type]: "Pair : element A \<Rightarrow> element B \<Rightarrow> 
   by stauto
 
 text \<open> 
-  The following is more general, but also makes elaboration more complex, so
-  we do not declare it by default for now.
+The following is more general, but also makes elaboration more complex, so we do not declare it by
+default for now.
 \<close>
 
 lemma Pair_dependent_type: "Pair : (x: element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
