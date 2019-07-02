@@ -351,8 +351,6 @@ so that there's no difference to the user. *)
 lemma Upair_eq_Cons [simp]: "Upair a b = {a, b}"
   by extensionality
 
-
-
 subsection \<open>Set comprehension\<close>
 
 text \<open>This is also known as separation.\<close>
@@ -379,6 +377,19 @@ lemma CollectD1: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A"
 lemma CollectD2: "x \<in> {y \<in> A | P y} \<Longrightarrow> P x"
   by auto
 
+lemma Collect_subset: "Collect A P \<subseteq> A"
+  by blast
+
+lemma Collect_cong [cong]:
+    "A = B \<Longrightarrow> (\<And>x. x\<in>B ==> P x = Q x) \<Longrightarrow> Collect A P = Collect B Q"
+  by (simp add: Collect_def)
+
+lemma Collect_Collect_eq [simp]:
+     "Collect (Collect A P) Q = Collect A (\<lambda>x. P x \<and> Q x)"
+  by extensionality
+
+lemma Collect_cons: "{x\<in>Cons a B. P x} = (if P(a) then Cons a {x\<in>B. P(x)} else {x\<in>B. P(x)})"
+  by extensionality
 
 subsection \<open>More replacement\<close>
 
@@ -783,6 +794,37 @@ lemma subset_Int_iff2: "A\<subseteq>B \<longleftrightarrow> B \<inter> A = A"
 lemma Un_Int_assoc_iff: "(A \<inter> B) \<union> C = A \<inter> (B \<union> C)  \<longleftrightarrow>  C\<subseteq>A"
   by extensionality
 
+lemma Collect_Un: "Collect (A \<union> B) P = Collect A P \<union> Collect B P"
+  by extensionality 
+
+lemma Collect_Int: "Collect(A \<inter> B) P = Collect A P \<inter> Collect B P"
+  by extensionality 
+
+
+lemma Int_Collect_self_eq: "A \<inter> Collect A P = Collect A P"
+  by extensionality 
+
+lemma Collect_Int_Collect_eq:
+     "Collect A P \<inter> Collect A Q = Collect A (\<lambda>x. P x \<and> Q x)"
+  by extensionality 
+
+lemma Collect_Union_eq [simp]:
+     "Collect (\<Union>x\<in>A. B x) P = (\<Union>x\<in>A. Collect (B x) P)"
+  by extensionality 
+
+lemma Collect_Int_left: "{x\<in>A. P(x)} \<inter> B = {x \<in> A \<inter> B. P(x)}"
+  by extensionality 
+
+lemma Collect_Int_right: "A \<inter> {x\<in>B. P(x)} = {x \<in> A \<inter> B. P(x)}"
+  by extensionality 
+
+lemma Collect_disj_eq: "{x\<in>A. P(x) \<or> Q(x)} = Collect A P \<union> Collect A Q"
+  by extensionality 
+
+lemma Collect_conj_eq: "{x\<in>A. P(x) \<and> Q(x)} = Collect A P \<inter> Collect A Q" 
+  by extensionality 
+
+
 lemma subset_UN_iff_eq: "A \<subseteq> (\<Union>i\<in>I. B i) \<longleftrightarrow> A = (\<Union>i\<in>I. A \<inter> B i)"
   by extensionality+
 
@@ -933,6 +975,10 @@ lemma Diff_UN: "I\<noteq>{} ==> B \<setminus> (\<Union>i\<in>I. A i) = (\<Inter>
 
 lemma Diff_INT: "I\<noteq>{} ==> B \<setminus> (\<Inter>i\<in>I. A i) = (\<Union>i\<in>I. B \<setminus> A i)"
   by extensionality
+
+lemma Collect_Diff: "Collect (A \<setminus> B) P = Collect A P \<setminus> Collect B P"
+  by extensionality
+
 
 
 subsection \<open>\<in>-induction\<close>

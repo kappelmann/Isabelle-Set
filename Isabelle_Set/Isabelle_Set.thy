@@ -5,6 +5,7 @@ imports
   Pair
   Relation
   Function
+  Fixed_Points
   Structure
   Monoid_Structure
   Monoid_Class
