@@ -142,7 +142,7 @@ next
 qed
 
 (* LCP: Conclusion is flexible -- use rule_tac or else functionsE below! *)
-lemma PiE:
+lemma PiE [elim]:
   assumes "f \<in> \<Prod>x \<in> A. (B x)" and "x \<in> A"
   shows "f`x \<in> B x"
 proof -
@@ -152,7 +152,7 @@ proof -
 qed
 
 (* LCP: This version is acceptable to the simplifer *)
-lemma functionsE: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f`a \<in> B"
+lemma functionsE [elim]: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f`a \<in> B"
   by (fact PiE)
 
 
@@ -276,7 +276,7 @@ proof auto
   assume "A \<rightarrow> X = {}" hence "A \<noteq> {}" by auto
   { assume "X \<noteq> {}"
     then obtain c where "c \<in> X" using \<open>A \<noteq> {}\<close> by blast
-    hence "(\<lambda>x \<in> A. c) \<in> A \<rightarrow> X" by stauto
+    hence "(\<lambda>x \<in> A. c) \<in> A \<rightarrow> X" by auto
     with \<open>A \<rightarrow> X = {}\<close> have False by auto
   }
   thus "X = {}" by auto
@@ -347,16 +347,16 @@ definition function :: "set type"
 definition total :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-total)" [1000])
   where "A-total \<equiv> \<lambda>f. domain f = A"
 
-lemma Pi_relation_type [intro_st]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : relation"
-  by (drule Pi_relations, drule relations_relation_type) stauto
+lemma Pi_relation_type [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : relation"
+  by (drule Pi_relations, drule relations_relation_type) squash_types
 
-lemma Pi_function_type [intro_st]: "f \<in> Pi A B \<Longrightarrow> f : A-total \<cdot> function"
+lemma Pi_function_type [elim]: "f \<in> Pi A B \<Longrightarrow> f : A-total \<cdot> function"
   unfolding function_typedef uniq_valued_def total_def adjective_def
-  by stauto
+  by squash_types auto
 
-lemma functions_function_type [intro_st]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<cdot> B-valued \<cdot> function"
+lemma functions_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<cdot> B-valued \<cdot> function"
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
-  by stauto (insert range_subset, blast)
+  by (squash_types, auto) (insert range_subset, blast)
   
 
 end

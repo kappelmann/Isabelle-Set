@@ -52,12 +52,12 @@ lemma DUnion_relation: "\<Coprod>x \<in> A. (B x) \<in> relations A (\<Union>x \
 lemma Collect_relation:
   assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
   shows "{\<langle>f x, g x\<rangle>. x \<in> X} \<in> relations A B"
-  unfolding relations_def using assms by stauto
+  unfolding relations_def using assms by squash_types auto
 
 lemma relation_Cons_iff [iff]:
   assumes "x : element A" and "y : element B"
   shows "Cons \<langle>x, y\<rangle> X \<in> relations A B \<longleftrightarrow> X \<in> relations A B"
-  unfolding relations_def using assms by stauto
+  unfolding relations_def using assms by squash_types auto
 
 
 subsection \<open>Domain and range\<close>
@@ -148,7 +148,7 @@ lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by extensionality
 
 lemma converse_type [type]: "converse : element (relations A B) \<Rightarrow> element (relations B A)"
-  by stauto
+  by squash_types auto
 
 
 subsection \<open>Properties of relations\<close>
@@ -200,9 +200,10 @@ definition domained :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-domained)
 definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1000])
   where "B-valued \<equiv> \<lambda>R. range R \<subseteq> B"
 
-lemma relations_relation_type [intro_st]: "R \<in> relations A B \<Longrightarrow> R : A-domained \<cdot> B-valued \<cdot> relation"
+lemma relations_relation_type [elim]:
+  "R \<in> relations A B \<Longrightarrow> R : A-domained \<cdot> B-valued \<cdot> relation"
   unfolding domained_def valued_def domain_def range_def relation_typedef adjective_def
-  by stauto
+  by squash_types auto
 
 
 end

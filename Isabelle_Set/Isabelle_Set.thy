@@ -7,7 +7,7 @@ imports
   Function
   Fixed_Points
   Structure
-  Monoid_Structure
+  Monoid_Bundled
   Monoid_Class
 
 begin

@@ -30,15 +30,14 @@ text \<open>Define the additive monoid Z2:\<close>
 definition zero ("0") where "0 \<equiv> {}"
 definition one ("1") where "1 \<equiv> Succ 0"
 definition "Z2 \<equiv> \<lparr>
-  carrier := {0, 1},
-  op := \<lambda>x \<in> {0, 1}. if x = 0 then \<lambda>y \<in> {0, 1}. y else \<lambda>y \<in> {0,1}. if y = 0 then 1 else 0,
-  neut := 0
+  carrier = {0, 1},
+  op = \<lambda>x \<in> {0, 1}. if x = 0 then \<lambda>y \<in> {0, 1}. y else \<lambda>y \<in> {0,1}. if y = 0 then 1 else 0,
+  neut = 0
 \<rparr>"
 
 
 lemma "Z2 : monoid"
 unfolding monoid_typedef adjective_def
-proof (stauto intro_st: Int_typeI)
   oops
 
 

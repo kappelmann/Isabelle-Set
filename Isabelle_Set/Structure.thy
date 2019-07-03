@@ -1,12 +1,12 @@
-section \<open>Structures\<close>
-
-(*
-Title:  structure.thy
-Author: Joshua Chen
-Date:   Jun 2019
+(* Title:  structure.thy
+   Author: Joshua Chen, Alexander Krauss
+   Date:   Jul 2019
 
 Mathematical structures as set-theoretic functions.
+
 *)
+
+section \<open>Structures\<close>
 
 theory Structure
 imports Ordinal Function
@@ -76,25 +76,22 @@ end
 \<close>
 
 
-subsection \<open>Notation and syntax\<close>
+subsection \<open>Structure type declarations\<close>
+
+definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
+  where "struct[lbl] \<equiv> struct ` lbl"
 
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where "comp lbl pred = (\<lambda>x. pred (x`lbl) x)"
+  where "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
 
 definition "K x = (\<lambda>_. x)"
-
-lemma structure_simps [simp]: 
-  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M`A))"
-  "M : Type (K Q) \<longleftrightarrow> Q"
-   by (auto simp: K_def comp_def has_type_iff)
-
 
 nonterminal struct_arg and struct_args
 
 syntax
   "_struct_arg"    :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
   "_struct_args"   :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
-  "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr>_. _ \<rparr>")
+  "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _. _ \<rparr>")
   "_struct_comp2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
   ""               :: "struct_arg \<Rightarrow> struct_args" ("_")
 
@@ -103,6 +100,18 @@ translations
   "_struct_comp2 (_struct_args args (_struct_arg A a)) P" \<rightleftharpoons>
     "_struct_comp2 args (CONST comp A (\<lambda>a. P))"
   "_struct_comp2 (_struct_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
+
+
+lemmas [type_iff] = comp_def K_def
+
+lemma structure_simps [simp]:
+  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
+  "M : Type (K Q) \<longleftrightarrow> Q"
+  by squash_types
+
+lemma selector_simps [simp]:
+  "(Cons x A)[lbl] \<equiv> (Cons x A)`lbl"
+  by (fact selector_def)
 
 
 text \<open>Structure declaration keyword:\<close>
@@ -177,15 +186,15 @@ text \<open>Structure instance definitions, essentially just syntactic sugar:\<c
 nonterminal instance_arg and instance_args
 
 syntax
-  "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix ":=" 45)
+  "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix "=" 45)
   "_instance_args" :: "instance_arg \<Rightarrow> instance_args \<Rightarrow> instance_args" ("(1_ ,/ _)" [41, 40] 40)
   "_instance"      :: "instance_args \<Rightarrow> set" ("\<lparr> _ \<rparr>")
   ""               :: "instance_arg \<Rightarrow> instance_args" ("_")
   ""               :: "pttrn \<Rightarrow> instance_args" ("_")
 
 translations
-  "\<lparr> lbl := val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
-  "\<lparr> lbl := val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
+  "\<lparr> lbl = val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
+  "\<lparr> lbl = val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
 
 
 end

@@ -2,8 +2,8 @@ theory Typing_Examples
   imports "../Pair"
 begin
 
-lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by stauto
-lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by stauto
+lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by squash_types auto
+lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by squash_types auto
 
 text \<open>
   The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
@@ -16,22 +16,22 @@ lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow
   by (intro Pi_typeI any_typeI)
 
 lemma empty_type[type]: "{} : subset A"
-  by stauto
+  by squash_types auto
 
 lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
-  by (intro Pi_typeI, unfold element_type_iff Pow_rule) stauto
+  by squash_types auto
 
 
 text \<open>The following statements are also provable, but not helpful:\<close>
 
 lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> any"
-  by (intro Pi_typeI any_typeI)
+  by squash_types auto
 
 lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> any"
-  by (intro Pi_typeI any_typeI)
+  by squash_types auto
 
 declare [[ trace_soft_types ]]
 
@@ -154,7 +154,7 @@ context
     and [type]: "add : element nat \<Rightarrow> element nat \<Rightarrow> element nat"
     and [type]: "Suc : element nat \<Rightarrow> element nat"
     and [type]: "0 : element nat"
-    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow> 
+    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
           element (Vec A n) \<Rightarrow> element (Vec A m) \<Rightarrow> element (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin

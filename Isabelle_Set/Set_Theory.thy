@@ -259,7 +259,7 @@ lemma subset_empty[simp]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
 
 subsection \<open>Power set\<close>
 
-lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow(B)"
+lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow B"
   by auto
 
 lemma PowD: "A \<in> Pow(B) \<Longrightarrow> A \<subseteq> B"
@@ -1072,15 +1072,8 @@ subsubsection \<open>Elements of a given set\<close>
 definition element :: "set \<Rightarrow> set type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
-(* Josh -- Ideally, we'd like to smartly automate unfolding of typedefs *)
-lemma element_type_iff [iff_st]: "x : element A \<longleftrightarrow> x \<in> A"
-  using element_typedef by stauto
-
-lemma element_typeI [intro_st]: "x \<in> A \<Longrightarrow> x : element A"
-  by stauto
-
-lemma element_typeE [elim_st]: "x : element A \<Longrightarrow> x \<in> A"
-  by stauto
+lemma element_type_iff [type_iff]: "x : element A \<longleftrightarrow> x \<in> A"
+  unfolding element_typedef by squash_types
 
 
 subsubsection \<open>Subsets of a given set\<close>
@@ -1088,14 +1081,8 @@ subsubsection \<open>Subsets of a given set\<close>
 abbreviation subset :: "set \<Rightarrow> set type"
   where "subset A \<equiv> element (Pow A)"
 
-lemma subset_type_iff [iff_st]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
-  by stauto
-
-lemma subset_typeI [intro_st]: "B \<subseteq> A \<Longrightarrow> B : subset A"
-  by stauto
-
-lemma subset_typeE [elim_st]: "B : subset A \<Longrightarrow> B \<subseteq> A"
-  by stauto
+lemma subset_type_iff [type_iff]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
+  unfolding element_typedef by squash_types auto
 
 
 subsubsection \<open>Collections of sets of a given type T\<close>
@@ -1103,11 +1090,16 @@ subsubsection \<open>Collections of sets of a given type T\<close>
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-lemma collection_type_iff [iff_st]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
-  using collection_typedef by stauto
+(* type_iff attribute should be generated automatically for typedefs of the kind T = Type P *)
+lemma collection_type_iff [type_iff]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
+  unfolding collection_typedef by squash_types
 
-lemma collection_typeI [intro_st]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" by stauto
-lemma collection_typeE [elim_st]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T" by stauto
+lemma
+  collection_typeI [intro]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" and
+
+  collection_typeE [elim]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T"
+
+  by squash_types auto
 
 
 subsubsection \<open>Refined types for axiomatized constants\<close>
@@ -1116,8 +1108,8 @@ lemma
   [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
   [type]: "Union : collection (collection T) \<Rightarrow> collection T" and
   [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S"
-  using collection_type_iff by (intro Pi_typeI, auto elim: Pi_typeE)+
-    (* ^ Using Pi_typeI, Pi_typeE etc. should be automated! (?) *)
+
+  by squash_types auto
 
 
 end

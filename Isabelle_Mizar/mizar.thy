@@ -34,11 +34,11 @@ lemma define_ty_property:
     (x be parent \<and> cond(x) \<and> property(x) \<longrightarrow> x be T) \<and>
     (x be parent \<and> \<not>cond(x) \<longrightarrow> inhabited(T))"
   using assms define_ty_cond
-  by stauto
+  by squash_types auto
 
 lemma define_ty_property_true:
   "x be define_ty(ty, \<lambda>_. True, prop) \<longleftrightarrow> x be ty \<and> prop(x)"
-  by stauto
+  by squash_types auto
 
 definition Ball :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> o"
   where [simp]: "inhabited(D) \<Longrightarrow> Ball(D, P) \<longleftrightarrow> (\<forall>\<^sub>Lx. x be D \<longrightarrow> P(x))"
@@ -173,7 +173,7 @@ definition object :: Ty
   where "object \<equiv> Type (\<lambda>_. True)"
 
 lemma object_root: "x be object"
-  unfolding object_def by stauto
+  unfolding object_def by squash_types
 
 axiomatization where object_exists: "inhabited(object)"
 
@@ -183,7 +183,7 @@ declare object_root[simp]
 
 lemma def_ty_property_object:
   "x be D \<Longrightarrow> x is define_ty(object, \<lambda>it. it be D, prop) \<longleftrightarrow> prop(x)"
-  by stauto
+  by squash_types auto
 
 definition set where
   "set \<equiv> object"
@@ -197,13 +197,13 @@ abbreviation (input) theProp
   where "theProp(ty, prop) \<equiv> the define_ty(ty, \<lambda>_. True, prop)"
 
 lemma ty_intersection: "(x be t1 \<bar> t2) \<longleftrightarrow> (x be t1 \<and> x be t2)"
-  by (stauto intro_st: Int_typeI Int_typeD1 Int_typeD2)
+  by squash_types
 
 definition NON ("non _" [102] 101)
   where "non A \<equiv> define_ty(object, \<lambda>_. True, \<lambda>x. \<not> x is A)"
   
 lemma non_property: "x is non A \<longleftrightarrow> \<not> x is A"
-  using define_ty_property_true NON_def by stauto
+  using define_ty_property_true NON_def by squash_types auto
 
 lemmas [simp] = ty_intersection non_property
 

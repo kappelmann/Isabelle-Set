@@ -14,47 +14,9 @@ text \<open>This theory introduces a generic notion of soft types, based on HOL 
 declare[[eta_contract=false]]
 
 
-subsection \<open>Named theorems and automation\<close>
-
-text \<open>
-  Note: This approach to automation is currently very ad-hoc, and should be eliminated.
-\<close>
-
-named_theorems intro_st
-named_theorems elim_st
-named_theorems dest_st
-named_theorems iff_st
-named_theorems simp_st
-
-named_theorems subtype \<comment>\<open>For subtyping judgments\<close>
-named_theorems typedef \<comment>\<open>For smart unfolding\<close>
-  (* ^ To be implemented.. *)
-
-method stauto declares intro_st elim_st dest_st iff_st simp_st =
-  (auto intro: intro_st elim: elim_st simp: iff_st;
-  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
-    iff_st: iff_st simp_st: simp_st\<close>)
-| (elim elim_st;
-  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
-    iff_st: iff_st simp_st: simp_st\<close>)
-| (drule dest_st;
-  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
-    iff_st: iff_st simp_st: simp_st\<close>)
-| (intro intro_st;
-  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
-    iff_st: iff_st simp_st: simp_st\<close>)
-| (simp add: simp_st;
-  solves\<open>stauto intro_st: intro_st elim_st: elim_st dest_st: dest_st
-    iff_st: iff_st simp_st: simp_st\<close>)
-| auto intro: intro_st elim: elim_st simp: iff_st
-| elim elim_st | drule dest_st | intro intro_st
-
-
 subsection \<open>Basic definitions\<close>
 
-text \<open>
-  Soft types are just predicates, but expressed as a different type:
-\<close>
+text \<open>Soft types are just predicates, but expressed as a different type:\<close>
 
 typedecl 'a type
 
@@ -67,11 +29,9 @@ where
 definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
   where "x : T \<equiv> pred_of T x"
 
-lemma has_type_iff [iff_st]: "x : Type P \<longleftrightarrow> P x"
-  unfolding has_type_def pred_of_type ..
+lemma has_type_iff: "x : Type P \<longleftrightarrow> P x"
+  unfolding has_type_def by (simp only: pred_of_type)
 
-lemma has_typeI [intro_st]: "P x \<Longrightarrow> x : Type P" by stauto
-lemma has_typeE [elim_st]: "x : Type P \<Longrightarrow> P x" by stauto
 
 subsection \<open>Bounded quantifiers\<close>
 
@@ -107,50 +67,34 @@ lemma Soft_BexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; 
 
 subsection \<open>Pi types\<close>
 
-text \<open>
-  These are soft-types for meta-level functions.
-\<close>
+text \<open>Soft-types for meta-level functions.\<close>
 
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where Pi_typedef: "Pi_type \<sigma> \<tau> \<equiv> Type (\<lambda>f. \<forall>x : \<sigma>. f x : \<tau> x)"
 
-abbreviation function_space :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
-  where "function_space A B \<equiv> Pi_type A (\<lambda>_. B)"
+abbreviation function_type :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
+  where "function_type A B \<equiv> Pi_type A (\<lambda>_. B)"
 
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
-  "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
-
-
-text \<open>
-  We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close>  for the dependent function type and simply
-  \<^term>\<open>A \<Rightarrow> B\<close> for the non-dependent version.
-\<close>
-
-lemma Pi_type_iff [iff_st]: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x : \<sigma>. f x : \<tau> x)"
-  unfolding Pi_typedef by stauto
-
-lemma Pi_typeI [intro_st]:
-  assumes "\<And>x. x : A \<Longrightarrow> f x : B x"
-  shows "f : (x : A) \<Rightarrow> B x"
-  using assms by stauto
-
-lemma Pi_typeE [elim_st]:
-  assumes "f : (x : A) \<Rightarrow> B x" and "x : A"
-  shows "f x : B x"
-  using assms by stauto
-
-
-subsection \<open>Type annotations\<close>
-
-definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
-  where "with_type x A \<equiv> x"
+  "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_type A B"
 
 text \<open>
-  \<^term>\<open>x :> A\<close> annotates \<open>x\<close> with type \<open>A\<close>
+We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close> for the dependent function type and simply \<^term>\<open>A \<Rightarrow> B\<close> for the
+non-dependent version.
 \<close>
+
+lemma Pi_type_iff: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x. x : \<sigma> \<longrightarrow> f x : \<tau> x)"
+  unfolding Pi_typedef by (auto iff: has_type_iff)
+
+lemma
+  Pi_typeI [intro!]: "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x" and
+
+  Pi_typeE [elim]: "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
+
+  by (auto iff: Pi_type_iff)
 
 
 subsection \<open>Intersections\<close>
@@ -158,43 +102,54 @@ subsection \<open>Intersections\<close>
 definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
   where Int_typedef: "A \<bar> B \<equiv> Type (\<lambda>x. x : A \<and> x : B)"
 
-lemma Int_type_iff [iff_st]: "x : A \<bar> B \<longleftrightarrow> x : A \<and> x : B"
-  unfolding Int_typedef by stauto
+lemma Int_type_iff: "x : A \<bar> B \<longleftrightarrow> x : A \<and> x : B"
+  unfolding Int_typedef by (simp only: has_type_iff)
 
-lemma Int_typeI [intro_st]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" by stauto
+lemma
+  Int_typeI [intro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
 
-lemma Int_typeD1 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : A" by stauto
-lemma Int_typeD2 [dest_st]: "x : A \<bar> B \<Longrightarrow> x : B" by stauto
+  Int_typeD1: "x : A \<bar> B \<Longrightarrow> x : A" and
+
+  Int_typeD2: "x : A \<bar> B \<Longrightarrow> x : B"
+
+  by (auto iff: Int_type_iff)
 
 
 subsection \<open>Subtypes\<close>
 
 definition subtype :: "'a type \<Rightarrow> 'a type \<Rightarrow> bool" (infix "\<prec>" 50)
-  where subtype_iff [iff]: "A \<prec> B \<longleftrightarrow> (\<forall>x : A. x : B)"
+  where subtype_iff:  "A \<prec> B \<longleftrightarrow> (\<forall>x : A. x : B)"
 
-lemma subtypeI [intro_st]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longrightarrow> A \<prec> B" by auto
+lemma subtypeI [intro]: "(\<And>x. x : A \<Longrightarrow> x : B) \<Longrightarrow> A \<prec> B"
+  by (auto iff: subtype_iff)
 
 lemma subtypeE [elim]: "\<lbrakk>A \<prec> B; \<And>x. (x : B \<Longrightarrow> P); x : A\<rbrakk> \<Longrightarrow> P"
-  by (drule Soft_BallI) auto
+  by (auto dest!: Soft_BallI iff: subtype_iff)
 
-lemma subtypeD [elim_st]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B"
-  by auto
+lemma subtypeE' [elim]: "\<lbrakk>A \<prec> B; x : A\<rbrakk> \<Longrightarrow> x : B"
+  by (auto iff: subtype_iff)
 
 
 subsection \<open>The ``any'' type\<close>
 
-text \<open>Used to reflect rigid types back into the soft type system.\<close>
-  (* Josh -- ^ Not yet sure if this is even useful. *)
+text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
 
 definition any :: "'a type"
   where any_typedef: "any \<equiv> Type (\<lambda>_. True)"
 
 lemma any_typeI [intro]: "x : any"
-  unfolding any_typedef by stauto
+  unfolding any_typedef by (simp only: has_type_iff)
 
 abbreviation bool :: "bool type"
   where "bool \<equiv> any"
 
+
+subsection \<open>Type annotations\<close>
+
+definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
+  where "with_type x A \<equiv> x"
+
+text \<open>\<^term>\<open>x :> A\<close> annotates \<open>x\<close> with type \<open>A\<close>.\<close>
 
 
 subsection \<open>Adjectives\<close>
@@ -204,11 +159,15 @@ text \<open>We allow adjectives—in the form of predicates—to modify types.\<
 definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
   where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
 
-lemma adj_spec [dest_st]: "x : adj \<cdot> type \<Longrightarrow> adj x"
-  unfolding adjective_def by stauto
+lemma adjective_iff: "x : adj \<cdot> type \<longleftrightarrow> adj x \<and> x : type"
+  unfolding adjective_def by (simp only: Int_type_iff has_type_iff)
 
-lemma type_spec [dest_st]: "x : adj \<cdot> type \<Longrightarrow> x : type"
-  unfolding adjective_def by stauto
+lemma
+  adj_spec: "x : adj \<cdot> type \<Longrightarrow> adj x" and
+
+  type_spec: "x : adj \<cdot> type \<Longrightarrow> x : type"
+
+  by (simp_all only: adjective_iff)
 
 
 subsection \<open>Type complement\<close>
@@ -219,11 +178,10 @@ definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" 
   where "non-P \<equiv> \<lambda>x. \<not> P x"
 
 
-subsection \<open>Tooling\<close>
+subsection \<open>Tooling and automation\<close>
 
 named_theorems type_simp
 named_theorems type_instance
-
 
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
@@ -232,12 +190,33 @@ ML_file "type_classes.ML"
 ML_file "elaboration.ML"
 
 
+text \<open>Automating type reasoning:\<close>
+
+named_theorems typedef
+named_theorems subtype
+named_theorems type_iff
+
+lemmas [type_iff] =
+  has_type_iff
+  Pi_type_iff
+  Int_type_iff
+  adjective_iff
+
+text \<open>Convert all typing statements to their equivalent predicate forms:\<close>
+
+method squash_types = (simp_all only: type_iff)
+
+text \<open>Subtype reasoning.\<close>
+
+method subtype = (rule subtypeI)
+
+
 subsection \<open>Basic declarations for HOL material\<close>
 
 lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
-  by (intro Pi_typeI any_typeI)
+  by squash_types auto
 
-declare with_type_def[type_simp]
+declare with_type_def [type_simp]
 
 
 end
