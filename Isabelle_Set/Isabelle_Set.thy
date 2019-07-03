@@ -1,6 +1,7 @@
 theory Isabelle_Set
 imports
   Set_Theory
+  Set_Extension
   Ordinal
   Pair
   Relation
