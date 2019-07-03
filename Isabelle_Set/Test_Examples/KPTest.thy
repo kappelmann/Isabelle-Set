@@ -122,20 +122,20 @@ definition VV:: " set \<Rightarrow> set" where
   "VV = R_CB (\<lambda> X v . ( \<Union>x \<in> X. (Pow (v x))))"  
 
 theorem VTh1:
-  "\<forall> X. VV X = \<Union>x \<in> X. (Pow (VV x))"
+  "\<forall> X. VV X = (\<Union>x \<in> X. Pow (VV x))"
 proof
   fix X
   let ?\<Phi> = "\<lambda> X v . ( \<Union>x \<in> X. (Pow (v x)))"
   have "C ?\<Phi>" unfolding C_def by auto
   hence "R_CB ?\<Phi> X = ?\<Phi> X (R_CB ?\<Phi>)" using Th1 by auto
-  then show "VV X = \<Union>x \<in> X. (Pow (VV x))" using VV_def by auto
+  then show "VV X = (\<Union>x \<in> X. Pow (VV x))" using VV_def by auto
 qed
 
 theorem VTh2_1:
   "x \<in> X \<and> y \<subseteq> VV x \<longrightarrow> y \<in> VV X"
 proof
   assume "x \<in> X \<and> y \<subseteq> VV x" 
-  hence " y \<in> \<Union>x \<in> X. (Pow (VV x))" by auto
+  hence " y \<in> (\<Union>x \<in> X. Pow (VV x))" by auto
   then show "y \<in> VV X" using VTh1[rule_format, of X] by auto
 qed
 
@@ -143,7 +143,7 @@ theorem VTh2_2:
   "y \<in> VV X \<longrightarrow> (\<exists> x . x \<in> X \<and> y \<subseteq> VV x)"
 proof
   assume "y \<in> VV X"
-  hence "y \<in> \<Union>x \<in> X. (Pow (VV x))" using VTh1[rule_format, of X] by auto
+  hence "y \<in> (\<Union>x \<in> X. Pow (VV x))" using VTh1[rule_format, of X] by auto
   then show "\<exists> x . x \<in> X \<and> y \<subseteq> VV x" by auto
 qed
 
@@ -261,7 +261,7 @@ proof-
       thus  "?PV x \<in> U" using assms(2) ZF_closed_def by auto
     qed
     hence "{?PV  x| x \<in> X} \<in> U" using IH assms(2) ZF_closed_def[of U] by auto
-    hence "\<Union>x \<in> X. (Pow (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
+    hence "(\<Union>x \<in> X. Pow (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
     then show "VV X \<in> U" using VTh1[rule_format, of X] by auto
   qed
   then show "\<forall>X. ?H X" using elem_induct_axiom[of ?H] by blast
