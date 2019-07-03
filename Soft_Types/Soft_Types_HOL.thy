@@ -206,6 +206,10 @@ text \<open>Convert all typing statements to their equivalent predicate forms:\<
 
 method squash_types = (simp_all only: type_iff)
 
+text \<open>Subtype reasoning.\<close>
+
+method subtype = (rule subtypeI)
+
 
 subsection \<open>Basic declarations for HOL material\<close>
 

@@ -76,21 +76,15 @@ end
 \<close>
 
 
-subsection \<open>Notation and syntax\<close>
+subsection \<open>Structure type declarations\<close>
+
+definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
+  where "struct[lbl] \<equiv> struct ` lbl"
 
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where "comp lbl pred \<equiv> (\<lambda>x. pred (x`lbl) x)"
+  where "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
 
 definition "K x = (\<lambda>_. x)"
-
-lemmas [type_iff] = comp_def K_def
-
-lemma structure_simps [simp]:
-  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M`A))"
-  "M : Type (K Q) \<longleftrightarrow> Q"
-  by squash_types
-
-
 
 nonterminal struct_arg and struct_args
 
@@ -106,6 +100,18 @@ translations
   "_struct_comp2 (_struct_args args (_struct_arg A a)) P" \<rightleftharpoons>
     "_struct_comp2 args (CONST comp A (\<lambda>a. P))"
   "_struct_comp2 (_struct_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
+
+
+lemmas [type_iff] = comp_def K_def
+
+lemma structure_simps [simp]:
+  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
+  "M : Type (K Q) \<longleftrightarrow> Q"
+  by squash_types
+
+lemma selector_simps [simp]:
+  "(Cons x A)[lbl] \<equiv> (Cons x A)`lbl"
+  by (fact selector_def)
 
 
 text \<open>Structure declaration keyword:\<close>

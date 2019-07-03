@@ -275,10 +275,10 @@ definition bij where
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2) )" 
 
-lemma bij_type_iff [iff_st]: "f : bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
+lemma bij_type_iff []: "f : bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
-  using bij_typedef by stauto
+  using bij_typedef by squash_types
 
 lemma bij_typeI [intro]: "f \<in> X\<rightarrow>Y \<Longrightarrow>
                         {f`x |x \<in> X} = Y \<Longrightarrow> 
@@ -441,7 +441,7 @@ proof-
       hence P: "Pow a \<subseteq> U" using assms ZF_closed_def epsilon_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
-        have E: " epsilon_transitive a" using O unfolding Ord_typedef by stauto
+        have E: " epsilon_transitive a" using O unfolding Ord_typedef by squash_types
         fix b assume b: "b \<in> a" 
         hence " b \<subseteq> a" using E epsilon_transitive_def[of a] by auto
         hence "b \<in> U" "b:Ord" using P Ord_transitive O b by auto
@@ -503,8 +503,8 @@ proof-
     then show "x \<subseteq> ?Lamb" using Ord_transitive by auto
   qed
   hence E: "epsilon_transitive ?Lamb" using epsilon_transitive_def by auto
-  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding Ord_typedef by stauto 
-  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by stauto 
+  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding Ord_typedef by squash_types auto
+  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto 
   let ?faLamb =" {?f a|a \<in> ?Lamb}"
   have C6_1: "?Lamb \<subseteq> {?g y| y \<in> ?faLamb}"
   proof

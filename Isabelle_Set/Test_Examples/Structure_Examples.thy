@@ -38,7 +38,6 @@ definition "Z2 \<equiv> \<lparr>
 
 lemma "Z2 : monoid"
 unfolding monoid_typedef adjective_def
-proof (stauto intro_st: Int_typeI)
   oops
 
 
