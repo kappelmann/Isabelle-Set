@@ -177,15 +177,15 @@ text \<open>Structure instance definitions, essentially just syntactic sugar:\<c
 nonterminal instance_arg and instance_args
 
 syntax
-  "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix ":=" 45)
+  "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix "=" 45)
   "_instance_args" :: "instance_arg \<Rightarrow> instance_args \<Rightarrow> instance_args" ("(1_ ,/ _)" [41, 40] 40)
   "_instance"      :: "instance_args \<Rightarrow> set" ("\<lparr> _ \<rparr>")
   ""               :: "instance_arg \<Rightarrow> instance_args" ("_")
   ""               :: "pttrn \<Rightarrow> instance_args" ("_")
 
 translations
-  "\<lparr> lbl := val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
-  "\<lparr> lbl := val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
+  "\<lparr> lbl = val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
+  "\<lparr> lbl = val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
 
 
 end

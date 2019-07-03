@@ -18,23 +18,23 @@ struct monoid = "\<lparr> (carrier A) (op op) (e e).
 
 (* The following lemmas should be automatically generated for structures! *)
 
-lemma monoid_carrier_type [intro_st]:
+lemma monoid_carrier_type:
   "M : monoid \<Longrightarrow> M ` carrier : non-empty \<cdot> set"
   unfolding monoid_typedef by simp
   
-lemma monoid_op_type [intro_st]:
+lemma monoid_op_type:
   "M : monoid \<Longrightarrow> M ` op : element (M ` carrier \<rightarrow> M ` carrier \<rightarrow> M ` carrier)"
   unfolding monoid_typedef by simp
 
-lemma monoid_e_type [intro_st]:
+lemma monoid_e_type:
   "M : monoid \<Longrightarrow> M ` e : element (M ` carrier)"
   unfolding monoid_typedef by simp
 
-lemma monoid_cond1 [intro_st]:
+lemma monoid_cond1:
   "\<lbrakk>M : monoid; x \<in> M`carrier\<rbrakk> \<Longrightarrow> M`op`x`(M`e) = x \<and> M`op`(M`e)`x = x"
   unfolding monoid_typedef by auto
 
-lemma monoid_cond2 [intro_st]:
+lemma monoid_cond2:
   "\<lbrakk>M : monoid; x \<in> M`carrier; y \<in> M`carrier; z \<in> M`carrier\<rbrakk> \<Longrightarrow> M`op`x`(M`op`y`z) = M`op`(M`op`x`y)`z"
   unfolding monoid_typedef by auto
 

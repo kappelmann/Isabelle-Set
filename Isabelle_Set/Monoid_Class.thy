@@ -25,10 +25,7 @@ definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" w
   "plus p = (%x y. p ` PLUS ` x ` y)"
 
 lemma plus_type[type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  apply (intro Pi_typeI) 
-  apply (unfold element_type_iff plus_def Plus_def)
-  apply (intro PiE; auto?)+
-  done
+  by (auto simp: element_type_iff plus_def Plus_def intro: functionsE)+
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>M x y"
@@ -165,7 +162,7 @@ proof (intro Pi_typeI)
   fix A B p1 p2
   assume [intro]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
   have [intro]: "p1 : Zero A" "p1 : Plus A" "p2 : Zero B" "p2 : Plus B"
-    by (auto intro: Monoid_is_Plus[THEN subtypeD] Monoid_is_Zero[THEN subtypeD])
+    by (auto intro: Monoid_is_Plus[THEN subtypeE'] Monoid_is_Zero[THEN subtypeE'])
 
   note zero_type[THEN Pi_typeE, unfolded element_type_iff, intro]
   note plus = plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, unfolded element_type_iff, intro]

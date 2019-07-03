@@ -15,32 +15,41 @@ struct
 (*
 For any given term, we hold two separate collections of typing statements:
 1. Its currently-used soft type.
-2. The collection of all known (previously proven) types .
+2. The collection of all known (previously proven) types.
 *)
 
 (** Slot for the current soft type of a term **)
-
+(*
+We store the types of constant and non-constant terms in a separate tables.
+*)
+ 
 structure Current_Type = Generic_Data(
-  type T = thm Termtab.table * thm Symtab.table;
-  val empty = (Termtab.empty, Symtab.empty);
-  val extend = I;
+  type T = thm Termtab.table * thm Symtab.table
+  val empty = (Termtab.empty, Symtab.empty)
+  val extend = I
   fun merge ((a1, b1), (a2, b2)) =
-      (Termtab.merge Thm.eq_thm_prop (a1, a2), 
-       Symtab.merge Thm.eq_thm_prop (b1, b2));
-);
+    (Termtab.merge Thm.eq_thm_prop (a1, a2),
+     Symtab.merge Thm.eq_thm_prop (b1, b2))
+)
 
-fun put_CT (Const (n, _)) sty = apsnd (Symtab.update (n, sty))
-  | put_CT t sty = apfst (Termtab.update (t, sty))
+fun put_current_type t sty = 
+  let
+    fun put (Const (n, _)) sty = apsnd (Symtab.update (n, sty))
+      | put t sty = apfst (Termtab.update (t, sty))
+  in
+    Current_Type.map (put t sty)
+  end
 
-fun get_CT tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
-  | get_CT tabs t = Termtab.lookup (fst tabs) t
+fun get_current_type ctxt t = 
+  let
+    fun get tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
+      | get tabs t = Termtab.lookup (fst tabs) t
+  in
+    get (Current_Type.get ctxt) t
+  end
 
-fun put_current_type t sty = Current_Type.map (put_CT t sty);
-fun get_current_type ctxt t = get_CT (Current_Type.get ctxt) t;
 
-
-
-(** All known types of a term **)
+(** Slot for all known types of a term **)
 
 structure Known_Types = Generic_Data(
   type T = thm Item_Net.T * thm Item_Net.T
@@ -54,7 +63,11 @@ structure Known_Types = Generic_Data(
 
 
 
-(** attribute [type] **)
+(** The [type] attribute **)
+(*
+May optionally declare some number of implicit arguments for constant terms via
+`[type implicit: n]`.
+*)
 
 fun extract_param_names 0 _ = []
   | extract_param_names i (Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs (n, _, b)) =
@@ -69,7 +82,7 @@ fun declare_current_type implicit thm ctxt =
     ctxt
     |> put_current_type x thm
     |> (if is_Const x then Implicit_Arguments.put_implicit (fst (dest_Const x)) names else I)
-  end;
+  end
 
 val _ = Theory.setup (Attrib.setup @{binding type}
   (Scan.lift 

@@ -28,12 +28,14 @@ and
 and
   Replacement_axiom: "\<forall>X y. y \<in> Repl X F \<longleftrightarrow> (\<exists>x. x \<in> X \<and> y = F x)"
 
-text \<open>Axioms @{thm elem_induct_axiom} and @{thm Replacement_axiom} are axiom schemas in first-order logic.\<close>
+text \<open>
+Axioms @{thm elem_induct_axiom} and @{thm Replacement_axiom} are axiom schemas in first-order logic.
+\<close>
 
 
 text \<open>The following axioms need a definition first:\<close>
 
-definition subset :: "set \<Rightarrow> set \<Rightarrow> bool" (infixl "\<subseteq>" 50) \<comment> \<open>subset relation\<close>
+definition subset :: "set \<Rightarrow> set \<Rightarrow> bool" (infixl "\<subseteq>" 50)
   where "A \<subseteq> B \<equiv> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
 
 axiomatization where
