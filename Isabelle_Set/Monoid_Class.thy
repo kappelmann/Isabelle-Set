@@ -2,10 +2,11 @@ section \<open>Monoids as an example of soft-typed structures\<close>
 
 theory Monoid_Class
 imports Structure
+
 begin
 
-(* This will be subsumed by some generic label mechanism. All we need are labels that we know
-  to be distinct from each other *)
+(* This will be subsumed by some generic label mechanism. All we need are labels that we know to be
+   distinct from each other *)
 axiomatization
   PLUS ZERO INV :: set
   where
@@ -15,17 +16,17 @@ axiomatization
 
 
 definition Plus :: "set \<Rightarrow> set type" where
-  "Plus A = \<lparr> (PLUS plus). 
-    plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
+  Plus_structdef: "Plus A = \<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
-lemma Plus_typeI: "str`PLUS : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
-  unfolding Plus_def by auto
+lemma Plus_typeI: "str ` PLUS : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
+  unfolding Plus_structdef by squash_types 
 
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" where
-  "plus p = (%x y. p ` PLUS ` x ` y)"
+  "plus p = (\<lambda>x y. p ` PLUS ` x ` y)"
 
-lemma plus_type[type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  by (auto simp: element_type_iff plus_def Plus_def intro: functionsE)+
+lemma plus_type [type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  unfolding Plus_structdef plus_def
+  by squash_types (auto intro: functionsE)
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>M x y"

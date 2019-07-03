@@ -16,6 +16,8 @@ struct monoid = "\<lparr> (carrier A) (op op) (e e).
   (\<forall>x \<in> A. \<forall>y \<in> A. \<forall>z \<in> A. op`x`(op`y`z) = op`(op`x`y)`z)
 \<rparr>"
 
+thm monoid_typedef
+
 (* The following lemmas should be automatically generated for structures! *)
 
 lemma monoid_carrier_type:

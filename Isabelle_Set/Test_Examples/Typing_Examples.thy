@@ -154,7 +154,7 @@ context
     and [type]: "add : element nat \<Rightarrow> element nat \<Rightarrow> element nat"
     and [type]: "Suc : element nat \<Rightarrow> element nat"
     and [type]: "0 : element nat"
-    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow> 
+    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
           element (Vec A n) \<Rightarrow> element (Vec A m) \<Rightarrow> element (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin

@@ -212,7 +212,7 @@ subsection \<open>Basic declarations for HOL material\<close>
 lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by squash_types auto
 
-declare with_type_def[type_simp]
+declare with_type_def [type_simp]
 
 
 end

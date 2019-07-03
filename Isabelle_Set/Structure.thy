@@ -1,12 +1,12 @@
-section \<open>Structures\<close>
-
-(*
-Title:  structure.thy
-Author: Joshua Chen
-Date:   Jun 2019
+(* Title:  structure.thy
+   Author: Joshua Chen, Alexander Krauss
+   Date:   Jul 2019
 
 Mathematical structures as set-theoretic functions.
+
 *)
+
+section \<open>Structures\<close>
 
 theory Structure
 imports Ordinal Function
@@ -79,14 +79,17 @@ end
 subsection \<open>Notation and syntax\<close>
 
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where "comp lbl pred = (\<lambda>x. pred (x`lbl) x)"
+  where "comp lbl pred \<equiv> (\<lambda>x. pred (x`lbl) x)"
 
 definition "K x = (\<lambda>_. x)"
 
-lemma structure_simps [simp]: 
+lemmas [type_iff] = comp_def K_def
+
+lemma structure_simps [simp]:
   "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M`A))"
   "M : Type (K Q) \<longleftrightarrow> Q"
-   by (auto simp: K_def comp_def has_type_iff)
+  by squash_types
+
 
 
 nonterminal struct_arg and struct_args
@@ -94,7 +97,7 @@ nonterminal struct_arg and struct_args
 syntax
   "_struct_arg"    :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
   "_struct_args"   :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
-  "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr>_. _ \<rparr>")
+  "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _. _ \<rparr>")
   "_struct_comp2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
   ""               :: "struct_arg \<Rightarrow> struct_args" ("_")
 

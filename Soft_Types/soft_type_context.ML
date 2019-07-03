@@ -90,5 +90,4 @@ val _ = Theory.setup (Attrib.setup @{binding type}
       Thm.declaration_attribute (declare_current_type implicit)))) "Declare current soft type")
 
 
-
 end
