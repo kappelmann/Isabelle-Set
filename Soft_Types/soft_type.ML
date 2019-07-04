@@ -53,15 +53,14 @@ fun Pi_const Ta Tb =
     typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb)
   )
 
-
 fun is_typing t = case dest_Trueprop t of
-    Const (@{const_name "has_type"}, _) $ _ $ _ => true
+    Const (@{const_name has_type}, _) $ _ $ _ => true
   | _ => false
 
-fun is_adj t = case dest_Trueprop t of
-   Const (_, Type ("fun", [_, @{typ bool}])) $ _ => true
+fun is_adj t = case (Term.head_of o dest_Trueprop) t of
+    Const (@{const_name has_type}, _) => false
+  | Const (_, T as Type ("fun", _)) => if Term.body_type T = @{typ bool} then true else false
   | _ => false
-
 
 fun mk_typing (t, ty) =
   let val T = fastype_of t in
@@ -72,10 +71,7 @@ fun dest_typing t = case dest_Trueprop t of
     Const (@{const_name has_type}, _) $ u $ ty => (u, ty)
   | _ => raise TERM ("dest_typing", [t])
 
-fun dest_adj t = case dest_Trueprop t of
-    (adj as Const (_, Type ("fun", [_, @{typ bool}]))) $ tm => (tm, adj)
-  | _ => raise TERM ("dest_adj", [t])
-
+fun dest_adj t = let val (adj, u) = (Term.dest_comb o dest_Trueprop) t in (u, adj) end
 
 fun any T = Const (@{const_name "any"}, typeT T)
 
@@ -90,7 +86,6 @@ fun mk_any_fun T =
     |> fst
   end
 
-
 fun with_type_const T = Const (\<^const_name>\<open>with_type\<close>, T --> typeT T --> T)
 
 fun annotate soft_type t = with_type_const (fastype_of t) $ t $ soft_type
@@ -100,5 +95,6 @@ fun annotate soft_type t = with_type_const (fastype_of t) $ t $ soft_type
 
 val trace_soft_types = Attrib.setup_config_bool \<^binding>\<open>trace_soft_types\<close> (K false)
 fun tracing ctxt = if Config.get ctxt trace_soft_types then Output.tracing else K ()
+
 
 end

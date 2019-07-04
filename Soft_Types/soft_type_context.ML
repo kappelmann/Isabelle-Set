@@ -17,7 +17,8 @@ struct
 
 (*** Preamble ***)
 
-(* Normalize a typing judgment into a conjunction *)
+(* Normalize a typing judgment into a conjunction
+*)
 fun normalize ctxt thm =
   let
     val simpctxt = (put_simpset HOL_ss ctxt) addsimps @{thms Int_type_iff adjective_iff}
@@ -68,7 +69,6 @@ fun put_current_type t thm =
     Current_Type.map (put t thm)
   end
 
-
 (** Complete type and adjective data **)
 
 structure Adjectives = Generic_Data(
@@ -89,13 +89,11 @@ structure Types = Generic_Data(
      Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2))
 )
 
-
 fun get_adjs ctxt t =
   let
     fun get_adjs' tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
       | get_adjs' tabs t = Termtab.lookup (fst tabs) t
   in get_adjs' (Adjectives.get (Context.Proof ctxt)) t end
-
 
 fun put_adj t thm context =
   let
@@ -111,13 +109,11 @@ fun put_adj t thm context =
     Adjectives.map (put t thm) context
   end
 
-
 fun get_types ctxt t =
   let
     fun get_types' tabs (Const (n, _)) = Symtab.lookup (snd tabs) n
       | get_types' tabs t = Termtab.lookup (fst tabs) t
   in get_types' (Types.get (Context.Proof ctxt)) t end
-
 
 (* Types are stored in normalized form. This means that:
     1. Intersection types are broken up.
@@ -138,7 +134,8 @@ fun put_type t thm context =
         Types.map (put t thm) context
       end
 
-    (* Expects a conjunction of adjective and/or typing judgments *)
+    (* Expects a conjunction of adjective and/or typing judgments:
+    *)
     fun put_type' t thm context =
       case (dest_Trueprop o Thm.prop_of) thm of
         Const (\<^const_name>\<open>conj\<close>, _) $ _ $ _ =>
@@ -148,10 +145,10 @@ fun put_type t thm context =
           in
             context |> put_type' t conjunct1 |> put_type' t conjunct2
           end
-      | t' =>
-          if is_adj t' then put_adj t thm context
-          else if is_typing t' then put_pure_type t thm context
-          else (error "put_type"; context)
+      | u =>
+          if is_adj u then put_adj t thm context
+          else if is_typing u then put_pure_type t thm context
+          else (error "put_type': normalized conjunct not an adjective or typing judgment"; context)
   in
     put_type' t (normalize (Context.proof_of context) thm) context
   end

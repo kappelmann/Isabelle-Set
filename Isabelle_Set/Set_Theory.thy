@@ -391,6 +391,9 @@ lemma Collect_Collect_eq [simp]:
 lemma Collect_cons: "{x\<in>Cons a B. P x} = (if P(a) then Cons a {x\<in>B. P(x)} else {x\<in>B. P(x)})"
   by extensionality
 
+lemma Collect_mono: "A \<subseteq> B \<Longrightarrow> Collect A P \<subseteq> Collect B P"
+  by extensionality
+
 subsection \<open>More replacement\<close>
 
 lemma Repl_singleton: "{f x | x \<in> {a}} = {f a}"
@@ -1102,13 +1105,35 @@ lemma
   by squash_types auto
 
 
-subsubsection \<open>Refined types for axiomatized constants\<close>
+subsubsection \<open>Refined types for basic constants\<close>
+
+text \<open>
+The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft type
+is trivial. But the rules also determine the behavior of type inference.
+
+The rule for HOL.All currently needs to be restricted due to a deficiency in the elaboration
+algorithm.
+\<close>
 
 lemma
+  [type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool" and
   [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
   [type]: "Union : collection (collection T) \<Rightarrow> collection T" and
-  [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S"
+  [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S" and
+  
+  [type]: "HOL.All : ((T::set type) \<Rightarrow> bool) \<Rightarrow> bool" and
+  [type]: "{} : subset A" and
+  [type]: "Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
 
+  by squash_types auto
+
+
+text \<open>The following statements are also provable, but not helpful:\<close>
+
+lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> any"
+  by squash_types auto
+
+lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
   by squash_types auto
 
 
