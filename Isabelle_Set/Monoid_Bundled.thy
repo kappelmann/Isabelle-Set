@@ -83,7 +83,7 @@ struct group = "monoid \<bar> \<lparr> (carrier A) (inv inv) (op op) (e e).
 
 
 lemma group_is_monoid: "group \<prec> monoid"
-  unfolding group_typedef by subtype squash_types
+  unfolding group_typedef by (intro subtypeI) squash_types
 
 text \<open>No coercion of structure instances is needed; we simply ignore the fields we don't need.\<close>
 

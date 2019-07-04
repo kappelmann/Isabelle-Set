@@ -1072,7 +1072,7 @@ subsubsection \<open>Elements of a given set\<close>
 definition element :: "set \<Rightarrow> set type"
   where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
 
-lemma element_type_iff [type_iff]: "x : element A \<longleftrightarrow> x \<in> A"
+lemma element_type_iff [squash]: "x : element A \<longleftrightarrow> x \<in> A"
   unfolding element_typedef by squash_types
 
 
@@ -1081,7 +1081,7 @@ subsubsection \<open>Subsets of a given set\<close>
 abbreviation subset :: "set \<Rightarrow> set type"
   where "subset A \<equiv> element (Pow A)"
 
-lemma subset_type_iff [type_iff]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
+lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
   unfolding element_typedef by squash_types auto
 
 
@@ -1090,8 +1090,8 @@ subsubsection \<open>Collections of sets of a given type T\<close>
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-(* type_iff attribute should be generated automatically for typedefs of the kind T = Type P *)
-lemma collection_type_iff [type_iff]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
+(* squash_types attribute should be generated automatically for typedefs of the kind T = Type P *)
+lemma collection_type_iff [squash]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
   unfolding collection_typedef by squash_types
 
 lemma

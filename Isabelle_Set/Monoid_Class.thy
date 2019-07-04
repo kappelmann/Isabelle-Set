@@ -24,6 +24,10 @@ definition Plus :: "set \<Rightarrow> set type"
 lemma Plus_typeI: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
 
+lemma Plus_PLUS_type: "str: Plus A \<Longrightarrow> str[PLUS] : element (A \<rightarrow> A \<rightarrow> A)"
+  unfolding Plus_typedef by squash_types
+
+
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[PLUS] ` x ` y)"
 
@@ -71,8 +75,8 @@ definition Monoid :: "set \<Rightarrow> set type"
     (\<forall>x\<in>A. plus`x`zero = x) \<and>
     (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
 
-lemma Monoid_is_Zero: "Monoid A \<prec> Zero A" unfolding Monoid_typedef by subtype squash_types
-lemma Monoid_is_Plus: "Monoid A \<prec> Plus A" unfolding Monoid_typedef by subtype squash_types
+lemma Monoid_is_Zero: "Monoid A \<prec> Zero A" unfolding Monoid_typedef by (intro subtypeI) squash_types
+lemma Monoid_is_Plus: "Monoid A \<prec> Plus A" unfolding Monoid_typedef by (intro subtypeI) squash_types
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;

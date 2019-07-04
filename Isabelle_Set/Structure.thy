@@ -102,7 +102,7 @@ translations
   "_struct_comp2 (_struct_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
 
 
-lemmas [type_iff] = comp_def K_def
+lemmas [squash] = comp_def K_def
 
 lemma structure_simps [simp]:
   "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"

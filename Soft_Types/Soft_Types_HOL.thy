@@ -182,33 +182,29 @@ subsection \<open>Tooling and automation\<close>
 
 named_theorems type_simp
 named_theorems type_instance
+named_theorems derive
 
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
 ML_file "unification.ML"
 ML_file "type_classes.ML"
 ML_file "elaboration.ML"
+ML_file \<open>derivation.ML\<close>
 
+lemma rulify_conj [rulify]: "(A \<and> B \<Longrightarrow> C) \<equiv> (A \<Longrightarrow> B \<Longrightarrow> C)" by rule auto
+  \<comment>\<open>Used in normalization of type derivation rules.\<close>
 
-text \<open>Automating type reasoning:\<close>
+named_theorems squash
 
-named_theorems typedef
-named_theorems subtype
-named_theorems type_iff
-
-lemmas [type_iff] =
+lemmas [squash] =
   has_type_iff
   Pi_type_iff
   Int_type_iff
   adjective_iff
 
-text \<open>Convert all typing statements to their equivalent predicate forms:\<close>
+method squash_types = (simp_all only: squash)
 
-method squash_types = (simp_all only: type_iff)
-
-text \<open>Subtype reasoning.\<close>
-
-method subtype = (rule subtypeI)
+text \<open>@{method squash_types} converts all typing subformulas to their equivalent predicate forms.\<close>
 
 
 subsection \<open>Basic declarations for HOL material\<close>
