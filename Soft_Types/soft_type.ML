@@ -7,6 +7,9 @@ Basic syntactic operations on soft types.
 signature SOFT_TYPE =
 sig
 
+(* Utility *)
+val dest_Trueprop: term -> term
+
 (* Type of soft types *)
 val typeT: typ -> typ
 
@@ -14,9 +17,11 @@ val typeT: typ -> typ
 val Pi_const: typ -> typ -> term
 
 (* Typing judgments *)
+val is_typing: term -> bool
+val is_adj: term -> bool
 val mk_typing: term * term -> term
 val dest_typing: term -> term * term
-val is_typing: term -> bool
+val dest_adj: term -> term * term
 
 (* Unrestricted type *)
 val any: typ -> term
@@ -37,27 +42,39 @@ end
 structure Soft_Type : SOFT_TYPE =
 struct
 
-fun typeT T = Type (@{type_name "type"}, [T])
+fun dest_Trueprop (Const (@{const_name Trueprop}, _) $ P) = P
+  | dest_Trueprop t = t
+
+fun typeT T = Type (@{type_name type}, [T])
 
 fun Pi_const Ta Tb = 
   Const (
-    @{const_name "Pi_type"},
+    @{const_name Pi_type},
     typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb)
   )
 
 
-fun dest_typing t = case t of
-    Const (@{const_name "has_type"}, _) $ u $ ty => (u, ty)
-  | Const ("HOL.Trueprop", _) $ (Const (@{const_name has_type}, _) $ u $ ty) => (u, ty) 
-  | _ => raise TERM ("dest_typing", [t])
+fun is_typing t = case dest_Trueprop t of
+    Const (@{const_name "has_type"}, _) $ _ $ _ => true
+  | _ => false
+
+fun is_adj t = case dest_Trueprop t of
+   Const (_, Type ("fun", [_, @{typ bool}])) $ _ => true
+  | _ => false
+
 
 fun mk_typing (t, ty) =
   let val T = fastype_of t in
     Const (@{const_name "has_type"}, T --> typeT T --> @{typ bool}) $ t $ ty
   end
 
-fun is_typing (Const (@{const_name "has_type"}, _) $ _ $ _) = true
-  | is_typing _ = false
+fun dest_typing t = case dest_Trueprop t of
+    Const (@{const_name has_type}, _) $ u $ ty => (u, ty)
+  | _ => raise TERM ("dest_typing", [t])
+
+fun dest_adj t = case dest_Trueprop t of
+    (adj as Const (_, Type ("fun", [_, @{typ bool}]))) $ tm => (tm, adj)
+  | _ => raise TERM ("dest_adj", [t])
 
 
 fun any T = Const (@{const_name "any"}, typeT T)

@@ -12,6 +12,14 @@ text \<open>
   The rule for HOL.All currently needs to be restricted due to a deficiency in the 
   elaboration algorithm.
 \<close>
+
+ML \<open>
+  val ctxt = @{context};
+  Soft_Type_Context.get_types ctxt @{term HOL.All};
+  Soft_Type_Context.get_types ctxt @{term "{}"};
+  Soft_Type_Context.get_types ctxt @{term Cons};
+\<close>
+
 lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow> bool"
   by (intro Pi_typeI any_typeI)
 
@@ -24,6 +32,12 @@ lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> 
 lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
   by squash_types auto
 
+ML \<open>
+  val ctxt = @{context};
+  Soft_Type_Context.get_types ctxt @{term HOL.All};
+  Soft_Type_Context.get_types ctxt @{term "{}"};
+  Soft_Type_Context.get_types ctxt @{term Cons};
+\<close>
 
 text \<open>The following statements are also provable, but not helpful:\<close>
 

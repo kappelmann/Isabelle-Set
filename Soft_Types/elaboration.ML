@@ -218,7 +218,7 @@ datatype elaboration_result =
 fun infer_type ctxt ts = 
   let
     val const_types = 
-      Option.map (#2 o Soft_Type.dest_typing o Thm.prop_of) o Soft_Type_Context.get_current_type (Context.Proof ctxt)
+      Option.map (#2 o Soft_Type.dest_typing o Thm.prop_of) o Soft_Type_Context.get_current_type ctxt
 
     val maxidx = fold Term.maxidx_term ts ~1
 
