@@ -156,7 +156,7 @@ subsection \<open>Adjectives\<close>
 
 text \<open>We allow adjectives—in the form of predicates—to modify types.\<close>
 
-definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 55)
+definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 56)
   where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
 
 lemma adjective_iff: "x : adj \<cdot> type \<longleftrightarrow> adj x \<and> x : type"
@@ -191,8 +191,7 @@ ML_file "type_classes.ML"
 ML_file "elaboration.ML"
 ML_file \<open>derivation.ML\<close>
 
-lemma rulify_conj [rulify]: "(A \<and> B \<Longrightarrow> C) \<equiv> (A \<Longrightarrow> B \<Longrightarrow> C)" by rule auto
-  \<comment>\<open>Used in normalization of type derivation rules.\<close>
+declare atomize_conjL [symmetric, rulify]  \<comment>\<open>Used in normalization of type derivation rules.\<close>
 
 named_theorems squash
 
@@ -209,7 +208,7 @@ text \<open>@{method squash_types} converts all typing subformulas to their equi
 
 subsection \<open>Basic declarations for HOL material\<close>
 
-lemma eq_type[type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
+lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by squash_types auto
 
 declare with_type_def [type_simp]
