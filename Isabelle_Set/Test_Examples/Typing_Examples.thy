@@ -5,33 +5,6 @@ begin
 lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by squash_types auto
 lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by squash_types auto
 
-text \<open>
-  The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft
-  type is trivial. But the rules also determine the behavior of type inference.
-
-  The rule for HOL.All currently needs to be restricted due to a deficiency in the 
-  elaboration algorithm.
-\<close>
-lemma All_type[type]: "HOL.All : ((A::set type) \<Rightarrow> bool) \<Rightarrow> bool"
-  by (intro Pi_typeI any_typeI)
-
-lemma empty_type[type]: "{} : subset A"
-  by squash_types auto
-
-lemma mem_type[type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool"
-  by (intro Pi_typeI any_typeI)
-
-lemma Cons_type[type]: "Set_Theory.Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
-  by squash_types auto
-
-
-text \<open>The following statements are also provable, but not helpful:\<close>
-
-lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> any"
-  by squash_types auto
-
-lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> any"
-  by squash_types auto
 
 declare [[ trace_soft_types ]]
 
