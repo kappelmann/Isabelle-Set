@@ -248,13 +248,13 @@ fun can_replace F xs rhs =
         Bound _ => true (* Other variables can be projected away in this position *)
       | _ => subset (op =) (Term.loose_bnos t, idxs)
 
-    fun check_allowed_bounds idxs t = case strip_comb t of
+    fun check_allowed_bounds d idxs t = case strip_comb t of
         (Var _, rs) => forall (check_arg idxs) rs
-      | (Free _, rs) => forall (check_allowed_bounds idxs) rs
-      | (Const _, rs) => forall (check_allowed_bounds idxs) rs
-      | (Bound i, rs) => member (op =) idxs i andalso forall (check_allowed_bounds idxs) rs
-      | (Abs (_, _, b), rs) => check_allowed_bounds (map (fn i => i + 1) idxs) b
-                               andalso forall (check_allowed_bounds idxs) rs
+      | (Free _, rs) => forall (check_allowed_bounds d idxs) rs
+      | (Const _, rs) => forall (check_allowed_bounds d idxs) rs
+      | (Bound i, rs) => i < d orelse member (op =) idxs (i - d) andalso forall (check_allowed_bounds d idxs) rs
+      | (Abs (_, _, b), rs) => check_allowed_bounds (d + 1) idxs b
+                               andalso forall (check_allowed_bounds d idxs) rs
       | _ => raise Fail "Unreachable"  
 
     val bvs =  map (fn s => case s of Bound i => i | _ => ~1) xs
@@ -264,7 +264,7 @@ fun can_replace F xs rhs =
       andalso forall (fn i => (i >= 0)) bvs
   in 
     is_lhs_linear 
-    andalso check_allowed_bounds bvs rhs
+    andalso check_allowed_bounds 0 bvs rhs
     andalso not (occurs F rhs)
   end
 
@@ -299,14 +299,14 @@ fun make_projection (V, T) fresh_idx keep_args =
 
 
 
-fun project_vars idxs t theta fresh_idx =
+fun project_vars ctxt idxs t theta fresh_idx =
   let
     fun proj d t (theta, fresh_idx) = case Envir.beta_norm (instantiate_term theta t) of
         Abs (n, T, b) => proj (d + 1) b (theta, fresh_idx) |> apfst (fn b' => Abs(n, T, b'))
       | t' => case strip_comb t' of
           (Var ((n, i), T), rs) => 
              let 
-               fun keep_arg (Bound i) = member (op =) idxs (i - d)
+               fun keep_arg (Bound i) = i < d orelse member (op =) idxs (i - d)
                  | keep_arg _ = true
              in if forall keep_arg rs then (t', (theta, fresh_idx)) else let
                val inst = make_projection ((n, i), T) fresh_idx (map keep_arg rs)
@@ -353,7 +353,7 @@ fun rigidrigid u eqn f ss g ts =
 
 Instantiate ?F with (%ss. t)
 *)
-and flexrigid bs u F ss t =
+and flexrigid ctxt bs u F ss t =
       if occurs F t then error "Occurs check failed"
       else let
         val bound_by_F = 
@@ -362,7 +362,7 @@ and flexrigid bs u F ss t =
                 then error ("Equation is not a pattern: " ^ @{make_string} (F, ss, t)) else ()
         val theta = up_get_subst u
         val fresh_idx = up_get_fresh_idx u
-        val (t', (theta', fresh_idx')) = project_vars bound_by_F t theta fresh_idx
+        val (t', (theta', fresh_idx')) = project_vars ctxt bound_by_F t theta fresh_idx
         val inst = (fst (dest_Var F), abstract_over_loose_bounds bs bound_by_F t')
         val new_subst = Vartab.update inst theta'
         val instantiate = map (instantiate_eqn new_subst)
@@ -400,11 +400,11 @@ fun flexflex_same u F ss ts =
     |> up_map_fresh_idx (fn i => i + 1)
   end
 
-fun flexflex_different bs u F ss G ts =
+fun flexflex_different ctxt bs u F ss G ts =
     if can_replace F ss (list_comb (G, ts))
-    then flexrigid bs u F ss (list_comb (G, ts))
+    then flexrigid ctxt bs u F ss (list_comb (G, ts))
     else if can_replace G ts (list_comb (F, ss))
-    then flexrigid bs u G ts (list_comb (F, ss))
+    then flexrigid ctxt bs u G ts (list_comb (F, ss))
     else error ("FlexFlex: non-pattern equality.")
 
 
@@ -424,7 +424,7 @@ fun abs_decompose u (Abs (n, T, b1)) (Abs (m, _, b2)) (bs, _, or) =
 
 
 
-fun cases u (eqn as (bs, (lhs, rhs), _)) = 
+fun cases ctxt u (eqn as (bs, (lhs, rhs), _)) = 
       let
         val lhs' = Envir.beta_norm lhs
         val rhs' = Envir.beta_norm rhs
@@ -433,9 +433,9 @@ fun cases u (eqn as (bs, (lhs, rhs), _)) =
       in case (lhd, rhd) of
         (Var F, Var G)        => if (F = G) 
                                  then flexflex_same u F ss ts
-                                 else flexflex_different bs u lhd ss rhd ts
-      | (Var _, _)            => flexrigid bs u lhd ss rhs'
-      | (_, Var _)            => flexrigid bs u rhd ts lhs'
+                                 else flexflex_different ctxt bs u lhd ss rhd ts
+      | (Var _, _)            => flexrigid ctxt bs u lhd ss rhs'
+      | (_, Var _)            => flexrigid ctxt bs u rhd ts lhs'
       | (Const _, Const _)    => rigidrigid u eqn lhd ss rhd ts
       | (Free _, Free _)      => rigidrigid u eqn lhd ss rhd ts
       | (Const _, Free _)     => rigidrigid u eqn lhd ss rhd ts
@@ -468,7 +468,7 @@ fun simplify ctxt (u as UP {eqns, ...}) =
     else let
       val _ = Soft_Type.tracing ctxt ("Simplifying " ^ pr_equation ctxt eqn)
     in 
-      simplify ctxt (cases u eqn)
+      simplify ctxt (cases ctxt u eqn)
     end
 
 
@@ -500,7 +500,7 @@ fun unify ctxt rews (u as UP {eqns, postponed, ...}) =
          ((eqn as (_, (lhs, rhs), _)) :: _, _) => 
            (if lhs aconv rhs (* reflexive case *)
            then up_map_eqns tl u
-           else cases u eqn)
+           else cases ctxt u eqn)
          | ([], ps) => try_rewrite ctxt rews u ps
       in unify ctxt rews next end
   end
