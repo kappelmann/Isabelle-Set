@@ -12,6 +12,7 @@ sig
   val elaborate_terms: Proof.context -> term list -> term list
 
   val auto_elaborate : bool Config.T
+  val simple_types : bool Config.T
 
 
   val assert_result: Proof.context -> term list -> term list -> term list
@@ -22,6 +23,7 @@ structure Elaboration : ELABORATION =
 struct
 
   val auto_elaborate = Attrib.setup_config_bool \<^binding>\<open>auto_elaborate\<close> (K false)
+  val simple_types = Attrib.setup_config_bool \<^binding>\<open>simple_types\<close> (K true)
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
   fun map_aterms_lev f =
@@ -168,7 +170,8 @@ struct
            val domainT = domain_type fT
            val rangeT = range_type fT
            val (A_var, Gamma1) = fresh_variable domainT Delta Gamma
-           val (B_var, Gamma2) = fresh_variable (range_type fT) (("", A_var, domainT) :: Delta) Gamma1
+           val Delta' = if Config.get ctxt simple_types then Delta else (("", A_var, domainT) :: Delta)
+           val (B_var, Gamma2) = fresh_variable (range_type fT) Delta' Gamma1
            val fun_st = Soft_Type.Pi_const domainT rangeT $ A_var $ Abs ("", domainT, B_var)
            val Gamma3 = add_constraint ctxt (Delta, (st, fun_st), ()) Gamma2
          in
