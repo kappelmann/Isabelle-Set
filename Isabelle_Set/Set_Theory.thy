@@ -1123,6 +1123,7 @@ lemma
   
   [type]: "HOL.All : ((T::set type) \<Rightarrow> bool) \<Rightarrow> bool" and
   [type]: "{} : subset A" and
+  [type]: "(\<subseteq>) : subset A \<Rightarrow> subset A \<Rightarrow> bool" and
   [type]: "Cons : element A \<Rightarrow> subset A \<Rightarrow> subset A"
 
   by squash_types auto
