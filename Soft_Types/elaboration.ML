@@ -43,10 +43,10 @@ struct
   fun get_const_type (Elaboration_Context {const_types, ...}) (c : term) =
     const_types c;
   
-  fun get_var_type (Elaboration_Context {const_types, var_types, ...}) (v : term) =
+  fun get_var_type (Elaboration_Context {const_types, var_types, up}) (v : term) =
     case const_types v of
       SOME sty => SOME sty
-    | NONE => Termtab.lookup var_types v;
+    | NONE => Termtab.lookup var_types v |> Option.map (Unification.instantiate up);
   
   fun map_up f (Elaboration_Context {const_types, var_types, up}) =
     Elaboration_Context {const_types=const_types, var_types=var_types, up = f up}
@@ -124,7 +124,7 @@ struct
         let
           val (fun_type, Gamma1) = 
             collect_constraints' ctxt Delta s Gamma NONE
-            |> ensure_function Delta s
+            |> ensure_function ctxt Delta s
           val Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B) = fun_type
           val (u_st, Gamma2) = collect_constraints' ctxt Delta u Gamma1 (SOME A)
           val new_constraint = (Delta, (u_st, A), ())
@@ -156,7 +156,7 @@ struct
           SOME st => (st, Gamma)
         | NONE => fix_var_type [] t (fastype_of t) Gamma) (* Free variable types have no dependencies: Delta = [] *)
 
-   and ensure_function Delta f (st, Gamma) =
+   and ensure_function ctxt Delta f (st, Gamma) =
      case st of
          Const (@{const_name "Pi_type"}, _) $ _ $ Abs _ => (st, Gamma)
        | _ => 
@@ -167,8 +167,9 @@ struct
            val (A_var, Gamma1) = fresh_variable domainT Delta Gamma
            val (B_var, Gamma2) = fresh_variable (range_type fT) (("", A_var, domainT) :: Delta) Gamma1
            val fun_st = Soft_Type.Pi_const domainT rangeT $ A_var $ Abs ("", domainT, B_var)
+           val Gamma3 = add_constraint ctxt (Delta, (st, fun_st), ()) Gamma2
          in
-           (fun_st, Gamma2)
+           (fun_st, Gamma3)
          end  
 
    and collect_constraints' ctxt Delta t Gamma expected_type =
