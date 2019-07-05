@@ -87,6 +87,9 @@ struct
       (stv, add_free (v, stv) Gamma1)
     end
 
+  fun instantiate (st, Gamma as Elaboration_Context {up, ...}) =
+    (Unification.instantiate up st, Gamma)
+
 
   fun collect_constraints ctxt
     (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
@@ -178,6 +181,7 @@ struct
        fun pr_term t = Syntax.string_of_term ctxt (inst t)
      in
       collect_constraints ctxt Delta t Gamma expected_type
+      |> instantiate
       |> tap (fn (sT, _) => Soft_Type.tracing ctxt (
             Unification.pr_binders Delta ^ " |- " ^ pr_term t ^ " : " ^ pr_term sT))
      end

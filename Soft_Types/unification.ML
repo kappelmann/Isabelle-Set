@@ -146,7 +146,9 @@ fun instantiate_eqn theta (bs, (lhs, rhs), or) =
   (bs, (instantiate_term theta lhs, instantiate_term theta rhs), or)
 
 
-fun instantiate up = instantiate_term (up_get_subst up)
+fun instantiate up =
+  instantiate_term (up_get_subst up)
+  #> Envir.beta_norm
 
 
 
