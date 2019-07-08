@@ -144,7 +144,7 @@ qed
 
 (*Definition form, to control unfolding*)
 lemma def_induct:
-    "[| A == lfp D h;  a\<in>A;    
+    "[| A = lfp D h;  a\<in>A;    
         !!x. x \<in> h (Collect A P) ==> P x  
      |] ==> P a"
 by (rule induct, blast+)
