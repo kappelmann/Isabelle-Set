@@ -40,7 +40,7 @@ lemma monopD1: "h : monop D ==> h(D) \<subseteq> D"
   unfolding monotone_def by squash_types auto
 
 lemma monopD2: "[| h : monop D;  X : subset D; W \<subseteq> X |] ==> h W \<subseteq> h X"
-  unfolding monotone_def by squash_types auto
+  unfolding monotone_def by squash_types
 
 (* just typing *)
 

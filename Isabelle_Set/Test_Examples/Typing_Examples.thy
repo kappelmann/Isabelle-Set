@@ -166,6 +166,7 @@ ML \<open>
 ML \<open> Elaboration.elaborate_terms @{context} [
   @{term_dummies "\<lambda>y. Pair {} y"}
 ]\<close>
+
 ML \<open> Elaboration.elaborate_terms @{context} [
   @{term "\<lambda>x. Pair x"}
 ]\<close>
