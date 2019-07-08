@@ -80,7 +80,7 @@ qed
 
 subsection \<open>Rules for functions\<close>
 
-lemma Pi_relations [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<in> relations A (\<Union>x \<in> A. (B x))"
+lemma Pi_relations [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<subseteq> A \<times> (\<Union>x \<in> A. (B x))"
   unfolding Pi_def by auto
 
 text \<open>The following lemmas are useful.\<close>
@@ -115,7 +115,7 @@ lemma Pi_fibered: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rang
 
 lemma PiI [intro]:
   assumes
-    f_relation: "f \<in> relations A (\<Union>x \<in> A. (B x))" and
+    f_relation: "f \<subseteq> A \<times> (\<Union>x \<in> A. (B x))" and
     uniq_val: "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f" and
     stratified: "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x"
   shows "f \<in> \<Prod>x \<in> A. (B x)"
@@ -181,7 +181,7 @@ proof -
   ultimately show "f`(fst p) = snd p" using Pi_uniq_val assms by auto
 qed
 
-lemma Pi_elems_conv [simp]:
+lemma Pi_elems_conv:
   assumes "f \<in> \<Prod>x \<in> A. (B x)" and "p \<in> f"
   shows "\<langle>fst p, f ` fst p\<rangle> = p"
 proof -
@@ -193,8 +193,24 @@ proof -
 qed
 
 lemma Pi_graph: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f = {\<langle>x, f`x\<rangle> | x \<in> A}"
-  by (extensionality, rule,
-    auto dest: Pi_relations intro: relations_fst Pi_elems)
+proof -
+  assume f[simp]: "f \<in> \<Prod>x \<in> A. (B x)"
+  then have f_subs: "f \<subseteq> A \<times> \<Union>{B x | x \<in> A}" by (rule Pi_relations)
+
+  show "f = {\<langle>x, f`x\<rangle> | x \<in> A}"
+  proof (rule equalityI2)
+    fix p assume "p \<in> f"
+    from Pi_elems_conv[OF f this]
+    have p: "p = \<langle>fst p, f ` fst p\<rangle>" by simp
+    from f_subs `p \<in> f` have "fst p \<in> A" by auto
+    then show "p \<in> {\<langle>x, f`x\<rangle> | x \<in> A}"
+      by (subst p) auto
+  next
+    fix p assume "p \<in> {\<langle>x, f`x\<rangle> | x \<in> A}"
+    then have p_eq: "p = \<langle>fst p, f`fst p\<rangle>" and fst_A: "fst p \<in> A" by auto
+    then show "p \<in> f" by (subst p_eq) (rule Pi_elems[OF f])
+  qed
+qed
 
 lemma Pi_cong [cong]: "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Prod>x \<in> A. (B x) = \<Prod>x \<in> A'. (B' x)"
   by (simp add: Pi_def cong: DUnion_cong)
