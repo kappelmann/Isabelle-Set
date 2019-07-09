@@ -72,5 +72,25 @@ qed
 lemma Succ_elem: "x \<in> Succ x"
   unfolding Succ_def by auto
 
+lemma Succ_not_empty: "Succ n \<noteq> {}"
+  unfolding Succ_def by auto
+
+lemma Succ_inject: "Succ n = Succ m \<Longrightarrow> n = m"
+proof (rule ccontr)
+  assume Succ_eq: "Succ n = Succ m"
+  assume neq: "n \<noteq> m"
+
+  have "n \<in> Succ n" unfolding Succ_def by blast
+  with Succ_eq have "n \<in> Succ m" by simp
+  with neq have "n \<in> m" unfolding Succ_def by blast
+
+  have "m \<in> Succ m" unfolding Succ_def by blast
+  with Succ_eq have "m \<in> Succ n" by simp
+  with neq have "m \<in> n" unfolding Succ_def by blast
+
+  from `n \<in> m` `m \<in> n` show False using elem_asym by blast
+qed
+
+
 
 end

@@ -38,6 +38,8 @@ text \<open>The following axioms need a definition first:\<close>
 definition subset :: "set \<Rightarrow> set \<Rightarrow> bool" (infixl "\<subseteq>" 50)
   where "A \<subseteq> B \<equiv> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
 
+hide_const (open) subset (* Will usually be referred to via infix *)
+
 axiomatization where
   extensionality_axiom: "\<forall>X Y. X \<subseteq> Y \<longrightarrow> Y \<subseteq> X \<longrightarrow> X = Y"
 and

@@ -32,7 +32,7 @@ text \<open>
   on \<open>B\<close>, in the same way as is done for type definitions in HOL.
 \<close>
 
-context
+locale set_extension =
 fixes 
   A B :: set
   and f :: "set \<Rightarrow> set"
@@ -41,8 +41,8 @@ assumes
  and f_injective: "\<forall>x\<in>A. \<forall>y\<in>A. f x = f y \<longrightarrow> x = y"
 begin
 
-definition B' :: set
-  where "B' = A \<union> {\<langle>A, x\<rangle>. x \<in> B \<setminus> Repl A f}"
+definition def :: set
+  where "def = A \<union> {\<langle>A, x\<rangle>. x \<in> B \<setminus> Repl A f}"
 
 definition Rep :: "set \<Rightarrow> set"
   where "Rep y = (if y \<in> A then f y else snd y)"
@@ -50,9 +50,9 @@ definition Rep :: "set \<Rightarrow> set"
 definition Abs :: "set \<Rightarrow> set"
   where "Abs x = (if (\<exists>z\<in>A. f z = x) then (THE z. z\<in>A \<and> f z = x) else \<langle>A, x\<rangle>)"
 
-lemma Rep_type: "Rep : element B' \<Rightarrow> element B"
+lemma Rep_type: "Rep : element def \<Rightarrow> element B"
 proof (rule Pi_typeI)
-  fix y assume "y : element B'"
+  fix y assume "y : element def"
   show "Rep y : element B"
   proof (cases "y \<in> A")
     case True
@@ -60,17 +60,17 @@ proof (rule Pi_typeI)
     with f_type True show ?thesis by squash_types
   next
     case False
-    with `y : element B'` obtain x where "x \<in> B" "y = \<langle>A, x\<rangle>"
-      unfolding B'_def by squash_types auto
+    with `y : element def` obtain x where "x \<in> B" "y = \<langle>A, x\<rangle>"
+      unfolding def_def by squash_types auto
     then have "Rep y = x" unfolding Rep_def using False by simp
     with `x \<in> B` show ?thesis by squash_types
   qed
 qed
 
-lemma Abs_type: "Abs : element B \<Rightarrow> element B'"
+lemma Abs_type: "Abs : element B \<Rightarrow> element def"
 proof (rule Pi_typeI)
   fix x assume "x : element B"
-  show "Abs x : element B'"
+  show "Abs x : element def"
   proof (cases "\<exists>z\<in>A. f z = x")
     case True then obtain z where z: "z \<in> A \<and> f z = x" by auto
     with f_injective
@@ -78,18 +78,18 @@ proof (rule Pi_typeI)
     with z have "(THE z. z\<in>A \<and> f z = x) = z"
       by (rule the_equality)
     with True have "Abs x = z" unfolding Abs_def by simp
-    with z have "Abs x \<in> B'" unfolding B'_def by auto
+    with z have "Abs x \<in> def" unfolding def_def by auto
     then show ?thesis by squash_types
   next
     case False
     with `x : element B` 
     have "x \<in> B \<setminus> Repl A f" by squash_types auto
-    then show ?thesis unfolding B'_def element_type_iff Abs_def by auto
+    then show ?thesis unfolding def_def element_type_iff Abs_def by auto
   qed
 qed    
 
 lemma Rep_inverse: 
-  assumes "x : element B'"
+  assumes "x : element def"
   shows "Abs (Rep x) = x"
 proof (cases "x \<in> A")
   case True
@@ -104,7 +104,7 @@ proof (cases "x \<in> A")
 next
   case False
   with assms obtain y where y: "y\<in>B" "y \<notin> Repl A f" and x_eq: "x = \<langle>A, y\<rangle>"
-    unfolding B'_def element_type_iff by auto
+    unfolding def_def element_type_iff by auto
 
   from `x \<notin> A` have "Abs (Rep x) = Abs (snd x)" by (simp add: Rep_def)
   also from x_eq have "... = Abs y" by auto
@@ -133,8 +133,8 @@ next
   finally show "Rep (Abs x) = x" .
 qed
 
-lemma extension_subset: "A \<subseteq> B'"
-  unfolding B'_def by auto
+lemma extension_subset: "A \<subseteq> def"
+  unfolding def_def by auto
 
 end
 

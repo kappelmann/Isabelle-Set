@@ -34,3 +34,5 @@ proof(intro impI allI)
       Univ_transitive Univ_ZF_closed CB_Th_5 AC by auto  
   qed
 qed
+
+end

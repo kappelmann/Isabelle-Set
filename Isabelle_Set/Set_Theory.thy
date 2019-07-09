@@ -1081,27 +1081,24 @@ lemma element_type_iff [squash]: "x : element A \<longleftrightarrow> x \<in> A"
 
 subsubsection \<open>Subsets of a given set\<close>
 
-abbreviation subset :: "set \<Rightarrow> set type"
-  where "subset A \<equiv> element (Pow A)"
+definition subset :: "set \<Rightarrow> set type"
+  where subset_typedef[type_simp]: "subset A = element (Pow A)"
 
 lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
-  unfolding element_typedef by squash_types auto
-
+  unfolding element_typedef subset_typedef by squash_types auto
 
 subsubsection \<open>Collections of sets of a given type T\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-(* squash_types attribute should be generated automatically for typedefs of the kind T = Type P *)
+(* [squash] attribute should be generated automatically for typedefs of the kind T = Type P *)
 lemma collection_type_iff [squash]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
   unfolding collection_typedef by squash_types
 
 lemma
   collection_typeI [intro]: "(\<And>x. x \<in> X \<Longrightarrow> x : T) \<Longrightarrow> X : collection T" and
-
   collection_typeE [elim]: "\<lbrakk>X : collection T; x \<in> X\<rbrakk> \<Longrightarrow> x : T"
-
   by squash_types auto
 
 
@@ -1135,6 +1132,15 @@ lemma "HOL.All : (Type1 \<Rightarrow> Type2) \<Rightarrow> any"
   by squash_types auto
 
 lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
+  by squash_types auto
+
+
+text \<open>Some other things that are true, but we do not know yet how to deal with them systematically.\<close>
+
+lemma "A : set \<Longrightarrow> A : collection (element A)"
+  by squash_types auto
+
+lemma "A : set \<Longrightarrow> A : subset A"
   by squash_types auto
 
 

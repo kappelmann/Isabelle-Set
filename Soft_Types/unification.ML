@@ -206,21 +206,45 @@ fun to_var (t as Free (n, T)) =
       else t
   | to_var t = t 
 
+fun abstract_over_frees vs t =
+  let
+    fun abs lev tm =
+        case tm of
+          Free _ => (case find_index (curry op = tm) vs of
+              ~1 => tm
+            | i => Bound (lev + i))
+        | Abs (a, T, t) => Abs (a, T, abs (lev + 1) t)
+        | t $ u => abs lev t $ abs lev u
+        | _ => tm;
+  in abs 0 t end
+
+
+fun replace_bounds ctxt binders t =
+  let 
+    val frees = map Free (Variable.variant_frees ctxt [t] (map (fn (n, _, T) => (n, T)) binders))
+    val reverse_op = abstract_over_frees frees
+  in
+    (Term.subst_bounds (frees, t), reverse_op)
+  end
+
 
 (* Rewrites all rules, returning a list of changed and unchanged rules *)
 fun rewrite_eqns ctxt rews eqns =
   let
     val simp_rules = flat (map (Raw_Simplifier.mksimps ctxt) rews) 
 
-    fun transform_term t =
-      let val t' = 
-        t
-        |> Term.map_aterms to_free
-        |> Raw_Simplifier.rewrite_term (Proof_Context.theory_of ctxt) simp_rules []
-        |> Term.map_aterms to_var
-      in if (t aconv t') then NONE else SOME t' end
+    fun transform_term bs t =
+      let val _ = Soft_Type.tracing ctxt ("Trying to rewrite " ^ Syntax.string_of_term ctxt t)
+        val (t', f) = replace_bounds ctxt bs t
+        val t'' =
+          t'
+          |> Term.map_aterms to_free
+          |> Raw_Simplifier.rewrite_term (Proof_Context.theory_of ctxt) simp_rules []
+          |> Term.map_aterms to_var
+          |> f
+      in if (t aconv t'') then NONE else SOME t'' end
 
-      fun transform_eqn (bs, (s, t), or) = case (transform_term s, transform_term t) of
+      fun transform_eqn (bs, (s, t), or) = case (transform_term bs s, transform_term bs t) of
         (NONE, NONE) => NONE
       | (s', t') => SOME (bs, (the_default s s', the_default t t'), or)
 

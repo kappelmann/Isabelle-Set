@@ -11,14 +11,11 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Examples and compatibility layers *)
-    "Isabelle_Set/Test_Examples/KPTest"
+    "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Structure_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/ZF_Compatibility"
-
-    (* Variations on the axioms, proposed by Karol *)
-    "Isabelle_Set/Set_Theory_Axioms_T"
 
     (* MML ported to new logic *)
     "Set_MML/tarski_0"
