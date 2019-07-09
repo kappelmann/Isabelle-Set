@@ -20,7 +20,7 @@ text \<open>Soft types are just predicates, but expressed as a different type:\<
 
 typedecl 'a type
 
-axiomatization 
+axiomatization
   Type :: "('a \<Rightarrow> bool) \<Rightarrow> 'a type" and
   pred_of :: "'a type \<Rightarrow> 'a \<Rightarrow> bool"
 where
