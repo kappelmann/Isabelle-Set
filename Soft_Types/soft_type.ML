@@ -29,8 +29,8 @@ val mk_any_fun: typ -> term
 
 (* Type annotations *)
 val annotate: term -> term -> term
-(*val get_annotations: term -> (term * term) list
-val strip_annotations: term -> term*)
+val extract_annotations: term -> (term * term) list
+val strip_annotations: term -> term
 
 (* Tracing *)
 val trace_soft_types: bool Config.T
@@ -89,6 +89,23 @@ fun mk_any_fun T =
 fun with_type_const T = Const (\<^const_name>\<open>with_type\<close>, T --> typeT T --> T)
 
 fun annotate soft_type t = with_type_const (fastype_of t) $ t $ soft_type
+
+fun extract_annotations t = 
+  let
+    fun extract t = case t of
+          Const (\<^const_name>\<open>with_type\<close>, _) $ u $ A => cons (u, A) o extract u
+        | s $ u => extract s o extract u
+        | Abs (_, _, b) => extract b
+        | _ => I
+  in
+    extract t []
+  end
+
+fun strip_annotations t = case t of
+    Const (\<^const_name>\<open>with_type\<close>, _) $ s $ _ => strip_annotations s
+  | s $ t => strip_annotations s $ strip_annotations t
+  | Abs (x, T, b) => Abs (x, T, strip_annotations b)
+  | _ => t
 
 
 (* tracing, controlled by a flag *)

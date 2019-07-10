@@ -189,6 +189,7 @@ ML_file "soft_type_context.ML"
 ML_file "unification.ML"
 ML_file "type_classes.ML"
 ML_file "elaboration.ML"
+ML_file "isar_integration.ML"
 ML_file \<open>derivation.ML\<close>
 
 declare atomize_conjL [symmetric, rulify]  \<comment>\<open>Used in normalization of type derivation rules.\<close>
