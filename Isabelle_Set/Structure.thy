@@ -23,7 +23,7 @@ structure Labels: sig
 end = struct
 
   (* TODO: binary encoding; proper symbol coverage *)
-  fun hash i = funpow i (fn t => @{const "Succ"} $ t) @{term "{}"}
+  fun hash i = funpow i (fn t => \<^const>\<open>Succ\<close> $ t) \<^term>\<open>{}\<close>
   val get_hash = Symtab.make [
     ("0", hash 0),
     ("1", hash 1),
@@ -67,7 +67,7 @@ end = struct
 (* Convert strings to ordered tuples of the hashes of each letter. *)
 fun string_to_hash str =
   let
-    fun mk_pair (t1, t2) = @{const "Pair"} $ t1 $ t2
+    fun mk_pair (t1, t2) = \<^const>\<open>Pair\<close> $ t1 $ t2
   in
     String.explode str |>  map (the o get_hash o Char.toString) |> foldr1 mk_pair
   end
@@ -117,7 +117,7 @@ lemma selector_simps [simp]:
 text \<open>Structure declaration keyword:\<close>
 
 ML \<open>
-Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitions"
+Outer_Syntax.local_theory \<^command_keyword>\<open>struct\<close> "Declare structure definitions"
   let
     val parser = Parse.text -- (Parse.$$$ "=" |-- Parse.term)
 
@@ -125,9 +125,9 @@ Outer_Syntax.local_theory @{command_keyword struct} "Declare structure definitio
       let
         (* Get the field labels used in the structure declaration.
            Relies on the specific form of the translations defined above! *)
-        fun get_labels (@{const comp} $ A $ Abs (_, _, t)) = A :: get_labels t
-          | get_labels (Const (@{const_name Type}, _) $ t) = get_labels t
-          | get_labels (Const (@{const_name Int_type}, _) $ _ $ t) = get_labels t
+        fun get_labels (\<^const>\<open>comp\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
+          | get_labels (Const (\<^const_name>\<open>Type\<close>, _) $ t) = get_labels t
+          | get_labels (Const (\<^const_name>\<open>Int_type\<close>, _) $ _ $ t) = get_labels t
           | get_labels _ = []
 
         val struct_def = Syntax.read_term lthy struct_def_str
