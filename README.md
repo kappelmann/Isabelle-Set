@@ -57,3 +57,25 @@ hg up <REVISION>
 
 Automated builds can be found on CircleCI (https://circleci.com/bb/cezaryka/tyset).
 There you can also configure email notifications for failed builds.
+
+
+## Entry points
+
+The whole development is still in a very experimental state. There are currently no examples that demonstrate all features in integration. The basic set theory can be used for formalizing concepts as usual, but the type system is not integrated yet.
+
+Here are some good entry points for reading the sources:
+
+File | Content 
+-----|--------
+`Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL): Types as predicates, Function types, intersections, adjectives. Tool setup
+`Soft_Types/*.ML` | Infrastructure for soft types: Elaboration, Unification, Context data, etc.
+`Isabelle_Set/Set_Theory_Axioms.thy` | Axiomatization of set theory
+`Isabelle_Set/Set_Theory.thy` | Basics of Set Theory
+`Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts
+`Isabelle_Set/Structure.thy` | Basic syntax for structures
+`Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
+`Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ⊇ ℕ
+`Isabelle_Set/Test_examples/Typing_Examples.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
+`Isabelle_Set/Test_examples/Implicit_Args.thy` | Demonstrates automatic insertion of implicit arguments
+`Isabelle_Set/Test_examples/Implicit_Assumptions.thy` | Demonstrates automatic generation of typing assumptions in the proof context.
+

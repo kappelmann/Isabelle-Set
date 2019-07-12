@@ -10,7 +10,9 @@ text \<open>
 definition "raw_int = Sum_Type \<nat> (\<nat> \<setminus> {})"
                                
 interpretation INT: set_extension \<nat> raw_int Inl
-proof                         
+proof
+  txt \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>raw_int\<close>:\<close>
+
   show "Inl : element \<nat> \<Rightarrow> element raw_int"
     unfolding raw_int_def by (rule Inl_type)
 
@@ -19,7 +21,7 @@ qed
 
 notation INT.def ("\<int>")
 
-
+lemma "\<nat> \<subseteq> \<int>" by (rule INT.extension_subset)
 
 
 
