@@ -96,8 +96,8 @@ ML \<open>
 
 ML \<open>
 Elaboration.elaborate_terms @{context} [
-  @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
-  @{term_dummies "append _ (Nil _) ys = ys"} 
+  @{term "append ? (Cons ? x xs) ys = Cons ? x (append ? xs ys)"},
+  @{term "append ? (Nil ?) ys = ys"} 
 ]
 \<close>
 
@@ -137,8 +137,7 @@ text \<open>
 \<close>
 
 ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
-   = VCons _ _ x (vappend _ _ _ xs ys)"}
+  @{term "vappend ? ? ? (VCons ? ? x xs) ys = VCons ? ? x (vappend ? ? ? xs ys)"}
 ]\<close>
 
 
@@ -153,7 +152,7 @@ ML \<open>
     [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
 \<close>
 ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "{{}}"}
+  @{term "{{}}"}
 ]\<close>
 
 ML \<open>
@@ -164,7 +163,7 @@ ML \<open>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "\<lambda>y. Pair {} y"}
+  @{term "\<lambda>y. Pair {} y"}
 ]\<close>
 
 ML \<open> Elaboration.elaborate_terms @{context} [

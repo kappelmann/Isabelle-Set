@@ -18,10 +18,14 @@ syntax
 translations
   "\<implicit> x" \<rightleftharpoons> "CONST implicit_arg (\<lambda>x. CONST implicit_dummy)"
 
+
+abbreviation (input) wildcard :: "'a::{}" ("?")
+  where "? \<equiv> implicit_arg (%x. implicit_dummy)"
+
 text \<open>
   So we can now write \<^term>\<open>\<implicit>A\<close> as a placeholder for an implicit argument with name \<open>A\<close>.
+  When we do not want to give a name, we can write \<^term>\<open>?\<close>.
 \<close>
-
 
 ML_file "implicit_arguments.ML"
 
