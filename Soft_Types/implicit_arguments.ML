@@ -4,8 +4,10 @@
 Implicit arguments represented in the pre-term structure.
 
 An implicit argument is treated as a unification variable by the type inference algorithm.
-But it must be handed correctly through layers that do not expect Vars in terms, so we must
-encode them as constant expressions.
+But it must be handed correctly through layers that do not expect Vars in terms, so we
+encode them as constant expressions "\<implicit>n".
+
+Cf. Implicit_Arguments.thy.
 *)
 
 signature IMPLICIT_ARGUMENTS =
@@ -72,6 +74,7 @@ fun is_marked m (Const (n, _) $ _) = (n = "_mark_" ^ m)
 
 fun mark m t = if is_marked m t then t else do_mark m t
 fun unmark (Const _ $ t) = t
+  | unmark t = raise TERM ("unmark", [t])
 
 
 

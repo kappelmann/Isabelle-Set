@@ -7,13 +7,13 @@ Elaboration. Turns a term into a fully specified term, making use of typing info
 signature ELABORATION =
 sig
 
-  val print_inferred_types: Proof.context -> term list -> unit;
-
-  val elaborate_terms: Proof.context -> term list -> term list
-
+  (* true iff the elaborator should be invoked automatically in a check phase *)
   val auto_elaborate : bool Config.T
+
+  (* true iff simple function types should be assumed for function variables whose type is unknown *)
   val simple_types : bool Config.T
 
+  val elaborate_terms: Proof.context -> term list -> term list
 
   val assert_result: Proof.context -> term list -> term list -> term list
 
@@ -33,35 +33,39 @@ struct
     in mapt 0 end
 
 
-  (* Context \<Gamma>, which maps variables and constants to their types. Also used to collect constraints
-     during elaboration.
-   *)
-  datatype elaboration_context = Elaboration_Context of {
+  (* Background context and state. *)
+  datatype elaboration_state = Elaboration_State of {
+
+    (* types of constants (fixed) *)
     const_types: term -> term option,
+
+    (* types of free variables (filled on the go) *)
     var_types: term Termtab.table,
-    up: unit Unification.unification_problem
+
+    (* the unification state (including generation of fresh variables) *)
+    up: unit Unification.unification_state
   }
 
-  fun get_const_type (Elaboration_Context {const_types, ...}) (c : term) =
+  fun get_const_type (Elaboration_State {const_types, ...}) (c : term) =
     const_types c;
   
-  fun get_var_type (Elaboration_Context {const_types, var_types, up}) (v : term) =
+  fun get_var_type (Elaboration_State {const_types, var_types, up}) (v : term) =
     case const_types v of
       SOME sty => SOME sty
     | NONE => Termtab.lookup var_types v |> Option.map (Unification.instantiate up);
   
-  fun map_up f (Elaboration_Context {const_types, var_types, up}) =
-    Elaboration_Context {const_types=const_types, var_types=var_types, up = f up}
+  fun map_up f (Elaboration_State {const_types, var_types, up}) =
+    Elaboration_State {const_types=const_types, var_types=var_types, up = f up}
 
-  fun add_constraint ctxt (c as (_, (lhs, rhs), _)) Gamma =
+  fun add_constraint ctxt (c as (_, (lhs, rhs), _)) E =
     if lhs aconv rhs (* Skip trivial constraints *)
-    then Gamma
-    else map_up (Unification.add_equation ctxt c) Gamma
+    then E
+    else map_up (Unification.add_equation ctxt c) E
 
   
-  fun fresh_idx (Gamma as Elaboration_Context {up, ...}) =
+  fun fresh_idx (E as Elaboration_State {up, ...}) =
     let val (i, up') = Unification.fresh_idx up
-    in (i, map_up (K up') Gamma) end
+    in (i, map_up (K up') E) end
 
   fun context_types (Delta : Unification.binder list) =
     map (#3) Delta
@@ -69,79 +73,79 @@ struct
   fun incr_bounds (Delta : Unification.binder list) =
     map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
 
-  fun fresh_variable T Delta Gamma =
+  fun fresh_variable T Delta E =
     let
       val var_type = context_types Delta ---> Soft_Type.typeT T
-      val (i, Gamma') = fresh_idx Gamma
+      val (i, E') = fresh_idx E
     in
       (Term.list_comb (Var (("UU", i), var_type), 
         map Bound ((length Delta) -1 downto 0)),
-      Gamma')
+      E')
     end
 
-  fun add_free (v, st) (Elaboration_Context {const_types, var_types, up}) =
-    Elaboration_Context {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, up=up};
+  fun add_free (v, st) (Elaboration_State {const_types, var_types, up}) =
+    Elaboration_State {const_types=const_types, var_types=Termtab.update_new (v, st) var_types, up=up};
 
-  fun fix_var_type Delta v T Gamma =
+  fun fix_var_type Delta v T E =
     let
-      val (stv, Gamma1) = fresh_variable T Delta Gamma
+      val (stv, E1) = fresh_variable T Delta E
     in
-      (stv, add_free (v, stv) Gamma1)
+      (stv, add_free (v, stv) E1)
     end
 
-  fun instantiate (st, Gamma as Elaboration_Context {up, ...}) =
-    (Unification.instantiate up st, Gamma)
+  fun instantiate (st, E as Elaboration_State {up, ...}) =
+    (Unification.instantiate up st, E)
 
 
   fun collect_constraints ctxt
     (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
     (t : term)
-    (Gamma : elaboration_context)                (* Types of frees and vars, constraints *)
+    (E : elaboration_state)                (* Types of frees and vars, constraints *)
     (expected_type : term option)
-    : (term * elaboration_context) =
+    : (term * elaboration_state) =
     case t of 
      (* special case: explicit type annotation *)
      Const (\<^const_name>\<open>with_type\<close>, _) $ s $ A =>
        let
-         val (st, Gamma1) = collect_constraints' ctxt Delta s Gamma NONE
+         val (st, E1) = collect_constraints' ctxt Delta s E NONE
          val new_constraint = (Delta, (st, A), ())
        in
-         (st, add_constraint ctxt new_constraint Gamma1)
+         (st, add_constraint ctxt new_constraint E1)
        end
     | Const (_, T) => 
         let
           (* If constant type cannot be found, invent a generic type *)
-          val st = (case get_const_type Gamma t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
+          val st = (case get_const_type E t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
           (* Ensure that unification variables are fresh for each constant occurrence
              and make them depend on the current binders. *)
           val binder_types = rev (map #3 Delta)
           val bounds = (length Delta - 1) downto 0
-          val (idx, Gamma1) = fresh_idx Gamma
+          val (idx, E1) = fresh_idx E
           fun lift_var d (Var ((n, 0), T)) =
                 Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
             | lift_var _ (Var _) = error "Illegal Var index"
             | lift_var _ t = t
           val const_type = map_aterms_lev lift_var st
         in
-          (const_type, Gamma1)
+          (const_type, E1)
         end
     | s $ u => 
         let
-          val (fun_type, Gamma1) = 
-            collect_constraints' ctxt Delta s Gamma NONE
+          val (fun_type, E1) = 
+            collect_constraints' ctxt Delta s E NONE
             |> ensure_function ctxt Delta s
-          val Const (@{const_name "Pi_type"}, _) $ A $ Abs (_, _, B) = fun_type
-          val (u_st, Gamma2) = collect_constraints' ctxt Delta u Gamma1 (SOME A)
+          val (_, A, B) = Soft_Type.dest_Pi_type fun_type
+          val (u_st, E2) = collect_constraints' ctxt Delta u E1 (SOME A)
           val new_constraint = (Delta, (u_st, A), ())
           val application_type = Term.subst_bound (u, B)
         in
-          (application_type, add_constraint ctxt new_constraint Gamma2)
+          (application_type, add_constraint ctxt new_constraint E2)
         end
-    | Bound i => (#2 (nth Delta i), Gamma)
+    | Bound i => (#2 (nth Delta i), E)
     | Abs (x, T, body) => 
         let 
           (* Invent variable for the domain *)
-          val (stvar, Gamma2) = fresh_variable T Delta Gamma
+          val (stvar, E2) = fresh_variable T Delta E
 
           (* Inner context *)
           val Delta' = incr_bounds ((x, stvar, T) :: Delta)
@@ -149,41 +153,41 @@ struct
           val bodyT = Term.fastype_of1 (map #3 Delta', body)
 
           (* Infer type of the body *)
-          val (body_st, Gamma3) =
-            collect_constraints' ctxt Delta' body Gamma2 NONE
+          val (body_st, E3) =
+            collect_constraints' ctxt Delta' body E2 NONE
           (* Build a function type *)
           val st = Soft_Type.Pi_const T bodyT $ stvar $ Abs (x, T, body_st)
         in
-          (st, Gamma3)
+          (st, E3)
         end
     | t => (* Variable cases: Var and Free *)
-        (case get_var_type Gamma t of
-          SOME st => (st, Gamma)
-        | NONE => fix_var_type [] t (fastype_of t) Gamma) (* Free variable types have no dependencies: Delta = [] *)
+        (case get_var_type E t of
+          SOME st => (st, E)
+        | NONE => fix_var_type [] t (fastype_of t) E) (* Free variable types have no dependencies: Delta = [] *)
 
-   and ensure_function ctxt Delta f (st, Gamma) =
+   and ensure_function ctxt Delta f (st, E) =
      case st of
-         Const (@{const_name "Pi_type"}, _) $ _ $ Abs _ => (st, Gamma)
+         Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs _ => (st, E)
        | _ => 
          let
            val fT = Term.fastype_of1 (map #3 Delta, f)
            val domainT = domain_type fT
            val rangeT = range_type fT
-           val (A_var, Gamma1) = fresh_variable domainT Delta Gamma
+           val (A_var, E1) = fresh_variable domainT Delta E
            val Delta' = if Config.get ctxt simple_types then Delta else (("", A_var, domainT) :: Delta)
-           val (B_var, Gamma2) = fresh_variable (range_type fT) Delta' Gamma1
+           val (B_var, E2) = fresh_variable (range_type fT) Delta' E1
            val fun_st = Soft_Type.Pi_const domainT rangeT $ A_var $ Abs ("", domainT, B_var)
-           val Gamma3 = add_constraint ctxt (Delta, (st, fun_st), ()) Gamma2
+           val E3 = add_constraint ctxt (Delta, (st, fun_st), ()) E2
          in
-           (fun_st, Gamma3)
+           (fun_st, E3)
          end  
 
-   and collect_constraints' ctxt Delta t Gamma expected_type =
+   and collect_constraints' ctxt Delta t E expected_type =
      let 
        fun inst t = Term.subst_bounds (map (fn (n, _, T) => Free (n, T)) Delta, t)
        fun pr_term t = Syntax.string_of_term ctxt (inst t)
      in
-      collect_constraints ctxt Delta t Gamma expected_type
+      collect_constraints ctxt Delta t E expected_type
       |> instantiate
       |> tap (fn (sT, _) => Soft_Type.tracing ctxt (
             Unification.pr_binders Delta ^ " |- " ^ pr_term t ^ " : " ^ pr_term sT))
@@ -193,27 +197,27 @@ struct
 fun collect_constraints_prop ctxt
     (Delta : (string * term * typ) list)
     (t : term)
-    (Gamma : elaboration_context) =
+    (E : elaboration_state) =
   case t of
     Const ("HOL.Trueprop", _) $ arg =>
-      collect_constraints ctxt Delta arg Gamma NONE |> snd
+      collect_constraints ctxt Delta arg E NONE |> snd
   | Const ("Pure.implies", _) $ u $ s =>
-      Gamma
+      E
       |> collect_constraints_prop ctxt Delta u
       |> collect_constraints_prop ctxt Delta s
   | Const ("Pure.eq", _) $ u $ s =>
-      Gamma
+      E
       |> collect_constraints_prop ctxt Delta u
       |> collect_constraints_prop ctxt Delta s
   | Const ("Pure.all", _) $ Abs (x, T, b) =>
       let
         (* Invent variable for the domain *)
-        val (stvar, Gamma2) = fresh_variable T Delta Gamma
+        val (stvar, E2) = fresh_variable T Delta E
       in
-        collect_constraints_prop ctxt (incr_bounds ((x, stvar, T) :: Delta)) b Gamma2
+        collect_constraints_prop ctxt (incr_bounds ((x, stvar, T) :: Delta)) b E2
       end
-  | Const ("Pure.type", _) => Gamma
-  | _ => collect_constraints ctxt Delta t Gamma NONE |> snd
+  | Const ("Pure.type", _) => E
+  | _ => collect_constraints ctxt Delta t E NONE |> snd
 
 
 datatype elaboration_result =
@@ -230,15 +234,15 @@ fun infer_type ctxt ts =
 
     val maxidx = fold Term.maxidx_term ts ~1
 
-    val ictxt = Elaboration_Context {
+    val ictxt = Elaboration_State {
         const_types = const_types,
         var_types = Termtab.empty,
         up = Unification.init (maxidx + 1)
       }
-    val Elaboration_Context {up, var_types, ...} =
+    val Elaboration_State {up, var_types, ...} =
        fold (collect_constraints_prop ctxt []) ts ictxt
 
-    val type_simps = Named_Theorems.get ctxt @{named_theorems "type_simp"}
+    val type_simps = Named_Theorems.get ctxt \<^named_theorems>\<open>type_simp\<close>
     val up' = Unification.unify ctxt type_simps up
     fun instantiate t = Unification.instantiate up' t
     val elaborated_terms = map instantiate ts
@@ -266,8 +270,6 @@ fun trace_infer_result ctxt (Elaboration_Result {elaborated_terms, variable_type
         section "Variable types" (map (fn (v, st) => pr_term v ^ ": " ^ pr_term st) variable_types)
       ]))
   end
-
-fun print_inferred_types ctxt ts = trace_infer_result ctxt (infer_type ctxt ts)
 
 fun annotate_terms env ts =
   let
@@ -318,12 +320,10 @@ fun elaborate_terms ctxt ts =
     ets'''
   end
 
-fun auto_elaborate_terms ctxt ts =
-  if Config.get ctxt auto_elaborate then elaborate_terms ctxt ts else ts
 
-
-(* No effect until activated in the configuration *)
-val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" auto_elaborate_terms)
+(* Install check phase (when activated in the configuration) *)
+val _ = Context.>> (Syntax_Phases.term_check 5 "elaboration" (fn ctxt =>
+  if Config.get ctxt auto_elaborate then elaborate_terms ctxt else I))
 
 
 (* Testing *)

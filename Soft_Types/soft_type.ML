@@ -7,14 +7,12 @@ Basic syntactic operations on soft types.
 signature SOFT_TYPE =
 sig
 
-(* Utility *)
-val dest_Trueprop: term -> term
-
 (* Type of soft types *)
 val typeT: typ -> typ
 
 (* Function types *)
 val Pi_const: typ -> typ -> term
+val dest_Pi_type: term -> string * term * term
 
 (* Typing judgments *)
 val is_typing: term -> bool
@@ -42,38 +40,38 @@ end
 structure Soft_Type : SOFT_TYPE =
 struct
 
-fun dest_Trueprop (Const (@{const_name Trueprop}, _) $ P) = P
+fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
 
-fun typeT T = Type (@{type_name type}, [T])
+fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
 
 fun Pi_const Ta Tb = 
-  Const (
-    @{const_name Pi_type},
-    typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb)
-  )
+  Const (\<^const_name>\<open>Pi_type\<close>, typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb))
+
+fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
+  | dest_Pi_type t = raise TERM ("dest_Pi_type", [t])
 
 fun is_typing t = case dest_Trueprop t of
-    Const (@{const_name has_type}, _) $ _ $ _ => true
+    Const (\<^const_name>\<open>has_type\<close>, _) $ _ $ _ => true
   | _ => false
 
 fun is_adj t = case (Term.head_of o dest_Trueprop) t of
-    Const (@{const_name has_type}, _) => false
-  | Const (_, T as Type ("fun", _)) => if Term.body_type T = @{typ bool} then true else false
+    Const (\<^const_name>\<open>has_type\<close>, _) => false
+  | Const (_, T as Type ("fun", _)) => (Term.body_type T = \<^typ>\<open>bool\<close>)
   | _ => false
 
 fun mk_typing (t, ty) =
   let val T = fastype_of t in
-    Const (@{const_name "has_type"}, T --> typeT T --> @{typ bool}) $ t $ ty
+    Const (\<^const_name>\<open>has_type\<close>, T --> typeT T --> \<^typ>\<open>bool\<close>) $ t $ ty
   end
 
 fun dest_typing t = case dest_Trueprop t of
-    Const (@{const_name has_type}, _) $ u $ ty => (u, ty)
+    Const (\<^const_name>\<open>has_type\<close>, _) $ u $ ty => (u, ty)
   | _ => raise TERM ("dest_typing", [t])
 
 fun dest_adj t = let val (adj, u) = (Term.dest_comb o dest_Trueprop) t in (u, adj) end
 
-fun any T = Const (@{const_name "any"}, typeT T)
+fun any T = Const (\<^const_name>\<open>any\<close>, typeT T)
 
 fun mk_any_fun T =
   let
