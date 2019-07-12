@@ -25,15 +25,28 @@ Ultimately, these developments should converge.
 Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. They may introduce a similar notion of soft type at some point.
 
 
-## How to build
+## How to build / run
 
-Compatibility: Isabelle repository version (as specified in file ISABELLE_VERSION)
+This code currently depends on a [custom clone of the Isabelle repository](https://bitbucket.org/akrauss/isabelle-soft-types),
+which contains some experimental changes to Isabelle. The file ISABELLE_VERSION specifies the exact revision, which
+will also be used in the automated builds.
+
+* Clone and build the Isabelle version, e.g.,
+
+    hg clone https://bitbucket.org/akrauss/isabelle-soft-types
+    cd isabelle-soft-types
+    hg up <REVISION>
+
+* Follow the instructions in
+[README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY) to make prepare Isabelle.
+
+* This repo:
 
     # Build supporting image
-    isabelle build -b HOL-Number_Theory
+    /path/to/isabelle-soft-types/bin/isabelle build -b HOL-Number_Theory
     
     # Build this development
-    isabelle build -D .
+    /path/to/isabelle-soft-types/bin/isabelle build -D .
 
 
 ## Automated builds
