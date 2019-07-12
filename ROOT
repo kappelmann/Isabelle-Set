@@ -15,6 +15,7 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Structure_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
+    "Isabelle_Set/Test_Examples/Implicit_Assumptions"
     "Isabelle_Set/ZF_Compatibility"
 
     (* MML ported to new logic *)
