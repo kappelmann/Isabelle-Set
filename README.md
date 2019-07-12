@@ -33,21 +33,25 @@ will also be used in the automated builds.
 
 * Clone and build the Isabelle version, e.g.,
 
-    hg clone https://bitbucket.org/akrauss/isabelle-soft-types
-    cd isabelle-soft-types
-    hg up <REVISION>
+```
+hg clone https://bitbucket.org/akrauss/isabelle-soft-types
+cd isabelle-soft-types
+hg up <REVISION>
+```
 
 * Follow the instructions in
 [README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY) to make prepare Isabelle.
 
-* This repo:
+* In this repo:
 
-    # Build supporting image
-    /path/to/isabelle-soft-types/bin/isabelle build -b HOL-Number_Theory
-    
-    # Build this development
-    /path/to/isabelle-soft-types/bin/isabelle build -D .
-
+```
+# Build supporting image
+/path/to/isabelle-soft-types/bin/isabelle build -b HOL-Number_Theory
+```
+```
+# Build this development
+/path/to/isabelle-soft-types/bin/isabelle build -D .
+```
 
 ## Automated builds
 
