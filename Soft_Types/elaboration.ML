@@ -300,20 +300,26 @@ fun annotate_terms env ts =
 
 fun elaborate_terms ctxt ts =
   let
+    (* First, introduce the variable into the context, since it contains unknown Frees.
+       Note that the resulting context will be thrown away after this operation, but internally
+       we want a well-defined situation. *)
+    val ctxt' = fold Variable.declare_term ts ctxt
+
     val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
     val Elaboration_Result {elaborated_terms, variable_types } =
       infer_type ctxt ts'
-      |> tap (trace_infer_result ctxt)
+      |> tap (trace_infer_result ctxt')
 
-    val (ets', variable_types') = Type_Classes.refine_classes ctxt elaborated_terms variable_types
+    val (ets', variable_types') = Type_Classes.refine_classes ctxt' elaborated_terms variable_types
 
     (* Insert information about the variables into the elaborated terms *)
     val ets'' = annotate_terms variable_types' ets'
 
-    (* We discard the resulting context, since the terms will be re-declared using auto-fixes
-       later *)
-    val (ets''', _) = Variable.import_terms true ets'' ctxt
+    (* The results still contain Vars left over from unification. Import the terms
+       to obtain further frees.*)
+    val (ets''', _) = Variable.import_terms true ets'' ctxt'
 
+    (* Note that the context resulting from the previous operations is discarded. *)
     val _ = Soft_Type.tracing ctxt (cat_lines ("Elaborated terms:"
       :: map (Syntax.string_of_term ctxt) ets'''))
   in
