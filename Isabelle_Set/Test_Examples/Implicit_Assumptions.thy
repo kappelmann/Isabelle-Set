@@ -15,7 +15,9 @@ axiomatization
 
 
 setup \<open>Soft_Type_Operations.register_operations Isar_Integration.operations\<close>
-declare [[auto_elaborate]]
+declare [[auto_elaborate, trace_soft_types]]
+
+declare [[quick_and_dirty]] (* some sorries below *)
 
 lemma foo: "Nil A = B"
 proof -
@@ -23,12 +25,51 @@ proof -
   txt \<open>Assumptions about the type of \<open>A\<close> and \<open>B\<close> are available in the context:\<close>
   ML_prf \<open>fst (Soft_Type_Context.Current_Type.get (Context.Proof \<^context>))\<close>
 
-  show ?thesis using [[quick_and_dirty]] sorry
+  show ?thesis sorry
 qed
 
 text \<open>The assumptions lead to additional premises in the result:\<close>
 
 thm foo
+
+
+text \<open>
+  Currently, the augment/purge operations are not called in "have" statements,
+  but we would expect them to be:
+\<close>
+
+notepad
+begin
+  fix A B
+  have a: "Nil A = B" sorry
+
+  thm a (* No premises here, but there should be... *)
+
+end
+
+text \<open>
+  Definitions work (for now) by just purging the type information, which is
+  not needed for the primitive definition.
+
+  Ideally, we should infer and save type information for the defined constant.
+\<close>
+
+
+definition f where "f A x = Cons A x (Nil A)"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
