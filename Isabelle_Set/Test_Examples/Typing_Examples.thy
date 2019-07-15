@@ -119,14 +119,14 @@ context
     and VNil :: "set \<Rightarrow> set"
     and VCons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     and vappend :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes [type]: "Vec : Set \<Rightarrow> element nat \<Rightarrow> Set"
-    and [type]: "VNil : (A: Set) \<Rightarrow> element (Vec A 0)"
-    and [type]: "VCons : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow>
+  assumes [type]: "Vec : set \<Rightarrow> element nat \<Rightarrow> set"
+    and [type]: "VNil : (A: set) \<Rightarrow> element (Vec A 0)"
+    and [type]: "VCons : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow>
           element A \<Rightarrow> element (Vec A n) \<Rightarrow> element (Vec A (Suc n))"
     and [type]: "add : element nat \<Rightarrow> element nat \<Rightarrow> element nat"
     and [type]: "Suc : element nat \<Rightarrow> element nat"
     and [type]: "0 : element nat"
-    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
+    and [type]: "vappend : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
           element (Vec A n) \<Rightarrow> element (Vec A m) \<Rightarrow> element (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin
