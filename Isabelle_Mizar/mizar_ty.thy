@@ -22,7 +22,7 @@ fun warn context msg = if Config.get (Context.proof_of context) ty_debug then wa
 fun id_msg msg = (warning msg; I)
 
 (* Check if a term is a *non-conditional* typing judgment.
-   A negated statement of has_type(Set) is also a typing judgment since it
+   A negated statement of has_type(T) is also a typing judgment since it
    expresses the judgment "x is non T"
  *)
 fun is_typing tm =
