@@ -88,4 +88,4 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
     "MML/setfam_1"
     "MML/z2" *)
 
-    "tests/test"
+    "tests/mizar_ty_test"
