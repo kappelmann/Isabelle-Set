@@ -221,7 +221,7 @@ fun declare_current_type implicit thm context =
     |> (if is_Const x then Implicit_Arguments.put_implicit (fst (dest_Const x)) names else I)
   end
 
-val _ = Theory.setup (Attrib.setup @{binding type}
+val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
   (Scan.lift
     (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int) >> (fn implicit =>
       Thm.declaration_attribute (declare_current_type implicit)))) "Declare current soft type")

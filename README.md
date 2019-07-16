@@ -25,18 +25,57 @@ Ultimately, these developments should converge.
 Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. They may introduce a similar notion of soft type at some point.
 
 
-## How to build
+## How to build / run
 
-Compatibility: Isabelle 2019
+This code currently depends on a [custom clone of the Isabelle repository](https://bitbucket.org/akrauss/isabelle-soft-types),
+which contains some experimental changes to Isabelle. The file ISABELLE_VERSION specifies the exact revision, which
+will also be used in the automated builds.
 
-    # Build supporting image
-    isabelle build -b HOL-Number_Theory
-    
-    # Build this development
-    isabelle build -D .
+* Clone and build the Isabelle version, e.g.,
 
+```
+hg clone https://bitbucket.org/akrauss/isabelle-soft-types
+cd isabelle-soft-types
+hg up <REVISION>
+```
+
+* Follow the instructions in
+[README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY) to make prepare Isabelle.
+
+* In this repo:
+
+```
+# Build supporting image
+/path/to/isabelle-soft-types/bin/isabelle build -b HOL-Number_Theory
+```
+```
+# Build this development
+/path/to/isabelle-soft-types/bin/isabelle build -D .
+```
 
 ## Automated builds
 
 Automated builds can be found on CircleCI (https://circleci.com/bb/cezaryka/tyset).
 There you can also configure email notifications for failed builds.
+
+
+## Entry points
+
+The whole development is still in a very experimental state. There are currently no examples that demonstrate all features in integration. The basic set theory can be used for formalizing concepts as usual, but the type system is not integrated yet.
+
+Here are some good entry points for reading the sources:
+
+File | Content 
+-----|--------
+`Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL): Types as predicates, Function types, intersections, adjectives. Tool setup
+`Soft_Types/*.ML` | Infrastructure for soft types: Elaboration, Unification, Context data, etc.
+`Isabelle_Set/Set_Theory_Axioms.thy` | Axiomatization of set theory
+`Isabelle_Set/Set_Theory.thy` | Basics of Set Theory
+`Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts
+`Isabelle_Set/Structure.thy` | Basic syntax for structures
+`Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
+`Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ⊇ ℕ
+`Isabelle_Set/Test_examples/Typing_Examples.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
+`Isabelle_Set/Test_examples/Implicit_Args.thy` | Demonstrates automatic insertion of implicit arguments
+`Isabelle_Set/Test_examples/Implicit_Assumptions.thy` | Demonstrates automatic generation of typing assumptions in the proof context.
+

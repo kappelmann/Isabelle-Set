@@ -28,12 +28,12 @@ lemma "Cons x Nil = ys"
 
 
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "Nil = B"}
+ML \<open>Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>Nil = B\<close>
 ]\<close>
 
-ML \<open>Elaboration.elaborate_terms @{context} [
-  @{term "Cons x xs"}
+ML \<open>Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>Cons x xs\<close>
 ]\<close>
 
 

@@ -146,6 +146,11 @@ abbreviation bool :: "bool type"
 
 subsection \<open>Type annotations\<close>
 
+text \<open>
+  Type annotations can represent additional typing information within a term. This is
+  used by automated tools.
+\<close>
+
 definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
   where "with_type x A \<equiv> x"
 
@@ -187,11 +192,12 @@ named_theorems type_instance
 named_theorems derivation_rules
 named_theorems subtype_rules
 
-ML_file "soft_type.ML"
-ML_file "soft_type_context.ML"
-ML_file "unification.ML"
-ML_file "type_classes.ML"
-ML_file "elaboration.ML"
+ML_file \<open>soft_type.ML\<close>
+ML_file \<open>soft_type_context.ML\<close>
+ML_file \<open>unification.ML\<close>
+ML_file \<open>type_classes.ML\<close>
+ML_file \<open>elaboration.ML\<close>
+ML_file \<open>isar_integration.ML\<close>
 ML_file \<open>derivation.ML\<close>
 
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>

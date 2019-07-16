@@ -61,10 +61,10 @@ fun should_throw (P : exn -> bool) (f: unit -> 'a) =
   let
     val res = Exn.capture f ()
     fun check (Exn.Exn exn) = if P exn then () else raise Match
-      | check (Exn.Res r) = error ("Expected exception but got result: " ^ @{make_string} r)
+      | check (Exn.Res r) = error ("Expected exception but got result: " ^ \<^make_string> r)
   in
     ((check res)
-     handle Match => error ("Not the expected exception: " ^ @{make_string} (the (Exn.get_exn res))))
+     handle Match => error ("Not the expected exception: " ^ \<^make_string> (the (Exn.get_exn res))))
   end 
 \<close>
 
@@ -73,14 +73,14 @@ fun starts_with prefix str = is_prefix (op =) (raw_explode prefix) (raw_explode 
 \<close>
 
 ML \<open>
-  (fn _ => Elaboration.elaborate_terms @{context} [
-     @{term "%A x. Cons A x xs = Cons A x xs"} ])
+  (fn _ => Elaboration.elaborate_terms \<^context> [
+     \<^term>\<open>%A x. Cons A x xs = Cons A x xs\<close> ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
 ML \<open>
-  (fn _ => Elaboration.elaborate_terms @{context} [
-       @{term "%A x. Cons A x xs = Cons A x xs"} ])
+  (fn _ => Elaboration.elaborate_terms \<^context> [
+       \<^term>\<open>%A x. Cons A x xs = Cons A x xs\<close> ])
   |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
 \<close>
 
@@ -95,9 +95,9 @@ ML \<open>
 \<close>
 
 ML \<open>
-Elaboration.elaborate_terms @{context} [
-  @{term_dummies "append _ (Cons _ x xs) ys = Cons _ x (append _ xs ys)"},
-  @{term_dummies "append _ (Nil _) ys = ys"} 
+Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>append ? (Cons ? x xs) ys = Cons ? x (append ? xs ys)\<close>,
+  \<^term>\<open>append ? (Nil ?) ys = ys\<close> 
 ]
 \<close>
 
@@ -119,14 +119,14 @@ context
     and VNil :: "set \<Rightarrow> set"
     and VCons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     and vappend :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes [type]: "Vec : Set \<Rightarrow> element nat \<Rightarrow> Set"
-    and [type]: "VNil : (A: Set) \<Rightarrow> element (Vec A 0)"
-    and [type]: "VCons : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow>
+  assumes [type]: "Vec : set \<Rightarrow> element nat \<Rightarrow> set"
+    and [type]: "VNil : (A: set) \<Rightarrow> element (Vec A 0)"
+    and [type]: "VCons : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow>
           element A \<Rightarrow> element (Vec A n) \<Rightarrow> element (Vec A (Suc n))"
     and [type]: "add : element nat \<Rightarrow> element nat \<Rightarrow> element nat"
     and [type]: "Suc : element nat \<Rightarrow> element nat"
     and [type]: "0 : element nat"
-    and [type]: "vappend : (A: Set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
+    and [type]: "vappend : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
           element (Vec A n) \<Rightarrow> element (Vec A m) \<Rightarrow> element (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin
@@ -136,9 +136,8 @@ text \<open>
   The base set of the vector and the dimensions are completely inferred:
 \<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "vappend _ _ _ (VCons _ _ x xs) ys
-   = VCons _ _ x (vappend _ _ _ xs ys)"}
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>vappend ? ? ? (VCons ? ? x xs) ys = VCons ? ? x (vappend ? ? ? xs ys)\<close>
 ]\<close>
 
 
@@ -152,8 +151,8 @@ ML \<open>
   |> Elaboration.assert_result \<^context>
     [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
 \<close>
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "{{}}"}
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>{{}}\<close>
 ]\<close>
 
 ML \<open>
@@ -163,17 +162,17 @@ ML \<open>
 \<close>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term_dummies "\<lambda>y. Pair {} y"}
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>\<lambda>y. Pair {} y\<close>
 ]\<close>
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term "\<lambda>x. Pair x"}
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>\<lambda>x. Pair x\<close>
 ]\<close>
 
 
-ML \<open> Elaboration.elaborate_terms @{context} [
-  @{term "\<lambda>x y. \<langle>x,y\<rangle>"}
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>\<lambda>x y. \<langle>x,y\<rangle>\<close>
 ]\<close>
 
 ML \<open>
