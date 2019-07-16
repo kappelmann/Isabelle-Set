@@ -22,6 +22,7 @@ val is_adj: term -> bool
 val mk_typing: term * term -> term
 val dest_typing: term -> term * term
 val dest_adj: term -> term * term
+val term_of_jdgmt: term -> term
 
 (* Unrestricted type *)
 val any: typ -> term
@@ -72,6 +73,13 @@ fun dest_typing t = case dest_Trueprop t of
   | _ => raise TERM ("dest_typing", [t])
 
 fun dest_adj t = let val (adj, u) = (Term.dest_comb o dest_Trueprop) t in (u, adj) end
+
+fun term_of_jdgmt tm =
+  #1(
+    if is_typing tm then dest_typing tm
+    else if is_adj tm then dest_adj tm
+    else error "term_of_jdgmt: not a type/adjective judgment"
+  )
 
 fun any T = Const (@{const_name "any"}, typeT T)
 

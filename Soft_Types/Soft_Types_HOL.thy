@@ -180,9 +180,12 @@ definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" 
 
 subsection \<open>Tooling and automation\<close>
 
+declare atomize_conjL [symmetric, rulify] \<comment>\<open>Used in normalization of type judgments.\<close>
+
 named_theorems type_simp
 named_theorems type_instance
-named_theorems derive
+named_theorems derivation_rules
+named_theorems subtype_rules
 
 ML_file "soft_type.ML"
 ML_file "soft_type_context.ML"
@@ -191,7 +194,8 @@ ML_file "type_classes.ML"
 ML_file "elaboration.ML"
 ML_file \<open>derivation.ML\<close>
 
-declare atomize_conjL [symmetric, rulify]  \<comment>\<open>Used in normalization of type derivation rules.\<close>
+attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
+
 
 named_theorems squash
 
@@ -209,10 +213,10 @@ text \<open>@{method squash_types} converts all typing subformulas to their equi
 subsection \<open>Basic declarations for HOL material\<close>
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
-  by squash_types auto
+  by auto
 
 lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
-  by squash_types auto
+  by auto
 
 declare with_type_def [type_simp]
 
