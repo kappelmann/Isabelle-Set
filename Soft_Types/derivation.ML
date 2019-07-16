@@ -32,7 +32,6 @@ fun put_derivation_rule ctxt =
   (Soft_Type_Context.normalize ctxt) #>
   fold (Named_Theorems.add_thm \<^named_theorems>\<open>derivation_rules\<close>)
 
-
 val derivation_rule_parser =
   Attrib.add_del
     (Thm.declaration_attribute (fn thm => fn context =>
@@ -73,8 +72,7 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
   in
     let
       val inst =
-        (Thm.match o apply2 (Thm.cterm_of ctxt))
-          ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
+        (Thm.match o apply2 (Thm.cterm_of ctxt)) ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
     in
       rec_discharge_prems [Thm.instantiate inst rule]
     end

@@ -74,7 +74,7 @@ File | Content
 `Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts
 `Isabelle_Set/Structure.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
-`Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ⊇ ℕ
+`Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ ⊇ ℕ
 `Isabelle_Set/Test_examples/Typing_Examples.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Isabelle_Set/Test_examples/Implicit_Args.thy` | Demonstrates automatic insertion of implicit arguments
 `Isabelle_Set/Test_examples/Implicit_Assumptions.thy` | Demonstrates automatic generation of typing assumptions in the proof context.

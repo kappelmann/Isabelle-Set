@@ -1,4 +1,4 @@
-theory test
+theory mizar_ty_test
 imports "../Isabelle_Mizar/mizar_ty"
 
 begin
