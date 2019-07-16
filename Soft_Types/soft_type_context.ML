@@ -21,11 +21,9 @@ val get_current_type: Proof.context -> term -> thm option
 val put_current_type: term -> thm -> Context.generic -> Context.generic
 
 val get_adjs: Proof.context -> term list -> thm list
-val get_all_adjs: Proof.context -> thm list
 val put_adj: term -> thm -> Context.generic -> Context.generic
 
 val get_types: Proof.context -> term list -> thm list
-val get_all_types: Proof.context -> thm list
 val put_type: term -> thm -> Context.generic -> Context.generic
 
 val declare_current_type: int option -> thm -> Context.generic -> Context.generic
@@ -125,17 +123,6 @@ fun get_adjs ctxt ts =
       | get_adjs' tabs t = Termtab.lookup_list (fst tabs) t
   in fold (curry (op @)) (map (get_adjs' (Adjectives.get (Context.Proof ctxt))) ts) [] end
 
-fun get_all_adjs ctxt =
-  let
-    val context = Context.Proof ctxt
-    val termadjs = #1 (Adjectives.get context)
-    val constadjs = #2 (Adjectives.get context)
-    val (termkeys, constkeys) = (Termtab.keys termadjs, Symtab.keys constadjs)
-  in
-    (fold (curry (op @)) (map (Termtab.lookup_list termadjs) termkeys) []) @
-    (fold (curry (op @)) (map (Symtab.lookup_list constadjs) constkeys) [])
-  end
-
 fun put_adj t thm context =
   let
     fun put t thm =
@@ -159,17 +146,6 @@ fun get_types ctxt ts =
     fun get_types' tabs (Const (n, _)) = Symtab.lookup_list (snd tabs) n
       | get_types' tabs t = Termtab.lookup_list (fst tabs) t
   in fold (curry (op @)) (map (get_types' (Types.get (Context.Proof ctxt))) ts) [] end
-
-fun get_all_types ctxt =
-  let
-    val context = Context.Proof ctxt
-    val termtypes = #1 (Types.get context)
-    val consttypes = #2 (Types.get context)
-    val (termkeys, constkeys) = (Termtab.keys termtypes, Symtab.keys consttypes)
-  in
-    (fold (curry (op @)) (map (Termtab.lookup_list termtypes) termkeys) []) @
-    (fold (curry (op @)) (map (Symtab.lookup_list consttypes) constkeys) [])
-  end
 
 fun put_type t thm context =
   let

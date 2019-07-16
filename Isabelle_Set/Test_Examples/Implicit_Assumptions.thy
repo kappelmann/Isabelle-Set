@@ -23,7 +23,7 @@ lemma foo: "Nil A = B"
 proof -
 
   txt \<open>Assumptions about the type of \<open>A\<close> and \<open>B\<close> are available in the context:\<close>
-  ML_prf \<open>fst (Soft_Type_Context.Current_Type.get (Context.Proof \<^context>))\<close>
+  (* ML_prf \<open>fst (Soft_Type_Context.Current_Type.get (Context.Proof \<^context>))\<close> *)
 
   show ?thesis sorry
 qed
