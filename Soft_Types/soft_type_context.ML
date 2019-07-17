@@ -25,6 +25,7 @@ val put_adj: term -> thm -> Context.generic -> Context.generic
 
 val get_types: Proof.context -> term list -> thm list
 val put_type: term -> thm -> Context.generic -> Context.generic
+val all_types: Proof.context -> thm list
 
 end = struct
 
@@ -166,6 +167,25 @@ fun put_type t thm context =
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end
+
+fun all_types ctxt =
+  Types.get (Context.Proof ctxt)
+  |> (fn (t1, t2) => map snd (Termtab.dest_list t1) @ map snd (Symtab.dest_list t2))
+
+
+
+(* Diagnostic command to show the currently known types *)
+
+fun pretty_types ctxt =
+  all_types ctxt
+  |> map (Proof_Display.pp_thm (K (Proof_Context.theory_of ctxt)))
+  |> Pretty.chunks
+
+val _ =
+  Outer_Syntax.command \<^command_keyword>\<open>print_types\<close>
+    "print theorems of local theory or proof context"
+    (Scan.succeed (Toplevel.keep (Pretty.writeln o pretty_types o Toplevel.context_of)));
+
 
 
 end

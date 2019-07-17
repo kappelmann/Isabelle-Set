@@ -6,7 +6,7 @@ imports
   Implicit_Arguments
   "HOL-Eisbach.Eisbach"
   "HOL-Eisbach.Eisbach_Tools"
-
+keywords "print_types" :: diag
 begin
 
 text \<open>This theory introduces a generic notion of soft types, based on HOL predicates.\<close>
