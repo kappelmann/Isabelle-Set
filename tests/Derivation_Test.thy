@@ -1,11 +1,13 @@
-theory derivation_test
+theory Derivation_Test
 imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 
 declare [[derive_debug]]
 
-axiomatization set empty finite infinite where
+typedecl set
+axiomatization set :: "set type" and empty finite infinite :: "set \<Rightarrow> bool" 
+  where
   * [derive]: "empty x \<Longrightarrow> finite x" and
   ** [derive]: "finite x \<Longrightarrow> non-infinite x"
 
@@ -35,12 +37,10 @@ lemma
   \<close>
 oops
 
-typedecl i
-
 axiomatization
-  Prod :: \<open>i \<Rightarrow> i \<Rightarrow> i\<close> and
-  quasi_total and
-  Function_like Relation_like
+  Prod :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> and
+  Function_like Relation_like :: \<open>set \<Rightarrow> bool\<close> and
+  quasi_total :: \<open>set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool\<close>
 where
   *** [derive]: "X : set \<Longrightarrow> Y : set \<Longrightarrow> R : subset_of (Prod X Y) \<Longrightarrow> Relation_like R"
 

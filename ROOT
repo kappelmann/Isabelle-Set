@@ -18,6 +18,9 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
     "Isabelle_Set/ZF_Compatibility"
 
+    (* Tests *)
+    "tests/Derivation_Test"
+
     (* MML ported to new logic *)
     "Set_MML/tarski_0"
     "Set_MML/tarski"
