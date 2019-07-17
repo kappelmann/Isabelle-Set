@@ -1,4 +1,4 @@
-theory derivation_test
+theory Derivation_Test
 imports "../Soft_Types/Soft_Types_HOL"
 
 begin
