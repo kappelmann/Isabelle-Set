@@ -189,16 +189,21 @@ declare atomize_conjL [symmetric, rulify] \<comment>\<open>Used in normalization
 
 named_theorems type_simp
 named_theorems type_instance
+
 named_theorems derivation_rules
 named_theorems subtype_rules
+\<comment>\<open>
+  \<open>derivation_rules\<close> and \<open>subtype_rules\<close> should only be inspected and not assigned to directly;
+  use the \<open>derive\<close> attribute instead.
+\<close>
 
 ML_file \<open>soft_type.ML\<close>
 ML_file \<open>soft_type_context.ML\<close>
+ML_file \<open>derivation.ML\<close>
 ML_file \<open>unification.ML\<close>
 ML_file \<open>type_classes.ML\<close>
 ML_file \<open>elaboration.ML\<close>
 ML_file \<open>isar_integration.ML\<close>
-ML_file \<open>derivation.ML\<close>
 
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
 

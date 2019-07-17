@@ -29,7 +29,7 @@ type operations = {
 
 fun declare_type thm ctxt =
   (Soft_Type.tracing ctxt ("Declaring Type: " ^ \<^make_string> thm);
-   Context.proof_map (Soft_Type_Context.declare_current_type NONE thm) ctxt)
+   Context.proof_map (Derivation.declare_current_type NONE thm) ctxt)
 
 fun augment t ctxt =
   let

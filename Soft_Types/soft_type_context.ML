@@ -6,8 +6,8 @@ Context information regarding soft types.
 
 Maintains generic data for soft types of terms.
 
-Allows the declaration of soft types for symbols, which are then available for type checking.
-Symbols are either free variables (declared in the context) or constants.
+Allows the declaration of soft types for symbols, which are then available for type
+checking. Symbols are either free variables (declared in the context) or constants.
 
 *)
 
@@ -26,14 +26,11 @@ val put_adj: term -> thm -> Context.generic -> Context.generic
 val get_types: Proof.context -> term list -> thm list
 val put_type: term -> thm -> Context.generic -> Context.generic
 
-val declare_current_type: int option -> thm -> Context.generic -> Context.generic
-
 end = struct
 
-(*** Preamble ***)
-
 (*
-  Normalize typing premises into atomic typings/adjectives, then split into multiple theorems whose conclusions are the atomic components of the original conclusion.
+  Normalize typing premises into atomic typings/adjectives, then split into multiple
+  theorems whose conclusions are the atomic components of the original conclusion.
 *)
 fun normalize ctxt thm =
   let
@@ -54,8 +51,6 @@ fun normalize ctxt thm =
     |> dest_concl_conjs
   end
 
-
-(*** Data slots ***)
 (*
   For any given term, we hold three separate collections of typing statements:
   1. Its currently-used soft type.
@@ -63,12 +58,10 @@ fun normalize ctxt thm =
   2. The collection of all its non-adjective types.
 *)
 
-(** Current soft type data **)
+(*** Current soft type data ***)
 (*
   We store the types of constant and non-constant terms in a separate tables.
 *)
-
-(** Current type data **)
 
 structure Current_Type = Generic_Data(
   type T = thm Termtab.table * thm Symtab.table
@@ -97,7 +90,7 @@ fun put_current_type t thm =
     Current_Type.map (put t thm)
   end
 
-(** Complete type and adjective data **)
+(*** Complete type and adjective data ***)
 
 structure Adjectives = Generic_Data(
   type T = thm list Termtab.table * thm list Symtab.table
@@ -173,34 +166,6 @@ fun put_type t thm context =
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end
-
-
-(*** The [type] attribute ***)
-(*
-  May optionally declare some number of implicit arguments for constant terms via
-  `[type implicit: n]`.
-*)
-
-fun extract_param_names 0 _ = []
-  | extract_param_names i (Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs (n, _, b)) =
-      n :: extract_param_names (i - 1) b
-  | extract_param_names i _ = replicate i ""
-
-fun declare_current_type implicit thm context =
-  let
-    val (x, st) = Soft_Type.dest_typing (Thm.prop_of thm)
-    val names = extract_param_names (the_default 0 implicit) st
-  in
-    context
-    |> put_current_type x thm
-    |> put_type x thm
-    |> (if is_Const x then Implicit_Arguments.put_implicit (fst (dest_Const x)) names else I)
-  end
-
-val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
-  (Scan.lift
-    (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int) >> (fn implicit =>
-      Thm.declaration_attribute (declare_current_type implicit)))) "Declare current soft type")
 
 
 end
