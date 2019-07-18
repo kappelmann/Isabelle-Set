@@ -91,7 +91,7 @@ proof (rule extensionality)
 
   show 1: "h (lfp D h) \<subseteq> lfp D h"
   proof (rule lfp_greatest)
-    fix A assume A_type: "A : subset D" and "h A \<subseteq> A"
+    fix A assume A_type [type]: "A : subset D" and "h A \<subseteq> A"
     then have "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
     then have "h (lfp D h) \<subseteq> h A" by (rule monopD2[OF h_type A_type])
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
@@ -103,9 +103,9 @@ proof (rule extensionality)
     Derivation.get_derivation_rules \<^context>
     |> map (Syntax.string_of_term \<^context> o Thm.prop_of)
     |> cat_lines
-    |> Output.writeln
-;
-    Derivation.derive_jdgmts \<^context> [\<^term>\<open>lfp D h\<close>] (* would expect to derive lfp D h : subset D *)
+    |> Output.writeln;
+
+    Derivation.derive_jdgmts \<^context> [\<^term>\<open>lfp D h\<close>, \<^term>\<open>D\<close>, \<^term>\<open>h\<close>]
   \<close>
 
   (* just three rules, but typing assumptions account for the ugly rule manipulations *)
