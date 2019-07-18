@@ -7,25 +7,14 @@ Experimental integration of elaboration into the Isar infrastructure.
 signature ISAR_INTEGRATION =
 sig
 
-  (* Cf. Soft_Type_Operations.operations, but avoiding hard dependency for now. *)
-  type operations = {
-    augment: term -> Proof.context -> Proof.context,
-    get_implicit_vars: Proof.context -> term -> (string * typ) list,
-    purge: Proof.context -> term -> term
-  }
+  val operations: Soft_Type_System.operations
 
-  val operations: operations
+  val setup: theory -> theory
 
 end;
 
 structure Isar_Integration : ISAR_INTEGRATION =
 struct
-
-type operations = {
-  augment: term -> Proof.context -> Proof.context,
-  get_implicit_vars: Proof.context -> term -> (string * typ) list,
-  purge: Proof.context -> term -> term
-}
 
 fun declare_type thm ctxt =
   (Soft_Type.tracing ctxt ("Declaring Type: " ^ \<^make_string> thm);
@@ -47,9 +36,11 @@ fun augment t ctxt =
 
 val operations = {
   augment=augment,
-  get_implicit_vars=K (K []),
+  implicit_vars=K (K []),
   purge=K Soft_Type.strip_annotations
 }
+
+val setup = Soft_Type_System.setup operations
 
 
 end

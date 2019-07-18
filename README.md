@@ -27,14 +27,14 @@ Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. Th
 
 ## How to build / run
 
-This code currently depends on a [custom clone of the Isabelle repository](https://bitbucket.org/akrauss/isabelle-soft-types),
-which contains some experimental changes to Isabelle. The file ISABELLE_VERSION specifies the exact revision, which
+This code currently depends on [the Isabelle repository](https://isabelle.in.tum.de/repos/isabelle),
+which contains ongoing changes after the Isabelle2019 release. The file ISABELLE_VERSION specifies the exact revision, which
 will also be used in the automated builds.
 
 * Clone and build the Isabelle version, e.g.,
 
 ```
-hg clone https://bitbucket.org/akrauss/isabelle-soft-types
+hg clone https://isabelle.in.tum.de/repos/isabelle isabelle-soft-types
 cd isabelle-soft-types
 hg up <REVISION>
 ```

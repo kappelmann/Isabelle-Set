@@ -14,7 +14,7 @@ axiomatization
     and append[type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
 
-setup \<open>Soft_Type_Operations.register_operations Isar_Integration.operations\<close>
+setup \<open>Isar_Integration.setup\<close>
 declare [[auto_elaborate, trace_soft_types]]
 
 declare [[quick_and_dirty]] (* some sorries below *)
