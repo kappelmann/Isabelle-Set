@@ -298,19 +298,28 @@ fun annotate_terms env ts =
     fst (fold_map annot ts env)
   end
 
+
+
+fun pre_elaborate_terms ctxt ts =
+  let
+    val Elaboration_Result {elaborated_terms, variable_types } =
+      infer_type ctxt ts
+      |> tap (trace_infer_result ctxt)
+  in
+    Type_Classes.refine_classes ctxt elaborated_terms variable_types
+  end
+
+
 fun elaborate_terms ctxt ts =
   let
-    (* First, introduce the variable into the context, since it contains unknown Frees.
-       Note that the resulting context will be thrown away after this operation, but internally
+    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
+
+    (* Introduce the term into the context, since it contains unknown Frees.
+       The resulting context will be thrown away after this operation, but internally
        we want a well-defined situation. *)
     val ctxt' = fold Variable.declare_term ts ctxt
 
-    val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
-    val Elaboration_Result {elaborated_terms, variable_types } =
-      infer_type ctxt ts'
-      |> tap (trace_infer_result ctxt')
-
-    val (ets', variable_types') = Type_Classes.refine_classes ctxt' elaborated_terms variable_types
+    val (ets', variable_types') = pre_elaborate_terms ctxt' ts'
 
     (* Insert information about the variables into the elaborated terms *)
     val ets'' = annotate_terms variable_types' ets'
