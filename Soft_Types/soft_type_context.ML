@@ -135,6 +135,11 @@ fun put_adj t thm context =
     Adjectives.map (put t thm) context
   end
 
+fun all_adjectives ctxt =
+  Adjectives.get (Context.Proof ctxt)
+  |> (fn (t1, t2) => map snd (Termtab.dest_list t1) @ map snd (Symtab.dest_list t2))
+
+
 fun get_types ctxt ts =
   let
     fun get_types' tabs (Const (n, _)) = Symtab.lookup_list (snd tabs) n
@@ -177,7 +182,7 @@ fun all_types ctxt =
 (* Diagnostic command to show the currently known types *)
 
 fun pretty_types ctxt =
-  all_types ctxt
+  (all_types ctxt @ all_adjectives ctxt)
   |> map (Proof_Display.pp_thm (K (Proof_Context.theory_of ctxt)))
   |> Pretty.chunks
 
