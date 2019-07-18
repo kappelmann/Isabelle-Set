@@ -51,6 +51,7 @@ lemma monop_Un:
   assumes [type]: "h : monop D" "A : subset D" "B : subset D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
+
   have 1: "A \<union> B : subset D" using assms by squash_types auto (* typing *)
   have A2: "A \<subseteq> A \<union> B" by auto
   have B2: "B \<subseteq> A \<union> B" by auto
@@ -95,6 +96,17 @@ proof (rule extensionality)
     then have "h (lfp D h) \<subseteq> h A" by (rule monopD2[OF h_type A_type])
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
+
+  print_types
+  note [[derive_debug]]
+  ML_prf \<open>
+    Derivation.get_derivation_rules \<^context>
+    |> map (Syntax.string_of_term \<^context> o Thm.prop_of)
+    |> cat_lines
+    |> Output.writeln
+;
+    Derivation.derive_jdgmts \<^context> [\<^term>\<open>lfp D h\<close>] (* would expect to derive lfp D h : subset D *)
+  \<close>
 
   (* just three rules, but typing assumptions account for the ugly rule manipulations *)
   show "lfp D h \<subseteq> h (lfp D h)"

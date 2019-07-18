@@ -169,9 +169,22 @@ lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
 proof (intro Pi_typeI)
   fix A B p1 p2
-  assume [intro]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
-  have [intro]: "p1 : Zero A" "p1 : Plus A" "p2 : Zero B" "p2 : Plus B"
+  assume [intro, type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
+  have [intro, type]: "p1 : Zero A" "p1 : Plus A" "p2 : Zero B" "p2 : Plus B"
     by (auto intro: Monoid_is_Plus[THEN subtypeE'] Monoid_is_Zero[THEN subtypeE'])
+
+  print_types
+  note [[derive_debug]]
+  text \<open>Below, one would expect the derivation procedure to find the types of, e.g., \<open>zero p1\<close>,
+  but this currently fails.\<close>
+  ML_prf \<open>
+    Derivation.get_derivation_rules \<^context>
+    |> map (Syntax.string_of_term \<^context> o Thm.prop_of)
+    |> cat_lines
+    |> Output.writeln
+;
+    Derivation.derive_jdgmts \<^context> [\<^term>\<open>zero p1\<close>]
+  \<close>
 
   note zero_type[THEN Pi_typeE, unfolded element_type_iff, intro]
   note plus = plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, unfolded element_type_iff, intro]
