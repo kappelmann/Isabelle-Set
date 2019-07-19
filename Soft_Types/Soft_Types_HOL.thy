@@ -204,6 +204,7 @@ ML_file \<open>unification.ML\<close>
 ML_file \<open>type_classes.ML\<close>
 ML_file \<open>elaboration.ML\<close>
 ML_file \<open>isar_integration.ML\<close>
+setup \<open>Isar_Integration.setup\<close>
 
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
 
