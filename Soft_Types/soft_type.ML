@@ -21,6 +21,7 @@ val dest_Pi_type: term -> string * term * term
 (* Typing judgments *)
 val is_typing: term -> bool
 val is_adj: term -> bool
+val is_jdgmt: term -> bool
 val is_subtyping: term -> bool
 val mk_typing: term * term -> term
 val dest_typing: term -> term * term
@@ -71,6 +72,8 @@ fun is_adj t = case (Term.head_of o dest_Trueprop) t of
     Const (\<^const_name>\<open>has_type\<close>, _) => false
   | Const (_, T as Type ("fun", _)) => (Term.body_type T = \<^typ>\<open>bool\<close>)
   | _ => false
+
+fun is_jdgmt t = is_typing t orelse is_adj t
 
 fun is_subtyping t = case (Term.head_of o dest_Trueprop) t of
     Const (\<^const_name>\<open>subtype\<close>, _) => true

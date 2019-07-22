@@ -1,6 +1,9 @@
-section\<open>Least and Greatest Fixed Points; the Knaster-Tarski Theorem\<close>
+section \<open>Least and greatest fixed points; the Knaster-Tarski theorem\<close>
 
-theory Fixed_Points imports Set_Theory begin
+theory Fixed_Points
+imports Set_Theory
+
+begin
 
 text \<open>
   Most of this material was ported from Isabelle/ZF.
@@ -11,62 +14,55 @@ text \<open>
   Work in progress and field of experiments.
 \<close>
 
-subsection\<open>Monotone Operators\<close>
+subsection \<open>Monotone operators\<close>
 
-definition
-  monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"  where
-     "monotone D h == (\<forall>W X. W\<subseteq>X \<longrightarrow> X\<subseteq>D \<longrightarrow> h W \<subseteq> h X)"
+definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
+  where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
 
 
-lemma monotone_type[type]: 
-  "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
-  by (intro Pi_typeI) (rule any_typeI)
+lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
+  by auto
 
-abbreviation
-  "monop D == monotone D\<cdot>(subset D \<Rightarrow> subset D)"
+abbreviation "monop D \<equiv> monotone D \<cdot> (subset D \<Rightarrow> subset D)"
+
 
 lemma monotoneI:
-  assumes b: "\<And>W X. [| W\<subseteq>D;  X\<subseteq>D;  W\<subseteq>X |] ==> h(W) \<subseteq> h(X)"
+  assumes "\<And>W X. \<lbrakk>W \<subseteq> D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   shows "monotone D h"
   unfolding monotone_def
-proof (intro conjI allI impI)
-  fix W X assume h: "W \<subseteq> X" "X \<subseteq> D"
-  then have "W\<subseteq>D" by auto
-  from this `X \<subseteq> D` `W \<subseteq> X` show "h W \<subseteq> h X" by (rule b)
+proof (intro allI impI)
+  fix W X assume *: "W \<subseteq> X" "X \<subseteq> D"
+  then have "W \<subseteq> D" by auto
+  with * assms show "h W \<subseteq> h X" by auto
 qed
 
 
-lemma monopD1: "h : monop D ==> h(D) \<subseteq> D"
+lemma monopD1: "h : monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by squash_types auto
 
-lemma monopD2: "[| h : monop D;  X : subset D; W \<subseteq> X |] ==> h W \<subseteq> h X"
+lemma monopD2: "\<lbrakk> h : monop D;  X : subset D;  W \<subseteq> X \<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by squash_types
 
 (* just typing *)
 
-lemma monop_h_type: "h : monop D \<Longrightarrow> X : subset D ==> h X : subset D"
-  by (drule type_spec) (drule Pi_typeE)
-   
+lemma monop_h_type [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
+  by squash_types
+
+declare[[trace_soft_types]]
+
 lemma monop_Un:
   assumes [type]: "h : monop D" "A : subset D" "B : subset D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
-
-  have 1: "A \<union> B : subset D" using assms by squash_types auto (* typing *)
-  have A2: "A \<subseteq> A \<union> B" by auto
-  have B2: "B \<subseteq> A \<union> B" by auto
-
-  from assms(1) 1 A2 have "h A \<subseteq> h (A \<union> B)" by (rule monopD2)
-  moreover
-  from assms(1) 1 B2 have "h B \<subseteq> h (A \<union> B)" by (rule monopD2)
+  have "h A \<subseteq> h (A \<union> B)" by (rule monopD2[of h], discharge_types) auto
+  moreover have "h B \<subseteq> h (A \<union> B)" by (rule monopD2[of h], discharge_types) auto
   ultimately show ?thesis by auto
 qed
 
-subsection\<open>Proof of Knaster-Tarski Theorem using least fixed-points.\<close>
+subsection \<open>Proof of Knaster-Tarski theorem using least fixed points.\<close>
 
-definition 
-  lfp      :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"  where
-     "lfp D h == \<Inter>({X\<in> Pow(D). h X \<subseteq> X})"
+definition  lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+  where "lfp D h == \<Inter>({X\<in> Pow(D). h X \<subseteq> X})"
 
 lemma lfp_type[type]:
   "lfp : (D : set) \<Rightarrow> monop D \<Rightarrow> subset D"

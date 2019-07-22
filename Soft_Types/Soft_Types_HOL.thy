@@ -82,8 +82,8 @@ translations
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_type A B"
 
 text \<open>
-We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close> for the dependent function type and simply \<^term>\<open>A \<Rightarrow> B\<close> for the
-non-dependent version.
+We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close> for the dependent function type and simply \<^term>\<open>A \<Rightarrow> B\<close> for
+the non-dependent version.
 \<close>
 
 lemma Pi_type_iff: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x. x : \<sigma> \<longrightarrow> f x : \<tau> x)"
@@ -167,6 +167,9 @@ definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type"
 lemma adjective_iff: "x : adj \<cdot> type \<longleftrightarrow> adj x \<and> x : type"
   unfolding adjective_def by (simp only: Int_type_iff has_type_iff)
 
+lemma adjI: "\<lbrakk>adj x; x : type\<rbrakk> \<Longrightarrow> x : adj \<cdot> type"
+  by (simp add: adjective_iff)
+
 lemma
   adj_spec: "x : adj \<cdot> type \<Longrightarrow> adj x" and
 
@@ -174,8 +177,6 @@ lemma
 
   by (simp_all only: adjective_iff)
 
-
-subsection \<open>Type complement\<close>
 
 text \<open>``non'' modifier gives the complement of a predicate.\<close>
 
@@ -193,8 +194,8 @@ named_theorems type_instance
 named_theorems derivation_rules
 named_theorems subtype_rules
 \<comment>\<open>
-  \<open>derivation_rules\<close> and \<open>subtype_rules\<close> should only be inspected and not assigned to directly;
-  use the \<open>derive\<close> attribute instead.
+  \<open>derivation_rules\<close> and \<open>subtype_rules\<close> should only be inspected and not assigned to
+  directly; use the \<open>derive\<close> attribute instead.
 \<close>
 
 ML_file \<open>soft_type.ML\<close>
@@ -208,6 +209,15 @@ ML_file \<open>isar_integration.ML\<close>
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
 
 
+subsection \<open>Methods\<close>
+
+method_setup discharge_types =
+  \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
+    (fn tms => fn ctxt => SIMPLE_METHOD (
+      REPEAT_SOME (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
+      THEN CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt tms))))\<close>
+
+
 named_theorems squash
 
 lemmas [squash] =
@@ -216,9 +226,11 @@ lemmas [squash] =
   Int_type_iff
   adjective_iff
 
-method squash_types = (simp_all only: squash)
+method squash_types = (simp_all only: squash | rule)
 
-text \<open>@{method squash_types} converts all typing subformulas to their equivalent predicate forms.\<close>
+text \<open>
+  @{method squash_types} converts all typing formulas to their equivalent predicate forms.
+\<close>
 
 
 subsection \<open>Basic declarations for HOL material\<close>
@@ -230,6 +242,8 @@ lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarr
   by auto
 
 declare with_type_def [type_simp]
+
+declare any_typeI [derive]
 
 
 end

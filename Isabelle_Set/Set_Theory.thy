@@ -81,14 +81,20 @@ lemma BexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists
 lemma rev_BexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
-(* LCP: Not of the general form for such rules. The existential quantifier becomes universal. *)
+(*
+  LCP: Not of the general form for such rules. The existential quantifier becomes
+  universal.
+*)
 lemma BexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
 lemma BexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: Bex_def, blast)
 
-(* LCP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is nonempty *)
+(*
+  LCP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is
+  nonempty.
+*)
 lemma Bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
   by (simp add: Bex_def)
 
@@ -277,7 +283,9 @@ lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
 
 subsection \<open>Finite sets\<close>
 
-text \<open>The unordered pair is defined using replacement. We then use it to define finite sets.\<close>
+text \<open>
+  The unordered pair is defined using replacement. We then use it to define finite sets.
+\<close>
 
 definition Upair :: "set \<Rightarrow> set \<Rightarrow> set"
   where "Upair a b = {if i = {} then a else b | i \<in> Pow (Pow {})}"
@@ -381,14 +389,15 @@ lemma Collect_subset: "Collect A P \<subseteq> A"
   by blast
 
 lemma Collect_cong [cong]:
-    "A = B \<Longrightarrow> (\<And>x. x\<in>B ==> P x = Q x) \<Longrightarrow> Collect A P = Collect B Q"
+  "A = B \<Longrightarrow> (\<And>x. x\<in>B ==> P x = Q x) \<Longrightarrow> Collect A P = Collect B Q"
   by (simp add: Collect_def)
 
 lemma Collect_Collect_eq [simp]:
-     "Collect (Collect A P) Q = Collect A (\<lambda>x. P x \<and> Q x)"
+  "Collect (Collect A P) Q = Collect A (\<lambda>x. P x \<and> Q x)"
   by extensionality
 
-lemma Collect_cons: "{x\<in>Cons a B. P x} = (if P(a) then Cons a {x\<in>B. P(x)} else {x\<in>B. P(x)})"
+lemma Collect_cons:
+  "{x\<in>Cons a B. P x} = (if P(a) then Cons a {x\<in>B. P(x)} else {x\<in>B. P(x)})"
   by extensionality
 
 lemma Collect_mono: "A \<subseteq> B \<Longrightarrow> Collect A P \<subseteq> Collect B P"
@@ -620,8 +629,10 @@ text \<open>Intersection is well-behaved only if the family is non-empty!\<close
 lemma InterI [intro!]: "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C \<noteq> {}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>C"
   by auto
 
-(* LCP: A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold when
-B \<in> C does not! This rule is analogous to "spec". *)
+(*
+  LCP: A "destruct" rule -- every B in C contains A as an element, but A \<in> B can hold
+  when B \<in> C does not! This rule is analogous to "spec".
+*)
 lemma InterD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
   by auto
 
@@ -1087,12 +1098,15 @@ definition subset :: "set \<Rightarrow> set type"
 lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
   unfolding element_typedef subset_typedef by squash_types auto
 
+
 subsubsection \<open>Collections of sets of a given type T\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-(* [squash] attribute should be generated automatically for typedefs of the kind T = Type P *)
+(*
+  [squash] attribute should be generated automatically for typedefs of the kind T = Type P
+*)
 lemma collection_type_iff [squash]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
   unfolding collection_typedef by squash_types
 
@@ -1105,11 +1119,11 @@ lemma
 subsubsection \<open>Refined types for basic constants\<close>
 
 text \<open>
-The following typing rules are less general than what could be proved, since the \<open>bool\<close> soft type
-is trivial. But the rules also determine the behavior of type inference.
+The following typing rules are less general than what could be proved, since the \<open>bool\<close>
+soft type is trivial. But the rules also determine the behavior of type inference.
 
-The rule for HOL.All currently needs to be restricted due to a deficiency in the elaboration
-algorithm.
+The rule for HOL.All currently needs to be restricted due to a deficiency in the
+elaboration algorithm.
 \<close>
 
 lemma
@@ -1135,12 +1149,24 @@ lemma "(\<in>) : Type1 \<Rightarrow> Type2 \<Rightarrow> bool"
   by squash_types auto
 
 
-text \<open>Some other things that are true, but we do not know yet how to deal with them systematically.\<close>
+text \<open>
+  Some other things that are true, but we do not know yet how to deal with them
+  systematically.
+\<close>
 
 lemma "A : set \<Longrightarrow> A : collection (element A)"
   by squash_types auto
 
 lemma "A : set \<Longrightarrow> A : subset A"
+  by squash_types auto
+
+
+subsubsection \<open>Types for defined constants\<close>
+
+lemma Un_type [type]: "Un : subset A \<Rightarrow> subset A \<Rightarrow> subset A"
+  by squash_types auto
+
+lemma Int_type [type]: "Int: subset A \<Rightarrow> subset A \<Rightarrow> subset A"
   by squash_types auto
 
 

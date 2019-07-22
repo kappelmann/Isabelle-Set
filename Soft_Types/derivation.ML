@@ -2,7 +2,7 @@
    Author: Joshua Chen
    Date:   Jul 2019
 
-Management and automation of type derivation, and final setup of soft type interface.
+Management and automation of type derivation, and setup of soft type interface.
 
 *)
 
@@ -53,9 +53,9 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
         (map Thm.concl_of (Soft_Type_Context.normalize ctxt thm), map Thm.prop_of jdgmts)
 
     (*
-      Recursively filter rules whose conclusions are already in `jdgmts`, and discharge the
-      rightmost premise of those remaining. In each recursive call, the theorems in the
-      argument `thms` have the same number of premises.
+      Recursively filter rules whose conclusions are already in `jdgmts`, and discharge
+      the rightmost premise of those remaining. In each recursive call, the theorems in
+      the argument `thms` have the same number of premises.
     *)
     fun rec_discharge_prems thms = case thms |> filter_out in_jdgmts of
         [] => []
@@ -184,6 +184,46 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
   (Scan.lift
     (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int) >> (fn implicit =>
       Thm.declaration_attribute (declare_current_type implicit)))) "Declare current soft type")
+
+
+(*** Tactics ***)
+
+fun discharge_type_tac ctxt tms =
+  let
+    fun typable_subterms t = case t of
+        Const (_, _) => [t]
+      | Free (_, _) => [t]
+      | Abs (_, _, b) => [t] @ typable_subterms b
+      | t1 $ t2 => [t] @ typable_subterms t1 @ typable_subterms t2
+      | _ => []
+
+    val str_of_tm = Syntax.string_of_term ctxt
+  in
+    SUBGOAL (fn (sg, i) => (
+      if Soft_Type.is_jdgmt sg
+      then
+        let
+          val tm = Soft_Type.term_of_jdgmt sg
+
+          val typings =
+            derive_jdgmts ctxt (typable_subterms tm @ flat (map typable_subterms tms))
+
+          val _ =
+            Soft_Type.tracing ctxt (cat_lines [
+              "Discharge judgment " ^ str_of_tm sg,
+              "Subterms:\n" ^
+                (commas (map str_of_tm (typable_subterms tm))),
+              "Additional terms:\n" ^
+                (commas (map str_of_tm (flat (map typable_subterms tms)))),
+              "Derived judgments:\n" ^
+                (commas (map (str_of_tm o Thm.prop_of) typings))])
+        in
+          (case find_first (fn th => Term.could_unify (sg, Thm.prop_of th)) typings of
+            NONE => no_tac
+          | SOME th => resolve_tac ctxt [th] i)
+        end
+      else no_tac))
+  end
 
 
 end
