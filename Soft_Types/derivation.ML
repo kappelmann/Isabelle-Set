@@ -1,6 +1,5 @@
-(* Title:  derivation.ML
-   Author: Joshua Chen
-   Date:   Jul 2019
+(*  Title:      derivation.ML
+    Author:     Joshua Chen
 
 Management and automation of type derivation, and setup of soft type interface.
 
@@ -11,7 +10,7 @@ struct
 
 (*** Tracing ***)
 
-val derive_debug = Attrib.setup_config_bool @{binding "derive_debug"} (K false)
+val derive_debug = Attrib.setup_config_bool \<^binding>\<open>derive_debug\<close> (K false)
 
 fun warn ctxt msg = if Config.get ctxt derive_debug then warning msg else ()
 
@@ -38,18 +37,17 @@ fun put_derivation_rule ctxt =
 (*
   Recursion depth limit for type derivation
 *)
-val derive_depth = Attrib.setup_config_int @{binding "derive_depth"} (K 10)
+val derive_depth = Attrib.setup_config_int \<^binding>\<open>derive_depth\<close> (K 10)
 
 (*
   Derive all judgments for `tm` not already in `jdgmts` that are deducible from `rule` by
-  instantiating the term in the conclusion of `rule` with `tm`, and discharging any premises
-  using the theorems in `jdgmts`.
+  instantiating the term in the conclusion of `rule` with `tm`, and discharging any
+  premises using the theorems in `jdgmts`.
 *)
 fun term_jdgmts_from_rule ctxt tm jdgmts rule =
   let
     fun in_jdgmts thm =
-      subset
-        (Term.aconv)
+      subset Term.aconv
         (map Thm.concl_of (Soft_Type_Context.normalize ctxt thm), map Thm.prop_of jdgmts)
 
     (*
@@ -57,18 +55,19 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
       the rightmost premise of those remaining. In each recursive call, the theorems in
       the argument `thms` have the same number of premises.
     *)
-    fun rec_discharge_prems thms = case thms |> filter_out in_jdgmts of
+    fun discharge_prems thms = case thms |> filter_out in_jdgmts of
         [] => []
       | thms as thm :: _ =>
           if Thm.no_prems thm then thms
-          else rec_discharge_prems (jdgmts RLN (Thm.nprems_of thm, thms))
+          else discharge_prems (jdgmts RLN (Thm.nprems_of thm, thms))
   in
     let
       val inst =
-        (Thm.match o apply2 (Thm.cterm_of ctxt))
-          ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
+        ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
+        |> apply2 (Thm.cterm_of ctxt)
+        |> Thm.match
     in
-      rec_discharge_prems [Thm.instantiate inst rule]
+      discharge_prems [Thm.instantiate inst rule]
     end
     handle Pattern.MATCH => []
   end
@@ -198,6 +197,7 @@ fun discharge_type_tac ctxt tms =
       | _ => []
 
     val str_of_tm = Syntax.string_of_term ctxt
+    val itemize = space_implode "\n  "
   in
     SUBGOAL (fn (sg, i) => (
       if Soft_Type.is_jdgmt sg
@@ -210,13 +210,13 @@ fun discharge_type_tac ctxt tms =
 
           val _ =
             Soft_Type.tracing ctxt (cat_lines [
-              "Discharge judgment " ^ str_of_tm sg,
-              "Subterms:\n" ^
-                (commas (map str_of_tm (typable_subterms tm))),
-              "Additional terms:\n" ^
-                (commas (map str_of_tm (flat (map typable_subterms tms)))),
-              "Derived judgments:\n" ^
-                (commas (map (str_of_tm o Thm.prop_of) typings))])
+              "Attempting to discharge judgment\n  " ^ str_of_tm sg,
+              "\nSubterms:\n  " ^
+                (itemize (map str_of_tm (typable_subterms tm))),
+              "\nAdditional terms:\n  " ^
+                (itemize (map str_of_tm (flat (map typable_subterms tms)))),
+              "\nDerived judgments:\n  " ^
+                (itemize (map (str_of_tm o Thm.prop_of) typings))])
         in
           (case find_first (fn th => Term.could_unify (sg, Thm.prop_of th)) typings of
             NONE => no_tac
