@@ -239,4 +239,10 @@ lemma Pair_dependent_type: "Pair : (x: element A) \<Rightarrow> element (B x) \<
   by squash_types auto
 
 
+lemma 
+  fst_type[type]: "fst : element (A \<times> B) \<Rightarrow> element A" and 
+  snd_type[type]: "snd : element (A \<times> B) \<Rightarrow> element B"
+  by squash_types auto
+
+
 end

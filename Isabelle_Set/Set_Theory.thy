@@ -1165,5 +1165,8 @@ lemma Un_type [type]: "Un : subset A \<Rightarrow> subset A \<Rightarrow> subset
 lemma Int_type [type]: "Int: subset A \<Rightarrow> subset A \<Rightarrow> subset A"
   by squash_types auto
 
+lemma Collect_type[type]: "Collect : subset A \<Rightarrow> (element A \<Rightarrow> bool) \<Rightarrow> subset A"
+  by squash_types auto
+
 
 end

@@ -352,6 +352,16 @@ lemma Pi_lambdaE:
 
 subsection \<open>Soft typing\<close>
 
+text \<open>Typing for lambda and application\<close>
+
+lemma lambda_simple_type[type]:
+  "lambda : (A : set) \<Rightarrow> (element A \<Rightarrow> element B) \<Rightarrow> element (A \<rightarrow> B)"
+  by squash_types auto
+
+lemma apply_simple_type[type]:
+  "(`) : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
+  by squash_types auto
+
 text \<open>Class of all functions\<close>
 
 definition uniq_valued :: "set \<Rightarrow> bool"
