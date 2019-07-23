@@ -87,13 +87,19 @@ proof (rule extensionality)
   show 1: "h (lfp D h) \<subseteq> lfp D h"
   proof (rule lfp_greatest)
     fix A assume A_type [type]: "A : subset D" and "h A \<subseteq> A"
-    then have "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
-    then have "h (lfp D h) \<subseteq> h A" by (rule monopD2[OF h_type A_type])
+    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
+    have "h (lfp D h) \<subseteq> h A"
+      text \<open>
+        @{method discharge_types} works here, but it prevents chaining in other facts.
+        Ideally, @{method rule} would provide a hook that lets us discharge typing
+        assumptions after the rule application.
+      \<close>
+      by (rule monopD2[of h], discharge_types) (fact *)
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
 
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopD2[OF h_type] 1) discharge_types
+    by (intro lfp_lowerbound monopD2[of h] 1) discharge_types
 qed
 
 
