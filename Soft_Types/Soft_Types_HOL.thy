@@ -215,7 +215,7 @@ subsection \<open>Methods\<close>
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn tms => fn ctxt => SIMPLE_METHOD (
-      REPEAT_SOME (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
+      TRY (REPEAT_SOME (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]))
       THEN CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt tms))))\<close>
 
 
