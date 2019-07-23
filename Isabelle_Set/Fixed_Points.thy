@@ -131,7 +131,18 @@ proof -
     show "h (Collect (lfp D h) P) \<subseteq> Collect (lfp D h) P"
       by (rule Collect_is_pre_fixedpt)
 
+    have P_type[type]: "P : element D \<Rightarrow> bool"
+      by squash_types auto
+
+    txt \<open>
+      @{method discharge_types} should prove the following statement automatically, as it is just
+      a consequence of @{thm Collect_type lfp_type D_type h_type P_type}.
+
+      The use of @{method squash_types} below should be unnecessary. Every symbol has a type, so
+      this should be solvable purely on the type level.
+    \<close>
     show "Collect (lfp D h) P : subset D"
+      (* apply discharge_types *)
       by (squash_types, rule subset_trans, rule Collect_subset, rule lfp_subset)
         discharge_types
   qed
