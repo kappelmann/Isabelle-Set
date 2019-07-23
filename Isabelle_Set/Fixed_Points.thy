@@ -75,6 +75,10 @@ context
   and h_type[type]: "h : monop D"
 begin
 
+lemma "lfp D h : subset D"
+  (* apply (discharge_types) *) (* This should actually work, give the type declarations and lfp_type. *)
+  oops
+
 lemma lfp_lowerbound: 
     "A : subset D \<Longrightarrow> h A \<subseteq> A  ==> lfp D h \<subseteq> A"
   unfolding lfp_def subset_type_iff by blast
@@ -88,8 +92,14 @@ proof (rule extensionality)
   show 1: "h (lfp D h) \<subseteq> lfp D h"
   proof (rule lfp_greatest)
     fix A assume A_type [type]: "A : subset D" and "h A \<subseteq> A"
-    then have "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
-    then have "h (lfp D h) \<subseteq> h A" by (rule monopD2[OF h_type A_type])
+    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
+    have "h (lfp D h) \<subseteq> h A" 
+      txt \<open>
+        @{method discharge_types} works here, but it prevents chaining in other facts.
+        Ideally, @{method rule} would provide a hook that lets us discharge typing assumptions
+        after the rule application.
+      \<close>
+      by (rule monopD2[of h], discharge_types) (rule *) 
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
 
@@ -104,7 +114,9 @@ proof (rule extensionality)
     Derivation.derive_jdgmts \<^context> [\<^term>\<open>lfp D h\<close>, \<^term>\<open>D\<close>, \<^term>\<open>h\<close>]
   \<close>
 
-  (* just three rules, but typing assumptions account for the ugly rule manipulations *)
+  print_types
+
+  (* Currently, discharge_types does not successfully derive the type of \<open>lfp D h\<close>. *)
   show "lfp D h \<subseteq> h (lfp D h)"
     apply (rule lfp_lowerbound[OF monop_h_type[OF h_type lfp_type[THEN Pi_typeE, THEN Pi_typeE, OF D_type h_type]]])
     apply (rule monopD2[OF h_type lfp_type[THEN Pi_typeE, THEN Pi_typeE, OF D_type h_type]])
@@ -123,7 +135,8 @@ lemma Collect_is_pre_fixedpt:
   assumes a: "\<And>x. x \<in> h (Collect (lfp D h) P) \<Longrightarrow> P(x)"
   shows "h (Collect (lfp D h) P) \<subseteq> Collect (lfp D h) P"
 proof -
-  have lfpt: "lfp D h : subset D" using lfp_type D_type h_type by squash_types auto
+  (* should be just discharge_types and implicit *)
+  have lfpt[type]: "lfp D h : subset D" using lfp_type D_type h_type by squash_types auto
 
   (* just a few rules, but typing assumptions must be discharged *)
   have "Collect (lfp D h) P \<subseteq> lfp D h" by (rule Collect_subset)
