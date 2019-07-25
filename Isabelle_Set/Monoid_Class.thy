@@ -5,15 +5,16 @@ imports Structure
 
 begin
 
-
-(* This will be subsumed by some generic label mechanism. All we need are labels that we know to be
-   distinct from each other *)
+(*
+  This will be subsumed by some generic label mechanism. All we need are labels that we
+  know to be distinct from each other
+*)
 axiomatization
   PLUS ZERO INV :: set
-  where
-    distinct1[simp]: "ZERO \<noteq> PLUS" and
-    distinct2[simp]: "PLUS \<noteq> INV" and
-    distinct3[simp]: "ZERO \<noteq> INV"
+where
+  distinct1[simp]: "ZERO \<noteq> PLUS" and
+  distinct2[simp]: "PLUS \<noteq> INV" and
+  distinct3[simp]: "ZERO \<noteq> INV"
 
 
 subsection \<open>Plus structures\<close>
@@ -61,22 +62,25 @@ abbreviation zero_implicit :: "set" ("0")
 
 
 text \<open>
-We define monoids as a soft type class (though without tool support) and experiment how it can
-interact with implicit arguments and type inference.
-
-Structures are modelled as sets that contain the operations, but are parametrized over the carrier
-sets.
+  We define monoids as a soft type class (though without tool support) and experiment with
+  how it can interact with implicit arguments and type inference.
+  
+  Structures are modelled as sets that contain the operations, but are parametrized over
+  the carrier sets.
 \<close>
 
 definition Monoid :: "set \<Rightarrow> set type"
   where Monoid_typedef:
-  "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (PLUS plus) (ZERO zero) . 
+  "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (PLUS plus) (ZERO zero) .
     (\<forall>x\<in>A. plus`zero`x = x) \<and>
     (\<forall>x\<in>A. plus`x`zero = x) \<and>
     (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
 
-lemma Monoid_is_Zero: "Monoid A \<prec> Zero A" unfolding Monoid_typedef by (intro subtypeI) squash_types
-lemma Monoid_is_Plus: "Monoid A \<prec> Plus A" unfolding Monoid_typedef by (intro subtypeI) squash_types
+lemma Monoid_is_Zero: "Monoid A \<prec> Zero A"
+  unfolding Monoid_typedef by (intro subtypeI) squash_types
+
+lemma Monoid_is_Plus: "Monoid A \<prec> Plus A"
+  unfolding Monoid_typedef by (intro subtypeI) squash_types
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
@@ -87,8 +91,8 @@ lemma Monoid_typeI:
   unfolding Monoid_typedef by squash_types
 
 text \<open>
-Now we define the global operations as projections. Here, we also convert the set functions to meta
-functions. The axioms can then be derived.
+  Now we define the global operations as projections. Here, we also convert the set
+  functions to meta functions. The axioms can then be derived.
 \<close>
 
 lemma
@@ -110,13 +114,12 @@ consts
   zero_nat :: set
   plus_nat :: set
 
-
 definition "Nat_Plus \<equiv> \<lparr> PLUS = plus_nat \<rparr>"
 definition "Nat_Zero \<equiv> \<lparr> ZERO = zero_nat \<rparr>"
 definition "Nat_Monoid \<equiv> Nat_Plus \<union> Nat_Zero"
 
-axiomatization (* TODO actually construct naturals *)
-where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
+axiomatization (* TODO: actually construct naturals *)
+  where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
 
 
 definition
@@ -140,8 +143,8 @@ lemma pair_monoid_PLUS [simp]: "pair_monoid A B m1 m2 [PLUS] = pair_plus A B m1 
 
 
 text \<open>
-The following proofs illustrate that reasoning with types is still very much pedestrian and needs
-better automated support.
+  The following proofs illustrate that reasoning with types is still very much pedestrian
+  and needs better automated support.
 \<close>
 
 lemma pair_plus_PLUS:
@@ -161,14 +164,7 @@ lemma pair_plus_type [type]:
   apply (rule lambda_simple_type[THEN Pi_typeE, THEN Pi_typeE])
    apply (rule any_typeI)
   apply (rule Pi_typeI)
-  txt \<open> At least from here, @{method discharge_types} should do the rest... \<close>
-  apply (rule Pair_type[THEN Pi_typeE, THEN Pi_typeE])
-   apply (rule plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE], assumption)
-    apply (rule fst_type[THEN Pi_typeE], assumption)
-    apply (rule fst_type[THEN Pi_typeE], assumption)
-   apply (rule plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE], assumption)
-    apply (rule snd_type[THEN Pi_typeE], assumption)
-    apply (rule snd_type[THEN Pi_typeE], assumption)
+  apply discharge_types
   done
 
 
