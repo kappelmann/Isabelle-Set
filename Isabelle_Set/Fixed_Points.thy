@@ -35,7 +35,6 @@ proof (intro allI impI)
   with * assms show "h W \<subseteq> h X" by auto
 qed
 
-
 lemma monopD1: "h : monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by squash_types auto
 
@@ -49,7 +48,8 @@ lemma monop_Un:
   assumes [type]: "h : monop D" "A : subset D" "B : subset D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
-  have "h A \<subseteq> h (A \<union> B)" by (rule monopD2[of h], discharge_types) auto
+  have "h A \<subseteq> h (A \<union> B)"
+    by (rule monopD2[of h], discharge_types) auto
   moreover have "h B \<subseteq> h (A \<union> B)" by (rule monopD2[of h], discharge_types) auto
   ultimately show ?thesis by auto
 qed
@@ -57,7 +57,7 @@ qed
 
 subsection \<open>Proof of Knaster-Tarski theorem using least fixed points.\<close>
 
-definition  lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
+definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   where "lfp D h \<equiv> \<Inter>{X \<in> Pow D. h X \<subseteq> X}"
 
 lemma lfp_type [type]:
@@ -102,7 +102,6 @@ proof (rule extensionality)
     by (intro lfp_lowerbound monopD2[of h] 1) discharge_types
 qed
 
-
 (* Definition form, to control unfolding *)
 lemma def_lfp_unfold: "A \<equiv> lfp D h \<Longrightarrow> A = h A"
   by (simp, rule lfp_unfold)
@@ -119,7 +118,6 @@ proof -
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed
-
 
 lemma induct:
   assumes hyp: "a \<in> lfp D h"

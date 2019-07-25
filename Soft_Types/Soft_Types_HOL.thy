@@ -214,9 +214,8 @@ subsection \<open>Methods\<close>
 
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
-    (fn tms => fn ctxt => SIMPLE_METHOD (
-      TRY (REPEAT_SOME (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]))
-      THEN CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt tms))))\<close>
+    (fn add_tms => fn ctxt => SIMPLE_METHOD (
+      CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt add_tms))))\<close>
 
 
 named_theorems squash
@@ -244,7 +243,7 @@ lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarr
 
 declare with_type_def [type_simp]
 
-declare any_typeI [derive]
+declare any_typeI [type]
 
 
 end

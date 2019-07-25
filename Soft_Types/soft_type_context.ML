@@ -22,6 +22,7 @@ val put_current_type: term -> thm -> Context.generic -> Context.generic
 
 val get_adjs: Proof.context -> term list -> thm list
 val put_adj: term -> thm -> Context.generic -> Context.generic
+val all_adjectives: Proof.context -> thm list
 
 val get_types: Proof.context -> term list -> thm list
 val put_type: term -> thm -> Context.generic -> Context.generic
@@ -84,7 +85,7 @@ fun get_current_type ctxt t =
 fun put_current_type t thm =
   let
     val _ =
-      if Soft_Type.is_typing (Thm.prop_of thm) then () else error "put_current_type: Not a typing judgment"
+      if Soft_Type.is_typing (Thm.prop_of thm) then () else error "Not a typing judgment"
     fun put (Const (n, _)) thm = apsnd (Symtab.update (n, thm))
       | put t thm = apfst (Termtab.update (t, thm))
   in
@@ -124,7 +125,7 @@ fun put_adj t thm context =
         val _ =
           if Soft_Type.is_adj (Thm.prop_of thm)
           then ()
-          else error "put_adj: Not an adjective judgment"
+          else error "Not an adjective judgment"
 
         val adjs = get_adjs (Context.proof_of context) [t]
       in case t of
@@ -151,7 +152,7 @@ fun put_type t thm context =
     val _ =
       if Soft_Type.is_typing (Thm.prop_of thm)
       then ()
-      else error "put_type: Not a typing judgment"
+      else error "Not a typing judgment"
 
     fun put_atomic_type t thm context =
       let
@@ -168,7 +169,7 @@ fun put_type t thm context =
     fun put_type' t thm context =
       if Soft_Type.is_adj (Thm.prop_of thm) then put_adj t thm context
       else if Soft_Type.is_typing (Thm.prop_of thm) then put_atomic_type t thm context
-      else (error "put_type: normalized conjunct not an adjective or typing judgment"; context)
+      else (error "Normalization error"; context)
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end

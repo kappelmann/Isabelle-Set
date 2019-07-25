@@ -64,18 +64,19 @@ fun Pi_const Ta Tb =
 fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
   | dest_Pi_type t = raise TERM ("dest_Pi_type", [t])
 
-fun is_typing t = case (Term.head_of o dest_Trueprop) t of
+fun is_typing t = case Term.head_of (dest_Trueprop t) of
     Const (\<^const_name>\<open>has_type\<close>, _) => true
   | _ => false
 
-fun is_adj t = case (Term.head_of o dest_Trueprop) t of
+fun is_adj t = case Term.head_of (dest_Trueprop t) of
     Const (\<^const_name>\<open>has_type\<close>, _) => false
+  | Const (\<^const_name>\<open>HOL.eq\<close>, _) => false
   | Const (_, T as Type ("fun", _)) => (Term.body_type T = \<^typ>\<open>bool\<close>)
   | _ => false
 
 fun is_jdgmt t = is_typing t orelse is_adj t
 
-fun is_subtyping t = case (Term.head_of o dest_Trueprop) t of
+fun is_subtyping t = case Term.head_of (dest_Trueprop t) of
     Const (\<^const_name>\<open>subtype\<close>, _) => true
   | _ => false
 
@@ -88,7 +89,7 @@ fun dest_typing t = case dest_Trueprop t of
     Const (\<^const_name>\<open>has_type\<close>, _) $ u $ ty => (u, ty)
   | _ => raise TERM ("dest_typing", [t])
 
-fun dest_adj t = let val (adj, u) = (Term.dest_comb o dest_Trueprop) t in (u, adj) end
+fun dest_adj t = let val (adj, u) = Term.dest_comb (dest_Trueprop t) in (u, adj) end
 
 fun term_of_jdgmt tm =
   #1 (
