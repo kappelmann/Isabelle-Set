@@ -21,10 +21,12 @@ val get_current_type: Proof.context -> term -> thm option
 val put_current_type: term -> thm -> Context.generic -> Context.generic
 
 val get_adjs: Proof.context -> term list -> thm list
+val univ_adjs: Proof.context -> thm list
 val put_adj: term -> thm -> Context.generic -> Context.generic
 val all_adjectives: Proof.context -> thm list
 
 val get_types: Proof.context -> term list -> thm list
+val univ_types: Proof.context -> thm list
 val put_type: term -> thm -> Context.generic -> Context.generic
 val all_types: Proof.context -> thm list
 
@@ -92,75 +94,81 @@ fun put_current_type t thm =
     Current_Type.map (put t thm)
   end
 
+
 (*** Complete type and adjective data ***)
 
-structure Adjectives = Generic_Data(
-  type T = thm list Termtab.table * thm list Symtab.table
-  val empty = (Termtab.empty, Symtab.empty)
+structure Adjectives = Generic_Data (
+  type T = (thm list Termtab.table * thm list Symtab.table) * thm list
+  val empty = ((Termtab.empty, Symtab.empty), [])
   val extend = I
-  fun merge ((a1, b1), (a2, b2)) =
-    (Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
-     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2))
+  fun merge (((a1, b1), ths1), ((a2, b2), ths2)) =
+    ((Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
+     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2)),
+      Library.merge Thm.eq_thm_prop (ths1, ths2))
 )
 
-structure Types = Generic_Data(
-  type T = thm list Termtab.table * thm list Symtab.table
-  val empty = (Termtab.empty, Symtab.empty)
+structure Types = Generic_Data (
+  type T = (thm list Termtab.table * thm list Symtab.table) * thm list
+  val empty = ((Termtab.empty, Symtab.empty), [])
   val extend = I
-  fun merge ((a1, b1), (a2, b2)) =
-    (Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
-     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2))
+  fun merge (((a1, b1), ths1), ((a2, b2), ths2)) =
+    ((Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
+     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2)),
+      Library.merge Thm.eq_thm_prop (ths1, ths2))
 )
 
-fun get_adjs ctxt ts =
+fun getter data ctxt ts =
   let
-    fun get_adjs' tabs (Const (n, _)) = Symtab.lookup_list (snd tabs) n
-      | get_adjs' tabs t = Termtab.lookup_list (fst tabs) t
-  in fold (curry (op @)) (map (get_adjs' (Adjectives.get (Context.Proof ctxt))) ts) [] end
+    fun getter' data (Const (n, _)) = Symtab.lookup_list (snd (fst data)) n
+      | getter' data t = Termtab.lookup_list (fst (fst data)) t
+  in fold (curry (op @)) (map (getter' (data (Context.Proof ctxt))) ts) [] end
+
+val get_adjs = getter Adjectives.get
+val get_types = getter Types.get
+
+fun univ_adjs ctxt = snd (Adjectives.get (Context.Proof ctxt))
+fun univ_types ctxt = snd (Types.get (Context.Proof ctxt))
+
+fun all_getter data ctxt =
+  data (Context.Proof ctxt)
+  |> (fn ((t1, t2), ths) =>
+    map snd (Termtab.dest_list t1) @ map snd (Symtab.dest_list t2) @ ths)
+
+val all_adjectives = all_getter Adjectives.get
+val all_types = all_getter Types.get
 
 fun put_adj t thm context =
   let
     fun put t thm =
       let
         val _ =
-          if Soft_Type.is_adj (Thm.prop_of thm)
-          then ()
-          else error "Not an adjective judgment"
+          if Soft_Type.is_adj (Thm.prop_of thm) then () else error "Not an adjective judgment"
 
         val adjs = get_adjs (Context.proof_of context) [t]
       in case t of
-          (Const (n, _)) => apsnd (Symtab.update (n, insert Thm.eq_thm_prop thm adjs))
-        | _ => apfst (Termtab.update (t, insert Thm.eq_thm_prop thm adjs))
+          (Const (n, _)) =>
+            apfst (apsnd (Symtab.update (n, insert Thm.eq_thm_prop thm adjs)))
+        | Var _ => apsnd (insert Thm.eq_thm_prop thm)
+        | _ => apfst (apfst (Termtab.update (t, insert Thm.eq_thm_prop thm adjs)))
       end
   in
     Adjectives.map (put t thm) context
   end
 
-fun all_adjectives ctxt =
-  Adjectives.get (Context.Proof ctxt)
-  |> (fn (t1, t2) => map snd (Termtab.dest_list t1) @ map snd (Symtab.dest_list t2))
-
-
-fun get_types ctxt ts =
-  let
-    fun get_types' tabs (Const (n, _)) = Symtab.lookup_list (snd tabs) n
-      | get_types' tabs t = Termtab.lookup_list (fst tabs) t
-  in fold (curry (op @)) (map (get_types' (Types.get (Context.Proof ctxt))) ts) [] end
-
 fun put_type t thm context =
   let
     val _ =
-      if Soft_Type.is_typing (Thm.prop_of thm)
-      then ()
-      else error "Not a typing judgment"
+      if Soft_Type.is_typing (Thm.prop_of thm) then () else error "Not a typing judgment"
 
     fun put_atomic_type t thm context =
       let
         fun put t thm =
           let val types = get_types (Context.proof_of context) [t]
           in case t of
-              (Const (n, _)) => apsnd (Symtab.update (n, insert Thm.eq_thm_prop thm types))
-            | t => apfst (Termtab.update (t, insert Thm.eq_thm_prop thm types))
+              Const (n, _) =>
+                apfst (apsnd (Symtab.update (n, insert Thm.eq_thm_prop thm types)))
+            | Var _ => apsnd (insert Thm.eq_thm_prop thm)
+            | _ => apfst (apfst (Termtab.update (t, insert Thm.eq_thm_prop thm types)))
           end
       in
         Types.map (put t thm) context
@@ -173,11 +181,6 @@ fun put_type t thm context =
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end
-
-fun all_types ctxt =
-  Types.get (Context.Proof ctxt)
-  |> (fn (t1, t2) => map snd (Termtab.dest_list t1) @ map snd (Symtab.dest_list t2))
-
 
 
 (* Diagnostic command to show the currently known types *)

@@ -22,10 +22,10 @@ subsection \<open>Plus structures\<close>
 definition Plus :: "set \<Rightarrow> set type"
   where Plus_typedef: "Plus A = \<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
-lemma Plus_typeI: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
+lemma Plus_typeI [derive]: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
 
-lemma Plus_PLUS_type: "str: Plus A \<Longrightarrow> str[PLUS] : element (A \<rightarrow> A \<rightarrow> A)"
+lemma Plus_PLUS_type [derive]: "str: Plus A \<Longrightarrow> str[PLUS] : element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Plus_typedef by squash_types
 
 
@@ -35,8 +35,6 @@ definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
 lemma plus_type [type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding Plus_typedef plus_def
   by squash_types (auto intro: functionsE)
-
-lemmas plus_type' = plus_type[THEN Pi_typeE]
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>M x y"
@@ -76,10 +74,10 @@ definition Monoid :: "set \<Rightarrow> set type"
     (\<forall>x\<in>A. plus`x`zero = x) \<and>
     (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
 
-lemma Monoid_is_Zero: "Monoid A \<prec> Zero A"
+lemma Monoid_is_Zero [derive]: "Monoid A \<prec> Zero A"
   unfolding Monoid_typedef by (intro subtypeI) squash_types
 
-lemma Monoid_is_Plus: "Monoid A \<prec> Plus A"
+lemma Monoid_is_Plus [derive]: "Monoid A \<prec> Plus A"
   unfolding Monoid_typedef by (intro subtypeI) squash_types
 
 lemma Monoid_typeI:
@@ -98,9 +96,9 @@ text \<open>
 lemma
   assumes "M : Monoid A"
   shows 
-  monoid_left_neut[simp]: "x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
-  monoid_right_neut[simp]: "x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
-  monoid_assoc[simp]: "\<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+  monoid_left_neut [simp]: "x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
+  monoid_right_neut [simp]: "x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
+  monoid_assoc [simp]: "\<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
 
   using assms
   unfolding Monoid_typedef Zero_typedef plus_def zero_def
@@ -119,7 +117,7 @@ definition "Nat_Zero \<equiv> \<lparr> ZERO = zero_nat \<rparr>"
 definition "Nat_Monoid \<equiv> Nat_Plus \<union> Nat_Zero"
 
 axiomatization (* TODO: actually construct naturals *)
-  where Nat_monoid[type_instance]: "Nat_monoid : Monoid Nat"
+  where Nat_monoid [type_instance]: "Nat_monoid : Monoid Nat"
 
 
 definition
@@ -151,6 +149,7 @@ lemma pair_plus_PLUS:
   "pair_plus A B p1 p2 [PLUS] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
   unfolding pair_plus_def by auto
 
+
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   (* initial fragment... must still clean this up *)
@@ -158,19 +157,14 @@ lemma pair_plus_type [type]:
   apply (rule Plus_typeI)
   apply (unfold pair_plus_PLUS)
   apply (rule lambda_simple_type[THEN Pi_typeE, THEN Pi_typeE])
-   apply (rule any_typeI)
+  defer
   apply (rule Pi_typeI)
   apply (unfold split_def)
   apply (rule lambda_simple_type[THEN Pi_typeE, THEN Pi_typeE])
-   apply (rule any_typeI)
+  defer
   apply (rule Pi_typeI)
   apply discharge_types
   done
-
-
-(* Josh -- The obstruction in the old proof was that structure field selection was syntactically
-   identical to function application, so that the unifier couldn't use the fact that
-   uaa_ ` PLUS \<in> A \<rightarrow> A \<rightarrow> A, etc. *)
 
 
 lemma pair_zero_type [type]:

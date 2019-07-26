@@ -123,8 +123,10 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>struct\<close> "Declare stru
 
     fun struct_cmd (name: string, struct_def_str) lthy =
       let
-        (* Get the field labels used in the structure declaration.
-           Relies on the specific form of the translations defined above! *)
+        (*
+          Get the field labels used in the structure declaration.
+          Relies on the specific form of the translations defined above!
+        *)
         fun get_labels (\<^const>\<open>comp\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
           | get_labels (Const (\<^const_name>\<open>Type\<close>, _) $ t) = get_labels t
           | get_labels (Const (\<^const_name>\<open>Int_type\<close>, _) $ _ $ t) = get_labels t

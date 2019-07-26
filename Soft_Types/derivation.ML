@@ -193,35 +193,49 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
           val goal_ctxt' =
             Context.proof_of (fold add_to_context prems (Context.Proof goal_ctxt))
 
-          fun typable_subterms t = case t of
-              Const (_, _) => [t]
-            | Free (_, _) => [t]
-            | Abs (_, _, b) => [t] @ typable_subterms b
-            | t1 $ t2 => [t] @ typable_subterms t1 @ typable_subterms t2
-            | _ => []
+          fun typable_subterms tm =
+            let
+              val res = if Term.is_open tm then [] else [tm]
+            in
+              res @ (case tm of
+                t1 $ t2 => typable_subterms t1 @ typable_subterms t2
+              | Abs (_, _, t) => typable_subterms t
+              | Var _ => [tm]
+              | _ => []
+              )
+            end
 
           val tm = Soft_Type.term_of_jdgmt concl_tm
           val tms = (typable_subterms tm @ flat (map typable_subterms add_tms))
+
           val jdgmts =
-            Soft_Type_Context.get_types goal_ctxt' tms @ Soft_Type_Context.get_adjs goal_ctxt' tms
+            Soft_Type_Context.get_types goal_ctxt' tms
+            @ Soft_Type_Context.get_adjs goal_ctxt' tms
+            @ Soft_Type_Context.univ_types goal_ctxt'
+            @ Soft_Type_Context.univ_adjs goal_ctxt'
+
           val rules = get_derivation_rules goal_ctxt'
-          val typings = derive_jdgmts goal_ctxt' tms jdgmts rules
+          val jdgmts' = derive_jdgmts goal_ctxt' tms jdgmts rules
 
           val str_of_tm = Syntax.string_of_term goal_ctxt'
           val itemize = space_implode "\n  "
           val _ =
-            Soft_Type.tracing goal_ctxt' (cat_lines [
-              "Judgment:\n  " ^ str_of_tm concl_tm,
-              "\nSubterms:\n  " ^
+            Soft_Type.tracing goal_ctxt' (cat_lines (
+              ["Proving judgment:\n  " ^ str_of_tm concl_tm,
+              "with subterms:\n  " ^
                 (itemize (map str_of_tm (typable_subterms tm))),
-              "\nAdditional terms:\n  " ^
-                (itemize (map str_of_tm (flat (map typable_subterms tms)))),
-              "\nDerived judgments:\n  " ^
-                (itemize (map (str_of_tm o Thm.prop_of) typings))])
+              "and additional terms:\n  " ^
+                (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
+              "beginning with judgments:\n  " ^
+                (itemize (map (str_of_tm o Thm.prop_of) jdgmts)),
+              "using derivation rules:\n  " ^
+                (itemize (map (str_of_tm o Thm.prop_of) rules)),
+              "derived judgments:\n  " ^
+                (itemize (map (str_of_tm o Thm.prop_of) jdgmts'))]))
         in
-          case find_first (fn th => Term.could_unify (concl_tm, Thm.prop_of th)) typings
+          case find_first (fn th => Term.could_unify (concl_tm, Thm.prop_of th)) jdgmts'
           of
-            NONE => no_tac
+            NONE => (warning "No unifier"; no_tac)
           | SOME th => resolve_tac goal_ctxt' [th] i
         end
       else (warning "Not a judgment"; no_tac)
