@@ -40,15 +40,17 @@ val derive_depth = Attrib.setup_config_int \<^binding>\<open>derive_depth\<close
 
 fun term_jdgmts_from_rule ctxt tm jdgmts rule =
   let
-    fun in_jdgmts thm =
-      subset Term.aconv
-        (map Thm.concl_of (Soft_Type_Context.normalize ctxt thm), map Thm.prop_of jdgmts)
-
-    fun discharge_prems thms = case thms |> filter_out in_jdgmts of
-        [] => []
-      | thms as thm :: _ =>
-          if Thm.no_prems thm then thms
-          else discharge_prems (jdgmts RLN (Thm.nprems_of thm, thms))
+    fun discharge_prems thms =
+      let
+        val in_jdgmts = member Thm.eq_thm_prop jdgmts
+      in
+        (* Invariant: every theorem in thms has the same number of premises *)
+        case thms |> filter_out in_jdgmts of
+          [] => []
+        | thms as thm :: _ =>
+            if Thm.no_prems thm then thms
+            else discharge_prems (jdgmts RLN (Thm.nprems_of thm, thms))
+      end
   in
     let
       val inst =
@@ -228,8 +230,8 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
                 (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
               "beginning with judgments:\n  " ^
                 (itemize (map (str_of_tm o Thm.prop_of) jdgmts)),
-              "using derivation rules:\n  " ^
-                (itemize (map (str_of_tm o Thm.prop_of) rules)),
+              (* "using derivation rules:\n  " ^
+                (itemize (map (str_of_tm o Thm.prop_of) rules)), *)
               "derived judgments:\n  " ^
                 (itemize (map (str_of_tm o Thm.prop_of) jdgmts'))]))
         in

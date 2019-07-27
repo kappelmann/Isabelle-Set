@@ -41,11 +41,11 @@ lemma Pair_Univ[derive]: "x : element (Univ A) \<Longrightarrow> y : element (Un
   unfolding Pair_def 
   by squash_types (auto intro!: Univ_Cons Univ_empty)
 
-lemma Inl_Univ: "x : element (Univ A) \<Longrightarrow> Inl x : element (Univ A)"
+lemma Inl_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inl x : element (Univ A)"
   unfolding Inl_def 
   by discharge_types
 
-lemma Inr_Univ: "x : element (Univ A) \<Longrightarrow> Inr x : element (Univ A)"
+lemma Inr_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inr x : element (Univ A)"
   unfolding Inr_def 
   by discharge_types
 

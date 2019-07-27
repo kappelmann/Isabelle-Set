@@ -7,10 +7,7 @@ text \<open>
 \<close>
 
 lemma "Inl {} : element (Univ A)"
-  apply discharge_types (* fails although both rules below are marked as derivation rules *)
-  apply (rule Inl_Univ)
-  apply (rule Univ_type_empty)
-  done
+  by discharge_types
 
 
 end
