@@ -236,7 +236,7 @@ method_setup discharge_types =
         val backward_tac = resolve_tac ctxt
           (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
       in
-        SIMPLE_METHOD (REPEAT (CHANGED (ALLGOALS (TRY o (
+        SIMPLE_METHOD (REPEAT1 (CHANGED (ALLGOALS (TRY o (
           (CHANGED o type_tac) ORELSE' (backward_tac THEN' type_tac)
         )))))
       end)\<close>
