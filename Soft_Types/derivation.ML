@@ -27,11 +27,34 @@ fun warn ctxt msg = if Config.get ctxt derive_debug then warning msg else ()
 
 fun get_derivation_rules ctxt = Named_Theorems.get ctxt \<^named_theorems>\<open>derivation_rules\<close>
 
-fun put_derivation_rule ctxt =
-  Soft_Type_Context.normalize ctxt
-  #> fold (Named_Theorems.add_thm \<^named_theorems>\<open>derivation_rules\<close>)
+fun put_derivation_rule thm context =
+  (Soft_Type_Context.normalize (Context.proof_of context) thm
+  |> fold (Named_Theorems.add_thm \<^named_theorems>\<open>derivation_rules\<close>))
+    context
 
 val put_subtype_rule = Named_Theorems.add_thm \<^named_theorems>\<open>subtype_rules\<close>
+
+(*
+  Also store table of terms that require backderivation (we say that t requires
+  backderivation if its derivation rule contains premises whose terms are not subterms
+  of t).
+*)
+structure Backderivation_Terms = Generic_Data (
+  type T = term Item_Net.T
+  val empty = Item_Net.init Term.aconv (fn t => [t])
+  val extend = I
+  val merge = Item_Net.merge
+)
+
+fun get_bderive_tms ctxt = Item_Net.content (Backderivation_Terms.get (Context.Proof ctxt))
+
+fun put_bderive_tm tm context =
+  let
+    val item_net = Item_Net.update tm (Backderivation_Terms.get context)
+  in
+    Backderivation_Terms.put item_net context
+  end
+
 
 
 (*** Type derivation ***)
@@ -123,9 +146,9 @@ val derivation_rule_parser: attribute context_parser =
       then
         context
         |> put_subtype_rule thm
-        |> put_derivation_rule (Context.proof_of context) (subtype_derivation_rule thm)
+        |> put_derivation_rule (subtype_derivation_rule thm)
       else
-        put_derivation_rule (Context.proof_of context) thm context)
+        put_derivation_rule thm context)
   in 
     Scan.lift (Scan.succeed add)
   end
@@ -155,7 +178,7 @@ fun declare_current_type implicit thm context =
     val names = extract_param_names (the_default 0 implicit) st
 
     val handle_Pi = fn context =>
-      put_derivation_rule (Context.proof_of context) (Pi_derivation_rule thm) context
+      put_derivation_rule (Pi_derivation_rule thm) context
   in
     context
     |> Soft_Type_Context.put_current_type x thm
@@ -194,7 +217,7 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
                 else if Soft_Type.is_adj prop then
                   Soft_Type_Context.put_adj (Soft_Type.term_of_jdgmt prop) prem context
                 else if is_derivation_rule prem then
-                  put_derivation_rule (Context.proof_of context) prem context
+                  put_derivation_rule prem context
                 else context
               end
   

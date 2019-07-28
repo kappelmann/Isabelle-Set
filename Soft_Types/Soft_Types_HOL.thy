@@ -219,11 +219,6 @@ declare Pi_typeI [backderivation_rules]
 
 subsection \<open>Methods\<close>
 
-(* method_setup discharge_types =
-  \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
-    (fn add_tms => fn ctxt => SIMPLE_METHOD (
-      CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt add_tms))))\<close> *)
-
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt =>
