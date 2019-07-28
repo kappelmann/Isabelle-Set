@@ -22,7 +22,7 @@ subsection \<open>Plus structures\<close>
 definition Plus :: "set \<Rightarrow> set type"
   where Plus_typedef: "Plus A = \<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
-lemma Plus_typeI [derive]: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
+lemma Plus_typeI [derive, bderive]: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
 
 lemma Plus_PLUS_type [derive]: "str: Plus A \<Longrightarrow> str[PLUS] : element (A \<rightarrow> A \<rightarrow> A)"
@@ -149,18 +149,20 @@ lemma pair_plus_PLUS:
   "pair_plus A B p1 p2 [PLUS] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
   unfolding pair_plus_def by auto
 
+declare[[trace_soft_types]]
 
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   (* initial fragment... must still clean this up *)
-  apply (intro Pi_typeI)
-  apply (rule Plus_typeI)
+  (* structure-aware discharge_types should just work here *)
+  apply discharge_types
   apply (unfold pair_plus_PLUS)
-  apply (rule lambda_simple_type[THEN Pi_typeE, THEN Pi_typeE])
+  (* regular discharge_types should work here *)
+  apply (rule derivation_rules)
   defer
   apply (rule Pi_typeI)
   apply (unfold split_def)
-  apply (rule lambda_simple_type[THEN Pi_typeE, THEN Pi_typeE])
+  apply (rule derivation_rules)
   defer
   apply (rule Pi_typeI)
   apply discharge_types

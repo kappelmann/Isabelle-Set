@@ -1089,7 +1089,7 @@ lemma element_type_iff [squash]: "x : element A \<longleftrightarrow> x \<in> A"
 subsubsection \<open>Subsets of a given set\<close>
 
 definition subset :: "set \<Rightarrow> set type"
-  where subset_typedef[type_simp]: "subset A = element (Pow A)"
+  where subset_typedef [type_simp]: "subset A = element (Pow A)"
 
 lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
   unfolding element_typedef subset_typedef by squash_types auto

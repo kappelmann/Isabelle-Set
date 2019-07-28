@@ -192,10 +192,11 @@ named_theorems type_simp
 named_theorems type_instance
 
 named_theorems derivation_rules
+named_theorems backderivation_rules
 named_theorems subtype_rules
 \<comment>\<open>
-  \<open>derivation_rules\<close> and \<open>subtype_rules\<close> should only be inspected and not assigned to
-  directly; use the \<open>derive\<close> attribute instead.
+  \<open>derivation_rules\<close>, \<open>backderivation_rule\<close> and \<open>subtype_rules\<close> should only be inspected
+  and not assigned to directly; use the \<open>derive\<close> attribute instead.
 \<close>
 
 ML_file \<open>soft_type.ML\<close>
@@ -205,17 +206,40 @@ ML_file \<open>unification.ML\<close>
 ML_file \<open>type_classes.ML\<close>
 ML_file \<open>elaboration.ML\<close>
 ML_file \<open>isar_integration.ML\<close>
+
 setup \<open>Isar_Integration.setup\<close>
 
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
+attribute_setup bderive = \<open>Derivation.backderivation_rule_parser\<close>
+
+declare with_type_def [type_simp]
+declare any_typeI [type]
+declare Pi_typeI [backderivation_rules]
 
 
 subsection \<open>Methods\<close>
 
-method_setup discharge_types =
+(* method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt => SIMPLE_METHOD (
-      CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt add_tms))))\<close>
+      CHANGED (ALLGOALS (TRY o Derivation.discharge_type_tac ctxt add_tms))))\<close> *)
+
+method_setup discharge_types =
+  \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
+    (fn add_tms => fn ctxt =>
+      let
+        val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
+
+        val type_tac =
+          (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
+
+        val backward_tac = resolve_tac ctxt
+          (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
+      in
+        SIMPLE_METHOD (REPEAT (CHANGED (ALLGOALS (TRY o (
+          (CHANGED o type_tac) ORELSE' (backward_tac THEN' type_tac)
+        )))))
+      end)\<close>
 
 
 named_theorems squash
@@ -240,10 +264,6 @@ lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
 
 lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
   by auto
-
-declare with_type_def [type_simp]
-
-declare any_typeI [type]
 
 
 end
