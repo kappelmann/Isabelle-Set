@@ -1,5 +1,5 @@
 theory Natural_Numbers
-  imports Universe
+  imports Universe Fixed_Points
 begin
 
 definition "nat_op N = {{}} \<union> Repl N Succ"
@@ -27,7 +27,7 @@ lemma nat_induct[case_names 0 Succ, induct set: NAT]:
   and "P {}"
   and "\<And>n. n \<in> \<nat> \<Longrightarrow> P n \<Longrightarrow> P (Succ n)"
 shows "P n"
-  apply (rule Fixed_Points.def_induct[OF any_typeI nat_op_monop NAT_def, unfolded nat_op_def])
+  apply (rule Fixed_Points.def_lfp_induct[OF any_typeI nat_op_monop NAT_def, unfolded nat_op_def])
    by (insert assms) auto
 
 

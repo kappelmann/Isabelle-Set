@@ -11,7 +11,7 @@ text \<open>
 \<close>
 
 theory Pair
-imports Set_Theory 
+imports Set_Theory Universe Fixed_Points
 
 begin
 
@@ -175,6 +175,17 @@ lemma DUnion_elem_conv [simp]: "p \<in> \<Coprod>x \<in> P. (B x) \<Longrightarr
 corollary product_elem_conv [simp]: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by (fact DUnion_elem_conv)
 
+subsection \<open>Monotonicity\<close>
+
+lemma times_mono: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
+  by auto
+
+lemma times_mono1[derive]: "A : subset A' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A' \<times> B)"
+  by squash_types auto
+
+lemma times_mono2[derive]: "B : subset B' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A \<times> B')"
+  by squash_types auto
+
 
 subsection \<open>Disjoint union as sigma type\<close>
 
@@ -243,6 +254,32 @@ lemma
   fst_type[type]: "fst : element (A \<times> B) \<Rightarrow> element A" and 
   snd_type[type]: "snd : element (A \<times> B) \<Rightarrow> element B"
   by squash_types auto
+
+lemma fst_prod_type: "x : element (A \<times> B) \<Longrightarrow> fst x : element A"
+  by discharge_types
+
+lemma snd_prod_type: "x : element (A \<times> B) \<Longrightarrow> snd x : element B"
+  by discharge_types
+
+
+lemma Pair_Univ[derive]: "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
+  unfolding Pair_def by discharge_types
+
+lemma times_Prod[derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
+  by squash_types auto
+
+lemma Univ_Prod[derive]: "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
+  using Pair_Univ
+  by squash_types auto
+
+lemma times_Univ[derive]: "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
+  by discharge_types
+
+lemma monop_timesI[derive]:
+  assumes A_type[type]: "A : monop (Univ X)" and B_type[type]: "B : monop (Univ X)"
+  shows "(\<lambda>x. A x \<times> B x) : monop (Univ X)"
+  by (rule monopI, discharge_types) (auto dest: monopD2[OF A_type] monopD2[OF B_type])
+
 
 
 end

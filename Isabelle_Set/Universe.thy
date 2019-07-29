@@ -1,5 +1,5 @@
 theory Universe
-  imports Fixed_Points Ordinal
+  imports Ordinal
 begin
 
 section \<open>Various closure properties about \<open>Univ X\<close>\<close>
@@ -33,7 +33,7 @@ lemma Univ_type_Repl[derive, bderive]:
 lemma Univ_element_closed: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
   using Univ_transitive[unfolded epsilon_transitive_def] by blast
 
-lemma Univ_element_closed_type[derive]: "x \<in> A \<Longrightarrow> A : element (Univ X) \<Longrightarrow> x : element (Univ X)"
+lemma Univ_element_closed_type[derive]: "x : element A \<Longrightarrow> A : element (Univ X) \<Longrightarrow> x : element (Univ X)"
   using Univ_element_closed
   by squash_types auto
 
@@ -49,11 +49,19 @@ proof -
   then show "{} \<in> Univ X" by auto
 qed
 
-lemma Univ_base[derive]: "A : element (Univ A)"
+lemma Univ_base: "A : element (Univ A)"
   by squash_types (fact Univ_elem)
+
+lemma Univ_subset: "A : subset (Univ A)"
+  by (rule Univ_element_closed') (rule Univ_base)
 
 lemma Univ_type_empty[derive]: "{} : element (Univ X)"
   by squash_types (fact Univ_empty)
+
+(* this one is problematic as a [derive] rule, since it loops *)
+lemma Univ_elem_type: 
+  "x : element A \<Longrightarrow> x : element (Univ A)"
+  by (rule Univ_element_closed_type[OF _ Univ_base])
 
 lemma Univ_Upair[intro]: "x \<in> Univ X \<Longrightarrow> y \<in> Univ X \<Longrightarrow> Upair x y \<in> Univ X"
   unfolding Upair_def
@@ -81,5 +89,6 @@ lemma Univ_Succ[intro]: "x \<in> Univ X \<Longrightarrow> Succ x \<in> Univ X"
 
 lemma Univ_type_Succ[derive]: "x : element (Univ X) \<Longrightarrow> Succ x :  element (Univ X)"
   by squash_types auto
+
 
 end

@@ -1,7 +1,7 @@
 section \<open>Least and greatest fixed points; the Knaster-Tarski theorem\<close>
 
 theory Fixed_Points
-imports Set_Theory
+imports Set_Theory Universe
 
 begin
 
@@ -54,6 +54,50 @@ proof -
   ultimately show ?thesis by auto
 qed
 
+lemma monop_Id[derive]: "(\<lambda>L. L) : monop D"
+  by squash_types (auto simp: monotone_def)
+
+lemma monop_const[derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
+  by squash_types (auto simp: monotone_def)
+
+
+lemma monopI:
+  assumes b: "\<And>x. x : subset D \<Longrightarrow> h x : subset D"
+  assumes a: "\<And>W X. W : subset D \<Longrightarrow> X : subset D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
+  shows "h : monop D"
+  apply (rule adjI, rule monotoneI)
+   apply (fact a[unfolded subset_type_iff])
+  apply (rule Pi_typeI, fact b)
+  done
+
+lemma monop_UnI[derive]: 
+  assumes [type]: "A : monop D" "B : monop D"
+  shows "(\<lambda>x. A x \<union> B x) : monop D"
+proof (rule monopI, discharge_types)
+  fix W X assume [type]: "W : subset D" "X : subset D"
+  assume "W \<subseteq> X"
+
+  have "A W \<subseteq> A X"
+    by (rule monopD2[of A], discharge_types) (fact `W \<subseteq> X`)
+  moreover have "B W \<subseteq> B X"
+    by (rule monopD2[of B], discharge_types) (fact `W \<subseteq> X`)
+  ultimately
+  show "A W \<union> B W \<subseteq> A X \<union> B X"
+    by auto
+qed
+
+lemma monop_ReplI:
+  assumes "A : monop D"
+  assumes "\<And>x y. x : subset D \<Longrightarrow> y : element (A x) \<Longrightarrow> f y : element D"
+  shows "(\<lambda>x. Repl (A x) f) : monop D"
+  using assms
+  apply -        
+  apply (rule monopI)
+   apply squash_types[1]
+  apply (auto dest: monopD2)
+  done
+
+
 
 subsection \<open>Proof of Knaster-Tarski theorem using least fixed points.\<close>
 
@@ -103,7 +147,7 @@ proof (rule extensionality)
 qed
 
 (* Definition form, to control unfolding *)
-lemma def_lfp_unfold: "A \<equiv> lfp D h \<Longrightarrow> A = h A"
+lemma def_lfp_unfold: "A = lfp D h \<Longrightarrow> A = h A"
   by (simp, rule lfp_unfold)
 
 
@@ -119,7 +163,7 @@ proof -
   ultimately show ?thesis using assms by auto
 qed
 
-lemma induct:
+lemma lfp_induct:
   assumes hyp: "a \<in> lfp D h"
   assumes IH: "\<And>x. x \<in> h (Collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
@@ -136,9 +180,9 @@ proof -
 qed
 
 (* Definition form, to control unfolding *)
-lemma def_induct:
+lemma def_lfp_induct:
   "\<lbrakk> A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (Collect A P) \<Longrightarrow> P x \<rbrakk> \<Longrightarrow> P a"
-  by (rule induct, blast+)
+  by (rule lfp_induct, blast+)
 
 lemma lfp_cong:
   assumes D: "D = D'"
