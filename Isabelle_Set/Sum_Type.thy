@@ -49,4 +49,20 @@ lemma Inr_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inr x : element
   unfolding Inr_def 
   by discharge_types
 
+lemma times_Univ[derive]: "X : element (Univ A) \<Longrightarrow> Y : element (Univ A) \<Longrightarrow> X \<times> Y : element (Univ A)"
+  unfolding DUnion_def 
+  apply (rule Univ_type_Union)
+  apply (rule Univ_type_Repl)
+   apply assumption
+  apply (rule Univ_type_Union)
+  apply (rule Univ_type_Repl)
+   apply assumption
+  apply (rule Univ_type_Cons)
+   apply (rule Pair_Univ)
+  apply (rule Univ_element_closed_type, assumption+)
+   apply (rule Univ_element_closed_type, assumption+)
+  by (rule Univ_type_empty)
+
+
+
 end

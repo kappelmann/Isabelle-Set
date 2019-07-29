@@ -17,16 +17,25 @@ lemma ZF_closed_Repl: "ZF_closed U \<Longrightarrow> X \<in> U \<Longrightarrow>
 lemma Univ_Union[intro]: "A \<in> Univ X \<Longrightarrow> \<Union>A \<in> Univ X"
   using Univ_ZF_closed by (rule ZF_closed_Union)
 
+lemma Univ_type_Union[derive]: "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
+  using Univ_Union by squash_types
+
 lemma Univ_Pow[intro]: "A \<in> Univ X \<Longrightarrow> Pow A \<in> Univ X"
   using Univ_ZF_closed by (rule ZF_closed_Pow)
 
 lemma Univ_Repl[intro]: "A \<in> Univ X \<Longrightarrow> (\<And>x. x \<in> A \<Longrightarrow> f x \<in> Univ X) \<Longrightarrow> Repl A f \<in> Univ X"
   using Univ_ZF_closed by (rule ZF_closed_Repl)
 
+lemma Univ_type_Repl[derive]: 
+  "A : element (Univ X) \<Longrightarrow> (\<And>x. x \<in> A \<Longrightarrow> f x : element (Univ X)) \<Longrightarrow> Repl A f : element (Univ X)"
+  unfolding element_type_iff by (fact Univ_Repl)
 
 lemma Univ_element_closed: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
   using Univ_transitive[unfolded epsilon_transitive_def] by blast
 
+lemma Univ_element_closed_type[derive]: "x \<in> A \<Longrightarrow> A : element (Univ X) \<Longrightarrow> x : element (Univ X)"
+  using Univ_element_closed
+  by squash_types auto
 
 lemma Univ_empty[intro]: "{} \<in> Univ X"
 proof -
