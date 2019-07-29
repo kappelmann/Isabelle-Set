@@ -214,7 +214,7 @@ attribute_setup bderive = \<open>Derivation.backderivation_rule_parser\<close>
 
 declare with_type_def [type_simp]
 declare any_typeI [type]
-declare Pi_typeI [backderivation_rules]
+declare Pi_typeI [bderive]
 
 
 subsection \<open>Methods\<close>

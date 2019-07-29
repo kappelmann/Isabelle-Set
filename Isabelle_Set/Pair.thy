@@ -1,13 +1,13 @@
 section \<open>Ordered pairs\<close>
 
 text \<open>
-Based heavily on code copied directly from the theory file ZF/pair.thy
-of the Isabelle/ZF object logic.
-
-Modified 2019 Alexander Krauss (QAware GmbH) and Joshua Chen (University of Innsbruck).
-
-Original ZF/Pair.thy by Lawrence C Paulson, Cambridge University Computer Laboratory,
-Copyright 1992 University of Cambridge.
+  Based heavily on code copied directly from the theory file ZF/pair.thy
+  of the Isabelle/ZF object logic.
+  
+  Modified 2019 Alexander Krauss (QAware GmbH) and Joshua Chen (University of Innsbruck).
+  
+  Original ZF/Pair.thy by Lawrence C Paulson, Cambridge University Computer Laboratory,
+  Copyright 1992 University of Cambridge.
 \<close>
 
 theory Pair
@@ -33,8 +33,8 @@ simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") = \
 subsection \<open>Ordered pairs and tuples\<close>
 
 text \<open>
-It is easier to define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"}, which makes
-proofs easier, and then show equality with the Kuratowski pair.
+  It is easier to define the basic pair "symmetrically" as @{term "{{a, a}, {a, b}}"},
+  which makes proofs easier, and then show equality with the Kuratowski pair.
 \<close>
 
 definition Pair :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -231,11 +231,11 @@ lemma Pair_type [type]: "Pair : element A \<Rightarrow> element B \<Rightarrow> 
   by squash_types auto
 
 text \<open>
-The following is more general, but also makes elaboration more complex, so we do not declare it by
-default for now.
+  The following is more general, but also makes elaboration more complex, so we do not
+  declare it by default for now.
 \<close>
 
-lemma Pair_dependent_type: "Pair : (x: element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
+lemma Pair_dependent_type: "Pair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (DUnion A B)"
   by squash_types auto
 
 

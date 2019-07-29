@@ -383,6 +383,6 @@ lemma Pi_function_type [elim]: "f \<in> Pi A B \<Longrightarrow> f : A-total \<c
 lemma functions_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<cdot> B-valued \<cdot> function"
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
   by (squash_types, auto) (insert range_subset, blast)
-  
+
 
 end

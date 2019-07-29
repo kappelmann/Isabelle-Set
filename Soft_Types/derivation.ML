@@ -35,26 +35,24 @@ fun put_derivation_rule thm context =
 val put_subtype_rule = Named_Theorems.add_thm \<^named_theorems>\<open>subtype_rules\<close>
 
 (*
-  Also store table of terms that require backderivation (we say that t requires
-  backderivation if its derivation rule contains premises whose terms are not subterms
-  of t).
+  Also store table of judgments that require backderivation
+  (we say that a judgment `t : T` or `adj t` requires backderivation if it has a
+  derivation rule containing premises whose terms are not subterms of t, and should thus
+  be applied backwards in type derivation).
 *)
-structure Backderivation_Terms = Generic_Data (
+
+structure Backderivation = Generic_Data (
   type T = term Item_Net.T
-  val empty = Item_Net.init Term.aconv (fn t => [t])
+  val empty = Item_Net.init Term.could_unify (fn t => [t])
   val extend = I
   val merge = Item_Net.merge
 )
 
-fun get_bderive_tms ctxt = Item_Net.content (Backderivation_Terms.get (Context.Proof ctxt))
+fun get_bderive_tms ctxt = Item_Net.content (Backderivation.get (Context.Proof ctxt))
 
 fun put_bderive_tm tm context =
-  let
-    val item_net = Item_Net.update tm (Backderivation_Terms.get context)
-  in
-    Backderivation_Terms.put item_net context
-  end
-
+  let val item_net = Item_Net.update tm (Backderivation.get context)
+  in Backderivation.put item_net context end
 
 
 (*** Type derivation ***)
@@ -67,7 +65,9 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
       let
         val in_jdgmts = member Thm.eq_thm_prop jdgmts
       in
-        (* Invariant: every theorem in thms has the same number of premises *)
+        (*
+          Invariant: every theorem in thms has the same number of premises
+        *)
         case thms |> filter_out in_jdgmts of
           [] => []
         | thms as thm :: _ =>
@@ -157,8 +157,19 @@ val derivation_rule_parser: attribute context_parser =
 (*
   Register derivation rules that should be applied backwards using resolution.
 *)
+
+fun register_backderivation thm =
+  let
+    fun add_backderiv_term thm =
+      let val (_, j) = Soft_Type.dest_jdgmt (Thm.concl_of thm)
+      in put_bderive_tm j end
+  in
+    Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close> thm
+    #> add_backderiv_term thm
+  end
+
 val backderivation_rule_parser: attribute context_parser =
-  Scan.lift (Scan.succeed (Named_Theorems.add \<^named_theorems>\<open>backderivation_rules\<close>))
+  Scan.lift (Scan.succeed (Thm.declaration_attribute register_backderivation))
 
 
 (** The [type] attribute **)
@@ -178,7 +189,18 @@ fun declare_current_type implicit thm context =
     val names = extract_param_names (the_default 0 implicit) st
 
     val handle_Pi = fn context =>
-      put_derivation_rule (Pi_derivation_rule thm) context
+      let
+        fun needs_backderiv thm =
+          exists
+            (Item_Net.member (Backderivation.get context))
+            (map (#2 o Soft_Type.dest_jdgmt) (Thm.prems_of thm))
+
+        val thm' = Pi_derivation_rule thm
+      in
+        context
+        |> put_derivation_rule thm'
+        |> (if needs_backderiv thm' then register_backderivation thm' else I)
+      end
   in
     context
     |> Soft_Type_Context.put_current_type x thm

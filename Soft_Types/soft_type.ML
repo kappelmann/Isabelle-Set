@@ -26,6 +26,7 @@ val is_subtyping: term -> bool
 val mk_typing: term * term -> term
 val dest_typing: term -> term * term
 val dest_adj: term -> term * term
+val dest_jdgmt: term -> term * term
 val term_of_typing: term -> term
 val type_of_typing: term -> term
 val term_of_jdgmt: term -> term
@@ -91,11 +92,16 @@ fun dest_typing t = case dest_Trueprop t of
 
 fun dest_adj t = let val (adj, u) = Term.dest_comb (dest_Trueprop t) in (u, adj) end
 
-fun term_of_jdgmt tm =
+fun dest_jdgmt t =
+  if is_typing t then dest_typing t
+  else if is_adj t then dest_adj t
+  else raise TERM ("dest_jdgmt", [t])
+
+fun term_of_jdgmt t =
   #1 (
-    if is_typing tm then dest_typing tm
-    else if is_adj tm then dest_adj tm
-    else error "term_of_jdgmt: not a type or adjective judgment"
+    if is_typing t then dest_typing t
+    else if is_adj t then dest_adj t
+    else raise TERM ("term_of_jdgmt", [t])
   )
 
 val term_of_typing = #1 o dest_typing

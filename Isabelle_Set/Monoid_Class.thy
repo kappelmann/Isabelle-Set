@@ -22,8 +22,12 @@ subsection \<open>Plus structures\<close>
 definition Plus :: "set \<Rightarrow> set type"
   where Plus_typedef: "Plus A = \<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
+ML_val \<open>Derivation.get_bderive_tms @{context}\<close>
+
 lemma Plus_typeI [derive, bderive]: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
+
+ML_val \<open>Derivation.get_bderive_tms @{context}\<close>
 
 lemma Plus_PLUS_type [derive]: "str: Plus A \<Longrightarrow> str[PLUS] : element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Plus_typedef by squash_types
@@ -153,25 +157,14 @@ declare[[trace_soft_types]]
 
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
-  (* initial fragment... must still clean this up *)
-  (* structure-aware discharge_types should just work here *)
   apply discharge_types
-  apply (unfold pair_plus_PLUS)
-  (* regular discharge_types should work here *)
-  apply (rule derivation_rules)
-  defer
-  apply (rule Pi_typeI)
-  apply (unfold split_def)
-  apply (rule derivation_rules)
-  defer
-  apply (rule Pi_typeI)
+  apply (unfold pair_plus_PLUS split_def)
   apply discharge_types
   done
 
 
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
-
   unfolding Zero_typedef pair_zero_def zero_def
   by squash_types auto
 
