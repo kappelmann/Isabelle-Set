@@ -40,8 +40,7 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
    apply discharge_types[1]
   apply (rule monop_ReplI)
    apply (rule monop_timesI)
-    apply (rule monop_const, rule Univ_subset)
-   apply (rule monop_Id)
+  apply discharge_types
   apply (rule Cons_Univ)
    apply (drule fst_prod_type)
    apply (drule Univ_elem_type, assumption)

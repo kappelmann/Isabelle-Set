@@ -49,7 +49,7 @@ proof -
   then show "{} \<in> Univ X" by auto
 qed
 
-lemma Univ_base: "A : element (Univ A)"
+lemma Univ_base[derive]: "A : element (Univ A)"
   by squash_types (fact Univ_elem)
 
 lemma Univ_subset: "A : subset (Univ A)"
