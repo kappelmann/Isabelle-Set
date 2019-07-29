@@ -190,16 +190,15 @@ fun declare_current_type implicit thm context =
 
     val handle_Pi = fn context =>
       let
-        fun needs_backderiv thm =
+        val thm' = Pi_derivation_rule thm
+        val needs_backderiv =
           exists
             (Item_Net.member (Backderivation.get context))
-            (map (#2 o Soft_Type.dest_jdgmt) (Thm.prems_of thm))
-
-        val thm' = Pi_derivation_rule thm
+            (map (#2 o Soft_Type.dest_jdgmt) (Thm.prems_of thm'))
       in
         context
         |> put_derivation_rule thm'
-        |> (if needs_backderiv thm' then register_backderivation thm' else I)
+        |> (if needs_backderiv then register_backderivation thm' else I)
       end
   in
     context

@@ -223,10 +223,11 @@ method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt =>
       let
-        val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
-
         val type_tac =
-          (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
+          let val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
+          in
+            (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
+          end
 
         val backward_tac = resolve_tac ctxt
           (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
