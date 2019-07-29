@@ -38,8 +38,7 @@ lemma Inr_type[type]: "Inr : element B \<Rightarrow> element (Sum_Type A B)"
   unfolding Inr_def Sum_Type_def by squash_types blast
 
 lemma Pair_Univ[derive]: "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
-  unfolding Pair_def 
-  by squash_types (auto intro!: Univ_Cons Univ_empty)
+  unfolding Pair_def by discharge_types
 
 lemma Inl_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inl x : element (Univ A)"
   unfolding Inl_def 
@@ -49,20 +48,18 @@ lemma Inr_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inr x : element
   unfolding Inr_def 
   by discharge_types
 
+context begin
+
+lemmas [bderive] = Univ_type_Union Univ_type_Cons Pair_Univ
+
 lemma times_Univ[derive]: "X : element (Univ A) \<Longrightarrow> Y : element (Univ A) \<Longrightarrow> X \<times> Y : element (Univ A)"
-  unfolding DUnion_def 
-  apply (rule Univ_type_Union)
-  apply (rule Univ_type_Repl)
-   apply assumption
-  apply (rule Univ_type_Union)
-  apply (rule Univ_type_Repl)
-   apply assumption
-  apply (rule Univ_type_Cons)
-   apply (rule Pair_Univ)
+  unfolding DUnion_def
+  apply discharge_types
   apply (rule Univ_element_closed_type, assumption+)
    apply (rule Univ_element_closed_type, assumption+)
-  by (rule Univ_type_empty)
+  done
 
+end
 
 
 end
