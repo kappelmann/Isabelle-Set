@@ -37,6 +37,10 @@ lemma Univ_element_closed_type[derive]: "x \<in> A \<Longrightarrow> A : element
   using Univ_element_closed
   by squash_types auto
 
+lemma Univ_element_closed'[derive]: "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
+  by squash_types (fact Univ_element_closed)
+
+
 lemma Univ_empty[intro]: "{} \<in> Univ X"
 proof -
   have "X \<in> Univ X" by (rule Univ_elem)
@@ -44,6 +48,9 @@ proof -
   then have "Pow X \<subseteq> Univ X" by (rule Univ_element_closed)
   then show "{} \<in> Univ X" by auto
 qed
+
+lemma Univ_base[derive]: "A : element (Univ A)"
+  by squash_types (fact Univ_elem)
 
 lemma Univ_type_empty[derive]: "{} : element (Univ X)"
   by squash_types (fact Univ_empty)
