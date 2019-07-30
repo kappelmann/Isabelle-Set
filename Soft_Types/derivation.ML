@@ -217,7 +217,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (*** Tactics ***)
 
-fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
+fun discharge_type_tac ctxt more_facts add_tms = SUBGOAL (fn (_, i) =>
   ALLGOALS (TRY o (
     Subgoal.FOCUS_PREMS (fn {context = goal_ctxt, prems, concl, ...} =>
       let val concl_tm = Thm.term_of concl in
@@ -243,8 +243,9 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
               end
   
             val goal_ctxt' =
-              Context.proof_of (fold add_to_context prems (Context.Proof goal_ctxt))
-  
+              goal_ctxt
+              |> Context.proof_map (fold add_to_context (more_facts @ prems))
+                                                                      
             fun typable_subterms tm =
               let
                 val res = if Term.is_open tm then [] else [tm]
