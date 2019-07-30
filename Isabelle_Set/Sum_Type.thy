@@ -6,7 +6,7 @@ definition "Inl a = \<langle>{}, a\<rangle>"
 definition "Inr b = \<langle>{{}}, b\<rangle>"
 definition "Sum_Type A B = Repl A Inl \<union> Repl B Inr"
 
-lemma sum_type_iff: "x \<in> Sum_Type A B \<longleftrightarrow> (\<exists>a\<in>A. x = Inl a) \<or> (\<exists>b\<in>B. x = Inr b)"
+lemma sum_type_iff: "x \<in> Sum_Type A B \<longleftrightarrow> (\<exists>a \<in> A. x = Inl a) \<or> (\<exists>b \<in> B. x = Inr b)"
   unfolding Sum_Type_def Inl_def Inr_def by blast
 
 lemma
@@ -31,10 +31,10 @@ lemma sum_elim[case_names Inl Inr]:
   using assms unfolding Sum_Type_def by blast
 
 
-lemma Inl_type[type]: "Inl : element A \<Rightarrow> element (Sum_Type A B)"
+lemma Inl_type [type]: "Inl : element A \<Rightarrow> element (Sum_Type A B)"
   unfolding Inl_def Sum_Type_def by squash_types blast
 
-lemma Inr_type[type]: "Inr : element B \<Rightarrow> element (Sum_Type A B)"
+lemma Inr_type [type]: "Inr : element B \<Rightarrow> element (Sum_Type A B)"
   unfolding Inr_def Sum_Type_def by squash_types blast
 
 lemma Inl_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inl x : element (Univ A)"

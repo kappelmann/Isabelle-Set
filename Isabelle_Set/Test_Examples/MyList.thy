@@ -3,7 +3,6 @@ section \<open>Example theory: Lists\<close>
 text \<open>
   This theory aims to replicate the example from "Programming and Proving in Isabelle/HOL".
 
-
   Compared to HOL, many conveniences are missing, but the reasoning is basically the same.
 \<close>
 

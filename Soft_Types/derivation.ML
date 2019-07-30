@@ -249,16 +249,20 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
               let
                 val res = if Term.is_open tm then [] else [tm]
               in
-                res @ (case tm of
-                  t1 $ t2 => typable_subterms t1 @ typable_subterms t2
-                | Abs (_, _, t) => typable_subterms t
-                | Var _ => [tm]
-                | _ => []
-                )
+                distinct Term.aconv (
+                  res @ (case tm of
+                    t1 $ t2 => typable_subterms t1 @ typable_subterms t2
+                  | Abs (_, _, t) => typable_subterms t
+                  | Var _ => [tm]
+                  | _ => []
+                  ))
               end
   
             val tm = Soft_Type.term_of_jdgmt concl_tm
-            val tms = (typable_subterms tm @ flat (map typable_subterms add_tms))
+            val tms =
+              distinct Term.aconv (
+                typable_subterms tm
+                @ flat (map typable_subterms add_tms))
   
             val jdgmts =
               Soft_Type_Context.get_types goal_ctxt' tms
