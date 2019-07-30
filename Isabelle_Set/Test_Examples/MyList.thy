@@ -44,8 +44,9 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
    apply (drule fst_prod_type)
    apply (drule Univ_elem_type, assumption)
   apply (drule snd_prod_type)
-  apply squash_types
-  apply auto
+  apply (rule Univ_element_closed_type'') (* Should be done by discharge_types, but too general unifier *)
+   apply assumption
+  apply assumption
   done
 
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]
@@ -58,7 +59,6 @@ lemma Cons_type [type]: "Cons : element A \<Rightarrow> element (List A) \<Right
 
 lemma List_type [type]: "List : set \<Rightarrow> set"
   by discharge_types
-
 
 lemma List_induct:
   assumes xs_type: "xs : element (List A)"
@@ -73,10 +73,69 @@ next
   show "P x" by squash_types auto
 qed
 
+axiomatization
+  List_rec :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
+  where
+  List_rec_Nil: "List_rec N C Nil = N" and
+  List_rec_Cons: "x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> 
+    List_rec N C (Cons x xs) = C x xs (List_rec N C xs)"
 
 
 
+subsection \<open>Append\<close>
+
+definition append where
+  "append xs ys = List_rec ys (\<lambda>x xs xsys. Cons x xsys) xs"
+
+lemma append_type[type]: "append : element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+proof (intro Pi_typeI)
+  fix xs ys assume [type]: "xs : element (List A)" "ys : element (List A)"
+
+  show "append xs ys : element (List A)"
+    apply (induct xs rule: List_induct)
+      apply discharge_types
+    apply (unfold append_def List_rec_Nil, discharge_types)
+    apply (unfold List_rec_Cons)
+    apply discharge_types
+    done (* conceptually: induct + auto *)
+qed
 
 declare [[auto_elaborate, trace_soft_types]]
+
+lemma append_Nil[simp]: "append Nil ys = ys"
+  by (simp add: List_rec_Nil append_def)
+  
+
+lemma append_Cons[simp]:
+  "append (Cons x xs) ys = Cons x (append xs ys)"
+  unfolding append_def
+  apply (subst List_rec_Cons)
+    apply discharge_types
+  apply simp
+  done
+
+lemma append_assoc: "append (append xs ys) zs = append xs (append ys zs)"
+  apply (induct xs rule: List_induct, discharge_types)
+   apply (subst append_Nil, discharge_types, subst append_Nil, discharge_types, simp)
+  apply (subst append_Cons, discharge_types)
+  apply (subst append_Cons, discharge_types)
+  apply (subst append_Cons, discharge_types)
+  apply simp
+  done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 end

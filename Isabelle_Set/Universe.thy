@@ -37,10 +37,10 @@ lemma Univ_type_Union [derive]: "A : element (Univ X) \<Longrightarrow> \<Union>
 lemma Univ_type_Pow [type]: "Pow : element (Univ X) \<Rightarrow> element (Univ X)"
   using Univ_Pow by squash_types auto
 
-lemma Univ_type_Repl [derive, bderive]: 
-  "\<lbrakk> A : element (Univ X) ;  \<And>x. x \<in> A \<Longrightarrow> f x : element (Univ X) \<rbrakk>
+lemma Univ_type_Repl [derive, bderive]:
+  "\<lbrakk> A : element (Univ X) ;  f : element A \<Rightarrow> element (Univ X) \<rbrakk>
     \<Longrightarrow> Repl A f : element (Univ X)"
-  unfolding element_type_iff by (fact Univ_Repl)
+  unfolding element_type_iff by squash_types auto
 
 lemma Univ_element_closed: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
   using Univ_transitive[unfolded epsilon_transitive_def] by blast
@@ -50,6 +50,11 @@ lemma Univ_element_closed_type [derive]: "A : element (Univ X) \<Longrightarrow>
 
 lemma Univ_element_closed_type' [derive]:
   "x : element A \<Longrightarrow> A : element (Univ X) \<Longrightarrow> x : element (Univ X)"
+  using Univ_element_closed
+  by squash_types auto
+
+lemma Univ_element_closed_type'' [derive]:
+  "x : element A \<Longrightarrow> A : subset (Univ X) \<Longrightarrow> x : element (Univ X)"
   using Univ_element_closed
   by squash_types auto
 

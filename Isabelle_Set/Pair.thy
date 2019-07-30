@@ -251,8 +251,8 @@ lemma Pair_dependent_type: "Pair : (x : element A) \<Rightarrow> element (B x) \
 
 
 lemma 
-  fst_type[type]: "fst : element (A \<times> B) \<Rightarrow> element A" and 
-  snd_type[type]: "snd : element (A \<times> B) \<Rightarrow> element B"
+  fst_type [type]: "fst : element (A \<times> B) \<Rightarrow> element A" and 
+  snd_type [type]: "snd : element (A \<times> B) \<Rightarrow> element B"
   by squash_types auto
 
 lemma fst_prod_type: "x : element (A \<times> B) \<Longrightarrow> fst x : element A"

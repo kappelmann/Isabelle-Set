@@ -278,7 +278,7 @@ fun discharge_type_tac ctxt add_tms = SUBGOAL (fn (_, i) =>
             val _ =
               Soft_Type.tracing goal_ctxt' (cat_lines (
                 [">> Goal conclusion:\n  " ^ str_of_tm concl_tm,
-                "\n>> Starting from subterms:\n  " ^ "  " ^
+                "\n>> Starting from subterms:\n  " ^
                   (itemize (map str_of_tm (typable_subterms tm))),
                 "and additional terms:\n  " ^
                   (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
