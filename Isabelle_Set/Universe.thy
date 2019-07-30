@@ -37,6 +37,11 @@ lemma Univ_element_closed_type[derive]: "x : element A \<Longrightarrow> A : ele
   using Univ_element_closed
   by squash_types auto
 
+lemma Univ_element_closed_type'[derive]: "x : element A \<Longrightarrow> A : subset (Univ X) \<Longrightarrow> x : element (Univ X)"
+  using Univ_element_closed
+  by squash_types auto
+
+
 lemma Univ_element_closed'[derive]: "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
   by squash_types (fact Univ_element_closed)
 
