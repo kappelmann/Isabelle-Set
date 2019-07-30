@@ -219,23 +219,27 @@ declare Pi_typeI [bderive]
 
 subsection \<open>Methods\<close>
 
+ML \<open>
+fun full_discharge_types_tac add_tms ctxt =
+  let
+    val type_tac =
+      let val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
+      in
+        (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
+      end
+    val backward_tac = resolve_tac ctxt
+      (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
+  in
+    TRY o (
+      (CHANGED o type_tac) ORELSE' (backward_tac THEN' type_tac)
+    )
+  end\<close>
+
+
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
-    (fn add_tms => fn ctxt =>
-      let
-        val type_tac =
-          let val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
-          in
-            (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
-          end
-
-        val backward_tac = resolve_tac ctxt
-          (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
-      in
-        SIMPLE_METHOD (REPEAT1 (CHANGED (ALLGOALS (TRY o (
-          (CHANGED o type_tac) ORELSE' (backward_tac THEN' type_tac)
-        )))))
-      end)\<close>
+    (fn add_tms => fn ctxt => SIMPLE_METHOD (
+      (REPEAT1 (CHANGED (ALLGOALS (full_discharge_types_tac add_tms ctxt))))))\<close>
 
 
 named_theorems squash
@@ -251,6 +255,44 @@ method squash_types = (simp_all only: squash | rule)
 text \<open>
   @{method squash_types} converts all typing formulas to their equivalent predicate forms.
 \<close>
+
+subsection \<open>Integration into the simplifier\<close>
+
+ML \<open> 
+val soft_type_simp_solver =
+let
+  fun solver ctxt i =
+    let
+    in
+      print_tac ctxt ("solver called on subgoal " ^ string_of_int i)
+      THEN SOLVED' (SUBGOAL (fn (t, i) =>
+        (Output.tracing (Syntax.string_of_term ctxt t);
+        if Soft_Type.is_typing t
+        then full_discharge_types_tac [] ctxt i
+        else no_tac)
+      )) i
+    end
+in
+  map_theory_simpset (fn ctxt => ctxt
+    addSolver (mk_solver "discharge_types" solver))
+end
+\<close>
+
+
+(*
+simproc_setup discharge_type_simproc ("x : T") = \<open> 
+  let
+    fun simproc ctxt redex =
+    let
+      val t = HOLogic.mk_Trueprop (Thm.term_of redex);
+      fun tac {context = ctxt, prems = _ } =
+        SOLVE (full_discharge_types_tac [] ctxt);
+    in try (fn () => Goal.prove ctxt [] [] t tac RS @{thm Eq_TrueI}) () end;
+  in 
+    K simproc
+  end
+\<close>
+*)
 
 
 subsection \<open>Basic declarations for HOL material\<close>
