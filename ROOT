@@ -1,6 +1,7 @@
 session Isabelle_Set = "HOL" +
   description
     \<open> Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL \<close>
+  options [timeout = 180]
   sessions
     "HOL-Eisbach"
   theories
