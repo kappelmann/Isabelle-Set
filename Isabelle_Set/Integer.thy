@@ -1,5 +1,5 @@
 theory Integer
-  imports Natural_Numbers Sum_Type Set_Extension
+  imports Natural_Numbers Sum Set_Extension
 begin
 
 text \<open>
@@ -7,7 +7,7 @@ text \<open>
   By using the set extension principle, we make sure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
-definition "raw_int = Sum_Type \<nat> (\<nat> \<setminus> {})"
+definition "raw_int = Sum \<nat> (\<nat> \<setminus> {})"
                                
 interpretation INT: set_extension \<nat> raw_int Inl
 proof
