@@ -219,27 +219,16 @@ declare Pi_typeI [bderive]
 
 subsection \<open>Methods\<close>
 
-ML \<open>
-fun full_discharge_types_tac add_tms ctxt =
-  let
-    val type_tac =
-      let val refine_tac = resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}]
-      in
-        (TRY o REPEAT o refine_tac) THEN' Derivation.discharge_type_tac ctxt add_tms
-      end
-    val backward_tac = resolve_tac ctxt
-      (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)
-  in
-    TRY o (
-      (CHANGED o type_tac) ORELSE' (backward_tac THEN' type_tac)
-    )
-  end\<close>
-
+method_setup raw_discharge_type =
+  \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
+    (fn add_tms => fn ctxt => SIMPLE_METHOD (
+      HEADGOAL (Derivation.raw_discharge_type_tac add_tms ctxt)))\<close>
 
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt => SIMPLE_METHOD (
-      (REPEAT1 (CHANGED (ALLGOALS (full_discharge_types_tac add_tms ctxt))))))\<close>
+      REPEAT1 (CHANGED (ALLGOALS (TRY o (
+        Derivation.full_discharge_types_tac add_tms ctxt))))))\<close>
 
 
 named_theorems squash
@@ -268,7 +257,7 @@ let
       THEN SOLVED' (SUBGOAL (fn (t, i) =>
         (Output.tracing (Syntax.string_of_term ctxt t);
         if Soft_Type.is_typing t
-        then full_discharge_types_tac [] ctxt i
+        then Derivation.full_discharge_types_tac [] ctxt i
         else no_tac)
       )) i
     end

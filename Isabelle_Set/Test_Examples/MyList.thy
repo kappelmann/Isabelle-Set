@@ -21,10 +21,11 @@ definition Cons where "Cons x xs = Inr \<langle>x, xs\<rangle>"
 definition List where
   "List A = lfp (Univ A) (\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L})"
 
-lemma 
+lemma
   Nil_Univ[derive]: "Nil : element (Univ A)" and
   Cons_Univ[derive]: "x : element (Univ A) \<Longrightarrow> xs : element (Univ A) \<Longrightarrow> Cons x xs : element (Univ A)"
-  unfolding Nil_def Cons_def by discharge_types
+  unfolding Nil_def Cons_def
+  by discharge_types
 
 lemma List_distinct[simp]: "Nil \<noteq> Cons x xs"
   unfolding Nil_def Cons_def by simp
