@@ -81,61 +81,72 @@ axiomatization
   List_rec_Cons: "x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> 
     List_rec N C (Cons x xs) = C x xs (List_rec N C xs)"
 
+lemma List_rec_type[type]:
+  "List_rec : R \<Rightarrow> (element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R) \<Rightarrow> element (List A) \<Rightarrow> R"
+proof (intro Pi_typeI)
+  fix N C xs
+  assume [type]: "N : R" "C : element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R" "xs : element (List A)"
 
+  show "List_rec N C xs : R"
+    apply (induct xs rule: List_induct)
+      apply (auto simp: List_rec_Nil List_rec_Cons)
+    apply discharge_types (* Problem with eta-expansion *)
+    apply (subst List_rec_Cons, discharge_types)
+    apply auto
+    done (* conceptually: induct + auto *)
+qed
 
 subsection \<open>Append\<close>
+
+setup \<open>soft_type_simp_solver\<close>
 
 definition append where
   "append xs ys = List_rec ys (\<lambda>x xs xsys. Cons x xsys) xs"
 
 lemma append_type[type]: "append : element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
-proof (intro Pi_typeI)
-  fix xs ys assume [type]: "xs : element (List A)" "ys : element (List A)"
-
-  show "append xs ys : element (List A)"
-    apply (induct xs rule: List_induct)
-      apply discharge_types
-    apply (unfold append_def List_rec_Nil, discharge_types)
-    apply (unfold List_rec_Cons)
-    apply discharge_types
-    done (* conceptually: induct + auto *)
-qed
+  unfolding append_def by discharge_types
 
 declare [[auto_elaborate, trace_soft_types]]
 
 lemma append_Nil[simp]: "append Nil ys = ys"
   by (simp add: List_rec_Nil append_def)
-  
 
 lemma append_Cons[simp]:
   "append (Cons x xs) ys = Cons x (append xs ys)"
-  unfolding append_def
-  apply (subst List_rec_Cons)
-    apply discharge_types
-  apply simp
-  done
+  by (simp add: append_def List_rec_Cons)
 
-lemma append_assoc: "append (append xs ys) zs = append xs (append ys zs)"
-  apply (induct xs rule: List_induct, discharge_types)
-   apply (subst append_Nil, discharge_types, subst append_Nil, discharge_types, simp)
-  apply (subst append_Cons, discharge_types)
-  apply (subst append_Cons, discharge_types)
-  apply (subst append_Cons, discharge_types)
-  apply simp
-  done
+lemma append_assoc[simp]:
+  "append (append xs ys) zs = append xs (append ys zs)"
+  by (induct xs rule: List_induct) auto
+
+lemma append_to_Nil[simp]:
+  "append xs Nil = xs"
+  by (induct xs rule: List_induct) auto
 
 
+subsection \<open>Rev\<close>
 
+declare [[auto_elaborate = false]]
 
+definition
+  "rev = List_rec Nil (\<lambda>x xs rxs. append rxs (Cons x Nil))"
 
+lemma rev_type[type]: "rev : element (List A) \<Rightarrow> element (List A)"
+  unfolding rev_def by discharge_types
 
+declare [[auto_elaborate]]
 
+lemma rev_Nil[simp]: "rev Nil = Nil"
+  by (simp add: rev_def List_rec_Nil) (* takes way too long! *)
 
+lemma rev_Cons[simp]: "rev (Cons x xs) = append (rev xs) (Cons x Nil)"
+  by (simp add: rev_def List_rec_Cons)
 
+lemma rev_app[simp]: "rev (append xs ys) = append (rev ys) (rev xs)"
+  by (induct xs rule: List_induct) auto
 
-
-
-
+lemma rev_rev[simp]: "rev (rev xs) = xs"
+  by (induct xs rule: List_induct) auto
 
 
 

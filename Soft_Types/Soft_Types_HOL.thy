@@ -222,13 +222,13 @@ subsection \<open>Methods\<close>
 method_setup raw_discharge_type =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt => SIMPLE_METHOD (
-      HEADGOAL (Derivation.raw_discharge_type_tac add_tms ctxt)))\<close>
+      HEADGOAL (Derivation.raw_discharge_type_tac [] add_tms ctxt)))\<close>
 
 method_setup discharge_types =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
     (fn add_tms => fn ctxt => SIMPLE_METHOD (
       REPEAT1 (CHANGED (ALLGOALS (TRY o (
-        Derivation.full_discharge_types_tac add_tms ctxt))))))\<close>
+        Derivation.full_discharge_types_tac [] add_tms ctxt))))))\<close>
 
 
 named_theorems squash
@@ -257,7 +257,7 @@ let
       THEN SOLVED' (SUBGOAL (fn (t, i) =>
         (Output.tracing (Syntax.string_of_term ctxt t);
         if Soft_Type.is_typing t
-        then Derivation.full_discharge_types_tac [] ctxt i
+        then Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt i
         else no_tac)
       )) i
     end

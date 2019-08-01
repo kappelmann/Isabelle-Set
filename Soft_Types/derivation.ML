@@ -241,7 +241,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (** Single step discharge; works on the first subgoal **)
 
-fun raw_discharge_type_tac add_tms =
+fun raw_discharge_type_tac more_facts add_tms =
   Subgoal.FOCUS_PREMS (fn {context = goal_ctxt, prems, concl, ...} =>
     let
       val concl_tm = Thm.term_of concl
@@ -268,7 +268,8 @@ fun raw_discharge_type_tac add_tms =
             end
 
           val goal_ctxt' =
-            Context.proof_of (fold add_to_context prems (Context.Proof goal_ctxt))
+            goal_ctxt
+            |> Context.proof_map (fold add_to_context (more_facts @ prems))
 
           fun typable_subterms tm =
             let
@@ -329,10 +330,10 @@ fun raw_discharge_type_tac add_tms =
 
 (** Fully automated type derivation and discharge **)
 
-fun full_discharge_types_tac add_tms ctxt =
+fun full_discharge_types_tac more_facts add_tms ctxt =
   let
     val discharge_tac =
-      SUBGOAL (fn _ => ALLGOALS (TRY o (raw_discharge_type_tac add_tms ctxt)))
+      SUBGOAL (fn _ => ALLGOALS (TRY o (raw_discharge_type_tac more_facts add_tms ctxt)))
 
     val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
 
