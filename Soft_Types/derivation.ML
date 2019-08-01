@@ -16,6 +16,7 @@ fun warn ctxt msg = if Config.get ctxt derive_debug then warning msg else ()
 
 
 (*** Context data ***)
+
 (*
   A type derivation rule is an implication whose premises and conclusion are typing or
   adjective judgments ("judgments").
@@ -34,16 +35,23 @@ fun put_derivation_rule thm context =
 
 val put_subtype_rule = Named_Theorems.add_thm \<^named_theorems>\<open>subtype_rules\<close>
 
+val put_backderivation_rule = Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close>
+
+(*Also store table of judgments that should generate backderivation rules.*)
 (*
-  Also store table of judgments that require backderivation
-  (we say that a judgment `t : T` or `adj t` requires backderivation if it has a
-  derivation rule containing premises whose terms are not subterms of t, and should thus
-  be applied backwards in type derivation).
+  Josh - Writing this here so I don't forget it for later:
+  For any function soft typing we automatically generate a derivation rule, which should
+  be applied backward when it contains premises (equivalently, when the typing has
+  arguments) whose types are not schematic vars and have a derivation rule explicitly
+  declared [bderive].
+
+  A heuristic rule of thumb for declaring rules [bderive]: premises are not simple typing
+  or judgments, but instead more complicated nested hereditary Harrop formulas.
 *)
 
 structure Backderivation = Generic_Data (
   type T = term Item_Net.T
-  val empty = Item_Net.init Term.could_unify (fn t => [t])
+  val empty = Item_Net.init Term.could_unify (single o Term.head_of)
   val extend = I
   val merge = Item_Net.merge
 )
@@ -51,8 +59,13 @@ structure Backderivation = Generic_Data (
 fun get_bderive_tms ctxt = Item_Net.content (Backderivation.get (Context.Proof ctxt))
 
 fun put_bderive_tm tm context =
-  let val item_net = Item_Net.update tm (Backderivation.get context)
-  in Backderivation.put item_net context end
+  let
+    val item_net = Item_Net.update tm (Backderivation.get context)
+  in
+    (if is_Var tm then raise TERM (
+      "put_bderive_tm: declaring backward derivation for schematic soft type", [tm])
+    else (); Backderivation.put item_net context)
+  end
 
 
 (*** Type derivation ***)
@@ -65,9 +78,7 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
       let
         val in_jdgmts = member Thm.eq_thm_prop jdgmts
       in
-        (*
-          Invariant: every theorem in thms has the same number of premises.
-        *)
+        (*Invariant: every theorem in thms has the same number of premises.*)
         case thms |> filter_out in_jdgmts of
           [] => []
         | thms as thm :: _ =>
@@ -120,25 +131,20 @@ fun derive_jdgmts ctxt tms jdgmts rules =
 
 (** Further processing of type judgments **)
 
-(*
-  Convert "f : T1 \<Rightarrow> ... \<Rightarrow> Tn \<Rightarrow> T" to "x1 : T1 \<Longrightarrow> ... \<Longrightarrow> xn : Tn \<Longrightarrow> f x1 ... xn : T".
-*)
+(*Convert "f : T1 \<Rightarrow> ... \<Rightarrow> Tn \<Rightarrow> T" to "x1 : T1 \<Longrightarrow> ... \<Longrightarrow> xn : Tn \<Longrightarrow> f x1 ... xn : T"*)
 fun Pi_derivation_rule thm = case Soft_Type.type_of_typing (Thm.concl_of thm) of
     Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ _ => Pi_derivation_rule (thm RS @{thm Pi_typeE})
   | _ => thm
 
-(*
-  Convert "T \<prec> S" to "x : T \<Longrightarrow> x : S".
-*)
+(*Convert "T \<prec> S" to "x : T \<Longrightarrow> x : S"*)
 fun subtype_derivation_rule thm =
   thm RS @{thm subtypeE'}
   handle THM _ => error "subtype_derivation_rule: not a subtype judgment"
 
 
 (** The [derive] attribute **)
-(*
-  Register type derivation rules and subtyping rules.
-*)
+
+(*Register type derivation rules and subtyping rules.*)
 val derivation_rule_parser: attribute context_parser =
   let val add =
     Thm.declaration_attribute (fn thm => fn context =>
@@ -154,30 +160,26 @@ val derivation_rule_parser: attribute context_parser =
   end
 
 (** The [bderive] attribute **)
-(*
-  Register derivation rules that should be applied backwards using resolution.
-*)
 
-fun register_backderivation thm =
-  let
+(*Register derivation rules that should be applied backwards using resolution.*)
+val backderivation_rule_parser: attribute context_parser =
+  let 
     fun add_backderiv_term thm =
       let val (_, j) = Soft_Type.dest_jdgmt (Thm.concl_of thm)
       in put_bderive_tm j end
   in
-    Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close> thm
-    #> add_backderiv_term thm
+    Scan.lift (Scan.succeed (Thm.declaration_attribute (fn th =>
+      Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close> th
+      #> add_backderiv_term th)))
   end
-
-val backderivation_rule_parser: attribute context_parser =
-  Scan.lift (Scan.succeed (Thm.declaration_attribute register_backderivation))
 
 
 (** The [type] attribute **)
+
 (*
   May optionally declare some number of implicit arguments for constant terms via
   `[type implicit: n]`.
 *)
-
 fun extract_param_names 0 _ = []
   | extract_param_names i (Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs (n, _, b)) =
       n :: extract_param_names (i - 1) b
@@ -192,13 +194,28 @@ fun declare_current_type implicit thm context =
       let
         val thm' = Pi_derivation_rule thm
         val needs_backderiv =
-          exists
-            (Item_Net.member (Backderivation.get context))
-            (map (#2 o Soft_Type.dest_jdgmt) (Thm.prems_of thm'))
+          let
+            val (arg_types, _) =
+              Soft_Type.dest_Pi_type_full (
+                Soft_Type.type_of_typing (Thm.prop_of thm))
+
+        (* val _ = @{print}
+            (filter
+              (fn t =>
+                not (is_Var t)
+                andalso Item_Net.member (Backderivation.get context) t)
+              arg_types) *)
+          in
+            exists
+              (fn t =>
+                not (is_Var t)
+                andalso Item_Net.member (Backderivation.get context) t)
+              arg_types
+          end
       in
         context
         |> put_derivation_rule thm'
-        |> (if needs_backderiv then register_backderivation thm' else I)
+        |> (if needs_backderiv then put_backderivation_rule thm' else I)
       end
   in
     context
@@ -256,7 +273,7 @@ fun raw_discharge_type_tac add_tms =
                 res @ (case tm of
                   t1 $ t2 => typable_subterms t1 @ typable_subterms t2
                 | Abs (_, _, t) => typable_subterms t
-                | Var _ => [tm]
+                | Free _ => [tm]
                 | _ => []
                 ))
             end
@@ -277,19 +294,20 @@ fun raw_discharge_type_tac add_tms =
           val jdgmts' = derive_jdgmts goal_ctxt' tms jdgmts rules
 
           val str_of_tm = Syntax.string_of_term goal_ctxt'
-          val itemize = space_implode "\n  "
+          fun itemize strs = "  " ^ space_implode "\n  " strs
+
           val _ =
             Soft_Type.tracing goal_ctxt' (cat_lines (
               [">> Goal conclusion:\n  " ^ str_of_tm concl_tm,
-              "\n>> Starting from subterms:\n  " ^
+              "\n>> Starting from subterms:\n" ^
                 (itemize (map str_of_tm (typable_subterms tm))),
-              "and additional terms:\n  " ^
+              "and additional terms:\n" ^
                 (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
-              "and known judgments:\n  " ^
+              "and known judgments:\n" ^
                 (itemize (map (str_of_tm o Thm.prop_of) jdgmts)),
               (* "using derivation rules:\n  " ^
                 (itemize (map (str_of_tm o Thm.prop_of) rules)), *)
-              "\n>> Derived judgments:\n  " ^
+              "\n>> Derived judgments:\n" ^
                 (itemize (map (str_of_tm o Thm.prop_of) jdgmts'))]))
         in
           case filter (fn th => Term.could_unify (concl_tm, Thm.prop_of th)) jdgmts'
@@ -302,6 +320,7 @@ fun raw_discharge_type_tac add_tms =
         end
       else (Soft_Type.tracing goal_ctxt ">> Not a judgment!\n"; no_tac)
     end)
+
 
 (** Fully automated type derivation and discharge **)
 

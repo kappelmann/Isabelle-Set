@@ -9,6 +9,8 @@ sig
 
 (* Utility *)
 val dest_Trueprop: term -> term
+val specializes: term * term -> bool
+val generalizes: term * term -> bool
 
 (* Type of soft types *)
 val typeT: typ -> typ
@@ -17,6 +19,7 @@ val typeT: typ -> typ
 val is_Pi: term -> bool
 val Pi_const: typ -> typ -> term
 val dest_Pi_type: term -> string * term * term
+val dest_Pi_type_full: term -> term list * term
 
 (* Typing judgments *)
 val is_typing: term -> bool
@@ -53,6 +56,25 @@ struct
 fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
 
+(*
+  Quick filter for untyped specialization of terms: s specializes t iff it is the result
+  of a substitution of schematic vars of t.
+*)
+fun specializes (s, t) =
+  case t of
+      Var _ => true
+    | t1 $ t2 =>
+        (case s of
+          s1 $ s2 => specializes (s1, t1) andalso specializes (s2, t2)
+        | _ => false)
+    | Abs (_, _, B) =>
+        (case s of
+          Abs (_, _, B') => specializes (B', B)
+        | _ => false)
+    | _ => Term.aconv_untyped (s, t)
+
+fun generalizes (s, t) = specializes (t, s)
+
 fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
 
 fun is_Pi st = case Term.head_of st of
@@ -64,6 +86,20 @@ fun Pi_const Ta Tb =
 
 fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
   | dest_Pi_type t = raise TERM ("dest_Pi_type", [t])
+
+(*
+  Return list of argument soft types and result soft type.
+*)
+fun dest_Pi_type_full t =
+  let
+    fun dest (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B)) = A::dest B
+      | dest t = [t]
+  in
+    (case t of
+      Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B) => A::dest B
+    | _ => raise TERM ("dest_Pi_type_full", [t]))
+    |> split_last
+  end
 
 fun is_typing t = case Term.head_of (dest_Trueprop t) of
     Const (\<^const_name>\<open>has_type\<close>, _) => true
@@ -145,7 +181,7 @@ fun strip_annotations t = case t of
   | _ => t
 
 
-(* tracing, controlled by a flag *)
+(*tracing, controlled by a flag*)
 
 val trace_soft_types = Attrib.setup_config_bool \<^binding>\<open>trace_soft_types\<close> (K false)
 fun tracing ctxt = if Config.get ctxt trace_soft_types then Output.tracing else K ()
