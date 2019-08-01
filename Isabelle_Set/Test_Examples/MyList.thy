@@ -92,7 +92,7 @@ proof (intro Pi_typeI)
       apply (auto simp: List_rec_Nil List_rec_Cons)
     apply discharge_types (* Problem with eta-expansion *)
     apply (subst List_rec_Cons, discharge_types)
-    apply auto
+    apply (auto intro: derivation_rules) (*type rule for C needs to be used as a backderivation rule*)
     done (* conceptually: induct + auto *)
 qed
 
