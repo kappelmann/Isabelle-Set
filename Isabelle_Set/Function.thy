@@ -362,6 +362,7 @@ lemma apply_simple_type [type]:
   "(`) : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
   by squash_types auto
 
+
 text \<open>Class of all functions\<close>
 
 definition uniq_valued :: "set \<Rightarrow> bool"

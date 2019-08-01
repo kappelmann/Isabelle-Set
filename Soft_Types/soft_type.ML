@@ -57,21 +57,24 @@ fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
 
 (*
-  Quick filter for untyped specialization of terms: s specializes t iff it is the result
-  of a substitution of schematic vars of t.
+  Quick filter for untyped specialization of terms: s specializes t iff s arises from a
+  substitution of schematic vars of t.
+  This is basically a one-directional version of Term.could_unify.
 *)
 fun specializes (s, t) =
-  case t of
-      Var _ => true
-    | t1 $ t2 =>
-        (case s of
-          s1 $ s2 => specializes (s1, t1) andalso specializes (s2, t2)
-        | _ => false)
-    | Abs (_, _, B) =>
-        (case s of
-          Abs (_, _, B') => specializes (B', B)
-        | _ => false)
-    | _ => Term.aconv_untyped (s, t)
+  let
+    fun matchrands (f $ s) (g $ t) = specializes (s, t) andalso matchrands f g
+      | matchrands _ _ = true;
+  in
+    case (head_of s, head_of t) of
+      (_, Var _) => true
+    | (Const (a, _), Const (b, _)) => a = b andalso matchrands s t
+    | (Free (a, _), Free (b, _)) => a = b andalso matchrands s t
+    | (Bound i, Bound j) => i = j andalso matchrands s t
+    | (Abs _, _) => true
+    | (_, Abs _) => true
+    | _ => false
+  end;
 
 fun generalizes (s, t) = specializes (t, s)
 

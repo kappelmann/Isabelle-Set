@@ -26,6 +26,9 @@ fun warn ctxt msg = if Config.get ctxt derive_debug then warning msg else ()
   the same and whose conclusions are the atomic components of the original.
 *)
 
+
+(** Derivation, back derivation and subtype rules **)
+
 fun get_derivation_rules ctxt = Named_Theorems.get ctxt \<^named_theorems>\<open>derivation_rules\<close>
 
 fun put_derivation_rule thm context =
@@ -37,34 +40,38 @@ val put_subtype_rule = Named_Theorems.add_thm \<^named_theorems>\<open>subtype_r
 
 val put_backderivation_rule = Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close>
 
+
+(** Backderived types **)
+
 (*Also store table of judgments that should generate backderivation rules.*)
 (*
   Josh - Writing this here so I don't forget it for later:
   For any function soft typing we automatically generate a derivation rule, which should
   be applied backward when it contains premises (equivalently, when the typing has
-  arguments) whose types are not schematic vars and have a derivation rule explicitly
-  declared [bderive].
+  arguments) whose types are not schematic vars and which have a derivation rule
+  explicitly declared [bderive].
 
   A heuristic rule of thumb for declaring rules [bderive]: premises are not simple typing
   or judgments, but instead more complicated nested hereditary Harrop formulas.
 *)
 
-structure Backderivation = Generic_Data (
+structure Backderived_Types = Generic_Data (
   type T = term Item_Net.T
-  val empty = Item_Net.init Term.could_unify (single o Term.head_of)
+  val empty = Item_Net.init Term.aconv (single o Term.head_of)
   val extend = I
   val merge = Item_Net.merge
 )
 
-fun get_bderive_tms ctxt = Item_Net.content (Backderivation.get (Context.Proof ctxt))
+fun all_bderived_types ctxt = Item_Net.content (Backderived_Types.get (Context.Proof ctxt))
 
-fun put_bderive_tm tm context =
+fun put_bderived_type tm context =
   let
-    val item_net = Item_Net.update tm (Backderivation.get context)
+    val item_net = Item_Net.update tm (Backderived_Types.get context)
   in
     (if is_Var tm then raise TERM (
-      "put_bderive_tm: declaring backward derivation for schematic soft type", [tm])
-    else (); Backderivation.put item_net context)
+      "put_bderived_type: backward derivation rule for schematic soft type", [tm])
+    else ();
+    Backderived_Types.put item_net context)
   end
 
 
@@ -161,16 +168,20 @@ val derivation_rule_parser: attribute context_parser =
 
 (** The [bderive] attribute **)
 
-(*Register derivation rules that should be applied backwards using resolution.*)
+(*Register derivation rules that should be applied backwards.*)
 val backderivation_rule_parser: attribute context_parser =
   let 
-    fun add_backderiv_term thm =
-      let val (_, j) = Soft_Type.dest_jdgmt (Thm.concl_of thm)
-      in put_bderive_tm j end
+    fun handle_bderived_type thm =
+      let val concl = Thm.concl_of thm
+      in
+        if Soft_Type.is_typing concl
+        then put_bderived_type (Soft_Type.type_of_typing concl)
+        else I
+      end
   in
-    Scan.lift (Scan.succeed (Thm.declaration_attribute (fn th =>
-      Named_Theorems.add_thm \<^named_theorems>\<open>backderivation_rules\<close> th
-      #> add_backderiv_term th)))
+    Scan.lift (Scan.succeed (Thm.declaration_attribute (fn thm =>
+      put_backderivation_rule thm
+      #> handle_bderived_type thm)))
   end
 
 
@@ -198,18 +209,12 @@ fun declare_current_type implicit thm context =
             val (arg_types, _) =
               Soft_Type.dest_Pi_type_full (
                 Soft_Type.type_of_typing (Thm.prop_of thm))
-
-        (* val _ = @{print}
-            (filter
-              (fn t =>
-                not (is_Var t)
-                andalso Item_Net.member (Backderivation.get context) t)
-              arg_types) *)
           in
             exists
-              (fn t =>
-                not (is_Var t)
-                andalso Item_Net.member (Backderivation.get context) t)
+              (fn s =>
+                exists
+                  (fn t => Soft_Type.specializes (s,t))
+                  (Item_Net.retrieve (Backderived_Types.get context) (Term.head_of s)))
               arg_types
           end
       in

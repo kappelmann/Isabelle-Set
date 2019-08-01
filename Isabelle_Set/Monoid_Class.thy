@@ -155,8 +155,6 @@ lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   apply (intro Pi_typeI Plus_typeI)
   apply (unfold pair_plus_PLUS split_def)
-ML_val \<open>Derivation.get_bderive_tms @{context}\<close>
-thm backderivation_rules
   by discharge_types
 
 lemma pair_zero_type [type]:
