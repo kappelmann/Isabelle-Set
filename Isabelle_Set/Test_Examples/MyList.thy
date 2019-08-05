@@ -81,6 +81,8 @@ axiomatization
   List_rec_Cons: "x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> 
     List_rec N C (Cons x xs) = C x xs (List_rec N C xs)"
 
+setup \<open>soft_type_simp_solver\<close>
+
 lemma List_rec_type[type]:
   "List_rec : R \<Rightarrow> (element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R) \<Rightarrow> element (List A) \<Rightarrow> R"
 proof (intro Pi_typeI)
@@ -90,15 +92,12 @@ proof (intro Pi_typeI)
   show "List_rec N C xs : R"
     apply (induct xs rule: List_induct)
       apply (auto simp: List_rec_Nil List_rec_Cons)
-    apply discharge_types (* Problem with eta-expansion *)
-    apply (subst List_rec_Cons, discharge_types)
-    apply (auto intro: derivation_rules) (*type rule for C needs to be used as a backderivation rule*)
-    done (* conceptually: induct + auto *)
+    apply (rule derivation_rules) (* needs a manual rule application due to eta-expansion problem *)
+    by auto
 qed
 
 subsection \<open>Append\<close>
 
-setup \<open>soft_type_simp_solver\<close>
 
 definition append where
   "append xs ys = List_rec ys (\<lambda>x xs xsys. Cons x xsys) xs"
@@ -111,13 +110,19 @@ declare [[auto_elaborate, trace_soft_types]]
 lemma append_Nil[simp]: "append Nil ys = ys"
   by (simp add: List_rec_Nil append_def)
 
+thm append_Nil
+
 lemma append_Cons[simp]:
   "append (Cons x xs) ys = Cons x (append xs ys)"
   by (simp add: append_def List_rec_Cons)
 
+thm append_Cons
+
 lemma append_assoc[simp]:
   "append (append xs ys) zs = append xs (append ys zs)"
   by (induct xs rule: List_induct) auto
+
+thm append_assoc
 
 lemma append_to_Nil[simp]:
   "append xs Nil = xs"
@@ -137,7 +142,7 @@ lemma rev_type[type]: "rev : element (List A) \<Rightarrow> element (List A)"
 declare [[auto_elaborate]]
 
 lemma rev_Nil[simp]: "rev Nil = Nil"
-  by (simp add: rev_def List_rec_Nil) (* takes way too long! *)
+  by (simp add: rev_def List_rec_Nil)
 
 lemma rev_Cons[simp]: "rev (Cons x xs) = append (rev xs) (Cons x Nil)"
   by (simp add: rev_def List_rec_Cons)

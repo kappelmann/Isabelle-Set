@@ -107,17 +107,6 @@ lemma
 
 subsection \<open>An (artificial) instance\<close>
 
-consts
-  Nat :: set
-  zero_nat :: set
-  plus_nat :: set
-
-definition "Nat_Plus \<equiv> \<lparr> PLUS = plus_nat \<rparr>"
-definition "Nat_Zero \<equiv> \<lparr> ZERO = zero_nat \<rparr>"
-definition "Nat_Monoid \<equiv> Nat_Plus \<union> Nat_Zero"
-
-axiomatization (* TODO: actually construct naturals *)
-  where Nat_monoid [type_instance]: "Nat_monoid : Monoid Nat"
 
 
 definition
@@ -149,8 +138,6 @@ lemma pair_plus_PLUS:
   "pair_plus A B p1 p2 [PLUS] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
   unfolding pair_plus_def by auto
 
-declare[[trace_soft_types]]
-
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   apply (intro Pi_typeI Plus_typeI)
@@ -170,17 +157,6 @@ proof (intro Pi_typeI)
   assume [intro, type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
   have [intro, type]: "p1 : Zero A" "p1 : Plus A" "p2 : Zero B" "p2 : Plus B"
     by (auto intro: Monoid_is_Plus[THEN subtypeE'] Monoid_is_Zero[THEN subtypeE'])
-
-  print_types
-  note [[derive_debug]]
-  ML_prf \<open>
-    Derivation.get_derivation_rules \<^context>
-    |> map (Syntax.string_of_term \<^context> o Thm.prop_of)
-    |> cat_lines
-    |> Output.writeln
-;
-    Derivation.derive_jdgmts \<^context> [\<^term>\<open>zero p1\<close>, \<^term>\<open>p1\<close>]
-  \<close>
 
   note zero_type[THEN Pi_typeE, unfolded element_type_iff, intro]
   note plus = plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, unfolded element_type_iff, intro]
@@ -221,40 +197,37 @@ proof (intro Pi_typeI)
   show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" by (rule Monoid_typeI)
 qed
   
-(* Josh -- The proofs below suggest we should automatically generate/insert the required theorems *)
-lemma pair_plus_instance[type_instance]:
+lemma [type_instance]:
   "m1 : Plus A \<Longrightarrow> m2 : Plus B \<Longrightarrow> pair_plus A B m1 m2 : Plus (A \<times> B)"
-  by (rule pair_plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
-
-lemma pair_zero_instance[type_instance]:
   "m1 : Zero A \<Longrightarrow> m2 : Zero B \<Longrightarrow> pair_zero A B m1 m2 : Zero (A \<times> B)"
-  by (rule pair_zero_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
-
-lemma pair_monoid_instance[type_instance]:
   "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
-  by (rule pair_monoid_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE]) auto
+  by discharge_types
 
 
 declare [[auto_elaborate, trace_soft_types]]
 
 lemma "x + 0 = x"
+  print_types
   oops
 
 lemma "\<langle>x, y\<rangle> + 0 = \<langle>x, y\<rangle>"
+  print_types
   oops
 
 lemma "x + (y + z) = x + y + z"
+  print_types
   oops
 
 lemma "x + y = z + w \<and> u + v = 0"
+  print_types
   oops
 
 
-declare [[auto_elaborate = false]]
 
 
 subsection \<open>Extension to groups\<close>
 
+declare [[auto_elaborate = false]]
 definition Group :: "set \<Rightarrow> set type"
   where Group_typedef:
   "Group A = Monoid A \<bar> \<lparr> (PLUS plus) (ZERO zero) (INV inv).
