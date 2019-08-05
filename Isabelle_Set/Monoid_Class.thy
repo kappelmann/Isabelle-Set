@@ -102,14 +102,13 @@ lemma
   monoid_right_neut [simp]: "x : element A \<Longrightarrow> plus M x (zero M) = x" and
   monoid_assoc [simp]: "\<lbrakk>x : element A; y : element A; z : element A\<rbrakk>
      \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
-
+  
   using assms
   unfolding Monoid_typedef Zero_typedef plus_def zero_def
   by (squash_types, blast+)
 
 
-subsection \<open>An (artificial) instance\<close>
-
+subsection \<open>Instance for pairs\<close>
 
 
 definition
@@ -158,42 +157,35 @@ setup \<open>soft_type_simp_solver\<close>
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
 proof (intro Pi_typeI)
-  fix A B p1 p2
-  assume [intro, type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
-  have [intro, type]: "p1 : Zero A" "p1 : Plus A" "p2 : Zero B" "p2 : Plus B"
-    by (auto intro: Monoid_is_Plus[THEN subtypeE'] Monoid_is_Zero[THEN subtypeE'])
 
-  note zero_type[THEN Pi_typeE, unfolded element_type_iff, intro]
-  note plus = plus_type[THEN Pi_typeE, THEN Pi_typeE, THEN Pi_typeE, unfolded element_type_iff, intro]
-
-  let ?plus_pair = "pair_monoid A B p1 p2 [PLUS]"
-  let ?zero_pair = "pair_monoid A B p1 p2 [ZERO]"
+  fix A B p1 p2 assume [type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
+  let ?plus = "pair_monoid A B p1 p2 [PLUS]"
+  let ?zero = "pair_monoid A B p1 p2 [ZERO]"
 
   show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" 
   proof (rule Monoid_typeI)
 
     show "pair_monoid A B p1 p2 : Zero (A \<times> B)"
-      by (rule Zero_typeI) (auto simp: pair_zero_def element_type_iff)
+      by (rule Zero_typeI) auto
     show "pair_monoid A B p1 p2 : Plus (A \<times> B)"
-      by (rule Plus_typeI)
-        (auto simp: pair_plus_def element_type_iff intro!: plus `p1 : Plus A` `p2 : Plus B` Pi_lambdaI)
+      by (rule Plus_typeI) auto
 
-    show "\<forall>x: element (A \<times> B). ?plus_pair ` ?zero_pair ` x = x"
+    show "\<forall>x: element (A \<times> B). ?plus ` ?zero ` x = x"
       unfolding split_paired_ball
-      by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+      by (auto simp: pair_plus_def pair_zero_def)
 
-    show "\<forall>x: element (A \<times> B). ?plus_pair ` x ` ?zero_pair = x"
+    show "\<forall>x: element (A \<times> B). ?plus ` x ` ?zero = x"
       unfolding split_paired_ball
-        by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+        by (auto simp: pair_plus_def pair_zero_def)
 
-    show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
-  ?plus_pair ` (?plus_pair ` x ` y) ` z = ?plus_pair ` x ` (?plus_pair ` y ` z)"
+      show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
+          ?plus ` (?plus ` x ` y) ` z = ?plus ` x ` (?plus ` y ` z)"
       unfolding split_paired_ball
-      by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+      by (auto simp: pair_plus_def pair_zero_def)
   qed
-
 qed
   
+
 lemma [type_instance]:
   "m1 : Plus A \<Longrightarrow> m2 : Plus B \<Longrightarrow> pair_plus A B m1 m2 : Plus (A \<times> B)"
   "m1 : Zero A \<Longrightarrow> m2 : Zero B \<Longrightarrow> pair_zero A B m1 m2 : Zero (A \<times> B)"
