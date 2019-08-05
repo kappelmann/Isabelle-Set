@@ -280,6 +280,8 @@ lemma monop_timesI[derive]:
   shows "(\<lambda>x. A x \<times> B x) : monop (Univ X)"
   by (rule monopI, discharge_types) (auto dest: monopD2[OF A_type] monopD2[OF B_type])
 
+lemma split_paired_ball: "(\<forall>x: element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a: element A. \<forall>b: element B. P \<langle>a, b\<rangle>)"
+  by squash_types auto
 
 
 end

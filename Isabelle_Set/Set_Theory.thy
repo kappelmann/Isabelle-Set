@@ -1169,4 +1169,11 @@ lemma Collect_type [type]: "Collect : subset A \<Rightarrow> (element A \<Righta
   by squash_types auto
 
 
+lemma Soft_Ball_squash[squash]: "(\<forall>x: element A. P x) \<longleftrightarrow> (\<forall>x\<in>A. P x)"
+  unfolding Soft_Ball_def by squash_types blast
+
+lemma Soft_Bex_squash[squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x\<in>A. P x)"
+  unfolding Soft_Bex_def by squash_types blast
+
+
 end

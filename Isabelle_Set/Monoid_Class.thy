@@ -71,9 +71,9 @@ text \<open>
 definition Monoid :: "set \<Rightarrow> set type"
   where Monoid_typedef:
   "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (PLUS plus) (ZERO zero) .
-    (\<forall>x\<in>A. plus`zero`x = x) \<and>
-    (\<forall>x\<in>A. plus`x`zero = x) \<and>
-    (\<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
+    (\<forall>x: element A. plus`zero`x = x) \<and>
+    (\<forall>x: element A. plus`x`zero = x) \<and>
+    (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
 
 lemma Monoid_is_Zero [derive]: "Monoid A \<prec> Zero A"
   unfolding Monoid_typedef by (intro subtypeI) squash_types
@@ -83,9 +83,10 @@ lemma Monoid_is_Plus [derive]: "Monoid A \<prec> Plus A"
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
-    \<forall>x\<in>A. str[PLUS]`str[ZERO]`x = x;
-    \<forall>x\<in>A. str[PLUS]`x`str[ZERO] = x;
-    \<forall>x\<in>A. \<forall>y\<in>A. \<forall>z\<in>A. str[PLUS]`(str[PLUS]`x`y)`z = str[PLUS]`x`(str[PLUS]`y`z)
+    \<forall>x: element A. str[PLUS]`str[ZERO]`x = x;
+    \<forall>x: element A. str[PLUS]`x`str[ZERO] = x;
+    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A. 
+       str[PLUS]`(str[PLUS]`x`y)`z = str[PLUS]`x`(str[PLUS]`y`z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
   unfolding Monoid_typedef by squash_types
 
@@ -97,9 +98,10 @@ text \<open>
 lemma
   assumes "M : Monoid A"
   shows 
-  monoid_left_neut [simp]: "x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
-  monoid_right_neut [simp]: "x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
-  monoid_assoc [simp]: "\<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+  monoid_left_neut [simp]: "x : element A \<Longrightarrow> plus M (zero M) x = x" and
+  monoid_right_neut [simp]: "x : element A \<Longrightarrow> plus M x (zero M) = x" and
+  monoid_assoc [simp]: "\<lbrakk>x : element A; y : element A; z : element A\<rbrakk>
+     \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
 
   using assms
   unfolding Monoid_typedef Zero_typedef plus_def zero_def
@@ -150,6 +152,8 @@ lemma pair_zero_type [type]:
   unfolding Zero_typedef pair_zero_def zero_def
   by squash_types auto
 
+setup \<open>soft_type_simp_solver\<close>
+
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
@@ -174,28 +178,18 @@ proof (intro Pi_typeI)
       by (rule Plus_typeI)
         (auto simp: pair_plus_def element_type_iff intro!: plus `p1 : Plus A` `p2 : Plus B` Pi_lambdaI)
 
-    show "\<forall>x \<in> A \<times> B. ?plus_pair ` ?zero_pair ` x = x"
-      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-      apply (subst beta_split, auto)
-      apply (subst monoid_left_neut, auto)
-      apply (subst monoid_left_neut, auto)
-      done
+    show "\<forall>x: element (A \<times> B). ?plus_pair ` ?zero_pair ` x = x"
+      unfolding split_paired_ball
+      by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
 
-    show "\<forall>x \<in> A \<times> B. ?plus_pair ` x ` ?zero_pair = x"
-      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-      apply (subst beta_split, auto)
-       apply (subst monoid_right_neut, auto)
-      apply (subst monoid_right_neut, auto)
-      done
+    show "\<forall>x: element (A \<times> B). ?plus_pair ` x ` ?zero_pair = x"
+      unfolding split_paired_ball
+        by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
 
-    show "\<forall>x\<in>A\<times>B. \<forall>y\<in>A\<times>B. \<forall>z\<in>A\<times>B. ?plus_pair ` (?plus_pair ` x ` y) ` z
-   = ?plus_pair ` x ` (?plus_pair ` y ` z)"
-      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-      apply (subst beta_split, auto)
-      apply (subst beta_split, auto)
-       apply (subst monoid_assoc, auto)
-      apply (subst monoid_assoc, auto)
-      done
+    show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
+  ?plus_pair ` (?plus_pair ` x ` y) ` z = ?plus_pair ` x ` (?plus_pair ` y ` z)"
+      unfolding split_paired_ball
+      by (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
   qed
 
 qed
