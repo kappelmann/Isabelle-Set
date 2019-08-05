@@ -33,8 +33,7 @@ definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[PLUS] ` x ` y)"
 
 lemma plus_type [type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding Plus_typedef plus_def
-  by squash_types (auto intro: functionsE)
+  unfolding plus_def by discharge_types
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>M x y"
@@ -48,12 +47,14 @@ definition Zero :: "set \<Rightarrow> set type"
 lemma Zero_typeI: "str[ZERO] : element A \<Longrightarrow> str : Zero A"
   unfolding Zero_typedef by auto
 
+lemma Zero_ZERO_type [derive]: "str: Zero A \<Longrightarrow> str[ZERO] : element A"
+  unfolding Zero_typedef by squash_types
+
 definition zero :: "set \<Rightarrow> set"
   where "zero Z = Z[ZERO]"
 
 lemma zero_type [type]: "zero : (Z : Zero A) \<Rightarrow> element A"
-  unfolding Zero_typedef zero_def
-  by squash_types auto
+  unfolding zero_def by discharge_types
 
 abbreviation zero_implicit :: "set" ("0")
   where "0 \<equiv> zero \<implicit>Z"
@@ -164,37 +165,39 @@ proof (intro Pi_typeI)
   let ?plus_pair = "pair_monoid A B p1 p2 [PLUS]"
   let ?zero_pair = "pair_monoid A B p1 p2 [ZERO]"
 
-  have "pair_monoid A B p1 p2 : Zero (A \<times> B)"
-    by (rule Zero_typeI) (auto simp: pair_zero_def element_type_iff)
-  moreover have "pair_monoid A B p1 p2 : Plus (A \<times> B)"
-    by (rule Plus_typeI)
-      (auto simp: pair_plus_def element_type_iff intro!: plus `p1 : Plus A` `p2 : Plus B` Pi_lambdaI)
+  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" 
+  proof (rule Monoid_typeI)
 
-  moreover have "\<forall>x \<in> A \<times> B. ?plus_pair ` ?zero_pair ` x = x"
-    apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-    apply (subst beta_split, auto)
-     apply (subst monoid_left_neut, auto)
-    apply (subst monoid_left_neut, auto)
-    done
+    show "pair_monoid A B p1 p2 : Zero (A \<times> B)"
+      by (rule Zero_typeI) (auto simp: pair_zero_def element_type_iff)
+    show "pair_monoid A B p1 p2 : Plus (A \<times> B)"
+      by (rule Plus_typeI)
+        (auto simp: pair_plus_def element_type_iff intro!: plus `p1 : Plus A` `p2 : Plus B` Pi_lambdaI)
 
-  moreover have "\<forall>x \<in> A \<times> B. ?plus_pair ` x ` ?zero_pair = x"
-    apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-    apply (subst beta_split, auto)
-     apply (subst monoid_right_neut, auto)
-    apply (subst monoid_right_neut, auto)
-    done
+    show "\<forall>x \<in> A \<times> B. ?plus_pair ` ?zero_pair ` x = x"
+      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+      apply (subst beta_split, auto)
+      apply (subst monoid_left_neut, auto)
+      apply (subst monoid_left_neut, auto)
+      done
 
-  moreover have "\<forall>x\<in>A\<times>B. \<forall>y\<in>A\<times>B. \<forall>z\<in>A\<times>B. ?plus_pair ` (?plus_pair ` x ` y) ` z
+    show "\<forall>x \<in> A \<times> B. ?plus_pair ` x ` ?zero_pair = x"
+      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+      apply (subst beta_split, auto)
+       apply (subst monoid_right_neut, auto)
+      apply (subst monoid_right_neut, auto)
+      done
+
+    show "\<forall>x\<in>A\<times>B. \<forall>y\<in>A\<times>B. \<forall>z\<in>A\<times>B. ?plus_pair ` (?plus_pair ` x ` y) ` z
    = ?plus_pair ` x ` (?plus_pair ` y ` z)"
-    apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
-    apply (subst beta_split, auto)
-    apply (subst beta_split, auto)
-     apply (subst monoid_assoc, auto)
-    apply (subst monoid_assoc, auto)
-    done
+      apply (auto simp: pair_monoid_def pair_plus_def pair_zero_def)
+      apply (subst beta_split, auto)
+      apply (subst beta_split, auto)
+       apply (subst monoid_assoc, auto)
+      apply (subst monoid_assoc, auto)
+      done
+  qed
 
-  ultimately
-  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" by (rule Monoid_typeI)
 qed
   
 lemma [type_instance]:

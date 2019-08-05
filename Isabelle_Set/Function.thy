@@ -78,6 +78,10 @@ proof -
   then show ?thesis by auto
 qed
 
+lemma beta_split_typed[simp]:
+  "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) ` \<langle>a, b\<rangle> = P a b"
+  by squash_types (fact beta_split)
+
 subsection \<open>Rules for functions\<close>
 
 lemma Pi_relations [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<subseteq> A \<times> (\<Union>x \<in> A. (B x))"
