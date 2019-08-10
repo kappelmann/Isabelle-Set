@@ -320,8 +320,8 @@ fun raw_discharge_type_tac more_facts add_tms =
           case filter (fn th => Term.could_unify (concl_tm, Thm.prop_of th)) jdgmts'
           of
             [] => (Soft_Type.tracing goal_ctxt' ">> No unifier!\n"; no_tac)
-          | ths =>
-              (Soft_Type.tracing goal_ctxt' (itemize (map (str_of_tm o Thm.prop_of) ths));
+          | ths => (
+              Soft_Type.tracing goal_ctxt' (itemize (map (str_of_tm o Thm.prop_of) ths));
               HEADGOAL (
                 foldl1 (op APPEND') (map (fn th => resolve_tac goal_ctxt' [th]) ths)))
         end
@@ -334,7 +334,8 @@ fun raw_discharge_type_tac more_facts add_tms =
 fun full_discharge_types_tac more_facts add_tms ctxt =
   let
     val discharge_tac =
-      SUBGOAL (fn _ => ALLGOALS (TRY o (raw_discharge_type_tac more_facts add_tms ctxt)))
+      SUBGOAL (fn _ => ALLGOALS (TRY o (
+        (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' raw_discharge_type_tac more_facts add_tms ctxt)))
 
     val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
 
