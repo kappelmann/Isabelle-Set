@@ -269,7 +269,8 @@ fun raw_discharge_type_tac more_facts add_tms =
 
           val goal_ctxt' =
             goal_ctxt
-            |> Context.proof_map (fold add_to_context (more_facts @ prems))
+            |> Context.proof_map (fold add_to_context
+              (map (Soft_Type.eta_norm goal_ctxt) (more_facts @ prems)))
 
           fun typable_subterms tm =
             let

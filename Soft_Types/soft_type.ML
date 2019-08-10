@@ -11,6 +11,7 @@ sig
 val dest_Trueprop: term -> term
 val specializes: term * term -> bool
 val generalizes: term * term -> bool
+val eta_norm: Proof.context -> thm -> thm
 
 (* Type of soft types *)
 val typeT: typ -> typ
@@ -77,6 +78,15 @@ fun specializes (s, t) =
   end;
 
 fun generalizes (s, t) = specializes (t, s)
+
+(*Eta-normalize the conclusion of a theorem*)
+fun eta_norm ctxt th =
+  let
+    val concl_ctm = Thm.cterm_of ctxt (Thm.concl_of th)
+    val equality = Thm.eta_conversion concl_ctm
+  in
+    th RS (equality RS @{thm Pure.equal_elim_rule1})
+  end
 
 fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
 

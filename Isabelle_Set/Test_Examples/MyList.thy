@@ -90,10 +90,7 @@ proof (intro Pi_typeI)
   assume [type]: "N : R" "C : element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R" "xs : element (List A)"
 
   show "List_rec N C xs : R"
-    apply (induct xs rule: List_induct)
-      apply (auto simp: List_rec_Nil List_rec_Cons)
-    apply (rule derivation_rules) (* needs a manual rule application due to eta-expansion problem *)
-    by auto
+    by (induct xs rule: List_induct, auto simp: List_rec_Nil List_rec_Cons) discharge_types
 qed
 
 subsection \<open>Append\<close>
