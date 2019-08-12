@@ -105,11 +105,11 @@ fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, 
 *)
 fun dest_Pi_type_full t =
   let
-    fun dest (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B)) = A::dest B
+    fun dest (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
       | dest t = [t]
   in
     (case t of
-      Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B) => A::dest B
+      Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B) => A :: dest B
     | _ => raise TERM ("dest_Pi_type_full", [t]))
     |> split_last
   end

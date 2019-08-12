@@ -96,14 +96,14 @@ fun is_finished (UState { eqns=[], postponed=[], ...}) = true
 
 fun pr_subst pr_term theta =
   Vartab.dest theta
-  |> map (fn ((n, ix), t) => "?" ^ n ^ string_of_int ix ^ " ~-> " ^ pr_term t)
+  |> map (fn ((x, ix), t) => "?" ^ x ^ string_of_int ix ^ " ~-> " ^ pr_term t)
 
 fun pr_binders (bs : binder list) = map (enclose "[" "]" o #1) (rev bs) |> space_implode " "
 
 fun pr_equation ctxt (bs, (s, t), _) =
   let
     val pr_term = Syntax.string_of_term ctxt
-    fun pr_termb t = pr_term (Term.subst_bounds (map (fn (n, _, T) => Free (n, T)) bs, t))
+    fun pr_termb t = pr_term (Term.subst_bounds (map (fn (x, _, T) => Free (x, T)) bs, t))
   in
     pr_binders bs ^ ": " ^ pr_termb s ^ " = " ^ pr_termb t
   end
@@ -194,7 +194,7 @@ fun abstract_over_loose_bounds binders is t =
   in  
     t 
     |> map_bound_indices (bound_reorder #> the_fail "loose bound not covered by abstraction")
-    |> fold_rev (fn (n, _, T) => fn b => Abs (n, T, b)) (map (nth binders) is)
+    |> fold_rev (fn (x, _, T) => fn b => Abs (x, T, b)) (map (nth binders) is)
   end
 
 
@@ -209,9 +209,9 @@ fun decode_indexname s =
 fun to_free (Var (ixn, T)) = Free (encode_indexname ixn, T)
   | to_free t = t 
 
-fun to_var (t as Free (n, T)) = 
-      if exists_string (curry op = (chr 0)) n
-      then Var (decode_indexname n, T)
+fun to_var (t as Free (x, T)) = 
+      if exists_string (curry op = (chr 0)) x
+      then Var (decode_indexname x, T)
       else t
   | to_var t = t 
 
@@ -230,7 +230,7 @@ fun abstract_over_frees vs t =
 
 fun replace_bounds ctxt binders t =
   let 
-    val frees = map Free (Variable.variant_frees ctxt [t] (map (fn (n, _, T) => (n, T)) binders))
+    val frees = map Free (Variable.variant_frees ctxt [t] (map (fn (x, _, T) => (x, T)) binders))
     val reverse_op = abstract_over_frees frees
   in
     (Term.subst_bounds (frees, t), reverse_op)
@@ -334,14 +334,14 @@ fun make_projection (V, T) fresh_idx keep_args =
 fun project_vars ctxt idxs t theta fresh_idx =
   let
     fun proj d t (theta, fresh_idx) = case Envir.beta_norm (instantiate_term theta t) of
-        Abs (n, T, b) => proj (d + 1) b (theta, fresh_idx) |> apfst (fn b' => Abs(n, T, b'))
+        Abs (x, T, b) => proj (d + 1) b (theta, fresh_idx) |> apfst (fn b' => Abs(x, T, b'))
       | t' => case strip_comb t' of
-          (Var ((n, i), T), rs) => 
+          (Var ((x, i), T), rs) => 
              let 
                fun keep_arg (Bound i) = i < d orelse member (op =) idxs (i - d)
                  | keep_arg _ = true
              in if forall keep_arg rs then (t', (theta, fresh_idx)) else let
-               val inst = make_projection ((n, i), T) fresh_idx (map keep_arg rs)
+               val inst = make_projection ((x, i), T) fresh_idx (map keep_arg rs)
                val theta' = Vartab.update inst theta
                val t' = Envir.beta_norm (list_comb (snd inst, rs))
              in
@@ -442,11 +442,11 @@ fun flexflex_different ctxt bs u F ss G ts =
 
 (* cf. clone in soft_type_inference.ML *)
 fun incr_bounds (Delta: binder list) =
-  map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
+  map (fn (x, st, T) => (x, Term.incr_boundvars 1 st, T)) Delta
   
-fun abs_decompose u (Abs (n, T, b1)) (Abs (m, _, b2)) (bs, _, or) =
+fun abs_decompose u (Abs (x, T, b1)) (Abs (y, _, b2)) (bs, _, or) =
   let
-    val name = if (n = "") then m else n
+    val name = if (x = "") then y else x
     val bs1 = incr_bounds ((name, Term.dummy, T) :: bs)
     val eqn1 = (bs1, (b1, b2), or)
   in

@@ -27,7 +27,7 @@ struct
 
   (* Similar to Term.map_aterms, but also passes the binder level to f *)
   fun map_aterms_lev f =
-    let fun mapt l (Abs (n, T, b)) = Abs (n, T, mapt (l + 1) b)
+    let fun mapt l (Abs (x, T, b)) = Abs (x, T, mapt (l + 1) b)
           | mapt l (t $ u) = mapt l t $ mapt l u
           | mapt l t = f l t
     in mapt 0 end
@@ -71,7 +71,7 @@ struct
     map (#3) Delta
 
   fun incr_bounds (Delta : Unification.binder list) =
-    map (fn (n, st, T) => (n, Term.incr_boundvars 1 st, T)) Delta
+    map (fn (x, st, T) => (x, Term.incr_boundvars 1 st, T)) Delta
 
   fun fresh_variable T Delta E =
     let
@@ -121,8 +121,8 @@ struct
           val binder_types = rev (map #3 Delta)
           val bounds = (length Delta - 1) downto 0
           val (idx, E1) = fresh_idx E
-          fun lift_var d (Var ((n, 0), T)) =
-                Term.list_comb (Var ((n, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
+          fun lift_var d (Var ((x, 0), T)) =
+                Term.list_comb (Var ((x, idx), binder_types ---> T), map (fn i => Bound (d + i)) bounds)
             | lift_var _ (Var _) = error "Illegal Var index"
             | lift_var _ t = t
           val const_type = map_aterms_lev lift_var st
@@ -184,7 +184,7 @@ struct
 
    and collect_constraints' ctxt Delta t E expected_type =
      let 
-       fun inst t = Term.subst_bounds (map (fn (n, _, T) => Free (n, T)) Delta, t)
+       fun inst t = Term.subst_bounds (map (fn (x, _, T) => Free (x, T)) Delta, t)
        fun pr_term t = Syntax.string_of_term ctxt (inst t)
      in
       collect_constraints ctxt Delta t E expected_type
