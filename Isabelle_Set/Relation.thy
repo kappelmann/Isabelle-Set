@@ -34,7 +34,7 @@ lemma Collect_relation:
 
 lemma relation_Cons_iff [iff]:
   assumes "x : element A" and "y : element B"
-  shows "Cons \<langle>x, y\<rangle> X \<subseteq> A \<times> B \<longleftrightarrow> X \<subseteq> A \<times> B"
+  shows "cons \<langle>x, y\<rangle> X \<subseteq> A \<times> B \<longleftrightarrow> X \<subseteq> A \<times> B"
   using assms by squash_types auto
 
 
@@ -81,11 +81,11 @@ lemma domain_Collect [simp]: "domain {\<langle>f x, g x\<rangle> | x \<in> A} = 
 lemma range_Collect [simp]: "range {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
   unfolding range_def by auto
 
-lemma domain_Cons [simp]: "domain (Cons \<langle>x, y\<rangle> A) = Cons x (domain A)"
-  unfolding domain_def by extensionality
+lemma domain_Cons [simp]: "domain (cons \<langle>x, y\<rangle> A) = cons x (domain A)"
+  unfolding domain_def by (rule extensionality) auto
 
-lemma range_Cons [simp]: "range (Cons \<langle>x, y\<rangle> A) = Cons y (range A)"
-  unfolding range_def by extensionality
+lemma range_Cons [simp]: "range (cons \<langle>x, y\<rangle> A) = cons y (range A)"
+  unfolding range_def by (rule extensionality) auto
 
 
 subsection \<open>Converse relations\<close>
@@ -117,13 +117,13 @@ lemma converse_relation [intro]: "R \<subseteq> A \<times> B \<Longrightarrow> c
   unfolding converse_def by auto
 
 lemma converse_involution: "R \<subseteq> A \<times> B \<Longrightarrow> converse (converse R) = R"
-  unfolding converse_def by extensionality
+  unfolding converse_def by (rule extensionality) auto
 
 lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
-  unfolding converse_def by extensionality
+  unfolding converse_def by (rule extensionality) auto
 
 lemma converse_empty [simp]: "converse {} = {}"
-  unfolding converse_def by extensionality
+  unfolding converse_def by (rule extensionality) auto
 
 lemma converse_type [type]: "converse : subset (A \<times> B) \<Rightarrow> subset (B \<times> A)"
   by squash_types auto

@@ -153,35 +153,37 @@ lemma def_lfp_unfold: "A = lfp D h \<Longrightarrow> A = h A"
 
 subsection \<open>General induction rule for least fixed points\<close>
 
-lemma Collect_is_pre_fixedpt:
-  assumes "\<And>x. x \<in> h (Collect (lfp D h) P) \<Longrightarrow> P x"
-  shows "h (Collect (lfp D h) P) \<subseteq> Collect (lfp D h) P"
+lemma collect_is_pre_fixedpt:
+  assumes "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
+  shows "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
 proof -
-  have "h (Collect (lfp D h) P) \<subseteq> h (lfp D h)"
-    by (intro monopD2[of h] Collect_subset) discharge_types
+  have "h (collect (lfp D h) P) \<subseteq> h (lfp D h)"
+    by (intro monopD2[of h] collect_subset) discharge_types
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed
 
+declare[[trace_soft_types]]
+
 lemma lfp_induct:
   assumes hyp: "a \<in> lfp D h"
-  assumes IH: "\<And>x. x \<in> h (Collect (lfp D h) P) \<Longrightarrow> P x"
+  assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
   have [type]: "P : element D \<Rightarrow> bool" by squash_types auto
 
-  have "lfp D h \<subseteq> Collect (lfp D h) P"
-  proof (rule lfp_lowerbound, discharge_types)
+  have "lfp D h \<subseteq> collect (lfp D h) P"
+  proof (rule lfp_lowerbound)
     from IH
-    show "h (Collect (lfp D h) P) \<subseteq> Collect (lfp D h) P"
-      by (rule Collect_is_pre_fixedpt)
-  qed
+    show "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
+      by (rule collect_is_pre_fixedpt)
+  qed discharge_types
   with hyp show "P a" by auto
 qed
 
 (* Definition form, to control unfolding *)
 lemma def_lfp_induct:
-  "\<lbrakk> A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (Collect A P) \<Longrightarrow> P x \<rbrakk> \<Longrightarrow> P a"
+  "\<lbrakk> A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (collect A P) \<Longrightarrow> P x \<rbrakk> \<Longrightarrow> P a"
   by (rule lfp_induct, blast+)
 
 lemma lfp_cong:
@@ -191,7 +193,7 @@ lemma lfp_cong:
 proof -
   have "{x \<in> Pow D | h x \<subseteq> x} = {x \<in> Pow D' | h' x \<subseteq> x}"
     unfolding D
-    by (rule Collect_cong) (auto simp: h)
+    by (rule collect_cong) (auto simp: h)
   then show ?thesis by (simp add: lfp_def)
 qed
 

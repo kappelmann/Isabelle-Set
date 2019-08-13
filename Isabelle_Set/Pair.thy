@@ -54,7 +54,7 @@ translations
 
 
 lemma Pair_eq_iff [simp]: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<longleftrightarrow> a = c \<and> b = d"
-  by (simp add: Pair_def doubleton_eq_iff) blast
+  by (simp add: Pair_def pair_eq_iff) blast
 
 lemmas Pair_inject = Pair_eq_iff [THEN iffD1, THEN conjE, elim!]
 lemmas Pair_inject1 = Pair_eq_iff [THEN iffD1, THEN conjunct1]
@@ -75,7 +75,7 @@ proof (unfold Pair_def)
   have "{a, a} \<in> {{a, a}, {a, b}}" by (rule consI1)
   hence "{a, a} \<in> a" by (simp add: eq)
   moreover have "a \<in> {a, a}" by (rule consI1)
-  ultimately show "P" by (rule elem_asymE)
+  ultimately show "P" by (rule mem_asymE)
 qed
 
 lemma Pair_neq_snd: "\<langle>a,b\<rangle> = b \<Longrightarrow> P"
@@ -84,7 +84,7 @@ proof (unfold Pair_def)
   have "{a, b} \<in> {{a, a}, {a, b}}" by blast
   hence "{a, b} \<in> b" by (simp add: eq)
   moreover have "b \<in> {a, b}" by blast
-  ultimately show "P" by (rule elem_asymE)
+  ultimately show "P" by (rule mem_asymE)
 qed
 
 lemma fst_conv [simp]: "fst(\<langle>a,b\<rangle>) = a"
@@ -97,15 +97,15 @@ lemma Pair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>f
   by simp
 
 lemma Pair_not_in_fst: "\<langle>a, b\<rangle> \<notin> a"
-  unfolding Pair_def by (auto intro: cycle3)
+  unfolding Pair_def by (auto intro: mem_cycle3)
 
 lemma Pair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
-  unfolding Pair_def by (auto dest: cycle3)
+  unfolding Pair_def by (auto intro: equalityI dest: mem_cycle3)
 
 text \<open>The definition above is equivalent to this more standard one:\<close>
 
 lemma Kuratowski_Pair_def: "Pair a b = {{a}, {a, b}}"
-  unfolding Pair_def by extensionality
+  unfolding Pair_def by (rule extensionality) (auto intro: equalityI)
 
 
 subsection \<open>Disjoint union of a set-indexed family of sets\<close>
@@ -149,16 +149,16 @@ lemma DUnion_cong:
   by (simp add: DUnion_def)
 
 lemma DUnion_empty_family [simp]: "\<Coprod>x \<in> {}. (B x) = {}"
-  by extensionality
+  by (rule extensionality) auto
 
 lemma DUnion_empty_sets [simp]: "\<Coprod>x \<in> A. {} = {}"
-  by extensionality
+  by (rule extensionality) auto
 
 lemma DUnion_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
-  by (auto intro!: equality_iffI)
+  by (auto intro!: equalityI)
 
 lemma product_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
-  by extensionality
+  by (rule extensionality) auto
 
 
 subsection \<open>Projections @{term fst} and @{term snd} for disjoint unions\<close>

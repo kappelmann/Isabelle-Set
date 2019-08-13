@@ -97,9 +97,9 @@ text \<open>The following lemmas are useful.\<close>
 lemma uniq_val_imp: "\<lbrakk>\<exists>!y. \<langle>x, y\<rangle> \<in> f; x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f`x\<rangle> \<in> f"
 proof -
   assume ex: "\<exists>!y. \<langle>x, y\<rangle> \<in> f" and "x \<in> A"
-  then obtain y where elem: "\<langle>x, y\<rangle> \<in> f" by auto
+  then obtain y where mem: "\<langle>x, y\<rangle> \<in> f" by auto
   with ex have "f`x = y" using apply_def by auto
-  with elem show "\<langle>x, f`x\<rangle> \<in> f" by simp
+  with mem show "\<langle>x, f`x\<rangle> \<in> f" by simp
 qed
 
 lemma Pi_elems: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f`x\<rangle> \<in> f"

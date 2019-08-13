@@ -1,11 +1,15 @@
-theory More_HOL
+section \<open>Setup\<close>
+
+theory Setup
 imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 
-subsection \<open>Notational setup\<close>
+subsection \<open>Notation\<close>
 
-text \<open>Get rid of HOL-specific syntax which would conflict with set-theoretic syntax.\<close>
+declare [[eta_contract=false]]
+
+text \<open>Remove conflicting HOL-specific syntax.\<close>
 
 no_notation (ASCII)
   Not ("~ _" [40] 40) and

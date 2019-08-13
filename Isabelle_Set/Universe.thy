@@ -28,7 +28,7 @@ lemma Univ_Repl [intro]:
   using Univ_ZF_closed by (rule ZF_closed_Repl)
 
 (*
-  Josh - could also write the following as a [type] registration on Union.
+  Josh - could also write the following as a [type] registration on Un.
   Does it make any difference functionally? Help/hinder the type elaborator?
 *)
 lemma Univ_type_Union [derive]: "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
@@ -43,7 +43,7 @@ lemma Univ_type_Repl [derive, bderive]:
   unfolding element_type_iff by squash_types auto
 
 lemma Univ_element_closed: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
-  using Univ_transitive[unfolded epsilon_transitive_def] by blast
+  using Univ_transitive[unfolded mem_transitive_def] by blast
 
 lemma Univ_element_closed_type [derive]: "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
   by squash_types (fact Univ_element_closed)
@@ -83,24 +83,24 @@ lemma Univ_elem_type:
   "x : element A \<Longrightarrow> x : element (Univ A)"
   by (rule Univ_element_closed_type'[OF _ Univ_base])
 
-lemma Univ_Upair [intro]: "x \<in> Univ X \<Longrightarrow> y \<in> Univ X \<Longrightarrow> Upair x y \<in> Univ X"
-  unfolding Upair_def
+lemma Univ_Upair [intro]: "x \<in> Univ X \<Longrightarrow> y \<in> Univ X \<Longrightarrow> pair0 x y \<in> Univ X"
+  unfolding pair0_def
   by (intro Univ_Repl Univ_Pow Univ_empty) auto
 
 lemma Univ_type_Upair [derive]:
-  "x : element (Univ X) \<Longrightarrow> y : element (Univ X) \<Longrightarrow> Upair x y : element (Univ X)"
+  "x : element (Univ X) \<Longrightarrow> y : element (Univ X) \<Longrightarrow> pair0 x y : element (Univ X)"
   using Univ_Upair by squash_types
 
-lemma Univ_Cons [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> Cons x A \<in> Univ X"
-  unfolding Cons_def
+lemma Univ_Cons [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
+  unfolding cons_def
   by (intro Univ_Union Univ_Upair)
 
 lemma Univ_type_Cons [derive]:
-  "x : element (Univ X) \<Longrightarrow> A : element (Univ X) \<Longrightarrow> Cons x A : element (Univ X)"
+  "x : element (Univ X) \<Longrightarrow> A : element (Univ X) \<Longrightarrow> cons x A : element (Univ X)"
   by squash_types auto
 
 lemma Univ_Un [intro]: "x \<in> Univ X \<Longrightarrow> y \<in> Univ X \<Longrightarrow> x \<union> y \<in> Univ X"
-  unfolding Un_def by auto
+  unfolding bin_union_def by auto
 
 lemma Univ_type_Un [derive]:
   "A : element (Univ X) \<Longrightarrow> B : element (Univ X) \<Longrightarrow> A \<union> B : element (Univ X)"
