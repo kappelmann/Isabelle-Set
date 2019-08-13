@@ -144,7 +144,7 @@ lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   apply (intro Pi_typeI Plus_typeI)
   apply (unfold pair_plus_PLUS split_def)
-  by discharge_types
+  by discharge_types (* TODO: takes very long *)
 
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
