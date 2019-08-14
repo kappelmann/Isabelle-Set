@@ -47,6 +47,21 @@ lemma zero_type: "{} : nat" by squash_types auto
 lemma Succ_type: "Succ : nat \<Rightarrow> nat" by squash_types auto
 
 
+subsection \<open>Less-than relation\<close>
+
+text \<open>This symbol will later be overloaded, but we skip this for now...\<close>
+
+(* inductive package *)
+axiomatization less_than (infix "<" 50) where
+  less_than1: "n : nat \<Longrightarrow> n < Succ n" and
+  less_than2: "n : nat \<Longrightarrow> m : nat \<Longrightarrow> n < m \<Longrightarrow> n < Succ m"
+
+
+
+
+
+
+
 
 end
 
