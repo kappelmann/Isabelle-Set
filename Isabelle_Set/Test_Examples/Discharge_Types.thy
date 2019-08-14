@@ -12,7 +12,7 @@ lemma "Inl {} : element (Univ A)"
 text \<open>Eta-normalization.\<close>
 
 lemma "C A : T \<Longrightarrow> C (\<lambda>x. A x) : T"
-  by discharge_types
+  by (subst eta_contract_eq) discharge_types
 
 lemma "C (\<lambda>x y z. D x y z) : T \<Longrightarrow> C D : T"
   by discharge_types

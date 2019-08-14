@@ -335,7 +335,8 @@ fun full_discharge_types_tac more_facts add_tms ctxt =
   let
     val discharge_tac =
       SUBGOAL (fn _ => ALLGOALS (TRY o (
-        (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' raw_discharge_type_tac more_facts add_tms ctxt)))
+        (* (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' *)
+        raw_discharge_type_tac more_facts add_tms ctxt)))
 
     val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
 
