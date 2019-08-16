@@ -1,24 +1,14 @@
-section \<open>Least and greatest fixed points; the Knaster-Tarski theorem\<close>
+section \<open>Least and greatest fixed points and the Knaster-Tarski theorem\<close>
 
 theory Fixed_Points
-imports Set_Theory Universe
+imports Set_Theory
 
 begin
-
-text \<open>
-  Most of this material was ported from Isabelle/ZF.
-
-  We try to make the definitions "more typed" by having a type of monotone operators over
-  a set.
-
-  Work in progress and field of experiments.
-\<close>
 
 subsection \<open>Monotone operators\<close>
 
 definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
   where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
-
 
 lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
   by auto
@@ -54,10 +44,10 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-lemma monop_Id[derive]: "(\<lambda>L. L) : monop D"
+lemma monop_Id [derive]: "(\<lambda>L. L) : monop D"
   by squash_types (auto simp: monotone_def)
 
-lemma monop_const[derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
+lemma monop_const [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
   by squash_types (auto simp: monotone_def)
 
 
@@ -70,7 +60,7 @@ lemma monopI:
   apply (rule Pi_typeI, fact b)
   done
 
-lemma monop_UnI[derive]: 
+lemma monop_UnI [derive]: 
   assumes [type]: "A : monop D" "B : monop D"
   shows "(\<lambda>x. A x \<union> B x) : monop D"
 proof (rule monopI, discharge_types)
@@ -98,8 +88,7 @@ lemma monop_ReplI:
   done
 
 
-
-subsection \<open>Proof of Knaster-Tarski theorem using least fixed points.\<close>
+subsection \<open>The Knaster-Tarski theorem\<close>
 
 definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   where "lfp D h \<equiv> \<Inter>{X \<in> Pow D. h X \<subseteq> X}"
@@ -134,7 +123,7 @@ proof (rule extensionality)
     then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
     have "h (lfp D h) \<subseteq> h A"
       text \<open>
-        @{method discharge_types} works here, but it prevents chaining in other facts.
+        @{method discharge_types} works here, but it prevents chaining-in other facts.
         Ideally, @{method rule} would provide a hook that lets us discharge typing
         assumptions after the rule application.
       \<close>
@@ -162,8 +151,6 @@ proof -
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed
-
-declare[[trace_soft_types]]
 
 lemma lfp_induct:
   assumes hyp: "a \<in> lfp D h"

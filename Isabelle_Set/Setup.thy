@@ -5,6 +5,11 @@ imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 
+subsection \<open>Utility\<close>
+
+definition [squash]: "K x \<equiv> \<lambda>_. x"
+
+
 subsection \<open>Notation\<close>
 
 declare [[eta_contract=false]]

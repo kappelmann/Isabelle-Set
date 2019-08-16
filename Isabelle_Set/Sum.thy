@@ -1,5 +1,5 @@
 theory Sum
-  imports Pair Universe
+  imports Ordered_Pair
 begin
 
 definition "Inl a = \<langle>{}, a\<rangle>"
@@ -37,6 +37,7 @@ lemma Inl_type [type]: "Inl : element A \<Rightarrow> element (Sum A B)"
 lemma Inr_type [type]: "Inr : element B \<Rightarrow> element (Sum A B)"
   unfolding Inr_def Sum_def by squash_types blast
 
+(* 
 lemma Inl_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inl x : element (Univ A)"
   unfolding Inl_def 
   by discharge_types
@@ -44,6 +45,6 @@ lemma Inl_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inl x : element
 lemma Inr_Univ [derive]: "x : element (Univ A) \<Longrightarrow> Inr x : element (Univ A)"
   unfolding Inr_def 
   by discharge_types
-
+ *)
 
 end

@@ -1,5 +1,7 @@
+section \<open>Ordinals\<close>
+
 theory Ordinal
-imports Set_Theory
+imports Fixed_Points
 
 begin
 
@@ -50,47 +52,55 @@ definition mem_well_ordered :: "set \<Rightarrow> bool"
 lemma ordinals_well_ordered: "x : Ord \<Longrightarrow> mem_well_ordered x"
   oops
 
-lemma Ord_subset_elem: "\<lbrakk>x \<subseteq> y; x \<noteq> y; x : Ord; y : Ord\<rbrakk> \<Longrightarrow> x \<in> y"
+lemma Ord_subset_mem: "\<lbrakk>x \<subseteq> y; x \<noteq> y; x : Ord; y : Ord\<rbrakk> \<Longrightarrow> x \<in> y"
   oops
 
 
 subsection \<open>The von Neumann ordinals\<close>
 
-definition Succ :: "set \<Rightarrow> set"
-  where "Succ x \<equiv> x \<union> {x}"
+definition succ :: "set \<Rightarrow> set"
+  where "succ x \<equiv> x \<union> {x}"
 
-lemma Succ_Ord: "x : Ord \<Longrightarrow> Succ x : Ord"
-  unfolding Ord_typedef Succ_def mem_transitive_def by squash_types blast
+lemma succ_Ord: "x : Ord \<Longrightarrow> succ x : Ord"
+  unfolding Ord_typedef succ_def mem_transitive_def by squash_types blast
 
-lemma Succ_neq [intro]: "x \<noteq> Succ x"
-unfolding Succ_def
+lemma succ_neq [intro]: "x \<noteq> succ x"
+unfolding succ_def
 proof (rule, elim equalityE)
   assume "x \<union> {x} \<subseteq> x"
   thus False using mem_irrefl by auto
 qed
 
-lemma Succ_elem: "x \<in> Succ x"
-  unfolding Succ_def by auto
+lemma succ_mem: "x \<in> succ x"
+  unfolding succ_def by auto
 
-lemma Succ_not_empty: "Succ n \<noteq> {}"
-  unfolding Succ_def by auto
+lemma succ_memI: "x \<in> y \<Longrightarrow> x \<in> succ y"
+  unfolding succ_def by auto
 
-lemma Succ_inject: "Succ n = Succ m \<Longrightarrow> n = m"
+lemma succ_not_empty: "succ n \<noteq> {}"
+  unfolding succ_def by auto
+
+lemma succ_inject: "succ n = succ m \<Longrightarrow> n = m"
 proof (rule ccontr)
-  assume Succ_eq: "Succ n = Succ m"
+  assume succ_eq: "succ n = succ m"
   assume neq: "n \<noteq> m"
 
-  have "n \<in> Succ n" unfolding Succ_def by blast
-  with Succ_eq have "n \<in> Succ m" by simp
-  with neq have "n \<in> m" unfolding Succ_def by blast
+  have "n \<in> succ n" unfolding succ_def by blast
+  with succ_eq have "n \<in> succ m" by simp
+  with neq have "n \<in> m" unfolding succ_def by blast
 
-  have "m \<in> Succ m" unfolding Succ_def by blast
-  with Succ_eq have "m \<in> Succ n" by simp
-  with neq have "m \<in> n" unfolding Succ_def by blast
+  have "m \<in> succ m" unfolding succ_def by blast
+  with succ_eq have "m \<in> succ n" by simp
+  with neq have "m \<in> n" unfolding succ_def by blast
 
   from `n \<in> m` `m \<in> n` show False using mem_asym by blast
 qed
 
+
+subsection \<open>\<omega>, the smallest infinite ordinal\<close>
+
+definition omega ("\<omega>")
+  where "\<omega> \<equiv> {}"
 
 
 end

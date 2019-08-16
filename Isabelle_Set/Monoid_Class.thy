@@ -1,7 +1,7 @@
 section \<open>Monoids as an example of soft-typed structures\<close>
 
 theory Monoid_Class
-imports Structure
+imports Function Object
 
 begin
 
@@ -9,18 +9,18 @@ begin
   This will be subsumed by some generic label mechanism. All we need are labels that we
   know to be distinct from each other
 *)
-axiomatization
+(* axiomatization
   PLUS ZERO INV :: set
 where
   distinct1[simp]: "ZERO \<noteq> PLUS" and
   distinct2[simp]: "PLUS \<noteq> INV" and
-  distinct3[simp]: "ZERO \<noteq> INV"
+  distinct3[simp]: "ZERO \<noteq> INV" *)
 
 
 subsection \<open>Plus structures\<close>
 
-definition Plus :: "set \<Rightarrow> set type"
-  where Plus_typedef: "Plus A = \<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
+object Plus "A :: set"
+  is "\<lparr> (PLUS plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 lemma Plus_typeI: "str[PLUS] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
@@ -41,8 +41,8 @@ abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl 
 
 subsection \<open>Zero structures\<close>
 
-definition Zero :: "set \<Rightarrow> set type"
-  where Zero_typedef: "Zero A = \<lparr> (ZERO z). z : element A \<rparr>"
+object Zero "A :: set"
+  is "\<lparr> (ZERO z). z : element A \<rparr>"
 
 lemma Zero_typeI: "str[ZERO] : element A \<Longrightarrow> str : Zero A"
   unfolding Zero_typedef by auto
@@ -110,7 +110,6 @@ lemma
 
 subsection \<open>Instance for pairs\<close>
 
-
 definition
   "pair_plus A B p1 p2 \<equiv>
     \<lparr> PLUS = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
@@ -123,6 +122,19 @@ definition
 definition
   "pair_monoid A B m1 m2 \<equiv>
     \<lparr> ZERO = pair_zero A B m1 m2 [ZERO], PLUS = pair_plus A B m1 m2 [PLUS] \<rparr>"
+
+(****)
+lemma apply_pair1 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>}[x] = a"
+  by (simp add: selector_def)
+
+lemma apply_pair2 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>}[y] = b"
+  by (simp add: selector_def)
+
+lemma apply_singleton [simp]: "{\<langle>x, a\<rangle>}[x] = a"
+  by (simp add: selector_def)
+
+axiomatization where neq [simp]: "ZERO \<noteq> PLUS"
+(****)
 
 lemma pair_monoid_ZERO [simp]: "pair_monoid A B m1 m2 [ZERO] = pair_zero A B m1 m2 [ZERO]"
   unfolding pair_monoid_def by simp
@@ -138,7 +150,9 @@ text \<open>
 
 lemma pair_plus_PLUS:
   "pair_plus A B p1 p2 [PLUS] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
-  unfolding pair_plus_def by auto
+  unfolding pair_plus_def by simp
+
+declare [[trace_soft_types]]
 
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
@@ -171,16 +185,16 @@ proof (intro Pi_typeI)
       by (rule Plus_typeI) auto
 
     show "\<forall>x: element (A \<times> B). ?plus ` ?zero ` x = x"
-      unfolding split_paired_ball
+      unfolding split_paired_Ball
       by (auto simp: pair_plus_def pair_zero_def)
 
     show "\<forall>x: element (A \<times> B). ?plus ` x ` ?zero = x"
-      unfolding split_paired_ball
+      unfolding split_paired_Ball
         by (auto simp: pair_plus_def pair_zero_def)
 
       show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
           ?plus ` (?plus ` x ` y) ` z = ?plus ` x ` (?plus ` y ` z)"
-      unfolding split_paired_ball
+      unfolding split_paired_Ball
       by (auto simp: pair_plus_def pair_zero_def)
   qed
 qed
@@ -217,12 +231,13 @@ lemma "x + y = z + w \<and> u + v = 0"
 subsection \<open>Extension to groups\<close>
 
 declare [[auto_elaborate = false]]
-definition Group :: "set \<Rightarrow> set type"
-  where Group_typedef:
-  "Group A = Monoid A \<bar> \<lparr> (PLUS plus) (ZERO zero) (INV inv).
-     inv : element (A \<rightarrow> A) \<and>
-     (\<forall>x\<in>A. plus`(inv`x)`x = zero) \<and>
-     (\<forall>x\<in>A. plus`x`(inv`x) = zero) \<rparr>"
+
+object Group "A :: set" is
+  "Monoid A
+  \<bar> \<lparr> (PLUS plus) (ZERO zero) (INV inv).
+    inv : element (A \<rightarrow> A) \<and>
+    (\<forall>x\<in>A. plus`(inv`x)`x = zero) \<and>
+    (\<forall>x\<in>A. plus`x`(inv`x) = zero) \<rparr>"
 
 lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_typedef by squash_types

@@ -1,7 +1,7 @@
 section \<open>Universes\<close>
 
 theory Universe
-imports Ordinal
+imports Set_Theory
 
 begin
 
@@ -28,7 +28,7 @@ lemma Univ_Repl [intro]:
   using Univ_ZF_closed by (rule ZF_closed_Repl)
 
 (*
-  Josh - could also write the following as a [type] registration on Un.
+  Josh: could also write the following as a [type] registration on Un.
   Does it make any difference functionally? Help/hinder the type elaborator?
 *)
 lemma Univ_type_Union [derive]: "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
@@ -91,11 +91,11 @@ lemma Univ_type_Upair [derive]:
   "x : element (Univ X) \<Longrightarrow> y : element (Univ X) \<Longrightarrow> pair0 x y : element (Univ X)"
   using Univ_Upair by squash_types
 
-lemma Univ_Cons [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
+lemma Univ_cons [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
   unfolding cons_def
   by (intro Univ_Union Univ_Upair)
 
-lemma Univ_type_Cons [derive]:
+lemma Univ_type_cons [derive]:
   "x : element (Univ X) \<Longrightarrow> A : element (Univ X) \<Longrightarrow> cons x A : element (Univ X)"
   by squash_types auto
 
@@ -106,11 +106,12 @@ lemma Univ_type_Un [derive]:
   "A : element (Univ X) \<Longrightarrow> B : element (Univ X) \<Longrightarrow> A \<union> B : element (Univ X)"
   by squash_types auto
 
-lemma Univ_Succ [intro]: "x \<in> Univ X \<Longrightarrow> Succ x \<in> Univ X"
-  unfolding Succ_def by auto
+(* lemma Univ_succ [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
+  unfolding succ_def by auto
 
-lemma Univ_type_Succ [derive]: "x : element (Univ X) \<Longrightarrow> Succ x :  element (Univ X)"
+lemma Univ_type_succ [derive]: "x : element (Univ X) \<Longrightarrow> succ x :  element (Univ X)"
   by squash_types auto
+*)
 
 
 end

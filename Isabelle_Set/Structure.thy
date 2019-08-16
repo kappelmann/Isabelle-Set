@@ -23,7 +23,7 @@ structure Labels: sig
 end = struct
 
   (* TODO: binary encoding; proper symbol coverage *)
-  fun hash i = funpow i (fn t => \<^const>\<open>Succ\<close> $ t) \<^term>\<open>{}\<close>
+  fun hash i = funpow i (fn t => \<^const>\<open>succ\<close> $ t) \<^term>\<open>{}\<close>
   val get_hash = Symtab.make [
     ("0", hash 0),
     ("1", hash 1),
@@ -67,7 +67,7 @@ end = struct
 (* Convert strings to ordered tuples of the hashes of each letter. *)
 fun string_to_hash str =
   let
-    fun mk_pair (t1, t2) = \<^const>\<open>Pair\<close> $ t1 $ t2
+    fun mk_pair (t1, t2) = \<^const>\<open>opair\<close> $ t1 $ t2
   in
     String.explode str |>  map (the o get_hash o Char.toString) |> foldr1 mk_pair
   end
@@ -84,16 +84,15 @@ definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
   where "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
 
-definition "K x = (\<lambda>_. x)"
 
 nonterminal struct_arg and struct_args
 
 syntax
-  "_struct_arg"    :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
-  "_struct_args"   :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
+  "_struct_arg"   :: "set \<Rightarrow> id \<Rightarrow> struct_arg" ("'(_ _')")
+  "_struct_args"  :: "struct_args \<Rightarrow> struct_arg \<Rightarrow> struct_args" ("_ _" [40, 41] 40)
   "_struct_comp"  :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _. _ \<rparr>")
   "_struct_comp2" :: "struct_args \<Rightarrow> logic \<Rightarrow> set type" 
-  ""               :: "struct_arg \<Rightarrow> struct_args" ("_")
+  ""              :: "struct_arg \<Rightarrow> struct_args" ("_")
 
 translations
   "_struct_comp args P" \<rightleftharpoons> "_struct_comp2 args (CONST K P)"
@@ -112,9 +111,6 @@ lemma structure_simps [simp]:
 lemma selector_simps [simp]:
   "(Cons x A)[lbl] \<equiv> (Cons x A)`lbl"
   by (fact selector_def)
-
-
-text \<open>Structure declaration keyword:\<close>
 
 ML \<open>
 Outer_Syntax.local_theory \<^command_keyword>\<open>struct\<close> "Declare structure definitions"
@@ -196,7 +192,7 @@ syntax
 
 translations
   "\<lparr> lbl = val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
-  "\<lparr> lbl = val, fields \<rparr>" \<rightharpoonup> "CONST Cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
+  "\<lparr> lbl = val, fields \<rparr>" \<rightharpoonup> "CONST cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
 
 
 end

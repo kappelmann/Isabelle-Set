@@ -477,7 +477,7 @@ lemma union_empty [simp]: "\<Union>{} = {}"
 lemma inter_empty [simp]: "\<Inter>{} = {}"
   unfolding inter_def by auto
 
-lemma union_subset_iff: "\<Union>A \<subseteq> C \<longleftrightarrow> (\<forall>x\<in>A. x \<subseteq> C)"
+lemma union_subset_iff: "\<Union>A \<subseteq> C \<longleftrightarrow> (\<forall>x \<in> A. x \<subseteq> C)"
   by blast
 
 lemma union_upper: "B \<in> A \<Longrightarrow> B \<subseteq> \<Union>A"
@@ -490,33 +490,33 @@ lemma union_least: "(\<And>x. x \<in> A \<Longrightarrow> x \<subseteq> C) \<Lon
 text \<open>Indexed union and intersection:\<close>
 
 syntax
-  "_idxunion" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Union>_ \<in> _./ _)" [0, 0, 10] 10)
-  "_idxinter" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10] 10)
+  "_idxunion" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Union>_\<in> _./ _)" [0, 0, 10] 10)
+  "_idxinter" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Inter>_\<in> _./ _)" [0, 0, 10] 10)
 translations
-  "\<Union>x \<in> A. B" \<rightleftharpoons> "\<Union>{B. x \<in> A}"
-  "\<Inter>x \<in> A. B" \<rightleftharpoons> "\<Inter>{B. x \<in> A}"
+  "\<Union>x\<in> A. B" \<rightleftharpoons> "\<Union>{B. x \<in> A}"
+  "\<Inter>x\<in> A. B" \<rightleftharpoons> "\<Inter>{B. x \<in> A}"
 
-lemma idxunion_iff [iff]: "b \<in> (\<Union>x \<in> A. (B x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
+lemma idxunion_iff [iff]: "b \<in> (\<Union>x\<in> A. (B x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
   by (simp add: Bex_def, blast)
 
 (* LP: The order of the premises presupposes that A is rigid; b may be flexible *)
-lemma idxunionI: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x \<in> A. B x)"
+lemma idxunionI: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x\<in> A. B x)"
   by (simp, blast)
 
-lemma idxunionE [elim!]: "\<lbrakk>b \<in> (\<Union>x \<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+lemma idxunionE [elim!]: "\<lbrakk>b \<in> (\<Union>x\<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by blast
 
 lemma idxunion_cong:
-  "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> (\<Union>x \<in> A. C x) = (\<Union>x \<in> B. D x)"
+  "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> C x = D x\<rbrakk> \<Longrightarrow> (\<Union>x\<in> A. C x) = (\<Union>x\<in> B. D x)"
   by simp
 
-lemma idxunion_const: "A \<noteq> {} \<Longrightarrow> (\<Union>x \<in> A. B) = B"
+lemma idxunion_const: "A \<noteq> {} \<Longrightarrow> (\<Union>x\<in> A. B) = B"
   by (rule extensionality) auto
 
-lemma idxunion_empty_family: "(\<Union>x \<in> {}. B) = {}"
+lemma idxunion_empty_family: "(\<Union>x\<in> {}. B) = {}"
   by auto
 
-lemma idxunion_empty_sets: "(\<Union>x \<in> A. {}) = {}"
+lemma idxunion_empty_sets: "(\<Union>x\<in> A. {}) = {}"
   by auto
 
 lemma inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in> C. A \<in> x) \<and> C \<noteq> {}"
@@ -532,7 +532,7 @@ lemma idxunion_upper: "x \<in> A \<Longrightarrow> B x \<subseteq> (\<Union>x\<i
 lemma idxunion_least: "(\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> C) \<Longrightarrow> (\<Union>x\<in>A. B x) \<subseteq> C"
   by blast
 
-lemma union_as_idxunion: "\<Union>A = (\<Union>x \<in> A. x)"
+lemma union_as_idxunion: "\<Union>A = (\<Union>x\<in> A. x)"
   by auto
 
 lemma union_empty_iff[simp]: "\<Union>A = {} \<longleftrightarrow> A = {} \<or> A = {{}}"
@@ -578,7 +578,7 @@ lemma idxunion_singleton: "(\<Union>x\<in>A. {x}) = A"
   by (rule extensionality) auto
 
 lemma flatten_idxunion_idxunion:
-  "(\<Union>x \<in> (\<Union>y \<in> A. B y). C x) = (\<Union>y \<in> A. \<Union>x \<in> B y. C x)"
+  "(\<Union>x\<in> (\<Union>y \<in> A. B y). C x) = (\<Union>y \<in> A. \<Union>x\<in> B y. C x)"
   by (rule extensionality) auto
 
 lemma idxunion_constant [simp]:
@@ -590,7 +590,7 @@ lemma idxinter_constant [simp]:
   by (rule extensionality) auto
 
 lemma idxunion_Repl [simp]:
-  "(\<Union>y \<in> Repl A f. B y) = (\<Union>x \<in> A. B (f x))"
+  "(\<Union>y \<in> Repl A f. B y) = (\<Union>x\<in> A. B (f x))"
   by auto
 
 lemma idxinter_Repl [simp]:
@@ -605,7 +605,7 @@ lemma inter_idxunion_eq:
   assumes "\<forall>x \<in> A. B x \<noteq> {}"
   shows "(\<Inter>z \<in> (\<Union>x\<in>A. B x). C z) = (\<Inter>x \<in> A. \<Inter>z \<in> B x. C z)"
 proof (rule equalityI2)
-  fix x assume "x \<in> (\<Inter>z \<in> (\<Union>x \<in> A. B x). C z)"
+  fix x assume "x \<in> (\<Inter>z \<in> (\<Union>x\<in> A. B x). C z)"
   with assms show "x \<in> (\<Inter>x\<in>A. \<Inter>z\<in> B x. C z)" by auto
 next
   fix x assume *: "x \<in> (\<Inter>x \<in> A. \<Inter>z \<in> B x. C z)"
@@ -613,7 +613,7 @@ next
   then obtain y where "y \<in> A" by auto
   with assms have "B y \<noteq> {}" by auto
   with \<open>y\<in>A\<close> have "{B x | x \<in> A} \<noteq> {{}}" by (auto dest: equalityD)
-  with * show "x \<in> (\<Inter>z \<in> (\<Union>x \<in> A. B x). C z)" by auto
+  with * show "x \<in> (\<Inter>z \<in> (\<Union>x\<in> A. B x). C z)" by auto
 qed
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
@@ -813,7 +813,7 @@ lemma bin_inter_collect_absorb:
   by (rule extensionality) auto
 
 lemma collect_idxunion_eq [simp]:
-  "collect (\<Union>x \<in> A. B x) P = (\<Union>x \<in> A. collect (B x) P)"
+  "collect (\<Union>x\<in> A. B x) P = (\<Union>x\<in> A. collect (B x) P)"
   by (rule extensionality) auto
 
 lemma bin_inter_collect_left:
@@ -1133,10 +1133,10 @@ lemma
   by squash_types auto
 
 
-lemma Soft_Ball_element_squash [squash]: "(\<forall>x: element A. P x) \<longleftrightarrow> (\<forall>x\<in> A. P x)"
+lemma Soft_Ball_element_squash [squash]: "(\<forall>x: element A. P x) \<longleftrightarrow> (\<forall>x \<in> A. P x)"
   unfolding Soft_Ball_def by squash_types blast
 
-lemma Soft_Bex_element_squash [squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x\<in> A. P x)"
+lemma Soft_Bex_element_squash [squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x \<in> A. P x)"
   unfolding Soft_Bex_def by squash_types blast
 
 

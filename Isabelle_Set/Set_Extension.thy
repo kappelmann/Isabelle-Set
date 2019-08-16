@@ -129,7 +129,7 @@ proof (cases "\<exists>z\<in>A. f z = x")
 next  
   case False
   then have "Rep (Abs x) = Rep (\<langle>A, x\<rangle>)" unfolding Abs_def by simp
-  also have "... = x" unfolding Rep_def by (simp add: Pair_not_in_fst)
+  also have "... = x" unfolding Rep_def by (simp add: opair_not_in_fst)
   finally show "Rep (Abs x) = x" .
 qed
 

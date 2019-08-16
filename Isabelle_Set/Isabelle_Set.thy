@@ -3,15 +3,16 @@ imports
   Set_Theory
   Set_Extension
   Ordinal
-  Pair
+  Ordered_Pair
   Relation
   Function
   Fixed_Points
   Structure
+  Sum
   Monoid_Bundled
   Monoid_Class
-  Natural_Numbers
-  Integer
+  (* Natural_Numbers *)
+  (* Integer *)
 
 begin
 

@@ -1,5 +1,5 @@
 theory Integer
-  imports Natural_Numbers Sum Set_Extension
+  imports (* Natural_Numbers *) Sum Set_Extension
 begin
 
 text \<open>

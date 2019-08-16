@@ -12,7 +12,7 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Examples and compatibility layers *)
-    "Isabelle_Set/Test_Examples/Tarski_A"
+    (* "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Structure_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
@@ -20,14 +20,14 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/Discharge_Types"
     "Isabelle_Set/Test_Examples/MyList"
     "Isabelle_Set/Test_Examples/Simp_Test"
-    "Isabelle_Set/ZF_Compatibility"
+    "Isabelle_Set/ZF_Compatibility" *)
 
     (* Tests *)
-    "tests/Derivation_Test"
+    (* "tests/Derivation_Test" *)
 
     (* MML ported to new logic *)
-    "Set_MML/tarski_0"
-    "Set_MML/tarski"
+    (* "Set_MML/tarski_0"
+    "Set_MML/tarski" *)
 
 
 session Typed_Set_Theory = "HOL-Number_Theory" +
