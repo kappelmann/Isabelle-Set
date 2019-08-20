@@ -43,11 +43,11 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
   apply discharge_types
   apply (rule Cons_Univ)
    apply (drule fst_prod_type)
-   apply (drule Univ_elem_type, assumption)
+   apply (drule Univ_base_type, asSigmaption)
   apply (drule snd_prod_type)
-  apply (rule Univ_element_closed_type'') (* Should be done by discharge_types, but too general unifier *)
-   apply assumption
-  apply assumption
+  apply (rule Univ_baseent_closed_type'') (* Should be done by discharge_types, but too general unifier *)
+   apply asSigmaption
+  apply asSigmaption
   done
 
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]

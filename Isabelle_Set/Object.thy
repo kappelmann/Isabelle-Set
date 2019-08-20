@@ -6,7 +6,7 @@ text \<open>
 \<close>
 
 theory Object
-imports Ordered_Pair
+imports String
 
 keywords "object" :: thy_decl
 

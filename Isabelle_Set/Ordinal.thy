@@ -1,7 +1,7 @@
 section \<open>Ordinals\<close>
 
 theory Ordinal
-imports Fixed_Points
+imports Set_Lattice
 
 begin
 
@@ -93,14 +93,60 @@ proof (rule ccontr)
   with succ_eq have "m \<in> succ n" by simp
   with neq have "m \<in> n" unfolding succ_def by blast
 
-  from `n \<in> m` `m \<in> n` show False using mem_asym by blast
+  from \<open>n \<in> m\<close> \<open>m \<in> n\<close> show False using mem_asym by blast
 qed
+
+lemma Univ_closed_succ [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
+  unfolding succ_def by auto
+
+lemma Univ_closed_succT [derive]: "x : element (Univ X) \<Longrightarrow> succ x : element (Univ X)"
+  by squash_types auto
 
 
 subsection \<open>\<omega>, the smallest infinite ordinal\<close>
 
 definition omega ("\<omega>")
-  where "\<omega> \<equiv> {}"
+  where "\<omega> \<equiv> lfp (Univ {}) (\<lambda>X. {{}} \<union> {succ n | n \<in> X})"
+
+lemma omega_def_monop: "(\<lambda>X. {{}} \<union> {succ n | n \<in> X}) : monop (Univ {})"
+  by (rule monopI) (squash_types, auto)
+
+lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
+  by (rule def_lfp_unfold) (auto intro: omega_def_monop simp: omega_def)
+
+corollary
+  empty_in_omega [intro]: "{} \<in> \<omega>" and
+  succ_omega: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
+  by (subst omega_unfold, auto)+
+
+lemma omega_induction [case_names empty succ, induct set: omega]:
+  assumes "n \<in> \<omega>"
+  and "P {}"
+  and "\<And>n. \<lbrakk>n \<in> \<omega>; P n\<rbrakk> \<Longrightarrow> P (succ n)"
+  shows "P n"
+  apply (rule def_lfp_induct)
+  using assms
+  by (auto intro: omega_def_monop simp: omega_def)
+
+lemma omega_empty_in_succ: "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
+proof (induction rule: omega_induction)
+  case empty
+  show "{} \<in> succ {}" unfolding succ_def by auto
+
+  case succ
+  fix n assume "{} \<in> succ n"
+  thus "{} \<in> succ (succ n)" unfolding succ_def by auto
+qed
+
+lemma empty_neq_succ [simp]: "{} \<noteq> succ n"
+unfolding succ_def
+proof
+  assume asm: "{} = n \<union> {n}"
+  moreover have "n \<in> n \<union> {n}" by auto
+  ultimately show False using asm by auto
+qed
+
+lemmas empty_neq_succ [symmetric, simp]
 
 
 end

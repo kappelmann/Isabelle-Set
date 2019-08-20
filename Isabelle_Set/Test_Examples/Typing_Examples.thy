@@ -1,5 +1,5 @@
 theory Typing_Examples
-  imports "../Pair"
+  imports "../Ordered_Pair"
 begin
 
 lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by squash_types auto
@@ -147,9 +147,9 @@ end
 subsection \<open> Further tests \<close>
 
 ML \<open>
-  [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
+  [\<^term>\<open>\<lambda>(x::set). opair\<close>]
   |> Elaboration.assert_result \<^context>
-    [\<^term>\<open>\<lambda>(x::set). Pair\<close>]
+    [\<^term>\<open>\<lambda>(x::set). opair\<close>]
 \<close>
 ML \<open> Elaboration.elaborate_terms \<^context> [
   \<^term>\<open>{{}}\<close>
@@ -163,11 +163,11 @@ ML \<open>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Elaboration.elaborate_terms \<^context> [
-  \<^term>\<open>\<lambda>y. Pair {} y\<close>
+  \<^term>\<open>\<lambda>y. opair {} y\<close>
 ]\<close>
 
 ML \<open> Elaboration.elaborate_terms \<^context> [
-  \<^term>\<open>\<lambda>x. Pair x\<close>
+  \<^term>\<open>\<lambda>x. opair x\<close>
 ]\<close>
 
 

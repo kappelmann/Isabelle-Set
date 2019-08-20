@@ -6,7 +6,7 @@ imports
   Ordered_Pair
   Relation
   Function
-  Fixed_Points
+  Set_Lattice
   Structure
   Sum
   Monoid_Bundled

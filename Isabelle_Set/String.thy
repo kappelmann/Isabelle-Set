@@ -1,7 +1,8 @@
 section \<open>Strings\<close>
 
 text \<open>
-  Alphanumeric characters are encoded as sets. Strings are ordered tuples of characters.
+  Alphanumeric characters are encoded as ordinals. Strings are ordered tuples of
+  characters.
 \<close>
 
 theory String
@@ -19,7 +20,10 @@ val chars =
   ["0","1","2","3","4","5","6","7","8","9",
   "a","b","c","d","e","f","g","h","i","j",
   "k","l","m","n","o","p","q","r","s","t",
-  "u","v","w","x","y","z","_"] ~~ map_range von_neumann 37
+  "u","v","w","x","y","z",
+  "A","B","C","D","E","F","G","H","I","J",
+  "K","L","M","N","O","P","Q","R","S","T",
+  "U","V","W","X","Y","Z","_"] ~~ map_range von_neumann 63
 \<close>
 
 local_setup \<open>
@@ -40,43 +44,27 @@ fn lthy =>
 
 ML \<open>
 fun char_tm c = case c of
-    #"0" => \<^term>\<open>char'0'\<close>
-  | #"1" => \<^term>\<open>char'1'\<close>
-  | #"2" => \<^term>\<open>char'2'\<close>
-  | #"3" => \<^term>\<open>char'3'\<close>
-  | #"4" => \<^term>\<open>char'4'\<close>
-  | #"5" => \<^term>\<open>char'5'\<close>
-  | #"6" => \<^term>\<open>char'6'\<close>
-  | #"7" => \<^term>\<open>char'7'\<close>
-  | #"8" => \<^term>\<open>char'8'\<close>
-  | #"9" => \<^term>\<open>char'9'\<close>
-  | #"a" => \<^term>\<open>char'a'\<close>
-  | #"b" => \<^term>\<open>char'b'\<close>
-  | #"c" => \<^term>\<open>char'c'\<close>
-  | #"d" => \<^term>\<open>char'd'\<close>
-  | #"e" => \<^term>\<open>char'e'\<close>
-  | #"f" => \<^term>\<open>char'f'\<close>
-  | #"g" => \<^term>\<open>char'g'\<close>
-  | #"h" => \<^term>\<open>char'h'\<close>
-  | #"i" => \<^term>\<open>char'i'\<close>
-  | #"j" => \<^term>\<open>char'j'\<close>
-  | #"k" => \<^term>\<open>char'k'\<close>
-  | #"l" => \<^term>\<open>char'l'\<close>
-  | #"m" => \<^term>\<open>char'm'\<close>
-  | #"n" => \<^term>\<open>char'n'\<close>
-  | #"o" => \<^term>\<open>char'o'\<close>
-  | #"p" => \<^term>\<open>char'p'\<close>
-  | #"q" => \<^term>\<open>char'q'\<close>
-  | #"r" => \<^term>\<open>char'r'\<close>
-  | #"s" => \<^term>\<open>char's'\<close>
-  | #"t" => \<^term>\<open>char't'\<close>
-  | #"u" => \<^term>\<open>char'u'\<close>
-  | #"v" => \<^term>\<open>char'v'\<close>
-  | #"w" => \<^term>\<open>char'w'\<close>
-  | #"x" => \<^term>\<open>char'x'\<close>
-  | #"y" => \<^term>\<open>char'y'\<close>
-  | #"z" => \<^term>\<open>char'z'\<close>
-  | #"_" => \<^term>\<open>char'_'\<close>
+    #"0" => \<^term>\<open>char'0'\<close> | #"1" => \<^term>\<open>char'1'\<close> | #"2" => \<^term>\<open>char'2'\<close>
+  | #"3" => \<^term>\<open>char'3'\<close> | #"4" => \<^term>\<open>char'4'\<close> | #"5" => \<^term>\<open>char'5'\<close>
+  | #"6" => \<^term>\<open>char'6'\<close> | #"7" => \<^term>\<open>char'7'\<close> | #"8" => \<^term>\<open>char'8'\<close>
+  | #"9" => \<^term>\<open>char'9'\<close> | #"a" => \<^term>\<open>char'a'\<close> | #"b" => \<^term>\<open>char'b'\<close>
+  | #"c" => \<^term>\<open>char'c'\<close> | #"d" => \<^term>\<open>char'd'\<close> | #"e" => \<^term>\<open>char'e'\<close>
+  | #"f" => \<^term>\<open>char'f'\<close> | #"g" => \<^term>\<open>char'g'\<close> | #"h" => \<^term>\<open>char'h'\<close>
+  | #"i" => \<^term>\<open>char'i'\<close> | #"j" => \<^term>\<open>char'j'\<close> | #"k" => \<^term>\<open>char'k'\<close>
+  | #"l" => \<^term>\<open>char'l'\<close> | #"m" => \<^term>\<open>char'm'\<close> | #"n" => \<^term>\<open>char'n'\<close>
+  | #"o" => \<^term>\<open>char'o'\<close> | #"p" => \<^term>\<open>char'p'\<close> | #"q" => \<^term>\<open>char'q'\<close>
+  | #"r" => \<^term>\<open>char'r'\<close> | #"s" => \<^term>\<open>char's'\<close> | #"t" => \<^term>\<open>char't'\<close>
+  | #"u" => \<^term>\<open>char'u'\<close> | #"v" => \<^term>\<open>char'v'\<close> | #"w" => \<^term>\<open>char'w'\<close>
+  | #"x" => \<^term>\<open>char'x'\<close> | #"y" => \<^term>\<open>char'y'\<close> | #"z" => \<^term>\<open>char'z'\<close>
+  | #"A" => \<^term>\<open>char'A'\<close> | #"B" => \<^term>\<open>char'B'\<close> | #"C" => \<^term>\<open>char'C'\<close>
+  | #"D" => \<^term>\<open>char'D'\<close> | #"E" => \<^term>\<open>char'E'\<close> | #"F" => \<^term>\<open>char'F'\<close>
+  | #"G" => \<^term>\<open>char'G'\<close> | #"H" => \<^term>\<open>char'H'\<close> | #"I" => \<^term>\<open>char'I'\<close>
+  | #"J" => \<^term>\<open>char'J'\<close> | #"K" => \<^term>\<open>char'K'\<close> | #"L" => \<^term>\<open>char'L'\<close>
+  | #"M" => \<^term>\<open>char'M'\<close> | #"N" => \<^term>\<open>char'N'\<close> | #"O" => \<^term>\<open>char'O'\<close>
+  | #"P" => \<^term>\<open>char'P'\<close> | #"Q" => \<^term>\<open>char'Q'\<close> | #"R" => \<^term>\<open>char'R'\<close>
+  | #"S" => \<^term>\<open>char'S'\<close> | #"T" => \<^term>\<open>char'T'\<close> | #"U" => \<^term>\<open>char'U'\<close>
+  | #"V" => \<^term>\<open>char'V'\<close> | #"W" => \<^term>\<open>char'W'\<close> | #"X" => \<^term>\<open>char'X'\<close>
+  | #"Y" => \<^term>\<open>char'Y'\<close> | #"Z" => \<^term>\<open>char'Z'\<close> | #"_" => \<^term>\<open>char'_'\<close>
   | _ => raise Match
 
 fun str_tm s =
@@ -100,13 +88,38 @@ lemmas char_simps [simp] =
   char'e'_def char'f'_def char'g'_def char'h'_def char'i'_def char'j'_def char'k'_def
   char'l'_def char'm'_def char'n'_def char'o'_def char'p'_def char'q'_def char'r'_def
   char's'_def char't'_def char'u'_def char'v'_def char'w'_def char'x'_def char'y'_def
-  char'z'_def char'_'_def
+  char'z'_def char'A'_def char'B'_def char'C'_def char'D'_def char'E'_def char'F'_def
+  char'G'_def char'H'_def char'I'_def char'J'_def char'K'_def char'L'_def char'M'_def
+  char'N'_def char'O'_def char'P'_def char'Q'_def char'R'_def char'S'_def char'T'_def
+  char'U'_def char'V'_def char'W'_def char'X'_def char'Y'_def char'Z'_def char'_'_def
 
-lemma opair_neq_succ [simp]: "\<langle>a, b\<rangle> \<noteq> succ n"
+text \<open>The following lemma is used to prove distinctness of non-identical strings.\<close>
+
+lemma opair_neq_succ [simp]: "\<langle>a, b\<rangle> \<noteq> succ n" \<comment>\<open>Extrememly encoding-dependent!\<close>
 unfolding opair_def succ_def
-oops
+proof (rule ccontr, simp only: not_not cons_repeat)
+  let
+    ?opair = "{{a}, {a, b}}"
+  assume
+    asm: "?opair = n \<union> {n}"
+  then have
+    "n \<in> ?opair"
+    by auto
+  hence
+    "n = {a} \<or> n = {a, b}"
+    by auto
+  hence
+    "a \<in> ?opair"
+    by (auto simp: asm)
+  thus False by auto
+qed
 
-lemma "@ab \<noteq> @b" apply (auto dest!: succ_inject) oops
+lemmas opair_neq_succ [symmetric, simp]
+
+method discriminate_str = auto dest!: succ_inject
+
+(* Example *)
+lemma "@Alex \<noteq> @Josh" by discriminate_str
 
 
 end

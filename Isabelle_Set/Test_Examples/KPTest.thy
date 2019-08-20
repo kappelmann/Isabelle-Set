@@ -89,7 +89,7 @@ proof
     hence "\<Phi> X f = \<Phi> X g" using CPhi unfolding C_def by auto
     then show "Y = Z" using F G by auto
   qed
-  then show "\<forall> X. ?P X" using elem_induct_axiom[of ?P] by blast
+  then show "\<forall> X. ?P X" using mem_induction[of ?P] by blast
 qed
 
 lemma Lm5:
@@ -106,7 +106,7 @@ proof
     hence "R_CB \<Phi> X = \<Phi> X (R_CB \<Phi>)" unfolding R_CB_def by blast
     then show "G \<Phi> X (R_CB \<Phi> X)" using T1 by auto
   qed
-  then show "\<forall> X. ?P X" using elem_induct_axiom[of ?P] by blast
+  then show "\<forall> X. ?P X" using mem_induction[of ?P] by blast
 qed
 
 lemma Lm6:
@@ -152,7 +152,7 @@ theorem VTh2_3:
 proof-
   let ?P = "\<lambda> X . X \<subseteq> VV X"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?P x) \<longrightarrow> ?P X" using VTh2_1  by auto
-  hence "\<forall>X. ?P X" using elem_induct_axiom[of ?P] by blast
+  hence "\<forall>X. ?P X" using mem_induction[of ?P] by blast
   then show  "X \<subseteq> VV X" by auto
 qed
 
@@ -176,9 +176,9 @@ proof-
       hence " x \<subseteq> VV b" using a b by auto
       then show "x \<in> VV Y" using VTh2_1 b by auto
     qed
-    then show "\<forall>Y. ?PY Y" using elem_induct_axiom[of ?PY] by blast
+    then show "\<forall>Y. ?PY Y" using mem_induction[of ?PY] by blast
   qed
-  hence "\<forall>X. ?PX X" using elem_induct_axiom[of ?PX] by blast
+  hence "\<forall>X. ?PX X" using mem_induction[of ?PX] by blast
   then show ?thesis by auto
 qed
 
@@ -209,9 +209,9 @@ proof-
       hence "VV a \<subseteq> VV b" using a AX by auto
       then show "y \<in> VV X" using a VTh2_1[of b X y] b by auto
     qed
-      then show "\<forall>Y. ?PY Y" using elem_induct_axiom[of ?PY] by blast
+      then show "\<forall>Y. ?PY Y" using mem_induction[of ?PY] by blast
   qed
-  hence "\<forall>X. ?PX X" using elem_induct_axiom[of ?PX] by blast
+  hence "\<forall>X. ?PX X" using mem_induction[of ?PX] by blast
   then show ?thesis by auto
 qed
 
@@ -228,7 +228,7 @@ qed
 proof-
   let ?IN = "\<lambda> x. x  \<notin> x"
   have I:"\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?IN x) \<longrightarrow> ?IN X" by auto
-  have "\<forall>X. (?IN X)" using elem_induct_axiom[rule_format,of ?IN ] by blast
+  have "\<forall>X. (?IN X)" using mem_induction[rule_format,of ?IN ] by blast
   then show " x \<notin> x" by auto
 qed*)
 
@@ -241,7 +241,7 @@ proof(rule contraposR,rule impI)
   assume E: "\<not> (\<exists> y. y \<in> X \<and> y \<inter> X={})"      
   let ?IN="\<lambda> x. x \<notin> X"
   have "\<forall>A. (\<forall>x. x \<in> A \<longrightarrow> ?IN x) \<longrightarrow> ?IN A" using E by auto
-  then show "x \<notin> X" using elem_induct_axiom[of ?IN] by blast
+  then show "x \<notin> X" using mem_induction[of ?IN] by blast
 qed
 
 theorem CB_Th_3:
@@ -255,7 +255,7 @@ proof-
     fix X assume IH: "\<forall>x. x \<in> X \<longrightarrow> ?H x" "X \<in> U"
     have "\<forall>x. x \<in> X \<longrightarrow> ?PV x \<in> U"
     proof(intro allI impI)
-      have XU: "X \<subseteq> U" using assms(1) epsilon_transitive_def IH by auto 
+      have XU: "X \<subseteq> U" using assms(1) mem_transitive_def IH by auto
       fix x assume "x \<in> X"
       hence "VV x \<in> U" using XU IH by auto
       thus  "?PV x \<in> U" using assms(2) ZF_closed_def by auto
@@ -264,7 +264,7 @@ proof-
     hence "(\<Union>x \<in> X. Pow (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
     then show "VV X \<in> U" using VTh1[rule_format, of X] by auto
   qed
-  then show "\<forall>X. ?H X" using elem_induct_axiom[of ?H] by blast
+  then show "\<forall>X. ?H X" using mem_induction[of ?H] by blast
 qed
 
 definition AC_axiom where
@@ -438,12 +438,12 @@ proof-
       fix a assume HI: "\<forall>x. x \<in> a \<longrightarrow> ?I x"
       assume a:"a \<in> ?Lamb"
       hence O: "a \<in> U \<and> a:Ord" by auto
-      hence P: "Pow a \<subseteq> U" using assms ZF_closed_def epsilon_transitive_def[of U] by auto 
+      hence P: "Pow a \<subseteq> U" using assms ZF_closed_def mem_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
         have E: " epsilon_transitive a" using O unfolding Ord_typedef by squash_types
         fix b assume b: "b \<in> a" 
-        hence " b \<subseteq> a" using E epsilon_transitive_def[of a] by auto
+        hence " b \<subseteq> a" using E mem_transitive_def[of a] by auto
         hence "b \<in> U" "b:Ord" using P Ord_transitive O b by auto
         then show "Q b ?f (?f b)" using b HI by auto
       qed
@@ -480,7 +480,7 @@ proof-
       have "F a ?f = ?f a" using C1 FDef by auto
       then show "Q a ?f (?f a)" using A18 C19 by auto
     qed
-    then show "Q a ?f (?f a)" using A  elem_induct_axiom[of ?I] by blast
+    then show "Q a ?f (?f a)" using A  mem_induction[of ?I] by blast
   qed
   have C3: "\<And> a. a \<in> ?Lamb \<Longrightarrow> ?f a \<in> X"
   proof-
@@ -499,10 +499,10 @@ proof-
   have "\<And> x . x \<in> ?Lamb \<Longrightarrow> x \<subseteq> ?Lamb"
   proof-
     fix x assume "x \<in> ?Lamb"
-    hence "x \<subseteq> U\<and> x:Ord " using epsilon_transitive_def assms by auto
+    hence "x \<subseteq> U\<and> x:Ord " using mem_transitive_def assms by auto
     then show "x \<subseteq> ?Lamb" using Ord_transitive by auto
   qed
-  hence E: "epsilon_transitive ?Lamb" using epsilon_transitive_def by auto
+  hence E: "epsilon_transitive ?Lamb" using mem_transitive_def by auto
   have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding Ord_typedef by squash_types auto
   hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto 
   let ?faLamb =" {?f a|a \<in> ?Lamb}"
@@ -524,7 +524,7 @@ proof-
     hence "?g y = a" using C4 by blast
     thus "x \<in> ?Lamb" using a y by blast  
   qed
-  hence C6: "?Lamb = {?g y| y \<in> ?faLamb}" using C6_1 extensionality_axiom by simp
+  hence C6: "?Lamb = {?g y| y \<in> ?faLamb}" using C6_1 extensionality by simp
   have C7:"\<forall>x. x \<in> X \<longrightarrow> (\<exists>a. a \<in> ?Lamb \<and> ?f a = x)"
   proof(rule allI,rule contraposR,auto)
     fix x assume A: "\<forall> a. a:Ord \<longrightarrow> a \<in> U \<longrightarrow> ?f a \<noteq> x" "x \<in> X" 
@@ -533,7 +533,7 @@ proof-
       fix a assume A1: "a \<in> ?Lamb" show "x \<in> X" using A by auto
       fix b assume A2: "b \<in> a"
       hence A3:"b :Ord" using A1 Ord_transitive by auto
-      have "a \<subseteq> U" using A1 assms(1)  epsilon_transitive_def by auto
+      have "a \<subseteq> U" using A1 assms(1)  mem_transitive_def by auto
       then show "?f b \<noteq> x" using A A2 A3 by auto
     qed   
     have C21: "\<And> a . a \<in> ?Lamb \<Longrightarrow> VV (?f a) \<subseteq> VV x"
@@ -547,7 +547,7 @@ proof-
       have "x \<in> U" using assms(4) A by auto
       hence "VV x \<in> U" using assms CB_Th_3 by auto
       hence "Pow (Pow (VV x)) \<in> U" using assms(2) ZF_closed_def by auto
-      hence P: "Pow (Pow (VV x)) \<subseteq> U" using assms(1) epsilon_transitive_def by auto
+      hence P: "Pow (Pow (VV x)) \<subseteq> U" using assms(1) mem_transitive_def by auto
       have "{?f a|a \<in> ?Lamb} \<subseteq> Pow (VV x)"
       proof
         fix fa assume "fa \<in> {?f a|a \<in> ?Lamb}"
@@ -602,9 +602,9 @@ proof-
   have "\<exists> b . b : bij {x \<in> U | x:Ord} X" using CB_Lm_1 assms by auto
   then obtain b where
     b:  "b: bij X {x \<in> U | x:Ord}" using bij_inv by blast
-  have "U \<subseteq> U" "U \<notin> U" using elem_irrefl by auto
+  have "U \<subseteq> U" "U \<notin> U" using mem_irrefl by auto
   then obtain c where
-    "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms by blast
+    "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms (* by blast *)
   thus "\<exists> b . b : bij X U" using bij_prod b by auto 
 qed
 

@@ -279,19 +279,16 @@ lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
 
 subsection \<open>Finite sets, singletons, pairs\<close>
 
-text \<open>
-  Define an unordered pair \<open>pair0\<close> using replacement, then use it to define finite sets.
-  The finite set of two elements \<open>{a, b}\<close> should be used in actual developments.
-\<close>
+text \<open>Define an unordered pair \<open>upair\<close> using replacement, then use it to define finite sets.\<close>
 
-definition pair0 :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
-  where "pair0 a b = {if i = {} then a else b | i \<in> Pow (Pow {})}"
+definition upair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
+  where "upair a b = {if i = {} then a else b | i \<in> Pow (Pow {})}"
 
 definition cons :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
-  where "cons x A = \<Union>(pair0 A (pair0 x x))"
+  where "cons x A = \<Union>(upair A (upair x x))"
 
 lemma cons_mems [iff]: "y \<in> cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
-  by (auto simp: cons_def pair0_def)
+  by (auto simp: cons_def upair_def)
 
 lemma consI1 [simp]: "a \<in> cons a A"
   by simp
@@ -322,6 +319,9 @@ lemmas cons_neq_empty = cons_not_empty [THEN notE]
 lemma cons_commute: "cons x (cons y A) = cons y (cons x A)"
   by (rule extensionality) auto
 
+lemma cons_repeat: "cons x (cons x A) = cons x A"
+  by (rule extensionality) auto
+
 syntax
   "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
 translations
@@ -349,6 +349,14 @@ lemma pair_mems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
 
 lemma pair_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
   by (auto intro: equalityI dest: equalityD)
+
+text \<open>\<open>upair x y\<close> and \<open>{x, y}\<close> are equal, and thus interchangeable in developments.\<close>
+
+lemma upair_eq_pair: "upair x y = {x, y}"
+  unfolding upair_def
+  by (rule extensionality) (auto, auto)
+
+lemmas pair_eq_upair = upair_eq_pair[symmetric]
 
 
 subsection \<open>Restricted comprehension\<close>
@@ -456,7 +464,7 @@ lemma replaceE:
   "\<lbrakk> b \<in> {y | x \<in> A, P x y};  \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R \<rbrakk> \<Longrightarrow> R"
   by (rule replace_iff [THEN iffD1, THEN BexE], simp+)
 
-(* As above but without the (generally useless) 3rd assumption *)
+(* As above but without the (generally useless) 3rd asSigmaption *)
 lemma replaceE2 [elim!]:
   "\<lbrakk>b \<in> {y. x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by (erule replaceE, blast)
@@ -677,7 +685,7 @@ lemma bin_unionE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P
 lemma bin_unionCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarrow> c \<in> A \<union> B"
   by auto
 
-lemma bin_union_commute [simp]: "A \<union> B = B \<union> A"
+lemma bin_union_commute: "A \<union> B = B \<union> A"
   by (rule extensionality) auto
 
 lemma bin_union_left_commute: "A \<union> (B \<union> C) = B \<union> (A \<union> C)"
@@ -1068,6 +1076,15 @@ proof -
 qed
 
 
+
+section \<open>More finite sets\<close>
+
+lemma cons_neq_mem [simp]: "cons x A \<noteq> x"
+  by (auto intro: consI1 mem_irreflE)
+
+lemmas cons_neq_mem [symmetric, simp]
+
+
 subsection \<open>Basic soft types\<close>
 
 abbreviation set :: "set type"
@@ -1138,6 +1155,108 @@ lemma Soft_Ball_element_squash [squash]: "(\<forall>x: element A. P x) \<longlef
 
 lemma Soft_Bex_element_squash [squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x \<in> A. P x)"
   unfolding Soft_Bex_def by squash_types blast
+
+
+subsection \<open>Closure properties and universes\<close>
+
+lemma
+  assumes "ZF_closed U" and "X \<in> U"
+  shows
+    ZF_closed_union: "\<Union>X \<in> U" and
+    ZF_closed_powerset: "Pow X \<in> U" and
+    ZF_closed_replacement: "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> Repl X f \<in> U"
+
+  using assms by (auto simp: ZF_closed_def)
+
+lemma
+  assumes "A \<in> Univ X"
+  shows
+    Univ_closed_union [intro]: "\<Union>A \<in> Univ X" and
+    Univ_closed_powerset [intro]: "Pow A \<in> Univ X" and
+    Univ_closed_replacement [intro]: "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> Univ X) \<Longrightarrow> Repl A f \<in> Univ X"
+
+  using assms
+  by (auto intro: Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
+
+lemma Univ_closed_unionT [derive]: "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
+  using Univ_closed_union by squash_types
+
+lemma Univ_closed_powersetT [type]: "Pow : element (Univ X) \<Rightarrow> element (Univ X)"
+  using Univ_closed_powerset by squash_types auto
+
+lemma Univ_closed_replacementT [derive, bderive]:
+  "\<lbrakk>A : element (Univ X); f : element A \<Rightarrow> element (Univ X)\<rbrakk> \<Longrightarrow> Repl A f : element (Univ X)"
+  unfolding element_type_iff by squash_types auto
+
+lemma Univ_transitive': "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
+  using Univ_transitive[unfolded mem_transitive_def] by auto
+
+lemma Univ_transitiveT [derive]: "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
+  by squash_types (fact Univ_transitive')
+
+lemma Univ_transitiveT' [derive]:
+  "x : element A \<Longrightarrow> A : element (Univ X) \<Longrightarrow> x : element (Univ X)"
+  using Univ_transitive'
+  by squash_types auto
+
+lemma Univ_transitiveT'' [derive]:
+  "x : element A \<Longrightarrow> A : subset (Univ X) \<Longrightarrow> x : element (Univ X)"
+  using Univ_transitive'
+  by squash_types auto
+
+lemma empty_in_Univ [intro]: "{} \<in> Univ X"
+proof -
+  have "X \<in> Univ X" by (rule Univ_base)
+  then have "Pow X \<in> Univ X" by (rule Univ_closed_powerset)
+  then have "Pow X \<subseteq> Univ X" by (rule Univ_transitive')
+  then show "{} \<in> Univ X" by auto
+qed
+
+lemma empty_in_UnivT [derive]: "{} : element (Univ X)"
+  by squash_types (fact empty_in_Univ)
+
+lemma Univ_baseT [derive]: "A : element (Univ A)"
+  by squash_types (fact Univ_base)
+
+lemma Univ_subset: "A \<subseteq> Univ A"
+  by (rule Univ_transitive') (fact Univ_base)
+
+lemma Univ_subsetT [derive]: "A : subset (Univ A)"
+  by squash_types (fact Univ_subset)
+
+(* This one is problematic as a [derive] rule, since it can loop *)
+lemma Univ_memT:
+  "x : element A \<Longrightarrow> x : element (Univ A)"
+  by (fact Univ_transitiveT''[OF _ Univ_subsetT])
+
+lemma Univ_closed_upair [intro]:
+  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> upair x y \<in> Univ X"
+  unfolding upair_def
+  by (intro Univ_closed_replacement Univ_closed_powerset empty_in_Univ) auto
+
+lemma Univ_closed_upairT [derive]:
+  "\<lbrakk>x : element (Univ X); y : element (Univ X)\<rbrakk> \<Longrightarrow> upair x y : element (Univ X)"
+  using Univ_closed_upair by squash_types
+
+lemma Univ_closed_cons [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
+  unfolding cons_def
+  by (intro Univ_closed_union Univ_closed_upair)
+
+corollary Univ_closed_pair:
+  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> {x, y} \<in> Univ X"
+  by auto
+
+lemma Univ_closed_consT [derive]:
+  "\<lbrakk>x : element (Univ X); A : element (Univ X)\<rbrakk> \<Longrightarrow> cons x A : element (Univ X)"
+  by squash_types auto
+
+lemma Univ_closed_bin_union [intro]:
+  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> x \<union> y \<in> Univ X"
+  unfolding bin_union_def by auto
+
+lemma Univ_closed_bin_unionT [derive]:
+  "\<lbrakk>A : element (Univ X); B : element (Univ X)\<rbrakk> \<Longrightarrow> A \<union> B : element (Univ X)"
+  by squash_types auto
 
 
 end

@@ -6,7 +6,7 @@ imports Function Object
 begin
 
 (*
-  This will be subsumed by some generic label mechanism. All we need are labels that we
+  This will be subSigmaed by some generic label mechanism. All we need are labels that we
   know to be distinct from each other
 *)
 (* axiomatization

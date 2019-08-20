@@ -1,6 +1,11 @@
-section \<open>Least and greatest fixed points and the Knaster-Tarski theorem\<close>
+section \<open>Power set lattices\<close>
 
-theory Fixed_Points
+text \<open>
+  Power set lattices, least and greatest fixed points, and the Knaster-Tarski theorem
+  for \<open>\<subseteq>\<close>.
+\<close>
+
+theory Set_Lattice
 imports Set_Theory
 
 begin
@@ -18,7 +23,7 @@ abbreviation "monop D \<equiv> monotone D \<cdot> (subset D \<Rightarrow> subset
 lemma monotoneI:
   assumes "\<And>W X. \<lbrakk>W \<subseteq> D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   shows "monotone D h"
-  unfolding monotone_def
+unfolding monotone_def
 proof (intro allI impI)
   fix W X assume *: "W \<subseteq> X" "X \<subseteq> D"
   then have "W \<subseteq> D" by auto
@@ -28,13 +33,14 @@ qed
 lemma monopD1: "h : monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by squash_types auto
 
+(* Josh: Elimination instead of destruction? *)
 lemma monopD2: "\<lbrakk> h : monop D;  X : subset D;  W \<subseteq> X \<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by squash_types
 
-lemma monop_h_type [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
+lemma monop_app_type [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
   by squash_types
 
-lemma monop_Un:
+lemma monop_union_subset:
   assumes [type]: "h : monop D" "A : subset D" "B : subset D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
@@ -44,23 +50,22 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-lemma monop_Id [derive]: "(\<lambda>L. L) : monop D"
+lemma id_monop [derive]: "(\<lambda>L. L) : monop D"
   by squash_types (auto simp: monotone_def)
 
-lemma monop_const [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
+lemma constant_monop [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
   by squash_types (auto simp: monotone_def)
-
 
 lemma monopI:
-  assumes b: "\<And>x. x : subset D \<Longrightarrow> h x : subset D"
-  assumes a: "\<And>W X. W : subset D \<Longrightarrow> X : subset D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
+  assumes 1: "\<And>x. x : subset D \<Longrightarrow> h x : subset D"
+  assumes 2: "\<And>W X. W : subset D \<Longrightarrow> X : subset D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
   shows "h : monop D"
   apply (rule adjI, rule monotoneI)
-   apply (fact a[unfolded subset_type_iff])
-  apply (rule Pi_typeI, fact b)
+   apply (fact 2[unfolded subset_type_iff])
+  apply (rule Pi_typeI, fact 1)
   done
 
-lemma monop_UnI [derive]: 
+lemma monop_unionI [derive]:
   assumes [type]: "A : monop D" "B : monop D"
   shows "(\<lambda>x. A x \<union> B x) : monop D"
 proof (rule monopI, discharge_types)
@@ -76,7 +81,7 @@ proof (rule monopI, discharge_types)
     by auto
 qed
 
-lemma monop_ReplI:
+lemma monop_replacementI:
   assumes "A : monop D"
   assumes "\<And>x y. x : subset D \<Longrightarrow> y : element (A x) \<Longrightarrow> f y : element D"
   shows "(\<lambda>x. Repl (A x) f) : monop D"
@@ -125,7 +130,7 @@ proof (rule extensionality)
       text \<open>
         @{method discharge_types} works here, but it prevents chaining-in other facts.
         Ideally, @{method rule} would provide a hook that lets us discharge typing
-        assumptions after the rule application.
+        asSigmaptions after the rule application.
       \<close>
       by (rule monopD2[of h], discharge_types) (fact *)
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
@@ -137,12 +142,12 @@ qed
 
 (* Definition form, to control unfolding *)
 lemma def_lfp_unfold: "A = lfp D h \<Longrightarrow> A = h A"
-  by (simp, rule lfp_unfold)
+  by simp (rule lfp_unfold)
 
 
 subsection \<open>General induction rule for least fixed points\<close>
 
-lemma collect_is_pre_fixedpt:
+lemma collect_is_prefixed_point:
   assumes "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
 proof -
@@ -163,7 +168,7 @@ proof -
   proof (rule lfp_lowerbound)
     from IH
     show "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
-      by (rule collect_is_pre_fixedpt)
+      by (rule collect_is_prefixed_point)
   qed discharge_types
   with hyp show "P a" by auto
 qed

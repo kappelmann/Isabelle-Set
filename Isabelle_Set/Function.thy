@@ -128,7 +128,7 @@ lemma PiI [intro]:
     uniq_val: "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f" and
     stratified: "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x"
   shows "f \<in> \<Prod>x \<in> A. (B x)"
-unfolding Pi_def proof (auto, rule sumI2)
+unfolding Pi_def proof (auto, rule PairI2)
   fix p assume asm: "p \<in> f"
 
   thus "p = \<langle>fst p, snd p\<rangle>" using f_relation by auto
@@ -222,7 +222,7 @@ proof -
 qed
 
 lemma Pi_cong [cong]: "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Prod>x \<in> A. (B x) = \<Prod>x \<in> A'. (B' x)"
-  by (simp add: Pi_def cong: sum_cong)
+  by (simp add: Pi_def cong: Pair_cong)
 
 lemma Pi_fst [elim]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
   unfolding Pi_def by auto
@@ -248,7 +248,7 @@ proof (rule PiI; auto)
 
   { fix p assume p_elem: "p \<in> f"
     show "p \<in> A \<times> (\<Union>x \<in> A. C x)"
-    apply (intro sumI2)
+    apply (intro PairI2)
     apply (auto intro: assms(1) p_elem Pi_elems_conv Pi_fst sym)
     proof rule+
       show "fst p \<in> A" using assms(1) p_elem by auto

@@ -50,8 +50,7 @@ definition ZF_closed :: \<open>set \<Rightarrow> bool\<close>
   where "ZF_closed U \<equiv> (
       (\<forall>X. X \<in> U \<longrightarrow> \<Union>X \<in> U) \<and>
       (\<forall>X. X \<in> U \<longrightarrow> Pow X \<in> U) \<and>
-      (\<forall>X F. X \<in> U \<longrightarrow> (\<forall>x. x \<in> X \<longrightarrow> F x \<in> U) \<longrightarrow> Repl X F \<in> U)
-    )"
+      (\<forall>X F. X \<in> U \<longrightarrow> (\<forall>x. x \<in> X \<longrightarrow> F x \<in> U) \<longrightarrow> Repl X F \<in> U))"
 
 text \<open>Remark: @{const ZF_closed} is a second-order statement.\<close>
 
@@ -59,7 +58,7 @@ text \<open>Remark: @{const ZF_closed} is a second-order statement.\<close>
 axiomatization
   Univ :: \<open>set \<Rightarrow> set\<close>
 where
-  Univ_elem: "X \<in> Univ X"
+  Univ_base: "X \<in> Univ X"
 and
   Univ_transitive: "mem_transitive (Univ X)"
 and

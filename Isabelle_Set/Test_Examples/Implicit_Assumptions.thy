@@ -1,7 +1,7 @@
 section \<open>Illustrations of the Isar integration\<close>
 
 theory Implicit_Assumptions
-  imports "../Pair"
+  imports "../Ordered_Pair"
 begin
 
 

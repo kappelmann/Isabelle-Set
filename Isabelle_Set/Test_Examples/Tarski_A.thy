@@ -21,12 +21,12 @@ proof(intro impI allI)
        (\<forall> X. X \<in> M \<longrightarrow> Pow X \<in> M)\<and>
        (\<forall> X. X \<subseteq> M \<longrightarrow> (\<exists> b. b: bij X M) \<or> X \<in> M)"
   proof(rule exI[of _ "Univ N"],intro conjI)
-    show "N \<in> Univ N" using Univ_elem by auto
+    show "N \<in> Univ N" using Univ_base by auto
     show "\<forall>X Y. X \<in> Univ N \<and> Y \<subseteq> X \<longrightarrow> Y \<in> Univ N" 
     proof(intro allI impI)
       fix X Y assume A: "X \<in> Univ N \<and> Y \<subseteq> X"
       hence "Pow X \<in> Univ N" using ZF_closed_def Univ_ZF_closed by auto
-      hence "Pow X \<subseteq> Univ N" using Univ_transitive epsilon_transitive_def by auto
+      hence "Pow X \<subseteq> Univ N" using Univ_transitive mem_transitive_def by auto
       thus "Y \<in> Univ N" using A by auto
     qed
     show "\<forall>X. X \<in> Univ N \<longrightarrow> Pow X \<in> Univ N"  using ZF_closed_def Univ_ZF_closed by auto

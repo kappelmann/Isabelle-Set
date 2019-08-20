@@ -1,4 +1,4 @@
-section \<open>Ordered pairs and \<Sigma>-type/indexed disjoint unions\<close>
+section \<open>Ordered pairs and dependent pair type/indexed disjoint unions\<close>
 
 theory Ordered_Pair
 imports Set_Theory
@@ -86,49 +86,49 @@ lemma opair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
 
 subsection \<open>Indexed disjoint unions, aka \<Sigma>-types\<close>
 
-definition sum :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set\<close>
-  where "sum A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x, y\<rangle>}"
+definition Pair :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set\<close>
+  where "Pair A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x, y\<rangle>}"
 
 syntax
-  "_sum" :: \<open>[pttrn, set, set \<Rightarrow> set] \<Rightarrow> set\<close> ("\<Sum>_\<in> _./ _" [0, 0, 100])
+  "_Pair" :: \<open>[pttrn, set, set \<Rightarrow> set] \<Rightarrow> set\<close> ("\<Sum>_\<in> _./ _" [0, 0, 100])
 translations
-  "\<Sum>x\<in> A. B" \<rightleftharpoons> "CONST sum A (\<lambda>x. B)"
+  "\<Sum>x\<in> A. B" \<rightleftharpoons> "CONST Pair A (\<lambda>x. B)"
 
 abbreviation prod :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<times>" 80)
   where "A \<times> B \<equiv> \<Sum>_\<in> A. B"
 
-lemma sum_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
-  by (auto simp: sum_def)
+lemma Pair_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
+  by (auto simp: Pair_def)
 
-lemma sumI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x)"
+lemma PairI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x)"
   by simp
 
-lemma sumI2 [elim]: "\<lbrakk>p = \<langle>a, b\<rangle>; a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> p \<in> \<Sum>x\<in> A. (B x)"
+lemma PairI2 [elim]: "\<lbrakk>p = \<langle>a, b\<rangle>; a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> p \<in> \<Sum>x\<in> A. (B x)"
   by simp
 
-lemmas sumD1 = sum_iff [THEN iffD1, THEN conjunct1]
-lemmas sumD2 = sum_iff [THEN iffD1, THEN conjunct2]
+lemmas PairD1 = Pair_iff [THEN iffD1, THEN conjunct1]
+lemmas PairD2 = Pair_iff [THEN iffD1, THEN conjunct2]
 
 (* LP: The general elimination rule *)
-lemma sumE [elim!]:
+lemma PairE [elim!]:
   "\<lbrakk>c \<in> \<Sum>x\<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x; c = \<langle>x, y\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (unfold sum_def, blast)
+  by (unfold Pair_def, blast)
 
-lemma sumE2 [elim!]:
+lemma PairE2 [elim!]:
   "\<lbrakk>\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x); \<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  by (unfold sum_def, blast)
+  by (unfold Pair_def, blast)
 
-lemma sum_cong:
+lemma Pair_cong:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Sum>x\<in> A. (B x) = \<Sum>x\<in> A'. (B' x)"
-  by (simp add: sum_def)
+  by (simp add: Pair_def)
 
-lemma sum_empty_index [simp]: "\<Sum>x\<in> {}. (B x) = {}"
+lemma Pair_empty_index [simp]: "\<Sum>x\<in> {}. (B x) = {}"
   by (rule extensionality) auto
 
-lemma sum_empty_sets [simp]: "\<Sum>x\<in> A. {} = {}"
+lemma Pair_empty_sets [simp]: "\<Sum>x\<in> A. {} = {}"
   by (rule extensionality) auto
 
-lemma sum_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
+lemma Pair_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
   by (auto intro!: equalityI)
 
 lemma prod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
@@ -137,17 +137,17 @@ lemma prod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
 
 subsection \<open>Projections @{term fst} and @{term snd}\<close>
 
-lemma sum_fst: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> fst p \<in> A"
+lemma Pair_fst: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
 
-lemma sum_snd: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> snd p \<in> B (fst p)"
+lemma Pair_snd: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> snd p \<in> B (fst p)"
   by auto
 
-lemma sum_mem_conv [simp]: "p \<in> \<Sum>x\<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma Pair_mem_conv [simp]: "p \<in> \<Sum>x\<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
 
 corollary prod_mem_conv [simp]: "p \<in> A \<times> B \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
-  by (fact sum_mem_conv)
+  by (fact Pair_mem_conv)
 
 lemma prod_subset_mem_conv [simp]: "\<lbrakk>p \<in> R; R \<subseteq> A \<times> B\<rbrakk> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
@@ -192,7 +192,7 @@ lemma split [simp]: "split f \<langle>a, b\<rangle> \<equiv> f a b"
 
 lemma split_type:
   "\<lbrakk>p \<in> \<Sum>x\<in> A. (B x); \<And>x y.\<lbrakk>x \<in> A; y \<in> B x\<rbrakk> \<Longrightarrow> c x y \<in> C \<langle>x,y\<rangle>\<rbrakk> \<Longrightarrow> split c p \<in> C p"
-  by (erule sumE) auto
+  by (erule PairE) auto
 
 lemma expand_split:
   "u \<in> A \<times> B \<Longrightarrow> R (split c u) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B. u = \<langle>x,y\<rangle> \<longrightarrow> R (c x y))"
@@ -210,11 +210,11 @@ lemma splitD: "split R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
 
 text \<open>Complex rules for disjoint union.\<close>
 
-lemma split_paired_Bex_sum [simp]:
+lemma split_paired_Bex_Pair [simp]:
   "(\<exists>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<exists>x \<in> A. \<exists>y \<in> B x. P \<langle>x, y\<rangle>)"
   by blast
 
-lemma split_paired_Ball_sum [simp]:
+lemma split_paired_Ball_Pair [simp]:
   "(\<forall>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B x. P \<langle>x,y\<rangle>)"
   by blast
 
@@ -234,35 +234,28 @@ text \<open>
 \<close>
 
 lemma opair_dependent_type:
-  "opair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (sum A B)"
+  "opair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (Pair A B)"
   by squash_types auto
 
-lemma prod_Prod [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
+lemma prod_subset [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
   by squash_types auto
 
 lemma split_paired_Ball:
   "(\<forall>x: element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a : element A. \<forall>b : element B. P \<langle>a, b\<rangle>)"
   by squash_types auto
 
-
-(* Stuff below should go into Universe.thy and Fixed_Points.thy *)
-(*
-lemma opair_Univ[derive]:
+lemma Univ_closed_opairT [derive]:
   "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
-  unfolding opair_def apply discharge_types
+  unfolding opair_def by discharge_types
 
-lemma Univ_Prod[derive]: "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
-  using opair_Univ
+lemma Univ_prod_subset [derive]:
+  "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
+  using Univ_closed_opairT
   by squash_types auto
 
-lemma prod_Univ[derive]: "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
+lemma Univ_subset_closed_prod [derive]:
+  "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
   by discharge_types
-
-lemma monop_prodI[derive]:
-  assumes A_type[type]: "A : monop (Univ X)" and B_type[type]: "B : monop (Univ X)"
-  shows "(\<lambda>x. A x \<times> B x) : monop (Univ X)"
-  by (rule monopI, discharge_types) (auto dest: monopD2[OF A_type] monopD2[OF B_type])
-*)
 
 
 end

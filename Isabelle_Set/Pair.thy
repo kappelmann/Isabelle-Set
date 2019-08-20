@@ -11,7 +11,7 @@ text \<open>
 \<close>
 
 theory Pair
-imports Set_Theory Universe Fixed_Points
+imports Set_Theory Universe Set_Lattice
 
 begin
 
