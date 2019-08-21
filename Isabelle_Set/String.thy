@@ -10,8 +10,6 @@ imports Ordered_Pair Ordinal
 
 begin
 
-syntax "_str" :: \<open>pttrn \<Rightarrow> set\<close> ("@_")
-
 ML \<open>
 (*Use unary encoding for now; this can be swapped out for something more efficient later*)
 fun von_neumann i = funpow i (fn t => \<^const>\<open>succ\<close> $ t) \<^term>\<open>{}\<close>
@@ -23,17 +21,19 @@ val chars =
   "u","v","w","x","y","z",
   "A","B","C","D","E","F","G","H","I","J",
   "K","L","M","N","O","P","Q","R","S","T",
-  "U","V","W","X","Y","Z","_"] ~~ map_range von_neumann 63
+  "U","V","W","X","Y","Z","_","'"] ~~ map_range von_neumann 64
 \<close>
 
 local_setup \<open>
 fn lthy =>
   let
     val transforms = chars |> map (fn (char, tm) =>
-      let val name = "char'" ^ char ^ "'"
+      let
+        val name = "char'" ^ char ^ "'"
+        val mx = "'''" ^ char ^ "'"
       in
         snd o Local_Theory.define (
-          (Binding.qualified_name name, NoSyn),
+          (Binding.qualified_name name, Mixfix.mixfix mx),
           ((Binding.qualified_name (name ^ "_def"), []), tm)
         )
       end)
@@ -42,45 +42,75 @@ fn lthy =>
   end
 \<close>
 
+definition string :: \<open>set \<Rightarrow> set\<close> where "string \<equiv> \<lambda>x. x"
+  \<comment>\<open>Wraps tuples of characters into strings.\<close>
+
+syntax "_string" :: \<open>pttrn \<Rightarrow> set\<close> ("@_")
+
 ML \<open>
 fun char_tm c = case c of
-    #"0" => \<^term>\<open>char'0'\<close> | #"1" => \<^term>\<open>char'1'\<close> | #"2" => \<^term>\<open>char'2'\<close>
-  | #"3" => \<^term>\<open>char'3'\<close> | #"4" => \<^term>\<open>char'4'\<close> | #"5" => \<^term>\<open>char'5'\<close>
-  | #"6" => \<^term>\<open>char'6'\<close> | #"7" => \<^term>\<open>char'7'\<close> | #"8" => \<^term>\<open>char'8'\<close>
-  | #"9" => \<^term>\<open>char'9'\<close> | #"a" => \<^term>\<open>char'a'\<close> | #"b" => \<^term>\<open>char'b'\<close>
-  | #"c" => \<^term>\<open>char'c'\<close> | #"d" => \<^term>\<open>char'd'\<close> | #"e" => \<^term>\<open>char'e'\<close>
-  | #"f" => \<^term>\<open>char'f'\<close> | #"g" => \<^term>\<open>char'g'\<close> | #"h" => \<^term>\<open>char'h'\<close>
-  | #"i" => \<^term>\<open>char'i'\<close> | #"j" => \<^term>\<open>char'j'\<close> | #"k" => \<^term>\<open>char'k'\<close>
-  | #"l" => \<^term>\<open>char'l'\<close> | #"m" => \<^term>\<open>char'm'\<close> | #"n" => \<^term>\<open>char'n'\<close>
-  | #"o" => \<^term>\<open>char'o'\<close> | #"p" => \<^term>\<open>char'p'\<close> | #"q" => \<^term>\<open>char'q'\<close>
-  | #"r" => \<^term>\<open>char'r'\<close> | #"s" => \<^term>\<open>char's'\<close> | #"t" => \<^term>\<open>char't'\<close>
-  | #"u" => \<^term>\<open>char'u'\<close> | #"v" => \<^term>\<open>char'v'\<close> | #"w" => \<^term>\<open>char'w'\<close>
-  | #"x" => \<^term>\<open>char'x'\<close> | #"y" => \<^term>\<open>char'y'\<close> | #"z" => \<^term>\<open>char'z'\<close>
-  | #"A" => \<^term>\<open>char'A'\<close> | #"B" => \<^term>\<open>char'B'\<close> | #"C" => \<^term>\<open>char'C'\<close>
-  | #"D" => \<^term>\<open>char'D'\<close> | #"E" => \<^term>\<open>char'E'\<close> | #"F" => \<^term>\<open>char'F'\<close>
-  | #"G" => \<^term>\<open>char'G'\<close> | #"H" => \<^term>\<open>char'H'\<close> | #"I" => \<^term>\<open>char'I'\<close>
-  | #"J" => \<^term>\<open>char'J'\<close> | #"K" => \<^term>\<open>char'K'\<close> | #"L" => \<^term>\<open>char'L'\<close>
-  | #"M" => \<^term>\<open>char'M'\<close> | #"N" => \<^term>\<open>char'N'\<close> | #"O" => \<^term>\<open>char'O'\<close>
-  | #"P" => \<^term>\<open>char'P'\<close> | #"Q" => \<^term>\<open>char'Q'\<close> | #"R" => \<^term>\<open>char'R'\<close>
-  | #"S" => \<^term>\<open>char'S'\<close> | #"T" => \<^term>\<open>char'T'\<close> | #"U" => \<^term>\<open>char'U'\<close>
-  | #"V" => \<^term>\<open>char'V'\<close> | #"W" => \<^term>\<open>char'W'\<close> | #"X" => \<^term>\<open>char'X'\<close>
-  | #"Y" => \<^term>\<open>char'Y'\<close> | #"Z" => \<^term>\<open>char'Z'\<close> | #"_" => \<^term>\<open>char'_'\<close>
+    #"0" => \<^term>\<open>'0'\<close> | #"1" => \<^term>\<open>'1'\<close> | #"2" => \<^term>\<open>'2'\<close> | #"3" => \<^term>\<open>'3'\<close>
+  | #"4" => \<^term>\<open>'4'\<close> | #"5" => \<^term>\<open>'5'\<close> | #"6" => \<^term>\<open>'6'\<close> | #"7" => \<^term>\<open>'7'\<close>
+  | #"8" => \<^term>\<open>'8'\<close> | #"9" => \<^term>\<open>'9'\<close> | #"a" => \<^term>\<open>'a'\<close> | #"b" => \<^term>\<open>'b'\<close>
+  | #"c" => \<^term>\<open>'c'\<close> | #"d" => \<^term>\<open>'d'\<close> | #"e" => \<^term>\<open>'e'\<close> | #"f" => \<^term>\<open>'f'\<close> 
+  | #"g" => \<^term>\<open>'g'\<close> | #"h" => \<^term>\<open>'h'\<close> | #"i" => \<^term>\<open>'i'\<close> | #"j" => \<^term>\<open>'j'\<close>
+  | #"k" => \<^term>\<open>'k'\<close> | #"l" => \<^term>\<open>'l'\<close> | #"m" => \<^term>\<open>'m'\<close> | #"n" => \<^term>\<open>'n'\<close>
+  | #"o" => \<^term>\<open>'o'\<close> | #"p" => \<^term>\<open>'p'\<close> | #"q" => \<^term>\<open>'q'\<close> | #"r" => \<^term>\<open>'r'\<close> 
+  | #"s" => \<^term>\<open>'s'\<close> | #"t" => \<^term>\<open>'t'\<close> | #"u" => \<^term>\<open>'u'\<close> | #"v" => \<^term>\<open>'v'\<close>
+  | #"w" => \<^term>\<open>'w'\<close> | #"x" => \<^term>\<open>'x'\<close> | #"y" => \<^term>\<open>'y'\<close> | #"z" => \<^term>\<open>'z'\<close>
+  | #"A" => \<^term>\<open>'A'\<close> | #"B" => \<^term>\<open>'B'\<close> | #"C" => \<^term>\<open>'C'\<close> | #"D" => \<^term>\<open>'D'\<close>
+  | #"E" => \<^term>\<open>'E'\<close> | #"F" => \<^term>\<open>'F'\<close> | #"G" => \<^term>\<open>'G'\<close> | #"H" => \<^term>\<open>'H'\<close>
+  | #"I" => \<^term>\<open>'I'\<close> | #"J" => \<^term>\<open>'J'\<close> | #"K" => \<^term>\<open>'K'\<close> | #"L" => \<^term>\<open>'L'\<close>
+  | #"M" => \<^term>\<open>'M'\<close> | #"N" => \<^term>\<open>'N'\<close> | #"O" => \<^term>\<open>'O'\<close> | #"P" => \<^term>\<open>'P'\<close> 
+  | #"Q" => \<^term>\<open>'Q'\<close> | #"R" => \<^term>\<open>'R'\<close> | #"S" => \<^term>\<open>'S'\<close> | #"T" => \<^term>\<open>'T'\<close> 
+  | #"U" => \<^term>\<open>'U'\<close> | #"V" => \<^term>\<open>'V'\<close> | #"W" => \<^term>\<open>'W'\<close> | #"X" => \<^term>\<open>'X'\<close>
+  | #"Y" => \<^term>\<open>'Y'\<close> | #"Z" => \<^term>\<open>'Z'\<close> | #"_" => \<^term>\<open>'_'\<close> | #"'" => \<^term>\<open>'''\<close>
   | _ => raise Match
 
-fun str_tm s =
+fun pairify s =
   (foldr1 (fn (t1, t2) => \<^const>\<open>opair\<close> $ t1 $ t2) (map char_tm (String.explode s)))
 
 fun str_tr [(c as Const (\<^syntax_const>\<open>_constrain\<close>, _)) $ t $ u] =
-      c $ str_tr [t] $ u
+      c $ (\<^const>\<open>string\<close> $ str_tr [t]) $ u
   | str_tr [t] =
       (case t of
-        Free (s, _) => str_tm s
-      | Const (s, _) => str_tm s
+        Free (s, _) => pairify s
+      | Const ("_idtdummy", _) => error "Cannot begin string with underscore"
+      | Const (s, _) => pairify s
       | _ => raise TERM ("str_tr", [t]))
   | str_tr ts = raise TERM ("str_tr", ts)
+
+fun tuple_to_string t =
+  let
+    fun char (Const (s, _)) =
+          let
+            val base_name = nth (space_explode "." s) 1
+          in
+            nth_string base_name 5
+          end
+      | char _ = raise Match
+
+    (*
+      Josh: Some issue I can't figure out: at the stage at which print_translation is
+      called, the scope of \<open>opair\<close> hasn't been resolved fully, so using \<^const_name>\<open>opair\<close>
+      fails in the code below.
+    *)
+    fun tuple_to_string (_ $ t $ ts) = (*Underscore should be \<open>opair\<close>!*)
+          char t :: tuple_to_string ts
+      | tuple_to_string t = [char t]
+  in
+    implode (
+      case t of
+        (_ $ t $ ts) => char t :: tuple_to_string ts (*Underscore should be \<open>opair\<close>!*)
+      | _ => [char t])
+  end
+
+fun str_tr' [t] = Syntax.const \<^syntax_const>\<open>_string\<close> $ Syntax.free (tuple_to_string t)
+  | str_tr' ts = raise TERM ("str_tr'", ts)
 \<close>
 
-setup \<open>Sign.parse_translation [(\<^syntax_const>\<open>_str\<close>, K str_tr)]\<close>
+parse_translation \<open>[(\<^syntax_const>\<open>_string\<close>, K str_tr)]\<close>
+print_translation \<open>[(\<^const_syntax>\<open>string\<close>, K str_tr')]\<close>
 
 lemmas char_simps [simp] =
   char'0'_def char'1'_def char'2'_def char'3'_def char'4'_def char'5'_def char'6'_def
@@ -116,10 +146,14 @@ qed
 
 lemmas opair_neq_succ [symmetric, simp]
 
-method discriminate_str = auto dest!: succ_inject
+method discriminate_str = auto dest!: succ_inject simp: string_def
 
 (* Example *)
-lemma "@Alex \<noteq> @Josh" by discriminate_str
+lemma
+  "@Alex \<noteq> @Josh" and
+  "@a \<noteq> @abc" and
+  "@a10 \<noteq> @b_"
+  by discriminate_str
 
 
 end
