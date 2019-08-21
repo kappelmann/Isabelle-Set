@@ -130,7 +130,7 @@ proof (rule extensionality)
       text \<open>
         @{method discharge_types} works here, but it prevents chaining-in other facts.
         Ideally, @{method rule} would provide a hook that lets us discharge typing
-        asSigmaptions after the rule application.
+        assumptions after the rule application.
       \<close>
       by (rule monopD2[of h], discharge_types) (fact *)
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast

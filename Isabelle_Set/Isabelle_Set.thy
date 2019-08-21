@@ -7,8 +7,10 @@ imports
   Relation
   Function
   Set_Lattice
-  Structure
+  String
+  Object
   Sum
+  Monops
   Monoid_Bundled
   Monoid_Class
   (* Natural_Numbers *)

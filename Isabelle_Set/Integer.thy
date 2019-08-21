@@ -3,7 +3,7 @@ theory Integer
 begin
 
 text \<open>
-  We construct the integers as a Sigma of a non-negative and a negative part.
+  We construct the integers as a pair of a non-negative and a negative part.
   By using the set extension principle, we make sure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 

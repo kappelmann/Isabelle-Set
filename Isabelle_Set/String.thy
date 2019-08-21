@@ -105,14 +105,15 @@ fun tuple_to_string t =
       | _ => [char t])
   end
 
-fun str_tr' [t] = Syntax.const \<^syntax_const>\<open>_string\<close> $ Syntax.free (tuple_to_string t)
+fun str_tr' [] = Syntax.const \<^syntax_const>\<open>_string\<close>
+  | str_tr' [t] = Syntax.const \<^syntax_const>\<open>_string\<close> $ Syntax.free (tuple_to_string t)
   | str_tr' ts = raise TERM ("str_tr'", ts)
 \<close>
 
 parse_translation \<open>[(\<^syntax_const>\<open>_string\<close>, K str_tr)]\<close>
 print_translation \<open>[(\<^const_syntax>\<open>string\<close>, K str_tr')]\<close>
 
-lemmas char_simps [simp] =
+lemmas char_simps =
   char'0'_def char'1'_def char'2'_def char'3'_def char'4'_def char'5'_def char'6'_def
   char'7'_def char'8'_def char'9'_def char'a'_def char'b'_def char'c'_def char'd'_def
   char'e'_def char'f'_def char'g'_def char'h'_def char'i'_def char'j'_def char'k'_def
@@ -146,14 +147,14 @@ qed
 
 lemmas opair_neq_succ [symmetric, simp]
 
-method discriminate_str = auto dest!: succ_inject simp: string_def
+method strings = auto dest!: succ_inject simp: string_def char_simps
 
 (* Example *)
 lemma
   "@Alex \<noteq> @Josh" and
   "@a \<noteq> @abc" and
   "@a10 \<noteq> @b_"
-  by discriminate_str
+  by strings
 
 
 end

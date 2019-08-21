@@ -15,8 +15,8 @@ subsection \<open>Datatype definition\<close>
 
 text \<open>Of course, the following tedium can be fully automated.\<close>
 
-definition Nil where "Nil = Inl {}"
-definition Cons where "Cons x xs = Inr \<langle>x, xs\<rangle>"
+definition Nil where "Nil = inl {}"
+definition Cons where "Cons x xs = inr \<langle>x, xs\<rangle>"
 
 definition List where
   "List A = lfp (Univ A) (\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L})"
@@ -36,18 +36,18 @@ lemma Cons_inject[simp]: "Cons x xs = Cons y ys \<longleftrightarrow> (x = y \<a
 
 lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}) : monop (Univ A)"
   apply (unfold split_def)
-  apply (rule monop_UnI)
+  apply (rule monop_unionI)
    apply discharge_types[1]
-  apply (rule monop_ReplI)
-   apply (rule monop_timesI)
+  apply (rule monop_replacementI)
+   apply (rule monop_prodI)
   apply discharge_types
   apply (rule Cons_Univ)
    apply (drule fst_prod_type)
-   apply (drule Univ_base_type, asSigmaption)
+   apply (drule Univ_base_type, assumption)
   apply (drule snd_prod_type)
   apply (rule Univ_baseent_closed_type'') (* Should be done by discharge_types, but too general unifier *)
-   apply asSigmaption
-  apply asSigmaption
+   apply assumption
+  apply assumption
   done
 
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]

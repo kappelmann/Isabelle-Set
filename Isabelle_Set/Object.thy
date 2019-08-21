@@ -1,12 +1,12 @@
 section \<open>Objects\<close>
 
 text \<open>
-  "Objects" are the abstraction of records/structures/mathematical objects. They are
-  implemented as function-like relations of HOTG.
+  "Objects" are the abstraction of records/structures/mathematical objects.
+  Their underlying implementation is as set-theoretic functions.
 \<close>
 
 theory Object
-imports String
+imports Function String
 
 keywords "object" :: thy_decl
 
@@ -15,7 +15,7 @@ begin
 subsection \<open>Syntax setup\<close>
 
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
-  where "object[lbl] \<equiv> THE x. \<langle>lbl, x\<rangle> \<in> object"
+  where "object[lbl] \<equiv> object`lbl"
 
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
   where [squash]: "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
@@ -31,11 +31,6 @@ translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
   "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons> "_object_comp2 args (CONST comp A (\<lambda>a. P))"
   "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
-
-lemma object_simps [simp]:
-  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
-  "M : Type (K Q) \<longleftrightarrow> Q"
-  by squash_types
 
 ML \<open>
 Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object declarations"
@@ -73,7 +68,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
           end
 
         fun print_info name def =
-          Output.information ("Object  declaration \"" ^ name ^ "\":\n " ^ def)
+          Output.information ("Object declaration \"" ^ name ^ "\":\n " ^ def)
 
         fun define_object_type lthy =
           let
@@ -81,7 +76,8 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
               let val body = Syntax.read_term lthy object_defstr
               in
                 case params of
-                  SOME args =>
+                  SOME [] => body
+                | SOME args =>
                     foldl1
                       (op o)
                       (map (Term.absfree o dest_Free o Syntax.read_term lthy) args)
@@ -106,7 +102,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
         fun gen_conditions _ = ()
       in
         lthy
-        |> fold define_label_const new_labels
+        (* |> fold define_label_const new_labels *)
         |> define_object_type
         (* |> gen_typings |> gen_conditions *)
       end
@@ -126,6 +122,19 @@ syntax
 translations
   "\<lparr> lbl = val \<rparr>" \<rightharpoonup> "{\<langle>lbl, val\<rangle>}"
   "\<lparr> lbl = val, fields \<rparr>" \<rightharpoonup> "CONST cons \<langle>lbl, val\<rangle> \<lparr> fields \<rparr>"
+
+
+subsection \<open>Rules\<close>
+
+lemma object_iffs [simp]:
+  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
+  "M : Type (K Q) \<longleftrightarrow> Q"
+  by squash_types
+
+lemmas object_simps [unfolded selector_def[symmetric], simp] =
+  apply_singleton
+  apply_pair1
+  apply_pair2
 
 
 end

@@ -464,7 +464,7 @@ lemma replaceE:
   "\<lbrakk> b \<in> {y | x \<in> A, P x y};  \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R \<rbrakk> \<Longrightarrow> R"
   by (rule replace_iff [THEN iffD1, THEN BexE], simp+)
 
-(* As above but without the (generally useless) 3rd asSigmaption *)
+(* As above but without the (generally useless) third assumption *)
 lemma replaceE2 [elim!]:
   "\<lbrakk>b \<in> {y. x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by (erule replaceE, blast)

@@ -64,10 +64,10 @@ lemma lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x;
 lemma apply_singleton[simp]: "{\<langle>x, y\<rangle>} ` x = y"
   by (auto simp: apply_def)
 
-lemma apply_doubleton1[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` x = a"
+lemma apply_pair1[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` x = a"
   by (auto simp: apply_def)
 
-lemma apply_doubleton2[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` y = b"
+lemma apply_pair2[simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} ` y = b"
   by (auto simp: apply_def)
 
 lemma beta_split[simp]:

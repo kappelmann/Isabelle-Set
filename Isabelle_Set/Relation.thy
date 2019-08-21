@@ -169,7 +169,7 @@ lemma relations_relation_type [elim]:
 
 subsection \<open>Some specific results\<close>
 
-lemma Sigma_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
+lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
   by auto
 
 lemma collect_relT:
