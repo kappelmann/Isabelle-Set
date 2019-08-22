@@ -1,17 +1,20 @@
 section \<open>Soft types for HOL\<close>
 
+text \<open>This theory introduces a generic notion of soft types based on HOL predicates.\<close>
+
 theory Soft_Types_HOL
 imports
   HOL.HOL
   Implicit_Arguments
   "HOL-Eisbach.Eisbach"
   "HOL-Eisbach.Eisbach_Tools"
-keywords "print_types" :: diag
+keywords
+  "opaque" :: thy_decl and
+  "print_opaque_terms" "print_types" :: diag
+
 begin
 
-text \<open>This theory introduces a generic notion of soft types, based on HOL predicates.\<close>
-
-declare[[eta_contract=false]]
+declare [[eta_contract=false]]
 
 
 subsection \<open>Basic definitions\<close>
@@ -208,6 +211,10 @@ ML_file \<open>isar_integration.ML\<close>
 
 setup \<open>Isar_Integration.setup\<close>
 
+ML \<open>
+
+\<close>
+
 attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
 attribute_setup bderive = \<open>Derivation.backderivation_rule_parser\<close>
 
@@ -244,28 +251,25 @@ text \<open>
   @{method squash_types} converts all typing formulas to their equivalent predicate forms.
 \<close>
 
-subsection \<open>Integration into the simplifier\<close>
+
+subsection \<open>Simplifier integration\<close>
 
 ML \<open> 
 val soft_type_simp_solver =
-let
-  fun solver ctxt i =
-    let
-    in
-      print_tac ctxt ("solver called on subgoal " ^ string_of_int i)
-      THEN SOLVED' (SUBGOAL (fn (t, i) =>
-        (Output.tracing (Syntax.string_of_term ctxt t);
-        if Soft_Type.is_typing t
-        then Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt i
-        else no_tac)
-      )) i
-    end
-in
-  map_theory_simpset (fn ctxt => ctxt
-    addSolver (mk_solver "discharge_types" solver))
-end
+  let
+    fun solver ctxt i =
+        print_tac ctxt ("solver called on subgoal " ^ string_of_int i)
+        THEN SOLVED' (SUBGOAL (fn (t, i) =>
+          (Output.tracing (Syntax.string_of_term ctxt t);
+          if Soft_Type.is_typing t
+          then Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt i
+          else no_tac)
+        )) i
+  in
+    map_theory_simpset (fn ctxt => ctxt
+      addSolver (mk_solver "discharge_types" solver))
+  end
 \<close>
-
 
 (*
 simproc_setup discharge_type_simproc ("x : T") = \<open> 

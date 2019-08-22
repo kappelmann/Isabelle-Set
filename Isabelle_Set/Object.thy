@@ -29,7 +29,8 @@ syntax
   ""              :: "object_arg \<Rightarrow> object_args" ("_")
 translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
-  "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons> "_object_comp2 args (CONST comp A (\<lambda>a. P))"
+  "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons>
+    "_object_comp2 args (CONST comp A (\<lambda>a. P))"
   "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
 
 ML \<open>
@@ -53,19 +54,22 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
 
         val object_def = Syntax.read_term lthy object_defstr
         val labels = get_labels object_def
-        val new_labels = filter is_Free labels
+        val string_labels =
+          labels |> filter (fn t => case t of \<^const>\<open>string\<close> $ _ => true | _ => false)
 
         val _ =
-          if has_duplicates (op =) labels
+          if length labels > length string_labels
+          then error "Label error"
+          else if has_duplicates (op =) string_labels
           then error "Object declaration has duplicate labels"
           else ()
 
-        fun define_label_const tm = fn lthy =>
+        (* fun define_label_const tm = fn lthy =>
           let val (name, typ) = dest_Free tm
           in
             lthy |> Local_Theory.background_theory (
               snd o Sign.declare_const lthy ((Binding.qualified_name name, typ), NoSyn)) 
-          end
+          end *)
 
         fun print_info name def =
           Output.information ("Object declaration \"" ^ name ^ "\":\n " ^ def)

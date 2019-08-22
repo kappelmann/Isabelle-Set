@@ -44,6 +44,7 @@ val put_backderivation_rule = Named_Theorems.add_thm \<^named_theorems>\<open>ba
 (** Backderived types **)
 
 (*Also store table of judgments that should generate backderivation rules.*)
+
 (*
   Josh - Writing this here so I don't forget it for later:
   For any function soft typing we automatically generate a derivation rule, which should
@@ -64,15 +65,53 @@ structure Backderived_Types = Generic_Data (
 
 fun all_bderived_types ctxt = Item_Net.content (Backderived_Types.get (Context.Proof ctxt))
 
-fun put_bderived_type tm context =
-  let
-    val item_net = Item_Net.update tm (Backderived_Types.get context)
-  in
-    (if is_Var tm then raise TERM (
-      "put_bderived_type: backward derivation rule for schematic soft type", [tm])
-    else ();
-    Backderived_Types.put item_net context)
-  end
+fun put_bderived_type tm = (
+  if is_Var tm
+  then raise TERM (
+    "put_bderived_type: backward derivation rule for schematic soft type", [tm])
+  else ();
+  Backderived_Types.map (Item_Net.update tm))
+
+
+(** Opaque terms **)
+
+(*
+  Type derivation takes all subterms of the goal state and generates type judgments for
+  them. Sometimes we may want particular terms to be opaque, i.e. to have them not be
+  considered by the type reasoner.
+*)
+
+structure Opaque_Terms = Generic_Data (
+  type T = term Item_Net.T
+  val empty = Item_Net.init Term.aconv single
+  val extend = I
+  val merge = Item_Net.merge
+)
+
+fun get_opaque_terms ctxt = Opaque_Terms.get (Context.Proof ctxt)
+fun put_opaque_terms tms = Opaque_Terms.map (foldl1 (op o) (map Item_Net.update tms))
+
+val _ = (
+  Outer_Syntax.local_theory \<^command_keyword>\<open>opaque\<close> "declare opaque terms"
+    let
+      val parser = Scan.repeat Parse.term
+    in
+      (parser >> (fn tms => fn lthy => lthy |>
+        Local_Theory.background_theory (Context.theory_map
+          (put_opaque_terms (Syntax.read_terms lthy tms)))))
+    end;
+
+  Outer_Syntax.command \<^command_keyword>\<open>print_opaque_terms\<close>
+    "print opaque terms of the proof context or local theory"
+    let
+      fun pretty_terms ctxt =
+        Item_Net.content (get_opaque_terms ctxt)
+        |> map (Proof_Display.pp_term (K (Proof_Context.theory_of ctxt)))
+        |> Pretty.chunks
+    in
+      (Scan.succeed (Toplevel.keep (Pretty.writeln o pretty_terms o Toplevel.context_of)))
+    end
+)
 
 
 (*** Type derivation ***)
@@ -274,11 +313,18 @@ fun raw_discharge_type_tac more_facts add_tms =
 
           fun typable_subterms tm =
             let
-              val res = if Term.is_open tm then [] else [tm]
+              val is_opaque = Item_Net.member (get_opaque_terms goal_ctxt)
+
+              val res =
+                if Term.is_open tm orelse is_opaque tm
+                then [] else [tm]
             in
               distinct Term.aconv (
                 res @ (case tm of
-                  t1 $ t2 => typable_subterms t1 @ typable_subterms t2
+                  t1 $ t2 =>
+                    if is_opaque t1
+                    then []
+                    else typable_subterms t1 @ typable_subterms t2
                 | Abs (_, _, t) => typable_subterms t
                 | Free _ => [tm]
                 | _ => []

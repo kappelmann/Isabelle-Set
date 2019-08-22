@@ -20,13 +20,6 @@ lemma Plus_PLUS_type [derive]: "str: Plus A \<Longrightarrow> str[@plus] : eleme
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[@plus] ` x ` y)"
 
-
-(*
-  TODO: Object selectors should be opaque; otherwise they uselessly clutter the type
-  derivation space, as seen in the proof below.
-*)
-declare [[trace_soft_types]]
-
 lemma plus_type [type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding plus_def by discharge_types
 

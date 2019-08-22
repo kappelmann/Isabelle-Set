@@ -10,6 +10,8 @@ imports Ordered_Pair Ordinal
 
 begin
 
+subsection \<open>Characters\<close>
+
 ML \<open>
 (*Use unary encoding for now; this can be swapped out for something more efficient later*)
 fun von_neumann i = funpow i (fn t => \<^const>\<open>succ\<close> $ t) \<^term>\<open>{}\<close>
@@ -42,8 +44,15 @@ fn lthy =>
   end
 \<close>
 
+
+subsection \<open>Strings\<close>
+
 definition string :: \<open>set \<Rightarrow> set\<close> where "string \<equiv> \<lambda>x. x"
   \<comment>\<open>Wraps tuples of characters into strings.\<close>
+
+text \<open>Strings should be opaque to the type derivator.\<close>
+
+opaque "string"
 
 syntax "_string" :: \<open>pttrn \<Rightarrow> set\<close> ("@_")
 
@@ -52,17 +61,17 @@ fun char_tm c = case c of
     #"0" => \<^term>\<open>'0'\<close> | #"1" => \<^term>\<open>'1'\<close> | #"2" => \<^term>\<open>'2'\<close> | #"3" => \<^term>\<open>'3'\<close>
   | #"4" => \<^term>\<open>'4'\<close> | #"5" => \<^term>\<open>'5'\<close> | #"6" => \<^term>\<open>'6'\<close> | #"7" => \<^term>\<open>'7'\<close>
   | #"8" => \<^term>\<open>'8'\<close> | #"9" => \<^term>\<open>'9'\<close> | #"a" => \<^term>\<open>'a'\<close> | #"b" => \<^term>\<open>'b'\<close>
-  | #"c" => \<^term>\<open>'c'\<close> | #"d" => \<^term>\<open>'d'\<close> | #"e" => \<^term>\<open>'e'\<close> | #"f" => \<^term>\<open>'f'\<close> 
+  | #"c" => \<^term>\<open>'c'\<close> | #"d" => \<^term>\<open>'d'\<close> | #"e" => \<^term>\<open>'e'\<close> | #"f" => \<^term>\<open>'f'\<close>
   | #"g" => \<^term>\<open>'g'\<close> | #"h" => \<^term>\<open>'h'\<close> | #"i" => \<^term>\<open>'i'\<close> | #"j" => \<^term>\<open>'j'\<close>
   | #"k" => \<^term>\<open>'k'\<close> | #"l" => \<^term>\<open>'l'\<close> | #"m" => \<^term>\<open>'m'\<close> | #"n" => \<^term>\<open>'n'\<close>
-  | #"o" => \<^term>\<open>'o'\<close> | #"p" => \<^term>\<open>'p'\<close> | #"q" => \<^term>\<open>'q'\<close> | #"r" => \<^term>\<open>'r'\<close> 
+  | #"o" => \<^term>\<open>'o'\<close> | #"p" => \<^term>\<open>'p'\<close> | #"q" => \<^term>\<open>'q'\<close> | #"r" => \<^term>\<open>'r'\<close>
   | #"s" => \<^term>\<open>'s'\<close> | #"t" => \<^term>\<open>'t'\<close> | #"u" => \<^term>\<open>'u'\<close> | #"v" => \<^term>\<open>'v'\<close>
   | #"w" => \<^term>\<open>'w'\<close> | #"x" => \<^term>\<open>'x'\<close> | #"y" => \<^term>\<open>'y'\<close> | #"z" => \<^term>\<open>'z'\<close>
   | #"A" => \<^term>\<open>'A'\<close> | #"B" => \<^term>\<open>'B'\<close> | #"C" => \<^term>\<open>'C'\<close> | #"D" => \<^term>\<open>'D'\<close>
   | #"E" => \<^term>\<open>'E'\<close> | #"F" => \<^term>\<open>'F'\<close> | #"G" => \<^term>\<open>'G'\<close> | #"H" => \<^term>\<open>'H'\<close>
   | #"I" => \<^term>\<open>'I'\<close> | #"J" => \<^term>\<open>'J'\<close> | #"K" => \<^term>\<open>'K'\<close> | #"L" => \<^term>\<open>'L'\<close>
-  | #"M" => \<^term>\<open>'M'\<close> | #"N" => \<^term>\<open>'N'\<close> | #"O" => \<^term>\<open>'O'\<close> | #"P" => \<^term>\<open>'P'\<close> 
-  | #"Q" => \<^term>\<open>'Q'\<close> | #"R" => \<^term>\<open>'R'\<close> | #"S" => \<^term>\<open>'S'\<close> | #"T" => \<^term>\<open>'T'\<close> 
+  | #"M" => \<^term>\<open>'M'\<close> | #"N" => \<^term>\<open>'N'\<close> | #"O" => \<^term>\<open>'O'\<close> | #"P" => \<^term>\<open>'P'\<close>
+  | #"Q" => \<^term>\<open>'Q'\<close> | #"R" => \<^term>\<open>'R'\<close> | #"S" => \<^term>\<open>'S'\<close> | #"T" => \<^term>\<open>'T'\<close>
   | #"U" => \<^term>\<open>'U'\<close> | #"V" => \<^term>\<open>'V'\<close> | #"W" => \<^term>\<open>'W'\<close> | #"X" => \<^term>\<open>'X'\<close>
   | #"Y" => \<^term>\<open>'Y'\<close> | #"Z" => \<^term>\<open>'Z'\<close> | #"_" => \<^term>\<open>'_'\<close> | #"'" => \<^term>\<open>'''\<close>
   | _ => raise Match
