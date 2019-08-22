@@ -165,5 +165,45 @@ lemma
   "@a10 \<noteq> @b_"
   by strings
 
+lemma "@abcde \<noteq> @asdf"
+  apply (rule notI)
+  apply (unfold string_def)
+    (* apply (drule opair_inject1)
+    apply (unfold char_simps)
+    apply (drule succ_inject)+
+    apply (elim empty_succE succ_emptyE) *)
+  apply (drule opair_inject2)
+    apply (drule opair_inject1)
+    apply (unfold char_simps)
+    apply (drule succ_inject)+
+    apply (elim empty_succE succ_emptyE)
+  done
+
+text \<open>Set up simp-solver:\<close>
+
+ML \<open>
+val string_simp_solver =
+  let
+    fun char_tac ctxt =
+      dresolve_tac ctxt @{thms opair_inject1}
+      THEN' K (rewrite_goals_tac ctxt @{thms char_simps})
+      THEN' REPEAT o dresolve_tac ctxt @{thms succ_inject}
+      THEN' eresolve_tac ctxt @{thms empty_succE succ_emptyE}
+
+    fun solver ctxt = SOLVED' ( 
+        K (print_tac ctxt ("strings")) THEN'
+      resolve_tac ctxt @{thms notI}
+          THEN' K (print_tac ctxt "ping1")
+      THEN' K (rewrite_goals_tac ctxt @{thms string_def})
+          THEN' K (print_tac ctxt "ping2")
+      THEN' REPEAT o (char_tac ctxt ORELSE' dresolve_tac ctxt @{thms opair_inject2})
+    )
+  in
+    map_theory_simpset (fn ctxt => ctxt
+      addSolver (mk_solver "distinguish strings" solver))
+  end
+\<close>
+setup \<open>string_simp_solver\<close>
+
 
 end

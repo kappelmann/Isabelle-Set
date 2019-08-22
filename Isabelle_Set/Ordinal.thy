@@ -77,8 +77,15 @@ lemma succ_mem: "x \<in> succ x"
 lemma succ_memI: "x \<in> y \<Longrightarrow> x \<in> succ y"
   unfolding succ_def by auto
 
-lemma succ_not_empty: "succ n \<noteq> {}"
+lemma succ_not_empty [simp]: "succ n \<noteq> {}"
   unfolding succ_def by auto
+
+lemmas empty_not_succ = succ_not_empty[symmetric, simp]
+
+lemmas
+  succ_emptyE = notE[OF succ_not_empty] and
+  empty_succE = notE[OF empty_not_succ]
+
 
 lemma succ_inject: "succ n = succ m \<Longrightarrow> n = m"
 proof (rule ccontr)
@@ -137,16 +144,6 @@ proof (induction rule: omega_induction)
   fix n assume "{} \<in> succ n"
   thus "{} \<in> succ (succ n)" unfolding succ_def by auto
 qed
-
-lemma empty_neq_succ [simp]: "{} \<noteq> succ n"
-unfolding succ_def
-proof
-  assume asm: "{} = n \<union> {n}"
-  moreover have "n \<in> n \<union> {n}" by auto
-  ultimately show False using asm by auto
-qed
-
-lemmas empty_neq_succ [symmetric, simp]
 
 
 end

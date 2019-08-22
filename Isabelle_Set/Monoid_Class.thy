@@ -113,15 +113,11 @@ definition
   "pair_monoid A B m1 m2 \<equiv>
     \<lparr> @zero = pair_zero A B m1 m2 [@zero], @plus = pair_plus A B m1 m2 [@plus] \<rparr>"
 
-(*
-  TODO: Add string inequality reasoning as a simp solver, so the following should just be
-  solved by simp
-*)
 lemma pair_monoid_ZERO [simp]: "pair_monoid A B m1 m2 [@zero] = pair_zero A B m1 m2 [@zero]"
-  unfolding pair_monoid_def by (subst object_simps) strings
+  unfolding pair_monoid_def by simp
 
 lemma pair_monoid_PLUS [simp]: "pair_monoid A B m1 m2 [@plus] = pair_plus A B m1 m2 [@plus]"
-  unfolding pair_monoid_def by (subst object_simps) strings
+  unfolding pair_monoid_def by simp
 
 text \<open>
   The following proofs illustrate that reasoning with types is still very much pedestrian
