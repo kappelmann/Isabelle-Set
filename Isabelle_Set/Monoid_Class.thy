@@ -48,6 +48,8 @@ abbreviation zero_implicit :: "set" ("0")
   where "0 \<equiv> zero \<implicit>Z"
 
 
+subsection \<open>Monoids\<close>
+
 text \<open>
   We define monoids as a soft type class (though without tool support) and experiment with
   how it can interact with implicit arguments and type inference.
@@ -121,7 +123,6 @@ lemma pair_monoid_ZERO [simp]: "pair_monoid A B m1 m2 [@zero] = pair_zero A B m1
 lemma pair_monoid_PLUS [simp]: "pair_monoid A B m1 m2 [@plus] = pair_plus A B m1 m2 [@plus]"
   unfolding pair_monoid_def by (subst object_simps) strings
 
-
 text \<open>
   The following proofs illustrate that reasoning with types is still very much pedestrian
   and needs better automated support.
@@ -135,7 +136,7 @@ lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   apply (intro Pi_typeI Plus_typeI)
   apply (unfold pair_plus_PLUS split_def)
-  by discharge_types
+  by discharge_types (* TODO: takes very long *)
 
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
@@ -143,7 +144,6 @@ lemma pair_zero_type [type]:
   by squash_types auto
 
 setup \<open>soft_type_simp_solver\<close>
-
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
@@ -175,14 +175,13 @@ proof (intro Pi_typeI)
       by (auto simp: pair_plus_def pair_zero_def)
   qed
 qed
-  
+
 
 lemma [type_instance]:
   "m1 : Plus A \<Longrightarrow> m2 : Plus B \<Longrightarrow> pair_plus A B m1 m2 : Plus (A \<times> B)"
   "m1 : Zero A \<Longrightarrow> m2 : Zero B \<Longrightarrow> pair_zero A B m1 m2 : Zero (A \<times> B)"
   "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
   by discharge_types
-
 
 declare [[auto_elaborate, trace_soft_types]]
 
@@ -201,8 +200,6 @@ lemma "x + (y + z) = x + y + z"
 lemma "x + y = z + w \<and> u + v = 0"
   print_types
   oops
-
-
 
 
 subsection \<open>Extension to groups\<close>

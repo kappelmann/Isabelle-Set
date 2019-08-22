@@ -1,7 +1,8 @@
 session Isabelle_Set = "HOL" +
   description
-    \<open> Isabelle/Set. A typed version of Tarski-Grothendieck set theory embedded in HOL \<close>
-  options [timeout = 180]
+    \<open>Isabelle/Set - A typed version of Tarski-Grothendieck set theory embedded in HOL.\<close>
+  options
+    [timeout = 180]
   sessions
     "HOL-Eisbach"
   theories
@@ -12,18 +13,17 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Examples and compatibility layers *)
-    (* "Isabelle_Set/Test_Examples/Tarski_A"
+    (* "Isabelle_Set/Test_Examples/Tarski_A" *)
     "Isabelle_Set/Test_Examples/Typing_Examples"
-    "Isabelle_Set/Test_Examples/Structure_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
     "Isabelle_Set/Test_Examples/Discharge_Types"
-    "Isabelle_Set/Test_Examples/MyList"
+    (* "Isabelle_Set/Test_Examples/MyList" *)
     "Isabelle_Set/Test_Examples/Simp_Test"
-    "Isabelle_Set/ZF_Compatibility" *)
+    "Isabelle_Set/Test_Examples/Matrix"
 
     (* Tests *)
-    (* "tests/Derivation_Test" *)
+    "tests/Derivation_Test"
 
     (* MML ported to new logic *)
     (* "Set_MML/tarski_0"
@@ -32,11 +32,10 @@ session Isabelle_Set = "HOL" +
 
 session Typed_Set_Theory = "HOL-Number_Theory" +
   description
-    \<open> Set theory with types on top. \<close>
+    \<open>Set theory with types on top.\<close>
   sessions
     "HOL-Eisbach"
   theories
-
     (* Isabelle/Mizar Foundation, Type System, and foundational MML *)
     "Isabelle_Mizar/mizar_HOL"
     "Isabelle_Mizar/mizar"
@@ -51,7 +50,6 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
     "Isabelle_Mizar/mizar_import"
     "Isabelle_Mizar/mizar_string"
     "Isabelle_Mizar/mizar_struct" *)
-
 
     (* MML Material *)
     (* Volatile, so removing from build for now:

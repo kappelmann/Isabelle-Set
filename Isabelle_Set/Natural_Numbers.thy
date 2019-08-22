@@ -31,7 +31,6 @@ shows "P n"
   apply (rule Set_Lattice.def_lfp_induct[OF any_typeI nat_op_monop NAT_def, unfolded nat_op_def])
    by (insert assms) auto
 
-
 definition nat_typedef[squash]: "nat = element \<nat>"
 
 lemma nat_induct_typed[case_names 0 succ, induct set: NAT]:
@@ -48,11 +47,14 @@ lemma zero_type: "{} : nat" by squash_types auto
 lemma succ_type: "succ : nat \<Rightarrow> nat" by squash_types auto
 
 
+subsection \<open>Less-than relation\<close>
+
+text \<open>This symbol will later be overloaded, but we skip this for now...\<close>
+
+(* inductive package *)
+axiomatization less_than (infix "<" 50) where
+  less_than1: "n : nat \<Longrightarrow> n < Succ n" and
+  less_than2: "n : nat \<Longrightarrow> m : nat \<Longrightarrow> n < m \<Longrightarrow> n < Succ m"
+
 
 end
-
-
-
-
-
-

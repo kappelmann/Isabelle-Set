@@ -6,13 +6,13 @@ begin
 
 text \<open>Proving that something is in some universe.\<close>
 
-lemma "Inl {} : element (Univ A)"
-  (* by discharge_types *) oops
+lemma "inl {} : element (Univ A)"
+  by discharge_types
 
 text \<open>Eta-normalization.\<close>
 
 lemma "C A : T \<Longrightarrow> C (\<lambda>x. A x) : T"
-  (* by discharge_types *) oops
+  by (subst eta_contract_eq) discharge_types
 
 lemma "C (\<lambda>x y z. D x y z) : T \<Longrightarrow> C D : T"
   by discharge_types

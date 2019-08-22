@@ -1113,7 +1113,11 @@ definition subset :: "set \<Rightarrow> set type"
 lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
   unfolding element_typedef subset_typedef by squash_types auto
 
-text \<open>Collections of sets of a given type T:\<close>
+lemma subset_self [derive]: "A : subset A"
+  by squash_types simp
+
+
+subsubsection \<open>Collections of sets of a given type T\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"

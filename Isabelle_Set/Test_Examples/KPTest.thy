@@ -245,7 +245,7 @@ proof(rule contraposR,rule impI)
 qed
 
 theorem CB_Th_3:
-  assumes "epsilon_transitive U" "ZF_closed U" 
+  assumes "mem_transitive U" "ZF_closed U" 
   shows "\<forall>X. X  \<in> U \<longrightarrow> VV X \<in> U"
 proof-
   let ?H = "\<lambda> X. X  \<in> U \<longrightarrow> VV X \<in> U"
@@ -319,10 +319,10 @@ proof-
       hence "?i (b`x) = x" "b`x \<in> Y" using B1 by blast+
       thus "x\<in> {?i y | y \<in> Y}" by auto
     qed
-    hence D: "X={?i y | y \<in> Y}" using D1 extensionality_axiom by auto
+    hence D: "X={?i y | y \<in> Y}" using D1 extensionality by auto
     have "?I \<in> Y \<rightarrow> {?i y | y \<in> Y}"  by auto
     thus "?I \<in> Y \<rightarrow> X" using D by auto
-    show  "{?I`y |y \<in> Y} = X" using D extensionality_axiom by auto
+    show  "{?I`y |y \<in> Y} = X" using D extensionality by auto
     show "\<forall> y1 y2. y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2 \<longrightarrow> y1=y2"
     proof(intro allI impI)
       fix y1 y2 assume  A1: "y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2"
@@ -369,9 +369,9 @@ proof-
        x:"y = b1`x \<and> x \<in> X" using B1 by blast 
       thus "z \<in> {?p x | x\<in>X}" using y by auto
     qed
-    hence D: "{?p x | x\<in>X} = Z" using D1 extensionality_axiom by auto
+    hence D: "{?p x | x\<in>X} = Z" using D1 extensionality by auto
     thus XZ: "?P \<in> X\<rightarrow> Z" by auto
-    show "{?P` x| x\<in> X}=Z" using D extensionality_axiom by auto
+    show "{?P` x| x\<in> X}=Z" using D extensionality by auto
     show "\<forall> x1 x2. x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2 \<longrightarrow> x1=x2"
     proof(intro allI impI)
       fix x1 x2 assume A: "x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2"
@@ -388,7 +388,7 @@ qed
 
 
 theorem CB_Lm_1:
-  assumes "epsilon_transitive U" "ZF_closed U" "AC_axiom"
+  assumes "mem_transitive U" "ZF_closed U" "AC_axiom"
           "X \<subseteq>  U" "X \<notin> U"
   shows   "\<exists> b . b : bij {x \<in> U | x:Ord} X"
 proof-
@@ -407,7 +407,7 @@ proof-
   let ?f=  "R_CB F"
   let ?g = "\<lambda> y .THE a . a \<in> ?Lamb \<and> ?f a = y"
   have C8: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow> h b  = k b) \<Longrightarrow> (\<forall>x. ?P a x h \<longrightarrow> ?P a x k)"
-   using elem_irrefl by blast
+   using mem_irrefl by blast
   have C10: "\<And> a h k. (\<forall>b. b \<in> a \<longrightarrow>  h b = k b) \<Longrightarrow> (\<forall>x. Q a h x \<longrightarrow> Q a k x)"
   proof(intro allI impI)
     fix a ::set fix h k ::"set \<Rightarrow> set" 
@@ -441,7 +441,7 @@ proof-
       hence P: "Pow a \<subseteq> U" using assms ZF_closed_def mem_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
-        have E: " epsilon_transitive a" using O unfolding Ord_typedef by squash_types
+        have E: " mem_transitive a" using O unfolding Ord_typedef by squash_types
         fix b assume b: "b \<in> a" 
         hence " b \<subseteq> a" using E mem_transitive_def[of a] by auto
         hence "b \<in> U" "b:Ord" using P Ord_transitive O b by auto
@@ -460,7 +460,7 @@ proof-
       proof
         assume "\<forall> x. \<not>?P a x ?f"
         hence "X \<subseteq> {?f b|b \<in> a}"  by auto
-        hence "X = {?f b|b \<in> a}" using C15 extensionality_axiom by auto
+        hence "X = {?f b|b \<in> a}" using C15 extensionality by auto
         then show False using C16 assms by auto
       qed
       then obtain xx where
@@ -502,8 +502,8 @@ proof-
     hence "x \<subseteq> U\<and> x:Ord " using mem_transitive_def assms by auto
     then show "x \<subseteq> ?Lamb" using Ord_transitive by auto
   qed
-  hence E: "epsilon_transitive ?Lamb" using mem_transitive_def by auto
-  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> epsilon_transitive x" unfolding Ord_typedef by squash_types auto
+  hence E: "mem_transitive ?Lamb" using mem_transitive_def by auto
+  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> mem_transitive x" unfolding Ord_typedef by squash_types auto
   hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto 
   let ?faLamb =" {?f a|a \<in> ?Lamb}"
   have C6_1: "?Lamb \<subseteq> {?g y| y \<in> ?faLamb}"
@@ -570,13 +570,13 @@ proof-
     have T1: "\<And> g. ?faLamb \<in> U \<longrightarrow> (\<forall>x. x \<in> ?faLamb \<longrightarrow> g x \<in> U) \<longrightarrow> Repl ?faLamb g \<in> U" 
        using assms(2) unfolding ZF_closed_def by auto
     have "?Lamb \<in> U" using T1[of ?g, rule_format, OF C22 C23] C6 by auto
-    then show "False" using elem_irrefl OL by auto  
+    then show "False" using mem_irrefl OL by auto  
   qed
   let ?T = "\<lambda>x \<in> ?Lamb. ?f x"
    
   have "?T : bij ?Lamb X"
   proof
-    have O1: "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality_axiom[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
+    have O1: "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
     thus T1: "?T \<in> ?Lamb \<rightarrow> X" by auto
     have V1: "{?T`x| x\<in> ?Lamb} \<subseteq> X" using C3 by auto
     have "X \<subseteq> {?T`x| x\<in> ?Lamb}"
@@ -587,7 +587,7 @@ proof-
       hence "?f x = ?T` x" by auto  
       thus "t\<in> {?T`x| x\<in> ?Lamb}" using x by blast
     qed
-    thus "{?T`x| x\<in> ?Lamb}=X" using V1 extensionality_axiom[rule_format, of "{?T`x| x\<in> ?Lamb}" X] by auto
+    thus "{?T`x| x\<in> ?Lamb}=X" using V1 extensionality[rule_format, of "{?T`x| x\<in> ?Lamb}" X] by auto
     show "\<forall>x1 x2. x1 \<in> ?Lamb \<and> x2 \<in> ?Lamb \<and> ?T `x1 = ?T ` x2 \<longrightarrow>
        x1 = x2" using C4 by auto
   qed
@@ -595,7 +595,7 @@ proof-
 qed
 
 theorem CB_Th_5:
-  assumes "epsilon_transitive U" "ZF_closed U" "AC_axiom"
+  assumes "mem_transitive U" "ZF_closed U" "AC_axiom"
       "X \<subseteq>  U" "X \<notin> U"
   shows "\<exists> b . b : bij X U" 
 proof-
@@ -605,7 +605,7 @@ proof-
   have "U \<subseteq> U" "U \<notin> U" using mem_irrefl by auto
   then obtain c where
     "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms (* by blast *)
-  thus "\<exists> b . b : bij X U" using bij_prod b by auto 
+  thus "\<exists> b . b : bij X U" using bij_prod b by auto
 qed
 
 end

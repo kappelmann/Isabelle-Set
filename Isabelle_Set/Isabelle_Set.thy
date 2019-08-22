@@ -13,7 +13,7 @@ imports
   Monops
   Monoid_Bundled
   Monoid_Class
-  (* Natural_Numbers *)
+  Natural_Numbers
   (* Integer *)
 
 begin
