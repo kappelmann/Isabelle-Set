@@ -604,7 +604,7 @@ proof-
     b:  "b: bij X {x \<in> U | x:Ord}" using bij_inv by blast
   have "U \<subseteq> U" "U \<notin> U" using mem_irrefl by auto
   then obtain c where
-    "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms (* by blast *)
+    "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms by blast
   thus "\<exists> b . b : bij X U" using bij_prod b by auto
 qed
 

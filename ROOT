@@ -13,7 +13,7 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Examples and compatibility layers *)
-    (* "Isabelle_Set/Test_Examples/Tarski_A" *)
+    "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
