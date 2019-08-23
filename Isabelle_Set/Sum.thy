@@ -9,7 +9,7 @@ definition "inl a = \<langle>{}, a\<rangle>"
 definition "inr b = \<langle>{{}}, b\<rangle>"
 definition "Sum A B = Repl A inl \<union> Repl B inr"
 
-lemma Sum_type_iff: "x \<in> Sum A B \<longleftrightarrow> (\<exists>a \<in> A. x = inl a) \<or> (\<exists>b \<in> B. x = inr b)"
+lemma Sum_iff: "x \<in> Sum A B \<longleftrightarrow> (\<exists>a \<in> A. x = inl a) \<or> (\<exists>b \<in> B. x = inr b)"
   unfolding Sum_def inl_def inr_def by blast
 
 lemma
@@ -28,7 +28,7 @@ lemma
   unfolding Sum_case_def inl_def inr_def by auto
 
 
-lemma Sum_elim [case_names inl inr]:
+lemma SumE [case_names inl inr]:
   assumes "x \<in> Sum A B"
   obtains a where "a \<in> A" "x = inl a" | b where "b \<in> B" "x = inr b"
   using assms unfolding Sum_def by blast

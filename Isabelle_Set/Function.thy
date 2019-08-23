@@ -1,6 +1,6 @@
 section \<open>Function\<close>
 
-text \<open>Function are formulated dependently, with nondependent functions as a special case.\<close>
+text \<open>Functions are formulated dependently, with nondependent functions as a special case.\<close>
 
 theory Function
 imports Relation
