@@ -14,7 +14,7 @@ imports
   Monoid_Bundled
   Monoid_Class
   Natural_Numbers
-  (* Integer *)
+  Integer
 
 begin
 

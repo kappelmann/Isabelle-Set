@@ -1,5 +1,5 @@
 theory Integer
-  imports (* Natural_Numbers *) Sum Set_Extension
+  imports Natural_Numbers Sum Set_Extension
 begin
 
 text \<open>
@@ -9,20 +9,19 @@ text \<open>
 
 definition "raw_int = Sum \<nat> (\<nat> \<setminus> {})"
                                
-interpretation INT: set_extension \<nat> raw_int Inl
+interpretation INT: set_extension \<nat> raw_int inl
 proof
   txt \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>raw_int\<close>:\<close>
 
-  show "Inl : element \<nat> \<Rightarrow> element raw_int"
-    unfolding raw_int_def by (rule Inl_type)
+  show "inl : element \<nat> \<Rightarrow> element raw_int"
+    unfolding raw_int_def by (rule inl_type)
 
-  show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. Inl x = Inl y \<longrightarrow> x = y" by auto
+  show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. inl x = inl y \<longrightarrow> x = y" by auto
 qed
 
 notation INT.def ("\<int>")
 
 lemma "\<nat> \<subseteq> \<int>" by (rule INT.extension_subset)
-
 
 
 end
