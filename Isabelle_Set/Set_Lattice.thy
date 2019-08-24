@@ -18,7 +18,7 @@ definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> 
 lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
   by auto
 
-abbreviation "monop D \<equiv> monotone D \<cdot> (subset D \<Rightarrow> subset D)"
+abbreviation "monop D \<equiv> monotone D \<sqdot> (subset D \<Rightarrow> subset D)"
 
 lemma monotoneI:
   assumes "\<And>W X. \<lbrakk>W \<subseteq> D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"

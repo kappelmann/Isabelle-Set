@@ -136,15 +136,15 @@ subsection \<open>Partial and total orders\<close>
 
 definition partial_order :: "set \<Rightarrow> set type"
   where partial_order_typedef:
-  "partial_order P \<equiv> reflexive \<cdot> transitive \<cdot> antisymmetric \<cdot> subset (P \<times> P)"
+  "partial_order P \<equiv> reflexive \<sqdot> transitive \<sqdot> antisymmetric \<sqdot> subset (P \<times> P)"
 
 definition strict_partial_order :: "set \<Rightarrow> set type"
   where strict_partial_order_typedef:
-  "strict_partial_order P \<equiv> irreflexive \<cdot> transitive \<cdot> subset (P \<times> P)"
+  "strict_partial_order P \<equiv> irreflexive \<sqdot> transitive \<sqdot> subset (P \<times> P)"
 
 definition total_order :: "set \<Rightarrow> set type"
   where total_order_typedef:
-  "total_order P \<equiv> total \<cdot> partial_order P"
+  "total_order P \<equiv> total \<sqdot> partial_order P"
 *)
 
 (* Not sure we'd need these *)
@@ -161,7 +161,7 @@ definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1
   where "B-valued \<equiv> \<lambda>R. rng R \<subseteq> B"
 
 lemma relations_relation_type [elim]:
-  "R \<subseteq> A \<times> B \<Longrightarrow> R : A-domed \<cdot> B-valued \<cdot> relation"
+  "R \<subseteq> A \<times> B \<Longrightarrow> R : A-domed \<sqdot> B-valued \<sqdot> relation"
   unfolding domed_def valued_def dom_def rng_def relation_typedef adjective_def
   by squash_types auto
 *)

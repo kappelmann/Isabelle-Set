@@ -163,19 +163,19 @@ subsection \<open>Adjectives\<close>
 
 text \<open>We allow adjectives—in the form of predicates—to modify types.\<close>
 
-definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<cdot>" 56)
-  where "adj \<cdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
+definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<sqdot>" 56)
+  where "adj \<sqdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
 
-lemma adjective_iff: "x : adj \<cdot> type \<longleftrightarrow> adj x \<and> x : type"
+lemma adjective_iff: "x : adj \<sqdot> type \<longleftrightarrow> adj x \<and> x : type"
   unfolding adjective_def by (simp only: Int_type_iff has_type_iff)
 
-lemma adjI: "\<lbrakk>adj x; x : type\<rbrakk> \<Longrightarrow> x : adj \<cdot> type"
+lemma adjI: "\<lbrakk>adj x; x : type\<rbrakk> \<Longrightarrow> x : adj \<sqdot> type"
   by (simp add: adjective_iff)
 
 lemma
-  adj_spec: "x : adj \<cdot> type \<Longrightarrow> adj x" and
+  adj_spec: "x : adj \<sqdot> type \<Longrightarrow> adj x" and
 
-  type_spec: "x : adj \<cdot> type \<Longrightarrow> x : type"
+  type_spec: "x : adj \<sqdot> type \<Longrightarrow> x : type"
 
   by (simp_all only: adjective_iff)
 

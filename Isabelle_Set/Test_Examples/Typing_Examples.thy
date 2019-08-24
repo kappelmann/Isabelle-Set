@@ -2,8 +2,8 @@ theory Typing_Examples
   imports "../Ordered_Pair"
 begin
 
-lemma "{} : empty \<cdot> set" unfolding empty_def adjective_def by squash_types auto
-lemma "{a} : non-empty \<cdot> set" unfolding non_def empty_def adjective_def by squash_types auto
+lemma "{} : empty \<sqdot> set" unfolding empty_def adjective_def by squash_types auto
+lemma "{a} : non-empty \<sqdot> set" unfolding non_def empty_def adjective_def by squash_types auto
 
 
 declare [[ trace_soft_types ]]

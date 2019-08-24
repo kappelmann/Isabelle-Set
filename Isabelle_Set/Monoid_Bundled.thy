@@ -8,7 +8,7 @@ begin
 text \<open>Here we define monoids using the experimental new structure mechanism.\<close>
 
 object monoid is "\<lparr> (@carrier A) (@op op) (@e e).
-  A: non-empty\<cdot>set \<and>
+  A: non-empty\<sqdot>set \<and>
   op: element (A \<rightarrow> A \<rightarrow> A) \<and>
   e: element A \<and>
 
@@ -21,7 +21,7 @@ thm monoid_typedef
 (* The following lemmas should be automatically generated for structures! *)
 
 lemma monoid_carrier_type:
-  "M : monoid \<Longrightarrow> M[@carrier] : non-empty \<cdot> set"
+  "M : monoid \<Longrightarrow> M[@carrier] : non-empty \<sqdot> set"
   unfolding monoid_typedef by simp
   
 lemma monoid_op_type:

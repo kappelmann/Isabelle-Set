@@ -9,7 +9,7 @@ object function "A::set" "B::set"
 term "function A B"
 
 object magma is "\<lparr> (@carrier A) (@op op).
-  A : non-empty\<cdot>set
+  A : non-empty\<sqdot>set
   \<and> op : element(A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 thm magma_typedef
@@ -18,7 +18,7 @@ thm magma_typedef
 subsection \<open>Monoids\<close>
 
 object monoid is "\<lparr> (@carrier A) (@op op) (@neut e).
-  A: non-empty\<cdot>set \<and>
+  A: non-empty\<sqdot>set \<and>
   op: element (A \<rightarrow> A \<rightarrow> A) \<and>
   e: element A \<and>
 

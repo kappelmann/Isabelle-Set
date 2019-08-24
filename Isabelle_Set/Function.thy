@@ -370,7 +370,7 @@ definition uniq_valued :: "set \<Rightarrow> bool"
   where "uniq_valued R \<equiv> \<forall>x y y'. \<langle>x, y\<rangle> \<in> R \<and> \<langle>x, y'\<rangle> \<in> R \<longrightarrow> y = y'"
 
 definition function :: "set type"
-  where function_typedef: "function \<equiv> uniq_valued \<cdot> relation"
+  where function_typedef: "function \<equiv> uniq_valued \<sqdot> relation"
 
 definition total :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-total)" [1000])
   where "A-total \<equiv> \<lambda>f. dom f = A"
@@ -378,11 +378,11 @@ definition total :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-total)" [100
 lemma Function_relation_type [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : relation"
   by (drule function_rel, drule relations_relation_type) squash_types
 
-lemma Function_function_type [elim]: "f \<in> Function A B \<Longrightarrow> f : A-total \<cdot> function"
+lemma Function_function_type [elim]: "f \<in> Function A B \<Longrightarrow> f : A-total \<sqdot> function"
   unfolding function_typedef uniq_valued_def total_def adjective_def
   by squash_types auto
 
-lemma functions_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<cdot> B-valued \<cdot> function"
+lemma functions_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<sqdot> B-valued \<sqdot> function"
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
   by (squash_types, auto) (insert range_subset, blast)
 *)
