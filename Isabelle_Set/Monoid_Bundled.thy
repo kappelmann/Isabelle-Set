@@ -59,7 +59,7 @@ lemma monoid_neut_type [type]: "monoid_neut : (M : monoid) \<Rightarrow> element
 lemma monoid_add_type [type]:
   "monoid_add :
     (M : monoid) \<Rightarrow> element (M[@carrier]) \<Rightarrow> element (M[@carrier]) \<Rightarrow> element (M[@carrier])"
-  unfolding monoid_typedef monoid_add_def by squash_types (auto intro: functionsE)
+  unfolding monoid_typedef monoid_add_def by squash_types (auto intro: FunctionE)
 
 lemma
   assumes "M : monoid"

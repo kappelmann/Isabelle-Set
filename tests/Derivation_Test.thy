@@ -12,7 +12,7 @@ axiomatization set :: "set type" and empty finite infinite :: "set \<Rightarrow>
   ** [derive]: "finite x \<Longrightarrow> non-infinite x"
 
 lemma
-  assumes [type]: "a : empty \<cdot> set"
+  assumes [type]: "a : empty \<sqdot> set"
   shows "blabla"
 
   ML_prf \<open>
@@ -23,7 +23,7 @@ lemma
 oops
 
 axiomatization pair subset_of where
-  pair [derive]: "s : set \<Longrightarrow> t : set \<Longrightarrow> pair s t : non-empty \<cdot> set" and
+  pair [derive]: "s : set \<Longrightarrow> t : set \<Longrightarrow> pair s t : non-empty \<sqdot> set" and
   subset [derive]: "x : set \<Longrightarrow> y : subset_of x \<Longrightarrow> y : set"
 
 lemma
@@ -45,8 +45,8 @@ where
   *** [derive]: "X : set \<Longrightarrow> Y : set \<Longrightarrow> R : subset_of (Prod X Y) \<Longrightarrow> Relation_like R"
 
 abbreviation "Relation_of X Y \<equiv> subset_of (Prod X Y)"
-abbreviation "PartFunc_of X Y \<equiv> Function_like \<cdot> (Relation_of X Y)"
-abbreviation "Function_of X Y \<equiv> (quasi_total X Y) \<cdot> (PartFunc_of X Y)"
+abbreviation "PartFunc_of X Y \<equiv> Function_like \<sqdot> (Relation_of X Y)"
+abbreviation "Function_of X Y \<equiv> (quasi_total X Y) \<sqdot> (PartFunc_of X Y)"
 
 lemma
   assumes [type]: "X : set" "Y : set" "F : Function_of X Y"
