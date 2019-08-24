@@ -54,22 +54,17 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
 
         val object_def = Syntax.read_term lthy object_defstr
         val labels = get_labels object_def
-        val string_labels =
-          labels |> filter (fn t => case t of \<^const>\<open>string\<close> $ _ => true | _ => false)
+
+        (* val string_labels =
+          labels |> filter (fn t => case t of \<^const>\<open>string\<close> $ _ => true | _ => false) *)
 
         val _ =
-          if length labels > length string_labels
+          (* if length labels > length string_labels
           then error "Label error"
-          else if has_duplicates (op =) string_labels
+          else *)
+          if has_duplicates (op =) labels (* string_labels *)
           then error "Object declaration has duplicate labels"
           else ()
-
-        (* fun define_label_const tm = fn lthy =>
-          let val (name, typ) = dest_Free tm
-          in
-            lthy |> Local_Theory.background_theory (
-              snd o Sign.declare_const lthy ((Binding.qualified_name name, typ), NoSyn)) 
-          end *)
 
         fun print_info name def =
           Output.information ("Object declaration \"" ^ name ^ "\":\n " ^ def)
