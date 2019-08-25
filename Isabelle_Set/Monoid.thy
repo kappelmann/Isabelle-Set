@@ -91,7 +91,7 @@ lemma pair_plus_type [type]:
 
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
-  unfolding Zero_typedef pair_zero_def zero_def
+  unfolding Zero_typedef Pointed_typedef pair_zero_def zero_def
   by squash_types auto
 
 setup \<open>soft_type_simp_solver\<close>

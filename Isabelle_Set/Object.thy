@@ -14,6 +14,8 @@ begin
 
 subsection \<open>Syntax setup\<close>
 
+type_synonym "object" = "set type"
+
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
   where "object[lbl] \<equiv> object`lbl"
 
