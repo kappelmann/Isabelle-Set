@@ -13,9 +13,11 @@ imports Structures
 
 begin
 
+setup \<open>soft_type_simp_solver\<close>
+
 definition Monoid :: "set \<Rightarrow> set type"
   where Monoid_typedef:
-  "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (@plus plus) (@zero zero) .
+  "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (@plus plus) (@zero zero).
     (\<forall>x: element A. plus`zero`x = x) \<and>
     (\<forall>x: element A. plus`x`zero = x) \<and>
     (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
@@ -30,7 +32,7 @@ lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
     \<forall>x: element A. str[@plus]`str[@zero]`x = x;
     \<forall>x: element A. str[@plus]`x`str[@zero] = x;
-    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A. 
+    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
        str[@plus]`(str[@plus]`x`y)`z = str[@plus]`x`(str[@plus]`y`z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
   unfolding Monoid_typedef by squash_types
@@ -93,8 +95,6 @@ lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
   unfolding Zero_typedef pair_zero_def zero_def
   by squash_types auto
-
-setup \<open>soft_type_simp_solver\<close>
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"

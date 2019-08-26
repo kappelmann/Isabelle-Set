@@ -15,7 +15,7 @@ begin
 subsection \<open>Syntax setup\<close>
 
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
-  where "object[lbl] \<equiv> object`lbl"
+  where [squash]: "object[lbl] \<equiv> object`lbl"
 
 definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
   where [squash]: "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
@@ -24,7 +24,7 @@ nonterminal object_arg and object_args
 syntax
   "_object_arg"   :: "set \<Rightarrow> id \<Rightarrow> object_arg" ("'(_ _')")
   "_object_args"  :: "object_args \<Rightarrow> object_arg \<Rightarrow> object_args" ("_ _" [40, 41] 40)
-  "_object_comp"  :: "object_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _. _ \<rparr>")
+  "_object_comp"  :: "object_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _./ _ \<rparr>")
   "_object_comp2" :: "object_args \<Rightarrow> logic \<Rightarrow> set type"
   ""              :: "object_arg \<Rightarrow> object_args" ("_")
 translations
@@ -72,7 +72,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
           end *)
 
         fun print_info name def =
-          Output.information ("Object declaration \"" ^ name ^ "\":\n " ^ def)
+          Output.information ("Object declaration \"" ^ name ^ "\":\n\n" ^ def)
 
         fun define_object_type lthy =
           let

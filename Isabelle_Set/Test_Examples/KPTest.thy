@@ -500,11 +500,11 @@ proof-
   proof-
     fix x assume "x \<in> ?Lamb"
     hence "x \<subseteq> U\<and> x:Ord " using mem_transitive_def assms by auto
-    then show "x \<subseteq> ?Lamb" using Ord_transitive by auto
+    then show "x \<subseteq> ?Lamb" by (auto intro: Ord_transitive)
   qed
   hence E: "mem_transitive ?Lamb" using mem_transitive_def by auto
   have "\<forall> x. x \<in> ?Lamb \<longrightarrow> mem_transitive x" unfolding Ord_typedef by squash_types auto
-  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto 
+  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto
   let ?faLamb =" {?f a|a \<in> ?Lamb}"
   have C6_1: "?Lamb \<subseteq> {?g y| y \<in> ?faLamb}"
   proof

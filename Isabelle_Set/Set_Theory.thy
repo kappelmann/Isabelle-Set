@@ -35,9 +35,9 @@ definition Bex1 :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarro
   where "Bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
 
 syntax
-  "_Ball" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(3\<forall>_ \<in> _./ _)" 10)
-  "_Bex"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(3\<exists>_ \<in> _./ _)" 10)
-  "_Bex1" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(3\<exists>!_ \<in> _./ _)" 10)
+  "_Ball" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<forall>_ \<in> _./ _)" 10)
+  "_Bex"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<exists>_ \<in> _./ _)" 10)
+  "_Bex1" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<exists>!_ \<in> _./ _)" 10)
 translations
   "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST Ball A (\<lambda>x. P)"
   "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST Bex A (\<lambda>x. P)"
@@ -1077,7 +1077,7 @@ qed
 
 
 
-section \<open>More finite sets\<close>
+subsection \<open>More finite sets\<close>
 
 lemma cons_neq_mem [simp]: "cons x A \<noteq> x"
   by (auto intro: consI1 mem_irreflE)
@@ -1218,6 +1218,9 @@ qed
 
 lemma empty_in_UnivT [derive]: "{} : element (Univ X)"
   by squash_types (fact empty_in_Univ)
+
+corollary Univ_nonempty [intro]: "non-empty (Univ X)"
+  unfolding non_def empty_def by auto
 
 lemma Univ_baseT [derive]: "A : element (Univ A)"
   by squash_types (fact Univ_base)

@@ -15,7 +15,7 @@ definition Function :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
 syntax "_Function" :: "[pttrn, set, set] => set type" ("(3\<Prod>_ \<in> _./ _)" [0, 0, 100])
 translations "\<Prod>x \<in> A. B" \<rightleftharpoons> "CONST Function A (\<lambda>x. B)"
 
-abbreviation "functions" :: "[set, set] \<Rightarrow> set" (infixr "\<rightarrow>" 60)
+abbreviation "function" :: "[set, set] \<Rightarrow> set" (infixr "\<rightarrow>" 60)
   where "A \<rightarrow> B \<equiv> \<Prod>x \<in> A. B"
 
 
@@ -52,6 +52,13 @@ lemma lambda_cong [cong]:
 lemma lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
   by (auto elim: equalityE)
 
+lemma apply_cons1:
+  assumes "x \<notin> dom A"
+  shows "(cons \<langle>x, y\<rangle> A) ` x = y"
+  unfolding apply_def
+  apply (rule, rule consI1)
+  using assms dom_def by auto
+
 lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} ` x = y"
   by (auto simp: apply_def)
 
@@ -67,13 +74,13 @@ lemma beta_split [simp]:
   using assms by auto
 
 lemma beta_split_typed [simp]:
-  "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) ` \<langle>a, b\<rangle> = P a b"
+  "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x, y\<rangle>. P x y) p) ` \<langle>a, b\<rangle> = P a b"
   by squash_types (fact beta_split)
 
-(* does not work as simp rule *)
+(* Does not work as simp rule *)
 lemma lambda_times_split: "(\<lambda>x \<in> A \<times> B. f x) = (\<lambda>\<langle>a, b\<rangle> \<in> A \<times> B. f \<langle>a, b\<rangle>)"
   by (rule lambda_cong) auto
-  
+
 
 subsection \<open>Rules for functions\<close>
 
@@ -128,7 +135,7 @@ unfolding Function_def proof (auto, rule PairI2)
   have "\<langle>fst p, f`(fst p)\<rangle> \<in> f"
     using uniq_val_imp uniq_val[OF \<open>fst p \<in> A\<close>] fst_elem
     by auto
-  hence eq: "snd p = f`(fst p)" using uniq_val[OF \<open>fst p \<in> A\<close>] * by auto 
+  hence eq: "snd p = f`(fst p)" using uniq_val[OF \<open>fst p \<in> A\<close>] * by auto
 
   have "f`(fst p) \<in> B (fst p)" using fst_elem stratified by auto
   thus "snd p \<in> B (fst p)" using eq by simp
@@ -162,7 +169,10 @@ lemma empty_function_iff [iff]: "f \<in> {} \<rightarrow> B \<longleftrightarrow
 lemma singleton_functionI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
   unfolding Function_def by auto
 
-lemma lambda_function [intro]: "(\<lambda>x \<in> A. b x) \<in> A \<rightarrow> {b x | x \<in> A}"
+lemma lambda_FunctionI: "(\<lambda>x \<in> A. b x) \<in> \<Prod>x \<in> A. {b x}"
+  unfolding lambda_def Function_def by auto
+
+lemma lambda_functionI [intro]: "(\<lambda>x \<in> A. b x) \<in> A \<rightarrow> {b x | x \<in> A}"
   unfolding lambda_def Function_def by auto
 
 lemma apply_function [simp]: "\<lbrakk>\<langle>x, y\<rangle> \<in> f; f \<in> \<Prod>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> f`x = y"
@@ -352,6 +362,24 @@ lemma function_lambdaE:
   apply fact
   done
 
+lemma lambda_reflect:
+  assumes "\<ff> = \<lambda>x \<in> A. f x"
+  shows "(\<lambda>x \<in> A. (\<ff>`x)) = \<lambda>x \<in> A. f x"
+  using assms by simp
+
+
+subsection \<open>Composition\<close>
+
+definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<circ>" 80)
+  where "g \<circ> f = \<lambda>x \<in> dom f. (g`(f`x))"
+
+lemma compose_lambdas:
+  "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
+  apply (auto simp: fun_comp_def)
+  apply (rule function_extensionality, auto intro!: beta)
+  apply squash_types
+  done
+
 
 subsection \<open>Soft typing\<close>
 
@@ -382,7 +410,7 @@ lemma Function_function_type [elim]: "f \<in> Function A B \<Longrightarrow> f :
   unfolding function_typedef uniq_valued_def total_def adjective_def
   by squash_types auto
 
-lemma functions_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<sqdot> B-valued \<sqdot> function"
+lemma function_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<sqdot> B-valued \<sqdot> function"
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
   by (squash_types, auto) (insert range_subset, blast)
 *)

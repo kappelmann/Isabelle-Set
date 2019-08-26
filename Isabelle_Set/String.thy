@@ -156,6 +156,8 @@ qed
 
 lemmas opair_neq_succ [symmetric, simp]
 
+method strings = auto dest!: succ_inject simp: string_def char_simps
+
 
 subsection \<open>Simp-solver\<close>
 
