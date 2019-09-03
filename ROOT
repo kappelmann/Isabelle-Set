@@ -18,7 +18,7 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
     "Isabelle_Set/Test_Examples/Discharge_Types"
-    (* "Isabelle_Set/Test_Examples/MyList" *)
+    "Isabelle_Set/Test_Examples/MyList"
     "Isabelle_Set/Test_Examples/Simp_Test"
     "Isabelle_Set/Test_Examples/Matrix"
 
