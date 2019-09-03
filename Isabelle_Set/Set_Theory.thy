@@ -1117,7 +1117,7 @@ lemma subset_self [derive]: "A : subset A"
   by squash_types simp
 
 
-subsubsection \<open>Collections of sets of a given type T\<close>
+text \<open>Collections of sets of a given type T:\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
@@ -1159,6 +1159,12 @@ lemma Soft_Ball_element_squash [squash]: "(\<forall>x: element A. P x) \<longlef
 
 lemma Soft_Bex_element_squash [squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x \<in> A. P x)"
   unfolding Soft_Bex_def by squash_types blast
+
+
+subsection \<open>Subtyping\<close>
+
+lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> element A \<prec> element B"
+  by squash_types+ auto
 
 
 subsection \<open>Closure properties and universes\<close>

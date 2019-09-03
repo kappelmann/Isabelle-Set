@@ -280,7 +280,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (** Single step discharge; works on the first subgoal **)
 
-fun raw_discharge_type_tac more_facts add_tms =
+fun raw_discharge_type_tac add_facts add_tms =
   Subgoal.FOCUS_PREMS (fn {context = goal_ctxt, prems, concl, ...} =>
     let
       val concl_tm = Thm.term_of concl
@@ -298,7 +298,10 @@ fun raw_discharge_type_tac more_facts add_tms =
               val prop = Thm.prop_of prem
             in
               if Soft_Type.is_typing prop then
-                Soft_Type_Context.put_type (Soft_Type.term_of_typing prop) prem context
+                (if Soft_Type.is_Pi (Soft_Type.type_of_typing prop)
+                then put_derivation_rule (Pi_derivation_rule prem) context
+                else context)
+                |> Soft_Type_Context.put_type (Soft_Type.term_of_typing prop) prem
               else if Soft_Type.is_adj prop then
                 Soft_Type_Context.put_adj (Soft_Type.term_of_jdgmt prop) prem context
               else if is_derivation_rule prem then
@@ -309,7 +312,7 @@ fun raw_discharge_type_tac more_facts add_tms =
           val goal_ctxt' =
             goal_ctxt
             |> Context.proof_map (fold add_to_context
-              (map (Soft_Type.eta_norm goal_ctxt) (more_facts @ prems)))
+              (map (Soft_Type.eta_norm goal_ctxt) (add_facts @ prems)))
 
           fun typable_subterms tm =
             let
@@ -377,12 +380,12 @@ fun raw_discharge_type_tac more_facts add_tms =
 
 (** Fully automated type derivation and discharge **)
 
-fun full_discharge_types_tac more_facts add_tms ctxt =
+fun full_discharge_types_tac add_facts add_tms ctxt =
   let
     val discharge_tac =
       SUBGOAL (fn _ => ALLGOALS (TRY o (
         (* (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' *)
-        raw_discharge_type_tac more_facts add_tms ctxt)))
+        raw_discharge_type_tac add_facts add_tms ctxt)))
 
     val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
 

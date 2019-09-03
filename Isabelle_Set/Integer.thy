@@ -21,7 +21,10 @@ qed
 
 notation INT.def ("\<int>")
 
-lemma "\<nat> \<subseteq> \<int>" by (rule INT.extension_subset)
+lemma nat_in_int: "\<nat> \<subseteq> \<int>" by (rule INT.extension_subset)
+
+corollary [derive]: "element \<nat> \<prec> element \<int>"
+  by (rule subset_subtype) (fact nat_in_int)
 
 
 end

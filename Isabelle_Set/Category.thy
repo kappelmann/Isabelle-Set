@@ -5,7 +5,7 @@ imports Object
 
 begin
 
-object QuasiCategory "X::set" is "\<lparr> (@obj obj) (@hom hom) (@comp comp) (@id id).
+object ProtoCategory "X::set" is "\<lparr> (@obj obj) (@hom hom) (@comp comp) (@id id).
   obj  : non-empty \<sqdot> element X \<and>
   hom  : element (obj \<rightarrow> obj \<rightarrow> X) \<and>
   comp : element (\<Prod>A \<in> obj. \<Prod>B \<in> obj. \<Prod>C \<in> obj. (hom`A`B \<rightarrow> hom`B`C \<rightarrow> hom`A`C)) \<and>
@@ -29,10 +29,10 @@ definition hom :: \<open>set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> s
   where "hom\<^bsub>C\<^esub> A B = C[@hom]`A`B"
 
 definition SmallCategory
-  where SmallCategory_typedef: "SmallCategory = QuasiCategory (Univ {})"
+  where SmallCategory_typedef: "SmallCategory = ProtoCategory (Univ {})"
 
 definition Category
-  where Category_typedef: "Category = QuasiCategory (Univ (Univ {}))"
+  where Category_typedef: "Category = ProtoCategory (Univ (Univ {}))"
 
 
 subsection \<open>Examples of categories\<close>
@@ -52,7 +52,7 @@ text \<open>Too much low-level manipulation in the following proof...\<close>
 declare [[trace_soft_types]]
 
 lemma Set_cat_type: "\<S>et : Category"
-unfolding Category_typedef QuasiCategory_typedef
+unfolding Category_typedef ProtoCategory_typedef
 proof auto
   show "\<S>et[@obj] : non-empty \<sqdot> element (Univ (Univ {}))"
     apply (simp add: Set_cat_def selector_def; subst apply_cons1)
