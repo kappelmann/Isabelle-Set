@@ -29,7 +29,7 @@ lemma matrix_idx_type [type]:
 text \<open>Given the dimensions and a function mapping indices to values, construct a matrix:\<close>
 
 definition  
-  "matrix_comp n m f = (\<lambda>i \<in> {0..< n}. \<lambda>j \<in> {0..< m}. f i j)"
+  "matrix_comp n m f = \<lambda>i \<in> {0..< n}. \<lambda>j \<in> {0..< m}. f i j"
 
 lemma matrix_comp_type [type]:
   "matrix_comp : (m : nat) \<Rightarrow> (n : nat) \<Rightarrow> (element {0..< m} \<Rightarrow> element {0..< n} \<Rightarrow> element A) 
@@ -40,19 +40,19 @@ lemma matrix_comp_type [type]:
 
 subsection \<open>Addition\<close>
 
-
 text \<open>Class instance:\<close>
 
 definition
   "Plus_Matrix A n m p = \<lparr> @plus = (\<lambda>M\<in>Matrix A n m. \<lambda>N\<in>Matrix A n m.
-     matrix_comp n m (% i j. plus p (matrix_idx M i j) (matrix_idx N i j))) \<rparr>"
+     matrix_comp n m (\<lambda> i j. plus p (matrix_idx M i j) (matrix_idx N i j))) \<rparr>"
 
-lemma Plus_Matrix_type[type]: "Plus_Matrix : (A : set) \<Rightarrow> (n : nat) \<Rightarrow> (m : nat) \<Rightarrow> Plus A \<Rightarrow> Plus (Matrix A n m)"
+lemma Plus_Matrix_type [type]:
+  "Plus_Matrix : (A : set) \<Rightarrow> (n : nat) \<Rightarrow> (m : nat) \<Rightarrow> Plus A \<Rightarrow> Plus (Matrix A n m)"
   apply (intro Pi_typeI Plus_typeI)
   apply (simp add: Plus_Matrix_def)
   by discharge_types
 
-lemma Plus_Matrix_instance[type_instance]:
+lemma Plus_Matrix_instance [type_instance]:
   "n : nat \<Longrightarrow> m : nat \<Longrightarrow> p : Plus A \<Longrightarrow> Plus_Matrix A n m p : Plus (Matrix A n m)"
   by discharge_types
 

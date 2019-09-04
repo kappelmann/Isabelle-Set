@@ -29,7 +29,7 @@ axiomatization
 where
   pred_of_type: "pred_of (Type t) \<equiv> t"
 
-definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
+definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" ("(1_ :/ _)" [46, 46] 45)
   where "x : T \<equiv> pred_of T x"
 
 lemma has_type_iff: "x : Type P \<longleftrightarrow> P x"

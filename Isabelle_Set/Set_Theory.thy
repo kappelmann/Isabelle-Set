@@ -1271,5 +1271,9 @@ lemma Univ_closed_bin_unionT [derive]:
   "\<lbrakk>A : element (Univ X); B : element (Univ X)\<rbrakk> \<Longrightarrow> A \<union> B : element (Univ X)"
   by squash_types auto
 
+text \<open>The von Neumann universe of ZFC:\<close>
+
+abbreviation \<V> :: set where "\<V> \<equiv> Univ {}"
+
 
 end

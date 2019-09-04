@@ -14,11 +14,11 @@ begin
 
 subsection \<open>Syntax setup\<close>
 
-definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
-  where [squash]: "object[lbl] \<equiv> object`lbl"
+definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [1000, 0] 1000)
+  where [squash]: "object[lbl] \<equiv> object `lbl"
 
-definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where [squash]: "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
+definition composer :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  where [squash]: "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
 
 nonterminal object_arg and object_args
 syntax
@@ -30,11 +30,11 @@ syntax
 translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
   "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons>
-    "_object_comp2 args (CONST comp A (\<lambda>a. P))"
-  "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
+    "_object_comp2 args (CONST composer A (\<lambda>a. P))"
+  "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST composer A (\<lambda>a. P))"
 
 ML \<open>
-Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object declarations"
+Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object declarations"
   let
     val parser =
       Parse.name
@@ -47,7 +47,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
           Get the field labels used in the declaration.
           This relies on the specific form of the translations defined above!
         *)
-        fun get_labels (\<^const>\<open>comp\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
+        fun get_labels (\<^const>\<open>composer\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
           | get_labels (Const (\<^const_name>\<open>Type\<close>, _) $ t) = get_labels t
           | get_labels (Const (\<^const_name>\<open>Int_type\<close>, _) $ _ $ t) = get_labels t
           | get_labels _ = []
@@ -71,8 +71,8 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
               snd o Sign.declare_const lthy ((Binding.qualified_name name, typ), NoSyn)) 
           end *)
 
-        fun print_info name def =
-          Output.information ("Object declaration \"" ^ name ^ "\":\n\n" ^ def)
+        fun print_info def =
+          Output.writeln ("object\n  " ^ def)
 
         fun define_object_type lthy =
           let
@@ -89,13 +89,13 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
                 | NONE => body
               end
 
-            val ((Free(name, _), (_, def)), lthy') =
+            val ((_, (_, def)), lthy') =
               Local_Theory.define (
                 (Binding.qualified_name name, NoSyn),
                 ((Binding.qualified_name (name ^ "_typedef"), []), def_tm)
               ) lthy
           in
-            print_info name (Syntax.string_of_term lthy' (Thm.prop_of def));
+            print_info (Syntax.string_of_term lthy' (Thm.prop_of def));
             lthy'
           end
 
@@ -131,7 +131,7 @@ translations
 subsection \<open>Rules\<close>
 
 lemma object_iffs [simp]:
-  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
+  "M : Type (composer A P) \<longleftrightarrow> M : Type (P (M[A]))"
   "M : Type (K Q) \<longleftrightarrow> Q"
   by squash_types
 

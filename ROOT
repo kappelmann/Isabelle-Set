@@ -12,6 +12,9 @@ session Isabelle_Set = "HOL" +
     (* Tarski-Grothendieck Set Theory on top of HOL. *)
     "Isabelle_Set/Isabelle_Set"
 
+    (* Other library theories *)
+    "Isabelle_Set/Category"
+
     (* Examples and compatibility layers *)
     "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
