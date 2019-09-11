@@ -130,6 +130,28 @@ definition total :: "set \<Rightarrow> bool"
   where "total R \<equiv> \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
 
+subsection \<open>Well-founded relations\<close>
+
+definition well_founded :: "set \<Rightarrow> bool"
+  where "well_founded R \<equiv> \<forall>X. X \<subseteq> R \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<not>(\<exists> x \<in> X. \<langle>x, a\<rangle> \<in> R))"
+
+lemma well_foundedI:
+  assumes "\<And>X. \<lbrakk>X \<subseteq> R; X \<noteq> {}\<rbrakk> \<Longrightarrow> \<exists>a \<in> X. a \<notin> rng R"
+  shows "well_founded R"
+unfolding well_founded_def
+proof (intro allI impI, elim conjE)
+  fix X assume
+    "X \<subseteq> R"
+    "X \<noteq> {}"
+  then obtain a where
+    "a \<in> X"
+    "a \<in> rng R \<Longrightarrow> False"
+    using assms by auto
+  thus "\<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R)"
+    by (auto dest: rngI)
+qed
+
+
 (* Should be structures *)
 (*
 subsection \<open>Partial and total orders\<close>
@@ -167,7 +189,7 @@ lemma relations_relation_type [elim]:
 *)
 
 
-subsection \<open>Some specific results\<close>
+subsection \<open>Specific results\<close>
 
 lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
   by auto
