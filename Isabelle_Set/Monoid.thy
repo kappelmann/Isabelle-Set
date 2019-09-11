@@ -20,7 +20,7 @@ definition Monoid :: "set \<Rightarrow> set type"
   "Monoid A =
     Zero A
   \<bar> Plus A
-  \<bar> \<lparr> (@plus plus) (@zero zero).
+  \<bar> \<lparr> (plus @plus) (zero @zero).
     (\<forall>x: element A. plus `zero `x = x) \<and>
     (\<forall>x: element A. plus `x `zero = x) \<and>
     (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
@@ -163,7 +163,7 @@ declare [[auto_elaborate = false]]
 
 object Group "A :: set" is
   "Monoid A
-  \<bar> \<lparr> (@plus plus) (@zero zero) (@inv inv).
+  \<bar> \<lparr> (plus @plus) (zero @zero) (inv @inv).
     inv : element (A \<rightarrow> A) \<and>
     (\<forall>x\<in>A. plus `(inv `x) `x = zero) \<and>
     (\<forall>x\<in>A. plus `x `(inv `x) = zero) \<rparr>"

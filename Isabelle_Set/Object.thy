@@ -22,16 +22,16 @@ definition composer :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> b
 
 nonterminal object_arg and object_args
 syntax
-  "_object_arg"   :: "set \<Rightarrow> id \<Rightarrow> object_arg" ("'(_ _')")
+  "_object_arg"   :: "id \<Rightarrow> set \<Rightarrow> object_arg" ("'(_ _')")
   "_object_args"  :: "object_args \<Rightarrow> object_arg \<Rightarrow> object_args" ("_ _" [40, 41] 40)
   "_object_comp"  :: "object_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _./ _ \<rparr>")
   "_object_comp2" :: "object_args \<Rightarrow> logic \<Rightarrow> set type"
   ""              :: "object_arg \<Rightarrow> object_args" ("_")
 translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
-  "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons>
+  "_object_comp2 (_object_args args (_object_arg a A)) P" \<rightleftharpoons>
     "_object_comp2 args (CONST composer A (\<lambda>a. P))"
-  "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST composer A (\<lambda>a. P))"
+  "_object_comp2 (_object_arg a A) P" \<rightleftharpoons> "CONST Type (CONST composer A (\<lambda>a. P))"
 
 ML \<open>
 Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object declarations"

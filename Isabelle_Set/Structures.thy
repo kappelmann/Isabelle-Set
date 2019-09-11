@@ -8,7 +8,7 @@ begin
 subsection \<open>Plus structures\<close>
 
 object Plus "A :: set"
-  is "\<lparr> (@plus plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
+  is "\<lparr> (plus @plus). plus : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 lemma Plus_typeI: "str[@plus] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> str : Plus A"
   unfolding Plus_typedef by squash_types
@@ -30,7 +30,7 @@ abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl 
 subsection \<open>Zero structures\<close>
 
 object Zero "A :: set"
-  is "\<lparr> (@zero z). z : element A \<rparr>"
+  is "\<lparr> (z @zero). z : element A \<rparr>"
 
 lemma Zero_typeI: "str[@zero] : element A \<Longrightarrow> str : Zero A"
   unfolding Zero_typedef by auto

@@ -11,7 +11,7 @@ text \<open>
   This allows us to work easily with large categories.
 \<close>
 
-object ProtoCategory "U :: set" is "\<lparr> (@obj obj) (@hom hom) (@comp comp) (@id id).
+object ProtoCategory "U :: set" is "\<lparr> (obj @obj) (hom @hom) (comp @comp) (id @id).
   obj  : non-empty \<sqdot> subset U \<and>
   hom  : element (obj \<rightarrow> obj \<rightarrow> U) \<and>
   comp : element (\<Prod>A \<in> obj. \<Prod>B \<in> obj. \<Prod>C \<in> obj. (hom `A `B \<rightarrow> hom `B `C \<rightarrow> hom `A `C)) \<and>
@@ -39,13 +39,17 @@ definition Category where
   Category_typedef: "Category = ProtoCategory \<V>"
 
 definition SmallCategory where
-  SmallCategory_typedef: "SmallCategory = Category \<bar> \<lparr> (@obj obj). obj \<in> \<V> \<rparr>"
+  SmallCategory_typedef: "SmallCategory = Category \<bar> \<lparr> (obj @obj). obj \<in> \<V> \<rparr>"
 
 
 subsection \<open>Examples of categories\<close>
 
 text \<open>Sets in the lowest universe.\<close>
 
+(*
+  This is wrong; need some sort of recursive definition mechanism in order to refer to
+  other fields!
+*)
 definition Set_cat ("\<S>et")
   where "\<S>et = \<lparr>
     @obj = \<V>,
@@ -53,6 +57,8 @@ definition Set_cat ("\<S>et")
     @comp = \<lambda>A \<in> @obj. \<lambda>B \<in> @obj. \<lambda>C \<in> @obj. \<lambda>f \<in> @hom `A `B. \<lambda>g \<in> @hom `B `C. (g \<circ> f),
     @id = \<lambda>A \<in> @obj. \<lambda>x \<in> @hom `A `A. x
   \<rparr>"
+
+thm "Set_cat_def"
 
 text \<open>Too much low-level manipulation in the following proof...\<close>
 
@@ -62,15 +68,22 @@ lemma Set_cat_type: "\<S>et : Category"
 unfolding Category_typedef ProtoCategory_typedef
 proof auto
   show "\<S>et[@obj] : non-empty \<sqdot> subset \<V>"
-    (* Need better beta reduction automation for set-theoretic functions! *)
-    apply (simp add: Set_cat_def selector_def; subst apply_cons1)
-    apply (auto; strings)
+    (*
+      Need better beta reduction automation for set-theoretic functions!
+      Should be able to just evaluate \<S>et[@obj] to \<V>, e.g. using simp.
+      Look into subgoalers/simp-solvers for this.
+    *)
+    apply (simp add: Set_cat_def selector_def)
+    (* The next two lines should be replaced with simp, or maybe auto *)
+    apply (subst apply_cons1)
+    apply (auto; strings)+
     apply discharge_types
     apply (rule Univ_nonempty)
     done
 
   show "\<S>et[@hom] : element (\<S>et[@obj] \<rightarrow> \<S>et[@obj] \<rightarrow> \<V>)"
-    apply (simp add: Set_cat_def selector_def; (subst (0 2) apply_cons1))
+    apply (simp add: Set_cat_def selector_def)
+    apply (subst (0 2) apply_cons1)
     apply (auto; strings)+
     apply (subst cons_commute, subst apply_cons1)
     apply (auto; strings)+
