@@ -299,34 +299,29 @@ fun annotate_terms env ts =
   end
 
 
-
-fun pre_elaborate_terms ctxt ts =
-  let
-    val Elaboration_Result {elaborated_terms, variable_types } =
-      infer_type ctxt ts
-      |> tap (trace_infer_result ctxt)
-  in
-    Type_Classes.refine_classes ctxt elaborated_terms variable_types
-  end
-
-
 fun elaborate_terms ctxt ts =
   let
     val (ts', _) = fold_map Implicit_Arguments.replace_iargs ts 0
 
     (* Introduce the term into the context, since it contains unknown Frees.
-       The resulting context will be thrown away after this operation, but internally
+       The resulting working context will finally be discarded, but internally
        we want a well-defined situation. *)
-    val ctxt' = fold Variable.declare_term ts ctxt
+    val working_ctxt = fold Variable.declare_term ts ctxt
 
-    val (ets', variable_types') = pre_elaborate_terms ctxt' ts'
+    (* Basic elaboration *)
+    val Elaboration_Result {elaborated_terms, variable_types } =
+      infer_type working_ctxt ts'
+      |> tap (trace_infer_result working_ctxt)
+
+    (* Type class refinement step *)
+    val (ets', variable_types') = Type_Classes.refine_classes ctxt elaborated_terms variable_types
 
     (* Insert information about the variables into the elaborated terms *)
     val ets'' = annotate_terms variable_types' ets'
 
     (* The results still contain Vars left over from unification. Import the terms
        to obtain further frees.*)
-    val (ets''', _) = Variable.import_terms true ets'' ctxt'
+    val (ets''', _) = Variable.import_terms true ets'' working_ctxt
 
     (* Note that the context resulting from the previous operations is discarded. *)
     val _ = Soft_Type.tracing ctxt (cat_lines ("Elaborated terms:"
