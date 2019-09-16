@@ -5,6 +5,11 @@ session Isabelle_Set = "HOL" +
     [timeout = 180]
   sessions
     "HOL-Eisbach"
+  directories
+    Soft_Types
+	Isabelle_Set
+	"Isabelle_Set/Test_Examples"
+	tests
   theories
     (* Types on top of Isabelle/HOL *)
     "Soft_Types/Soft_Types_HOL"
@@ -32,12 +37,14 @@ session Isabelle_Set = "HOL" +
     (* "Set_MML/tarski_0"
     "Set_MML/tarski" *)
 
-
-session Typed_Set_Theory = "HOL-Number_Theory" +
+session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
   description
     \<open>Set theory with types on top.\<close>
   sessions
-    "HOL-Eisbach"
+    Isabelle_Set
+  directories
+	MML
+	tests
   theories
     (* Isabelle/Mizar Foundation, Type System, and foundational MML *)
     "Isabelle_Mizar/mizar_HOL"
@@ -96,4 +103,4 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
     "MML/setfam_1"
     "MML/z2" *)
 
-    "tests/mizar_ty_test"
+   "tests/mizar_ty_test"
