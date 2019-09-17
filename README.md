@@ -44,7 +44,7 @@ hg up <REVISION>
 
 ```
 # Build supporting image
-/path/to/isabelle-soft-types/bin/isabelle build -vRD .
+/path/to/isabelle-soft-types/bin/isabelle build -vbRD .
 ```
 ```
 # Build this development
