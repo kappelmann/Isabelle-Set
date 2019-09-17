@@ -4,6 +4,9 @@
 #
 # To be used in the build environment only.
 
+set -x
+set -e
+
 ISABELLE_VERSION=$(cat ~/project/ISABELLE_VERSION)
 if [ ! -d "$HOME/Isabelle" ]; then
 
