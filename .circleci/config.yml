@@ -16,7 +16,7 @@ jobs:
 
       - run:
           name: Build base image
-          command: ~/Isabelle/bin/isabelle build -vb HOL-Number_Theory
+          command: ~/Isabelle/bin/isabelle build -vRD .
 
       - save_cache:
           key: v1-Isabelle-{{ checksum "ISABELLE_VERSION" }}-{{ checksum ".circleci/prepare_isabelle.sh" }}
