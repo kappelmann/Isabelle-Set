@@ -1,5 +1,5 @@
 theory subset_1
-imports zfmisc_1 "../Isabelle_Mizar/mizar_fraenkel"
+imports zfmisc_1 "../mizar_fraenkel"
 begin
 
 mtheorem subset_1_cl_1:

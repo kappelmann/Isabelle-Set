@@ -7,9 +7,9 @@ session Isabelle_Set = "HOL" +
     "HOL-Eisbach"
   directories
     Soft_Types
-	Isabelle_Set
-	"Isabelle_Set/Test_Examples"
-	tests
+    Isabelle_Set
+    "Isabelle_Set/Test_Examples"
+    tests
   theories
     (* Types on top of Isabelle/HOL *)
     "Soft_Types/Soft_Types_HOL"
@@ -43,18 +43,18 @@ session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
   sessions
     Isabelle_Set
   directories
-	MML
-	tests
+    MML
+    tests
   theories
     (* Isabelle/Mizar Foundation, Type System, and foundational MML *)
-    "Isabelle_Mizar/mizar_HOL"
-    "Isabelle_Mizar/mizar"
-    "Isabelle_Mizar/mizar_ty"
-    "Isabelle_Mizar/mizar_defs"
-    "Isabelle_Mizar/mizar_reserve"
+    "mizar_HOL"
+    "mizar"
+    "mizar_ty"
+    "mizar_defs"
+    "mizar_reserve"
     "MML/tarski_0"
-    "Isabelle_Mizar/mizar_fraenkel"
-    "Isabelle_Mizar/mizar_methods"
+    "mizar_fraenkel"
+    "mizar_methods"
     "MML/tarski"
     (* Not currently working:
     "Isabelle_Mizar/mizar_import"

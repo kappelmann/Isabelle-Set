@@ -1,5 +1,5 @@
 theory tarski_0
-imports "../Isabelle_Mizar/mizar_reserve"
+imports "../mizar_reserve"
 
 begin
 

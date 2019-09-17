@@ -1,5 +1,5 @@
 theory mizar_methods
-imports "../MML/tarski_0"
+imports "MML/tarski_0"
 
 \<comment>\<open> Proof methods \<close>
 
