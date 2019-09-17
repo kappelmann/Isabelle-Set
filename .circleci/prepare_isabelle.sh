@@ -12,7 +12,8 @@ if [ ! -d "$HOME/Isabelle" ]; then
 
   mkdir ~/Isabelle;
   cd ~/Isabelle;
-  curl -sS https://isabelle.in.tum.de/repos/isabelle/archive/$ISABELLE_VERSION.tar.gz | tar -xz --strip-components=1;
+  curl -v https://isabelle.in.tum.de/repos/isabelle/archive/$ISABELLE_VERSION.tar.gz -o isabelle.tar.gz
+  tar -xz --strip-components=1 -f isabelle.tar.gz;
   ~/Isabelle/bin/isabelle components -I;
   ~/Isabelle/bin/isabelle components -a;
   # Do not eat too much memory, to avoid being killed.
