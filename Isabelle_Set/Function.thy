@@ -39,7 +39,7 @@ lemma lambdaE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbra
 lemma lambdaD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
   by auto
 
-lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
+lemma beta [intro, simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
 
 lemma lambda_dom [simp]: "dom (\<lambda>x \<in> A. b x) = A"
@@ -84,7 +84,7 @@ qed
 
 lemma function_mems: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); x \<in> A\<rbrakk> \<Longrightarrow> \<langle>x, f `x\<rangle> \<in> f"
   unfolding Function_def
-  by (drule collectD2, drule Bspec, auto intro: uniq_val_imp)
+  by (drule collectD2, drule Bspec, auto intro: uniq_val_imp)  
 
 lemma function_dom [elim]:
   "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> dom f = A"
@@ -102,7 +102,7 @@ unfolding Function_def by auto
 lemma function_fiber: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y \<in> B x"
   unfolding Function_def by auto
 
-lemma FunctionI [intro]:
+lemma FunctionI:
   assumes
     f_relation: "f \<subseteq> A \<times> (\<Union>x \<in> A. (B x))" and
     uniq_val: "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f" and
@@ -141,11 +141,11 @@ proof -
 qed
 
 (* LCP: This version is acceptable to the simplifer *)
-lemma FunctionE' [elim]: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f `a \<in> B"
+lemma functionE [elim]: "\<lbrakk>f \<in> A \<rightarrow> B; a \<in> A\<rbrakk> \<Longrightarrow> f `a \<in> B"
   by (fact FunctionE)
 
 lemma empty_function [intro]: "{} \<in> {} \<rightarrow> B"
-  by auto
+  by (auto intro: FunctionI)
 
 lemma empty_function_iff [iff]: "f \<in> {} \<rightarrow> B \<longleftrightarrow> f = {}"
   unfolding Function_def by auto
@@ -153,13 +153,14 @@ lemma empty_function_iff [iff]: "f \<in> {} \<rightarrow> B \<longleftrightarrow
 lemma singleton_functionI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
   unfolding Function_def by auto
 
-lemma lambda_FunctionI: "(\<lambda>x \<in> A. b x) \<in> \<Prod>x \<in> A. {b x}"
+lemma lambda_FunctionI [intro]:
+  "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x \<in> A. b x) \<in> \<Prod>x \<in> A. (B x)"
   unfolding lambda_def Function_def by auto
 
-lemma lambda_functionI [intro]: "(\<lambda>x \<in> A. b x) \<in> A \<rightarrow> {b x | x \<in> A}"
-  unfolding lambda_def Function_def by auto
+lemma lambda_functionI: "(\<lambda>x \<in> A. b x) \<in> A \<rightarrow> {b x | x \<in> A}"
+  by auto
 
-lemma apply_function [simp]: "\<lbrakk>\<langle>x, y\<rangle> \<in> f; f \<in> \<Prod>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> f `x = y"
+lemma apply_function [simp]: "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> f `x = y"
   using apply_def FunctionE by auto
 
 lemma apply_to_fst:
@@ -295,6 +296,29 @@ proof auto
   thus "X = {}" by auto
 qed
 
+lemma idfunI [simp]: "(\<lambda>x \<in> A. x) \<in> A \<rightarrow> A" by auto
+
+
+subsection \<open>Injectivity and surjectivity\<close>
+
+definition "injective A f \<equiv> \<forall>x \<in> A. \<forall>x' \<in> A. f `x = f `x' \<longrightarrow> x = x'"
+
+definition "surjective B f \<equiv> \<forall>y \<in> B. \<exists>x. \<langle>x, y\<rangle> \<in> f"
+
+lemma surjectiveI:
+  assumes
+    "f \<in> A \<rightarrow> B"
+    "(\<And>y. y \<in> B \<Longrightarrow> \<exists>x \<in> A. f `x = y)"
+  shows "surjective B f"
+unfolding surjective_def
+proof
+  fix y assume "y \<in> B"
+  then obtain x where "x \<in> A" and "y = f `x"
+    using assms by auto
+  thus "\<exists>x. \<langle>x, y\<rangle> \<in> f"
+    using assms by (auto intro: function_mems)
+qed
+
 
 subsection \<open>Function extensionality\<close>
 
@@ -317,22 +341,22 @@ proof
   with eq p_comp show "p \<in> g" by auto
 qed
 
-lemma function_extensionality:
+lemma funext:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x); \<And>x. x \<in> A \<Longrightarrow> f `x = g `x\<rbrakk> \<Longrightarrow> f = g"
   apply (rule extensionality)
   using extend_function[where ?A=A and ?C=A] subset_refl by auto
 
 lemma eta [simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> (\<lambda>x \<in> A. (f `x)) = f"
-  by (auto intro: function_extensionality)
+  by (auto intro: funext lambda_functionI)
 
-lemma function_extensionality_iff:
+lemma funext_iff:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f `a = g `a) \<longleftrightarrow> f = g"
-  by (auto intro: function_extensionality)
+  by (auto intro: funext)
 
 (* LCP: thm by Mark Staples, proof by lcp *)
 lemma extend_function_eq:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> f \<subseteq> g \<longleftrightarrow> (f = g)"
-  by (blast dest: function_mems intro: function_extensionality apply_function[symmetric])
+  by (blast dest: function_mems intro: funext apply_function[symmetric])
 
 (* LCP: Every element of (Function A B) may be expressed as a lambda abstraction! *)
 lemma function_lambdaE:
@@ -346,15 +370,28 @@ lemma function_lambdaE:
   apply fact
   done
 
-lemma lambda_reflect:
+lemma lambda_reflect:  \<comment>\<open>A kind of expanded eta rule\<close>
   assumes "\<ff> = \<lambda>x \<in> A. f x"
   shows "(\<lambda>x \<in> A. (\<ff> `x)) = \<lambda>x \<in> A. f x"
   using assms by simp
 
+text \<open>Extend a function's domain by mapping new elements to the empty set.\<close>
+
+definition triv_ext :: "set \<Rightarrow> set \<Rightarrow> set"
+  where "triv_ext A f \<equiv> f \<union> (\<lambda>x \<in> (A \<setminus> dom f). {})"
+
+lemma triv_ext_dom [simp]: "dom f \<subseteq> A \<Longrightarrow> dom (triv_ext A f) = A"
+  by (auto simp: triv_ext_def bin_union_dom diff_partition)
+
 
 subsection \<open>Graphs of functions\<close>
 
-lemma cons_functionI: "\<lbrakk>x \<notin> dom f; f \<in> A \<rightarrow> B\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+lemma cons_functionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+  unfolding Function_def using dom_def by auto
+
+lemma bin_union_functionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
   unfolding Function_def using dom_def by auto
 
 lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
@@ -380,14 +417,78 @@ lemma apply_cons2:
 subsection \<open>Composition\<close>
 
 definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<circ>" 80)
-  where "g \<circ> f = \<lambda>x \<in> dom f. (g `(f `x))"
+  where "g \<circ> f = \<lambda>x \<in> dom f. g `(f `x)"
 
 lemma compose_lambdas:
   "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   apply (auto simp: fun_comp_def)
-  apply (rule function_extensionality, auto intro!: beta)
+  apply (rule funext, auto intro!: beta)
   apply squash_types
   done
+
+lemma compose_FunctionI [intro]:
+  assumes "f \<in> A \<rightarrow> B" and "g \<in> \<Prod>x \<in> B. (C x)"
+  shows "g \<circ> f \<in> \<Prod>x \<in> A. (C (f `x))"
+unfolding fun_comp_def proof -
+  have *: "dom f = A" using assms by auto
+  show "(\<lambda>x \<in> dom f. g `(f `x)) \<in> \<Prod>x \<in> A. (C (f `x))"
+    using assms by (auto intro!: lambda_FunctionI simp: *)
+qed
+
+lemma compose_idfunr [intro, simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<circ> (\<lambda>x \<in> A. x) = f"
+  unfolding fun_comp_def by auto
+
+lemma compose_idfunl [intro, simp]:
+  assumes "f \<in> A \<rightarrow> B"
+  shows "(\<lambda>x \<in> B. x) \<circ> f = f"
+unfolding fun_comp_def proof -
+  have "dom f = A" using assms by auto
+  moreover
+  have "(\<lambda>x \<in> A. (\<lambda>x \<in> B. x) `(f `x)) = f"
+  proof (rule funext, auto intro: assms)
+    fix x assume "x \<in> A"
+    hence "f `x \<in> B" using assms by auto
+    thus "(\<lambda>x \<in> B. x) `(f `x) = f `x" by auto
+  qed
+  ultimately
+  show "(\<lambda>x \<in> dom f. (\<lambda>x \<in> B. x) `(f `x)) = f" by simp
+qed
+
+lemma compose_assoc:
+  assumes "f \<in> A \<rightarrow> B" "g \<in> B \<rightarrow> C" "h \<in> C \<rightarrow> D"
+  shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
+unfolding fun_comp_def proof auto
+  have "dom f = A" and "dom g = B"
+    using assms by auto
+  moreover have
+    "(\<lambda>x \<in> A. h `(g `(f `x))) = \<lambda>x \<in> A. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"
+  proof (rule funext, auto simp: \<open>dom g = B\<close>)
+    fix x assume "x \<in> A"
+    hence "f `x \<in> B" using assms by auto
+    thus "h `(g `(f `x)) = (\<lambda>x \<in> B. h `(g `x)) `(f `x)" by auto
+  qed
+  ultimately show
+    "(\<lambda>x \<in> dom f. h `(g `(f `x))) = \<lambda>x \<in> dom f. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"
+    by auto
+qed
+
+
+subsection \<open>Universes\<close>
+
+lemma Univ_Function_closed [intro]:
+  assumes
+    "A \<in> Univ U"
+    "\<And>x. x \<in> A \<Longrightarrow> B x \<in> Univ U"
+  shows "\<Prod>x \<in> A. (B x) \<in> Univ U"
+proof -
+  let ?P = "Pow \<Sum>x\<in> A. (B x)"
+  have "\<Prod>x\<in> A. (B x) \<subseteq> ?P"
+    unfolding Function_def by (fact collect_subset)
+  moreover have "?P \<in> Univ U"
+    by (auto intro: Univ_powerset_closed assms)
+  ultimately show ?thesis
+    by (auto intro: Univ_transitive'')
+qed
 
 
 subsection \<open>Soft typing\<close>
@@ -423,6 +524,72 @@ lemma function_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
   by (squash_types, auto) (insert range_subset, blast)
 *)
+
+
+subsection \<open>Automation\<close>
+
+text \<open>Ad-hoc automation for set-theoretic functions.\<close>
+
+method beta uses add = (subst apply_function; (auto intro: add)?)
+
+text \<open>As a tactic:\<close>
+
+ML \<open>
+fun beta_tac ths ctxt =
+  SUBGOAL (fn (_, i) =>
+    EqSubst.eqsubst_tac ctxt [0] @{thms apply_function} i
+    THEN ALLGOALS (resolve_tac ctxt ths))
+\<close>
+
+text \<open>Evaluate \<open>f `a\<close> where f is given explicitly as a graph of pairs:\<close>
+
+method eval_graph = ((subst apply_function; auto?), (rule cons_functionI)+, auto)
+
+text \<open>A better approach would be to set up the simplifier.\<close>
+
+(* Josh: Can't get this to work yet... *)
+
+(*
+lemma apply_function':
+  "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> f `x \<equiv> y"
+  by auto
+
+simproc_setup beta ("f `x") = \<open>fn _ => fn _ => fn ct =>
+  let
+    val Const (\<^const_name>\<open>apply\<close>, _) $ f $ a = Thm.term_of ct
+  in
+    (@{print} f; @{print} a; SOME @{thm apply_function'})
+  end\<close>
+
+ML \<open>
+val beta_reduction_simp_solver =
+  let
+    fun solver ctxt =
+      let
+        val thms =
+          dest_ss (simpset_of ctxt)
+            |> #simps
+            |> map snd
+        val _ = (@{print} thms)
+      in
+        simp_tac (empty_simpset ctxt addsimps thms)
+      end
+  in
+    map_theory_simpset (fn ctxt => ctxt
+      addSolver (mk_solver "beta-reduce functions" solver))
+  end
+\<close>
+setup \<open>beta_reduction_simp_solver\<close>
+*)
+
+lemma test:
+  assumes "\<langle>a, b\<rangle> \<in> f" "f \<in> A \<rightarrow> B" "b : T"
+  shows "f `a : T"
+  \<comment>\<open>Can't get this to work\<close>
+  (* by (simp add: assms) *)
+  \<comment>\<open>This works, but had to instantiate the value to which we want to rewrite f `a...\<close>
+  (* apply (simp add: assms apply_function[of _ A "\<lambda>_. B" _ b]) *)
+  using assms by beta
 
 
 end

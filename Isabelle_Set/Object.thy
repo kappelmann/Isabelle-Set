@@ -12,7 +12,7 @@ keywords "object" :: thy_decl
 
 begin
 
-subsection \<open>Syntax setup\<close>
+subsection \<open>Syntax: object schema declarations\<close>
 
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [1000, 0] 1000)
   where [squash]: "object[lbl] \<equiv> object `lbl"
@@ -116,6 +116,9 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
   end
 \<close>
 
+
+subsection \<open>Syntax: object instance definitions\<close>
+
 nonterminal instance_arg and instance_args
 syntax
   "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix "=" 45)
@@ -139,6 +142,15 @@ lemmas object_simps [unfolded selector_def[symmetric], simp] =
   apply_singleton
   apply_pair1
   apply_pair2
+
+
+subsection \<open>Rudimentary automation\<close>
+
+method eval_selector = (
+  (unfold selector_def)?,
+  (subst apply_function; auto?), (rule cons_functionI)+,
+  (auto; strings)+
+)+
 
 
 end

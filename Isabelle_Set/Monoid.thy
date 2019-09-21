@@ -108,7 +108,7 @@ proof (intro Pi_typeI)
   let ?plus = "(pair_monoid A B p1 p2)[@plus]"
   let ?zero = "(pair_monoid A B p1 p2)[@zero]"
 
-  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" 
+  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)"
   proof (rule Monoid_typeI)
 
     show "pair_monoid A B p1 p2 : Zero (A \<times> B)"
@@ -117,16 +117,16 @@ proof (intro Pi_typeI)
       by (rule Plus_typeI) auto
 
     show "\<forall>x: element (A \<times> B). ?plus `?zero `x = x"
-      unfolding split_paired_Ball
+      unfolding split_paired_BallT
       by (auto simp: pair_plus_def pair_zero_def)
 
     show "\<forall>x: element (A \<times> B). ?plus `x `?zero = x"
-      unfolding split_paired_Ball
+      unfolding split_paired_BallT
         by (auto simp: pair_plus_def pair_zero_def)
 
       show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
           ?plus `(?plus `x `y) `z = ?plus `x `(?plus `y `z)"
-      unfolding split_paired_Ball
+      unfolding split_paired_BallT
       by (auto simp: pair_plus_def pair_zero_def)
   qed
 qed
