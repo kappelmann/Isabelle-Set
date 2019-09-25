@@ -101,13 +101,12 @@ struct
     (Delta : (string * term * typ) list)       (* Names and types of loose bounds *)
     (t : term)
     (E : elaboration_state)                (* Types of frees and vars, constraints *)
-    (expected_type : term option)
     : (term * elaboration_state) =
     case t of 
      (* special case: explicit type annotation *)
      Const (\<^const_name>\<open>with_type\<close>, _) $ s $ A =>
        let
-         val (st, E1) = collect_constraints' ctxt Delta s E NONE
+         val (st, E1) = collect_constraints' ctxt Delta s E
          val new_constraint = (Delta, (st, A), ())
        in
          (st, add_constraint ctxt new_constraint E1)
@@ -132,10 +131,10 @@ struct
     | s $ u => 
         let
           val (fun_type, E1) = 
-            collect_constraints' ctxt Delta s E NONE
+            collect_constraints' ctxt Delta s E
             |> ensure_function ctxt Delta s
           val (_, A, B) = Soft_Type.dest_Pi_type fun_type
-          val (u_st, E2) = collect_constraints' ctxt Delta u E1 (SOME A)
+          val (u_st, E2) = collect_constraints' ctxt Delta u E1
           val new_constraint = (Delta, (u_st, A), ())
           val application_type = Term.subst_bound (u, B)
         in
@@ -154,7 +153,7 @@ struct
 
           (* Infer type of the body *)
           val (body_st, E3) =
-            collect_constraints' ctxt Delta' body E2 NONE
+            collect_constraints' ctxt Delta' body E2
           (* Build a function type *)
           val st = Soft_Type.Pi_const T bodyT $ stvar $ Abs (x, T, body_st)
         in
@@ -182,12 +181,12 @@ struct
            (fun_st, E3)
          end  
 
-   and collect_constraints' ctxt Delta t E expected_type =
+   and collect_constraints' ctxt Delta t E =
      let 
        fun inst t = Term.subst_bounds (map (fn (x, _, T) => Free (x, T)) Delta, t)
        fun pr_term t = Syntax.string_of_term ctxt (inst t)
      in
-      collect_constraints ctxt Delta t E expected_type
+      collect_constraints ctxt Delta t E
       |> instantiate
       |> tap (fn (sT, _) => Soft_Type.tracing ctxt (
             Unification.pr_binders Delta ^ " |- " ^ pr_term t ^ " : " ^ pr_term sT))
@@ -200,7 +199,7 @@ fun collect_constraints_prop ctxt
     (E : elaboration_state) =
   case t of
     Const ("HOL.Trueprop", _) $ arg =>
-      collect_constraints ctxt Delta arg E NONE |> snd
+      collect_constraints ctxt Delta arg E |> snd
   | Const ("Pure.implies", _) $ u $ s =>
       E
       |> collect_constraints_prop ctxt Delta u
@@ -217,7 +216,7 @@ fun collect_constraints_prop ctxt
         collect_constraints_prop ctxt (incr_bounds ((x, stvar, T) :: Delta)) b E2
       end
   | Const ("Pure.type", _) => E
-  | _ => collect_constraints ctxt Delta t E NONE |> snd
+  | _ => collect_constraints ctxt Delta t E |> snd
 
 
 datatype elaboration_result =
