@@ -27,10 +27,13 @@ fun augment t ctxt =
   let
     val _ = Soft_Type.tracing ctxt ("Augment: " ^ Syntax.string_of_term ctxt t)
     val annotations = Soft_Type.extract_annotations t
+
+    fun already_declared t = Soft_Type_Context.get_current_type ctxt t |> is_some
+
     (* Ignore types of locally bound variables. These may occur when variables are bound implicitly,
     e.g., via "for" bindings. *)
     fun typing_assumption (x, A) =
-      if Term.is_open x then NONE
+      if Term.is_open x orelse already_declared x then NONE
       else SOME (Thm.cterm_of ctxt (HOLogic.mk_Trueprop (Soft_Type.mk_typing (x, A))))
   in
     ctxt
