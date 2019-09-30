@@ -29,9 +29,8 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/MyList"
     "Isabelle_Set/Test_Examples/Simp_Test"
     "Isabelle_Set/Test_Examples/Matrix"
-
-    (* Tests *)
-    "tests/Derivation_Test"
+    "Isabelle_Set/Test_Examples/Derivation_Test"
+    "Isabelle_Set/Test_Examples/Cicm2019_Demo"
 
     (* MML ported to new logic *)
     (* "Set_MML/tarski_0"
@@ -104,3 +103,4 @@ session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
     "MML/z2" *)
 
    "tests/mizar_ty_test"
+                  
