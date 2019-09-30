@@ -1,6 +1,10 @@
 section \<open>Soft types for HOL\<close>
 
-text \<open>This theory introduces a generic notion of soft types based on HOL predicates.\<close>
+text \<open>
+  This theory introduces a generic notion of soft types based on HOL predicates.
+
+  It contains the basic definitions and technical tool setup.
+\<close>
 
 theory Soft_Types_HOL
 imports
@@ -72,7 +76,7 @@ subsection \<open>Pi types\<close>
 text \<open>Soft-types for meta-level functions.\<close>
 
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
-  where Pi_typedef: "Pi_type \<sigma> \<tau> \<equiv> Type (\<lambda>f. \<forall>x : \<sigma>. f x : \<tau> x)"
+  where Pi_typedef: "Pi_type A B \<equiv> Type (\<lambda>f. \<forall>x : A. f x : B x)"
 
 abbreviation function_type :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where "function_type A B \<equiv> Pi_type A (\<lambda>_. B)"
@@ -88,7 +92,7 @@ We write \<^term>\<open>(x : A) \<Rightarrow> B x\<close> for the dependent func
 the non-dependent version.
 \<close>
 
-lemma Pi_type_iff: "f : (x : \<sigma>) \<Rightarrow> \<tau> x \<longleftrightarrow> (\<forall>x. x : \<sigma> \<longrightarrow> f x : \<tau> x)"
+lemma Pi_type_iff: "f : (x : A) \<Rightarrow> B x \<longleftrightarrow> (\<forall>x. x : A \<longrightarrow> f x : B x)"
   unfolding Pi_typedef by (auto iff: has_type_iff)
 
 lemma
@@ -201,6 +205,12 @@ named_theorems subtype_rules
   and not assigned to directly; use the \<open>derive\<close> attribute instead.
 \<close>
 
+
+(* enable this when debugging exceptions:
+ 
+declare [[ML_debugger, ML_exception_debugger]]
+*)
+
 ML_file \<open>soft_type.ML\<close>
 ML_file \<open>soft_type_context.ML\<close>
 ML_file \<open>derivation.ML\<close>
@@ -267,20 +277,6 @@ val soft_type_simp_solver =
   end
 \<close>
 
-(*
-simproc_setup discharge_type_simproc ("x : T") = \<open> 
-  let
-    fun simproc ctxt redex =
-    let
-      val t = HOLogic.mk_Trueprop (Thm.term_of redex);
-      fun tac {context = ctxt, prems = _ } =
-        SOLVE (full_discharge_types_tac [] ctxt);
-    in try (fn () => Goal.prove ctxt [] [] t tac RS @{thm Eq_TrueI}) () end;
-  in 
-    K simproc
-  end
-\<close>
-*)
 
 
 subsection \<open>Basic declarations for HOL material\<close>
