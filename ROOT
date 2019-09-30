@@ -9,7 +9,6 @@ session Isabelle_Set = "HOL" +
     Soft_Types
     Isabelle_Set
     "Isabelle_Set/Test_Examples"
-    tests
   theories
     (* Types on top of Isabelle/HOL *)
     "Soft_Types/Soft_Types_HOL"
