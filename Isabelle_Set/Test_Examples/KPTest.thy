@@ -322,14 +322,14 @@ proof-
     hence D: "X={?i y | y \<in> Y}" using D1 extensionality by auto
     have "?I \<in> Y \<rightarrow> {?i y | y \<in> Y}"  by auto
     thus "?I \<in> Y \<rightarrow> X" using D by auto
-    show  "{?I`y |y \<in> Y} = X" using D extensionality by auto
+    show  "{?I`y |y \<in> Y} = X" using D extensionality by (auto simp: beta)
     show "\<forall> y1 y2. y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2 \<longrightarrow> y1=y2"
     proof(intro allI impI)
       fix y1 y2 assume  A1: "y1\<in> Y\<and> y2 \<in> Y \<and> ?I`y1 = ?I`y2"
       then obtain a1 a2 where
         a: "y1= b`a1 \<and> a1 \<in> X" "y2= b`a2 \<and> a2 \<in> X" using B1[THEN conjunct2,THEN conjunct1] by blast
       hence "?i y1 = a1" "?i y2 = a2" using a A1 B1 by blast+
-      thus "y1=y2" using a A1 by auto
+      thus "y1=y2" using a A1 by (auto simp: beta)
     qed
   qed
   thus "\<exists> i . i:bij Y X" by auto
@@ -371,11 +371,11 @@ proof-
     qed
     hence D: "{?p x | x\<in>X} = Z" using D1 extensionality by auto
     thus XZ: "?P \<in> X\<rightarrow> Z" by auto
-    show "{?P` x| x\<in> X}=Z" using D extensionality by auto
+    show "{?P` x| x\<in> X}=Z" using D extensionality by (auto simp: beta)
     show "\<forall> x1 x2. x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2 \<longrightarrow> x1=x2"
     proof(intro allI impI)
       fix x1 x2 assume A: "x1\<in>X\<and> x2 \<in> X \<and> ?P`x1 = ?P`x2"
-      hence B: "b2`(b1`x1) = b2`(b1` x2)" using XZ by auto
+      hence B: "b2`(b1`x1) = b2`(b1` x2)" using XZ by (auto simp: beta)
       have "b1`x1\<in>Y" "b1`x2\<in>Y" using A B1 by blast+ 
       hence "b1`x1 = b1`x2" using A B2[THEN conjunct2,THEN conjunct2,
        rule_format, of "b1`x1" "b1`x2"  ] B by auto
@@ -578,18 +578,18 @@ proof-
   proof
     have O1: "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
     thus T1: "?T \<in> ?Lamb \<rightarrow> X" by auto
-    have V1: "{?T`x| x\<in> ?Lamb} \<subseteq> X" using C3 by auto
+    have V1: "{?T`x| x\<in> ?Lamb} \<subseteq> X" using C3 by (auto simp: beta)
     have "X \<subseteq> {?T`x| x\<in> ?Lamb}"
     proof
       fix t assume "t\<in>X"
       then obtain  x where
         x:  " x \<in> ?Lamb \<and> ?f x = t" using C7 by auto
-      hence "?f x = ?T` x" by auto  
+      hence "?f x = ?T` x" by (auto simp: beta)  
       thus "t\<in> {?T`x| x\<in> ?Lamb}" using x by blast
     qed
     thus "{?T`x| x\<in> ?Lamb}=X" using V1 extensionality[rule_format, of "{?T`x| x\<in> ?Lamb}" X] by auto
     show "\<forall>x1 x2. x1 \<in> ?Lamb \<and> x2 \<in> ?Lamb \<and> ?T `x1 = ?T ` x2 \<longrightarrow>
-       x1 = x2" using C4 by auto
+       x1 = x2" using C4 by (auto simp: beta)
   qed
   thus "\<exists> b . b : bij {x \<in> U | x:Ord} X" by auto
 qed

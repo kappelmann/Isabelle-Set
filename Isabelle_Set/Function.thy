@@ -39,8 +39,11 @@ lemma lambdaE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbra
 lemma lambdaD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
   by auto
 
-lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
+lemma beta: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
+
+lemma typed_beta[simp]: "a : element A \<Longrightarrow> (\<lambda>x \<in> A. b x) ` a = b a"
+  by squash_types (fact beta)
 
 lemma lambda_dom [simp]: "dom (\<lambda>x \<in> A. b x) = A"
   by (auto simp: lambda_def)
@@ -55,7 +58,7 @@ lemma lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x;
 lemma beta_split [simp]:
   assumes "a \<in> A" "b \<in> B"
   shows "(\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
-  using assms by auto
+  using assms by (auto simp: beta)
 
 lemma beta_split_typed [simp]:
   "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x, y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
@@ -323,7 +326,7 @@ lemma function_extensionality:
   using extend_function[where ?A=A and ?C=A] subset_refl by auto
 
 lemma eta [simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> (\<lambda>x \<in> A. (f `x)) = f"
-  by (auto intro: function_extensionality)
+  by (auto intro: function_extensionality simp: beta)
 
 lemma function_extensionality_iff:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f `a = g `a) \<longleftrightarrow> f = g"
@@ -349,7 +352,7 @@ lemma function_lambdaE:
 lemma lambda_reflect:
   assumes "\<ff> = \<lambda>x \<in> A. f x"
   shows "(\<lambda>x \<in> A. (\<ff> `x)) = \<lambda>x \<in> A. f x"
-  using assms by simp
+  using assms by (simp add: beta)
 
 
 subsection \<open>Graphs of functions\<close>
@@ -385,7 +388,8 @@ definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (i
 lemma compose_lambdas:
   "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   apply (auto simp: fun_comp_def)
-  apply (rule function_extensionality, auto intro!: beta)
+
+  apply (rule function_extensionality, auto intro!: beta simp: beta)
   apply squash_types
   done
 
