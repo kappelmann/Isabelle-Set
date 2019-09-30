@@ -114,7 +114,7 @@ context
     h_type [type]: "h : monop D"
 begin
 
-lemma lfp_lowerbound: "A : subset D \<Longrightarrow> h A \<subseteq> A \<Longrightarrow> lfp D h \<subseteq> A"
+lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A : subset D \<Longrightarrow> lfp D h \<subseteq> A"
   unfolding lfp_def by squash_types auto
 
 lemma lfp_greatest: "(\<And>X. X : subset D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
@@ -124,8 +124,9 @@ lemma lfp_unfold: "lfp D h = h (lfp D h)"
 proof (rule extensionality)
   show 1: "h (lfp D h) \<subseteq> lfp D h"
   proof (rule lfp_greatest)
-    fix A assume A_type [type]: "A : subset D" and "h A \<subseteq> A"
-    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound)
+    fix A assume [type]: "A : subset D" 
+    assume "h A \<subseteq> A"
+    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound) discharge_types
     have "h (lfp D h) \<subseteq> h A"
       text \<open>
         @{method discharge_types} works here, but it prevents chaining-in other facts.
