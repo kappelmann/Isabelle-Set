@@ -130,42 +130,6 @@ definition total :: "set \<Rightarrow> bool"
   where "total R \<equiv> \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
 
-(* Should be structures *)
-(*
-subsection \<open>Partial and total orders\<close>
-
-definition partial_order :: "set \<Rightarrow> set type"
-  where partial_order_typedef:
-  "partial_order P \<equiv> reflexive \<sqdot> transitive \<sqdot> antisymmetric \<sqdot> subset (P \<times> P)"
-
-definition strict_partial_order :: "set \<Rightarrow> set type"
-  where strict_partial_order_typedef:
-  "strict_partial_order P \<equiv> irreflexive \<sqdot> transitive \<sqdot> subset (P \<times> P)"
-
-definition total_order :: "set \<Rightarrow> set type"
-  where total_order_typedef:
-  "total_order P \<equiv> total \<sqdot> partial_order P"
-*)
-
-(* Not sure we'd need these *)
-(*
-subsection \<open>Soft type and class relations\<close>
-
-definition relation :: "set type"
-  where relation_typedef: "relation \<equiv> Type (\<lambda>R. \<forall>z \<in> R. \<exists>x y. z = \<langle>x, y\<rangle>)"
-
-definition domed :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-domed)" [1000])
-  where "A-domed \<equiv> \<lambda>R. dom R \<subseteq> A"
-
-definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1000])
-  where "B-valued \<equiv> \<lambda>R. rng R \<subseteq> B"
-
-lemma relations_relation_type [elim]:
-  "R \<subseteq> A \<times> B \<Longrightarrow> R : A-domed \<sqdot> B-valued \<sqdot> relation"
-  unfolding domed_def valued_def dom_def rng_def relation_typedef adjective_def
-  by squash_types auto
-*)
-
 
 subsection \<open>Some specific results\<close>
 
