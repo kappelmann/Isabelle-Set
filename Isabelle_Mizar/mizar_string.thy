@@ -1,5 +1,5 @@
 theory mizar_string
-imports "../MML/xboole_0"
+imports "MML/xboole_0"
 
 \<comment>\<open> Labels for the Isabelle/Mizar formulation of structures \<close>
 

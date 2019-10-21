@@ -7,7 +7,7 @@ begin
 
 text \<open>Here we define monoids using the experimental new structure mechanism.\<close>
 
-object monoid is "\<lparr> (@carrier A) (@op op) (@e e).
+object monoid is "\<lparr> (A @carrier) (op @op) (e @unit).
   A: non-empty\<sqdot>set \<and>
   op: element (A \<rightarrow> A \<rightarrow> A) \<and>
   e: element A \<and>
@@ -29,11 +29,11 @@ lemma monoid_op_type:
   unfolding monoid_typedef by simp
 
 lemma monoid_e_type:
-  "M : monoid \<Longrightarrow> M[@e] : element (M[@carrier])"
+  "M : monoid \<Longrightarrow> M[@unit] : element (M[@carrier])"
   unfolding monoid_typedef by simp
 
 lemma monoid_cond1:
-  "\<lbrakk>M : monoid; x \<in> M[@carrier]\<rbrakk> \<Longrightarrow> M[@op]`x`(M[@e]) = x \<and> M[@op]`M[@e]`x = x"
+  "\<lbrakk>M : monoid; x \<in> M[@carrier]\<rbrakk> \<Longrightarrow> M[@op]`x`(M[@unit]) = x \<and> M[@op]`M[@unit]`x = x"
   unfolding monoid_typedef by auto
 
 lemma monoid_cond2:
@@ -51,7 +51,7 @@ definition monoid_add :: "[set, set, set] \<Rightarrow> set" where
   "monoid_add M = (\<lambda>x y. M[@op] ` x ` y)"
 
 definition monoid_neut :: "set \<Rightarrow> set" where
-  "monoid_neut M = M[@e]"
+  "monoid_neut M = M[@unit]"
 
 lemma monoid_neut_type [type]: "monoid_neut : (M : monoid) \<Rightarrow> element (M[@carrier])"
   unfolding monoid_neut_def monoid_typedef by auto
@@ -77,7 +77,7 @@ lemma
 subsection \<open>Extension to groups\<close>
 
 
-object group is "monoid \<bar> \<lparr> (@carrier A) (@inv inv) (@op op) (@e e). 
+object group is "monoid \<bar> \<lparr> (A @carrier) (inv @inv) (op @op) (e @unit). 
   inv: element (A \<rightarrow> A) \<and>
   (\<forall>g \<in> A. op`(inv`g)`g = e \<and> op`g`(inv`g) = e) \<rparr>"
 

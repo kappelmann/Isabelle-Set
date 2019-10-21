@@ -1,6 +1,6 @@
 theory mizar_HOL
 imports
-  "../Soft_Types/Soft_Types_HOL"
+  "Isabelle_Set.Soft_Types_HOL"
   "HOL-Eisbach.Eisbach"
 
   "HOL-Number_Theory.Number_Theory"

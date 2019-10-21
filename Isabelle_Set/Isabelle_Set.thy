@@ -11,8 +11,9 @@ imports
   Object
   Sum
   Monops
+  Structures
+  Monoid
   Monoid_Bundled
-  Monoid_Class
   Natural_Numbers
   Integer
 

@@ -53,6 +53,9 @@ lemma dom_subset: "R \<subseteq> A \<times> B \<Longrightarrow> dom R \<subseteq
 lemma rng_subset: "R \<subseteq> A \<times> B \<Longrightarrow> rng R \<subseteq> B"
   unfolding rng_def by auto
 
+lemma bin_union_dom: "dom (R \<union> S) = dom R \<union> dom S"
+  unfolding dom_def by (rule extensionality) auto
+
 lemma collect_dom [simp]: "dom {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
   unfolding dom_def by auto
 
@@ -107,27 +110,34 @@ lemma converse_type [type]: "converse : subset (A \<times> B) \<Rightarrow> subs
   by squash_types auto
 
 
-subsection \<open>Properties of relations\<close>
+subsection \<open>Relations on a set\<close>
 
-definition reflexive :: "set \<Rightarrow> bool"
-  where "reflexive R \<equiv> \<forall>x \<in> dom R. \<langle>x, x\<rangle> \<in> R"
+definition "reflexive A R \<equiv> \<forall>x \<in> A. \<langle>x, x\<rangle> \<in> R"
 
-definition irreflexive :: "set \<Rightarrow> bool"
-  where "irreflexive R \<equiv> \<forall>x \<in> dom R. \<langle>x, x\<rangle> \<notin> R"
+definition "irreflexive A R \<equiv> \<forall>x \<in> A. \<langle>x, x\<rangle> \<notin> R"
 
-definition symmetric :: "set \<Rightarrow> bool"
-  where "symmetric R \<equiv> \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<langle>x, y\<rangle> \<in> R \<longrightarrow> \<langle>y, x\<rangle> \<in> R"
+definition "symmetric A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<longrightarrow> \<langle>y, x\<rangle> \<in> R"
 
-definition antisymmetric :: "set \<Rightarrow> bool"
-  where "antisymmetric R \<equiv>
-    \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, x\<rangle> \<in> R \<longrightarrow> x = y"
+definition "antisymmetric A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, x\<rangle> \<in> R \<longrightarrow> x = y"
 
-definition transitive :: "set \<Rightarrow> bool"
-  where "transitive R \<equiv>
-    \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<forall>z \<in> dom R. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, z\<rangle> \<in> R \<longrightarrow> \<langle>x, z\<rangle> \<in> R"
+definition "transitive A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<forall>z \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, z\<rangle> \<in> R \<longrightarrow> \<langle>x, z\<rangle> \<in> R"
 
-definition total :: "set \<Rightarrow> bool"
-  where "total R \<equiv> \<forall>x \<in> dom R. \<forall>y \<in> dom R. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
+definition "total A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
+
+definition "partially_ordered A R \<equiv> reflexive A R \<and> antisymmetric A R \<and> transitive A R"
+
+definition "linearly_ordered A R \<equiv> total A R \<and> partially_ordered A R"
+
+
+subsection \<open>Well-founded and well-ordered relations\<close>
+
+definition "well_founded A R \<equiv> \<forall>X. X \<subseteq> A \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R))"
+
+lemma well_foundedI:
+  "(\<And>X. \<lbrakk>X \<subseteq> A; X \<noteq> {}\<rbrakk> \<Longrightarrow> \<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R)) \<Longrightarrow> well_founded A R"
+  unfolding well_founded_def by auto
+
+definition "well_ordered A R \<equiv> linearly_ordered A R \<and> well_founded A R"
 
 
 (* Should be structures *)
@@ -142,9 +152,9 @@ definition strict_partial_order :: "set \<Rightarrow> set type"
   where strict_partial_order_typedef:
   "strict_partial_order P \<equiv> irreflexive \<sqdot> transitive \<sqdot> subset (P \<times> P)"
 
-definition total_order :: "set \<Rightarrow> set type"
+definition linear_order :: "set \<Rightarrow> set type"
   where total_order_typedef:
-  "total_order P \<equiv> total \<sqdot> partial_order P"
+  "linear_order P \<equiv> total \<sqdot> partial_order P"
 *)
 
 (* Not sure we'd need these *)
@@ -167,7 +177,7 @@ lemma relations_relation_type [elim]:
 *)
 
 
-subsection \<open>Some specific results\<close>
+subsection \<open>Specific results\<close>
 
 lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
   by auto

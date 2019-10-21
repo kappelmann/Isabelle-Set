@@ -6,8 +6,8 @@ Presented at CICM '19, Prague.
 
 *)
 
-theory demo
-imports "../Soft_Types/Soft_Types_HOL"
+theory Cicm2019_Demo
+imports "../Isabelle_Set"
 
 begin
 
@@ -67,7 +67,7 @@ declare [[auto_elaborate]]
 
 term J
 
-term "J (\<lambda>x. refl x) a b p"
+(*term "J (\<lambda>x. refl x) a b p"*)
 
 
 end

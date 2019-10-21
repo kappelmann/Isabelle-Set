@@ -1,5 +1,5 @@
 theory tarski
-imports tarski_0 "../Isabelle_Mizar/mizar_methods"
+imports tarski_0 "../mizar_methods"
 
 begin
 

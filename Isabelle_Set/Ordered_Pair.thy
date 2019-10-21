@@ -5,18 +5,6 @@ imports Set_Theory
 
 begin
 
-simproc_setup defined_Bex ("\<exists>x \<in> A. P x \<and> Q x") =
-  \<open>fn _ => Quantifier1.rearrange_bex
-    (fn ctxt =>
-      unfold_tac ctxt @{thms Bex_def} THEN
-      Quantifier1.prove_one_point_ex_tac ctxt)\<close>
-
-simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
-  \<open>fn _ => Quantifier1.rearrange_ball
-    (fn ctxt =>
-      unfold_tac ctxt @{thms Ball_def} THEN
-      Quantifier1.prove_one_point_all_tac ctxt)\<close>
-
 
 subsection \<open>Ordered pairs, tuples\<close>
 
@@ -135,7 +123,7 @@ lemma prod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
   by (rule extensionality) auto
 
 
-subsection \<open>Projections @{term fst} and @{term snd}\<close>
+subsection \<open>Projections\<close>
 
 lemma Pair_fst: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
@@ -162,11 +150,11 @@ subsection \<open>Monotonicity\<close>
 lemma prod_monotone: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
   by auto
 
-lemma prod_monotone1T [derive]:
+lemma prod_monotoneT1 [derive]:
   "A : subset A' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A' \<times> B)"
   by squash_types auto
 
-lemma prod_monotone2T [derive]:
+lemma prod_monotoneT2 [derive]:
   "B : subset B' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A \<times> B')"
   by squash_types auto
 
@@ -219,6 +207,22 @@ lemma split_paired_Ball_Pair [simp]:
   by blast
 
 
+subsection \<open>Universes\<close>
+
+lemma Univ_Pair_closed [intro]:
+  assumes
+    "A \<in> Univ U"
+    "\<And>x. x \<in> A \<Longrightarrow> B x \<in> Univ U"
+  shows "\<Sum>x \<in> A. (B x) \<in> Univ U"
+
+  unfolding Pair_def opair_def
+  apply (rule+, fact assms)+
+  apply (auto intro!: Univ_singleton_closed Univ_cons_closed)
+  apply (rule Univ_transitive, rule assms, assumption)+
+  apply assumption
+  done
+
+
 subsection \<open>Typing rules\<close>
 
 lemma
@@ -237,23 +241,23 @@ lemma opair_dependent_type:
   "opair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (Pair A B)"
   by squash_types auto
 
-lemma prod_subset [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
+lemma prod_subsetIT [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
   by squash_types auto
 
-lemma split_paired_Ball:
+lemma split_paired_BallT:
   "(\<forall>x: element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a : element A. \<forall>b : element B. P \<langle>a, b\<rangle>)"
   by squash_types auto
 
-lemma Univ_closed_opairT [derive]:
+lemma Univ_opair_closedT [derive]:
   "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
   unfolding opair_def by discharge_types
 
-lemma Univ_prod_subset [derive]:
+lemma prod_Univ_subset_UnivT [derive]:
   "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
-  using Univ_closed_opairT
+  using Univ_opair_closedT
   by squash_types auto
 
-lemma Univ_subset_closed_prod [derive]:
+lemma Univ_prod_subset_closedT [derive]:
   "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
   by discharge_types
 

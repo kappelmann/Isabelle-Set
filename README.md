@@ -20,9 +20,7 @@ However, Mizar does not really abstract from the underlying set theory, which se
 Therefore, we attempt to provide a clean start in session/directory `Isabelle_Set`.
 It contains a new development of Higher-Order Tarski Grothendieck Set Theory embedded in HOL.
 
-Ultimately, these developments should converge.
-
-Allowed Dependencies: `Isabelle_Set` and `Isabelle/Mizar` remain independent. They may introduce a similar notion of soft type at some point.
+ `Isabelle_Set` is used by `Isabelle/Mizar` for its notion of soft type. Ultimately, these developments should converge.
 
 
 ## How to build / run
@@ -46,11 +44,11 @@ hg up <REVISION>
 
 ```
 # Build supporting image
-/path/to/isabelle-soft-types/bin/isabelle build -b HOL-Number_Theory
+/path/to/isabelle-soft-types/bin/isabelle build -vbRD .
 ```
 ```
 # Build this development
-/path/to/isabelle-soft-types/bin/isabelle build -D .
+/path/to/isabelle-soft-types/bin/isabelle build -vD .
 ```
 
 ## Automated builds

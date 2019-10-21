@@ -60,9 +60,9 @@ begin
     Here, \<open>A\<close> and \<open>B\<close> are part of the surrounding context, so the assumptions about
     their type should also live in that context.
   \<close>
-  print_types \<comment> \<open>FIXME: Would expect types of \<open>A\<close> and \<open>B\<close> to show up here\<close>
+  print_types \<comment> \<open>Types of \<open>A\<close> and \<open>B\<close> are known at this point.\<close>
 
-  thm 1 \<comment> \<open>a has no additional assumptions\<close>
+  thm 1
 
 next
 
@@ -76,7 +76,7 @@ next
     up in as premises of the proved fact, similar to a top-level lemma statement.
   \<close>
 
-  thm 1 \<comment> \<open>FIXME: Expect additional assumptions here\<close>
+  thm 1 \<comment> \<open>We get additional assumptions for the proved fact..\<close>
 
 next
 
@@ -97,6 +97,9 @@ next
     to in the text.
   \<close>
 
+  print_types
+  thm 1
+
 next
 
   subsubsection \<open>Example 4\<close>
@@ -109,6 +112,9 @@ next
 
     Here, the implicit \<open>A\<close> can be fully generalized. It also cannot be referenced in the text.
   \<close>
+
+  print_types \<comment> \<open>FIXME: implicit variable should not appear here.\<close>
+  thm 1 \<comment> \<open>FIXME: Should be fully generalized.\<close>
 
 end
   

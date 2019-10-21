@@ -12,31 +12,29 @@ keywords "object" :: thy_decl
 
 begin
 
-subsection \<open>Syntax setup\<close>
+subsection \<open>Syntax: object schema declarations\<close>
 
-type_synonym "object" = "set type"
+definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [1000, 0] 1000)
+  where [squash]: "object[lbl] \<equiv> object `lbl"
 
-definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [901, 0] 900)
-  where "object[lbl] \<equiv> object`lbl"
-
-definition comp :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where [squash]: "comp lbl pred \<equiv> (\<lambda>x. pred (x[lbl]) x)"
+definition composer :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  where [squash]: "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
 
 nonterminal object_arg and object_args
 syntax
-  "_object_arg"   :: "set \<Rightarrow> id \<Rightarrow> object_arg" ("'(_ _')")
+  "_object_arg"   :: "id \<Rightarrow> set \<Rightarrow> object_arg" ("'(_ _')")
   "_object_args"  :: "object_args \<Rightarrow> object_arg \<Rightarrow> object_args" ("_ _" [40, 41] 40)
-  "_object_comp"  :: "object_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _. _ \<rparr>")
+  "_object_comp"  :: "object_args \<Rightarrow> logic \<Rightarrow> set type" ("\<lparr> _./ _ \<rparr>")
   "_object_comp2" :: "object_args \<Rightarrow> logic \<Rightarrow> set type"
   ""              :: "object_arg \<Rightarrow> object_args" ("_")
 translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
-  "_object_comp2 (_object_args args (_object_arg A a)) P" \<rightleftharpoons>
-    "_object_comp2 args (CONST comp A (\<lambda>a. P))"
-  "_object_comp2 (_object_arg A a) P" \<rightleftharpoons> "CONST Type (CONST comp A (\<lambda>a. P))"
+  "_object_comp2 (_object_args args (_object_arg a A)) P" \<rightleftharpoons>
+    "_object_comp2 args (CONST composer A (\<lambda>a. P))"
+  "_object_comp2 (_object_arg a A) P" \<rightleftharpoons> "CONST Type (CONST composer A (\<lambda>a. P))"
 
 ML \<open>
-Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object declarations"
+Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object declarations"
   let
     val parser =
       Parse.name
@@ -49,7 +47,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
           Get the field labels used in the declaration.
           This relies on the specific form of the translations defined above!
         *)
-        fun get_labels (\<^const>\<open>comp\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
+        fun get_labels (\<^const>\<open>composer\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
           | get_labels (Const (\<^const_name>\<open>Type\<close>, _) $ t) = get_labels t
           | get_labels (Const (\<^const_name>\<open>Int_type\<close>, _) $ _ $ t) = get_labels t
           | get_labels _ = []
@@ -68,8 +66,15 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
           then error "Object declaration has duplicate labels"
           else ()
 
-        fun print_info name def =
-          Output.information ("Object declaration \"" ^ name ^ "\":\n " ^ def)
+        (* fun define_label_const tm = fn lthy =>
+          let val (name, typ) = dest_Free tm
+          in
+            lthy |> Local_Theory.background_theory (
+              snd o Sign.declare_const lthy ((Binding.qualified_name name, typ), NoSyn)) 
+          end *)
+
+        fun print_info def =
+          Output.writeln ("object\n  " ^ def)
 
         fun define_object_type lthy =
           let
@@ -86,13 +91,13 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
                 | NONE => body
               end
 
-            val ((Free(name, _), (_, def)), lthy') =
+            val ((_, (_, def)), lthy') =
               Local_Theory.define (
                 (Binding.qualified_name name, NoSyn),
                 ((Binding.qualified_name (name ^ "_typedef"), []), def_tm)
               ) lthy
           in
-            print_info name (Syntax.string_of_term lthy' (Thm.prop_of def));
+            print_info (Syntax.string_of_term lthy' (Thm.prop_of def));
             lthy'
           end
 
@@ -113,6 +118,9 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "Object decla
   end
 \<close>
 
+
+subsection \<open>Syntax: object instance definitions\<close>
+
 nonterminal instance_arg and instance_args
 syntax
   "_instance_arg"  :: "[set, set] \<Rightarrow> instance_arg" (infix "=" 45)
@@ -128,7 +136,7 @@ translations
 subsection \<open>Rules\<close>
 
 lemma object_iffs [simp]:
-  "M : Type (comp A P) \<longleftrightarrow> M : Type (P (M[A]))"
+  "M : Type (composer A P) \<longleftrightarrow> M : Type (P (M[A]))"
   "M : Type (K Q) \<longleftrightarrow> Q"
   by squash_types
 
@@ -136,6 +144,15 @@ lemmas object_simps [unfolded selector_def[symmetric], simp] =
   apply_singleton
   apply_pair1
   apply_pair2
+
+
+subsection \<open>Rudimentary automation\<close>
+
+method eval_selector = (
+  (unfold selector_def)?,
+  (subst apply_function; auto?), (rule cons_functionI)+,
+  (auto; strings)+
+)+
 
 
 end

@@ -31,11 +31,12 @@ notation Pure.eq ("(1_ \<equiv>/ _)" [3, 3] 2) \<comment>\<open>Just some pretti
 
 subsection \<open>Additional logical rules\<close>
 
+lemma True_simp: "P \<equiv> True \<Longrightarrow> P" by simp
+
 lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B" by blast
 
 lemma contrapos: "P \<longrightarrow> Q \<Longrightarrow> \<not>Q \<longrightarrow> \<not>P" by blast
 
 lemma ex1_iff: "(\<exists>!x. P x) \<longleftrightarrow> (\<exists>x. P x) \<and> (\<forall>x x'. P x \<and> P x' \<longrightarrow> x = x')" by blast
-
 
 end

@@ -13,12 +13,18 @@ imports Structures
 
 begin
 
+setup \<open>soft_type_simp_solver\<close>
+
 definition Monoid :: "set \<Rightarrow> set type"
   where Monoid_typedef:
-  "Monoid A = Zero A \<bar> Plus A \<bar> \<lparr> (@plus plus) (@zero zero) .
-    (\<forall>x: element A. plus`zero`x = x) \<and>
-    (\<forall>x: element A. plus`x`zero = x) \<and>
-    (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A. plus`(plus`x`y)`z = plus`x`(plus`y`z)) \<rparr>"
+  "Monoid A =
+    Zero A
+  \<bar> Plus A
+  \<bar> \<lparr> (plus @plus) (zero @zero).
+    (\<forall>x: element A. plus `zero `x = x) \<and>
+    (\<forall>x: element A. plus `x `zero = x) \<and>
+    (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
+      plus `(plus `x `y) `z = plus `x `(plus `y `z)) \<rparr>"
 
 lemma Monoid_is_Zero [derive]: "Monoid A \<prec> Zero A"
   unfolding Monoid_typedef by (intro subtypeI) squash_types
@@ -28,10 +34,10 @@ lemma Monoid_is_Plus [derive]: "Monoid A \<prec> Plus A"
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
-    \<forall>x: element A. str[@plus]`str[@zero]`x = x;
-    \<forall>x: element A. str[@plus]`x`str[@zero] = x;
-    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A. 
-       str[@plus]`(str[@plus]`x`y)`z = str[@plus]`x`(str[@plus]`y`z)
+    \<forall>x: element A. str[@plus] `str[@zero] `x = x;
+    \<forall>x: element A. str[@plus] `x `str[@zero] = x;
+    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
+       str[@plus] `(str[@plus] `x `y) `z = str[@plus] `x `(str[@plus] `y `z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
   unfolding Monoid_typedef by squash_types
 
@@ -66,12 +72,12 @@ definition
 (* TODO: Need some form of structure composition: pair_monoid = pair_zero [+] pair_plus *)
 definition
   "pair_monoid A B m1 m2 \<equiv>
-    \<lparr> @zero = pair_zero A B m1 m2 [@zero], @plus = pair_plus A B m1 m2 [@plus] \<rparr>"
+    \<lparr> @zero = (pair_zero A B m1 m2)[@zero], @plus = (pair_plus A B m1 m2)[@plus] \<rparr>"
 
-lemma pair_monoid_ZERO [simp]: "pair_monoid A B m1 m2 [@zero] = pair_zero A B m1 m2 [@zero]"
+lemma pair_monoid_ZERO [simp]: "(pair_monoid A B m1 m2)[@zero] = (pair_zero A B m1 m2)[@zero]"
   unfolding pair_monoid_def by simp
 
-lemma pair_monoid_PLUS [simp]: "pair_monoid A B m1 m2 [@plus] = pair_plus A B m1 m2 [@plus]"
+lemma pair_monoid_PLUS [simp]: "(pair_monoid A B m1 m2)[@plus] = (pair_plus A B m1 m2)[@plus]"
   unfolding pair_monoid_def by simp
 
 text \<open>
@@ -80,7 +86,7 @@ text \<open>
 \<close>
 
 lemma pair_plus_PLUS:
-  "pair_plus A B p1 p2 [@plus] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
+  "(pair_plus A B p1 p2)[@plus] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
   unfolding pair_plus_def by simp
 
 lemma pair_plus_type [type]:
@@ -94,17 +100,15 @@ lemma pair_zero_type [type]:
   unfolding Zero_typedef Pointed_typedef pair_zero_def zero_def
   by squash_types auto
 
-setup \<open>soft_type_simp_solver\<close>
-
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
 proof (intro Pi_typeI)
 
   fix A B p1 p2 assume [type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
-  let ?plus = "pair_monoid A B p1 p2 [@plus]"
-  let ?zero = "pair_monoid A B p1 p2 [@zero]"
+  let ?plus = "(pair_monoid A B p1 p2)[@plus]"
+  let ?zero = "(pair_monoid A B p1 p2)[@zero]"
 
-  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)" 
+  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)"
   proof (rule Monoid_typeI)
 
     show "pair_monoid A B p1 p2 : Zero (A \<times> B)"
@@ -112,17 +116,17 @@ proof (intro Pi_typeI)
     show "pair_monoid A B p1 p2 : Plus (A \<times> B)"
       by (rule Plus_typeI) auto
 
-    show "\<forall>x: element (A \<times> B). ?plus ` ?zero ` x = x"
-      unfolding split_paired_Ball
+    show "\<forall>x: element (A \<times> B). ?plus `?zero `x = x"
+      unfolding split_paired_BallT
       by (auto simp: pair_plus_def pair_zero_def)
 
-    show "\<forall>x: element (A \<times> B). ?plus ` x ` ?zero = x"
-      unfolding split_paired_Ball
+    show "\<forall>x: element (A \<times> B). ?plus `x `?zero = x"
+      unfolding split_paired_BallT
         by (auto simp: pair_plus_def pair_zero_def)
 
       show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
-          ?plus ` (?plus ` x ` y) ` z = ?plus ` x ` (?plus ` y ` z)"
-      unfolding split_paired_Ball
+          ?plus `(?plus `x `y) `z = ?plus `x `(?plus `y `z)"
+      unfolding split_paired_BallT
       by (auto simp: pair_plus_def pair_zero_def)
   qed
 qed
@@ -134,7 +138,12 @@ lemma [type_instance]:
   "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
   by discharge_types
 
-declare [[auto_elaborate, trace_soft_types]]
+
+subsection \<open>Overloaded syntax\<close>
+
+context
+  notes [[auto_elaborate, trace_soft_types]]
+begin
 
 lemma "x + 0 = x"
   print_types
@@ -153,16 +162,17 @@ lemma "x + y = z + w \<and> u + v = 0"
   oops
 
 
-subsection \<open>Extension to groups\<close>
+end
 
-declare [[auto_elaborate = false]]
+
+subsection \<open>Extension to groups\<close>
 
 object Group "A :: set" is
   "Monoid A
-  \<bar> \<lparr> (@plus plus) (@zero zero) (@inv inv).
+  \<bar> \<lparr> (plus @plus) (zero @zero) (inv @inv).
     inv : element (A \<rightarrow> A) \<and>
-    (\<forall>x\<in>A. plus`(inv`x)`x = zero) \<and>
-    (\<forall>x\<in>A. plus`x`(inv`x) = zero) \<rparr>"
+    (\<forall>x\<in>A. plus `(inv `x) `x = zero) \<and>
+    (\<forall>x\<in>A. plus `x `(inv `x) = zero) \<rparr>"
 
 lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_typedef by squash_types

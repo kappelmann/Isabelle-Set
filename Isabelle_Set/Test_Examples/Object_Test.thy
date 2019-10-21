@@ -4,11 +4,11 @@ imports "../Object"
 begin
 
 object function "A::set" "B::set"
-  is "\<lparr> (@graph graph) . \<forall>a \<in> A. \<exists>!b \<in> B. \<langle>a, b\<rangle> \<in> graph \<rparr>"
+  is "\<lparr> (graph @graph) . \<forall>a \<in> A. \<exists>!b \<in> B. \<langle>a, b\<rangle> \<in> graph \<rparr>"
 
 term "function A B"
 
-object magma is "\<lparr> (@carrier A) (@op op).
+object magma is "\<lparr> (A @carrier) (op @op).
   A : non-empty\<sqdot>set
   \<and> op : element(A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
@@ -17,7 +17,7 @@ thm magma_typedef
 
 subsection \<open>Monoids\<close>
 
-object monoid is "\<lparr> (@carrier A) (@op op) (@neut e).
+object monoid is "\<lparr> (A @carrier) (op @op) (e @neut).
   A: non-empty\<sqdot>set \<and>
   op: element (A \<rightarrow> A \<rightarrow> A) \<and>
   e: element A \<and>

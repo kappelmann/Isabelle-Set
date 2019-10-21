@@ -12,17 +12,17 @@ subsection \<open>Various basic structure templates\<close>
 text \<open>Structures with a distinguished element.\<close>
 
 object Pointed "name::set" "A::set"
-  is "\<lparr> (name a). a : element A \<rparr>"
+  is "\<lparr> (base name). base : element A \<rparr>"
 
 text \<open>Structures with binary operation.\<close>
 
 object Binop_Equipped "name::set" "A::set"
-  is "\<lparr> (name op). op : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
+  is "\<lparr> (op name). op : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 
 subsection \<open>Plus (additive binop) structures\<close>
 
-definition Plus :: "set \<Rightarrow> object"
+definition Plus :: "set \<Rightarrow> set type"
   where Plus_typedef: "Plus A \<equiv> Binop_Equipped @plus A"
 
 lemma Plus_typeI:
@@ -45,7 +45,7 @@ abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl 
 
 subsection \<open>Times (multiplicative binop) structures\<close>
 
-definition Times :: "set \<Rightarrow> object"
+definition Times :: "set \<Rightarrow> set type"
   where Times_typedef: "Times A \<equiv> Binop_Equipped @times A"
 
 lemma Times_typeI:
@@ -70,7 +70,7 @@ subsection \<open>"Zero" and "one" structures\<close>
 
 text \<open>Just structures with distinguished elements of their carriers.\<close>
 
-definition Zero :: \<open>set \<Rightarrow> object\<close>
+definition Zero :: \<open>set \<Rightarrow> set type\<close>
   where Zero_typedef: "Zero A = Pointed @zero A"
 
 lemma Zero_typeI: "struct[@zero] : element A \<Longrightarrow> struct : Zero A"
@@ -89,7 +89,7 @@ abbreviation zero_implicit :: "set" ("0")
   where "0 \<equiv> zero \<implicit>struct"
 
 
-definition One :: \<open>set \<Rightarrow> object\<close>
+definition One :: \<open>set \<Rightarrow> set type\<close>
   where One_typedef: "One A = Pointed @one A"
 
 lemma One_typeI: "struct[@one] : element A \<Longrightarrow> struct : One A"

@@ -33,7 +33,6 @@ lemma List_distinct[simp]: "Nil \<noteq> Cons x xs"
 lemma Cons_inject[simp]: "Cons x xs = Cons y ys \<longleftrightarrow> (x = y \<and> xs = ys)"
   unfolding Cons_def by simp
 
-
 lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}) : monop (Univ A)"
   apply (unfold split_def)
   apply (rule monop_unionI)
@@ -42,12 +41,9 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
    apply (rule monop_prodI)
   apply discharge_types
   apply (rule Cons_Univ)
-   apply (drule fst_prod_type)
-   apply (drule Univ_base_type, assumption)
-  apply (drule snd_prod_type)
-  apply (rule Univ_baseent_closed_type'') (* Should be done by discharge_types, but too general unifier *)
-   apply assumption
-  apply assumption
+   apply squash_types
+   using Univ_subset
+   apply auto+
   done
 
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]
@@ -69,7 +65,7 @@ lemma List_induct:
 proof (rule def_lfp_induct[OF any_typeI List_mono List_def, of xs A P])
   from xs_type show "xs \<in> List A" by squash_types
 next
-  fix x assume "x \<in> {Nil} \<union> {MyList.Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> Collect (List A) P}"
+  fix x assume "x \<in> {Nil} \<union> {MyList.Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> collect (List A) P}"
   with Nil Cons
   show "P x" by squash_types auto
 qed

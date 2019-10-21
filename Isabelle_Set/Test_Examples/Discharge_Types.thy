@@ -17,5 +17,10 @@ lemma "C A : T \<Longrightarrow> C (\<lambda>x. A x) : T"
 lemma "C (\<lambda>x y z. D x y z) : T \<Longrightarrow> C D : T"
   by discharge_types
 
+text \<open>Function application.\<close>
+
+lemma "\<lbrakk>f : A \<Rightarrow> B; a : A\<rbrakk> \<Longrightarrow> f a : B"
+  by discharge_types
+
 
 end

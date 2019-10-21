@@ -31,7 +31,7 @@ proof(intro impI allI)
     qed
     show "\<forall>X. X \<in> Univ N \<longrightarrow> Pow X \<in> Univ N"  using ZF_closed_def Univ_ZF_closed by auto
     show "\<forall>X. X \<subseteq> Univ N \<longrightarrow> (\<exists>b. b : bij X (Univ N)) \<or> X \<in> Univ N" using  
-      Univ_transitive Univ_ZF_closed CB_Th_5 AC by auto
+      Axioms.Univ_transitive Univ_ZF_closed CB_Th_5 AC by auto
   qed
 qed
 

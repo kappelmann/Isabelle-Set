@@ -1,5 +1,5 @@
 theory mizar_fraenkel_3
-imports mizar_fraenkel "../MML/zfmisc_1"
+imports mizar_fraenkel "MML/zfmisc_1"
 begin
 
 no_notation Product_Type.Times (infixr "\<times>" 80)

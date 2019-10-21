@@ -5,6 +5,10 @@ session Isabelle_Set = "HOL" +
     [timeout = 180]
   sessions
     "HOL-Eisbach"
+  directories
+    Soft_Types
+    Isabelle_Set
+    "Isabelle_Set/Test_Examples"
   theories
     (* Types on top of Isabelle/HOL *)
     "Soft_Types/Soft_Types_HOL"
@@ -12,39 +16,43 @@ session Isabelle_Set = "HOL" +
     (* Tarski-Grothendieck Set Theory on top of HOL. *)
     "Isabelle_Set/Isabelle_Set"
 
+    (* Other library theories *)
+    "Isabelle_Set/Category"
+
     (* Examples and compatibility layers *)
     "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
     "Isabelle_Set/Test_Examples/Discharge_Types"
-    (* "Isabelle_Set/Test_Examples/MyList" *)
+    "Isabelle_Set/Test_Examples/MyList"
     "Isabelle_Set/Test_Examples/Simp_Test"
     "Isabelle_Set/Test_Examples/Matrix"
-
-    (* Tests *)
-    "tests/Derivation_Test"
+    "Isabelle_Set/Test_Examples/Derivation_Test"
+    "Isabelle_Set/Test_Examples/Cicm2019_Demo"
 
     (* MML ported to new logic *)
     (* "Set_MML/tarski_0"
     "Set_MML/tarski" *)
 
-
-session Typed_Set_Theory = "HOL-Number_Theory" +
+session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
   description
     \<open>Set theory with types on top.\<close>
   sessions
-    "HOL-Eisbach"
+    Isabelle_Set
+  directories
+    MML
+    tests
   theories
     (* Isabelle/Mizar Foundation, Type System, and foundational MML *)
-    "Isabelle_Mizar/mizar_HOL"
-    "Isabelle_Mizar/mizar"
-    "Isabelle_Mizar/mizar_ty"
-    "Isabelle_Mizar/mizar_defs"
-    "Isabelle_Mizar/mizar_reserve"
+    "mizar_HOL"
+    "mizar"
+    "mizar_ty"
+    "mizar_defs"
+    "mizar_reserve"
     "MML/tarski_0"
-    "Isabelle_Mizar/mizar_fraenkel"
-    "Isabelle_Mizar/mizar_methods"
+    "mizar_fraenkel"
+    "mizar_methods"
     "MML/tarski"
     (* Not currently working:
     "Isabelle_Mizar/mizar_import"
@@ -93,4 +101,5 @@ session Typed_Set_Theory = "HOL-Number_Theory" +
     "MML/setfam_1"
     "MML/z2" *)
 
-    "tests/mizar_ty_test"
+   "tests/mizar_ty_test"
+                  
