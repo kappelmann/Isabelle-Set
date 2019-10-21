@@ -135,7 +135,7 @@ lemmas char_simps =
 
 text \<open>The following lemma is used to prove distinctness of non-identical strings.\<close>
 
-lemma opair_neq_succ [simp]: "\<langle>a, b\<rangle> \<noteq> succ n" \<comment>\<open>Extrememly encoding-dependent!\<close>
+lemma opair_neq_succ [simp]: "\<langle>a, b\<rangle> \<noteq> succ n" \<comment>\<open>Extremely encoding-dependent!\<close>
 unfolding opair_def succ_def
 proof (rule ccontr, simp only: not_not cons_repeat)
   let
