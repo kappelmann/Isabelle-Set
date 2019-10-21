@@ -152,13 +152,11 @@ object Functor "\<C> :: set" "\<D> :: set" is "\<lparr> (obj_map @obj_map) (hom_
   (\<forall>A \<in> obj \<C>. hom_map `(id\<^bsub>\<C>\<^esub> A) = id\<^bsub>\<D>\<^esub> (obj_map `A))
 \<rparr>"
 
-abbreviation obj_map :: "set \<Rightarrow> set" ("_\<^bsub>obj\<^esub>")
-  where "\<F>\<^bsub>obj\<^esub> \<equiv> \<F>[@obj_map]"
+abbreviation obj_map :: "set \<Rightarrow> set \<Rightarrow> set" ("_\<^bsub>obj\<^esub>")
+  where "\<F>\<^bsub>obj\<^esub> C \<equiv> \<F>[@obj_map] `C"
 
-abbreviation hom_map :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" ("_\<^bsub>hom\<^esub>")
-  where "\<F>\<^bsub>hom\<^esub> A B \<equiv> \<F>[@hom_map] `A `B"
-
-
+abbreviation hom_map :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set" ("_\<^bsub>hom'(_, _')\<^esub>")
+  where "\<F>\<^bsub>hom(A, B)\<^esub> f \<equiv> \<F>[@hom_map] `A `B `f"
 
 
 end
