@@ -39,8 +39,11 @@ lemma lambdaE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbra
 lemma lambdaD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
   by auto
 
-lemma beta [intro, simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
+lemma beta: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
+
+lemma typed_beta [simp]: "a : element A \<Longrightarrow> (\<lambda>x \<in> A. b x) ` a = b a"
+  by squash_types (fact beta)
 
 lemma lambda_dom [simp]: "dom (\<lambda>x \<in> A. b x) = A"
   by (auto simp: lambda_def)
@@ -55,7 +58,7 @@ lemma lambda_eqE: "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x;
 lemma beta_split [simp]:
   assumes "a \<in> A" "b \<in> B"
   shows "(\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
-  using assms by auto
+  using assms by (auto simp: beta)
 
 lemma beta_split_typed [simp]:
   "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x, y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
@@ -347,7 +350,7 @@ lemma funext:
   using extend_function[where ?A=A and ?C=A] subset_refl by auto
 
 lemma eta [simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> (\<lambda>x \<in> A. (f `x)) = f"
-  by (auto intro: funext lambda_functionI)
+  by (auto intro: funext lambda_functionI simp: beta)
 
 lemma funext_iff:
   "\<lbrakk>f \<in> \<Prod>x \<in> A. (B x); g \<in> \<Prod>x \<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f `a = g `a) \<longleftrightarrow> f = g"
@@ -373,7 +376,7 @@ lemma function_lambdaE:
 lemma lambda_reflect:  \<comment>\<open>A kind of expanded eta rule\<close>
   assumes "\<ff> = \<lambda>x \<in> A. f x"
   shows "(\<lambda>x \<in> A. (\<ff> `x)) = \<lambda>x \<in> A. f x"
-  using assms by simp
+  using assms by (simp add: beta)
 
 text \<open>Extend a function's domain by mapping new elements to the empty set.\<close>
 
@@ -422,7 +425,7 @@ definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (i
 lemma compose_lambdas:
   "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   apply (auto simp: fun_comp_def)
-  apply (rule funext, auto intro!: beta)
+  apply (rule funext, auto intro!: beta simp: beta)
   apply squash_types
   done
 
@@ -436,7 +439,7 @@ unfolding fun_comp_def proof -
 qed
 
 lemma compose_idfunr [intro, simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<circ> (\<lambda>x \<in> A. x) = f"
-  unfolding fun_comp_def by auto
+  unfolding fun_comp_def by (auto simp: beta)
 
 lemma compose_idfunl [intro, simp]:
   assumes "f \<in> A \<rightarrow> B"
@@ -445,10 +448,10 @@ unfolding fun_comp_def proof -
   have "dom f = A" using assms by auto
   moreover
   have "(\<lambda>x \<in> A. (\<lambda>x \<in> B. x) `(f `x)) = f"
-  proof (rule funext, auto intro: assms)
+  proof (rule funext, auto intro: assms simp: beta)
     fix x assume "x \<in> A"
     hence "f `x \<in> B" using assms by auto
-    thus "(\<lambda>x \<in> B. x) `(f `x) = f `x" by auto
+    thus "(\<lambda>x \<in> B. x) `(f `x) = f `x" by (auto simp: beta)
   qed
   ultimately
   show "(\<lambda>x \<in> dom f. (\<lambda>x \<in> B. x) `(f `x)) = f" by simp
@@ -457,15 +460,15 @@ qed
 lemma compose_assoc:
   assumes "f \<in> A \<rightarrow> B" "g \<in> B \<rightarrow> C" "h \<in> C \<rightarrow> D"
   shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
-unfolding fun_comp_def proof auto
+unfolding fun_comp_def proof (auto simp: beta)
   have "dom f = A" and "dom g = B"
     using assms by auto
   moreover have
     "(\<lambda>x \<in> A. h `(g `(f `x))) = \<lambda>x \<in> A. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"
-  proof (rule funext, auto simp: \<open>dom g = B\<close>)
+  proof (rule funext, auto simp: \<open>dom g = B\<close> beta)
     fix x assume "x \<in> A"
     hence "f `x \<in> B" using assms by auto
-    thus "h `(g `(f `x)) = (\<lambda>x \<in> B. h `(g `x)) `(f `x)" by auto
+    thus "h `(g `(f `x)) = (\<lambda>x \<in> B. h `(g `x)) `(f `x)" by (auto simp: beta)
   qed
   ultimately show
     "(\<lambda>x \<in> dom f. h `(g `(f `x))) = \<lambda>x \<in> dom f. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"

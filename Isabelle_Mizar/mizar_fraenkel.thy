@@ -1,5 +1,5 @@
 theory mizar_fraenkel
-imports "../MML/tarski_0"
+imports "MML/tarski_0"
 
 begin
 

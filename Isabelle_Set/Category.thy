@@ -1,4 +1,4 @@
-section \<open>Basic category theory\<close>
+chapter \<open>Basic category theory\<close>
 
 theory Category
 imports Object
@@ -11,7 +11,7 @@ text \<open>
   This allows us to work easily with large categories.
 \<close>
 
-subsection \<open>Basic definitions\<close>
+section \<open>Categories\<close>
 
 (* Josh: First issue: need implicit arguments for structure fields! *)
 
@@ -56,6 +56,10 @@ subsection \<open>The category of sets\<close>
 
 text \<open>Sets in the lowest universe.\<close>
 
+(*
+  The following definitions should be automated in a single object/structure definition
+  command.
+*)
 definition "Set_obj  = \<V>"
 definition "Set_hom  = \<lambda>A \<in> Set_obj. \<lambda>B \<in> Set_obj. A \<rightarrow> B"
 definition "Set_id   = \<lambda>A \<in> Set_obj. \<lambda>x \<in> A. x"
@@ -86,29 +90,29 @@ proof (auto simp: Set_field_simps)
       element \<Prod>A \<in> Set_obj. \<Prod>B \<in> Set_obj. \<Prod>C \<in> Set_obj.
         (Set_hom `B `C \<rightarrow> Set_hom `A `B \<rightarrow> Set_hom `A `C)"
     unfolding Set_hom_def Set_obj_def Set_comp_def
-    by (squash_types, auto intro!: lambda_FunctionI compose_FunctionI)
+    by (squash_types, auto intro!: lambda_FunctionI simp: beta)
 
   show "Set_id : element \<Prod>A \<in> Set_obj. (Set_hom `A `A)"
     unfolding Set_id_def Set_obj_def Set_hom_def
-    by (squash_types, auto intro: lambda_FunctionI)
+    by (squash_types, auto simp: beta)
 
   fix A assume
     A: "A \<in> Set_obj"
 
   thus "Set_id `A \<in> Set_hom `A `A"
-    unfolding Set_id_def Set_hom_def by auto
+    unfolding Set_id_def Set_hom_def by (auto simp: beta)
 
   fix B assume
     B: "B \<in> Set_obj"
   fix f assume "f \<in> Set_hom `A `B"
   hence
-    f: "f \<in> A \<rightarrow> B" by (auto simp: Set_hom_def A B)
+    f: "f \<in> A \<rightarrow> B" by (auto simp: Set_hom_def A B beta)
 
   show
     "Set_comp `A `A `B `f `(Set_id `A) = f" and
     "Set_comp `A `B `B `(Set_id `B) `f = f"
     unfolding Set_hom_def Set_comp_def Set_id_def
-    by (auto simp: A B f intro: f)
+    by (auto simp: A B f beta intro: f)
 
   fix C D g h assume
     C: "C \<in> Set_obj" and
@@ -117,23 +121,23 @@ proof (auto simp: Set_field_simps)
     "h \<in> Set_hom `C `D"
   hence
     g: "g \<in> B \<rightarrow> C" and
-    h: "h \<in> C \<rightarrow> D" by (auto simp: Set_hom_def B C D)
+    h: "h \<in> C \<rightarrow> D" by (auto simp: Set_hom_def B C D beta)
 
   show
     "Set_comp `A `B `D `(Set_comp `B `C `D `h `g) `f =
       Set_comp `A `C `D `h `(Set_comp `A `B `C `g `f)"
     unfolding Set_comp_def Set_hom_def
-    proof (simp add: A B C D f g h)
+    proof (simp add: A B C D f g h beta)
       have *: "h \<circ> g \<in> B \<rightarrow> D" "g \<circ> f \<in> A \<rightarrow> C" using h g f by auto
       show
         "(\<lambda>g \<in> B \<rightarrow> D. \<lambda>x \<in> A \<rightarrow> B. g \<circ> x) `(h \<circ> g) `f =
           (\<lambda>x \<in> A \<rightarrow> C. h \<circ> x) `(g \<circ> f)"
-        by (simp add: *, subst beta) (auto intro: f g h compose_assoc[symmetric])
+        by (simp add: * beta, subst beta) (auto intro: f g h compose_assoc[symmetric])
     qed
 qed
 
 
-subsection \<open>Functors and natural transformations\<close>
+section \<open>Functors, natural transformations\<close>
 
 object Functor "\<C> :: set" "\<D> :: set" is "\<lparr> (obj_map @obj_map) (hom_map @hom_map) .
   obj_map : element (obj \<C> \<rightarrow> obj \<D>) \<and>

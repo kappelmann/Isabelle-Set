@@ -143,6 +143,18 @@ lemma
   BTheI2: "\<exists>!x \<in> A. P x \<Longrightarrow> P (THE x \<in> A. P x)"
   by (auto dest!: BTheI)
 
+simproc_setup defined_Bex ("\<exists>x \<in> A. P x \<and> Q x") =
+  \<open>fn _ => Quantifier1.rearrange_bex
+    (fn ctxt =>
+      unfold_tac ctxt @{thms Bex_def} THEN
+      Quantifier1.prove_one_point_ex_tac ctxt)\<close>
+
+simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
+  \<open>fn _ => Quantifier1.rearrange_ball
+    (fn ctxt =>
+      unfold_tac ctxt @{thms Ball_def} THEN
+      Quantifier1.prove_one_point_all_tac ctxt)\<close>
+
 
 subsection \<open>Subsets\<close>
 

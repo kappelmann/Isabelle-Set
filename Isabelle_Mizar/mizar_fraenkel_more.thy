@@ -1,5 +1,5 @@
 theory mizar_fraenkel_more
-imports mizar_fraenkel "../MML/zfmisc_1"
+imports mizar_fraenkel "MML/zfmisc_1"
 begin    
   
 text_raw {*\DefineSnippet{ProdType}{*}  

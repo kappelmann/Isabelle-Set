@@ -138,7 +138,12 @@ lemma [type_instance]:
   "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
   by discharge_types
 
-declare [[auto_elaborate, trace_soft_types]]
+
+subsection \<open>Overloaded syntax\<close>
+
+context
+  notes [[auto_elaborate, trace_soft_types]]
+begin
 
 lemma "x + 0 = x"
   print_types
@@ -157,9 +162,10 @@ lemma "x + y = z + w \<and> u + v = 0"
   oops
 
 
-subsection \<open>Extension to groups\<close>
+end
 
-declare [[auto_elaborate = false]]
+
+subsection \<open>Extension to groups\<close>
 
 object Group "A :: set" is
   "Monoid A
