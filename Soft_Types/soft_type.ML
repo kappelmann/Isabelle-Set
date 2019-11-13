@@ -26,7 +26,7 @@ val dest_Pi_type_full: term -> term list * term
 val is_typing: term -> bool
 val is_adj: term -> bool
 val is_jdgmt: term -> bool
-val is_subtyping: term -> bool
+(* val is_subtyping: term -> bool *)
 val mk_typing: term * term -> term
 val dest_typing: term -> term * term
 val dest_adj: term -> term * term
@@ -126,9 +126,9 @@ fun is_adj t = case Term.head_of (dest_Trueprop t) of
 
 fun is_jdgmt t = is_typing t orelse is_adj t
 
-fun is_subtyping t = case Term.head_of (dest_Trueprop t) of
+(* fun is_subtyping t = case Term.head_of (dest_Trueprop t) of
     Const (\<^const_name>\<open>subtype\<close>, _) => true
-  | _ => false
+  | _ => false *)
 
 fun mk_typing (t, ty) =
   let val T = fastype_of t in

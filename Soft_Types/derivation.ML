@@ -183,9 +183,9 @@ fun Pi_derivation_rule thm = case Soft_Type.type_of_typing (Thm.concl_of thm) of
   | _ => thm
 
 (*Convert "T \<prec> S" to "x : T \<Longrightarrow> x : S"*)
-fun subtype_derivation_rule thm =
+(* fun subtype_derivation_rule thm =
   thm RS @{thm subtypeE'}
-  handle THM _ => error "subtype_derivation_rule: not a subtype judgment"
+  handle THM _ => error "subtype_derivation_rule: not a subtype judgment" *)
 
 
 (** The [derive] attribute **)
@@ -194,12 +194,12 @@ fun subtype_derivation_rule thm =
 val derivation_rule_parser: attribute context_parser =
   let val add =
     Thm.declaration_attribute (fn thm => fn context =>
-      if Soft_Type.is_subtyping (Thm.prop_of thm)
+      (* if Soft_Type.is_subtyping (Thm.prop_of thm)
       then
         context
         |> put_subtype_rule thm
         |> put_derivation_rule (subtype_derivation_rule thm)
-      else
+      else *)
         put_derivation_rule thm context)
   in 
     Scan.lift (Scan.succeed add)
@@ -387,7 +387,7 @@ fun full_discharge_types_tac add_facts add_tms ctxt =
         (* (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' *)
         raw_discharge_type_tac add_facts add_tms ctxt)))
 
-    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm adjI}])
+    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm has_type_adjI}])
 
     val backward_tac = resolve_tac ctxt
       (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)

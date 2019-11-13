@@ -20,25 +20,45 @@ begin
 declare [[eta_contract=false]]
 
 
-subsection \<open>Basic definitions\<close>
+subsection \<open>Fundamental type setup\<close>
 
-text \<open>Soft types are "just" predicates wrapped up in a constructor:\<close>
+text \<open>
+  Soft types are "just" predicates wrapped up in a constructor.
+  Adjectives are predicates that modify soft types.
+\<close>
 
 typedecl 'a type
 
 axiomatization
-  type :: "('a \<Rightarrow> bool) \<Rightarrow> 'a type" and
-  pred :: "'a type \<Rightarrow> 'a \<Rightarrow> bool"
+  type     :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type\<close> and
+  adj      :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<cdot>" 56) and
+  has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close> (infix ":" 45)
 where
-  pred_of_type [simp]: "pred (type P) \<equiv> P"
+  has_type_type: "x : type P \<equiv> P x" and
+  has_type_adj: "x : P \<cdot> T \<equiv> P x \<and> x : T"
 
-definition has_type :: "'a \<Rightarrow> 'a type \<Rightarrow> bool" (infix ":" 45)
-  where "x : T \<equiv> pred T x"
+lemma has_type_typeI: "P x \<Longrightarrow> x : type P"
+  unfolding has_type_type by auto
+
+lemma has_type_typeE: "x : type P \<Longrightarrow> P x"
+  unfolding has_type_type by auto
+
+lemma has_type_adjI: "\<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> x : P \<cdot> T"
+  unfolding has_type_adj by auto
 
 lemma
-  has_typeI: "P x \<Longrightarrow> x : type P" and
-  has_typeE: "x : type P \<Longrightarrow> P x"
-  unfolding has_type_def by auto
+  adj_spec: "x : P \<cdot> T \<Longrightarrow> P x" and
+  type_spec: "x : P \<cdot> T \<Longrightarrow> x : T"
+  unfolding has_type_adj by auto
+
+text \<open>The "non-" modifier gives the negation of a predicate.\<close>
+
+definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
+  where "non-P \<equiv> \<lambda>x. \<not> P x"
+
+text \<open>For soft type definitions.\<close>
+
+named_theorems typedef
 
 
 subsection \<open>Bounded quantifiers\<close>
@@ -56,7 +76,7 @@ translations
   "\<forall>x : A. P" \<rightleftharpoons> "CONST SBall A (\<lambda>x. P)"
   "\<exists>x : A. P" \<rightleftharpoons> "CONST SBex A (\<lambda>x. P)"
 
-lemma SBallI [intro!]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
+lemma SBallI [intro]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
   unfolding SBall_def by auto
 
 lemma SBallE [elim]: "\<lbrakk>\<forall>x : A. P x; \<And>x. (x : A \<Longrightarrow> P x) \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
@@ -72,12 +92,54 @@ lemma SBexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; P x\
   unfolding SBex_def by auto
 
 
+subsection \<open>Low-level type methods\<close>
+
+text \<open>
+  These are the canonical low-level methods for using the defining predicates of
+  a type.
+\<close>
+(* Not complete; these don't handle adjectives *)
+method prove_type for x = (rule has_type_typeI[where ?x=x])
+method use_type for x = (drule has_type_typeE[where ?x=x])
+
+text \<open>Unfold all type information to work only in the underlying theory:\<close>
+
+method unfold_types =
+  (simp_all only: typedef has_type_type has_type_adj SBall_def SBex_def)
+
+
+subsection \<open>Intersection types\<close>
+
+definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
+  where [typedef]: "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
+
+lemma
+  Int_typeI: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
+  Int_typeE1: "x : A \<bar> B \<Longrightarrow> x : A" and
+  Int_typeE2: "x : A \<bar> B \<Longrightarrow> x : B"
+  by unfold_types
+
+
+subsection \<open>The ``any'' type\<close>
+
+text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
+
+definition any :: "'a type"
+  where [typedef]: "any \<equiv> type (\<lambda>_. True)"
+
+lemma any_typeI [intro]: "x : any"
+  by unfold_types
+
+abbreviation bool :: "bool type"
+  where "bool \<equiv> any"
+
+
 subsection \<open>\<Pi> types\<close>
 
 text \<open>Dependent function soft type for HOL lambda terms.\<close>
 
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
-  where "Pi_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
+  where [typedef]: "Pi_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
 
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
@@ -87,78 +149,23 @@ translations
 
 lemma Pi_typeI:
   "(\<forall>x. x : A \<longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
-  unfolding Pi_type_def by (auto intro: has_typeI)
+  unfolding Pi_type_def by (prove_type f) auto
+  \<comment>\<open>\<open>by unfold_types auto\<close> also takes care of this\<close>
 
-lemma Pi_typeE [elim]:
+lemma Pi_typeE:
   "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
-  unfolding Pi_type_def by (auto dest: has_typeE)
-
-
-subsection \<open>Intersection types\<close>
-
-definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
-  where "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
-
-lemma
-  Int_typeI: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
-  Int_typeE1: "x : A \<bar> B \<Longrightarrow> x : A" and
-  Int_typeE2: "x : A \<bar> B \<Longrightarrow> x : B"
-  unfolding Int_type_def by (auto intro: has_typeI dest: has_typeE)
-
-
-subsection \<open>The ``any'' type\<close>
-
-text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
-
-definition any :: "'a type"
-  where any_typedef: "any \<equiv> Type (\<lambda>_. True)"
-
-lemma any_typeI [intro]: "x : any"
-  unfolding any_typedef by (simp only: has_type_iff)
-
-abbreviation bool :: "bool type"
-  where "bool \<equiv> any"
+  unfolding Pi_type_def by (use_type f) auto
 
 
 subsection \<open>Type annotations\<close>
 
-text \<open>
-  Type annotations can represent additional typing information within a term. This is
-  used by automated tools.
-\<close>
-
 definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
   where "with_type x A \<equiv> x"
 
-text \<open>\<^term>\<open>x :> A\<close> annotates \<open>x\<close> with type \<open>A\<close>.\<close>
-
-
-subsection \<open>Adjectives\<close>
-
-text \<open>We allow adjectives—in the form of predicates—to modify types.\<close>
-
-definition adjective :: "['a \<Rightarrow> bool, 'a type] \<Rightarrow> 'a type" (infixr "\<sqdot>" 56)
-  where "adj \<sqdot> type \<equiv> Type (\<lambda>x. adj x) \<bar> type"
-
-lemma adjective_iff: "x : adj \<sqdot> type \<longleftrightarrow> adj x \<and> x : type"
-  unfolding adjective_def by (simp only: Int_type_iff has_type_iff)
-
-lemma adjI: "\<lbrakk>adj x; x : type\<rbrakk> \<Longrightarrow> x : adj \<sqdot> type"
-  by (simp add: adjective_iff)
-
-lemma
-  adj_spec: "x : adj \<sqdot> type \<Longrightarrow> adj x" and
-
-  type_spec: "x : adj \<sqdot> type \<Longrightarrow> x : type"
-
-  by (simp_all only: adjective_iff)
-
-
-text \<open>``non'' modifier gives the complement of a predicate.\<close>
-
-definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
-  where "non-P \<equiv> \<lambda>x. \<not> P x"
-
+text \<open>
+  \<^term>\<open>x :> A\<close> annotates \<open>x\<close> with type \<open>A\<close>, and is used by automated tools to
+  represent additional typing information in a term.
+\<close>
 
 subsection \<open>Tooling and automation\<close>
 
@@ -213,21 +220,6 @@ method_setup discharge_types =
         Derivation.full_discharge_types_tac [] add_tms ctxt))))))\<close>
 
 
-named_theorems squash
-
-lemmas [squash] =
-  has_type_iff
-  Pi_type_iff
-  Int_type_iff
-  adjective_iff
-
-method squash_types = (simp_all only: squash | rule)
-
-text \<open>
-  @{method squash_types} converts all typing formulas to their equivalent predicate forms.
-\<close>
-
-
 subsection \<open>Simplifier integration\<close>
 
 ML \<open> 
@@ -252,10 +244,10 @@ val soft_type_simp_solver =
 subsection \<open>Basic declarations for HOL material\<close>
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
-  by auto
+  by unfold_types auto
 
 lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
-  by auto
+  by unfold_types auto
 
 
 end

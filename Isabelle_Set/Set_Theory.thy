@@ -1134,33 +1134,21 @@ definition empty :: "set \<Rightarrow> bool"
 text \<open>Elements of a given set:\<close>
 
 definition element :: "set \<Rightarrow> set type"
-  where element_typedef: "element A \<equiv> Type (\<lambda>x. x \<in> A)"
-
-(*
-  [squash] attribute should be generated automatically for typedefs of the kind T = Type P
-*)
-lemma element_type_iff [squash]: "x : element A \<longleftrightarrow> x \<in> A"
-  unfolding element_typedef by squash_types
+  where [typedef]: "element A \<equiv> type (\<lambda>x. x \<in> A)"
 
 text \<open>Subsets of a given set:\<close>
 
 definition subset :: "set \<Rightarrow> set type"
-  where subset_typedef [type_simp]: "subset A = element (Pow A)"
-
-lemma subset_type_iff [squash]: "B : subset A \<longleftrightarrow> B \<subseteq> A"
-  unfolding element_typedef subset_typedef by squash_types auto
+  where [typedef, type_simp]: "subset A \<equiv> element (Pow A)"
 
 lemma subset_self [derive]: "A : subset A"
-  by squash_types simp
+  by unfold_types auto
 
 
 text \<open>Collections of sets of a given type T:\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
-  where collection_typedef: "collection T \<equiv> Type (\<lambda>x. \<forall>y \<in> x. y : T)"
-
-lemma collection_type_iff [squash]: "X : collection T \<longleftrightarrow> (\<forall>x \<in> X. x : T)"
-  unfolding collection_typedef by squash_types
+  where [typedef]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 
 subsection \<open>Refined type reasoning for constants\<close>
@@ -1188,20 +1176,13 @@ lemma
   [type]: "(\<inter>) : subset A \<Rightarrow> subset A \<Rightarrow> subset A" and
   [type]: "collect : subset A \<Rightarrow> (element A \<Rightarrow> bool) \<Rightarrow> subset A"
 
-  by squash_types auto
-
-
-lemma Soft_Ball_element_squash [squash]: "(\<forall>x: element A. P x) \<longleftrightarrow> (\<forall>x \<in> A. P x)"
-  unfolding Soft_Ball_def by squash_types blast
-
-lemma Soft_Bex_element_squash [squash]: "(\<exists>x: element A. P x) \<longleftrightarrow> (\<exists>x \<in> A. P x)"
-  unfolding Soft_Bex_def by squash_types blast
+  by unfold_types auto
 
 
 subsection \<open>Subtyping\<close>
 
-lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> element A \<prec> element B"
-  by squash_types+ auto
+lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> x : element A \<Longrightarrow> x : element B"
+  by unfold_types auto
 
 
 subsection \<open>Universe closure properties\<close>
@@ -1287,49 +1268,49 @@ subsection \<open>Soft-typed universe rules\<close>
 
 lemma Univ_union_closedT [derive]:
   "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
-  using Univ_union_closed by squash_types
+  using Univ_union_closed by unfold_types
 
 lemma Univ_powerset_closedT [type]:
   "Pow : element (Univ X) \<Rightarrow> element (Univ X)"
-  using Univ_powerset_closed by squash_types auto
+  using Univ_powerset_closed by unfold_types auto
 
 lemma Univ_replacement_closedT [derive, bderive]:
   "\<lbrakk>A : element (Univ X); f : element A \<Rightarrow> element (Univ X)\<rbrakk> \<Longrightarrow> Repl A f : element (Univ X)"
-  unfolding element_type_iff by squash_types auto
+  by unfold_types auto
 
 lemma Univ_transitiveT:
   "A : element (Univ X) \<Longrightarrow> x : element A \<Longrightarrow> x : element (Univ X)"
-  by squash_types (fact Univ_transitive)
+  by unfold_types (fact Univ_transitive)
 
 lemma Univ_transitive'T [derive]:
   "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
-  by squash_types (fact Univ_transitive')
+  by unfold_types (rule Univ_transitive')
 
 lemma empty_in_UnivT [derive]: "{} : element (Univ X)"
-  by squash_types (fact empty_in_Univ)
+  by unfold_types (fact empty_in_Univ)
 
 lemma Univ_baseT [derive]: "A : element (Univ A)"
-  by squash_types (fact Univ_base)
+  by unfold_types (fact Univ_base)
 
 lemma Univ_subsetT [derive]: "A : subset (Univ A)"
-  by squash_types (fact Univ_subset)
+  by unfold_types (fact Univ_subset)
 
 (* This one is problematic as a [derive] rule, since it can loop *)
 lemma Univ_memT:
   "x : element A \<Longrightarrow> x : element (Univ A)"
-  by squash_types (fact Univ_subset')
+  by unfold_types (fact Univ_subset')
 
 lemma Univ_upair_closedT [derive]:
   "\<lbrakk>x : element (Univ X); y : element (Univ X)\<rbrakk> \<Longrightarrow> upair x y : element (Univ X)"
-  using Univ_upair_closed by squash_types
+  using Univ_upair_closed by unfold_types
 
 lemma Univ_cons_closedT [derive]:
   "\<lbrakk>x : element (Univ X); A : element (Univ X)\<rbrakk> \<Longrightarrow> cons x A : element (Univ X)"
-  by squash_types auto
+  by unfold_types auto
 
 lemma Univ_bin_union_closedT [derive]:
   "\<lbrakk>A : element (Univ X); B : element (Univ X)\<rbrakk> \<Longrightarrow> A \<union> B : element (Univ X)"
-  by squash_types auto
+  by unfold_types auto
 
 
 end
