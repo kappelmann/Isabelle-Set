@@ -1130,7 +1130,7 @@ abbreviation set :: "set type"
 definition empty :: "set \<Rightarrow> bool"
   where "empty A \<equiv> A = {}"
 
-
+(*
 text \<open>Elements of a given set:\<close>
 
 definition element :: "set \<Rightarrow> set type"
@@ -1183,11 +1183,10 @@ subsection \<open>Subtyping\<close>
 
 lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> x : element A \<Longrightarrow> x : element B"
   by unfold_types auto
+*)
 
 
 subsection \<open>Universe closure properties\<close>
-
-abbreviation \<V> :: set where "\<V> \<equiv> Univ {}"
 
 lemma
   assumes "ZF_closed U" and "X \<in> U"
@@ -1195,33 +1194,27 @@ lemma
     ZF_closed_union: "\<Union>X \<in> U" and
     ZF_closed_powerset: "Pow X \<in> U" and
     ZF_closed_replacement: "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> Repl X f \<in> U"
-
   using assms by (auto simp: ZF_closed_def)
 
 lemma
   assumes "A \<in> Univ X"
   shows
-    Univ_union_closed [intro]: "\<Union>A \<in> Univ X" and
-    Univ_powerset_closed [intro]: "Pow A \<in> Univ X" and
-    Univ_replacement_closed [intro]: "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> Univ X) \<Longrightarrow> Repl A f \<in> Univ X"
-
-  using assms
-  by (auto intro: Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
+    Univ_union_closed [intro]: "\<Union>A \<in> Univ X"
+  and
+    Univ_powerset_closed [intro]: "Pow A \<in> Univ X"
+  and
+    Univ_replacement_closed [intro]:
+      "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> Univ X) \<Longrightarrow> Repl A f \<in> Univ X"
+  by (auto intro: assms
+    Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
 
 lemma Univ_transitive: "A \<in> Univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> Univ X"
   using Univ_transitive[unfolded mem_transitive_def] by auto
 
-lemma Univ_transitive' [intro?]: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
-  using Univ_transitive[unfolded mem_transitive_def] by auto
-
-lemma Univ_transitive'': "A \<in> Univ X \<Longrightarrow> x \<subseteq> A \<Longrightarrow> x \<in> Univ X"
-  by (auto intro: Univ_transitive)
-
 lemma empty_in_Univ [intro]: "{} \<in> Univ X"
 proof -
-  have "X \<in> Univ X" by (rule Univ_base)
-  then have "Pow X \<in> Univ X" by (rule Univ_powerset_closed)
-  then have "Pow X \<subseteq> Univ X" by (rule Univ_transitive')
+  have "X \<in> Univ X" by (rule Univ_elem)
+  then have "Pow X \<subseteq> Univ X" by (auto intro: Univ_transitive)
   then show "{} \<in> Univ X" by auto
 qed
 
@@ -1229,18 +1222,15 @@ corollary Univ_nonempty [intro]: "non-empty (Univ X)"
   unfolding non_def empty_def by auto
 
 lemma Univ_subset [intro]: "A \<subseteq> Univ A"
-  by (rule Univ_transitive') (fact Univ_base)
-
-lemmas Univ_subset' = Univ_subset[unfolded subset_def, rule_format]
+  by (auto intro: Univ_transitive Univ_elem)
 
 lemma Univ_upair_closed [intro]:
   "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> upair x y \<in> Univ X"
-  unfolding upair_def
-  by (intro Univ_replacement_closed Univ_powerset_closed empty_in_Univ) auto
+  unfolding upair_def by (rule Univ_replacement_closed) auto
 
-lemma Univ_cons_closed [intro]: "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
-  unfolding cons_def
-  by (intro Univ_union_closed Univ_upair_closed)
+lemma Univ_cons_closed [intro]:
+  "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
+  unfolding cons_def by (intro Univ_union_closed Univ_upair_closed)
 
 corollary Univ_pair_closed [intro]:
   "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> {x, y} \<in> Univ X"
@@ -1254,17 +1244,14 @@ lemma Univ_singleton_closed [intro]:
   "x \<in> Univ U \<Longrightarrow> {x} \<in> Univ U"
   by auto
 
-
-subsection \<open>Universe simplification\<close>
-
-lemma Univ_bin_union_simp:
-  "A \<in> Univ U \<Longrightarrow> Univ U \<union> A = Univ U"
+lemma Univ_bin_union_left:
+  "A \<in> Univ U \<Longrightarrow> A \<union> Univ U = Univ U"
   by (rule extensionality) (auto intro: Univ_transitive)
 
-lemmas Univ_bin_union_simp_commute = Univ_bin_union_simp[simplified bin_union_commute]
+lemmas Univ_bin_union_right = Univ_bin_union_left[simplified bin_union_commute]
 
 
-subsection \<open>Soft-typed universe rules\<close>
+(* subsection \<open>Soft-typed universe rules\<close>
 
 lemma Univ_union_closedT [derive]:
   "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
@@ -1290,7 +1277,7 @@ lemma empty_in_UnivT [derive]: "{} : element (Univ X)"
   by unfold_types (fact empty_in_Univ)
 
 lemma Univ_baseT [derive]: "A : element (Univ A)"
-  by unfold_types (fact Univ_base)
+  by unfold_types (fact Univ_elem)
 
 lemma Univ_subsetT [derive]: "A : subset (Univ A)"
   by unfold_types (fact Univ_subset)
@@ -1310,7 +1297,7 @@ lemma Univ_cons_closedT [derive]:
 
 lemma Univ_bin_union_closedT [derive]:
   "\<lbrakk>A : element (Univ X); B : element (Univ X)\<rbrakk> \<Longrightarrow> A \<union> B : element (Univ X)"
-  by unfold_types auto
+  by unfold_types auto *)
 
 
 end
