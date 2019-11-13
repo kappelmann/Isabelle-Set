@@ -7,7 +7,7 @@ begin
 
 subsection \<open>Utility\<close>
 
-definition [squash]: "K x \<equiv> \<lambda>_. x"
+definition "K x \<equiv> \<lambda>_. x"
 
 
 subsection \<open>Notation\<close>
@@ -37,6 +37,9 @@ lemma disjCI2: "(\<not>A \<Longrightarrow> B) \<Longrightarrow> A \<or> B" by bl
 
 lemma contrapos: "P \<longrightarrow> Q \<Longrightarrow> \<not>Q \<longrightarrow> \<not>P" by blast
 
-lemma ex1_iff: "(\<exists>!x. P x) \<longleftrightarrow> (\<exists>x. P x) \<and> (\<forall>x x'. P x \<and> P x' \<longrightarrow> x = x')" by blast
+lemma ex1_iff:
+  "(\<exists>!x. P x) \<longleftrightarrow> (\<exists>x. P x) \<and> (\<forall>x x'. P x \<and> P x' \<longrightarrow> x = x')"
+  by blast
+
 
 end

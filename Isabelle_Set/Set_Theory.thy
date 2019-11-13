@@ -1186,7 +1186,9 @@ lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> x : element A \<Longrig
 *)
 
 
-subsection \<open>Universe closure properties\<close>
+subsection \<open>Universes\<close>
+
+abbreviation V :: set where "V \<equiv> Univ {}"
 
 lemma
   assumes "ZF_closed U" and "X \<in> U"
@@ -1218,7 +1220,7 @@ proof -
   then show "{} \<in> Univ X" by auto
 qed
 
-corollary Univ_nonempty [intro]: "non-empty (Univ X)"
+lemma Univ_nonempty [intro]: "non-empty (Univ X)"
   unfolding non_def empty_def by auto
 
 lemma Univ_subset [intro]: "A \<subseteq> Univ A"
