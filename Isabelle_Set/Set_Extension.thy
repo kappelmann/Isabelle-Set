@@ -57,13 +57,13 @@ proof (rule Pi_typeI)
   proof (cases "y \<in> A")
     case True
     then have "Rep y = f y" unfolding Rep_def by simp
-    with f_type True show ?thesis by squash_types
+    with f_type True show ?thesis by unfold_types
   next
     case False
     with `y : element def` obtain x where "x \<in> B" "y = \<langle>A, x\<rangle>"
-      unfolding def_def by squash_types auto
+      unfolding def_def by unfold_types auto
     then have "Rep y = x" unfolding Rep_def using False by simp
-    with `x \<in> B` show ?thesis by squash_types
+    with `x \<in> B` show ?thesis by unfold_types
   qed
 qed
 
@@ -79,11 +79,11 @@ proof (rule Pi_typeI)
       by (rule the_equality)
     with True have "Abs x = z" unfolding Abs_def by simp
     with z have "Abs x \<in> def" unfolding def_def by auto
-    then show ?thesis by squash_types
+    then show ?thesis by unfold_types
   next
     case False
     with `x : element B` 
-    have "x \<in> B \<setminus> Repl A f" by squash_types auto
+    have "x \<in> B \<setminus> Repl A f" by unfold_types auto
     then show ?thesis unfolding def_def element_type_iff Abs_def by auto
   qed
 qed    

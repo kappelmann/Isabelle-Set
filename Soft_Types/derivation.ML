@@ -10,26 +10,27 @@ struct
 
 (*** Tracing ***)
 
-val derive_debug = Attrib.setup_config_bool \<^binding>\<open>derive_debug\<close> (K false)
+val debug = Attrib.setup_config_bool \<^binding>\<open>derivator_debugger\<close> (K false)
 
-fun warn ctxt msg = if Config.get ctxt derive_debug then warning msg else ()
+fun warn ctxt msg = if Config.get ctxt debug then warning msg else ()
 
 
 (*** Context data ***)
 
 (*
-  A type derivation rule is an implication whose premises and conclusion are typing or
-  adjective judgments ("judgments").
+  A type derivation rule is an implication whose premises and conclusion are
+  typing or adjective judgments ("judgments").
 
-  These are stored in normalized form: premises are broken up into atomic type/adjective
-  judgments, and the conclusion is also split to yield multiple rules whose premises are
+  These are stored in normalized form: premises are broken up into atomic type
+  or adjective judgments, and the conclusion is also split to yield multiple rules whose premises are
   the same and whose conclusions are the atomic components of the original.
 *)
 
 
 (** Derivation, back derivation and subtype rules **)
 
-fun get_derivation_rules ctxt = Named_Theorems.get ctxt \<^named_theorems>\<open>derivation_rules\<close>
+fun get_derivation_rules ctxt =
+  Named_Theorems.get ctxt \<^named_theorems>\<open>derivation_rules\<close>
 
 fun put_derivation_rule thm context =
   (Soft_Type_Context.normalize (Context.proof_of context) thm

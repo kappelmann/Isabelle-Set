@@ -27,11 +27,11 @@ definition Plus :: "set \<Rightarrow> set type"
 
 lemma Plus_typeI:
   "struct[@plus] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Plus A"
-  unfolding Plus_typedef Binop_Equipped_typedef by squash_types
+  unfolding Plus_typedef Binop_Equipped_typedef by unfold_types
 
 lemma Plus_plus_type [derive]:
   "struct: Plus A \<Longrightarrow> struct[@plus] : element (A \<rightarrow> A \<rightarrow> A)"
-  unfolding Plus_typedef Binop_Equipped_typedef by squash_types
+  unfolding Plus_typedef Binop_Equipped_typedef by unfold_types
 
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[@plus]`x`y)"
@@ -50,11 +50,11 @@ definition Times :: "set \<Rightarrow> set type"
 
 lemma Times_typeI:
   "struct[@times] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Times A"
-  unfolding Times_typedef Binop_Equipped_typedef by squash_types
+  unfolding Times_typedef Binop_Equipped_typedef by unfold_types
 
 lemma Times_times_type [derive]:
   "struct: Times A \<Longrightarrow> struct[@times] : element (A \<rightarrow> A \<rightarrow> A)"
-  unfolding Times_typedef Binop_Equipped_typedef by squash_types
+  unfolding Times_typedef Binop_Equipped_typedef by unfold_types
 
 definition times :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "times p = (\<lambda>x y. p[@times]`x`y)"
@@ -62,8 +62,8 @@ definition times :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
 lemma times_type [type]: "times : (P : Times A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding times_def by discharge_types
 
-abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
-  where "x \<cdot> y \<equiv> times \<implicit>M x y"
+abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<sqdot>" 65)
+  where "x \<sqdot> y \<equiv> times \<implicit>M x y"
 
 
 subsection \<open>"Zero" and "one" structures\<close>
@@ -74,10 +74,10 @@ definition Zero :: \<open>set \<Rightarrow> set type\<close>
   where Zero_typedef: "Zero A = Pointed @zero A"
 
 lemma Zero_typeI: "struct[@zero] : element A \<Longrightarrow> struct : Zero A"
-  unfolding Zero_typedef Pointed_typedef by squash_types
+  unfolding Zero_typedef Pointed_typedef by unfold_types
 
 lemma Zero_zero_type [derive]: "struct: Zero A \<Longrightarrow> struct[@zero] : element A"
-  unfolding Zero_typedef Pointed_typedef by squash_types
+  unfolding Zero_typedef Pointed_typedef by unfold_types
 
 definition zero :: "set \<Rightarrow> set"
   where "zero struct = struct[@zero]"
@@ -93,10 +93,10 @@ definition One :: \<open>set \<Rightarrow> set type\<close>
   where One_typedef: "One A = Pointed @one A"
 
 lemma One_typeI: "struct[@one] : element A \<Longrightarrow> struct : One A"
-  unfolding One_typedef Pointed_typedef by squash_types
+  unfolding One_typedef Pointed_typedef by unfold_types
 
 lemma One_one_type [derive]: "struct: One A \<Longrightarrow> struct[@one] : element A"
-  unfolding One_typedef Pointed_typedef by squash_types
+  unfolding One_typedef Pointed_typedef by unfold_types
 
 definition one :: "set \<Rightarrow> set"
   where "one struct = struct[@one]"

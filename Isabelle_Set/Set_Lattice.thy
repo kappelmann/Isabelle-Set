@@ -1,8 +1,8 @@
 section \<open>Power set lattices\<close>
 
 text \<open>
-  Power set lattices, least and greatest fixed points, and the Knaster-Tarski theorem
-  for \<open>\<subseteq>\<close>.
+  Power set lattices, least and greatest fixed points, and the Knaster-Tarski
+  theorem for \<open>\<subseteq>\<close>.
 \<close>
 
 theory Set_Lattice
@@ -16,7 +16,7 @@ definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> 
   where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
 
 lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
-  by auto
+  by unfold_types auto
 
 abbreviation "monop D \<equiv> monotone D \<sqdot> (subset D \<Rightarrow> subset D)"
 
@@ -30,52 +30,59 @@ proof (intro allI impI)
   with * assms show "h W \<subseteq> h X" by auto
 qed
 
-lemma monopD1: "h : monop D \<Longrightarrow> h D \<subseteq> D"
-  unfolding monotone_def by squash_types auto
+lemma monop_subset_closed: "h : monop D \<Longrightarrow> h D \<subseteq> D"
+  unfolding monotone_def by unfold_types auto
 
 (* Josh: Elimination instead of destruction? *)
-lemma monopD2: "\<lbrakk> h : monop D;  X : subset D;  W \<subseteq> X \<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
-  unfolding monotone_def by squash_types
+lemma monopE: "\<lbrakk>h : monop D;  X \<subseteq> D;  W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
+  unfolding monotone_def by unfold_types
 
-lemma monop_app_type [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
-  by squash_types
+lemma [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
+  by unfold_types
 
 lemma monop_union_subset:
-  assumes [type]: "h : monop D" "A : subset D" "B : subset D"
+  assumes [type]: "h : monop D" and "A \<subseteq> D" "B \<subseteq> D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
   have "h A \<subseteq> h (A \<union> B)"
-    by (rule monopD2[of h], discharge_types) auto
-  moreover have "h B \<subseteq> h (A \<union> B)" by (rule monopD2[of h], discharge_types) auto
+    apply (rule monopE, discharge_types)
+    using assms by auto
+  moreover have "h B \<subseteq> h (A \<union> B)"
+    apply (rule monopE, discharge_types)
+    using assms by auto
   ultimately show ?thesis by auto
 qed
 
-lemma id_monop [derive]: "(\<lambda>L. L) : monop D"
-  by squash_types (auto simp: monotone_def)
+lemma [derive]: "(\<lambda>L. L) : monop D"
+  by unfold_types (auto simp: monotone_def)
 
-lemma constant_monop [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
-  by squash_types (auto simp: monotone_def)
+lemma [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
+  by unfold_types (auto simp: monotone_def)
 
 lemma monopI:
-  assumes 1: "\<And>x. x : subset D \<Longrightarrow> h x : subset D"
-  assumes 2: "\<And>W X. W : subset D \<Longrightarrow> X : subset D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
+  assumes 1: "\<And>x. x \<subseteq> D \<Longrightarrow> h x \<subseteq> D"
+  assumes 2: "\<And>W X. W \<subseteq> D \<Longrightarrow> X \<subseteq> D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
   shows "h : monop D"
-  apply (rule adjI, rule monotoneI)
-   apply (fact 2[unfolded subset_type_iff])
-  apply (rule Pi_typeI, fact 1)
+  apply (unfold_types, intro conjI allI impI)
+   apply (rule monotoneI, fact)
+  apply (auto intro!: assms)
   done
 
 lemma monop_unionI [derive]:
   assumes [type]: "A : monop D" "B : monop D"
   shows "(\<lambda>x. A x \<union> B x) : monop D"
-proof (rule monopI, discharge_types)
+proof (rule monopI)
   fix W X assume [type]: "W : subset D" "X : subset D"
   assume "W \<subseteq> X"
 
+  thm derivation_rules
+  print_types
+  have "A x \<union> B x : subset D" apply discharge_types print_types
+
   have "A W \<subseteq> A X"
-    by (rule monopD2[of A], discharge_types) (fact `W \<subseteq> X`)
+    by (rule monopE[of A], discharge_types) (fact `W \<subseteq> X`)
   moreover have "B W \<subseteq> B X"
-    by (rule monopD2[of B], discharge_types) (fact `W \<subseteq> X`)
+    by (rule monopE[of B], discharge_types) (fact `W \<subseteq> X`)
   ultimately
   show "A W \<union> B W \<subseteq> A X \<union> B X"
     by auto
@@ -88,8 +95,8 @@ lemma monop_replacementI:
   using assms
   apply -        
   apply (rule monopI)
-   apply squash_types[1]
-  apply (auto dest: monopD2)
+   apply unfold_types[1]
+  apply (auto dest: monopE)
   done
 
 
@@ -100,11 +107,11 @@ definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
 
 lemma lfp_type [type]:
   "lfp : (D : set) \<Rightarrow> monop D \<Rightarrow> subset D"
-  unfolding lfp_def by squash_types auto
+  unfolding lfp_def by unfold_types auto
 
 lemma lfp_subset:
   "h : monop D \<Longrightarrow> lfp D h \<subseteq> D"
-  unfolding lfp_def by squash_types auto
+  unfolding lfp_def by unfold_types auto
 
 (* Explicitly set the context for now. This can actually be inferred *)
 context
@@ -115,10 +122,10 @@ context
 begin
 
 lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A : subset D \<Longrightarrow> lfp D h \<subseteq> A"
-  unfolding lfp_def by squash_types auto
+  unfolding lfp_def by unfold_types auto
 
 lemma lfp_greatest: "(\<And>X. X : subset D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
-  using monopD1[OF h_type] unfolding lfp_def by squash_types auto
+  using monop_subset_closed[OF h_type] unfolding lfp_def by unfold_types auto
 
 lemma lfp_unfold: "lfp D h = h (lfp D h)"
 proof (rule extensionality)
@@ -133,12 +140,12 @@ proof (rule extensionality)
         Ideally, @{method rule} would provide a hook that lets us discharge typing
         assumptions after the rule application.
       \<close>
-      by (rule monopD2[of h], discharge_types) (fact *)
+      by (rule monopE[of h], discharge_types) (fact *)
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
 
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopD2[of h] 1) discharge_types
+    by (intro lfp_lowerbound monopE[of h] 1) discharge_types
 qed
 
 (* Definition form, to control unfolding *)
@@ -153,7 +160,7 @@ lemma collect_is_prefixed_point:
   shows "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
 proof -
   have "h (collect (lfp D h) P) \<subseteq> h (lfp D h)"
-    by (intro monopD2[of h] collect_subset) discharge_types
+    by (intro monopE[of h] collect_subset) discharge_types
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed
@@ -163,7 +170,7 @@ lemma lfp_induct:
   assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
-  have [type]: "P : element D \<Rightarrow> bool" by squash_types auto
+  have [type]: "P : element D \<Rightarrow> bool" by unfold_types auto
 
   have "lfp D h \<subseteq> collect (lfp D h) P"
   proof (rule lfp_lowerbound)

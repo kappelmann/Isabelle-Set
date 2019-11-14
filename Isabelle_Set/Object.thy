@@ -138,7 +138,7 @@ subsection \<open>Rules\<close>
 lemma object_iffs [simp]:
   "M : Type (composer A P) \<longleftrightarrow> M : Type (P (M[A]))"
   "M : Type (K Q) \<longleftrightarrow> Q"
-  by squash_types
+  by unfold_types
 
 lemmas object_simps [unfolded selector_def[symmetric], simp] =
   apply_singleton

@@ -271,14 +271,14 @@ definition AC_axiom where
  "AC_axiom \<equiv> \<forall> X. {} \<notin>  X \<longrightarrow> (\<exists> f. (f \<in> X \<rightarrow> \<Union> X) \<and> (\<forall>A. A\<in> X \<longrightarrow> f` A \<in> A))"
 
 definition bij where 
-  bij_typedef :"bij X Y \<equiv>  Type( \<lambda> f . f \<in> X\<rightarrow>Y \<and> 
+  bij_typedef :"bij X Y \<equiv>  type( \<lambda> f . f \<in> X\<rightarrow>Y \<and> 
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2) )" 
 
 lemma bij_type_iff []: "f : bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
-  using bij_typedef by squash_types
+  using bij_typedef by unfold_types
 
 lemma bij_typeI [intro]: "f \<in> X\<rightarrow>Y \<Longrightarrow>
                         {f`x |x \<in> X} = Y \<Longrightarrow> 
@@ -441,7 +441,7 @@ proof-
       hence P: "Pow a \<subseteq> U" using assms ZF_closed_def mem_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
-        have E: " mem_transitive a" using O unfolding Ord_typedef by squash_types
+        have E: " mem_transitive a" using O unfolding Ord_typedef by unfold_types
         fix b assume b: "b \<in> a" 
         hence " b \<subseteq> a" using E mem_transitive_def[of a] by auto
         hence "b \<in> U" "b:Ord" using P Ord_transitive O b by auto
@@ -503,8 +503,8 @@ proof-
     then show "x \<subseteq> ?Lamb" by (auto intro: Ord_transitive)
   qed
   hence E: "mem_transitive ?Lamb" using mem_transitive_def by auto
-  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> mem_transitive x" unfolding Ord_typedef by squash_types auto
-  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by squash_types auto
+  have "\<forall> x. x \<in> ?Lamb \<longrightarrow> mem_transitive x" unfolding Ord_typedef by unfold_types auto
+  hence OL: "?Lamb: Ord" using E Ord_typedef unfolding Ord_typedef by unfold_types auto
   let ?faLamb =" {?f a|a \<in> ?Lamb}"
   have C6_1: "?Lamb \<subseteq> {?g y| y \<in> ?faLamb}"
   proof

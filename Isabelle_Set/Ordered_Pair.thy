@@ -5,12 +5,11 @@ imports Set_Theory
 
 begin
 
-
 subsection \<open>Ordered pairs, tuples\<close>
 
 text \<open>
-  Defining the ordered pair "symmetrically" as @{term "{{a, a}, {a, b}}"} simplifies
-  proofs.
+  Defining the ordered pair "symmetrically" as @{term "{{a, a}, {a, b}}"}
+  simplifies proofs.
 \<close>
 
 definition opair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
@@ -72,7 +71,7 @@ lemma opair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
   unfolding opair_def by (auto intro: equalityI dest: mem_cycle3)
 
 
-subsection \<open>Indexed disjoint unions, aka \<Sigma>-types\<close>
+subsection \<open>Dependent pairs/indexed disjoint unions/\<Sigma> types\<close>
 
 definition Pair :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set\<close>
   where "Pair A B \<equiv> \<Union>x \<in> A. \<Union>y \<in> B x. {\<langle>x, y\<rangle>}"
@@ -147,16 +146,16 @@ lemma prod_subset_mem_elim:
 
 subsection \<open>Monotonicity\<close>
 
-lemma prod_monotone: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
-  by auto
+lemma prod_monotone: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'" by auto
 
-lemma prod_monotoneT1 [derive]:
-  "A : subset A' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A' \<times> B)"
-  by squash_types auto
+lemma prod_monotone1: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B" by auto
+lemma prod_monotone2: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'" by auto
 
-lemma prod_monotoneT2 [derive]:
-  "B : subset B' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A \<times> B')"
-  by squash_types auto
+lemma
+  [derive]: "A : subset A' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A' \<times> B)"
+  and
+  [derive]: "B : subset B' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A \<times> B')"
+  by unfold_types auto
 
 
 subsection \<open>Functions on \<Sigma>-type\<close>
@@ -213,14 +212,14 @@ lemma Univ_Pair_closed [intro]:
   assumes
     "A \<in> Univ U"
     "\<And>x. x \<in> A \<Longrightarrow> B x \<in> Univ U"
-  shows "\<Sum>x \<in> A. (B x) \<in> Univ U"
+  shows
+    "\<Sum>x \<in> A. (B x) \<in> Univ U"
 
   unfolding Pair_def opair_def
-  apply (rule+, fact assms)+
-  apply (auto intro!: Univ_singleton_closed Univ_cons_closed)
-  apply (rule Univ_transitive, rule assms, assumption)+
-  apply assumption
-  done
+  by (auto
+    intro!:
+      Univ_union_closed Univ_replacement_closed Univ_singleton_closed Univ_cons_closed
+    intro: Univ_transitive assms)
 
 
 subsection \<open>Typing rules\<close>
@@ -229,8 +228,7 @@ lemma
   opair_type [type]: "opair : element A \<Rightarrow> element B \<Rightarrow> element (A \<times> B)" and
   fst_type [type]: "fst : element (A \<times> B) \<Rightarrow> element A" and
   snd_type [type]: "snd : element (A \<times> B) \<Rightarrow> element B"
-
-  by squash_types auto
+  by unfold_types auto
 
 text \<open>
   The following is more general but also makes elaboration more complex, so we do not
@@ -239,27 +237,30 @@ text \<open>
 
 lemma opair_dependent_type:
   "opair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (Pair A B)"
-  by squash_types auto
+  by unfold_types auto
 
-lemma prod_subsetIT [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
-  by squash_types auto
+lemma [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
+  by unfold_types auto
 
-lemma split_paired_BallT:
+lemma split_paired_Ball:
   "(\<forall>x: element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a : element A. \<forall>b : element B. P \<langle>a, b\<rangle>)"
-  by squash_types auto
+  by unfold_types auto
+
+(* Universes should be handled separately from the main type derivator.
 
 lemma Univ_opair_closedT [derive]:
   "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
-  unfolding opair_def by discharge_types
+  unfolding opair_def by discharge_type
 
 lemma prod_Univ_subset_UnivT [derive]:
   "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
   using Univ_opair_closedT
-  by squash_types auto
+  by unfold_types auto
 
 lemma Univ_prod_subset_closedT [derive]:
   "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
-  by discharge_types
+  by discharge_type
+*)
 
 
 end

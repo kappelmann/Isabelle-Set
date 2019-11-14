@@ -107,7 +107,7 @@ lemma converse_empty [simp]: "converse {} = {}"
   unfolding converse_def by (rule extensionality) auto
 
 lemma converse_type [type]: "converse : subset (A \<times> B) \<Rightarrow> subset (B \<times> A)"
-  by squash_types auto
+  by unfold_types auto
 
 
 subsection \<open>Relations on a set\<close>
@@ -173,7 +173,7 @@ definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1
 lemma relations_relation_type [elim]:
   "R \<subseteq> A \<times> B \<Longrightarrow> R : A-domed \<sqdot> B-valued \<sqdot> relation"
   unfolding domed_def valued_def dom_def rng_def relation_typedef adjective_def
-  by squash_types auto
+  by unfold_types auto
 *)
 
 
@@ -185,12 +185,12 @@ lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in>
 lemma collect_relT:
   assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
   shows "{\<langle>f x, g x\<rangle>. x \<in> X} \<subseteq> A \<times> B"
-  using assms by squash_types auto
+  using assms by unfold_types auto
 
 lemma cons_rel_iff [iff]:
   assumes "x : element A" and "y : element B"
   shows "cons \<langle>x, y\<rangle> X \<subseteq> A \<times> B \<longleftrightarrow> X \<subseteq> A \<times> B"
-  using assms by squash_types auto
+  using assms by unfold_types auto
 
 
 end

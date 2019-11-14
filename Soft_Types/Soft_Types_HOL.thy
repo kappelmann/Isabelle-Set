@@ -31,11 +31,11 @@ typedecl 'a type
 
 axiomatization
   type     :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type\<close> and
-  adj      :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<cdot>" 56) and
+  adj      :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<sqdot>" 56) and
   has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close> (infix ":" 45)
 where
   has_type_type: "x : type P \<equiv> P x" and
-  has_type_adj: "x : P \<cdot> T \<equiv> P x \<and> x : T"
+  has_type_adj: "x : P \<sqdot> T \<equiv> P x \<and> x : T"
 
 lemma has_type_typeI: "P x \<Longrightarrow> x : type P"
   unfolding has_type_type by auto
@@ -43,12 +43,12 @@ lemma has_type_typeI: "P x \<Longrightarrow> x : type P"
 lemma has_type_typeE: "x : type P \<Longrightarrow> P x"
   unfolding has_type_type by auto
 
-lemma has_type_adjI: "\<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> x : P \<cdot> T"
+lemma has_type_adjI: "\<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> x : P \<sqdot> T"
   unfolding has_type_adj by auto
 
 lemma
-  adj_spec: "x : P \<cdot> T \<Longrightarrow> P x" and
-  type_spec: "x : P \<cdot> T \<Longrightarrow> x : T"
+  adj_spec: "x : P \<sqdot> T \<Longrightarrow> P x" and
+  type_spec: "x : P \<sqdot> T \<Longrightarrow> x : T"
   unfolding has_type_adj by auto
 
 text \<open>The "non-" modifier gives the negation of a predicate.\<close>
@@ -98,9 +98,12 @@ text \<open>
   These are the canonical low-level methods for using the defining predicates of
   a type.
 \<close>
-(* Not complete; these don't handle adjectives *)
-method prove_type for x = (rule has_type_typeI[where ?x=x])
-method use_type for x = (drule has_type_typeE[where ?x=x])
+method prove_type for x =
+  (rule has_type_typeI[where ?x=x] | rule has_type_adjI[where ?x=x])
+
+(* Not complete; this doesn't handle adjectives yet *)
+method use_type for x =
+  (drule has_type_typeE[where ?x=x])
 
 text \<open>Unfold all type information to work only in the underlying theory:\<close>
 
@@ -127,7 +130,7 @@ text \<open>Used, for example, to reflect rigid types back into the soft type sy
 definition any :: "'a type"
   where [typedef]: "any \<equiv> type (\<lambda>_. True)"
 
-lemma any_typeI [intro]: "x : any"
+lemma any_typeI: "x : any"
   by unfold_types
 
 abbreviation bool :: "bool type"

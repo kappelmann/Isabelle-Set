@@ -27,10 +27,10 @@ definition Monoid :: "set \<Rightarrow> set type"
       plus `(plus `x `y) `z = plus `x `(plus `y `z)) \<rparr>"
 
 lemma Monoid_is_Zero [derive]: "Monoid A \<prec> Zero A"
-  unfolding Monoid_typedef by (intro subtypeI) squash_types
+  unfolding Monoid_typedef by (intro subtypeI) unfold_types
 
 lemma Monoid_is_Plus [derive]: "Monoid A \<prec> Plus A"
-  unfolding Monoid_typedef by (intro subtypeI) squash_types
+  unfolding Monoid_typedef by (intro subtypeI) unfold_types
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
@@ -39,7 +39,7 @@ lemma Monoid_typeI:
     \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
        str[@plus] `(str[@plus] `x `y) `z = str[@plus] `x `(str[@plus] `y `z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
-  unfolding Monoid_typedef by squash_types
+  unfolding Monoid_typedef by unfold_types
 
 text \<open>
   Now we define the global operations as projections. Here, we also convert the set
@@ -56,7 +56,7 @@ lemma
   
   using assms
   unfolding Monoid_typedef Zero_typedef plus_def zero_def
-  by (squash_types, blast+)
+  by (unfold_types, blast+)
 
 
 subsection \<open>Instance for pairs\<close>
@@ -98,7 +98,7 @@ lemma pair_plus_type [type]:
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
   unfolding Zero_typedef Pointed_typedef pair_zero_def zero_def
-  by squash_types auto
+  by unfold_types auto
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
@@ -175,7 +175,7 @@ object Group "A :: set" is
     (\<forall>x\<in>A. plus `x `(inv `x) = zero) \<rparr>"
 
 lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
-  unfolding Group_typedef by squash_types
+  unfolding Group_typedef by unfold_types
 
 
 end

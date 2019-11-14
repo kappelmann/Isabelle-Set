@@ -43,7 +43,7 @@ lemma beta: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
 
 lemma typed_beta [simp]: "a : element A \<Longrightarrow> (\<lambda>x \<in> A. b x) ` a = b a"
-  by squash_types (fact beta)
+  by unfold_types (fact beta)
 
 lemma lambda_dom [simp]: "dom (\<lambda>x \<in> A. b x) = A"
   by (auto simp: lambda_def)
@@ -62,7 +62,7 @@ lemma beta_split [simp]:
 
 lemma beta_split_typed [simp]:
   "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x, y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
-  by squash_types (fact beta_split)
+  by unfold_types (fact beta_split)
 
 (* Does not work as simp rule *)
 lemma lambda_times_split: "(\<lambda>x \<in> A \<times> B. f x) = (\<lambda>\<langle>a, b\<rangle> \<in> A \<times> B. f \<langle>a, b\<rangle>)"
@@ -426,7 +426,7 @@ lemma compose_lambdas:
   "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   apply (auto simp: fun_comp_def)
   apply (rule funext, auto intro!: beta simp: beta)
-  apply squash_types
+  apply unfold_types
   done
 
 lemma compose_FunctionI [intro]:
@@ -498,11 +498,11 @@ subsection \<open>Soft typing\<close>
 
 lemma lambda_simple_type [type]:
   "lambda : (A : set) \<Rightarrow> (element A \<Rightarrow> element B) \<Rightarrow> element (A \<rightarrow> B)"
-  by squash_types auto
+  by unfold_types auto
 
 lemma apply_simple_type [type]:
   "apply : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
-  by squash_types auto
+  by unfold_types auto
 
 
 (* text \<open>Class of all functions\<close>
@@ -517,15 +517,15 @@ definition total :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-total)" [100
   where "A-total \<equiv> \<lambda>f. dom f = A"
 
 lemma Function_relation_type [elim]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f : relation"
-  by (drule function_rel, drule relations_relation_type) squash_types
+  by (drule function_rel, drule relations_relation_type) unfold_types
 
 lemma Function_function_type [elim]: "f \<in> Function A B \<Longrightarrow> f : A-total \<sqdot> function"
   unfolding function_typedef uniq_valued_def total_def adjective_def
-  by squash_types auto
+  by unfold_types auto
 
 lemma function_function_type [elim]: "f \<in> A \<rightarrow> B \<Longrightarrow> f : A-total \<sqdot> B-valued \<sqdot> function"
   unfolding function_typedef uniq_valued_def total_def valued_def adjective_def
-  by (squash_types, auto) (insert range_subset, blast)
+  by (unfold_types, auto) (insert range_subset, blast)
 *)
 
 

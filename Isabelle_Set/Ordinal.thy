@@ -5,17 +5,17 @@ imports Set_Lattice
 
 begin
 
-definition Ord :: \<open>set type\<close> where
-  Ord_typedef: "Ord \<equiv> Type (\<lambda>x. mem_transitive x \<and> (\<forall>y \<in> x. mem_transitive y))"
+definition Ord :: \<open>set type\<close> where [typedef]:
+  "Ord \<equiv> type (\<lambda>x. mem_transitive x \<and> (\<forall>y \<in> x. mem_transitive y))"
 
-lemma empty_ordinal [intro!]: "{} : Ord"
-  unfolding Ord_typedef mem_transitive_def by squash_types auto
+lemma emptyset_ordinal [intro!]: "{} : Ord"
+  by unfold_types auto
 
-lemma Ord_transitive [elim]: "\<lbrakk>y \<in> x; x : Ord\<rbrakk> \<Longrightarrow> y : Ord"
-  unfolding Ord_typedef mem_transitive_def by squash_types blast
+lemma Ord_transitive [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
+  by unfold_types (fastforce simp: mem_transitive_def)
 
-lemma Ord_mem_subset: "\<lbrakk>y \<in> x; x : Ord\<rbrakk> \<Longrightarrow> y \<subseteq> x"
-  unfolding Ord_typedef mem_transitive_def by squash_types
+lemma Ord_elem_subset: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
+  by unfold_types (fastforce simp: mem_transitive_def)
 
 (* Adapted from a proof by Chad Brown *)
 lemma Ord_trichotomy_aux:
@@ -31,13 +31,13 @@ proof (induction X Y rule: mem_double_induct)
     show "X \<subseteq> Y"
     proof
       fix x assume "x \<in> X"
-      with ord have "x \<subseteq> X" "x : Ord" by (auto elim!: Ord_mem_subset)
+      with ord have "x \<subseteq> X" "x : Ord" by (auto elim!: Ord_elem_subset)
       with * ord IH1 \<open>x \<in> X\<close> show "x \<in> Y" by blast
     qed
     show "Y \<subseteq> X"
     proof
       fix y assume "y \<in> Y"
-      with ord have "y \<subseteq> Y" "y : Ord" by (auto elim!: Ord_mem_subset)
+      with ord have "y \<subseteq> Y" "y : Ord" by (auto elim!: Ord_elem_subset)
       with * ord IH2 \<open>y \<in> Y\<close> show "y \<in> X" by blast
     qed
   qed
@@ -62,7 +62,7 @@ definition succ :: "set \<Rightarrow> set"
   where "succ x \<equiv> x \<union> {x}"
 
 lemma succ_Ord: "x : Ord \<Longrightarrow> succ x : Ord"
-  unfolding Ord_typedef succ_def mem_transitive_def by squash_types blast
+  unfolding succ_def by unfold_types (fastforce simp: mem_transitive_def)
 
 lemma succ_neq [intro]: "x \<noteq> succ x"
 unfolding succ_def
@@ -103,11 +103,8 @@ proof (rule ccontr)
   from \<open>n \<in> m\<close> \<open>m \<in> n\<close> show False using mem_asym by blast
 qed
 
-lemma Univ_closed_succ [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
+lemma Univ_succ_closed [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
   unfolding succ_def by auto
-
-lemma Univ_closed_succT [derive]: "x : element (Univ X) \<Longrightarrow> succ x : element (Univ X)"
-  by squash_types auto
 
 
 subsection \<open>\<omega>, the smallest infinite ordinal\<close>
@@ -116,7 +113,7 @@ definition omega ("\<omega>")
   where "\<omega> \<equiv> lfp (Univ {}) (\<lambda>X. {{}} \<union> {succ n | n \<in> X})"
 
 lemma omega_def_monop: "(\<lambda>X. {{}} \<union> {succ n | n \<in> X}) : monop (Univ {})"
-  by (rule monopI) (squash_types, auto)
+  by (rule monopI) (unfold_types, auto)
 
 lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
   by (rule def_lfp_unfold) (auto intro: omega_def_monop simp: omega_def)

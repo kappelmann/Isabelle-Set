@@ -12,7 +12,7 @@ lemma monop_prodI [derive]:
   shows
     "(\<lambda>x. A x \<times> B x) : monop (Univ X)"
 
-  by (rule monopI, discharge_types) (auto dest: monopD2[OF A_type] monopD2[OF B_type])
+  by (rule monopI, discharge_types) (auto dest: monopE[OF A_type] monopE[OF B_type])
 
 
 end

@@ -59,7 +59,7 @@ lemma monoid_neut_type [type]: "monoid_neut : (M : monoid) \<Rightarrow> element
 lemma monoid_add_type [type]:
   "monoid_add :
     (M : monoid) \<Rightarrow> element (M[@carrier]) \<Rightarrow> element (M[@carrier]) \<Rightarrow> element (M[@carrier])"
-  unfolding monoid_typedef monoid_add_def by squash_types (auto intro: FunctionE)
+  unfolding monoid_typedef monoid_add_def by unfold_types (auto intro: FunctionE)
 
 lemma
   assumes "M : monoid"
@@ -83,7 +83,7 @@ object group is "monoid \<bar> \<lparr> (A @carrier) (inv @inv) (op @op) (e @uni
 
 
 lemma group_is_monoid: "group \<prec> monoid"
-  unfolding group_typedef by (intro subtypeI) squash_types
+  unfolding group_typedef by (intro subtypeI) unfold_types
 
 text \<open>No coercion of structure instances is needed; we simply ignore the fields we don't need.\<close>
 

@@ -41,7 +41,7 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
    apply (rule monop_prodI)
   apply discharge_types
   apply (rule Cons_Univ)
-   apply squash_types
+   apply unfold_types
    using Univ_subset
    apply auto+
   done
@@ -49,10 +49,10 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]
 
 lemma Nil_type [type]: "Nil : element (List A)"
-  by (subst List_unfold) (squash_types, auto)
+  by (subst List_unfold) (unfold_types, auto)
 
 lemma Cons_type [type]: "Cons : element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
-  by (subst (2) List_unfold) (squash_types, auto)
+  by (subst (2) List_unfold) (unfold_types, auto)
 
 lemma List_type [type]: "List : set \<Rightarrow> set"
   by discharge_types
@@ -63,11 +63,11 @@ lemma List_induct:
   assumes Cons: "\<And>x xs. x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> P xs \<Longrightarrow> P (Cons x xs)"
   shows "P xs"
 proof (rule def_lfp_induct[OF any_typeI List_mono List_def, of xs A P])
-  from xs_type show "xs \<in> List A" by squash_types
+  from xs_type show "xs \<in> List A" by unfold_types
 next
   fix x assume "x \<in> {Nil} \<union> {MyList.Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> collect (List A) P}"
   with Nil Cons
-  show "P x" by squash_types auto
+  show "P x" by unfold_types auto
 qed
 
 axiomatization

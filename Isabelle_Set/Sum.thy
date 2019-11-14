@@ -34,10 +34,10 @@ lemma SumE [case_names inl inr]:
   using assms unfolding Sum_def by blast
 
 lemma inl_type [type]: "inl : element A \<Rightarrow> element (Sum A B)"
-  unfolding inl_def Sum_def by squash_types blast
+  unfolding inl_def Sum_def by unfold_types blast
 
 lemma inr_type [type]: "inr : element B \<Rightarrow> element (Sum A B)"
-  unfolding inr_def Sum_def by squash_types blast
+  unfolding inr_def Sum_def by unfold_types blast
 
 lemma Univ_closed_inl [derive]: "x : element (Univ A) \<Longrightarrow> inl x : element (Univ A)"
   unfolding inl_def by discharge_types

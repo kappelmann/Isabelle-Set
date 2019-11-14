@@ -291,6 +291,9 @@ lemma not_emptyE:
 lemma subset_empty[simp]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
   by auto
 
+lemma emptyset_mem_transitive [intro]: "mem_transitive {}"
+  unfolding mem_transitive_def by auto
+
 
 subsection \<open>Power set\<close>
 
@@ -576,7 +579,7 @@ lemma idxunion_least: "(\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> C) 
 lemma union_as_idxunion: "\<Union>A = (\<Union>x\<in> A. x)"
   by auto
 
-lemma union_empty_iff[simp]: "\<Union>A = {} \<longleftrightarrow> A = {} \<or> A = {{}}"
+lemma union_empty_iff [simp]: "\<Union>A = {} \<longleftrightarrow> A = {} \<or> A = {{}}"
 proof
   assume "\<Union>A = {}" show "A = {} \<or> A = {{}}"
   proof (rule disjCI2)
@@ -618,7 +621,7 @@ lemma idxunion_empty [simp]: "(\<Union>i \<in> {}. A i) = {}"
 lemma idxunion_singleton: "(\<Union>x\<in>A. {x}) = A"
   by (rule extensionality) auto
 
-lemma flatten_idxunion_idxunion:
+lemma flatten_idxunion:
   "(\<Union>x\<in> (\<Union>y \<in> A. B y). C x) = (\<Union>y \<in> A. \<Union>x\<in> B y. C x)"
   by (rule extensionality) auto
 
@@ -1130,7 +1133,6 @@ abbreviation set :: "set type"
 definition empty :: "set \<Rightarrow> bool"
   where "empty A \<equiv> A = {}"
 
-(*
 text \<open>Elements of a given set:\<close>
 
 definition element :: "set \<Rightarrow> set type"
@@ -1143,7 +1145,6 @@ definition subset :: "set \<Rightarrow> set type"
 
 lemma subset_self [derive]: "A : subset A"
   by unfold_types auto
-
 
 text \<open>Collections of sets of a given type T:\<close>
 
@@ -1181,9 +1182,16 @@ lemma
 
 subsection \<open>Subtyping\<close>
 
+(*
+Josh: for the `element` and `subset` soft types, it really shouldn't matter
+if we write \<in> and \<subseteq> instead. The soft type infrastructure should automatically
+convert the set-theoretic statements to soft type knowledge.
+
+("Atomic" soft types? ~ correspond to very basic judgments in the theory that
+should be known and handled as above by the soft type derivator.)
+*)
 lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> x : element A \<Longrightarrow> x : element B"
   by unfold_types auto
-*)
 
 
 subsection \<open>Universes\<close>
@@ -1210,6 +1218,7 @@ lemma
   by (auto intro: assms
     Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
 
+(* Note the following is unsafe as an intro rule! *)
 lemma Univ_transitive: "A \<in> Univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> Univ X"
   using Univ_transitive[unfolded mem_transitive_def] by auto
 

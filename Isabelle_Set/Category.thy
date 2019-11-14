@@ -83,18 +83,18 @@ proof (auto simp: Set_field_simps)
     unfolding Set_obj_def by (discharge_types, rule Univ_nonempty)
 
   show "Set_hom : element (Set_obj \<rightarrow> Set_obj \<rightarrow> \<V>)"
-    unfolding Set_hom_def Set_obj_def by (squash_types, auto)
+    unfolding Set_hom_def Set_obj_def by (unfold_types, auto)
 
   show
     "Set_comp :
       element \<Prod>A \<in> Set_obj. \<Prod>B \<in> Set_obj. \<Prod>C \<in> Set_obj.
         (Set_hom `B `C \<rightarrow> Set_hom `A `B \<rightarrow> Set_hom `A `C)"
     unfolding Set_hom_def Set_obj_def Set_comp_def
-    by (squash_types, auto intro!: lambda_FunctionI simp: beta)
+    by (unfold_types, auto intro!: lambda_FunctionI simp: beta)
 
   show "Set_id : element \<Prod>A \<in> Set_obj. (Set_hom `A `A)"
     unfolding Set_id_def Set_obj_def Set_hom_def
-    by (squash_types, auto simp: beta)
+    by (unfold_types, auto simp: beta)
 
   fix A assume
     A: "A \<in> Set_obj"
