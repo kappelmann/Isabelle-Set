@@ -1,13 +1,13 @@
-(*  Title:  soft_type_context.ML
-    Author: Alexander Krauss, Joshua Chen
-    Date:   Jul 2019
+(*  Title:      soft_type_context.ML
+    Author:     Alexander Krauss, Joshua Chen
+    Date:       Jul 2019
 
-Context information regarding soft types.
-
+Context information for soft types.
 Maintains generic data for soft types of terms.
 
-Allows the declaration of soft types for symbols, which are then available for type
-checking. Symbols are either free variables (declared in the context) or constants.
+Allows the declaration of soft types for symbols, which are then available for
+type-checking. Symbols are either free variables (declared in the context) or
+constants.
 
 *)
 
@@ -33,8 +33,9 @@ val all_types: Proof.context -> thm list
 end = struct
 
 (*
-  Normalize typing premises into atomic typings/adjectives, then split into multiple
-  theorems whose conclusions are the atomic components of the original conclusion.
+  Normalize typing premises into atomic typings/adjectives, then split into
+  multiple theorems whose conclusions are the atomic components of the original
+  conclusion.
 *)
 fun normalize ctxt thm =
   let
@@ -56,16 +57,14 @@ fun normalize ctxt thm =
   end
 
 (*
-  For any given term, we hold three separate collections of typing statements:
+  For any given term, we hold three separate collections of type knowledge:
   1. Its currently-used soft type.
   3. The collection of all its adjectives.
-  2. The collection of all its non-adjective types.
+  2. The collection of all its types.
 *)
 
 (*** Current soft type data ***)
-(*
-  We store the types of constant and non-constant terms in a separate tables.
-*)
+(*We store the types of constant and non-constant terms in a separate tables.*)
 
 structure Current_Type = Generic_Data(
   type T = thm Termtab.table * thm Symtab.table
@@ -87,7 +86,8 @@ fun get_current_type ctxt t =
 fun put_current_type t thm =
   let
     val _ =
-      if Soft_Type.is_typing (Thm.prop_of thm) then () else error "Not a typing judgment"
+      if Soft_Type.is_typing (Thm.prop_of thm) then ()
+      else error "Not a typing judgment"
     fun put (Const (n, _)) thm = apsnd (Symtab.update (n, thm))
       | put t thm = apfst (Termtab.update (t, thm))
   in
@@ -142,8 +142,8 @@ fun put_adj t thm context =
     fun put t thm =
       let
         val _ =
-          if Soft_Type.is_adj (Thm.prop_of thm) then () else error "Not an adjective judgment"
-
+          if Soft_Type.is_adj (Thm.prop_of thm) then ()
+          else error "Not an adjective judgment"
         val adjs = get_adjs (Context.proof_of context) [t]
       in case t of
           (Const (n, _)) =>
@@ -158,7 +158,8 @@ fun put_adj t thm context =
 fun put_type t thm context =
   let
     val _ =
-      if Soft_Type.is_typing (Thm.prop_of thm) then () else error "Not a typing judgment"
+      if Soft_Type.is_typing (Thm.prop_of thm) then ()
+      else error "Not a typing judgment"
 
     fun put_atomic_type t thm context =
       let

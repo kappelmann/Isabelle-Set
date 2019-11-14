@@ -1,7 +1,7 @@
 (*  Title:      soft_type.ML
     Author:     Alexander Krauss
 
-Basic syntactic operations on soft types.
+Basic operations for soft types.
 *)
 
 signature SOFT_TYPE =
@@ -58,8 +58,8 @@ fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
 
 (*
-  Quick filter for untyped specialization of terms: s specializes t iff s arises from a
-  substitution of schematic vars of t.
+  Quick filter for untyped specialization of terms: s specializes t iff s arises
+  from a substitution of schematic vars of t.
   This is basically a one-directional version of Term.could_unify.
 *)
 fun specializes (s, t) =
@@ -100,9 +100,7 @@ fun Pi_const Ta Tb =
 fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
   | dest_Pi_type t = raise TERM ("dest_Pi_type", [t])
 
-(*
-  Return list of argument soft types and result soft type.
-*)
+(*Return list of argument soft types and result soft type*)
 fun dest_Pi_type_full t =
   let
     fun dest (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
@@ -194,7 +192,7 @@ fun strip_annotations t = case t of
   | _ => t
 
 
-(*tracing, controlled by a flag*)
+(*Tracing, controlled by a flag*)
 
 val trace_soft_types = Attrib.setup_config_bool \<^binding>\<open>trace_soft_types\<close> (K false)
 fun tracing ctxt = if Config.get ctxt trace_soft_types then Output.tracing else K ()

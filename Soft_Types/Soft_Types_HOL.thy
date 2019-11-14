@@ -186,8 +186,7 @@ named_theorems subtype_rules
 \<close>
 
 
-(* enable this when debugging exceptions:
- 
+(* Enable this when debugging exceptions:
 declare [[ML_debugger, ML_exception_debugger]]
 *)
 
