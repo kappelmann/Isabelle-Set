@@ -75,9 +75,8 @@ proof (rule monopI)
   fix W X assume [type]: "W : subset D" "X : subset D"
   assume "W \<subseteq> X"
 
-  thm derivation_rules
-  print_types
-  have "A x \<union> B x : subset D" apply discharge_types print_types
+  have "A x \<union> B x : subset D"
+  apply discharge_types print_types
 
   have "A W \<subseteq> A X"
     by (rule monopE[of A], discharge_types) (fact `W \<subseteq> X`)

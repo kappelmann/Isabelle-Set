@@ -27,6 +27,12 @@ text \<open>
   Adjectives are predicates that modify soft types.
 \<close>
 
+(*
+  Josh: I think adjectives should really have their own constructor, and
+  be registered similarly to types, so that we can treat them in a more
+  structured way, e.g. in the derivator. FUTURE WORK!
+*)
+
 typedecl 'a type
 
 axiomatization
@@ -151,9 +157,8 @@ translations
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>_. B)"
 
 lemma Pi_typeI:
-  "(\<forall>x. x : A \<longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
+  "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
   unfolding Pi_type_def by (prove_type f) auto
-  \<comment>\<open>\<open>by unfold_types auto\<close> also takes care of this\<close>
 
 lemma Pi_typeE:
   "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
@@ -170,21 +175,23 @@ text \<open>
   represent additional typing information in a term.
 \<close>
 
+
 subsection \<open>Tooling and automation\<close>
 
-declare atomize_conjL [symmetric, rulify] \<comment>\<open>Used in normalization of type judgments.\<close>
+declare atomize_conjL [symmetric, rulify]
+  \<comment>\<open>Used in normalization of type judgments.\<close>
 
-named_theorems type_simp
-named_theorems type_instance
+named_theorems type_simp \<comment>\<open>For type elaboration\<close>
+named_theorems type_instance \<comment>\<open>For type class reasoning\<close>
 
 named_theorems derivation_rules
 named_theorems backderivation_rules
-named_theorems subtype_rules
-\<comment>\<open>
-  \<open>derivation_rules\<close>, \<open>backderivation_rule\<close> and \<open>subtype_rules\<close> should only be inspected
-  and not assigned to directly; use the \<open>derive\<close> attribute instead.
-\<close>
-
+(* named_theorems subtype_rules *) \<comment>\<open>Unused, for now\<close>
+  \<comment>\<open>
+    \<open>derivation_rules\<close>, \<open>backderivation_rule\<close> and \<open>subtype_rules\<close> should only be
+    inspected and not assigned to directly; use the \<open>derive\<close>, \<open>backward_derive\<close>
+    and \<open>subtype\<close> attributes instead.
+  \<close>
 
 (* Enable this when debugging exceptions:
 declare [[ML_debugger, ML_exception_debugger]]
@@ -200,12 +207,9 @@ ML_file \<open>isar_integration.ML\<close>
 
 setup \<open>Isar_Integration.setup\<close>
 
-attribute_setup derive = \<open>Derivation.derivation_rule_parser\<close>
-attribute_setup bderive = \<open>Derivation.backderivation_rule_parser\<close>
-
 declare with_type_def [type_simp]
 declare any_typeI [type]
-declare Pi_typeI [bderive]
+declare Pi_typeI [backward_derive]
 
 
 subsection \<open>Methods\<close>

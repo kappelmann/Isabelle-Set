@@ -126,6 +126,10 @@ fun getter data ctxt ts =
 val get_adjs = getter Adjectives.get
 val get_types = getter Types.get
 
+(*
+  "univ"ersally-applicable adjective and type judgments, i.e. those of the form
+  "?x : T" or "P ?x", have their own container in the context data.
+*)
 fun univ_adjs ctxt = snd (Adjectives.get (Context.Proof ctxt))
 fun univ_types ctxt = snd (Types.get (Context.Proof ctxt))
 
