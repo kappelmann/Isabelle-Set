@@ -185,6 +185,65 @@ val _ = (
 )
 
 
+(** Soft type translation **)
+
+(*Automatically convert certain predicates to type judgments*)
+
+structure Soft_Type_Translation = Theory_Data (
+  type T = (thm * thm) Termtab.table
+  val empty = Termtab.empty
+  val extend = I
+  val merge =
+    Termtab.merge
+      (fn ((th1, th1'), (th2, th2')) =>
+        Term.aconv (apply2 Thm.full_prop_of (th1, th2)) andalso
+        Term.aconv (apply2 Thm.full_prop_of (th1', th2')))
+)
+
+fun put_translation pred trans_to trans_from =
+  Soft_Type_Translation.map
+    (Termtab.update_new (head_of pred, (trans_to, trans_from)))
+
+fun get_translations ctxt =
+  Termtab.dest (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
+
+val get_forward_translations = (map (fst o snd)) o get_translations
+val get_backward_translations = (map (snd o snd)) o get_translations
+
+val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
+  "declare automatic soft type translations"
+  (Parse.term -- (Parse.$$$ "=" |-- Parse.term) >> (fn (pred, styp) =>
+    Toplevel.theory_to_proof (fn thy =>
+      let
+        val ctxt = Proof_Context.init_global thy
+
+        val (pred_tm, styp_tm) = apply2 (Syntax.read_term ctxt) (pred, styp)
+        val (pred_tm', styp_tm') = apply2 Soft_Type.mk_Trueprop (pred_tm, styp_tm)
+        val hd_const = head_of pred_tm
+
+        val _ =
+          if Termtab.defined (Soft_Type_Translation.get thy) hd_const
+          then error ("Translation already declared for " ^
+            Syntax.string_of_term ctxt hd_const)
+          else ()
+
+        fun after_qed [[trans_to], [trans_from]] =
+              Proof_Context.background_theory
+                (put_translation hd_const trans_to trans_from)
+          | after_qed _ = raise ERROR "soft_type_translation: after_qed"
+
+        val state = ctxt |> Proof.theorem NONE after_qed
+          [ [(Logic.mk_implies (pred_tm', styp_tm'), [])],
+            [(Logic.mk_implies (styp_tm', pred_tm'), [])] ]
+
+        val _ = state
+          |> Pretty.string_of o Pretty.chunks o Proof.pretty_state
+          |> Output.state
+      in
+        state
+      end)))
+
+
 (*** Soft type setup ***)
 
 (** Pi type declarations **)

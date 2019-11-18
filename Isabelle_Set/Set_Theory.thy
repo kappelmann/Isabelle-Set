@@ -75,8 +75,7 @@ lemma BexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists
   by (simp add: Bex_def, blast)
 
 (* LP: The best argument order when there is only one @{term "x \<in> A"} *)
-lemma rev_BexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
-  by blast
+corollary rev_BexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x" ..
 
 (*
   LP: Not of the general form for such rules. The existential quantifier becomes
@@ -1145,6 +1144,14 @@ definition subset :: "set \<Rightarrow> set type"
 
 lemma subset_self [derive]: "A : subset A"
   by unfold_types auto
+
+text \<open>Declare basic soft type translations.\<close>
+
+soft_type_translation "a \<in> A" = "a : element A" by unfold_types
+
+soft_type_translation "A \<subseteq> B" = "A : subset B" by unfold_types auto
+
+ML_val \<open>Derivation.get_translations @{context}\<close>
 
 text \<open>Collections of sets of a given type T:\<close>
 

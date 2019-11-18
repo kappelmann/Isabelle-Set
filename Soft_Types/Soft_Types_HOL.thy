@@ -12,7 +12,7 @@ imports
   "HOL-Eisbach.Eisbach"
   "HOL-Eisbach.Eisbach_Tools"
 keywords
-  "opaque" :: thy_decl and
+  "opaque" "soft_type_translation" :: thy_decl and
   "print_opaque_terms" "print_types" :: diag
 
 begin

@@ -8,10 +8,12 @@ signature SOFT_TYPE =
 sig
 
 (* Utility *)
+val mk_Trueprop: term -> term
 val dest_Trueprop: term -> term
 val specializes: term * term -> bool
 val generalizes: term * term -> bool
 val eta_norm: Proof.context -> thm -> thm
+val varify: term -> term
 
 (* Type of soft types *)
 val typeT: typ -> typ
@@ -54,6 +56,8 @@ end
 structure Soft_Type : SOFT_TYPE =
 struct
 
+fun mk_Trueprop P = \<^const>\<open>Trueprop\<close> $ P
+
 fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
 
@@ -86,6 +90,17 @@ fun eta_norm ctxt th =
     val equality = Thm.eta_conversion concl_ctm
   in
     th RS (equality RS @{thm Pure.equal_elim_rule1})
+  end
+
+(*Convert all free variables to schematic variables*)
+fun varify t =
+  let
+    fun convert (Free (name, T)) = Var ((name ^ "*", 0), T)
+      | convert (Abs (x, T, body)) = Abs (x, T, convert body)
+      | convert (s $ t) = convert s $ convert t
+      | convert t = t
+  in
+    convert t
   end
 
 fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
