@@ -14,7 +14,7 @@ notation (input) ty_membership (infix "is" 45)
 abbreviation define_ty :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> Ty"
   where
   "define_ty(parent, cond, property) \<equiv>
-    Type (\<lambda>x. x be parent \<and> (cond(x) \<longrightarrow> property(x)))"
+    type (\<lambda>x. x be parent \<and> (cond(x) \<longrightarrow> property(x)))"
 
 definition inhabited :: "Ty \<Rightarrow> o"
   where "inhabited(D) \<longleftrightarrow> (\<exists>\<^sub>Lx. x be D)"
@@ -34,11 +34,11 @@ lemma define_ty_property:
     (x be parent \<and> cond(x) \<and> property(x) \<longrightarrow> x be T) \<and>
     (x be parent \<and> \<not>cond(x) \<longrightarrow> inhabited(T))"
   using assms define_ty_cond
-  by squash_types auto
+  by unfold_types auto
 
 lemma define_ty_property_true:
   "x be define_ty(ty, \<lambda>_. True, prop) \<longleftrightarrow> x be ty \<and> prop(x)"
-  by squash_types auto
+  by unfold_types auto
 
 definition Ball :: "Ty \<Rightarrow> (Set \<Rightarrow> o) \<Rightarrow> o"
   where [simp]: "inhabited(D) \<Longrightarrow> Ball(D, P) \<longleftrightarrow> (\<forall>\<^sub>Lx. x be D \<longrightarrow> P(x))"
@@ -52,8 +52,8 @@ lemma Bex_property[simp]:
   by simp
 
 no_syntax
-  "_Soft_Ball" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
-  "_Soft_Bex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
+  "_SBall" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
+  "_SBex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
 
 nonterminal vgs and bg and vs
 syntax
@@ -170,10 +170,10 @@ section \<open> Mizar article "HIDDEN" \<close>
 (* object is the root of the type hierarchy *)
 
 definition object :: Ty
-  where "object \<equiv> Type (\<lambda>_. True)"
+  where "object \<equiv> any"
 
 lemma object_root: "x be object"
-  unfolding object_def by squash_types
+  unfolding object_def by unfold_types
 
 axiomatization where object_exists: "inhabited(object)"
 
@@ -183,7 +183,7 @@ declare object_root[simp]
 
 lemma def_ty_property_object:
   "x be D \<Longrightarrow> x is define_ty(object, \<lambda>it. it be D, prop) \<longleftrightarrow> prop(x)"
-  by squash_types auto
+  by unfold_types auto
 
 definition set where
   "set \<equiv> object"
@@ -197,13 +197,13 @@ abbreviation (input) theProp
   where "theProp(ty, prop) \<equiv> the define_ty(ty, \<lambda>_. True, prop)"
 
 lemma ty_intersection: "(x be t1 \<bar> t2) \<longleftrightarrow> (x be t1 \<and> x be t2)"
-  by squash_types
+  by unfold_types
 
 definition NON ("non _" [102] 101)
   where "non A \<equiv> define_ty(object, \<lambda>_. True, \<lambda>x. \<not> x is A)"
   
 lemma non_property: "x is non A \<longleftrightarrow> \<not> x is A"
-  using define_ty_property_true NON_def by squash_types auto
+  using define_ty_property_true NON_def by unfold_types auto
 
 lemmas [simp] = ty_intersection non_property
 
