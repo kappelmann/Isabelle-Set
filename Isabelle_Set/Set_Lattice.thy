@@ -72,27 +72,20 @@ lemma monop_unionI [derive]:
   assumes [type]: "A : monop D" "B : monop D"
   shows "(\<lambda>x. A x \<union> B x) : monop D"
 proof (rule monopI)
-  fix W X assume [type]: "W : subset D" "X : subset D"
+  fix W X assume "W \<subseteq> D" "X \<subseteq> D"
+  show "A X \<union> B X \<subseteq> D" by discharge_types
+
   assume "W \<subseteq> X"
-
-  have "A x \<union> B x : subset D"
-  apply discharge_types print_types
-
-  have "A W \<subseteq> A X"
-    by (rule monopE[of A], discharge_types) (fact `W \<subseteq> X`)
-  moreover have "B W \<subseteq> B X"
-    by (rule monopE[of B], discharge_types) (fact `W \<subseteq> X`)
-  ultimately
-  show "A W \<union> B W \<subseteq> A X \<union> B X"
-    by auto
+  have "A W \<subseteq> A X" by (rule monopE) discharge_types
+  moreover have "B W \<subseteq> B X" by (rule monopE) discharge_types
+  ultimately show "A W \<union> B W \<subseteq> A X \<union> B X" by auto
 qed
 
 lemma monop_replacementI:
   assumes "A : monop D"
   assumes "\<And>x y. x : subset D \<Longrightarrow> y : element (A x) \<Longrightarrow> f y : element D"
   shows "(\<lambda>x. Repl (A x) f) : monop D"
-  using assms
-  apply -        
+  apply (insert assms)
   apply (rule monopI)
    apply unfold_types[1]
   apply (auto dest: monopE)
@@ -139,7 +132,7 @@ proof (rule extensionality)
         Ideally, @{method rule} would provide a hook that lets us discharge typing
         assumptions after the rule application.
       \<close>
-      by (rule monopE[of h], discharge_types) (fact *)
+      by (rule monopE[of h], discharge_types)
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
 

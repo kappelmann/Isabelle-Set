@@ -23,8 +23,10 @@ notation INT.def ("\<int>")
 
 lemma nat_in_int: "\<nat> \<subseteq> \<int>" by (rule INT.extension_subset)
 
-corollary [derive]: "element \<nat> \<prec> element \<int>"
-  by (rule subset_subtype) (fact nat_in_int)
+corollary [derive]: "n : element \<nat> \<Longrightarrow> n : element \<int>"
+  apply unfold_types
+  apply (rule subsetE)
+  by (rule nat_in_int)
 
 
 end

@@ -490,7 +490,7 @@ proof -
   moreover have "?P \<in> Univ U"
     by (auto intro: Univ_powerset_closed assms)
   ultimately show ?thesis
-    by (auto intro: Univ_transitive'')
+    by (auto intro: Univ_transitive)
 qed
 
 

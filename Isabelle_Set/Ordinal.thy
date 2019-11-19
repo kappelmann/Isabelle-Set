@@ -113,16 +113,16 @@ definition omega ("\<omega>")
   where "\<omega> \<equiv> lfp (Univ {}) (\<lambda>X. {{}} \<union> {succ n | n \<in> X})"
 
 lemma omega_def_monop: "(\<lambda>X. {{}} \<union> {succ n | n \<in> X}) : monop (Univ {})"
-  by (rule monopI) (unfold_types, auto)
+  by (rule monopI) auto
 
 lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
-  by (rule def_lfp_unfold) (auto intro: omega_def_monop simp: omega_def)
+  by (rule def_lfp_unfold) (auto intro: omega_def_monop simp: omega_def, discharge_types)
 
 corollary
   empty_in_omega [intro]: "{} \<in> \<omega>" and
   succ_omega: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst omega_unfold, auto)+
-
+declare [[type_derivation_debugger]]
 lemma omega_induction [case_names empty succ, induct set: omega]:
   assumes "n \<in> \<omega>"
   and "P {}"
@@ -130,7 +130,7 @@ lemma omega_induction [case_names empty succ, induct set: omega]:
   shows "P n"
   apply (rule def_lfp_induct)
   using assms
-  by (auto intro: omega_def_monop simp: omega_def)
+  by (auto intro: omega_def_monop simp: omega_def, discharge_types)
 
 lemma omega_empty_in_succ: "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
 proof (induction rule: omega_induction)
