@@ -232,15 +232,17 @@ ML \<open>
 val soft_type_simp_solver =
   let
     fun solver ctxt i =
-      print_tac ctxt ("solver called on subgoal " ^ string_of_int i)
-      THEN SOLVED' (SUBGOAL (fn (t, i) =>
-        (Output.tracing (Syntax.string_of_term ctxt t);
-        Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt i))) i
+      (if Config.get ctxt Derivation.debug
+      then print_tac ctxt ("solver called on subgoal " ^ string_of_int i)
+      else all_tac)
+      THEN SOLVED' (SUBGOAL (fn (_, i) =>
+        Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt i)) i
   in
     map_theory_simpset (fn ctxt => ctxt
       addSolver (mk_solver "discharge_types" solver))
   end
 \<close>
+
 setup \<open>soft_type_simp_solver\<close>
 
 

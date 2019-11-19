@@ -40,24 +40,22 @@ lemma monopE: "\<lbrakk>h : monop D;  X \<subseteq> D;  W \<subseteq> X\<rbrakk>
 lemma [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
   by unfold_types
 
-lemma monop_union_subset:
-  assumes [type]: "h : monop D" and "A \<subseteq> D" "B \<subseteq> D"
-  shows "h A \<union> h B \<subseteq> h (A \<union> B)"
-proof -
-  have "h A \<subseteq> h (A \<union> B)"
-    apply (rule monopE, discharge_types)
-    using assms by auto
-  moreover have "h B \<subseteq> h (A \<union> B)"
-    apply (rule monopE, discharge_types)
-    using assms by auto
-  ultimately show ?thesis by auto
-qed
-
 lemma [derive]: "(\<lambda>L. L) : monop D"
   by unfold_types (auto simp: monotone_def)
 
 lemma [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
   by unfold_types (auto simp: monotone_def)
+
+lemma monop_union_subset:
+  assumes "h : monop D" "A \<subseteq> D" "B \<subseteq> D"
+  shows "h A \<union> h B \<subseteq> h (A \<union> B)"
+proof -
+  have "h A \<subseteq> h (A \<union> B)"
+    by (rule monopE, discharge_types) auto
+  moreover have "h B \<subseteq> h (A \<union> B)"
+    by (rule monopE, discharge_types) auto
+  ultimately show ?thesis by auto
+qed
 
 lemma monopI:
   assumes 1: "\<And>x. x \<subseteq> D \<Longrightarrow> h x \<subseteq> D"
@@ -69,11 +67,11 @@ lemma monopI:
   done
 
 lemma monop_unionI [derive]:
-  assumes [type]: "A : monop D" "B : monop D"
+  assumes "A : monop D" "B : monop D"
   shows "(\<lambda>x. A x \<union> B x) : monop D"
 proof (rule monopI)
   fix W X assume "W \<subseteq> D" "X \<subseteq> D"
-  show "A X \<union> B X \<subseteq> D" by discharge_types
+  show "A X \<union> B X \<subseteq> D" by auto
 
   assume "W \<subseteq> X"
   have "A W \<subseteq> A X" by (rule monopE) auto
@@ -108,31 +106,29 @@ lemma lfp_subset:
 (* Explicitly set the context for now. This can actually be inferred *)
 context
   fixes D h
-  assumes
-    D_type [type]: "D : set" and
-    h_type [type]: "h : monop D"
+  assumes h_type: "h : monop D"
 begin
 
-lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A : subset D \<Longrightarrow> lfp D h \<subseteq> A"
-  unfolding lfp_def by unfold_types auto
+lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A \<subseteq> D \<Longrightarrow> lfp D h \<subseteq> A"
+  unfolding lfp_def by auto
 
-lemma lfp_greatest: "(\<And>X. X : subset D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
-  using monop_subset_closed[OF h_type] unfolding lfp_def by unfold_types auto
+lemma lfp_greatest: "(\<And>X. X \<subseteq> D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
+  using monop_subset_closed[OF h_type] unfolding lfp_def by auto
 
 lemma lfp_unfold: "lfp D h = h (lfp D h)"
 proof (rule extensionality)
-  show 1: "h (lfp D h) \<subseteq> lfp D h"
+  show *: "h (lfp D h) \<subseteq> lfp D h"
   proof (rule lfp_greatest)
-    fix A assume [type]: "A : subset D" 
+    fix A assume "A \<subseteq> D" 
     assume "h A \<subseteq> A"
-    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound) auto
+    hence "lfp D h \<subseteq> A" by (rule lfp_lowerbound) auto
     have "h (lfp D h) \<subseteq> h A"
       by (rule monopE) auto
-    with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
+    with \<open>h A \<subseteq> A\<close> show "h (lfp D h) \<subseteq> A" by blast
   qed
 
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopE[of h] 1) auto
+    by (intro lfp_lowerbound monopE[of h] *) auto
 qed
 
 (* Definition form, to control unfolding *)
@@ -157,7 +153,7 @@ lemma lfp_induct:
   assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
-  have [type]: "P : element D \<Rightarrow> bool" by unfold_types auto
+  have "P : element D \<Rightarrow> bool" by unfold_types auto
 
   have "lfp D h \<subseteq> collect (lfp D h) P"
   proof (rule lfp_lowerbound)
@@ -170,7 +166,7 @@ qed
 
 (* Definition form, to control unfolding *)
 lemma def_lfp_induct:
-  "\<lbrakk> A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (collect A P) \<Longrightarrow> P x \<rbrakk> \<Longrightarrow> P a"
+  "\<lbrakk>A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (collect A P) \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P a"
   by (rule lfp_induct, blast+)
 
 lemma lfp_cong:
