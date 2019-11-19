@@ -76,8 +76,8 @@ proof (rule monopI)
   show "A X \<union> B X \<subseteq> D" by discharge_types
 
   assume "W \<subseteq> X"
-  have "A W \<subseteq> A X" by (rule monopE) discharge_types
-  moreover have "B W \<subseteq> B X" by (rule monopE) discharge_types
+  have "A W \<subseteq> A X" by (rule monopE) auto
+  moreover have "B W \<subseteq> B X" by (rule monopE) auto
   ultimately show "A W \<union> B W \<subseteq> A X \<union> B X" by auto
 qed
 
@@ -125,19 +125,14 @@ proof (rule extensionality)
   proof (rule lfp_greatest)
     fix A assume [type]: "A : subset D" 
     assume "h A \<subseteq> A"
-    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound) discharge_types
+    then have *: "lfp D h \<subseteq> A" by (rule lfp_lowerbound) auto
     have "h (lfp D h) \<subseteq> h A"
-      text \<open>
-        @{method discharge_types} works here, but it prevents chaining-in other facts.
-        Ideally, @{method rule} would provide a hook that lets us discharge typing
-        assumptions after the rule application.
-      \<close>
-      by (rule monopE[of h], discharge_types)
+      by (rule monopE) auto
     with `h A \<subseteq> A` show "h (lfp D h) \<subseteq> A" by blast
   qed
 
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopE[of h] 1) discharge_types
+    by (intro lfp_lowerbound monopE[of h] 1) auto
 qed
 
 (* Definition form, to control unfolding *)
@@ -152,7 +147,7 @@ lemma collect_is_prefixed_point:
   shows "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
 proof -
   have "h (collect (lfp D h) P) \<subseteq> h (lfp D h)"
-    by (intro monopE[of h] collect_subset) discharge_types
+    by (intro monopE[of h] collect_subset) simp
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed

@@ -448,12 +448,12 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
         then
           let
             val facts = map fst (Facts.props (Proof_Context.facts_of goal_ctxt))
-  
+
             fun is_derivation_rule thm =
               Soft_Type.is_typing (Thm.concl_of thm)
               andalso not (Thm.no_prems thm)
               andalso forall Soft_Type.is_jdgmt (Thm.prems_of thm)
-  
+
             fun add_to_context prem context =
               let
                 val prem_prop = Thm.prop_of prem
@@ -461,7 +461,7 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
                 val trans_opt =
                   get_forward_translation (Context.proof_of context)
                       (head_of (Soft_Type.dest_Trueprop prem_prop))
-  
+
                 val add_translation =
                   case trans_opt of
                     SOME th =>
@@ -489,16 +489,16 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
                 else context)
                 |> add_translation
               end
-  
+
             val goal_ctxt' =
               goal_ctxt
               |> Context.proof_map (fold add_to_context
                 (map (Soft_Type.eta_norm goal_ctxt) (add_facts @ facts @ prems)))
-  
+
             fun typable_subterms tm =
               let
                 val is_opaque = Item_Net.member (get_opaque_terms goal_ctxt)
-  
+
                 val res =
                   if Term.is_open tm orelse is_opaque tm
                   then [] else [tm]
@@ -514,25 +514,25 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
                   | _ => []
                   ))
               end
-  
+
             val tm = Soft_Type.term_of_jdgmt concl_tm
             val tms =
               distinct Term.aconv (
                 typable_subterms tm
                 @ flat (map typable_subterms add_tms))
-  
+
             val jdgmts =
               Soft_Type_Context.get_types goal_ctxt' tms
               @ Soft_Type_Context.get_adjs goal_ctxt' tms
               @ Soft_Type_Context.univ_types goal_ctxt'
               @ Soft_Type_Context.univ_adjs goal_ctxt'
-  
+
             val rules = get_derivation_rules goal_ctxt'
             val jdgmts' = derive_jdgmts goal_ctxt' tms jdgmts rules
-  
+
             val str_of_tm = Syntax.string_of_term goal_ctxt'
             fun itemize strs = "  " ^ space_implode "\n  " strs
-  
+
             val _ =
               trace goal_ctxt' (cat_lines (
                 [">> Goal conclusion:\n  " ^ str_of_tm concl_tm,
@@ -553,8 +553,8 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
             | ths =>
                 (trace goal_ctxt' (">> Candidate typings:\n" ^
                   (itemize (map (str_of_tm o Thm.prop_of) ths)));
-                HEADGOAL (
-                  foldl1 (op APPEND') (map (fn th => resolve_tac goal_ctxt' [th]) ths)))
+                HEADGOAL
+                  (foldl1 (op APPEND') (map (fn th => resolve_tac goal_ctxt' [th]) ths)))
           end
         else no_tac
       end) ctxt)

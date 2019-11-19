@@ -90,6 +90,7 @@ fun eta_norm ctxt th =
     val equality = Thm.eta_conversion concl_ctm
   in
     th RS (equality RS @{thm Pure.equal_elim_rule1})
+    handle THM _ => th
   end
 
 (*Convert all free variables to schematic variables*)

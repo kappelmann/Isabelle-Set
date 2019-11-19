@@ -241,7 +241,7 @@ val soft_type_simp_solver =
       addSolver (mk_solver "discharge_types" solver))
   end
 \<close>
-(* setup \<open>soft_type_simp_solver\<close> *)
+setup \<open>soft_type_simp_solver\<close>
 
 
 subsection \<open>Basic declarations for HOL material\<close>
