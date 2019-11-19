@@ -204,6 +204,18 @@ fun put_translation pred trans_to trans_from =
   Soft_Type_Translation.map
     (Termtab.update_new (head_of pred, (trans_to, trans_from)))
 
+fun get_forward_translation ctxt t =
+  SOME (#1 (the (Termtab.lookup
+    (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
+    t)))
+  handle Option => NONE
+
+fun get_backward_translation ctxt t =
+  SOME (#2 (the (Termtab.lookup
+    (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
+    t)))
+  handle Option => NONE
+
 fun get_translations ctxt =
   Termtab.dest (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
 
@@ -326,28 +338,6 @@ fun declare_current_type implicit thm context =
   let
     val (x, st) = Soft_Type.dest_typing (Thm.prop_of thm)
     val names = extract_param_names (the_default 0 implicit) st
-
-    val gen_Pi_derivation_rule = fn context =>
-      let
-        val thm' = Pi_derivation_rule thm
-        (* val needs_backderiv =
-          let
-            val (arg_types, _) =
-              Soft_Type.dest_Pi_type_full (
-                Soft_Type.type_of_typing (Thm.prop_of thm))
-          in
-            exists
-              (fn s =>
-                exists
-                  (fn t => Soft_Type.specializes (s,t))
-                  (Item_Net.retrieve (Backderived_Types.get context) (Term.head_of s)))
-              arg_types
-          end *)
-      in
-        context
-        |> put_derivation_rule thm'
-        (* |> (if needs_backderiv then put_backderivation_rule thm' else I) *)
-      end
   in
     context
     |> Soft_Type_Context.put_current_type x thm
@@ -355,13 +345,14 @@ fun declare_current_type implicit thm context =
     |> (if is_Const x
         then Implicit_Arguments.put_implicit (fst (dest_Const x)) names
         else I)
-    |> (if Soft_Type.is_Pi st then gen_Pi_derivation_rule else I)
+    |> (if Soft_Type.is_Pi st
+        then put_derivation_rule (Pi_derivation_rule thm)
+        else I)
   end
 
 val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
-  (Scan.lift
-    (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int) >> (fn implicit =>
-      Thm.declaration_attribute (declare_current_type implicit))))
+  (Scan.lift (Scan.option (Args.$$$ "implicit" |-- Args.colon |-- Parse.int)
+    >> (fn implicit => Thm.declaration_attribute (declare_current_type implicit))))
   "declare current soft type")
 
 
@@ -443,6 +434,8 @@ fun raw_discharge_type_tac add_facts add_tms =
       if Soft_Type.is_jdgmt concl_tm
       then
         let
+          val facts = map fst (Facts.props (Proof_Context.facts_of goal_ctxt))
+
           fun is_derivation_rule thm =
             Soft_Type.is_typing (Thm.concl_of thm)
             andalso not (Thm.no_prems thm)
@@ -451,8 +444,23 @@ fun raw_discharge_type_tac add_facts add_tms =
           fun add_to_context prem context =
             let
               val prop = Thm.prop_of prem
+
+              val trans_opt =
+                get_forward_translation (Context.proof_of context)
+                    (head_of (Soft_Type.dest_Trueprop prop))
+
+              val add_translation =
+                case trans_opt of
+                  SOME th =>
+                    let
+                      val typing = prem RS th
+                      val t = Soft_Type.term_of_typing (Thm.prop_of typing)
+                    in
+                      Soft_Type_Context.put_type t typing
+                    end
+                | NONE => I
             in
-              if Soft_Type.is_typing prop then
+              (if Soft_Type.is_typing prop then
                 (if Soft_Type.is_Pi (Soft_Type.type_of_typing prop)
                 then put_derivation_rule (Pi_derivation_rule prem) context
                 else context)
@@ -461,13 +469,14 @@ fun raw_discharge_type_tac add_facts add_tms =
                 Soft_Type_Context.put_adj (Soft_Type.term_of_jdgmt prop) prem context
               else if is_derivation_rule prem then
                 put_derivation_rule prem context
-              else context
+              else context)
+              |> add_translation
             end
 
           val goal_ctxt' =
             goal_ctxt
             |> Context.proof_map (fold add_to_context
-              (map (Soft_Type.eta_norm goal_ctxt) (add_facts @ prems)))
+              (map (Soft_Type.eta_norm goal_ctxt) (add_facts @ facts @ prems)))
 
           fun typable_subterms tm =
             let
@@ -529,7 +538,7 @@ fun raw_discharge_type_tac add_facts add_tms =
               HEADGOAL (
                 foldl1 (op APPEND') (map (fn th => resolve_tac goal_ctxt' [th]) ths)))
         end
-      else (trace goal_ctxt ">> Not a judgment!\n"; no_tac)
+      else no_tac
     end)
 
 
