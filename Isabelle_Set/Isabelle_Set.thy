@@ -8,14 +8,14 @@ imports
   Function
   Set_Lattice
   String
-  Object
+  (* Object
   Sum
   Monops
   Structures
   Monoid
   Monoid_Bundled
   Natural_Numbers
-  Integer
+  Integer *)
 
 begin
 

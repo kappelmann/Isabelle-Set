@@ -14,7 +14,7 @@ definition NAT ("\<nat>") where
 
 lemma NAT_unfold: "\<nat> = { {} } \<union> { succ n | n \<in> \<nat>}"
   unfolding NAT_def
-  by (subst lfp_unfold[OF _ nat_op_monop]) (auto simp: nat_op_def)
+  by (subst lfp_unfold[OF _ nat_op_monop]) (auto simp: nat_op_def, discharge_types)
 
 
 lemma zero_nat[simp]: "{} \<in> \<nat>"
@@ -31,7 +31,7 @@ shows "P n"
   apply (rule Set_Lattice.def_lfp_induct[OF any_typeI nat_op_monop NAT_def, unfolded nat_op_def])
    by (insert assms) auto
 
-definition nat_typedef[squash]: "nat = element \<nat>"
+definition [typedef]: "nat = element \<nat>"
 
 lemma nat_induct_typed[case_names 0 succ, induct set: NAT]:
   assumes nat: "n : nat"

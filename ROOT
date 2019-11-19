@@ -35,11 +35,11 @@ session Isabelle_Set = "HOL" +
     (* "Set_MML/tarski_0"
     "Set_MML/tarski" *)
 
-session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
+(* session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
   description
     \<open>Set theory with types on top.\<close>
   sessions
-    Isabelle_Set
+    "Isabelle_Set"
   directories
     MML
     tests
@@ -102,4 +102,4 @@ session Isabelle_Mizar in Isabelle_Mizar = "HOL-Number_Theory" +
     "MML/z2" *)
 
    "tests/mizar_ty_test"
-                  
+*)
