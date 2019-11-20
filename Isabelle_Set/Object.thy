@@ -15,10 +15,10 @@ begin
 subsection \<open>Syntax: object schema declarations\<close>
 
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [1000, 0] 1000)
-  where [simp]: "object[lbl] \<equiv> object `lbl"
+  where "object[lbl] \<equiv> object `lbl"
 
 definition composer :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where [simp]: "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
+  where "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
 
 nonterminal object_arg and object_args
 syntax
@@ -83,18 +83,17 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
               in
                 case params of
                   SOME [] => body
-                | SOME args =>
-                    foldl1
-                      (op o)
-                      (map (Term.absfree o dest_Free o Syntax.read_term lthy) args)
-                      body
+                | SOME args => foldl1
+                    (op o)
+                    (map (Term.absfree o dest_Free o Syntax.read_term lthy) args)
+                    body
                 | NONE => body
               end
 
             val ((_, (_, def)), lthy') =
               Local_Theory.define (
                 (Binding.qualified_name name, NoSyn),
-                ((Binding.qualified_name (name ^ "_typedef"), []), def_tm)
+                ((Binding.qualified_name (name ^ "_def"), []), def_tm)
               ) lthy
           in
             print_info (Syntax.string_of_term lthy' (Thm.prop_of def));
@@ -138,7 +137,7 @@ subsection \<open>Rules\<close>
 lemma object_iffs [simp]:
   "M : type (composer A P) \<longleftrightarrow> M : type (P (M[A]))"
   "M : type (K Q) \<longleftrightarrow> Q"
-  by unfold_types auto
+  by unfold_types (auto simp: selector_def composer_def)
 
 lemmas object_simps [unfolded selector_def[symmetric], simp] =
   apply_singleton

@@ -1,7 +1,7 @@
 section \<open>Ordinals\<close>
 
 theory Ordinal
-imports Set_Lattice
+imports Subset
 
 begin
 

@@ -1,11 +1,6 @@
-section \<open>Power set lattices\<close>
+section \<open>Least fixed points and the Knaster-Tarski theorem for \<open>\<subseteq>\<close>\<close>
 
-text \<open>
-  Power set lattices, least and greatest fixed points, and the Knaster-Tarski
-  theorem for \<open>\<subseteq>\<close>.
-\<close>
-
-theory Set_Lattice
+theory Subset
 imports Set_Theory
 
 begin
@@ -33,7 +28,7 @@ qed
 lemma monop_subset_closed: "h : monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by unfold_types auto
 
-(* Josh: Elimination instead of destruction? *)
+(* Elimination instead of destruction? *)
 lemma monopE: "\<lbrakk>h : monop D;  X \<subseteq> D;  W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by unfold_types
 
@@ -103,7 +98,7 @@ lemma lfp_subset:
   "h : monop D \<Longrightarrow> lfp D h \<subseteq> D"
   unfolding lfp_def by unfold_types auto
 
-(* Explicitly set the context for now. This can actually be inferred *)
+(* Explicitly set the context for now. This can actually be inferred. *)
 context
   fixes D h
   assumes h_type: "h : monop D"
@@ -131,7 +126,7 @@ proof (rule extensionality)
     by (intro lfp_lowerbound monopE[of h] *) auto
 qed
 
-(* Definition form, to control unfolding *)
+(*Definition form, to control unfolding*)
 lemma def_lfp_unfold: "A = lfp D h \<Longrightarrow> A = h A"
   by simp (rule lfp_unfold)
 
@@ -164,7 +159,7 @@ proof -
   with hyp show "P a" by auto
 qed
 
-(* Definition form, to control unfolding *)
+(*Definition form, to control unfolding*)
 lemma def_lfp_induct:
   "\<lbrakk>A = lfp D h;  a \<in> A;  \<And>x. x \<in> h (collect A P) \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P a"
   by (rule lfp_induct, blast+)

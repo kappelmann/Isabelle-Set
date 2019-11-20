@@ -1185,20 +1185,6 @@ lemma
   by unfold_types auto
 
 
-subsection \<open>Subtyping\<close>
-
-(*
-Josh: for the `element` and `subset` soft types, it really shouldn't matter
-if we write \<in> and \<subseteq> instead. The soft type infrastructure should automatically
-convert the set-theoretic statements to soft type knowledge.
-
-("Atomic" soft types? ~ correspond to very basic judgments in the theory that
-should be known and handled as above by the soft type derivator.)
-*)
-lemma subset_subtype: "A \<subseteq> B \<Longrightarrow> x : element A \<Longrightarrow> x : element B"
-  by unfold_types auto
-
-
 subsection \<open>Universes\<close>
 
 abbreviation V :: set where "V \<equiv> Univ {}"

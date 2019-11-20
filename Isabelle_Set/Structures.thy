@@ -23,11 +23,11 @@ object Binop_Equipped "name::set" "A::set"
 subsection \<open>Plus (additive binop) structures\<close>
 
 definition Plus :: "set \<Rightarrow> set type"
-  where Plus_typedef: "Plus A \<equiv> Binop_Equipped @plus A"
+  where "Plus A \<equiv> Binop_Equipped @plus A"
 
 lemma Plus_typeI:
   "struct[@plus] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Plus A"
-  unfolding Plus_typedef Binop_Equipped_typedef by unfold_types simp
+  unfolding Plus_def Binop_Equipped_def by unfold_types
 
 lemma Plus_plus_type [derive]:
   "struct: Plus A \<Longrightarrow> struct[@plus] : element (A \<rightarrow> A \<rightarrow> A)"

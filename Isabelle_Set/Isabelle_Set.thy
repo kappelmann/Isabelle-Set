@@ -6,11 +6,11 @@ imports
   Ordered_Pair
   Relation
   Function
-  Set_Lattice
+  Subset
   String
-  (* Object
   Sum
   Monops
+  (* Object
   Structures
   Monoid
   Monoid_Bundled

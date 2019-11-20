@@ -1,7 +1,7 @@
 section \<open>More monotone operators\<close>
 
 theory Monops
-imports Set_Lattice Ordered_Pair
+imports Subset Ordered_Pair
 
 begin
 

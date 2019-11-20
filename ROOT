@@ -17,10 +17,10 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Isabelle_Set"
 
     (* Other library theories *)
-    "Isabelle_Set/Category"
+    (* "Isabelle_Set/Category" *)
 
     (* Examples and compatibility layers *)
-    "Isabelle_Set/Test_Examples/Tarski_A"
+    (* "Isabelle_Set/Test_Examples/Tarski_A"
     "Isabelle_Set/Test_Examples/Typing_Examples"
     "Isabelle_Set/Test_Examples/Implicit_Args"
     "Isabelle_Set/Test_Examples/Implicit_Assumptions"
@@ -29,7 +29,7 @@ session Isabelle_Set = "HOL" +
     "Isabelle_Set/Test_Examples/Simp_Test"
     "Isabelle_Set/Test_Examples/Matrix"
     "Isabelle_Set/Test_Examples/Derivation_Test"
-    "Isabelle_Set/Test_Examples/Cicm2019_Demo"
+    "Isabelle_Set/Test_Examples/Cicm2019_Demo" *)
 
     (* MML ported to new logic *)
     (* "Set_MML/tarski_0"

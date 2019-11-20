@@ -1,4 +1,6 @@
-section \<open>Sum type, aka binary disjoint union/coproduct\<close>
+section \<open>Sum type\<close>
+
+text \<open>Aka binary disjoint union/coproduct.\<close>
 
 theory Sum
 imports Ordered_Pair
