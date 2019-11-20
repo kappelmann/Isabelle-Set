@@ -151,12 +151,6 @@ lemma prod_monotone: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Long
 lemma prod_monotone1: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B" by auto
 lemma prod_monotone2: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'" by auto
 
-lemma
-  [derive]: "A : subset A' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A' \<times> B)"
-  and
-  [derive]: "B : subset B' \<Longrightarrow> x : element (A \<times> B) \<Longrightarrow> x : element (A \<times> B')"
-  by unfold_types auto
-
 
 subsection \<open>Functions on \<Sigma>-type\<close>
 
@@ -216,51 +210,43 @@ lemma Univ_Pair_closed [intro]:
     "\<Sum>x \<in> A. (B x) \<in> Univ U"
 
   unfolding Pair_def opair_def
-  by (auto
-    intro!:
-      Univ_union_closed Univ_replacement_closed Univ_singleton_closed Univ_cons_closed
-    intro: Univ_transitive assms)
+  by (auto intro: Univ_transitive assms
+    intro!: Univ_union_closed Univ_replacement_closed Univ_cons_closed)
+
+lemma Univ_opair_closed [intro]:
+  "x \<in> Univ A \<Longrightarrow> y \<in> Univ A \<Longrightarrow> \<langle>x, y\<rangle> \<in> Univ A"
+  unfolding opair_def by auto
+
+lemma prod_Univ_subset_Univ:
+  "X \<subseteq> Univ A \<times> Univ A \<Longrightarrow> X \<subseteq> Univ A"
+  by auto
+
+lemma Univ_prod_subset_closed [intro]:
+  "X \<subseteq> Univ A \<Longrightarrow> Y \<subseteq> Univ A \<Longrightarrow> X \<times> Y \<subseteq> Univ A"
+  by auto
 
 
 subsection \<open>Typing rules\<close>
 
 lemma
+  prod_type [type]: "(\<times>) : subset U \<Rightarrow> subset V \<Rightarrow> subset (U \<times> V)" and
   opair_type [type]: "opair : element A \<Rightarrow> element B \<Rightarrow> element (A \<times> B)" and
   fst_type [type]: "fst : element (A \<times> B) \<Rightarrow> element A" and
   snd_type [type]: "snd : element (A \<times> B) \<Rightarrow> element B"
   by unfold_types auto
 
 text \<open>
-  The following is more general but also makes elaboration more complex, so we do not
-  declare it by default for now.
+  The following is more general but also makes elaboration more complex, so we
+  don't declare it by default for now.
 \<close>
 
 lemma opair_dependent_type:
   "opair : (x : element A) \<Rightarrow> element (B x) \<Rightarrow> element (Pair A B)"
   by unfold_types auto
 
-lemma [derive]: "A : subset U \<Longrightarrow> B : subset V \<Longrightarrow> A \<times> B : subset (U \<times> V)"
-  by unfold_types auto
-
 lemma split_paired_Ball:
   "(\<forall>x: element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a : element A. \<forall>b : element B. P \<langle>a, b\<rangle>)"
   by unfold_types auto
-
-(* Universes should be handled separately from the main type derivator.
-
-lemma Univ_opair_closedT [derive]:
-  "x : element (Univ A) \<Longrightarrow> y : element (Univ A) \<Longrightarrow> \<langle>x, y\<rangle> : element (Univ A)"
-  unfolding opair_def by discharge_type
-
-lemma prod_Univ_subset_UnivT [derive]:
-  "x : subset (Univ A \<times> Univ A) \<Longrightarrow> x : subset (Univ A)"
-  using Univ_opair_closedT
-  by unfold_types auto
-
-lemma Univ_prod_subset_closedT [derive]:
-  "X : subset (Univ A) \<Longrightarrow> Y : subset (Univ A) \<Longrightarrow> X \<times> Y : subset (Univ A)"
-  by discharge_type
-*)
 
 
 end

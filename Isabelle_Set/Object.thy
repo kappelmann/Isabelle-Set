@@ -15,10 +15,10 @@ begin
 subsection \<open>Syntax: object schema declarations\<close>
 
 definition selector :: "[set, set] \<Rightarrow> set" ("(_)[(_)]" [1000, 0] 1000)
-  where [squash]: "object[lbl] \<equiv> object `lbl"
+  where [simp]: "object[lbl] \<equiv> object `lbl"
 
 definition composer :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  where [squash]: "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
+  where [simp]: "composer lbl pred \<equiv> (\<lambda>x. pred x[lbl] x)"
 
 nonterminal object_arg and object_args
 syntax
@@ -31,7 +31,7 @@ translations
   "_object_comp args P" \<rightleftharpoons> "_object_comp2 args (CONST K P)"
   "_object_comp2 (_object_args args (_object_arg a A)) P" \<rightleftharpoons>
     "_object_comp2 args (CONST composer A (\<lambda>a. P))"
-  "_object_comp2 (_object_arg a A) P" \<rightleftharpoons> "CONST Type (CONST composer A (\<lambda>a. P))"
+  "_object_comp2 (_object_arg a A) P" \<rightleftharpoons> "CONST type (CONST composer A (\<lambda>a. P))"
 
 ML \<open>
 Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object declarations"
@@ -48,7 +48,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
           This relies on the specific form of the translations defined above!
         *)
         fun get_labels (\<^const>\<open>composer\<close> $ A $ Abs (_, _, t)) = A :: get_labels t
-          | get_labels (Const (\<^const_name>\<open>Type\<close>, _) $ t) = get_labels t
+          | get_labels (Const (\<^const_name>\<open>type\<close>, _) $ t) = get_labels t
           | get_labels (Const (\<^const_name>\<open>Int_type\<close>, _) $ _ $ t) = get_labels t
           | get_labels _ = []
 
@@ -136,9 +136,9 @@ translations
 subsection \<open>Rules\<close>
 
 lemma object_iffs [simp]:
-  "M : Type (composer A P) \<longleftrightarrow> M : Type (P (M[A]))"
-  "M : Type (K Q) \<longleftrightarrow> Q"
-  by unfold_types
+  "M : type (composer A P) \<longleftrightarrow> M : type (P (M[A]))"
+  "M : type (K Q) \<longleftrightarrow> Q"
+  by unfold_types auto
 
 lemmas object_simps [unfolded selector_def[symmetric], simp] =
   apply_singleton

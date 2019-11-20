@@ -1151,8 +1151,6 @@ soft_type_translation "a \<in> A" = "a : element A" by unfold_types
 
 soft_type_translation "A \<subseteq> B" = "A : subset B" by unfold_types auto
 
-ML_val \<open>Derivation.get_translations @{context}\<close>
-
 text \<open>Collections of sets of a given type T:\<close>
 
 definition collection :: "set type \<Rightarrow> set type"

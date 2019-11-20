@@ -146,7 +146,7 @@ fun put_derivation_rule thm context =
 (*
   Type derivation takes all subterms appearing in the goal state and generates
   type judgments for them. Sometimes we may want particular terms to be opaque,
-  i.e. to have them not be considered by the type derivator.
+  i.e. to not have their subterms be considered by the type derivator.
 *)
 
 structure Opaque_Terms = Generic_Data (
@@ -216,11 +216,8 @@ fun get_backward_translation ctxt head_tm =
     head_tm)))
   handle Option => NONE
 
-fun get_translations ctxt =
-  Termtab.dest (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
-
-val get_forward_translations = (map (fst o snd)) o get_translations
-val get_backward_translations = (map (snd o snd)) o get_translations
+fun translation_defined_for ctxt head_tm =
+  Termtab.defined (Soft_Type_Translation.get (Proof_Context.theory_of ctxt)) head_tm
 
 val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
   "declare automatic soft type translations"
@@ -358,7 +355,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (*** Type derivation ***)
 
-val derive_depth = Attrib.setup_config_int \<^binding>\<open>derivation_depth\<close> (K 10)
+val derive_depth = Attrib.setup_config_int \<^binding>\<open>derivation_depth\<close> (K 2)
 
 (*
   Generate all possible type judgments for a given term that can be derived from
@@ -400,9 +397,9 @@ fun derive_jdgmts ctxt tms jdgmts rules =
     fun derive_jdgmts' jdgmts iter =
       if iter > Config.get ctxt derive_depth
       then
-        (warning
+        ((* warning
           ("Type derivation depth limit reached; " ^
-          "consider increasing derivation_depth");
+          "consider increasing derivation_depth"); *)
         jdgmts)
       else
         let
@@ -418,7 +415,7 @@ fun derive_jdgmts ctxt tms jdgmts rules =
           else derive_jdgmts' (jdgmts @ new_jdgmts) (iter + 1)
         end
   in
-    derive_jdgmts' jdgmts 0
+    derive_jdgmts' jdgmts 1
   end
 
 
@@ -426,9 +423,134 @@ fun derive_jdgmts ctxt tms jdgmts rules =
 
 (** Single step discharge; works on the first subgoal **)
 
+local
+
+fun raw_discharge_core ctxt goal prems add_facts add_tms =
+  if Soft_Type.is_jdgmt goal
+  then
+    let
+      val facts = map fst (Facts.props (Proof_Context.facts_of ctxt))
+  
+      fun is_derivation_rule thm =
+        Soft_Type.is_typing (Thm.concl_of thm)
+        andalso not (Thm.no_prems thm)
+        andalso forall Soft_Type.is_jdgmt (Thm.prems_of thm)
+  
+      fun add_to_context prem context =
+        let
+          val prem_prop = Thm.prop_of prem
+  
+          val trans_opt =
+            get_forward_translation (Context.proof_of context)
+                (head_of (Soft_Type.dest_Trueprop prem_prop))
+  
+          val add_translation =
+            case trans_opt of
+              SOME th =>
+                let
+                  val typing = prem RS th
+                  val t = Soft_Type.term_of_typing (Thm.prop_of typing)
+                in
+                  Soft_Type_Context.put_type t typing
+                end
+            | NONE => I
+        in
+          (if Soft_Type.is_typing prem_prop
+          then
+            (if Soft_Type.is_Pi (Soft_Type.type_of_typing prem_prop)
+            then put_derivation_rule (Pi_derivation_rule prem) context
+            else context)
+            |> Soft_Type_Context.put_type (Soft_Type.term_of_typing prem_prop) prem
+          else if Soft_Type.is_adj prem_prop
+          then
+            Soft_Type_Context.put_adj
+              (Soft_Type.term_of_jdgmt prem_prop) prem context
+          else if is_derivation_rule prem
+          then
+            put_derivation_rule prem context
+          else context)
+          |> add_translation
+        end
+  
+      val ctxt' =
+        ctxt
+        |> Context.proof_map (fold add_to_context
+          (map (Soft_Type.eta_norm ctxt) (add_facts @ facts @ prems)))
+  
+      fun typable_subterms tm =
+        let
+          val is_opaque = Item_Net.member (get_opaque_terms ctxt)
+  
+          val res =
+            if Term.is_open tm orelse is_opaque tm
+            then [] else [tm]
+        in
+          distinct Term.aconv (
+            res @ (case tm of
+              t1 $ t2 =>
+                if is_opaque t1
+                then []
+                else typable_subterms t1 @ typable_subterms t2
+            | Abs (_, _, t) => typable_subterms t
+            | Free _ => [tm]
+            | _ => []
+            ))
+        end
+  
+      val tm =
+        if Soft_Type.is_typing goal
+        then Soft_Type.term_of_typing goal
+        else Soft_Type.dest_Trueprop goal
+  
+      val tms =
+        distinct Term.aconv (
+          typable_subterms tm
+          @ flat (map typable_subterms add_tms))
+  
+      val jdgmts =
+        Soft_Type_Context.get_types ctxt' tms
+        @ Soft_Type_Context.get_adjs ctxt' tms
+        @ Soft_Type_Context.univ_types ctxt'
+        @ Soft_Type_Context.univ_adjs ctxt'
+  
+      val rules = get_derivation_rules ctxt'
+      val jdgmts' = derive_jdgmts ctxt' tms jdgmts rules
+  
+      val str_of_tm = Syntax.string_of_term ctxt'
+      fun itemize strs = "  " ^ space_implode "\n  " strs
+  
+      val _ =
+        trace ctxt' (cat_lines (
+          [">> Goal conclusion:\n  " ^ str_of_tm goal,
+          "\n>> Starting from subterms:\n" ^
+            (itemize (map str_of_tm (typable_subterms tm))),
+          "and additional terms:\n" ^
+            (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
+          "and known judgments:\n" ^
+            (itemize (map (str_of_tm o Thm.prop_of) jdgmts)),
+          (* "using derivation rules:\n  " ^
+            (itemize (map (str_of_tm o Thm.prop_of) rules)), *)
+          "\n>> Derived judgments:\n" ^
+            (itemize (map (str_of_tm o Thm.prop_of) jdgmts'))]))
+    in
+      case filter (fn th => Term.could_unify (goal, Thm.prop_of th)) jdgmts'
+      of
+        [] => (trace ctxt' ">> No unifier\n"; no_tac)
+      | ths =>
+          (trace ctxt' (">> Candidate typings:\n" ^
+            (itemize (map (str_of_tm o Thm.prop_of) ths)));
+          HEADGOAL
+            (foldl1 (op APPEND') (map (fn th => resolve_tac ctxt' [th]) ths)))
+    end
+  else no_tac
+
+in
+
 fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
   let
-    val concl = Logic.strip_imp_concl goal
+    val concl = Logic.strip_imp_concl
+      (if Logic.is_all goal then #2 (Logic.dest_all goal) else goal)
+
     val translate_tac =
       let
         val head_tm = head_of (Soft_Type.dest_Trueprop concl)
@@ -440,125 +562,15 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
       end
   in
     TRY translate_tac THEN
-    HEADGOAL (Subgoal.FOCUS_PREMS (fn {context = goal_ctxt, prems, concl, ...} =>
+    HEADGOAL (Subgoal.FOCUS_PREMS (fn {context = ctxt, prems, concl, ...} =>
       let
-        val concl_tm = Thm.term_of concl
+        val goal = Thm.term_of concl
       in
-        if Soft_Type.is_jdgmt concl_tm
-        then
-          let
-            val facts = map fst (Facts.props (Proof_Context.facts_of goal_ctxt))
-
-            fun is_derivation_rule thm =
-              Soft_Type.is_typing (Thm.concl_of thm)
-              andalso not (Thm.no_prems thm)
-              andalso forall Soft_Type.is_jdgmt (Thm.prems_of thm)
-
-            fun add_to_context prem context =
-              let
-                val prem_prop = Thm.prop_of prem
-  
-                val trans_opt =
-                  get_forward_translation (Context.proof_of context)
-                      (head_of (Soft_Type.dest_Trueprop prem_prop))
-
-                val add_translation =
-                  case trans_opt of
-                    SOME th =>
-                      let
-                        val typing = prem RS th
-                        val t = Soft_Type.term_of_typing (Thm.prop_of typing)
-                      in
-                        Soft_Type_Context.put_type t typing
-                      end
-                  | NONE => I
-              in
-                (if Soft_Type.is_typing prem_prop
-                then
-                  (if Soft_Type.is_Pi (Soft_Type.type_of_typing prem_prop)
-                  then put_derivation_rule (Pi_derivation_rule prem) context
-                  else context)
-                  |> Soft_Type_Context.put_type (Soft_Type.term_of_typing prem_prop) prem
-                else if Soft_Type.is_adj prem_prop
-                then
-                  Soft_Type_Context.put_adj
-                    (Soft_Type.term_of_jdgmt prem_prop) prem context
-                else if is_derivation_rule prem
-                then
-                  put_derivation_rule prem context
-                else context)
-                |> add_translation
-              end
-
-            val goal_ctxt' =
-              goal_ctxt
-              |> Context.proof_map (fold add_to_context
-                (map (Soft_Type.eta_norm goal_ctxt) (add_facts @ facts @ prems)))
-
-            fun typable_subterms tm =
-              let
-                val is_opaque = Item_Net.member (get_opaque_terms goal_ctxt)
-
-                val res =
-                  if Term.is_open tm orelse is_opaque tm
-                  then [] else [tm]
-              in
-                distinct Term.aconv (
-                  res @ (case tm of
-                    t1 $ t2 =>
-                      if is_opaque t1
-                      then []
-                      else typable_subterms t1 @ typable_subterms t2
-                  | Abs (_, _, t) => typable_subterms t
-                  | Free _ => [tm]
-                  | _ => []
-                  ))
-              end
-
-            val tm = Soft_Type.term_of_jdgmt concl_tm
-            val tms =
-              distinct Term.aconv (
-                typable_subterms tm
-                @ flat (map typable_subterms add_tms))
-
-            val jdgmts =
-              Soft_Type_Context.get_types goal_ctxt' tms
-              @ Soft_Type_Context.get_adjs goal_ctxt' tms
-              @ Soft_Type_Context.univ_types goal_ctxt'
-              @ Soft_Type_Context.univ_adjs goal_ctxt'
-
-            val rules = get_derivation_rules goal_ctxt'
-            val jdgmts' = derive_jdgmts goal_ctxt' tms jdgmts rules
-
-            val str_of_tm = Syntax.string_of_term goal_ctxt'
-            fun itemize strs = "  " ^ space_implode "\n  " strs
-
-            val _ =
-              trace goal_ctxt' (cat_lines (
-                [">> Goal conclusion:\n  " ^ str_of_tm concl_tm,
-                "\n>> Starting from subterms:\n" ^
-                  (itemize (map str_of_tm (typable_subterms tm))),
-                "and additional terms:\n" ^
-                  (itemize (map str_of_tm (flat (map typable_subterms add_tms)))),
-                "and known judgments:\n" ^
-                  (itemize (map (str_of_tm o Thm.prop_of) jdgmts)),
-                (* "using derivation rules:\n  " ^
-                  (itemize (map (str_of_tm o Thm.prop_of) rules)), *)
-                "\n>> Derived judgments:\n" ^
-                  (itemize (map (str_of_tm o Thm.prop_of) jdgmts'))]))
-          in
-            case filter (fn th => Term.could_unify (concl_tm, Thm.prop_of th)) jdgmts'
-            of
-              [] => (trace goal_ctxt' ">> No unifier\n"; no_tac)
-            | ths =>
-                (trace goal_ctxt' (">> Candidate typings:\n" ^
-                  (itemize (map (str_of_tm o Thm.prop_of) ths)));
-                HEADGOAL
-                  (foldl1 (op APPEND') (map (fn th => resolve_tac goal_ctxt' [th]) ths)))
-          end
-        else no_tac
+        raw_discharge_core ctxt goal prems add_facts add_tms
       end) ctxt)
   end)
+
+end
 
 
 (** Fully automated type derivation and discharge **)

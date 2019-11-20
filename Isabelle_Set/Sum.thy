@@ -39,11 +39,11 @@ lemma inl_type [type]: "inl : element A \<Rightarrow> element (Sum A B)"
 lemma inr_type [type]: "inr : element B \<Rightarrow> element (Sum A B)"
   unfolding inr_def Sum_def by unfold_types blast
 
-lemma Univ_closed_inl: "x : element (Univ A) \<Longrightarrow> inl x : element (Univ A)"
-  unfolding inl_def apply unfold_types oops
+lemma Univ_closed_inl [intro]: "x \<in> Univ A \<Longrightarrow> inl x \<in> Univ A"
+  unfolding inl_def by auto
 
-lemma Univ_closed_inr: "x : element (Univ A) \<Longrightarrow> inr x : element (Univ A)"
-  unfolding inr_def apply unfold_types oops
+lemma Univ_closed_inr [intro]: "x \<in> Univ A \<Longrightarrow> inr x \<in> Univ A"
+  unfolding inr_def by auto
 
 
 end

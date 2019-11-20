@@ -118,20 +118,24 @@ definition "irreflexive A R \<equiv> \<forall>x \<in> A. \<langle>x, x\<rangle> 
 
 definition "symmetric A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<longrightarrow> \<langle>y, x\<rangle> \<in> R"
 
-definition "antisymmetric A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, x\<rangle> \<in> R \<longrightarrow> x = y"
+definition "antisymmetric A R \<equiv>
+  \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, x\<rangle> \<in> R \<longrightarrow> x = y"
 
-definition "transitive A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<forall>z \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, z\<rangle> \<in> R \<longrightarrow> \<langle>x, z\<rangle> \<in> R"
+definition "transitive A R \<equiv>
+  \<forall>x \<in> A. \<forall>y \<in> A. \<forall>z \<in> A. \<langle>x, y\<rangle> \<in> R \<and> \<langle>y, z\<rangle> \<in> R \<longrightarrow> \<langle>x, z\<rangle> \<in> R"
 
 definition "total A R \<equiv> \<forall>x \<in> A. \<forall>y \<in> A. \<langle>x, y\<rangle> \<in> R \<or> x = y \<or> \<langle>y, x\<rangle> \<in> R"
 
-definition "partially_ordered A R \<equiv> reflexive A R \<and> antisymmetric A R \<and> transitive A R"
+definition "partially_ordered A R \<equiv>
+  reflexive A R \<and> antisymmetric A R \<and> transitive A R"
 
 definition "linearly_ordered A R \<equiv> total A R \<and> partially_ordered A R"
 
 
 subsection \<open>Well-founded and well-ordered relations\<close>
 
-definition "well_founded A R \<equiv> \<forall>X. X \<subseteq> A \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R))"
+definition "well_founded A R \<equiv>
+  \<forall>X. X \<subseteq> A \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R))"
 
 lemma well_foundedI:
   "(\<And>X. \<lbrakk>X \<subseteq> A; X \<noteq> {}\<rbrakk> \<Longrightarrow> \<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R)) \<Longrightarrow> well_founded A R"
@@ -182,15 +186,15 @@ subsection \<open>Specific results\<close>
 lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
   by auto
 
-lemma collect_relT:
+lemma collect_rel:
   assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
   shows "{\<langle>f x, g x\<rangle>. x \<in> X} \<subseteq> A \<times> B"
   using assms by unfold_types auto
 
 lemma cons_rel_iff [iff]:
-  assumes "x : element A" and "y : element B"
+  assumes "x \<in> A" and "y \<in> B"
   shows "cons \<langle>x, y\<rangle> X \<subseteq> A \<times> B \<longleftrightarrow> X \<subseteq> A \<times> B"
-  using assms by unfold_types auto
+  using assms by auto
 
 
 end

@@ -39,7 +39,7 @@ lemma lambdaE [elim]: "\<lbrakk>p \<in> \<lambda>x \<in> A. b x; \<And>x. \<lbra
 lemma lambdaD [dest]: "\<lbrakk>\<langle>a, c\<rangle> \<in> \<lambda>x \<in> A. b x\<rbrakk> \<Longrightarrow> c = b a"
   by auto
 
-lemma beta: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
+lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
 
 lemma typed_beta [simp]: "a : element A \<Longrightarrow> (\<lambda>x \<in> A. b x) ` a = b a"
@@ -122,6 +122,7 @@ unfolding Function_def proof (auto, rule PairI2)
   have "\<langle>fst p, f `(fst p)\<rangle> \<in> f"
     using uniq_val_imp uniq_val[OF \<open>fst p \<in> A\<close>] fst_elem
     by auto
+
   hence eq: "snd p = f `(fst p)" using uniq_val[OF \<open>fst p \<in> A\<close>] * by auto
 
   have "f `(fst p) \<in> B (fst p)" using fst_elem stratified by auto
@@ -174,6 +175,7 @@ proof -
   hence "\<langle>fst p, f `(fst p)\<rangle> \<in> f" using assms function_mems by auto
   moreover have "\<langle>fst p, snd p\<rangle> \<in> f" using assms unfolding Function_def by auto
   ultimately show "f `(fst p) = snd p" using function_uniq_val assms by auto
+thm derivation_rules
 qed
 
 lemma function_opair:
@@ -270,7 +272,7 @@ lemma function_collect_iff:
 
 lemma function_lambdaI [intro]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x \<in> A. b x) \<in> \<Prod>x \<in> A. (B x)"
-  unfolding Function_def using collect_relT by auto
+  unfolding Function_def using collect_rel by auto
 
 lemma function_empty_dom' [simp]: "{} \<rightarrow> A = {{}}" by (rule extensionality) auto
 
@@ -338,10 +340,9 @@ proof
 
   have p_mem_A: "fst p \<in> A" using asm assms(1) by auto
   hence eq: "g `(fst p) = f `(fst p)" using assms(4) by auto
-
   from assms(3) p_mem_A have p_mem_C: "fst p \<in> C" ..
   hence "\<langle>fst p, g `(fst p)\<rangle> \<in> g" using function_mems[OF assms(2)] by auto
-  with eq p_comp show "p \<in> g" by auto
+  thus "p \<in> g" by (auto simp: eq p_comp)
 qed
 
 lemma funext:
@@ -424,10 +425,7 @@ definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (i
 
 lemma compose_lambdas:
   "f : element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
-  apply (auto simp: fun_comp_def)
-  apply (rule funext, auto intro!: beta simp: beta)
-  apply unfold_types
-  done
+  by (auto simp: fun_comp_def)
 
 lemma compose_FunctionI [intro]:
   assumes "f \<in> A \<rightarrow> B" and "g \<in> \<Prod>x \<in> B. (C x)"
@@ -439,7 +437,7 @@ unfolding fun_comp_def proof -
 qed
 
 lemma compose_idfunr [intro, simp]: "f \<in> \<Prod>x \<in> A. (B x) \<Longrightarrow> f \<circ> (\<lambda>x \<in> A. x) = f"
-  unfolding fun_comp_def by (auto simp: beta)
+  unfolding fun_comp_def by auto
 
 lemma compose_idfunl [intro, simp]:
   assumes "f \<in> A \<rightarrow> B"
@@ -448,10 +446,10 @@ unfolding fun_comp_def proof -
   have "dom f = A" using assms by auto
   moreover
   have "(\<lambda>x \<in> A. (\<lambda>x \<in> B. x) `(f `x)) = f"
-  proof (rule funext, auto intro: assms simp: beta)
+  proof (rule funext, auto intro: assms)
     fix x assume "x \<in> A"
     hence "f `x \<in> B" using assms by auto
-    thus "(\<lambda>x \<in> B. x) `(f `x) = f `x" by (auto simp: beta)
+    thus "(\<lambda>x \<in> B. x) `(f `x) = f `x" by auto
   qed
   ultimately
   show "(\<lambda>x \<in> dom f. (\<lambda>x \<in> B. x) `(f `x)) = f" by simp
@@ -460,15 +458,15 @@ qed
 lemma compose_assoc:
   assumes "f \<in> A \<rightarrow> B" "g \<in> B \<rightarrow> C" "h \<in> C \<rightarrow> D"
   shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
-unfolding fun_comp_def proof (auto simp: beta)
+unfolding fun_comp_def proof auto
   have "dom f = A" and "dom g = B"
     using assms by auto
   moreover have
     "(\<lambda>x \<in> A. h `(g `(f `x))) = \<lambda>x \<in> A. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"
-  proof (rule funext, auto simp: \<open>dom g = B\<close> beta)
+  proof (rule funext, auto simp: \<open>dom g = B\<close>)
     fix x assume "x \<in> A"
     hence "f `x \<in> B" using assms by auto
-    thus "h `(g `(f `x)) = (\<lambda>x \<in> B. h `(g `x)) `(f `x)" by (auto simp: beta)
+    thus "h `(g `(f `x)) = (\<lambda>x \<in> B. h `(g `x)) `(f `x)" by auto
   qed
   ultimately show
     "(\<lambda>x \<in> dom f. h `(g `(f `x))) = \<lambda>x \<in> dom f. (\<lambda>x \<in> dom g. h `(g `x)) `(f `x)"
@@ -488,7 +486,7 @@ proof -
   have "\<Prod>x\<in> A. (B x) \<subseteq> ?P"
     unfolding Function_def by (fact collect_subset)
   moreover have "?P \<in> Univ U"
-    by (auto intro: Univ_powerset_closed assms)
+    by (auto intro: assms)
   ultimately show ?thesis
     by (auto intro: Univ_transitive)
 qed
