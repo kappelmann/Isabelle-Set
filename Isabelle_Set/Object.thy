@@ -41,8 +41,8 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
       -- Scan.option (Scan.repeat Parse.term)
       -- (Parse.$$$ "is" |-- Parse.term)
 
-    fun object_cmd (name: string, params, object_defstr) lthy =
-      let
+    fun object_cmd (name, params, object_defstr) lthy =
+      (let
         (*
           Get the field labels used in the declaration.
           This relies on the specific form of the translations defined above!
@@ -90,13 +90,13 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
                 | NONE => body
               end
 
-            val ((_, (_, def)), lthy') =
+            val ((tm, (_, def_th)), lthy') =
               Local_Theory.define (
                 (Binding.qualified_name name, NoSyn),
                 ((Binding.qualified_name (name ^ "_def"), []), def_tm)
               ) lthy
           in
-            print_info (Syntax.string_of_term lthy' (Thm.prop_of def));
+            print_info (Syntax.string_of_term lthy' (Thm.prop_of def_th));
             lthy'
           end
 
@@ -110,10 +110,9 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
         (* |> fold define_label_const new_labels *)
         |> define_object_type
         (* |> gen_typings |> gen_conditions *)
-      end
+      end)
   in
-    (parser >> (fn ((name, params), def) => fn lthy =>
-      object_cmd (name, params, def) lthy))
+    parser >> (fn ((name, params), def) => object_cmd (name, params, def))
   end
 \<close>
 
@@ -139,11 +138,12 @@ lemma object_iffs [simp]:
   "M : type (K Q) \<longleftrightarrow> Q"
   by unfold_types (auto simp: selector_def composer_def)
 
-lemmas object_simps [unfolded selector_def[symmetric], simp] =
-  apply_singleton
-  apply_pair1
-  apply_pair2
-
+lemmas object_simps =
+  selector_def
+  composer_def
+  apply_singleton [unfolded selector_def[symmetric]]
+  apply_pair1 [unfolded selector_def[symmetric]]
+  apply_pair2 [unfolded selector_def[symmetric]]
 
 subsection \<open>Rudimentary automation\<close>
 

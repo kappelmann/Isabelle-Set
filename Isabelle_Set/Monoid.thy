@@ -15,7 +15,7 @@ begin
 
 
 definition Monoid :: "set \<Rightarrow> set type"
-  where Monoid_typedef:
+  where [typedef]:
   "Monoid A =
     Zero A
   \<bar> Plus A
@@ -25,11 +25,11 @@ definition Monoid :: "set \<Rightarrow> set type"
     (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
       plus `(plus `x `y) `z = plus `x `(plus `y `z)) \<rparr>"
 
-lemma Monoid_is_Zero [derive]: "Monoid A \<prec> Zero A"
-  unfolding Monoid_typedef by (intro subtypeI) unfold_types
+lemma Monoid_is_Zero [derive]: "M : Monoid A \<Longrightarrow> M: Zero A"
+  by unfold_types
 
-lemma Monoid_is_Plus [derive]: "Monoid A \<prec> Plus A"
-  unfolding Monoid_typedef by (intro subtypeI) unfold_types
+lemma Monoid_is_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
+  by unfold_types
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
@@ -38,7 +38,7 @@ lemma Monoid_typeI:
     \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
        str[@plus] `(str[@plus] `x `y) `z = str[@plus] `x `(str[@plus] `y `z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
-  unfolding Monoid_typedef by unfold_types
+  by unfold_types (simp only: object_simps)
 
 text \<open>
   Now we define the global operations as projections. Here, we also convert the set
@@ -54,17 +54,17 @@ lemma
      \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
   
   using assms
-  unfolding Monoid_typedef Zero_typedef plus_def zero_def
-  by (unfold_types, blast+)
+  unfolding Zero_def plus_def zero_def
+  by unfold_types (auto simp: object_simps)
 
 
 subsection \<open>Instance for pairs\<close>
 
-definition
+definition [typedef]:
   "pair_plus A B p1 p2 \<equiv>
     \<lparr> @plus = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
 
-definition
+definition [typedef]:
   "pair_zero A B z1 z2 \<equiv>
     \<lparr> @zero = \<langle>zero z1, zero z2\<rangle> \<rparr>"
 
@@ -74,10 +74,10 @@ definition
     \<lparr> @zero = (pair_zero A B m1 m2)[@zero], @plus = (pair_plus A B m1 m2)[@plus] \<rparr>"
 
 lemma pair_monoid_ZERO [simp]: "(pair_monoid A B m1 m2)[@zero] = (pair_zero A B m1 m2)[@zero]"
-  unfolding pair_monoid_def by simp
+  unfolding pair_monoid_def by (simp add: object_simps)
 
 lemma pair_monoid_PLUS [simp]: "(pair_monoid A B m1 m2)[@plus] = (pair_plus A B m1 m2)[@plus]"
-  unfolding pair_monoid_def by simp
+  unfolding pair_monoid_def by (simp add: object_simps)
 
 text \<open>
   The following proofs illustrate that reasoning with types is still very much pedestrian
@@ -86,18 +86,19 @@ text \<open>
 
 lemma pair_plus_PLUS:
   "(pair_plus A B p1 p2)[@plus] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
-  unfolding pair_plus_def by simp
+  unfolding pair_plus_def by (simp add: object_simps)
 
 lemma pair_plus_type [type]:
   "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
+  apply discharge_types
   apply (intro Pi_typeI Plus_typeI)
   apply (unfold pair_plus_PLUS split_def)
-  by discharge_types (* TODO: takes very long *)
+  oops
 
 lemma pair_zero_type [type]:
   "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
-  unfolding Zero_typedef Pointed_typedef pair_zero_def zero_def
-  by unfold_types auto
+  unfolding Zero_def Pointed_def pair_zero_def zero_def
+  by unfold_types (simp add: object_simps)
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
@@ -116,16 +117,16 @@ proof (intro Pi_typeI)
       by (rule Plus_typeI) auto
 
     show "\<forall>x: element (A \<times> B). ?plus `?zero `x = x"
-      unfolding split_paired_BallT
+      unfolding split_paired_Ball
       by (auto simp: pair_plus_def pair_zero_def)
 
     show "\<forall>x: element (A \<times> B). ?plus `x `?zero = x"
-      unfolding split_paired_BallT
+      unfolding split_paired_Ball
         by (auto simp: pair_plus_def pair_zero_def)
 
       show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
           ?plus `(?plus `x `y) `z = ?plus `x `(?plus `y `z)"
-      unfolding split_paired_BallT
+      unfolding split_paired_Ball
       by (auto simp: pair_plus_def pair_zero_def)
   qed
 qed

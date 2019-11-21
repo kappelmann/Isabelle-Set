@@ -12,9 +12,9 @@ imports
   Monops
   Natural_Numbers
   Integer
-  (* Object
+  Object
   Structures
-  Monoid
+  (* Monoid
   Monoid_Bundled *)
 
 begin

@@ -62,10 +62,6 @@ text \<open>The "non-" modifier gives the negation of a predicate.\<close>
 definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
   where "non-P \<equiv> \<lambda>x. \<not> P x"
 
-text \<open>For soft type definitions.\<close>
-
-named_theorems typedef
-
 
 subsection \<open>Bounded quantifiers\<close>
 
@@ -112,6 +108,8 @@ method use_type for x =
   (drule has_type_typeE[where ?x=x])
 
 text \<open>Unfold all type information to work only in the underlying theory:\<close>
+
+named_theorems typedef \<comment>\<open>soft type definitions\<close>
 
 method unfold_types =
   (simp_all only: typedef has_type_type has_type_adj SBall_def SBex_def)
