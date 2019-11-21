@@ -15,7 +15,7 @@ definition
   "matrix_idx (A::set) (m::set) (n::set) M i j = M`i`j"
 
 lemma upto_type [type]: "upto : nat \<Rightarrow> subset \<nat>"
-  unfolding upto_def by discharge_types
+  unfolding upto_def by unfold_types auto
 
 lemma Matrix_type [type]: "Matrix : set \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> set"
   by discharge_types
@@ -35,7 +35,7 @@ lemma matrix_comp_type [type]:
   "matrix_comp : (A : set) \<Rightarrow> (m : nat) \<Rightarrow> (n : nat) \<Rightarrow> (element {0..< m} \<Rightarrow> element {0..< n} \<Rightarrow> element A) 
     \<Rightarrow> element (Matrix A m n)"
   unfolding matrix_comp_def Matrix_def
-  by discharge_types
+  by unfold_types auto
 
 
 subsection \<open>Addition\<close>

@@ -26,7 +26,7 @@ lemma nat_induct[case_names 0 succ, induct set: NAT]:
   and "P {}"
   and "\<And>n. n \<in> \<nat> \<Longrightarrow> P n \<Longrightarrow> P (succ n)"
 shows "P n"
-  apply (rule Set_Lattice.def_lfp_induct[OF nat_op_monop NAT_def, unfolded nat_op_def])
+  apply (rule def_lfp_induct[OF nat_op_monop NAT_def, unfolded nat_op_def])
   by (insert assms) auto
 
 definition [typedef]: "nat = element \<nat>"

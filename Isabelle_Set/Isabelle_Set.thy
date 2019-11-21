@@ -10,12 +10,12 @@ imports
   String
   Sum
   Monops
+  Natural_Numbers
+  Integer
   (* Object
   Structures
   Monoid
-  Monoid_Bundled
-  Natural_Numbers
-  Integer *)
+  Monoid_Bundled *)
 
 begin
 

@@ -7,7 +7,7 @@ begin
 
 subsection \<open>Utility\<close>
 
-abbreviation "K x \<equiv> \<lambda>_. x"
+abbreviation (input) "K x \<equiv> \<lambda>_. x"
 
 
 subsection \<open>Notation\<close>

@@ -13,7 +13,6 @@ imports Structures
 
 begin
 
-setup \<open>soft_type_simp_solver\<close>
 
 definition Monoid :: "set \<Rightarrow> set type"
   where Monoid_typedef:
