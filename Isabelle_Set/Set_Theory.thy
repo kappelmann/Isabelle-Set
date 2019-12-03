@@ -213,10 +213,6 @@ lemma equalityD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarr
 lemma equalityI2: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B"
   by (rule extensionality) auto
 
-(* method extensionality =
-  ((rule extensionality)?, auto intro: equalityI dest: equalityD)
-  \<comment>\<open>Frequently used\<close> *)
-
 
 subsection \<open>Replacement\<close>
 
@@ -1209,9 +1205,16 @@ lemma
   by (auto intro: assms
     Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
 
-(* Note the following is unsafe as an intro rule! *)
+(* Variations on transitivity *)
+
 lemma Univ_transitive: "A \<in> Univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> Univ X"
-  using Univ_transitive[unfolded mem_transitive_def] by auto
+  using Univ_trans[unfolded mem_transitive_def] by auto
+
+lemma Univ_transitive2: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
+  using Univ_transitive by auto
+
+lemma Univ_transitive3: "x \<in> X \<Longrightarrow> x \<in> Univ X"
+  using Univ_transitive Univ_elem by auto
 
 lemma empty_in_Univ [intro]: "{} \<in> Univ X"
 proof -
@@ -1251,55 +1254,6 @@ lemma Univ_bin_union_left:
   by (rule extensionality) (auto intro: Univ_transitive)
 
 lemmas Univ_bin_union_right = Univ_bin_union_left[simplified bin_union_commute]
-
-
-(* subsection \<open>Soft-typed universe rules\<close>
-
-lemma Univ_union_closedT [derive]:
-  "A : element (Univ X) \<Longrightarrow> \<Union>A : element (Univ X)"
-  using Univ_union_closed by unfold_types
-
-lemma Univ_powerset_closedT [type]:
-  "Pow : element (Univ X) \<Rightarrow> element (Univ X)"
-  using Univ_powerset_closed by unfold_types auto
-
-lemma Univ_replacement_closedT [derive, bderive]:
-  "\<lbrakk>A : element (Univ X); f : element A \<Rightarrow> element (Univ X)\<rbrakk> \<Longrightarrow> Repl A f : element (Univ X)"
-  by unfold_types auto
-
-lemma Univ_transitiveT:
-  "A : element (Univ X) \<Longrightarrow> x : element A \<Longrightarrow> x : element (Univ X)"
-  by unfold_types (fact Univ_transitive)
-
-lemma Univ_transitive'T [derive]:
-  "A : element (Univ X) \<Longrightarrow> A : subset (Univ X)"
-  by unfold_types (rule Univ_transitive')
-
-lemma empty_in_UnivT [derive]: "{} : element (Univ X)"
-  by unfold_types (fact empty_in_Univ)
-
-lemma Univ_baseT [derive]: "A : element (Univ A)"
-  by unfold_types (fact Univ_elem)
-
-lemma Univ_subsetT [derive]: "A : subset (Univ A)"
-  by unfold_types (fact Univ_subset)
-
-(* This one is problematic as a [derive] rule, since it can loop *)
-lemma Univ_memT:
-  "x : element A \<Longrightarrow> x : element (Univ A)"
-  by unfold_types (fact Univ_subset')
-
-lemma Univ_upair_closedT [derive]:
-  "\<lbrakk>x : element (Univ X); y : element (Univ X)\<rbrakk> \<Longrightarrow> upair x y : element (Univ X)"
-  using Univ_upair_closed by unfold_types
-
-lemma Univ_cons_closedT [derive]:
-  "\<lbrakk>x : element (Univ X); A : element (Univ X)\<rbrakk> \<Longrightarrow> cons x A : element (Univ X)"
-  by unfold_types auto
-
-lemma Univ_bin_union_closedT [derive]:
-  "\<lbrakk>A : element (Univ X); B : element (Univ X)\<rbrakk> \<Longrightarrow> A \<union> B : element (Univ X)"
-  by unfold_types auto *)
 
 
 end

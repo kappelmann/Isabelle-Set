@@ -54,7 +54,7 @@ axiomatization
   Univ :: \<open>set \<Rightarrow> set\<close>
 where
   Univ_elem: "X \<in> Univ X" and
-  Univ_transitive: "mem_transitive (Univ X)" and
+  Univ_trans: "mem_transitive (Univ X)" and
   Univ_ZF_closed: "ZF_closed (Univ X)" and
   Univ_min: "\<lbrakk>X \<in> U; mem_transitive U; ZF_closed U\<rbrakk> \<Longrightarrow> Univ X \<subseteq> U"
 

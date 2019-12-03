@@ -5,10 +5,10 @@ imports Set_Theory
 
 begin
 
-subsection \<open>Ordered pairs, tuples\<close>
+subsection \<open>Ordered pairs and tuples\<close>
 
 text \<open>
-  Defining the ordered pair "symmetrically" as @{term "{{a, a}, {a, b}}"}
+  Encoding the ordered pair "symmetrically" as @{term "{{a, a}, {a, b}}"}
   simplifies proofs.
 \<close>
 
@@ -35,9 +35,7 @@ lemmas opair_inject1 = opair_eq_iff [THEN iffD1, THEN conjunct1]
 lemmas opair_inject2 = opair_eq_iff [THEN iffD1, THEN conjunct2]
 
 lemma opair_nonempty: "\<langle>a, b\<rangle> \<noteq> {}"
-  apply (unfold opair_def)
-  apply (blast elim: equalityE)
-  done
+  unfolding opair_def by (blast elim: equalityE)
 
 lemmas opair_emptyD = opair_nonempty [THEN notE, elim!]
 

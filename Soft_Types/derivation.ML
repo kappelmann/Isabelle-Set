@@ -496,29 +496,29 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
             | _ => []
             ))
         end
-  
+
       val tm =
         if Soft_Type.is_typing goal
         then Soft_Type.term_of_typing goal
         else Soft_Type.dest_Trueprop goal
-  
+
       val tms =
         distinct Term.aconv (
           typable_subterms tm
           @ flat (map typable_subterms add_tms))
-  
+
       val jdgmts =
         Soft_Type_Context.get_types ctxt' tms
         @ Soft_Type_Context.get_adjs ctxt' tms
         @ Soft_Type_Context.univ_types ctxt'
         @ Soft_Type_Context.univ_adjs ctxt'
-  
+
       val rules = get_derivation_rules ctxt'
       val jdgmts' = derive_jdgmts ctxt' tms jdgmts rules
-  
+
       val str_of_tm = Syntax.string_of_term ctxt'
       fun itemize strs = "  " ^ space_implode "\n  " strs
-  
+
       val _ =
         trace ctxt' (cat_lines (
           [">> Goal conclusion:\n  " ^ str_of_tm goal,
