@@ -502,6 +502,9 @@ lemma apply_simple_type [type]:
   "apply : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
   by unfold_types auto
 
+lemma apply_dep_type:
+  "apply : element (\<Prod>x \<in> A. (B x)) \<Rightarrow> (x : element A) \<Rightarrow> element (B x)"
+  by unfold_types auto
 
 (* text \<open>Class of all functions\<close>
 
