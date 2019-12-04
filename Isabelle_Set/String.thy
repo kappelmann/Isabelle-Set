@@ -13,17 +13,19 @@ begin
 subsection \<open>Characters\<close>
 
 ML \<open>
-(*Use unary encoding for now; this can be swapped out for something more efficient later*)
+(*
+  Use unary encoding for now; this can be swapped out for something more
+  efficient later.
+*)
 fun von_neumann i = funpow i (fn t => \<^const>\<open>succ\<close> $ t) \<^term>\<open>{}\<close>
 
 val chars =
   ["0","1","2","3","4","5","6","7","8","9",
-  "a","b","c","d","e","f","g","h","i","j",
-  "k","l","m","n","o","p","q","r","s","t",
-  "u","v","w","x","y","z",
-  "A","B","C","D","E","F","G","H","I","J",
-  "K","L","M","N","O","P","Q","R","S","T",
-  "U","V","W","X","Y","Z","_","'"] ~~ map_range von_neumann 64
+  "a","b","c","d","e","f","g","h","i","j", "k","l","m",
+  "n","o","p","q","r","s","t","u","v","w","x","y","z",
+  "A","B","C","D","E","F","G","H","I","J","K","L","M",
+  "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+  "_","'"] ~~ map_range von_neumann 64
 \<close>
 
 local_setup \<open>
@@ -135,9 +137,9 @@ lemmas char_simps =
 
 text \<open>The following lemma is used to prove distinctness of non-identical strings.\<close>
 
-lemma opair_neq_succ [simp]: "\<langle>a, b\<rangle> \<noteq> succ n" \<comment>\<open>Extremely encoding-dependent!\<close>
-unfolding opair_def succ_def
-proof (rule ccontr, simp only: not_not cons_repeat)
+lemma opair_not_succ [simp]: "\<langle>a, b\<rangle> = succ n \<Longrightarrow> False" \<comment>\<open>Very encoding-dependent!\<close>
+unfolding opair_def succ_def cons_repeat
+proof -
   let
     ?opair = "{{a}, {a, b}}"
   assume
@@ -154,32 +156,48 @@ proof (rule ccontr, simp only: not_not cons_repeat)
   thus False by auto
 qed
 
-lemmas opair_neq_succ [symmetric, simp]
-
-method strings = auto dest!: succ_inject simp: string_def char_simps
+lemmas succ_not_opair [simp] = sym[THEN opair_not_succ]
 
 
-subsection \<open>Simp-solver\<close>
+subsection \<open>String disequality\<close>
 
 ML \<open>
-val string_simp_solver =
+fun string_neq_tac ctxt =
   let
-    fun char_tac ctxt =
-      dresolve_tac ctxt @{thms opair_inject1}
-      THEN' K (rewrite_goals_tac ctxt @{thms char_simps})
-      THEN' REPEAT o dresolve_tac ctxt @{thms succ_inject}
-      THEN' eresolve_tac ctxt @{thms empty_succE succ_emptyE}
+    val char_neq_word_tac = SUBGOAL (fn (_, i) =>
+      rewrite_goal_tac ctxt @{thms char_simps} i
+      THEN HEADGOAL (eresolve0_tac @{thms succ_not_opair opair_not_succ}))
 
-    fun solver ctxt = SOLVED' ( 
-      resolve_tac ctxt @{thms notI}
-      THEN' K (rewrite_goals_tac ctxt @{thms string_def})
-      THEN' REPEAT o (char_tac ctxt ORELSE' dresolve_tac ctxt @{thms opair_inject2}))
+    val char_neq_tac = SUBGOAL (fn (_, i) =>
+      rewrite_goal_tac ctxt @{thms char_simps} i
+      THEN REPEAT (HEADGOAL (dresolve0_tac @{thms succ_inject}))
+      THEN HEADGOAL (eresolve0_tac @{thms cnf.clause2raw_notE})
+      THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
+
+    fun word_neq_tac i =
+      let
+        val head_neq_tac =
+          dresolve0_tac @{thms opair_inject1} THEN' char_neq_tac
+      in
+        REPEAT_DETERM
+          (head_neq_tac i
+          ORELSE (dresolve0_tac @{thms opair_inject2} i THEN head_neq_tac i))
+      end
   in
-    map_theory_simpset (fn ctxt => ctxt
-      addSolver (mk_solver "distinguish strings" solver))
+    resolve_tac ctxt @{thms notI}
+    THEN' K (rewrite_goals_tac ctxt @{thms string_def})
+    THEN'
+      (char_neq_word_tac ORELSE' word_neq_tac)
   end
+
+val string_simp_solver = map_theory_simpset
+  (fn ctxt => ctxt addSolver (mk_solver "distinguish strings" string_neq_tac))
 \<close>
+
 setup \<open>string_simp_solver\<close>
+
+method_setup string_neq =
+  \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (string_neq_tac ctxt))\<close>
 
 
 (* Example *)
@@ -187,7 +205,6 @@ lemma
   "@Alex \<noteq> @Josh" and
   "@a \<noteq> @abc" and
   "@a10 \<noteq> @b_"
-  by simp+
-
+  by auto
 
 end
