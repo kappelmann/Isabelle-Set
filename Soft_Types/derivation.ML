@@ -439,19 +439,20 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
       fun add_to_context prem context =
         let
           val prem_prop = Thm.prop_of prem
-  
+
           val trans_opt =
             get_forward_translation (Context.proof_of context)
                 (head_of (Soft_Type.dest_Trueprop prem_prop))
-  
+
           val add_translation =
             case trans_opt of
               SOME th =>
-                let
-                  val typing = prem RS th
-                  val t = Soft_Type.term_of_typing (Thm.prop_of typing)
+                let val typing = prem RS th
                 in
-                  Soft_Type_Context.put_type t typing
+                  Soft_Type_Context.put_type
+                    (Soft_Type.term_of_typing (Thm.prop_of typing))
+                    typing
+                  handle TERM _ => I
                 end
             | NONE => I
         in
