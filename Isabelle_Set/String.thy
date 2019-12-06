@@ -6,7 +6,7 @@ text \<open>
 \<close>
 
 theory String
-imports Ordered_Pair Ordinal
+imports Ordered_Pairs Ordinal
 
 begin
 
@@ -49,7 +49,7 @@ fn lthy =>
 
 subsection \<open>Strings\<close>
 
-definition string :: \<open>set \<Rightarrow> set\<close> where "string \<equiv> \<lambda>x. x"
+definition string :: \<open>set \<Rightarrow> set\<close> where "string s \<equiv> s"
   \<comment>\<open>Wraps tuples of characters into strings.\<close>
 
 text \<open>Strings should be opaque to the type derivator.\<close>
@@ -102,9 +102,9 @@ fun tuple_to_string t =
       | char _ = raise Match
 
     (*
-      Josh: Some issue I can't figure out: at the stage at which print_translation is
-      called, the scope of \<open>opair\<close> hasn't been resolved fully, so using \<^const_name>\<open>opair\<close>
-      fails in the code below.
+      Josh: Some issue I can't figure out: at the stage at which
+      print_translation is called, the scope of \<open>opair\<close> hasn't been resolved
+      fully, so using \<^const_name>\<open>opair\<close> fails in the code below.
     *)
     fun tuple_to_string (_ $ t $ ts) = (*Underscore should be \<open>opair\<close>!*)
           char t :: tuple_to_string ts
@@ -112,7 +112,8 @@ fun tuple_to_string t =
   in
     implode (
       case t of
-        (_ $ t $ ts) => char t :: tuple_to_string ts (*Underscore should be \<open>opair\<close>!*)
+        (*Underscore should be \<open>opair\<close>!*)
+        (_ $ t $ ts) => char t :: tuple_to_string ts
       | _ => [char t])
   end
 
@@ -137,7 +138,7 @@ lemmas char_simps =
 
 text \<open>The following lemma is used to prove distinctness of non-identical strings.\<close>
 
-lemma opair_not_succ [simp]: "\<langle>a, b\<rangle> = succ n \<Longrightarrow> False" \<comment>\<open>Very encoding-dependent!\<close>
+lemma opair_not_succ: "\<langle>a, b\<rangle> = succ n \<Longrightarrow> False" \<comment>\<open>Very encoding-dependent!\<close>
 unfolding opair_def succ_def cons_repeat
 proof -
   let
@@ -156,7 +157,7 @@ proof -
   thus False by auto
 qed
 
-lemmas succ_not_opair [simp] = sym[THEN opair_not_succ]
+lemmas succ_not_opair = sym[THEN opair_not_succ]
 
 
 subsection \<open>String disequality\<close>
@@ -168,26 +169,26 @@ fun string_neq_tac ctxt =
       rewrite_goal_tac ctxt @{thms char_simps} i
       THEN HEADGOAL (eresolve0_tac @{thms succ_not_opair opair_not_succ}))
 
-    val char_neq_tac = SUBGOAL (fn (_, i) =>
-      rewrite_goal_tac ctxt @{thms char_simps} i
-      THEN REPEAT (HEADGOAL (dresolve0_tac @{thms succ_inject}))
-      THEN HEADGOAL (eresolve0_tac @{thms cnf.clause2raw_notE})
-      THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
-
     fun word_neq_tac i =
       let
-        val head_neq_tac =
-          dresolve0_tac @{thms opair_inject1} THEN' char_neq_tac
+        val char_neq_tac = SUBGOAL (fn (_, i) =>
+          rewrite_goal_tac ctxt @{thms char_simps} i
+          THEN REPEAT (HEADGOAL (dresolve0_tac @{thms succ_inject}))
+          THEN HEADGOAL (eresolve0_tac @{thms cnf.clause2raw_notE})
+          THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
+
+        val first_char_neq_tac =
+          TRY o dresolve0_tac @{thms opair_inject1} THEN' char_neq_tac
       in
-        REPEAT_DETERM
-          (head_neq_tac i
-          ORELSE (dresolve0_tac @{thms opair_inject2} i THEN head_neq_tac i))
+        REPEAT (CHANGED
+          ((char_neq_word_tac
+          ORELSE' first_char_neq_tac
+          ORELSE' dresolve0_tac @{thms opair_inject2}) i))
       end
   in
     resolve_tac ctxt @{thms notI}
     THEN' K (rewrite_goals_tac ctxt @{thms string_def})
-    THEN'
-      (char_neq_word_tac ORELSE' word_neq_tac)
+    THEN' word_neq_tac
   end
 
 val string_simp_solver = map_theory_simpset
@@ -203,8 +204,11 @@ method_setup string_neq =
 (* Example *)
 lemma
   "@Alex \<noteq> @Josh" and
-  "@a \<noteq> @abc" and
+  "@abcd \<noteq> @asdf" and
+  "@abcd \<noteq> @asdf" and
+  "@abcdefg \<noteq> @asdfghj" and
   "@a10 \<noteq> @b_"
   by auto
+
 
 end
