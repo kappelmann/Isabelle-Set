@@ -98,7 +98,7 @@ lemma converse_relation [intro]: "R \<subseteq> A \<times> B \<Longrightarrow> c
   unfolding converse_def by auto
 
 lemma converse_involution: "R \<subseteq> A \<times> B \<Longrightarrow> converse (converse R) = R"
-  unfolding converse_def by auto
+  unfolding converse_def by (rule extensionality) auto
 
 lemma converse_prod [simp]: "converse (A \<times> B) = B \<times> A"
   unfolding converse_def by (rule extensionality) auto
