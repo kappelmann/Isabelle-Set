@@ -3,7 +3,7 @@ imports
   Set_Theory
   Set_Extension
   Ordinal
-  Ordered_Pair
+  Ordered_Pairs
   Relation
   Function
   Subset

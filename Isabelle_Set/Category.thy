@@ -34,10 +34,10 @@ object ProtoCategory "U :: set" is "\<lparr> (obj @obj) (hom @hom) (comp @comp) 
 \<rparr>"
 
 definition Category where
-  Category_typedef: "Category = ProtoCategory \<V>"
+  Category_typedef: "Category = ProtoCategory V"
 
 definition SmallCategory where
-  SmallCategory_typedef: "SmallCategory = Category \<bar> \<lparr> (obj @obj). obj \<in> \<V> \<rparr>"
+  SmallCategory_typedef: "SmallCategory = Category \<bar> \<lparr> (obj @obj). obj \<in> V \<rparr>"
 
 abbreviation obj :: \<open>set \<Rightarrow> set\<close>
   where "obj \<C> \<equiv> \<C>[@obj]"
@@ -60,11 +60,22 @@ text \<open>Sets in the lowest universe.\<close>
   The following definitions should be automated in a single object/structure definition
   command.
 *)
-definition "Set_obj  = \<V>"
+definition "Set_obj  = V"
 definition "Set_hom  = \<lambda>A \<in> Set_obj. \<lambda>B \<in> Set_obj. A \<rightarrow> B"
 definition "Set_id   = \<lambda>A \<in> Set_obj. \<lambda>x \<in> A. x"
 definition "Set_comp =
   \<lambda>A \<in> Set_obj. \<lambda>B \<in> Set_obj. \<lambda>C \<in> Set_obj. \<lambda>g \<in> Set_hom `B `C. \<lambda>f \<in> Set_hom `A `B. (g \<circ> f)"
+
+lemma Set_comp_type [type]:
+  "Set_comp : element (\<Prod>A \<in> Set_obj. \<Prod>B \<in> Set_obj. \<Prod>C \<in> Set_obj. (Set_hom `B `C \<rightarrow> Set_hom `A `B \<rightarrow> Set_hom `A `C))"
+  unfolding Set_comp_def
+  apply unfold_types
+  apply (rule lambda_FunctionI)+
+  apply (unfold Set_hom_def, simp)
+  apply (rule compose_FunctionI)
+  apply assumption+
+  done
+  
 
 definition Set_cat ("\<S>et")
   where "\<S>et = \<lparr> @obj = Set_obj, @hom = Set_hom, @comp = Set_comp, @id = Set_id \<rparr>"
@@ -77,12 +88,12 @@ lemma Set_field_simps:
   unfolding Set_cat_def by eval_selector
 
 lemma Set_cat_type: "\<S>et : Category"
-unfolding Category_typedef ProtoCategory_typedef
-proof (auto simp: Set_field_simps)
-  show "Set_obj : non-empty \<sqdot> subset \<V>"
+unfolding Category_typedef ProtoCategory_def
+proof (auto simp: Set_field_simps(* some low-level unfolding *)
+  show "Set_obj : non-empty \<sqdot> subset V"
     unfolding Set_obj_def by (discharge_types, rule Univ_nonempty)
 
-  show "Set_hom : element (Set_obj \<rightarrow> Set_obj \<rightarrow> \<V>)"
+  show "Set_hom : element (Set_obj \<rightarrow> Set_obj \<rightarrow> V)"
     unfolding Set_hom_def Set_obj_def by (unfold_types, auto)
 
   show
@@ -108,11 +119,13 @@ proof (auto simp: Set_field_simps)
   hence
     f: "f \<in> A \<rightarrow> B" by (auto simp: Set_hom_def A B beta)
 
-  show
-    "Set_comp `A `A `B `f `(Set_id `A) = f" and
-    "Set_comp `A `B `B `(Set_id `B) `f = f"
+  note [[auto_elaborate, trace_soft_types]]
+  note apply_dep_type [type]
+  have
+    "Set_comp `? `? `? `f `(Set_id `A) = f" and
+    "Set_comp `? `? `? `(Set_id `B) `f = f"
     unfolding Set_hom_def Set_comp_def Set_id_def
-    by (auto simp: A B f beta intro: f)
+    by (auto simp: A B f beta intro: f
 
   fix C D g h assume
     C: "C \<in> Set_obj" and

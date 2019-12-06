@@ -1,7 +1,7 @@
 section \<open>Binary relations\<close>
 
 theory Relation
-imports Ordered_Pair
+imports Ordered_Pairs
 
 begin
 
@@ -94,7 +94,7 @@ lemma converseE [elim!]:
   "\<lbrakk>p \<in> converse R; \<And>x y. \<lbrakk>p = \<langle>y, x\<rangle>; \<langle>x, y\<rangle> \<in> R\<rbrakk> \<Longrightarrow> P; R \<subseteq> A \<times> B\<rbrakk> \<Longrightarrow> P"
   unfolding converse_def by auto
 
-lemma converse_rel [intro]: "R \<subseteq> A \<times> B \<Longrightarrow> converse R \<subseteq> B \<times> A"
+lemma converse_relation [intro]: "R \<subseteq> A \<times> B \<Longrightarrow> converse R \<subseteq> B \<times> A"
   unfolding converse_def by auto
 
 lemma converse_involution: "R \<subseteq> A \<times> B \<Longrightarrow> converse (converse R) = R"
@@ -179,22 +179,6 @@ lemma relations_relation_type [elim]:
   unfolding domed_def valued_def dom_def rng_def relation_typedef adjective_def
   by unfold_types auto
 *)
-
-
-subsection \<open>Specific results\<close>
-
-lemma Pair_subset: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
-  by auto
-
-lemma collect_rel:
-  assumes "f : element X \<Rightarrow> element A" and "g : element X \<Rightarrow> element B"
-  shows "{\<langle>f x, g x\<rangle>. x \<in> X} \<subseteq> A \<times> B"
-  using assms by unfold_types auto
-
-lemma cons_rel_iff [iff]:
-  assumes "x \<in> A" and "y \<in> B"
-  shows "cons \<langle>x, y\<rangle> X \<subseteq> A \<times> B \<longleftrightarrow> X \<subseteq> A \<times> B"
-  using assms by auto
 
 
 end

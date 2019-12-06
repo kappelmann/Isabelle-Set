@@ -150,7 +150,7 @@ subsection \<open>Rudimentary automation\<close>
 method eval_selector = (
   (unfold selector_def)?,
   (subst apply_function; auto?), (rule cons_functionI)+,
-  (auto; strings)+
+  (auto; string_neq)+
 )+
 
 

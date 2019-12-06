@@ -1,5 +1,5 @@
 theory Structure_Experiments
-imports Function Ordered_Pair
+imports Function Ordered_Pairs
 
 begin
 

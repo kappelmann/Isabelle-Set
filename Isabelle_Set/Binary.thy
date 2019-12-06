@@ -1,7 +1,7 @@
 section \<open>Binary natural numbers\<close>
 
 theory Binary
-imports Ordered_Pair
+imports Ordered_Pairs
 
 begin
 

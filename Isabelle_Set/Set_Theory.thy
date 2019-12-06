@@ -198,7 +198,10 @@ declare
 
 subsection \<open>Set equality\<close>
 
-lemma equalityI: "(\<And>x. x \<in> A \<longleftrightarrow> x \<in> B) \<Longrightarrow> A = B"
+lemma equalityI: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B"
+  by (rule extensionality) auto
+
+lemma equalityI': "(\<And>x. x \<in> A \<longleftrightarrow> x \<in> B) \<Longrightarrow> A = B"
   by (rule extensionality) auto
 
 lemma equalityE: "\<lbrakk>A = B; \<lbrakk>A \<subseteq> B ; B \<subseteq> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
@@ -209,9 +212,6 @@ lemma equalityCE: "\<lbrakk>A = B; \<lbrakk>a \<in> A; a \<in> B\<rbrakk> \<Long
 
 lemma equalityD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarrow> x \<in> B)"
   by auto
-
-lemma equalityI2: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B"
-  by (rule extensionality) auto
 
 
 subsection \<open>Replacement\<close>
@@ -254,7 +254,7 @@ lemma Repl_empty [iff]: "{f x. x \<in> {}} = {}"
   by (rule extensionality) auto
 
 lemma Repl_is_empty [iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
-  by (auto dest: equalityD intro!: equalityI)
+  by (auto dest: equalityD intro!: equalityI')
 
 
 subsection \<open>Empty set\<close>
@@ -369,17 +369,19 @@ lemma singleton_mem_iff: "x \<in> {a} \<longleftrightarrow> x = a" by auto
 lemma singleton_memD: "x \<in> {a} \<Longrightarrow> x = a" by auto
 lemma singleton_memI: "a \<in> {a}" by auto
 
-lemma Pow_singleton: "Pow {a} = {{}, {a}}"
-  by (rule extensionality) (auto intro: equalityI)
+lemma singleton_dup: "{a} = {a, a}" by (rule extensionality) auto
 
-corollary Pow_singleton_mems: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
+lemma Pow_singleton: "Pow {a} = {{}, {a}}"
+  by (rule extensionality) (auto intro: equalityI')
+
+corollary Pow_singleton_elems: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
   using Pow_singleton by auto
 
 lemma pair_mems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
   by auto
 
 lemma pair_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 text \<open>\<open>upair x y\<close> and \<open>{x, y}\<close> are equal, and thus interchangeable in developments.\<close>
 
@@ -502,7 +504,7 @@ lemma replaceE2 [elim!]:
 
 lemma replace_cong [cong]:
   "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> replace A P = replace B Q"
-  by (rule equalityI) (simp add: replace_iff)
+  by (rule equalityI') (simp add: replace_iff)
 
 
 subsection \<open>Union and intersection\<close>
@@ -638,12 +640,12 @@ lemma idxinter_Repl [simp]:
 
 lemma idxinter_union_eq:
   "{} \<notin> A \<Longrightarrow> (\<Inter>x \<in> \<Union>A. B x) = (\<Inter>y \<in> A. \<Inter>x \<in> y. B x)"
-  by (rule equalityI2) auto
+  by (rule equalityI) auto
 
 lemma inter_idxunion_eq:
   assumes "\<forall>x \<in> A. B x \<noteq> {}"
   shows "(\<Inter>z \<in> (\<Union>x\<in>A. B x). C z) = (\<Inter>x \<in> A. \<Inter>z \<in> B x. C z)"
-proof (rule equalityI2)
+proof (rule equalityI)
   fix x assume "x \<in> (\<Inter>z \<in> (\<Union>x\<in> A. B x). C z)"
   with assms show "x \<in> (\<Inter>x\<in>A. \<Inter>z\<in> B x. C z)" by auto
 next
@@ -763,10 +765,10 @@ lemma bin_union_bin_inter_distrib: "(A \<inter> B) \<union> C  =  (A \<union> C)
   by (rule extensionality) auto
 
 lemma subset_bin_union_iff: "A \<subseteq> B \<longleftrightarrow> A \<union> B = B"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 lemma subset_bin_union_iff2: "A \<subseteq> B \<longleftrightarrow> B \<union> A = B"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 lemma bin_union_empty [iff]: "(A \<union> B = {}) \<longleftrightarrow> (A = {} \<and> B = {})"
   by blast
@@ -830,14 +832,14 @@ lemma bin_inter_bin_union_distrib2: "(B \<union> C) \<inter> A = (B \<inter> A) 
   by (rule extensionality) auto
 
 lemma subset_bin_inter_iff: "A \<subseteq> B \<longleftrightarrow> A \<inter> B = A"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 lemma subset_bin_inter_iff2: "A \<subseteq> B \<longleftrightarrow> B \<inter> A = A"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 lemma bin_union_bin_inter_assoc_iff:
   "(A \<inter> B) \<union> C = A \<inter> (B \<union> C) \<longleftrightarrow> C \<subseteq> A"
-  by (auto intro: equalityI dest: equalityD)
+  by (auto intro: equalityI' dest: equalityD)
 
 lemma collect_bin_union:
   "{x \<in> A \<union> B | P x} = {x \<in> A | P x} \<union> {x \<in> B | P x}"
@@ -1143,9 +1145,22 @@ lemma subset_self [derive]: "A : subset A"
 
 text \<open>Declare basic soft type translations.\<close>
 
+(*
+  Note: soft type translations go on the right of the "=".
+  This should either be documented, or else made unnecessary.
+*)
+
 soft_type_translation "a \<in> A" = "a : element A" by unfold_types
 
 soft_type_translation "A \<subseteq> B" = "A : subset B" by unfold_types auto
+
+soft_type_translation
+  "\<forall>x \<in> A. P x" = "\<forall>x : element A. P x"
+  by unfold_types auto
+
+soft_type_translation
+  "\<exists>x \<in> A. P x" = "\<exists>x : element A. P x"
+  by unfold_types auto
 
 text \<open>Collections of sets of a given type T:\<close>
 

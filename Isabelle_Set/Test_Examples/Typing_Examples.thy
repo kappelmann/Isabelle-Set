@@ -1,5 +1,5 @@
 theory Typing_Examples
-  imports "../Ordered_Pair"
+  imports "../Ordered_Pairs"
 begin
 
 lemma "{} : empty \<sqdot> set" unfolding empty_def by unfold_types

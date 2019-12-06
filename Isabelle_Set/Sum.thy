@@ -3,7 +3,7 @@ section \<open>Sum type\<close>
 text \<open>Aka binary disjoint union/coproduct.\<close>
 
 theory Sum
-imports Ordered_Pair
+imports Ordered_Pairs
 
 begin
 

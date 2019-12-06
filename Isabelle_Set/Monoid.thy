@@ -118,6 +118,7 @@ proof (intro Pi_typeI)
 
     show "\<forall>x: element (A \<times> B). ?plus `?zero `x = x"
       unfolding split_paired_Ball
+        (*^This should be unnecessary now with the soft type translation*)
       by (auto simp: pair_plus_def pair_zero_def)
 
     show "\<forall>x: element (A \<times> B). ?plus `x `?zero = x"

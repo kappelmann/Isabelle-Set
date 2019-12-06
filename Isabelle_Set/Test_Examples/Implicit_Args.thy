@@ -1,5 +1,5 @@
 theory Implicit_Args
-  imports "../Ordered_Pair"
+  imports "../Ordered_Pairs"
 begin
 
 
