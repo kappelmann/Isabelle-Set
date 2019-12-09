@@ -374,8 +374,11 @@ lemma singleton_dup: "{a} = {a, a}" by (rule extensionality) auto
 lemma Pow_singleton: "Pow {a} = {{}, {a}}"
   by (rule extensionality) (auto intro: equalityI')
 
-corollary Pow_singleton_elems: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
+corollary Pow_singleton_elems [iff]: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
   using Pow_singleton by auto
+
+corollary subset_singleton_elems [iff]: "x \<subseteq> {a} \<longleftrightarrow> x = {} \<or> x = {a}"
+  using Pow_singleton_elems by auto
 
 lemma pair_mems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
   by auto
@@ -438,7 +441,7 @@ lemma collect_mono: "A \<subseteq> B \<Longrightarrow> collect A P \<subseteq> c
 subsection \<open>More replacement\<close>
 
 lemma Repl_singleton: "{f x | x \<in> {a}} = {f a}"
-  by (rule extensionality) auto
+  by (rule equalityI) auto
 
 text \<open>Replacement based on function-like predicates, as formulated in first-order theories.\<close>
 
@@ -584,7 +587,7 @@ proof
     from \<open>\<Union>A = {}\<close> have [simp]: "\<And>x. x \<in> A \<Longrightarrow> x = {}" by auto
     with \<open>x \<in> A\<close> have "x = {}" by simp
     with \<open>x \<in> A\<close> have [simp]: "{} \<in> A" by simp
-    show "A = {{}}" by (rule extensionality) auto
+    show "A = {{}}" by (rule equalityI) auto
   qed
 qed auto
 
@@ -990,6 +993,9 @@ lemma diff_disjoint: "A \<inter> (B \<setminus> A) = {}"
   by blast
 
 lemma diff_partition: "A \<subseteq> B \<Longrightarrow> A \<union> (B \<setminus> A) = B"
+  by (rule extensionality) auto
+
+lemma diff_partition': "A \<union> (B \<setminus> A) = A \<union> B"
   by (rule extensionality) auto
 
 lemma subset_bin_union_diff: "A \<subseteq> B \<union> (A \<setminus> B)"
