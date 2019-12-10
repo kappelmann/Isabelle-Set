@@ -35,12 +35,20 @@ definition Bex1 :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarro
   where "Bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
 
 syntax
-  "_Ball" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<forall>_ \<in> _./ _)" 10)
-  "_Bex"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<exists>_ \<in> _./ _)" 10)
-  "_Bex1" :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close>  ("(2\<exists>!_ \<in> _./ _)" 10)
+  "_Ball"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ \<in> _./ _)" 10)
+  "_Ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_Bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
+  "_Bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_Bex1"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
 translations
+  "\<forall>x xs \<in> A. P" \<rightharpoonup> "CONST Ball A (\<lambda>x. _Ball2 xs A P)"
+  "_Ball2 x A P" \<rightharpoonup> "\<forall>x \<in> A. P"
   "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST Ball A (\<lambda>x. P)"
+
+  "\<exists>x xs \<in> A. P" \<rightharpoonup> "CONST Bex A (\<lambda>x. _Bex2 xs A P)"
+  "_Bex2 x A P" \<rightharpoonup> "\<exists>x \<in> A. P"
   "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST Bex A (\<lambda>x. P)"
+
   "\<exists>!x \<in> A. P" \<rightleftharpoons> "CONST Bex1 A (\<lambda>x. P)"
 
 lemma BallI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
@@ -49,11 +57,12 @@ lemma BallI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk
 lemma Bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
   by (simp add: Ball_def)
 
-lemma rev_BallE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  by (simp add: Ball_def, blast)
-
 lemma BallE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  by blast
+  unfolding Ball_def by auto
+
+corollary rev_BallE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  by (rule BallE)
+
 
 (* LP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
 lemma Ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
