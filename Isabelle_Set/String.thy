@@ -198,8 +198,9 @@ val string_simp_solver = map_theory_simpset
 setup \<open>string_simp_solver\<close>
 
 method_setup string_neq =
-  \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (string_neq_tac ctxt))\<close>
-
+  \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (
+    TRY o eresolve_tac ctxt @{thms cnf.clause2raw_notE}
+    THEN' string_neq_tac ctxt))\<close>
 
 (* Example *)
 lemma

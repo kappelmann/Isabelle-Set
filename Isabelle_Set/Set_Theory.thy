@@ -298,10 +298,10 @@ lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow B"
 lemma PowD: "A \<in> Pow(B) \<Longrightarrow> A \<subseteq> B"
   by auto
 
-lemma Pow_bottom: "{} \<in> Pow A"
+lemma Pow_bottom [intro]: "{} \<in> Pow A"
   by auto
 
-lemma Pow_top: "A \<in> Pow A"
+lemma Pow_top [intro]: "A \<in> Pow A"
   by auto
 
 lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"

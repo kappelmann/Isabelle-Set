@@ -10,8 +10,6 @@ text \<open>
   dependently by default.
 \<close>
 
-subsection \<open>Function sets\<close>
-
 definition Function :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
   where "Function A B \<equiv> {f \<in> Pow (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
 
@@ -50,6 +48,13 @@ lemma lambda_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> b x = b' x\<rbrakk> \<Longrightarrow> (\<lambda>x\<in> A. b x) = \<lambda>x\<in> A'. b' x"
   by (simp only: lambda_def cong add: Repl_cong)
 
+lemmas lambda_cong' [intro!] = lambda_cong[OF refl]
+
+(*Generalized version of lambda_cong*)
+lemma lambda_context:
+  "\<lbrakk>P (\<lambda>x\<in> A. f x); \<And>x. x \<in> A \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> P (\<lambda>x\<in> A. g x)"
+  by auto
+
 lemma lambda_eqE: "\<lbrakk>(\<lambda>x\<in> A. f x) = \<lambda>x\<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
   by (auto elim: equalityE)
 
@@ -71,15 +76,8 @@ lemma beta_split [simp]:
   shows "(\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x,y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
   using assms by auto
 
-(* lemma typed_beta [simp]: "a : element A \<Longrightarrow> (\<lambda>x\<in> A. b x) ` a = b a"
-  by unfold_types (fact beta)
 
-lemma beta_split_typed [simp]:
-  "\<lbrakk>a : element A; b : element B \<rbrakk> \<Longrightarrow> (\<lambda>p \<in> A \<times> B. (\<lambda>\<langle>x, y\<rangle>. P x y) p) `\<langle>a, b\<rangle> = P a b"
-  by unfold_types (fact beta_split) *)
-
-
-subsection \<open>Basic rules\<close>
+subsection \<open>Rules\<close>
 
 lemma function_elem:
   assumes "f \<in> \<Prod>x\<in> A. (B x)" and "x \<in> A"
@@ -287,23 +285,6 @@ lemma bin_union_functionI:
   "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
   unfolding Function_def using dom_def by auto
 
-lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
-  by (auto simp: apply_def)
-
-lemma apply_pair1 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} `x = a"
-  by (auto simp: apply_def)
-
-lemma apply_pair2 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} `y = b"
-  by (auto simp: apply_def)
-
-lemma apply_cons1:
-  "x \<notin> dom A \<Longrightarrow> (cons \<langle>x, y\<rangle> A) `x = y"
-  unfolding dom_def apply_def by (rule theI2) auto
-
-lemma apply_cons2:
-  "x' \<noteq> x \<Longrightarrow> x' \<notin> dom A \<Longrightarrow> (cons \<langle>x, y\<rangle> (cons \<langle>x', y'\<rangle> A)) `x' = y'"
-  unfolding dom_def apply_def by (rule theI2) auto
-
 
 subsection \<open>Injectivity and surjectivity\<close>
 
@@ -324,6 +305,26 @@ proof
   then obtain x where "x \<in> A" and "y = f `x" using assms by auto
   thus "\<exists>x. \<langle>x, y\<rangle> \<in> f" using assms by (auto intro: function_elem)
 qed
+
+
+subsection \<open>More function application\<close>
+
+lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
+  by (auto simp: apply_def)
+
+lemma apply_pair1 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} `x = a"
+  by (auto simp: apply_def)
+
+lemma apply_pair2 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} `y = b"
+  by (auto simp: apply_def)
+
+lemma apply_cons_head:
+  "x \<notin> dom A \<Longrightarrow> (cons \<langle>x, y\<rangle> A) `x = y"
+  unfolding dom_def apply_def by (rule theI2) auto
+
+lemma apply_cons_tail:
+  "x \<noteq> y \<Longrightarrow> (cons \<langle>y, z\<rangle> A) `x = A `x"
+  unfolding apply_def by auto
 
 
 subsection \<open>More function extensionality\<close>
@@ -374,10 +375,6 @@ qed
 lemma compose_idr [simp]: "f \<in> \<Prod>x\<in> A. (B x) \<Longrightarrow> f \<circ> (\<lambda>x\<in> A. x) = f"
   unfolding fun_comp_def by (auto simp: eta)
 
-lemma lambda_context:
-  "\<lbrakk>P (\<lambda>x\<in> A. f x); \<And>x. x \<in> A \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> P (\<lambda>x\<in> A. g x)"
-  by auto
-
 lemma compose_idl [simp]: "f \<in> A \<rightarrow> B \<Longrightarrow> (\<lambda>x\<in> B. x) \<circ> f = f"
   unfolding fun_comp_def
   by (force intro: lambda_context beta[symmetric] eta)
@@ -392,8 +389,7 @@ lemma compose_assoc:
   assumes "f \<in> A \<rightarrow> B" "g \<in> B \<rightarrow> C"
   shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
   unfolding fun_comp_def
-  apply (simp add: assms)+
-  apply (rule lambda_context, simp)
+  apply (auto intro: assms)
   apply (subst beta)
   using assms by auto
 
