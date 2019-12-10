@@ -114,7 +114,7 @@ lemma Pair_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = 
   by (auto intro!: equalityI')
 
 lemma prod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
-  by (rule extensionality) auto
+  by (rule equalityI) auto
 
 lemma Pair_subset_prod: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
   by auto
