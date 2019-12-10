@@ -12,8 +12,8 @@ imports
   Monops
   Natural_Numbers
   Integer
-  Object
-  Structures
+  Object2
+  Structures2
   (* Monoid
   Monoid_Bundled *)
 

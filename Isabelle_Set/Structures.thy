@@ -1,4 +1,4 @@
-section \<open>Various structures\<close>
+section \<open>Structures\<close>
 
 text \<open>Collection of various structure definitions.\<close>
 
