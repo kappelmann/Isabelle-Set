@@ -234,7 +234,7 @@ val soft_type_simp_solver =
       then print_tac ctxt ("type derivation called on subgoal " ^ string_of_int i)
       else all_tac)
       THEN
-      SOLVED' (SUBGOAL (fn (_, j) =>
+      (SUBGOAL (fn (_, j) =>
         Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt j)) i
   in
     map_theory_simpset (fn ctxt => ctxt

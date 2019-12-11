@@ -430,12 +430,12 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
   then
     let
       val facts = map fst (Facts.props (Proof_Context.facts_of ctxt))
-  
+
       fun is_derivation_rule thm =
         Soft_Type.is_typing (Thm.concl_of thm)
         andalso not (Thm.no_prems thm)
         andalso forall Soft_Type.is_jdgmt (Thm.prems_of thm)
-  
+
       fun add_to_context prem context =
         let
           val prem_prop = Thm.prop_of prem
