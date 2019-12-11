@@ -197,6 +197,10 @@ lemma lambda_simple_type [type]:
   "lambda : (A : set) \<Rightarrow> (element A \<Rightarrow> element B) \<Rightarrow> element (A \<rightarrow> B)"
   by unfold_types auto
 
+lemma lambda_dep_type:
+  "lambda : (A : set) \<Rightarrow> ((x : element A) \<Rightarrow> element (B x)) \<Rightarrow> element (\<Prod>x\<in> A. (B x))"
+  by unfold_types auto
+
 lemma apply_simple_type [type]:
   "apply : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
   by unfold_types auto
@@ -206,6 +210,8 @@ lemma apply_dep_type:
   by unfold_types auto
 
 lemma id_function [intro]: "(\<lambda>x\<in> A. x) \<in> A \<rightarrow> A" by auto
+
+lemma [derive]: "(\<lambda>x\<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
 
 
 subsection \<open>Function extensionality\<close>
@@ -386,10 +392,15 @@ lemma compose_idr [simp]: "f \<in> \<Prod>x\<in> A. (B x) \<Longrightarrow> f \<
 lemma compose_idl [simp]: "f \<in> A \<rightarrow> B \<Longrightarrow> (\<lambda>x\<in> B. x) \<circ> f = f"
   unfolding fun_comp_def by (auto simp: eta)
 
-lemma compose_assoc:
+lemma compose_assoc [simp]:
   assumes "f \<in> A \<rightarrow> B" "g \<in> B \<rightarrow> C"
   shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
   unfolding fun_comp_def by auto
+
+lemma fun_comp_type [derive]:
+  assumes "f : element (A \<rightarrow> B)" "g : element (\<Prod>x\<in> B. (C x))"
+  shows "g \<circ> f : element (\<Prod>x\<in> A. (C (f `x)))"
+  by unfold_types (auto intro: assms)
 
 
 subsection \<open>Universes\<close>

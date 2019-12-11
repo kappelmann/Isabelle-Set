@@ -87,9 +87,7 @@ lemma Set_id [simp]: "\<S>et @@ id = Set_id"
 
 lemma Set_cat_type [type]: "\<S>et : Category"
   unfolding Category'_def Category_def
-  apply (unfold_types; intro conjI)
-  apply fastforce+
-  by auto (subst beta, auto simp: compose_assoc)+
+  by unfold_types force
 
 
 section \<open>Functors and natural transformations\<close>
