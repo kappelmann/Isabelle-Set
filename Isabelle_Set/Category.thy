@@ -67,23 +67,16 @@ definition Set_cat ("\<S>et")
 
 (*These should be generated theorems*)
 lemma Set_obj [simp]: "\<S>et @@ obj = Set_obj"
-  unfolding Set_cat_def object_selector_def
-  by (rule apply_cons_head, simp) (intro conjI; string_neq)
+  unfolding Set_cat_def by simp
 
 lemma Set_hom [simp]: "\<S>et @@ hom = Set_hom"
-  unfolding Set_cat_def object_selector_def
-  apply (simp only: apply_cons_tail)
-  by (rule apply_cons_head, simp) (intro conjI; string_neq)
+  unfolding Set_cat_def by simp
 
 lemma Set_comp [simp]: "\<S>et @@ comp = Set_comp"
-  unfolding Set_cat_def object_selector_def
-  apply (simp only: apply_cons_tail)
-  by (rule apply_cons_head, simp)
+  unfolding Set_cat_def by simp
 
 lemma Set_id [simp]: "\<S>et @@ id = Set_id"
-  unfolding Set_cat_def object_selector_def
-  apply (simp only: apply_cons_tail)
-  by (rule apply_cons_head, simp)
+  unfolding Set_cat_def by simp
 
 lemma Set_cat_type [type]: "\<S>et : Category"
   unfolding Category'_def Category_def

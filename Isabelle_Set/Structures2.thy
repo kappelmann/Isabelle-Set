@@ -13,7 +13,7 @@ subsection \<open>Plus (additive binop) structures\<close>
 definition [typedef]:
   "Plus A \<equiv> type (\<lambda>struct. struct @@ plus \<in> A \<rightarrow> A \<rightarrow> A)"
 
-lemma Plus_typeI:
+lemma Plus_typeI [intro]:
   "struct @@ plus : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Plus A"
   unfolding Plus_def by unfold_types
 
@@ -37,7 +37,7 @@ subsection \<open>Times (multiplicative binop) structures\<close>
 definition [typedef]:
   "Times A \<equiv> type (\<lambda>struct. struct @@ times \<in> A \<rightarrow> A \<rightarrow> A)"
 
-lemma Times_typeI:
+lemma Times_typeI [intro]:
   "struct @@ times : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Times A"
   unfolding Times_def by unfold_types
 
@@ -63,7 +63,7 @@ text \<open>Structures with distinguished elements.\<close>
 definition [typedef]:
   "Zero A = type (\<lambda>struct. struct @@ zero \<in> A)"
 
-lemma Zero_typeI:
+lemma Zero_typeI [intro]:
   "struct @@ zero : element A \<Longrightarrow> struct : Zero A"
   unfolding Zero_def by unfold_types
 
@@ -84,7 +84,7 @@ abbreviation zero_implicit :: "set" ("0")
 definition [typedef]:
   "One A = type (\<lambda>struct. struct @@ one \<in> A)"
 
-lemma One_typeI:
+lemma One_typeI [intro]:
   "struct @@ one : element A \<Longrightarrow> struct : One A"
   unfolding One_def by unfold_types
 

@@ -162,6 +162,8 @@ lemmas succ_not_opair = sym[THEN opair_not_succ]
 
 subsection \<open>String disequality\<close>
 
+lemma neqE: "a = b \<Longrightarrow> a \<noteq> b \<Longrightarrow> False" by auto
+
 ML \<open>
 fun string_neq_tac ctxt =
   let
@@ -174,7 +176,7 @@ fun string_neq_tac ctxt =
         val char_neq_tac = SUBGOAL (fn (_, i) =>
           rewrite_goal_tac ctxt @{thms char_simps} i
           THEN REPEAT (HEADGOAL (dresolve0_tac @{thms succ_inject}))
-          THEN HEADGOAL (eresolve0_tac @{thms cnf.clause2raw_notE})
+          THEN HEADGOAL (eresolve0_tac @{thms neqE})
           THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
 
         val first_char_neq_tac =
@@ -187,7 +189,7 @@ fun string_neq_tac ctxt =
       end
   in
     resolve_tac ctxt @{thms notI}
-    THEN' K (rewrite_goals_tac ctxt @{thms string_def})
+    THEN' rewrite_goal_tac ctxt @{thms string_def}
     THEN' word_neq_tac
   end
 
@@ -199,7 +201,7 @@ setup \<open>string_simp_solver\<close>
 
 method_setup string_neq =
   \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (
-    TRY o eresolve_tac ctxt @{thms cnf.clause2raw_notE}
+    (TRY o eresolve_tac ctxt @{thms neqE})
     THEN' string_neq_tac ctxt))\<close>
 
 (* Example *)
