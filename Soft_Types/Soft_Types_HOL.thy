@@ -94,18 +94,7 @@ lemma SBexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; P x\
   unfolding SBex_def by auto
 
 
-subsection \<open>Low-level type methods\<close>
-
-text \<open>
-  These are the canonical low-level methods for using the defining predicates of
-  a type.
-\<close>
-method prove_type for x =
-  (rule has_type_typeI[where ?x=x] | rule has_type_adjI[where ?x=x])
-
-(* Not complete; this doesn't handle adjectives yet *)
-method use_type for x =
-  (drule has_type_typeE[where ?x=x])
+subsection \<open>Soft type methods I\<close>
 
 text \<open>Unfold all type information to work only in the underlying theory:\<close>
 
@@ -118,16 +107,33 @@ method unfold_types =
 subsection \<open>Intersection types\<close>
 
 definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
-  where [typedef]: "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
+  where "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
 
 lemma
   Int_typeI: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
   Int_typeE1: "x : A \<bar> B \<Longrightarrow> x : A" and
   Int_typeE2: "x : A \<bar> B \<Longrightarrow> x : B"
-  by unfold_types
+  unfolding Int_type_def by unfold_types
 
 
-subsection \<open>The ``any'' type\<close>
+subsection \<open>Soft type methods II\<close>
+
+text \<open>
+  These are the canonical low-level methods for proving and using soft type
+  membership.
+\<close>
+
+method prove_type for x = (intro
+  has_type_typeI[where ?x=x]
+  has_type_adjI[where ?x=x]
+  Int_typeI[where ?x=x])
+
+(* Not complete; this doesn't handle adjectives yet *)
+method use_type for x =
+  (drule has_type_typeE[where ?x=x])
+
+
+subsection \<open>The "any" type\<close>
 
 text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
 
@@ -156,11 +162,11 @@ translations
 
 lemma Pi_typeI:
   "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
-  unfolding Pi_type_def by (prove_type f) auto
+  unfolding Pi_type_def has_type_type by auto
 
 lemma Pi_typeE:
   "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
-  unfolding Pi_type_def by (use_type f) auto
+  unfolding Pi_type_def has_type_type by auto
 
 
 subsection \<open>Type annotations\<close>
@@ -210,7 +216,7 @@ declare any_typeI [type]
 declare Pi_typeI [backward_derive]
 
 
-subsection \<open>Methods\<close>
+subsection \<open>Soft type methods III\<close>
 
 method_setup raw_discharge_type =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>
@@ -245,7 +251,7 @@ val soft_type_simp_solver =
 setup \<open>soft_type_simp_solver\<close>
 
 
-subsection \<open>Basic declarations for HOL material\<close>
+subsection \<open>Basic HOL declarations\<close>
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
   by unfold_types auto
