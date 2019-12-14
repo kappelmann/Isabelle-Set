@@ -149,7 +149,7 @@ subsection \<open>Functions on \<Sigma>-type\<close>
 definition split :: "(set \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" \<comment>\<open>for pattern-matching\<close>
   where "split f \<equiv> \<lambda>p. f (fst p) (snd p)"
 
-(* LP: Patterns - extends pre-defined type "pttrn" used in abstractions *)
+(*Larry: Patterns—extends pre-defined type "pttrn" used in abstractions*)
 nonterminal patterns
 syntax
   "_pattern"  :: "patterns => pttrn" ("\<langle>_\<rangle>")

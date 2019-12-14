@@ -1,7 +1,34 @@
+section \<open>Structure objects\<close>
+
 theory Object2
 imports Function String
 
 begin
+
+text \<open>
+We'd eventually want to have syntax like
+  \<open> object Monoid
+    fixes A
+    contains op id
+    where
+      "op \<in> A \<rightarrow> A \<rightarrow> A"
+      "e \<in> A"
+      "x \<in> A \<Longrightarrow> op `x `e = x"
+      "x \<in> A \<Longrightarrow> op `e `x = x"
+  \<close>
+to define structure object types, which should generate
+  \<open> Monoid A \<equiv> type (\<lambda>obj::set.
+      (* "contains" part *)
+      {@op, @id} \<subseteq> dom obj \<and>
+      (* "where" part *)
+      obj@@op \<in> A \<rightarrow> A \<rightarrow> A \<and>
+      obj@@e \<in> A \<and>
+      \<forall>x. x \<in> A \<longrightarrow> op `x `e = x \<and>
+      \<forall>x. x \<in> A \<longrightarrow> op `e `x = x)
+  \<close>.
+\<close>
+
+subsection \<open>Object field selectors\<close>
 
 definition object_selector :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> ("_@_" [1000, 1000])
   where "G@s \<equiv> G `s"
@@ -30,30 +57,6 @@ val selector_subgoaler = map_theory_simpset (Simplifier.set_subgoaler
 \<close>
 
 setup \<open>selector_subgoaler\<close>
-
-
-(* Eventually want to have syntax like
-
-    object Monoid
-    fixes A
-    contains op id
-    where
-      "op \<in> A \<rightarrow> A \<rightarrow> A"
-      "e \<in> A"
-      "x \<in> A \<Longrightarrow> op `x `e = x"
-      "x \<in> A \<Longrightarrow> op `e `x = x"
-
-  which should generate
-
-    Monoid A \<equiv> type (\<lambda>obj::set.
-      (* "contains" part *)
-      {@op, @id} \<subseteq> dom obj \<and>
-      (* "where" part *)
-      obj@@op \<in> A \<rightarrow> A \<rightarrow> A \<and>
-      obj@@e \<in> A \<and>
-      \<forall>x. x \<in> A \<longrightarrow> op `x `e = x \<and>
-      \<forall>x. x \<in> A \<longrightarrow> op `e `x = x)
-*)
 
 
 end

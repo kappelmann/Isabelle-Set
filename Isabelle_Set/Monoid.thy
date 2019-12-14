@@ -62,7 +62,7 @@ subsection \<open>Instance for pairs\<close>
 
 definition [typedef]:
   "pair_plus A B p1 p2 \<equiv>
-    \<lparr> @plus = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
+    \<lparr> @plus = \<lambda>\<langle>a1,b1\<rangle> \<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
 
 definition [typedef]:
   "pair_zero A B z1 z2 \<equiv>
@@ -85,7 +85,7 @@ text \<open>
 \<close>
 
 lemma pair_plus_PLUS:
-  "(pair_plus A B p1 p2)[@plus] = \<lambda>\<langle>a1,b1\<rangle>\<in>A\<times>B. \<lambda>\<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
+  "(pair_plus A B p1 p2)[@plus] = \<lambda>\<langle>a1,b1\<rangle> \<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
   unfolding pair_plus_def by (simp add: object_simps)
 
 lemma pair_plus_type [type]:

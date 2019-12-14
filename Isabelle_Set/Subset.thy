@@ -11,7 +11,7 @@ definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> 
   where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
 
 lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
-  by unfold_types auto
+  by unfold_types
 
 abbreviation "monop D \<equiv> monotone D \<sqdot> (subset D \<Rightarrow> subset D)"
 
@@ -148,7 +148,7 @@ lemma lfp_induct:
   assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
-  have "P : element D \<Rightarrow> bool" by unfold_types auto
+  have "P : element D \<Rightarrow> bool" by unfold_types
 
   have "lfp D h \<subseteq> collect (lfp D h) P"
   proof (rule lfp_lowerbound)

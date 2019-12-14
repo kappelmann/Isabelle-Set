@@ -25,14 +25,14 @@ abbreviation id ("(id\<^bsub>_\<^esub>)") where "id\<^bsub>\<C>\<^esub> A \<equi
 abbreviation comp ("comp\<^bsub>_, _, _, _\<^esub>")
   where "comp\<^bsub>\<C>, A, B, C\<^esub> g f \<equiv> \<C> @@comp `A `B `C `g `f"
 
-definition "Category' U \<equiv>
+definition [typedef]: "Category' U \<equiv>
   type (\<lambda>\<C>.
     obj \<C> : non-empty \<sqdot> subset U \<and>
 
     \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
 
     \<C> @@ comp \<in>
-      \<Prod>A\<in> obj \<C>. \<Prod>B\<in> obj \<C>. \<Prod>C\<in> obj \<C>.
+      \<Prod>A B C\<in> obj \<C>.
         (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C) \<and>
 
     \<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A) \<and>
@@ -48,38 +48,31 @@ definition "Category' U \<equiv>
           (comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)))
   )"
 
-definition "Category = Category' V"
+definition [typedef]: "Category = Category' V"
 
-definition "Small_Category = Category \<bar> type (\<lambda>\<C>. obj \<C> \<in> V)"
+definition [typedef]: "Small_Category = Category \<bar> type (\<lambda>\<C>. obj \<C> \<in> V)"
 
 
 section \<open>The category of sets\<close>
 
 abbreviation (input) "Set_obj  \<equiv> V"
-abbreviation (input) "Set_hom  \<equiv> \<lambda>A \<in> V. \<lambda>B \<in> V. A \<rightarrow> B"
+abbreviation (input) "Set_hom  \<equiv> \<lambda>A B \<in> V. A \<rightarrow> B"
 abbreviation (input) "Set_id   \<equiv> \<lambda>A \<in> V. \<lambda>x \<in> A. x"
-abbreviation (input) "Set_comp \<equiv>
-  \<lambda>A \<in> V. \<lambda>B \<in> V. \<lambda>C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
+abbreviation (input) "Set_comp \<equiv> \<lambda>A B C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
   (*Might be nice to have a keyword to define set-theoretic lambdas*)
 
 definition Set_cat ("\<S>et")
   where "\<S>et = {\<langle>@obj, Set_obj\<rangle>, \<langle>@hom, Set_hom\<rangle>, \<langle>@comp, Set_comp\<rangle>, \<langle>@id, Set_id\<rangle>}"
 
 (*These should be generated theorems*)
-lemma Set_obj [simp]: "\<S>et @@ obj = Set_obj"
-  unfolding Set_cat_def by simp
-
-lemma Set_hom [simp]: "\<S>et @@ hom = Set_hom"
-  unfolding Set_cat_def by simp
-
-lemma Set_comp [simp]: "\<S>et @@ comp = Set_comp"
-  unfolding Set_cat_def by simp
-
-lemma Set_id [simp]: "\<S>et @@ id = Set_id"
-  unfolding Set_cat_def by simp
+lemma [simp]:
+  shows Set_cat_obj:  "\<S>et @@ obj = Set_obj"
+    and Set_cat_hom:  "\<S>et @@ hom = Set_hom"
+    and Set_cat_comp: "\<S>et @@ comp = Set_comp"
+    and Set_cat_id:   "\<S>et @@ id = Set_id"
+  unfolding Set_cat_def by auto
 
 lemma Set_cat_type [type]: "\<S>et : Category"
-  unfolding Category'_def Category_def
   by unfold_types force
 
 
@@ -97,7 +90,7 @@ definition "Functor \<C> \<D> \<equiv>
     \<F> @@ obj_map \<in> obj \<C> \<rightarrow> obj \<D> \<and>
 
     \<F> @@ hom_map \<in>
-      \<Prod>A\<in> obj \<C>. \<Prod>B\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<D>\<^esub> (\<F>\<^bsub>obj\<^esub> A) (\<F>\<^bsub>obj\<^esub> B)) \<and>
+      \<Prod>A B\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<D>\<^esub> (\<F>\<^bsub>obj\<^esub> A) (\<F>\<^bsub>obj\<^esub> B)) \<and>
 
     (\<forall>A \<in> obj \<C>. (\<F>\<^bsub>hom A A\<^esub> (id\<^bsub>\<C>\<^esub> A)) = id\<^bsub>\<D>\<^esub> (\<F>\<^bsub>obj\<^esub> A)) \<and>
 
