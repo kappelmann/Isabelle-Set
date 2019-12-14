@@ -14,8 +14,11 @@ definition Function :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
   where "Function A B \<equiv> {f \<in> Pow (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
 
 syntax
-  "_Function" :: "[pttrn, set, set] => set type" ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
+  "_Function"  :: "[pttrns, set, set] \<Rightarrow> set type" ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
+  "_Function2" :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close>
 translations
+  "\<Prod>x xs\<in> A. B" \<rightharpoonup> "CONST Function A (\<lambda>x. _Function2 xs A B)"
+  "_Function2 x A B" \<rightharpoonup> "\<Prod>x\<in> A. B"
   "\<Prod>x\<in> A. B" \<rightleftharpoons> "CONST Function A (\<lambda>x. B)"
 
 abbreviation "function" :: "[set, set] \<Rightarrow> set" (infixr "\<rightarrow>" 60)
@@ -29,8 +32,13 @@ text \<open>Construct set-theoretic functions from HOL functions.\<close>
 definition lambda :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   where "lambda A b \<equiv> {\<langle>x, b x\<rangle> | x \<in> A}"
 
-syntax "_lam" :: "[pttrn, set, set] => set" ("(3\<lambda>_\<in> _./ _)" 60)
-translations "\<lambda>x\<in> A. f" \<rightleftharpoons> "CONST lambda A (\<lambda>x. f)"
+syntax
+  "_lam"  :: "[pttrns, set, set] => set" ("(2\<lambda>_\<in> _./ _)" 60)
+  "_lam2" :: \<open>[pttrns, set, set] \<Rightarrow> set\<close>
+translations
+  "\<lambda>x xs\<in> A. b" \<rightharpoonup> "CONST lambda A (\<lambda>x. _lam2 xs A b)"
+  "_lam2 x A b" \<rightharpoonup> "\<lambda>x\<in> A. b"
+  "\<lambda>x\<in> A. b" \<rightleftharpoons> "CONST lambda A (\<lambda>x. b)"
 
 lemma lambdaI [intro]: "a \<in> A \<Longrightarrow> \<langle>a, b a\<rangle> \<in> \<lambda>x\<in> A. b x"
   unfolding lambda_def by auto
@@ -177,7 +185,7 @@ qed
 
 subsection \<open>Soft types and type theoretic rules\<close>
 
-lemma FunctionI [intro]:
+lemma FunctionI [intro!]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b x) \<in> \<Prod>x\<in> A. (B x)"
   unfolding lambda_def Function_def by auto
 
