@@ -28,22 +28,27 @@ to define structure object types, which should generate
   \<close>.
 \<close>
 
+
+subsection \<open>Object instance constructors\<close>
+
+definition "object graph = graph"
+
+
 subsection \<open>Object field selectors\<close>
 
-definition object_selector :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> ("_@_" [1000, 1000])
-  where "G@s \<equiv> G `s"
+definition object_selector :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> ("_@_" [999, 1000])
+  where "O@s \<equiv> (THE graph. O = object graph) `s"
 
-lemmas object_selector_simps =
-  apply_cons_head[folded object_selector_def, simp]
-  apply_cons_tail[folded object_selector_def, simp]
+lemma object_selector_simps [simp]:
+  "x \<notin> dom A \<Longrightarrow> (object (cons \<langle>x, y\<rangle> A)) @ x = y"
+  "x \<noteq> y \<Longrightarrow> (object (cons \<langle>y, z\<rangle> A)) @ x = A `x"
+  unfolding object_def object_selector_def
+  using apply_cons_head apply_cons_tail by auto
 
 lemma not_in_cons_dom: "\<lbrakk>x \<noteq> a; x \<notin> A\<rbrakk> \<Longrightarrow> x \<notin> cons a A" by auto
 
 ML \<open>
-(*
-  Solver for the condition "x \<notin> dom A" arising from applications of
-  apply_cons_head to object selector simplifications.
-*)
+(*Solver for the condition "x \<notin> dom A" arising object selector simplifications*)
 
 fun selector_tac ctxt =
   REPEAT o (EqSubst.eqsubst_tac ctxt [0] @{thms cons_dom})

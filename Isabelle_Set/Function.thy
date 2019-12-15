@@ -340,11 +340,11 @@ lemma apply_pair1 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle
 lemma apply_pair2 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>} `y = b"
   by (auto simp: apply_def)
 
-lemma apply_cons_head:
+lemma apply_cons_head [simp]:
   "x \<notin> dom A \<Longrightarrow> (cons \<langle>x, y\<rangle> A) `x = y"
   unfolding dom_def apply_def by (rule theI2) auto
 
-lemma apply_cons_tail:
+lemma apply_cons_tail [simp]:
   "x \<noteq> y \<Longrightarrow> (cons \<langle>y, z\<rangle> A) `x = A `x"
   unfolding apply_def by auto
 

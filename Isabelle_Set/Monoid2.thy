@@ -59,13 +59,13 @@ text \<open>
   We emulate automation that needs to be implemented in future work.
 \<close>
 
-definition "Zero_Pair Z1 Z2 = {\<langle>@zero, \<langle>zero Z1, zero Z2\<rangle>\<rangle>}"
+definition "Zero_Pair Z1 Z2 = object {\<langle>@zero, \<langle>zero Z1, zero Z2\<rangle>\<rangle>}"
 
 (*This should be automatically generated*)
 lemma Zero_Pair_zero [simp]: "(Zero_Pair Z1 Z2) @@ zero = \<langle>zero Z1, zero Z2\<rangle>"
   unfolding Zero_Pair_def by simp
 
-definition "Plus_Pair A B P1 P2 = {
+definition "Plus_Pair A B P1 P2 = object {
   \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>\<rangle>}"
 
 (*Should be automatically generated*)

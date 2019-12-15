@@ -61,8 +61,13 @@ abbreviation (input) "Set_id   \<equiv> \<lambda>A \<in> V. \<lambda>x \<in> A. 
 abbreviation (input) "Set_comp \<equiv> \<lambda>A B C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
   (*Might be nice to have a keyword to define set-theoretic lambdas*)
 
-definition Set_cat ("\<S>et")
-  where "\<S>et = {\<langle>@obj, Set_obj\<rangle>, \<langle>@hom, Set_hom\<rangle>, \<langle>@comp, Set_comp\<rangle>, \<langle>@id, Set_id\<rangle>}"
+definition Set_cat ("\<S>et") where
+  "\<S>et = object {
+    \<langle>@obj, Set_obj\<rangle>,
+    \<langle>@hom, Set_hom\<rangle>,
+    \<langle>@comp, Set_comp\<rangle>,
+    \<langle>@id, Set_id\<rangle>
+  }"
 
 (*These should be generated theorems*)
 lemma [simp]:
@@ -74,6 +79,11 @@ lemma [simp]:
 
 lemma Set_cat_type [type]: "\<S>et : Category"
   by unfold_types force
+
+
+section \<open>Constructions on categories\<close>
+
+(*Want to define product categories, opposite categories, etc.*)
 
 
 section \<open>Functors and natural transformations\<close>
