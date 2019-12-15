@@ -34,7 +34,13 @@ subsection \<open>Object instance constructors\<close>
 definition "object graph = graph"
 
 
-subsection \<open>Object field selectors\<close>
+subsection \<open>Object fields\<close>
+
+definition "object_fields O = dom (THE graph. O = object graph)"
+
+lemma object_fields_simp [simp]:
+  "object_fields (object (cons \<langle>x, y\<rangle> A)) = cons x (dom A)"
+  unfolding object_fields_def object_def by auto
 
 definition object_selector :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> ("_@_" [999, 1000])
   where "O@s \<equiv> (THE graph. O = object graph) `s"
@@ -62,6 +68,27 @@ val selector_subgoaler = map_theory_simpset (Simplifier.set_subgoaler
 \<close>
 
 setup \<open>selector_subgoaler\<close>
+
+
+subsection \<open>Object composition\<close>
+
+text \<open>
+  For now object composition is just the set-theoretic union of the graphs,
+  which means that it's only well-defined for object instances with disjoint
+  fields.
+\<close>
+
+definition object_composition :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixl "[+]" 69)
+  where "O1 [+] O2 = O1 \<union> O2"
+
+lemma object_composition_selector [simp]:
+  assumes
+    "object_fields O1 \<inter> object_fields O2 = {}"
+  shows
+    "(O1 [+] O2) @ x = (if x \<in> object_fields O1 then O1 @ x else O2 @ x)"
+  using assms
+  unfolding object_composition_def object_fields_def object_selector_def object_def
+  by (auto intro: apply_bin_union1 apply_bin_union2)
 
 
 end

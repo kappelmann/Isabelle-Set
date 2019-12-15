@@ -61,7 +61,10 @@ text \<open>
 
 definition "Zero_Pair Z1 Z2 = object {\<langle>@zero, \<langle>zero Z1, zero Z2\<rangle>\<rangle>}"
 
-(*This should be automatically generated*)
+(*These should be automatically generated*)
+lemma Zero_Pair_fields [simp]: "object_fields (Zero_Pair Z1 Z2) = {@zero}"
+  unfolding Zero_Pair_def by auto
+
 lemma Zero_Pair_zero [simp]: "(Zero_Pair Z1 Z2) @@ zero = \<langle>zero Z1, zero Z2\<rangle>"
   unfolding Zero_Pair_def by simp
 
@@ -69,25 +72,51 @@ definition "Plus_Pair A B P1 P2 = object {
   \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>\<rangle>}"
 
 (*Should be automatically generated*)
+lemma Plus_Pair_fields [simp]: "object_fields (Plus_Pair A B P1 P2) = {@plus}"
+  unfolding Plus_Pair_def by auto
+
 lemma Plus_Pair_plus [simp]:
   "(Plus_Pair A B P1 P2) @@ plus =
     \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>"
   unfolding Plus_Pair_def by simp
 
-(*At some point we'll have to have a proper way of combining object instances,
-  e.g "Monoid_Sum = Zero_Pair [+] Plus_Pair"*)
-definition "Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 \<union> Plus_Pair A B M1 M2"
+(*Monoid direct sum is the composition of the respective zero and pair instances*)
+definition "Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Plus_Pair A B M1 M2"
 
 (*Should be automatically generated*)
 lemma [simp]:
   shows
     Monoid_Sum_zero: "(Monoid_Sum A B M1 M2) @@ zero = (Zero_Pair M1 M2) @@ zero"
   and
-    Monoid_Sum_plus: "(Monoid_Sum A B M1 M2) @@ plus = (Plus_P A B M1 M2) @@ plus"
+    Monoid_Sum_plus: "(Monoid_Sum A B M1 M2) @@ plus = (Plus_Pair A B M1 M2) @@ plus"
   unfolding Monoid_Sum_def
   (*The level of abstraction needed in this proof requires structure composition
     to be properly set up*)
-oops
+  subgoal
+  apply (subst object_composition_selector)
+    apply simp
+      apply (rule equalityI)
+        apply simp
+        apply (elim conjE)
+        apply simp
+        apply string_neq
+      apply simp
+    apply simp
+  done
+  subgoal
+  apply (subst object_composition_selector)
+    apply simp
+      apply (rule equalityI)
+        apply simp
+        apply (elim conjE)
+        apply simp
+        apply string_neq
+      apply simp
+    apply simp
+      apply (rule impI, rule ccontr)
+      apply string_neq
+  done
+done
 
 text \<open>
   The following proofs illustrate that reasoning with types is still very

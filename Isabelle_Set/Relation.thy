@@ -29,6 +29,9 @@ proof -
   thus ?thesis ..
 qed
 
+lemma not_in_domE: "\<lbrakk>x \<notin> dom R; \<not>(\<exists>y. \<langle>x, y\<rangle> \<in> R) \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  unfolding dom_def by force
+
 lemma rngI: "\<langle>x, y\<rangle> \<in> R \<Longrightarrow> y \<in> rng R"
   unfolding rng_def by auto
 

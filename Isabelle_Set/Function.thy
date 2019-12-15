@@ -348,6 +348,14 @@ lemma apply_cons_tail [simp]:
   "x \<noteq> y \<Longrightarrow> (cons \<langle>y, z\<rangle> A) `x = A `x"
   unfolding apply_def by auto
 
+lemma apply_bin_union1:
+  "\<lbrakk>x \<in> dom A; x \<notin> dom B\<rbrakk> \<Longrightarrow> (A \<union> B) `x = A `x"
+  unfolding apply_def by (auto elim: not_in_domE)
+
+lemma apply_bin_union2:
+  "x \<notin> dom A \<Longrightarrow> (A \<union> B) `x = B `x"
+  unfolding apply_def by (auto elim: not_in_domE)
+
 
 subsection \<open>More function extensionality\<close>
 
