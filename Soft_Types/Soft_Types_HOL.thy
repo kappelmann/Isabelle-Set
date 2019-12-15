@@ -118,23 +118,6 @@ lemma
   unfolding Int_type_def by unfold_types
 
 
-subsection \<open>Soft type methods II\<close>
-
-text \<open>
-  These are the canonical low-level methods for proving and using soft type
-  membership.
-\<close>
-
-method prove_type for x = (intro
-  has_type_typeI[where ?x=x]
-  has_type_adjI[where ?x=x]
-  Int_typeI[where ?x=x])
-
-(* Not complete; this doesn't handle adjectives yet *)
-method use_type for x =
-  (drule has_type_typeE[where ?x=x])
-
-
 subsection \<open>The "any" type\<close>
 
 text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
@@ -218,7 +201,9 @@ declare any_typeI [type]
 declare Pi_typeI [backward_derive]
 
 
-subsection \<open>Soft type methods III\<close>
+subsection \<open>Soft type methods II\<close>
+
+text \<open>Use type derivation to prove typing subgoals.\<close>
 
 method_setup raw_discharge_type =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) [] >>

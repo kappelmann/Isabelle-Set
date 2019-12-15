@@ -30,8 +30,8 @@ lemma Monoid_typeI:
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> (x + y) + z = x + y + z"
   shows "M : Monoid A"
   unfolding Monoid_def
-  apply (prove_type M; fact?)
-  apply auto
+  apply unfold_types
+  apply auto \<comment>\<open>Doesn't use the assumptions as they weren't elaborated correctly\<close>
   using assms
 oops
 declare [[auto_elaborate=false]]
@@ -46,7 +46,7 @@ lemma Monoid_typeI:
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
             \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
   shows "M : Monoid A"
-  unfolding Monoid_def by (prove_type M) (auto intro: assms)
+  unfolding Monoid_def by unfold_types (auto intro: assms)
 
 
 subsection \<open>Direct sum\<close>
@@ -107,9 +107,8 @@ lemma Plus_Pair_type [type]:
 
 lemma Monoid_Sum_type [type]:
   "Monoid_Sum : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
-  apply (intro Pi_typeI)
+  apply (intro typeI)
   apply (intro Monoid_typeI Zero_typeI Plus_typeI)
-  apply auto
 sorry
 
 

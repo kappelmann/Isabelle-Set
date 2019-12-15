@@ -14,8 +14,7 @@ imports
   Integer
   Object2
   Structures2
-  (* Monoid
-  Monoid_Bundled *)
+  Category
 
 begin
 
