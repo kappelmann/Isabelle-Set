@@ -1,14 +1,21 @@
 section \<open>Monoids\<close>
 
 text \<open>
+  An experiment with softly-typed set-theoretic type classes.
+
   We define monoids as a soft type class and experiment with how it interacts
-  with implicit arguments and type inference.
+  with implicit arguments and type inference. Everything is done manually here;
+  most of it will be automated away in future work.
 \<close>
 
 theory Monoid2
 imports Structures2
 
 begin
+
+text \<open>
+  The monoid typeclass is defined using the standard soft type infrastructure.
+\<close>
 
 definition [typedef]: "Monoid A = Zero A \<bar> Plus A \<bar>
   type (\<lambda>M.
@@ -38,7 +45,7 @@ declare [[auto_elaborate=false]]
 
 text \<open>Instead we have to do this for now:\<close>
 
-lemma Monoid_typeI:
+lemma Monoid_typeI [typeI]:
   assumes "M : Zero A"
           "M : Plus A"
           "\<And>x. x \<in> A \<Longrightarrow> plus M (zero M) x = x"
@@ -47,6 +54,28 @@ lemma Monoid_typeI:
             \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
   shows "M : Monoid A"
   unfolding Monoid_def by unfold_types (auto intro: assms)
+
+text \<open>
+  The above theorem as well as the next ones should also be automatically
+  generated.
+\<close>
+
+lemma
+  shows
+    Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
+    Monoid_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
+  and
+    Monoid_typeD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
+    Monoid_typeD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
+    Monoid_typeD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+                    \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+  unfolding Monoid_def
+  subgoal by (drule Int_typeE1, drule Int_typeE1)
+  subgoal by (drule Int_typeE1, drule Int_typeE2)
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  done
 
 
 subsection \<open>Direct sum\<close>
@@ -80,43 +109,30 @@ lemma Plus_Pair_plus [simp]:
     \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>"
   unfolding Plus_Pair_def by simp
 
-(*Monoid direct sum is the composition of the respective zero and pair instances*)
-definition "Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Plus_Pair A B M1 M2"
+text \<open>
+  Monoid direct sum is the composition of the respective zero and pair instances.
+  Eventually we'd want a composition keyword [+] of some kind, so e.g.
+    \<open>Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Plus_Pair A B M1 M2\<close>
+  should generate the following definition, which we write manually for now.
+\<close>
 
-(*Should be automatically generated*)
+definition "Monoid_Sum A B M1 M2 = object {
+  \<langle>@zero, \<langle>zero M1, zero M2\<rangle>\<rangle>,
+  \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>\<rangle>}"
+
+lemma Monoid_Sum_fields [simp]:
+  "object_fields (Monoid_Sum A B M1 M2) = {@zero, @plus}"
+  unfolding Monoid_Sum_def by simp
+
 lemma [simp]:
   shows
-    Monoid_Sum_zero: "(Monoid_Sum A B M1 M2) @@ zero = (Zero_Pair M1 M2) @@ zero"
+    Monoid_Sum_zero:
+      "(Monoid_Sum A B M1 M2) @@ zero = \<langle>zero M1, zero M2\<rangle>"
   and
-    Monoid_Sum_plus: "(Monoid_Sum A B M1 M2) @@ plus = (Plus_Pair A B M1 M2) @@ plus"
-  unfolding Monoid_Sum_def
-  (*The level of abstraction needed in this proof requires structure composition
-    to be properly set up*)
-  subgoal
-  apply (subst object_composition_selector)
-    apply simp
-      apply (rule equalityI)
-        apply simp
-        apply (elim conjE)
-        apply simp
-        apply string_neq
-      apply simp
-    apply simp
-  done
-  subgoal
-  apply (subst object_composition_selector)
-    apply simp
-      apply (rule equalityI)
-        apply simp
-        apply (elim conjE)
-        apply simp
-        apply string_neq
-      apply simp
-    apply simp
-      apply (rule impI, rule ccontr)
-      apply string_neq
-  done
-done
+    Monoid_Sum_plus:
+      "(Monoid_Sum A B M1 M2) @@ plus =
+        \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>"
+  unfolding Monoid_Sum_def by auto
 
 text \<open>
   The following proofs illustrate that reasoning with types is still very

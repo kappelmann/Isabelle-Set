@@ -70,25 +70,4 @@ val selector_subgoaler = map_theory_simpset (Simplifier.set_subgoaler
 setup \<open>selector_subgoaler\<close>
 
 
-subsection \<open>Object composition\<close>
-
-text \<open>
-  For now object composition is just the set-theoretic union of the graphs,
-  which means that it's only well-defined for object instances with disjoint
-  fields.
-\<close>
-
-definition object_composition :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixl "[+]" 69)
-  where "O1 [+] O2 = O1 \<union> O2"
-
-lemma object_composition_selector [simp]:
-  assumes
-    "object_fields O1 \<inter> object_fields O2 = {}"
-  shows
-    "(O1 [+] O2) @ x = (if x \<in> object_fields O1 then O1 @ x else O2 @ x)"
-  using assms
-  unfolding object_composition_def object_fields_def object_selector_def object_def
-  by (auto intro: apply_bin_union1 apply_bin_union2)
-
-
 end
