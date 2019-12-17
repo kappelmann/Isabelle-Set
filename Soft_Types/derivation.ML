@@ -549,8 +549,7 @@ in
 
 fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
   let
-    val concl = Logic.strip_imp_concl
-      (if Logic.is_all goal then #2 (Logic.dest_all goal) else goal)
+    val concl = Logic.strip_assums_concl goal
 
     val translate_tac =
       let
