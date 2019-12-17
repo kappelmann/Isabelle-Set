@@ -221,6 +221,11 @@ lemma id_function [intro]: "(\<lambda>x\<in> A. x) \<in> A \<rightarrow> A" by a
 
 lemma [derive]: "(\<lambda>x\<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
 
+lemma split_FunctionI [intro]:
+  assumes "\<And>x y. \<lbrakk>x \<in> X; y \<in> Y\<rbrakk> \<Longrightarrow> b x y \<in> B \<langle>x, y\<rangle>"
+  shows "(\<lambda>\<langle>x, y\<rangle>\<in> X \<times> Y. b x y) \<in> \<Prod>p\<in> X \<times> Y. (B p)"
+  using assms by auto
+
 
 subsection \<open>Function extensionality\<close>
 
