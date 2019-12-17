@@ -203,7 +203,6 @@ lemma Univ_Pair_closed [intro]:
     "\<And>x. x \<in> A \<Longrightarrow> B x \<in> Univ U"
   shows
     "\<Sum>x \<in> A. (B x) \<in> Univ U"
-
   unfolding Pair_def opair_def
   by (auto intro: Univ_transitive assms
     intro!: Univ_union_closed Univ_replacement_closed Univ_cons_closed)
@@ -220,6 +219,11 @@ lemma Univ_prod_subset_closed [intro]:
   "X \<subseteq> Univ A \<Longrightarrow> Y \<subseteq> Univ A \<Longrightarrow> X \<times> Y \<subseteq> Univ A"
   by auto
 
+lemma [derive]:
+  "\<lbrakk>A : element (Univ U); B : element (Univ U)\<rbrakk> \<Longrightarrow> A \<times> B : element (Univ U)"
+  "\<lbrakk>A : subset (Univ U); B : subset (Univ U)\<rbrakk> \<Longrightarrow> A \<times> B : subset (Univ U)"
+  by unfold_types auto
+
 
 subsection \<open>Typing rules\<close>
 
@@ -229,6 +233,10 @@ lemma
   fst_type [type]: "fst : element (A \<times> B) \<Rightarrow> element A" and
   snd_type [type]: "snd : element (A \<times> B) \<Rightarrow> element B"
   by unfold_types auto
+
+lemma prod_nonempty [derive]:
+  "non-empty A \<Longrightarrow> non-empty B \<Longrightarrow> non-empty (A \<times> B)"
+  unfolding non_def empty_def by auto
 
 text \<open>
   The following are more general but also makes elaboration more complex, so we
