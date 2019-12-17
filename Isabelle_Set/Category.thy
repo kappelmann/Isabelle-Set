@@ -104,6 +104,10 @@ lemmas CategoryD = Category'D[where ?U=V, folded Category_def]
 section \<open>Typing rules\<close>
 
 lemma [type]:
+  "obj: Category' U \<Rightarrow> non-empty \<sqdot> subset U"
+  by (rule typeI) (fact Category'D(1))
+
+lemma [type]:
   "hom: (\<C>: Category' U) \<Rightarrow> element (obj \<C>) \<Rightarrow> element (obj \<C>) \<Rightarrow> element U"
   by (rule typeI) (auto dest: Category'D(2))
 
@@ -111,8 +115,12 @@ lemma [type]:
   "comp: (\<C>: Category' U) \<Rightarrow>
     (A: element (obj \<C>)) \<Rightarrow> (B: element (obj \<C>)) \<Rightarrow> (C: element (obj \<C>)) \<Rightarrow>
     element (hom\<^bsub>\<C>\<^esub> B C) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A B) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A C)"
-  by (intro typeI, drule Category'D(3), unfold_types) (rule FunctionE)+
+  by (rule typeI, drule Category'D(3), unfold_types) (rule FunctionE)+
   (*Don't want to have to write "rule FunctionE" all the time!*)
+
+lemma [type]:
+  "id: (\<C>: Category' U) \<Rightarrow> (A: element (obj \<C>)) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A A)"
+  by (rule typeI, drule Category'D(4), unfold_types) (rule FunctionE)
 
 
 section \<open>The category of sets\<close>
@@ -206,7 +214,7 @@ definition "Product_Cat \<C> \<D> = object {
   \<langle>@comp, Product_Cat_comp \<C> \<D>\<rangle>,
   \<langle>@id, Product_Cat_id \<C> \<D>\<rangle>}"
 
-lemma [simp]:
+lemma Product_Cat_fields [simp]:
   shows Product_Cat_obj: "(Product_Cat \<C> \<D>) @@ obj = Product_Cat_obj \<C> \<D>"
     and Product_Cat_hom: "(Product_Cat \<C> \<D>) @@ hom = Product_Cat_hom \<C> \<D>"
     and Product_Cat_comp: "(Product_Cat \<C> \<D>) @@ comp = Product_Cat_comp \<C> \<D>"
@@ -219,32 +227,70 @@ lemma Product_Cat_type [derive]:
     "\<D> : Category' (Univ U)"
   shows
     "Product_Cat \<C> \<D> : Category' (Univ U)"
+proof (rule typeI, simp_all only: Product_Cat_fields)
+  show
+    "Product_Cat_obj \<C> \<D> : non-empty \<sqdot> subset (Univ U)"
+    using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
+    by (auto simp: Product_Cat_obj_def)
+  
+  show
+    "Product_Cat_hom \<C> \<D> \<in>
+      Product_Cat_obj \<C> \<D> \<rightarrow> Product_Cat_obj \<C> \<D> \<rightarrow> Univ U"
+    by (auto simp: Product_Cat_obj_def Product_Cat_hom_def)
 
-apply (rule typeI)
-subgoal
-  using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
-  by (auto simp: Product_Cat_obj_def)
-subgoal
-  by (auto simp: Product_Cat_hom_def Product_Cat_obj_def)
-subgoal
-  apply simp
-  unfolding Product_Cat_comp_def Product_Cat_obj_def Product_Cat_hom_def
-  by (auto intro!: split_FunctionI simp only: beta_split)
-subgoal
-  apply simp
-  unfolding Product_Cat_id_def Product_Cat_obj_def Product_Cat_hom_def
-  using Category'D(4)[OF assms(1)] Category'D(4)[OF assms(2)]
-  by auto
-subgoal
-  apply simp
-  unfolding
-    Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def Product_Cat_id_def
-  using Category'D(4)[OF assms(1)] Category'D(4)[OF assms(2)]
-  apply (auto intro!: split_FunctionI simp only: beta_split)
-  (*Probably some type derivation rule needed here*)
-  supply [[simp_trace, simp_trace_depth_limit=4]]
-  (* apply (simp only: beta_split) *)
-oops
+  show
+    "Product_Cat_comp \<C> \<D> \<in>
+      \<Prod>A B C\<in> Product_Cat_obj \<C> \<D>.
+        (Product_Cat_hom \<C> \<D> `B `C \<rightarrow>
+          Product_Cat_hom \<C> \<D> `A `B \<rightarrow> Product_Cat_hom \<C> \<D> `A `C)"
+    unfolding Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def
+    by (auto intro!: split_FunctionI simp only: beta_split)
+
+  show
+    "Product_Cat_id \<C> \<D> \<in>
+      \<Prod>A\<in> Product_Cat_obj \<C> \<D>. (Product_Cat_hom \<C> \<D> `A `A)"
+    unfolding Product_Cat_id_def Product_Cat_obj_def Product_Cat_hom_def
+    using Category'D(4)[OF assms(1)] Category'D(4)[OF assms(2)]
+    by force
+
+  fix A B f assume assms1:
+    "A \<in> Product_Cat_obj \<C> \<D>"
+    "B \<in> Product_Cat_obj \<C> \<D>"
+    "f \<in> Product_Cat_hom \<C> \<D> `A `B"
+
+  show
+    "Product_Cat_comp \<C> \<D> `A `B `B `(Product_Cat_id \<C> \<D> `B) `f = f"
+    using
+      Category'D(5)[OF assms(1)] Category'D(5)[OF assms(2)] assms1
+    unfolding
+      Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def Product_Cat_id_def
+    by (fastforce simp only: beta_split)
+
+  show
+    "Product_Cat_comp \<C> \<D> `A `A `B `f `(Product_Cat_id \<C> \<D> `A) = f"
+    using
+      Category'D(5)[OF assms(1)] Category'D(5)[OF assms(2)] assms1
+    unfolding
+      Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def Product_Cat_id_def
+    by (fastforce simp only: beta_split)
+
+  fix C D h g assume assms2:
+    "C \<in> Product_Cat_obj \<C> \<D>"
+    "D \<in> Product_Cat_obj \<C> \<D>"
+    "h \<in> Product_Cat_hom \<C> \<D> `C `D"
+    "g \<in> Product_Cat_hom \<C> \<D> `B `C"
+
+  show
+    "Product_Cat_comp \<C> \<D> `A `B `D `(Product_Cat_comp \<C> \<D> `B `C `D `h `g) `f =
+       Product_Cat_comp \<C> \<D> `A `C `D `h `(Product_Cat_comp \<C> \<D> `A `B `C `g `f)"
+    using
+      Category'D(6)[OF assms(1), rule_format]
+      Category'D(6)[OF assms(2), rule_format]
+      assms1 assms2
+    unfolding
+      Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def Product_Cat_id_def
+    by (auto simp only: beta_split)
+qed
 
 
 end
