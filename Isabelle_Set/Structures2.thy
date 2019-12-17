@@ -26,7 +26,7 @@ definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
 
 lemma plus_type [type]:
   "plus : Plus A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding plus_def by unfold_types (auto intro: FunctionE)
+  unfolding plus_def by unfold_types
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>P x y"
@@ -50,7 +50,7 @@ definition times :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
 
 lemma times_type [type]:
   "times : Times A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding times_def by unfold_types (auto intro: FunctionE)
+  unfolding times_def by unfold_types
 
 abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
   where "x \<cdot> y \<equiv> times \<implicit>T x y"
