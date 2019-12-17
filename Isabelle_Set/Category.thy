@@ -13,11 +13,11 @@ text \<open>
 
 section \<open>Categories\<close>
 
-(*
+text \<open>
   Structure types are easily implemented as set-theoretic function soft types.
   This will be more automated and have dedicated syntax in later iterations. In
-  particular, we really need more dependent soft type elaboration.
-*)
+  particular, we need more dependent soft type elaboration.
+\<close>
 
 abbreviation "obj \<C> \<equiv> \<C> @@ obj"
 abbreviation hom ("hom\<^bsub>_\<^esub>") where "hom\<^bsub>\<C>\<^esub> A B \<equiv> \<C> @@ hom `A `B"
@@ -31,26 +31,88 @@ definition [typedef]: "Category' U \<equiv>
 
     \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
 
-    \<C> @@ comp \<in>
-      \<Prod>A B C\<in> obj \<C>.
-        (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C) \<and>
+    \<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C) \<and>
 
     \<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A) \<and>
-
-    (\<forall>A \<in> obj \<C>. id\<^bsub>\<C>\<^esub> A \<in> hom\<^bsub>\<C>\<^esub> A A) \<and>
 
     (\<forall>A B \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B.
       (comp\<^bsub>\<C>,A,B,B\<^esub> (id\<^bsub>\<C>\<^esub> B) f = f) \<and> (comp\<^bsub>\<C>,A,A,B\<^esub> f (id\<^bsub>\<C>\<^esub> A) = f)) \<and>
 
-    (\<forall>A B C D \<in> obj \<C>.
-      \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B. \<forall>g \<in> hom\<^bsub>\<C>\<^esub> B C. \<forall>h \<in> hom\<^bsub>\<C>\<^esub> C D.
-        (comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f) =
-          (comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)))
+    (\<forall>A B C D \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B. \<forall>g \<in> hom\<^bsub>\<C>\<^esub> B C. \<forall>h \<in> hom\<^bsub>\<C>\<^esub> C D.
+      comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
+        comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f))
   )"
 
 definition [typedef]: "Category = Category' V"
 
 definition [typedef]: "Small_Category = Category \<bar> type (\<lambda>\<C>. obj \<C> \<in> V)"
+
+text \<open>
+  The following typeclass introduction and elimination rules should be
+  automatically generated.
+\<close>
+
+lemma Category'I [typeI]:
+  assumes
+    "obj \<C> : non-empty \<sqdot> subset U"
+
+    "\<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
+
+    "\<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C)"
+
+    "\<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A)"
+
+    "\<And>A B f. \<lbrakk>A \<in> obj \<C>; B \<in> obj \<C>; f \<in> hom\<^bsub>\<C>\<^esub> A B\<rbrakk>
+      \<Longrightarrow> comp\<^bsub>\<C>,A,B,B\<^esub> (id\<^bsub>\<C>\<^esub> B) f = f"
+
+    "\<And>A B f. \<lbrakk>A \<in> obj \<C>; B \<in> obj \<C>; f \<in> hom\<^bsub>\<C>\<^esub> A B\<rbrakk>
+      \<Longrightarrow> comp\<^bsub>\<C>,A,A,B\<^esub> f (id\<^bsub>\<C>\<^esub> A) = f"
+
+    "\<And>A B C D f g h.
+      \<lbrakk> A \<in> obj \<C>; B \<in> obj \<C>; C \<in> obj \<C>; D \<in> obj \<C>;
+        h \<in> hom\<^bsub>\<C>\<^esub> C D; g \<in> hom\<^bsub>\<C>\<^esub> B C; f \<in> hom\<^bsub>\<C>\<^esub> A B \<rbrakk>
+      \<Longrightarrow> comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
+            comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
+  shows
+    "\<C> : Category' U"
+  unfolding Category'_def by (fast intro: has_type_typeI assms)
+
+lemma Category'D:
+  shows
+    "\<C> : Category' U \<Longrightarrow> obj \<C> : non-empty \<sqdot> subset U"
+  and
+    "\<C> : Category' U \<Longrightarrow> \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
+  and
+    "\<C> : Category' U \<Longrightarrow>
+      \<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C)"
+  and
+    "\<C> : Category' U \<Longrightarrow> \<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A)"
+  and
+    "\<C> : Category' U \<Longrightarrow> \<forall>A B \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B.
+      (comp\<^bsub>\<C>,A,B,B\<^esub> (id\<^bsub>\<C>\<^esub> B) f = f) \<and> (comp\<^bsub>\<C>,A,A,B\<^esub> f (id\<^bsub>\<C>\<^esub> A) = f)"
+  and
+    "\<C> : Category' U \<Longrightarrow>
+      \<forall>A B C D \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B. \<forall>g \<in> hom\<^bsub>\<C>\<^esub> B C. \<forall>h \<in> hom\<^bsub>\<C>\<^esub> C D.
+        comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
+          comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
+  unfolding Category'_def by (drule_tac [1-6] has_type_typeE) fast+
+
+lemmas CategoryI [typeI] = Category'I[where ?U=V, folded Category_def]
+lemmas CategoryD = Category'D[where ?U=V, folded Category_def]
+
+
+section \<open>Typing rules\<close>
+
+lemma [type]:
+  "hom: (\<C>: Category' U) \<Rightarrow> element (obj \<C>) \<Rightarrow> element (obj \<C>) \<Rightarrow> element U"
+  by (rule typeI) (auto dest: Category'D(2))
+
+lemma [type]:
+  "comp: (\<C>: Category' U) \<Rightarrow>
+    (A: element (obj \<C>)) \<Rightarrow> (B: element (obj \<C>)) \<Rightarrow> (C: element (obj \<C>)) \<Rightarrow>
+    element (hom\<^bsub>\<C>\<^esub> B C) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A B) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A C)"
+  by (intro typeI, drule Category'D(3), unfold_types) (rule FunctionE)+
+  (*Don't want to have to write "rule FunctionE" all the time!*)
 
 
 section \<open>The category of sets\<close>
@@ -59,7 +121,6 @@ abbreviation (input) "Set_obj  \<equiv> V"
 abbreviation (input) "Set_hom  \<equiv> \<lambda>A B \<in> V. A \<rightarrow> B"
 abbreviation (input) "Set_id   \<equiv> \<lambda>A \<in> V. \<lambda>x \<in> A. x"
 abbreviation (input) "Set_comp \<equiv> \<lambda>A B C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
-  (*Might be nice to have a keyword to define set-theoretic lambdas*)
 
 definition Set_cat ("\<S>et") where
   "\<S>et = object {
@@ -78,12 +139,7 @@ lemma [simp]:
   unfolding Set_cat_def by auto
 
 lemma Set_cat_type [type]: "\<S>et : Category"
-  by unfold_types force
-
-
-section \<open>Constructions on categories\<close>
-
-(*Want to define product categories, opposite categories, etc.*)
+  by (rule typeI) (unfold_types, auto)
 
 
 section \<open>Functors and natural transformations\<close>
@@ -124,6 +180,71 @@ definition "Nat_Trans \<C> \<D> \<F> \<G> \<equiv>
         (\<eta> `B)
         (\<F>\<^bsub>hom (\<F>\<^bsub>obj\<^esub>A) (\<F>\<^bsub>obj\<^esub>B)\<^esub> f))
   )" \<comment>\<open>This last condition is the commutative square \<open>\<G>f \<circ> \<eta>\<^sub>A = \<eta>\<^sub>B \<circ> \<F>f\<close>\<close>
+
+
+section \<open>Constructions on categories\<close>
+
+subsection \<open>Product categories\<close>
+
+definition "Product_Cat_obj \<C> \<D> \<equiv> obj \<C> \<times> obj \<D>"
+
+definition "Product_Cat_hom \<C> \<D> \<equiv>
+  \<lambda>\<langle>C1, D1\<rangle> \<langle>C2, D2\<rangle>\<in> obj \<C> \<times> obj \<D>. (hom\<^bsub>\<C>\<^esub> C1 C2 \<times> hom\<^bsub>\<D>\<^esub> D1 D2)"
+
+definition "Product_Cat_id \<C> \<D> \<equiv>
+  \<lambda>\<langle>C, D\<rangle>\<in> obj \<C> \<times> obj \<D>. \<langle>id\<^bsub>\<C>\<^esub> C, id\<^bsub>\<D>\<^esub> D\<rangle>"
+
+definition "Product_Cat_comp \<C> \<D> \<equiv>
+  \<lambda>\<langle>C1, D1\<rangle> \<langle>C2, D2\<rangle> \<langle>C3, D3\<rangle>\<in> Product_Cat_obj \<C> \<D>.
+    \<lambda>\<langle>f2, g2\<rangle>\<in> hom\<^bsub>\<C>\<^esub> C2 C3 \<times> hom\<^bsub>\<D>\<^esub> D2 D3.
+    \<lambda>\<langle>f1, g1\<rangle>\<in> hom\<^bsub>\<C>\<^esub> C1 C2 \<times> hom\<^bsub>\<D>\<^esub> D1 D2.
+      \<langle>comp\<^bsub>\<C>,C1,C2,C3\<^esub> f2 f1, comp\<^bsub>\<D>,D1,D2,D3\<^esub> g2 g1\<rangle>"
+
+definition "Product_Cat \<C> \<D> = object {
+  \<langle>@obj, Product_Cat_obj \<C> \<D>\<rangle>,
+  \<langle>@hom, Product_Cat_hom \<C> \<D>\<rangle>,
+  \<langle>@comp, Product_Cat_comp \<C> \<D>\<rangle>,
+  \<langle>@id, Product_Cat_id \<C> \<D>\<rangle>}"
+
+lemma [simp]:
+  shows Product_Cat_obj: "(Product_Cat \<C> \<D>) @@ obj = Product_Cat_obj \<C> \<D>"
+    and Product_Cat_hom: "(Product_Cat \<C> \<D>) @@ hom = Product_Cat_hom \<C> \<D>"
+    and Product_Cat_comp: "(Product_Cat \<C> \<D>) @@ comp = Product_Cat_comp \<C> \<D>"
+    and Product_Cat_id: "(Product_Cat \<C> \<D>) @@ id = Product_Cat_id \<C> \<D>"
+  unfolding Product_Cat_def by simp_all
+
+lemma Product_Cat_type [derive]:
+  assumes
+    "\<C> : Category' (Univ U)"
+    "\<D> : Category' (Univ U)"
+  shows
+    "Product_Cat \<C> \<D> : Category' (Univ U)"
+
+apply (rule typeI)
+subgoal
+  using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
+  by (auto simp: Product_Cat_obj_def)
+subgoal
+  by (auto simp: Product_Cat_hom_def Product_Cat_obj_def)
+subgoal
+  apply simp
+  unfolding Product_Cat_comp_def Product_Cat_obj_def Product_Cat_hom_def
+  by (auto intro!: split_FunctionI simp only: beta_split)
+subgoal
+  apply simp
+  unfolding Product_Cat_id_def Product_Cat_obj_def Product_Cat_hom_def
+  using Category'D(4)[OF assms(1)] Category'D(4)[OF assms(2)]
+  by auto
+subgoal
+  apply simp
+  unfolding
+    Product_Cat_obj_def Product_Cat_hom_def Product_Cat_comp_def Product_Cat_id_def
+  using Category'D(4)[OF assms(1)] Category'D(4)[OF assms(2)]
+  apply (auto intro!: split_FunctionI simp only: beta_split)
+  (*Probably some type derivation rule needed here*)
+  supply [[simp_trace, simp_trace_depth_limit=4]]
+  (* apply (simp only: beta_split) *)
+oops
 
 
 end
