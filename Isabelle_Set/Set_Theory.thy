@@ -1180,7 +1180,7 @@ soft_type_translation
 text \<open>Collections of sets of a given type T:\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
-  where [typedef]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
+  where [typeclass]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 
 subsection \<open>Refined type reasoning for constants\<close>

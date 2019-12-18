@@ -10,6 +10,7 @@ sig
 (* Utility *)
 val mk_Trueprop: term -> term
 val dest_Trueprop: term -> term
+val dest_eq: term -> term * term
 val specializes: term * term -> bool
 val generalizes: term * term -> bool
 val eta_norm: Proof.context -> thm -> thm
@@ -60,6 +61,9 @@ fun mk_Trueprop P = \<^const>\<open>Trueprop\<close> $ P
 
 fun dest_Trueprop (Const (\<^const_name>\<open>Trueprop\<close>, _) $ P) = P
   | dest_Trueprop t = t
+
+fun dest_eq tm = let val tm' = dest_Trueprop tm in
+  Logic.dest_equals tm' handle TERM _ => HOLogic.dest_eq tm' end
 
 (*
   Quick filter for untyped specialization of terms: s specializes t iff s arises

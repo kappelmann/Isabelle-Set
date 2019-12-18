@@ -15,7 +15,7 @@ begin
 
 
 definition Monoid :: "set \<Rightarrow> set type"
-  where [typedef]:
+  where [typeclass]:
   "Monoid A =
     Zero A
   \<bar> Plus A
@@ -57,11 +57,11 @@ lemma
 
 subsection \<open>Instance for pairs\<close>
 
-definition [typedef]:
+definition
   "pair_plus A B p1 p2 \<equiv>
     \<lparr> @plus = \<lambda>\<langle>a1,b1\<rangle> \<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
 
-definition [typedef]:
+definition
   "pair_zero A B z1 z2 \<equiv>
     \<lparr> @zero = \<langle>zero z1, zero z2\<rangle> \<rparr>"
 

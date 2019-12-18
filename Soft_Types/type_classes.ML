@@ -7,7 +7,9 @@ Type classes based on soft types.
 signature TYPE_CLASSES =
 sig
 
-val refine_classes: Proof.context -> term list -> (term * term) list 
+val get_type_classes: Proof.context -> term Item_Net.T
+val put_type_class: term -> Context.generic -> Context.generic
+val refine_classes: Proof.context -> term list -> (term * term) list
   -> (term list * (term * term) list)
 
 end;
@@ -15,14 +17,28 @@ end;
 structure Type_Classes: TYPE_CLASSES =
 struct
 
+(* Type class declarations *)
 
-(* For now, hardcode this information, which must be configurable *)
-fun is_class_type t =
-  case head_of t of
-    Const ("Structures2.Plus", _) => true
-  | Const ("Structures2.Zero", _) => true
-  | Const ("Monoid2.Monoid", _) => true
-  | _ => false
+structure Type_Class_Data = Generic_Data (
+  type T = term Item_Net.T
+  val empty = Item_Net.init Term.aconv single
+  val extend = I
+  val merge = Item_Net.merge
+)
+
+val get_type_classes = Type_Class_Data.get o Context.Proof
+val put_type_class = Type_Class_Data.map o Item_Net.update
+
+fun is_class_type ctxt tm = Item_Net.member (get_type_classes ctxt) (head_of tm)
+
+val typeclass_parser =
+  Scan.lift (Scan.succeed (Thm.declaration_attribute (fn thm =>
+    put_type_class (head_of (#1 (Soft_Type.dest_eq (Thm.prop_of thm))))
+    #> Named_Theorems.add_thm \<^named_theorems>\<open>typedef\<close> thm
+  )))
+
+val _ =
+  Theory.setup (Attrib.setup \<^binding>\<open>typeclass\<close> typeclass_parser "define typeclass")
 
 
 (* Tracing *)
@@ -61,13 +77,13 @@ fun assume_class ctxt goal env subst =
   in 
     if is_side_condition
     then
-      (* Side conditions must be part of the environment already. Then they are discharged. *)
+      (*Side conditions must be part of the environment already. Then they are discharged.*)
       if exists (fn assm => assm aconv goal) env
       then (env, subst)
       else raise TERM ("Cannot discharge side condition", [goal])
     else
-      (* If we already have an assumption for the same class, it will be reused (via variable
-         renaming). *)
+      (*If we already have an assumption for the same class, it will be reused (via variable
+        renaming).*)
       case find_first (fn assm => snd (Soft_Type.dest_typing assm) aconv cls_type) env of
           SOME assm => 
             let
@@ -78,7 +94,7 @@ fun assume_class ctxt goal env subst =
             in
               (env, subst')
             end
-      (* If no assumption was found, just add it to the environment *)
+      (*If no assumption was found, just add it to the environment*)
     | NONE => (goal :: env, subst)
   end        
 
@@ -92,7 +108,7 @@ fun resolve_type_variable ctxt (goals, env, subst) =
     val (_, cls_type) = Soft_Type.dest_typing head_goal
  
     val (head, args) = strip_comb cls_type
-    val is_composite = is_class_type head andalso exists (not o is_Free) args
+    val is_composite = is_class_type ctxt head andalso exists (not o is_Free) args
   in
     if is_composite then NONE else let
     val (env', subst') = assume_class ctxt head_goal env subst
@@ -152,8 +168,9 @@ fun refine_classes ctxt terms variable_types =
        accidentally instantiated. *)
     val dict_vars =
       variable_types
-      |> map_filter (fn (v, t) => 
-           if Term.is_Var v andalso is_class_type t then SOME (dest_Var v) else NONE)
+      |> map_filter (fn (v, t) =>
+let val _ = (@{print} "hi";@{print} t) in
+           if Term.is_Var v andalso is_class_type ctxt t then SOME (dest_Var v) else NONE end)
     val (env, ctxt', export) = partial_import ctxt dict_vars (map Soft_Type.mk_typing variable_types)
 
     fun is_goal t = Term.is_Var (fst (Soft_Type.dest_typing t))

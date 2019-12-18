@@ -19,11 +19,13 @@ text \<open>Structures with binary operation.\<close>
 object Binop_Equipped "name::set" "A::set"
   is "\<lparr> (op name). op : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
+declare Pointed_def [typedef] Binop_Equipped_def [typedef]
+
 
 subsection \<open>Plus (additive binop) structures\<close>
 
 definition Plus :: "set \<Rightarrow> set type"
-  where [typedef]: "Plus A \<equiv> Binop_Equipped @plus A"
+  where [typeclass]: "Plus A \<equiv> Binop_Equipped @plus A"
 
 lemma Plus_typeI:
   "struct[@plus] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Plus A"
@@ -46,7 +48,7 @@ abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl 
 subsection \<open>Times (multiplicative binop) structures\<close>
 
 definition Times :: "set \<Rightarrow> set type"
-  where Times_def: "Times A \<equiv> Binop_Equipped @times A"
+  where [typeclass]: "Times A \<equiv> Binop_Equipped @times A"
 
 lemma Times_typeI:
   "struct[@times] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Times A"
@@ -71,7 +73,7 @@ subsection \<open>"Zero" and "one" structures\<close>
 text \<open>Just structures with distinguished elements of their carriers.\<close>
 
 definition Zero :: \<open>set \<Rightarrow> set type\<close>
-  where "Zero A = Pointed @zero A"
+  where [typeclass]: "Zero A = Pointed @zero A"
 
 lemma Zero_typeI: "struct[@zero] : element A \<Longrightarrow> struct : Zero A"
   unfolding Zero_def Pointed_def by unfold_types (simp add: object_simps)
@@ -90,7 +92,7 @@ abbreviation zero_implicit :: "set" ("0")
 
 
 definition One :: \<open>set \<Rightarrow> set type\<close>
-  where One_def: "One A = Pointed @one A"
+  where [typeclass]: "One A = Pointed @one A"
 
 lemma One_typeI: "struct[@one] : element A \<Longrightarrow> struct : One A"
   unfolding One_def Pointed_def by unfold_types (simp add: object_simps)

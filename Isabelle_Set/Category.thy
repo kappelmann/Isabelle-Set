@@ -25,7 +25,7 @@ abbreviation id ("(id\<^bsub>_\<^esub>)") where "id\<^bsub>\<C>\<^esub> A \<equi
 abbreviation comp ("comp\<^bsub>_, _, _, _\<^esub>")
   where "comp\<^bsub>\<C>, A, B, C\<^esub> g f \<equiv> \<C> @@comp `A `B `C `g `f"
 
-definition [typedef]: "Category' U \<equiv>
+definition [typeclass]: "Category' U \<equiv>
   type (\<lambda>\<C>.
     obj \<C> : non-empty \<sqdot> subset U \<and>
 

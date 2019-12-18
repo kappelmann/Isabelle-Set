@@ -10,8 +10,10 @@ text \<open>Various basic structure definitions.\<close>
 
 subsection \<open>Plus (additive binop) structures\<close>
 
-definition [typedef]:
+definition [typeclass]:
   "Plus A \<equiv> type (\<lambda>P. P @@ plus \<in> A \<rightarrow> A \<rightarrow> A)"
+
+ML \<open>Type_Classes.get_type_classes @{context}\<close>
 
 lemma Plus_typeI:
   "P @@ plus : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> P : Plus A"
@@ -34,7 +36,7 @@ abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl 
 
 subsection \<open>Times (multiplicative binop) structures\<close>
 
-definition [typedef]:
+definition [typeclass]:
   "Times A \<equiv> type (\<lambda>T. T @@ times \<in> A \<rightarrow> A \<rightarrow> A)"
 
 lemma Times_typeI:
@@ -60,7 +62,7 @@ subsection \<open>"Zero" and "One" structures\<close>
 
 text \<open>Structures with distinguished elements.\<close>
 
-definition [typedef]:
+definition [typeclass]:
   "Zero A = type (\<lambda>Z. Z @@ zero \<in> A)"
 
 lemma Zero_typeI:
@@ -81,7 +83,7 @@ lemma zero_type [type]:
 abbreviation zero_implicit :: "set" ("0")
   where "0 \<equiv> zero \<implicit>Z"
 
-definition [typedef]:
+definition [typeclass]:
   "One A = type (\<lambda>O. O @@ one \<in> A)"
 
 lemma One_typeI:

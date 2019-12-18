@@ -17,7 +17,7 @@ text \<open>
   The monoid typeclass is defined using the standard soft type infrastructure.
 \<close>
 
-definition [typedef]: "Monoid A = Zero A \<bar> Plus A \<bar>
+definition [typeclass]: "Monoid A = Zero A \<bar> Plus A \<bar>
   type (\<lambda>M.
     (\<forall>x\<in> A.
       plus M (zero M) x = x \<and>
@@ -209,7 +209,7 @@ end
 
 subsection \<open>Extension to groups\<close>
 
-definition [typedef]: "Group A = Monoid A \<bar>
+definition [typeclass]: "Group A = Monoid A \<bar>
   type (\<lambda>G.
     G @@ inv \<in> A \<rightarrow> A \<and>
     (\<forall>x\<in> A. plus G x (G@@inv `x) = zero G) \<and>
