@@ -1,11 +1,11 @@
 section \<open>Monoids\<close>
 
 text \<open>
-  We define monoids as a soft type class (though without tool support) and experiment with
-  how it can interact with implicit arguments and type inference.
-  
-  Structures are modeled as sets that contain the operations, but are parametrized over
-  the carrier sets.
+  An experiment with softly-typed set-theoretic type classes.
+
+  We define monoids as a soft type class and experiment with how it interacts
+  with implicit arguments and type inference. Everything is done manually here;
+  most of it will be automated away in future work.
 \<close>
 
 theory Monoid
@@ -13,100 +13,173 @@ imports Structures
 
 begin
 
+text \<open>
+  The monoid typeclass is defined using the standard soft type infrastructure.
+\<close>
 
-definition Monoid :: "set \<Rightarrow> set type"
-  where [typeclass]:
-  "Monoid A =
-    Zero A
-  \<bar> Plus A
-  \<bar> \<lparr> (plus @plus) (zero @zero).
-    (\<forall>x: element A. plus `zero `x = x) \<and>
-    (\<forall>x: element A. plus `x `zero = x) \<and>
-    (\<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
-      plus `(plus `x `y) `z = plus `x `(plus `y `z)) \<rparr>"
+definition [typeclass]: "Monoid A = Zero A \<bar> Plus A \<bar>
+  type (\<lambda>M.
+    (\<forall>x\<in> A.
+      plus M (zero M) x = x \<and>
+      plus M x (zero M) = x) \<and>
+    (\<forall>x y z \<in> A.
+      plus M (plus M x y) z = plus M x (plus M y z))
+  )"
 
-lemma Monoid_is_Zero [derive]: "M : Monoid A \<Longrightarrow> M: Zero A"
-  sorry
+text \<open>It would be really nice if this worked:\<close>
 
-lemma Monoid_is_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
-  sorry
+declare [[auto_elaborate]]
+lemma MonoidI:
+  assumes "M : Zero A"
+          "M : Plus A"
+          "\<And>x. x \<in> A \<Longrightarrow> 0 + x = x"
+          "\<And>x. x \<in> A \<Longrightarrow> x + 0 = x"
+          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> (x + y) + z = x + y + z"
+  shows "M : Monoid A"
+  unfolding Monoid_def
+  apply unfold_types
+  apply auto \<comment>\<open>Doesn't use the assumptions as they weren't elaborated correctly\<close>
+  using assms
+oops
+declare [[auto_elaborate=false]]
 
-lemma Monoid_typeI:
-  "\<lbrakk>str : Zero A; str : Plus A;
-    \<forall>x: element A. str[@plus] `str[@zero] `x = x;
-    \<forall>x: element A. str[@plus] `x `str[@zero] = x;
-    \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
-       str[@plus] `(str[@plus] `x `y) `z = str[@plus] `x `(str[@plus] `y `z)
-    \<rbrakk> \<Longrightarrow> str : Monoid A"
-  sorry
+text \<open>Instead we have to do this for now:\<close>
+
+lemma MonoidI [typeI]:
+  assumes "M : Zero A"
+          "M : Plus A"
+          "\<And>x. x \<in> A \<Longrightarrow> plus M (zero M) x = x"
+          "\<And>x. x \<in> A \<Longrightarrow> plus M x (zero M) = x"
+          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+            \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+  shows "M : Monoid A"
+  unfolding Monoid_def by unfold_types (auto intro: assms)
 
 text \<open>
-  Now we define the global operations as projections. Here, we also convert the set
-  functions to meta functions. The axioms can then be derived.
+  The above theorem as well as the next ones should also be automatically
+  generated.
 \<close>
 
 lemma
-  assumes "M : Monoid A"
-  shows 
-  monoid_left_neut [simp]: "x : element A \<Longrightarrow> plus M (zero M) x = x" and
-  monoid_right_neut [simp]: "x : element A \<Longrightarrow> plus M x (zero M) = x" and
-  monoid_assoc [simp]: "\<lbrakk>x : element A; y : element A; z : element A\<rbrakk>
-     \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
-  sorry
+  shows
+    Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
+    Monoid_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
+  and
+    MonoidD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
+    MonoidD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
+    MonoidD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+                    \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+  unfolding Monoid_def
+  subgoal by (drule Int_typeE1, drule Int_typeE1)
+  subgoal by (drule Int_typeE1, drule Int_typeE2)
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  done
 
 
-subsection \<open>Instance for pairs\<close>
-
-definition
-  "pair_plus A B p1 p2 \<equiv>
-    \<lparr> @plus = \<lambda>\<langle>a1,b1\<rangle> \<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle> \<rparr>"
-
-definition
-  "pair_zero A B z1 z2 \<equiv>
-    \<lparr> @zero = \<langle>zero z1, zero z2\<rangle> \<rparr>"
-
-(* TODO: Need some form of structure composition: pair_monoid = pair_zero [+] pair_plus *)
-definition
-  "pair_monoid A B m1 m2 \<equiv>
-    \<lparr> @zero = (pair_zero A B m1 m2)[@zero], @plus = (pair_plus A B m1 m2)[@plus] \<rparr>"
-
-lemma pair_monoid_ZERO [simp]: "(pair_monoid A B m1 m2)[@zero] = (pair_zero A B m1 m2)[@zero]"
-  unfolding pair_monoid_def by (simp add: object_simps)
-
-lemma pair_monoid_PLUS [simp]: "(pair_monoid A B m1 m2)[@plus] = (pair_plus A B m1 m2)[@plus]"
-  unfolding pair_monoid_def by (simp add: object_simps)
+subsection \<open>Direct sum\<close>
 
 text \<open>
-  The following proofs illustrate that reasoning with types is still very much pedestrian
-  and needs better automated support.
+  In this section we develop the structure constructor for direct sums of
+  monoids, by defining it as the (disjoint) structure union of the zero and plus
+  pair structures.
+
+  We emulate automation that needs to be implemented in future work.
 \<close>
 
-lemma pair_plus_PLUS:
-  "(pair_plus A B p1 p2)[@plus] = \<lambda>\<langle>a1,b1\<rangle> \<langle>a2,b2\<rangle>\<in>A\<times>B. \<langle>plus p1 a1 a2, plus p2 b1 b2\<rangle>"
-  unfolding pair_plus_def by (simp add: object_simps)
+definition "Zero_Pair Z1 Z2 = object {\<langle>@zero, \<langle>zero Z1, zero Z2\<rangle>\<rangle>}"
 
-lemma pair_plus_type [type]:
-  "pair_plus : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
-  apply discharge_types
-  apply (intro Pi_typeI Plus_typeI)
-  apply (unfold pair_plus_PLUS split_def)
-  oops
+(*These should be automatically generated*)
+lemma Zero_Pair_fields [simp]: "object_fields (Zero_Pair Z1 Z2) = {@zero}"
+  unfolding Zero_Pair_def by auto
 
-lemma pair_zero_type [type]:
-  "pair_zero : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
-  unfolding Zero_def Pointed_def pair_zero_def zero_def
-  by unfold_types (simp add: object_simps)
+lemma Zero_Pair_zero [simp]: "(Zero_Pair Z1 Z2) @@ zero = \<langle>zero Z1, zero Z2\<rangle>"
+  unfolding Zero_Pair_def by simp
 
-lemma pair_monoid_type [type]:
-  "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
-  sorry
+definition "Plus_Pair A B P1 P2 = object {
+  \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>\<rangle>}"
 
+(*Should be automatically generated*)
+lemma Plus_Pair_fields [simp]: "object_fields (Plus_Pair A B P1 P2) = {@plus}"
+  unfolding Plus_Pair_def by auto
+
+lemma Plus_Pair_plus [simp]:
+  "(Plus_Pair A B P1 P2) @@ plus =
+    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>"
+  unfolding Plus_Pair_def by simp
+
+text \<open>
+  Monoid direct sum is the composition of the respective zero and pair instances.
+  Eventually we'd want a composition keyword [+] of some kind, so e.g.
+    \<open>Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Plus_Pair A B M1 M2\<close>
+  should generate the following definition, which we write manually for now.
+\<close>
+
+definition "Monoid_Sum A B M1 M2 = object {
+  \<langle>@zero, \<langle>zero M1, zero M2\<rangle>\<rangle>,
+  \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>\<rangle>}"
+
+lemma Monoid_Sum_fields [simp]:
+  "object_fields (Monoid_Sum A B M1 M2) = {@zero, @plus}"
+  unfolding Monoid_Sum_def by simp
+
+lemma [simp]:
+  shows
+    Monoid_Sum_zero:
+      "(Monoid_Sum A B M1 M2) @@ zero = \<langle>zero M1, zero M2\<rangle>"
+  and
+    Monoid_Sum_plus:
+      "(Monoid_Sum A B M1 M2) @@ plus =
+        \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>"
+  unfolding Monoid_Sum_def by auto
+
+text \<open>
+  The following proofs illustrate that reasoning with types is still very
+  pedestrian and needs better automated support.
+\<close>
+
+lemma Zero_Pair_type [type]:
+  "Zero_Pair : Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
+  unfolding Zero_Pair_def
+  by unfold_types (auto simp: zero_def)
+
+lemma Plus_Pair_type [type]:
+  "Plus_Pair : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
+  unfolding Plus_Pair_def plus_def
+  by unfold_types fastforce
+
+lemma Monoid_Sum_type [type]:
+  "Monoid_Sum : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
+proof (intro typeI)
+  fix A B M1 M2 assume assms1: "M1 : Monoid A" "M2 : Monoid B"
+
+  show "Monoid_Sum A B M1 M2 : Zero (A \<times> B)"
+    using assms1 by (intro Zero_typeI) (auto dest!: Monoid_Zero)
+
+  show "Monoid_Sum A B M1 M2 : Plus (A \<times> B)"
+    by (intro Plus_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
+
+  fix x assume assmx: "x \<in> A \<times> B"
+
+  show "plus (Monoid_Sum A B M1 M2) (zero (Monoid_Sum A B M1 M2)) x = x"
+    unfolding plus_def zero_def using assms1 assmx MonoidD1 by auto
+
+  show "plus (Monoid_Sum A B M1 M2) x (zero (Monoid_Sum A B M1 M2)) = x"
+    unfolding plus_def zero_def using assms1 assmx MonoidD2 by auto
+
+  fix y z assume assmsyz: "y \<in> A \<times> B" "z \<in> A \<times> B"
+
+  show "plus (Monoid_Sum A B M1 M2) (plus (Monoid_Sum A B M1 M2) x y) z =
+        plus (Monoid_Sum A B M1 M2) x (plus (Monoid_Sum A B M1 M2) y z)"
+    unfolding plus_def using assms1 assmx assmsyz MonoidD3 by force
+qed
 
 lemma [type_instance]:
-  "m1 : Plus A \<Longrightarrow> m2 : Plus B \<Longrightarrow> pair_plus A B m1 m2 : Plus (A \<times> B)"
-  "m1 : Zero A \<Longrightarrow> m2 : Zero B \<Longrightarrow> pair_zero A B m1 m2 : Zero (A \<times> B)"
-  "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
-  sorry
+  "M1 : Plus A \<Longrightarrow> M2 : Plus B \<Longrightarrow> Plus_Pair A B M1 M2 : Plus (A \<times> B)"
+  "M1 : Zero A \<Longrightarrow> M2 : Zero B \<Longrightarrow> Zero_Pair M1 M2 : Zero (A \<times> B)"
+  "M1 : Monoid A \<Longrightarrow> M2 : Monoid B \<Longrightarrow> Monoid_Sum A B M1 M2 : Monoid (A \<times> B)"
+  by auto
 
 
 subsection \<open>Overloaded syntax\<close>
@@ -131,21 +204,20 @@ lemma "x + y = z + w \<and> u + v = 0"
   print_types
   oops
 
-
 end
 
 
 subsection \<open>Extension to groups\<close>
 
-object Group "A :: set" is
-  "Monoid A
-  \<bar> \<lparr> (plus @plus) (zero @zero) (inv @inv).
-    inv : element (A \<rightarrow> A) \<and>
-    (\<forall>x\<in>A. plus `(inv `x) `x = zero) \<and>
-    (\<forall>x\<in>A. plus `x `(inv `x) = zero) \<rparr>"
+definition [typeclass]: "Group A = Monoid A \<bar>
+  type (\<lambda>G.
+    G @@ inv \<in> A \<rightarrow> A \<and>
+    (\<forall>x\<in> A. plus G x (G@@inv `x) = zero G) \<and>
+    (\<forall>x\<in> A. plus G (G@@inv `x) x = zero G)
+  )"
 
-lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
-  sorry
+lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
+  unfolding Group_def by (fact Int_typeE1)
 
 
 end

@@ -1,19 +1,20 @@
 theory Isabelle_Set
 imports
   Set_Theory
-  Set_Extension
-  Ordinal
   Ordered_Pairs
   Relation
   Function
-  Subset
-  String
   Sum
+  Subset
   Monops
+  Ordinal
+  Set_Extension
   Natural_Numbers
   Integer
-  Object2
-  Structures2
+  String
+  Object
+  Structures
+  Monoid
   Category
 
 begin

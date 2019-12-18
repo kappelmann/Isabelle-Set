@@ -1,7 +1,7 @@
 chapter \<open>Basic category theory\<close>
 
 theory Category
-imports Object2
+imports Object
 
 begin
 
