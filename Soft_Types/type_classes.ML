@@ -19,9 +19,9 @@ struct
 (* For now, hardcode this information, which must be configurable *)
 fun is_class_type t =
   case head_of t of
-    Const ("Structures.Plus", _) => true
-  | Const ("Structures.Zero", _) => true
-  | Const ("Monoid_Class.Monoid", _) => true
+    Const ("Structures2.Plus", _) => true
+  | Const ("Structures2.Zero", _) => true
+  | Const ("Monoid2.Monoid", _) => true
   | _ => false
 
 
@@ -148,7 +148,6 @@ fun partial_import ctxt keep_vars goals =
 
 fun refine_classes ctxt terms variable_types =
   let
-
     (* Fix all variables except for the dictionary variables, to ensure that they are not
        accidentally instantiated. *)
     val dict_vars =
