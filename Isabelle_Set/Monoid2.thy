@@ -29,7 +29,7 @@ definition [typedef]: "Monoid A = Zero A \<bar> Plus A \<bar>
 text \<open>It would be really nice if this worked:\<close>
 
 declare [[auto_elaborate]]
-lemma Monoid_typeI:
+lemma MonoidI:
   assumes "M : Zero A"
           "M : Plus A"
           "\<And>x. x \<in> A \<Longrightarrow> 0 + x = x"
@@ -45,7 +45,7 @@ declare [[auto_elaborate=false]]
 
 text \<open>Instead we have to do this for now:\<close>
 
-lemma Monoid_typeI [typeI]:
+lemma MonoidI [typeI]:
   assumes "M : Zero A"
           "M : Plus A"
           "\<And>x. x \<in> A \<Longrightarrow> plus M (zero M) x = x"
@@ -65,9 +65,9 @@ lemma
     Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
     Monoid_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
   and
-    Monoid_typeD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
-    Monoid_typeD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
-    Monoid_typeD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+    MonoidD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
+    MonoidD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
+    MonoidD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
   unfolding Monoid_def
   subgoal by (drule Int_typeE1, drule Int_typeE1)
@@ -147,21 +147,39 @@ lemma Zero_Pair_type [type]:
 lemma Plus_Pair_type [type]:
   "Plus_Pair : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
   unfolding Plus_Pair_def plus_def
-  by (unfold_types, auto intro!: FunctionE) auto
-  (*We really shouldn't have to intro! FunctionE here...*)
+  by unfold_types fastforce
 
 lemma Monoid_Sum_type [type]:
   "Monoid_Sum : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
-  apply (intro typeI)
-  apply (intro Monoid_typeI Zero_typeI Plus_typeI)
-sorry
+proof (intro typeI)
+  fix A B M1 M2 assume assms1: "M1 : Monoid A" "M2 : Monoid B"
 
+  show "Monoid_Sum A B M1 M2 : Zero (A \<times> B)"
+    using assms1 by (intro Zero_typeI) (auto dest!: Monoid_Zero)
+
+  show "Monoid_Sum A B M1 M2 : Plus (A \<times> B)"
+    by (intro Plus_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
+
+  fix x assume assmx: "x \<in> A \<times> B"
+
+  show "plus (Monoid_Sum A B M1 M2) (zero (Monoid_Sum A B M1 M2)) x = x"
+    unfolding plus_def zero_def using assms1 assmx MonoidD1 by auto
+
+  show "plus (Monoid_Sum A B M1 M2) x (zero (Monoid_Sum A B M1 M2)) = x"
+    unfolding plus_def zero_def using assms1 assmx MonoidD2 by auto
+
+  fix y z assume assmsyz: "y \<in> A \<times> B" "z \<in> A \<times> B"
+
+  show "plus (Monoid_Sum A B M1 M2) (plus (Monoid_Sum A B M1 M2) x y) z =
+        plus (Monoid_Sum A B M1 M2) x (plus (Monoid_Sum A B M1 M2) y z)"
+    unfolding plus_def using assms1 assmx assmsyz MonoidD3 by force
+qed
 
 lemma [type_instance]:
   "M1 : Plus A \<Longrightarrow> M2 : Plus B \<Longrightarrow> Plus_Pair A B M1 M2 : Plus (A \<times> B)"
   "M1 : Zero A \<Longrightarrow> M2 : Zero B \<Longrightarrow> Zero_Pair M1 M2 : Zero (A \<times> B)"
   "M1 : Monoid A \<Longrightarrow> M2 : Monoid B \<Longrightarrow> Monoid_Sum A B M1 M2 : Monoid (A \<times> B)"
-  by discharge_types
+  by auto
 
 
 subsection \<open>Overloaded syntax\<close>
@@ -198,7 +216,7 @@ definition [typedef]: "Group A = Monoid A \<bar>
     (\<forall>x\<in> A. plus G (G@@inv `x) x = zero G)
   )"
 
-lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
+lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_def by (fact Int_typeE1)
 
 
