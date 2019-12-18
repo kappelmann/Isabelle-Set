@@ -36,8 +36,8 @@ lemma Plus_plus_type [derive]:
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[@plus] `x `y)"
 
-lemma plus_type [type]: "plus : (P : Plus A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding plus_def oops
+lemma plus_type [type]: "plus : Plus A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  sorry
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>M x y"

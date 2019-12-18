@@ -26,10 +26,10 @@ definition Monoid :: "set \<Rightarrow> set type"
       plus `(plus `x `y) `z = plus `x `(plus `y `z)) \<rparr>"
 
 lemma Monoid_is_Zero [derive]: "M : Monoid A \<Longrightarrow> M: Zero A"
-  by unfold_types
+  sorry
 
 lemma Monoid_is_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
-  by unfold_types
+  sorry
 
 lemma Monoid_typeI:
   "\<lbrakk>str : Zero A; str : Plus A;
@@ -38,7 +38,7 @@ lemma Monoid_typeI:
     \<forall>x: element A. \<forall>y: element A. \<forall>z: element A.
        str[@plus] `(str[@plus] `x `y) `z = str[@plus] `x `(str[@plus] `y `z)
     \<rbrakk> \<Longrightarrow> str : Monoid A"
-  by unfold_types (simp only: object_simps)
+  sorry
 
 text \<open>
   Now we define the global operations as projections. Here, we also convert the set
@@ -52,10 +52,7 @@ lemma
   monoid_right_neut [simp]: "x : element A \<Longrightarrow> plus M x (zero M) = x" and
   monoid_assoc [simp]: "\<lbrakk>x : element A; y : element A; z : element A\<rbrakk>
      \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
-  
-  using assms
-  unfolding Zero_def plus_def zero_def
-  by unfold_types (auto simp: object_simps)
+  sorry
 
 
 subsection \<open>Instance for pairs\<close>
@@ -102,42 +99,14 @@ lemma pair_zero_type [type]:
 
 lemma pair_monoid_type [type]:
   "pair_monoid : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
-proof (intro Pi_typeI)
-
-  fix A B p1 p2 assume [type]: "A : set" "B : set" "p1 : Monoid A" "p2 : Monoid B"
-  let ?plus = "(pair_monoid A B p1 p2)[@plus]"
-  let ?zero = "(pair_monoid A B p1 p2)[@zero]"
-
-  show "pair_monoid A B p1 p2 : Monoid (A \<times> B)"
-  proof (rule Monoid_typeI)
-
-    show "pair_monoid A B p1 p2 : Zero (A \<times> B)"
-      by (rule Zero_typeI) auto
-    show "pair_monoid A B p1 p2 : Plus (A \<times> B)"
-      by (rule Plus_typeI) auto
-
-    show "\<forall>x: element (A \<times> B). ?plus `?zero `x = x"
-      unfolding split_paired_Ball
-        (*^This should be unnecessary now with the soft type translation*)
-      by (auto simp: pair_plus_def pair_zero_def)
-
-    show "\<forall>x: element (A \<times> B). ?plus `x `?zero = x"
-      unfolding split_paired_Ball
-        by (auto simp: pair_plus_def pair_zero_def)
-
-      show "\<forall>x: element (A\<times>B). \<forall>y: element (A\<times>B). \<forall>z: element (A\<times>B). 
-          ?plus `(?plus `x `y) `z = ?plus `x `(?plus `y `z)"
-      unfolding split_paired_Ball
-      by (auto simp: pair_plus_def pair_zero_def)
-  qed
-qed
+  sorry
 
 
 lemma [type_instance]:
   "m1 : Plus A \<Longrightarrow> m2 : Plus B \<Longrightarrow> pair_plus A B m1 m2 : Plus (A \<times> B)"
   "m1 : Zero A \<Longrightarrow> m2 : Zero B \<Longrightarrow> pair_zero A B m1 m2 : Zero (A \<times> B)"
   "m1 : Monoid A \<Longrightarrow> m2 : Monoid B \<Longrightarrow> pair_monoid A B m1 m2 : Monoid (A \<times> B)"
-  by discharge_types
+  sorry
 
 
 subsection \<open>Overloaded syntax\<close>
@@ -176,7 +145,7 @@ object Group "A :: set" is
     (\<forall>x\<in>A. plus `x `(inv `x) = zero) \<rparr>"
 
 lemma group_is_monoid:  "G : Group A \<Longrightarrow> G : Monoid A"
-  unfolding Group_typedef by unfold_types
+  sorry
 
 
 end
