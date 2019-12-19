@@ -1,17 +1,17 @@
-section \<open>Higher-order Tarski-Grothendieck set theory\<close>
+chapter \<open>Higher-order Tarski-Grothendieck set theory\<close>
 
 theory Set_Theory
 imports Axioms
 
 begin
 
-subsection \<open>Preliminaries\<close>
+section \<open>Preliminaries\<close>
 
 abbreviation not_mem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
 
-subsection \<open>Foundational axioms as rules\<close>
+section \<open>Foundational axioms as rules\<close>
 
 lemma emptyset [simp]: "x \<notin> {}" using emptyset by blast
 
@@ -23,7 +23,7 @@ lemmas
   replacement [iff] = replacement[rule_format]
 
 
-subsection \<open>Bounded quantifiers\<close>
+section \<open>Bounded quantifiers\<close>
 
 definition Ball :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
   where "Ball A P \<equiv> (\<forall>x. x \<in> A \<longrightarrow> P x)"
@@ -134,13 +134,20 @@ lemma Ball_conj_distrib:
   by auto
 
 
-subsection \<open>Bounded definite description\<close>
+section \<open>Bounded definite description\<close>
 
 definition BThe :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
   where "BThe A P \<equiv> The (\<lambda>x. x \<in> A \<and> P x)"
 
 syntax "_BThe" :: "[pttrn, set, bool] \<Rightarrow> set" ("(3THE _ \<in> _./ _)" [0, 0, 10] 10)
 translations "THE x \<in> A. P" \<rightleftharpoons> "CONST BThe A (\<lambda>x. P)"
+
+lemma BThe_equality [intro]:
+  assumes "P a"
+      and "a \<in> A"
+      and "\<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x = a"
+  shows "(THE x \<in> A. P x) = a"
+  unfolding BThe_def by (auto intro: assms)
 
 lemma BTheI:
   "\<exists>!x \<in> A. P x \<Longrightarrow> (THE x \<in> A. P x) \<in> A \<and> P (THE x \<in> A. P x)"
@@ -164,7 +171,7 @@ simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
       Quantifier1.prove_one_point_all_tac ctxt)\<close>
 
 
-subsection \<open>Subsets\<close>
+section \<open>Subsets\<close>
 
 lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   by (simp add: subset_def)
@@ -205,7 +212,7 @@ declare
   subset_trans [trans]
 
 
-subsection \<open>Set equality\<close>
+section \<open>Set equality\<close>
 
 lemma equalityI: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x. x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B"
   by (rule extensionality) auto
@@ -223,7 +230,7 @@ lemma equalityD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarr
   by auto
 
 
-subsection \<open>Replacement\<close>
+section \<open>Replacement\<close>
 
 syntax
   "_Repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ ./ _ \<in> _})")
@@ -266,7 +273,7 @@ lemma Repl_is_empty [iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: equalityD intro!: equalityI')
 
 
-subsection \<open>Empty set\<close>
+section \<open>Empty set\<close>
 
 lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
   by auto
@@ -299,7 +306,7 @@ lemma emptyset_mem_transitive [intro]: "mem_transitive {}"
   unfolding mem_transitive_def by auto
 
 
-subsection \<open>Power set\<close>
+section \<open>Power set\<close>
 
 lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow B"
   by auto
@@ -317,7 +324,7 @@ lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
   by auto
 
 
-subsection \<open>Finite sets, singletons, pairs\<close>
+section \<open>Finite sets, singletons, pairs\<close>
 
 text \<open>Define an unordered pair \<open>upair\<close> using replacement, then use it to define finite sets.\<close>
 
@@ -404,7 +411,7 @@ lemma upair_eq_pair: "upair x y = {x, y}"
 lemmas pair_eq_upair = upair_eq_pair[symmetric]
 
 
-subsection \<open>Restricted comprehension\<close>
+section \<open>Restricted comprehension\<close>
 
 definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
@@ -447,7 +454,7 @@ lemma collect_mono: "A \<subseteq> B \<Longrightarrow> collect A P \<subseteq> c
   by auto
 
 
-subsection \<open>More replacement\<close>
+section \<open>More replacement\<close>
 
 lemma Repl_singleton: "{f x | x \<in> {a}} = {f a}"
   by (rule equalityI) auto
@@ -519,7 +526,7 @@ lemma replace_cong [cong]:
   by (rule equalityI') (simp add: replace_iff)
 
 
-subsection \<open>Union and intersection\<close>
+section \<open>Union and intersection\<close>
 
 definition inter :: \<open>set => set\<close> ("\<Inter>_" [90] 90)
   where "\<Inter>A \<equiv> {x \<in> \<Union>A . \<forall>y \<in> A. x \<in> y}"
@@ -699,7 +706,7 @@ lemma idxinter_cong:
   by simp
 
 
-subsection \<open>Binary union and intersection\<close>
+section \<open>Binary union and intersection\<close>
 
 definition bin_union :: \<open>[set, set] \<Rightarrow> set\<close> (infixl "\<union>" 70)
   where "A \<union> B = \<Union>{A, B}"
@@ -957,7 +964,7 @@ lemma idxunion_bin_inter_subset:
   by blast
 
 
-subsection \<open>Set difference\<close>
+section \<open>Set difference\<close>
 
 definition diff :: "[set, set] \<Rightarrow> set"  (infixl "\<setminus>" 65)
   where "A \<setminus> B \<equiv> {x \<in> A | x \<notin> B}"
@@ -1051,7 +1058,7 @@ lemma collect_diff: "collect (A \<setminus> B) P = collect A P \<setminus> colle
   by (rule extensionality) auto
 
 
-subsection \<open>\<in>-induction\<close>
+section \<open>\<in>-induction\<close>
 
 lemma foundation: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter> X = {}"
   using Axioms.mem_induction[of "\<lambda>x. x \<notin> X"] by auto
@@ -1124,7 +1131,7 @@ proof -
 qed
 
 
-subsection \<open>More finite sets\<close>
+section \<open>More finite sets\<close>
 
 lemma cons_neq_mem [simp]: "cons x A \<noteq> x"
   by (auto intro: consI1 mem_irreflE)
@@ -1137,7 +1144,7 @@ lemma bin_union_eq_cons: "{x} \<union> A = cons x A"
 lemmas bin_union_eq_cons' = bin_union_eq_cons[simplified bin_union_commute]
 
 
-subsection \<open>Basic soft types\<close>
+section \<open>Basic soft types\<close>
 
 abbreviation set :: "set type"
   where "set \<equiv> any"
@@ -1161,20 +1168,24 @@ lemma subset_self [derive]: "A : subset A"
 text \<open>Declare basic soft type translations.\<close>
 
 (*
-  Note: soft type translations go on the right of the "=".
+  Note: soft type translations go on the right of the "\<rightleftharpoons>".
   This should either be documented, or else made unnecessary.
 *)
 
-soft_type_translation "a \<in> A" = "a : element A" by unfold_types
+soft_type_translation
+  "a \<in> A" \<rightleftharpoons> "a : element A" by unfold_types
 
-soft_type_translation "A \<subseteq> B" = "A : subset B" by unfold_types auto
+lemma element_iff: "a \<in> A \<longleftrightarrow> a : element A" by auto
 
 soft_type_translation
-  "\<forall>x \<in> A. P x" = "\<forall>x : element A. P x"
+  "A \<subseteq> B" \<rightleftharpoons> "A : subset B" by unfold_types auto
+
+soft_type_translation
+  "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x : element A. P x"
   by unfold_types auto
 
 soft_type_translation
-  "\<exists>x \<in> A. P x" = "\<exists>x : element A. P x"
+  "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : element A. P x"
   by unfold_types auto
 
 text \<open>Collections of sets of a given type T:\<close>
@@ -1183,7 +1194,7 @@ definition collection :: "set type \<Rightarrow> set type"
   where [typeclass]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 
-subsection \<open>Refined type reasoning for constants\<close>
+section \<open>Refined type reasoning for constants\<close>
 
 text \<open>
   The following typing rules are less general than what could be proved, since the \<open>bool\<close>
@@ -1211,7 +1222,7 @@ lemma
   by unfold_types auto
 
 
-subsection \<open>Universes\<close>
+section \<open>Universes\<close>
 
 abbreviation V :: set where "V \<equiv> Univ {}"
 
