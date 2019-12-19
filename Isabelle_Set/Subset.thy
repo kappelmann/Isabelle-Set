@@ -56,10 +56,9 @@ lemma monopI:
   assumes 1: "\<And>x. x \<subseteq> D \<Longrightarrow> h x \<subseteq> D"
   assumes 2: "\<And>W X. W \<subseteq> D \<Longrightarrow> X \<subseteq> D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
   shows "h : monop D"
-  apply (unfold_types, intro conjI allI impI)
-   apply (rule monotoneI, fact)
-  apply (auto intro!: assms)
-  done
+  apply unfold_types
+  apply (auto intro!: 1 monotoneI)
+  using 2 by blast
 
 lemma monop_unionI [derive]:
   assumes "A : monop D" "B : monop D"
@@ -98,7 +97,7 @@ lemma lfp_subset:
   "h : monop D \<Longrightarrow> lfp D h \<subseteq> D"
   unfolding lfp_def by unfold_types auto
 
-(* Explicitly set the context for now. This can actually be inferred. *)
+(*Explicitly set the context for now. This can actually be inferred.*)
 context
   fixes D h
   assumes h_type: "h : monop D"
