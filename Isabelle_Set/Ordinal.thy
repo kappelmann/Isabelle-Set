@@ -1,4 +1,4 @@
-section \<open>Ordinals\<close>
+chapter \<open>Ordinals\<close>
 
 theory Ordinal
 imports Subset
@@ -8,7 +8,7 @@ begin
 definition Ord :: \<open>set type\<close> where [typedef]:
   "Ord \<equiv> type (\<lambda>x. mem_transitive x \<and> (\<forall>y \<in> x. mem_transitive y))"
 
-lemma emptyset_ordinal [intro!]: "{} : Ord"
+lemma emptyset_Ord [intro!]: "{} : Ord"
   by unfold_types auto
 
 lemma Ord_transitive [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
@@ -17,7 +17,7 @@ lemma Ord_transitive [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarr
 lemma Ord_elem_subset: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
   by unfold_types (fastforce simp: mem_transitive_def)
 
-(* Adapted from a proof by Chad Brown *)
+(*Adapted from a proof by Chad Brown*)
 lemma Ord_trichotomy_aux:
   "X : Ord \<Longrightarrow> Y : Ord \<Longrightarrow> X \<notin> Y \<Longrightarrow> Y \<notin> X \<Longrightarrow> X = Y"
 proof (induction X Y rule: mem_double_induct)
@@ -46,17 +46,8 @@ qed
 lemma Ord_trichotomy: "\<lbrakk>X : Ord; Y : Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
   using Ord_trichotomy_aux by blast
 
-definition mem_well_ordered :: "set \<Rightarrow> bool"
-  where "mem_well_ordered x \<equiv> \<forall>y. y \<subseteq> x \<and> y \<noteq> {} \<longrightarrow> (\<exists>!u \<in> y. \<not>(\<exists>v \<in> y. v \<in> u))"
 
-lemma ordinals_well_ordered: "x : Ord \<Longrightarrow> mem_well_ordered x"
-  oops
-
-lemma Ord_subset_mem: "\<lbrakk>x \<subseteq> y; x \<noteq> y; x : Ord; y : Ord\<rbrakk> \<Longrightarrow> x \<in> y"
-  oops
-
-
-subsection \<open>The von Neumann ordinals\<close>
+section \<open>The von Neumann ordinals\<close>
 
 definition succ :: "set \<Rightarrow> set"
   where "succ x \<equiv> x \<union> {x}"
@@ -87,7 +78,7 @@ lemmas
   empty_succE = notE[OF empty_not_succ]
 
 
-lemma succ_inject: "succ n = succ m \<Longrightarrow> n = m"
+lemma succ_inject [dest]: "succ n = succ m \<Longrightarrow> n = m"
 proof (rule ccontr)
   assume succ_eq: "succ n = succ m"
   assume neq: "n \<noteq> m"
@@ -106,41 +97,73 @@ qed
 lemma Univ_succ_closed [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
   unfolding succ_def by auto
 
+lemma [derive]: "x : element (Univ X) \<Longrightarrow> succ x : element (Univ X)"
+  by unfold_types auto
 
-subsection \<open>\<omega>, the smallest infinite ordinal\<close>
+
+section \<open>\<omega>, the smallest infinite ordinal\<close>
+
+definition "omega_op X = {{}} \<union> Repl X succ"
+
+lemma omega_op_monop: "omega_op : monop V"
+  unfolding omega_op_def by (fast intro: monopI)
 
 definition omega ("\<omega>")
-  where "\<omega> \<equiv> lfp (Univ {}) (\<lambda>X. {{}} \<union> {succ n | n \<in> X})"
-
-lemma omega_def_monop: "(\<lambda>X. {{}} \<union> {succ n | n \<in> X}) : monop (Univ {})"
-  by (rule monopI) auto
+  where "\<omega> = lfp V omega_op"
 
 lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
-  by (rule def_lfp_unfold) (auto intro: omega_def_monop simp: omega_def)
+  unfolding omega_def
+  by (subst lfp_unfold[OF omega_op_monop]) (auto simp: omega_op_def)
 
-corollary
-  empty_in_omega [intro]: "{} \<in> \<omega>" and
-  succ_omega: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
-  by (subst omega_unfold, auto)+
+lemma empty_in_omega [simp]: "{} \<in> \<omega>"
+  by (subst omega_unfold, auto)
 
-lemma omega_induction [case_names empty succ, induct set: omega]:
+lemma succ_omega [simp]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
+  by (subst omega_unfold, auto)
+
+lemma omega_cases:
   assumes "n \<in> \<omega>"
-  and "P {}"
-  and "\<And>n. \<lbrakk>n \<in> \<omega>; P n\<rbrakk> \<Longrightarrow> P (succ n)"
+      and "P {}"
+      and "\<And>n. n \<in> \<omega> \<Longrightarrow> P (succ n)"
   shows "P n"
-  apply (rule def_lfp_induct)
-  using assms
-  by (auto intro: omega_def_monop simp: omega_def)
+  by
+    (rule def_lfp_induct)
+    (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
 
-lemma omega_empty_in_succ: "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
-proof (induction rule: omega_induction)
+lemma omega_induct [case_names empty succ, induct set: omega]:
+  assumes "n \<in> \<omega>"
+      and "P {}"
+      and "\<And>n. \<lbrakk>n \<in> \<omega>; P n\<rbrakk> \<Longrightarrow> P (succ n)"
+  shows "P n"
+  by
+    (rule def_lfp_induct)
+    (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
+
+lemma omega_empty_in_succ:
+  "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
+proof (induction rule: omega_induct)
   case empty
-  show "{} \<in> succ {}" unfolding succ_def by auto
-
-  case succ
-  fix n assume "{} \<in> succ n"
-  thus "{} \<in> succ (succ n)" unfolding succ_def by auto
+    show "{} \<in> succ {}" unfolding succ_def by auto
+  case (succ n)
+    thus "{} \<in> succ (succ n)" unfolding succ_def by auto
 qed
+
+lemma omega_pred_exists [rule_format]:
+  "n \<in> \<omega> \<Longrightarrow> n \<noteq> {} \<longrightarrow> (\<exists>!m\<in> \<omega>. n = succ m)"
+  by (erule omega_cases) auto
+
+text \<open>Truncated predecessor function:\<close>
+
+definition "pred n = (if n = {} then {} else (THE m \<in> \<omega>. n = succ m))"
+
+lemma pred_omega [simp]: "n \<in> \<omega> \<Longrightarrow> pred n \<in> \<omega>"
+  unfolding pred_def by (auto intro: BTheI1 omega_pred_exists)
+
+lemma pred_of_succ [simp]: "n \<in> \<omega> \<Longrightarrow> pred (succ n) = n"
+  unfolding pred_def by auto
+
+lemma succ_of_pred [simp]: "\<lbrakk>n \<in> \<omega>; n \<noteq> {}\<rbrakk> \<Longrightarrow> succ (pred n) = n"
+  unfolding pred_def by (simp, rule sym, rule BTheI2) (fact omega_pred_exists)
 
 
 end

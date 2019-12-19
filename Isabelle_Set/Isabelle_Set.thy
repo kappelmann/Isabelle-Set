@@ -9,7 +9,7 @@ imports
   Monops
   Ordinal
   Set_Extension
-  Natural_Numbers
+  Nat
   Integer
   String
   Object

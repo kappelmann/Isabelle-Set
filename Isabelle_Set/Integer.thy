@@ -1,5 +1,5 @@
 theory Integer
-  imports Natural_Numbers Sum Set_Extension
+  imports Nat Sum Set_Extension
 begin
 
 text \<open>
@@ -8,7 +8,7 @@ text \<open>
 \<close>
 
 definition "raw_int = Sum \<nat> (\<nat> \<setminus> {})"
-                               
+
 interpretation INT: set_extension \<nat> raw_int inl
 proof
   txt \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>raw_int\<close>:\<close>
