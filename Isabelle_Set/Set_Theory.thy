@@ -1105,7 +1105,7 @@ proof (induction X arbitrary: Y rule: mem_induction)
   qed
 qed
 
-lemma mem_cycle3:
+lemma mem_3_cycle:
   assumes "a \<in> b" "b \<in> c" "c \<in> a"
   shows "False"
 proof -
@@ -1144,7 +1144,9 @@ lemma bin_union_eq_cons: "{x} \<union> A = cons x A"
 lemmas bin_union_eq_cons' = bin_union_eq_cons[simplified bin_union_commute]
 
 
-section \<open>Basic soft types\<close>
+section \<open>Soft types\<close>
+
+subsection \<open>Sets, elements and subsets\<close>
 
 abbreviation set :: "set type"
   where "set \<equiv> any"
@@ -1152,12 +1154,8 @@ abbreviation set :: "set type"
 definition empty :: "set \<Rightarrow> bool"
   where "empty A \<equiv> A = {}"
 
-text \<open>Elements of a given set:\<close>
-
 definition element :: "set \<Rightarrow> set type"
   where [typedef]: "element A \<equiv> type (\<lambda>x. x \<in> A)"
-
-text \<open>Subsets of a given set:\<close>
 
 definition subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "subset A \<equiv> element (Pow A)"
@@ -1188,20 +1186,20 @@ soft_type_translation
   "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : element A. P x"
   by unfold_types auto
 
-text \<open>Collections of sets of a given type T:\<close>
+subsection \<open>Collections of sets\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where [typeclass]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-
-section \<open>Refined type reasoning for constants\<close>
+subsection \<open>Basic constant types\<close>
 
 text \<open>
-  The following typing rules are less general than what could be proved, since the \<open>bool\<close>
-  soft type is trivial. But the rules also determine the behavior of type inference.
+  The following typing rules are less general than what could be proved, since
+  the \<open>bool\<close> soft type is trivial. But the rules also determine the behavior of
+  type inference.
   
-  The rule for HOL.All currently needs to be restricted due to a deficiency in the
-  elaboration algorithm.
+  The rule for HOL.All currently needs to be restricted due to a deficiency in
+  the elaboration algorithm.
 \<close>
 
 lemma
@@ -1219,6 +1217,15 @@ lemma
   [type]: "(\<inter>) : subset A \<Rightarrow> subset A \<Rightarrow> subset A" and
   [type]: "collect : subset A \<Rightarrow> (element A \<Rightarrow> bool) \<Rightarrow> subset A"
 
+  by unfold_types auto
+
+
+section \<open>Set theory and Pi types\<close>
+
+lemma set_Pi_typeI [dest]: "\<forall>x. x \<in> A \<longrightarrow> f x \<in> B \<Longrightarrow> f: element A \<Rightarrow> element B"
+  by unfold_types
+
+lemma set_Pi_typeI' [dest]: "\<forall>x \<in> A. f x \<in> B \<Longrightarrow> f: element A \<Rightarrow> element B"
   by unfold_types auto
 
 
@@ -1246,7 +1253,7 @@ lemma
   by (auto intro: assms
     Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
 
-(* Variations on transitivity *)
+text \<open>Variations on transitivity\<close>
 
 lemma Univ_transitive: "A \<in> Univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> Univ X"
   using Univ_trans[unfolded mem_transitive_def] by auto
