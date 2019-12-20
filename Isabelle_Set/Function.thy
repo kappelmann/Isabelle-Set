@@ -1,4 +1,4 @@
-section \<open>Functions\<close>
+chapter \<open>Functions\<close>
 
 theory Function
 imports Relation
@@ -25,7 +25,7 @@ abbreviation "function" :: "[set, set] \<Rightarrow> set" (infixr "\<rightarrow>
   where "A \<rightarrow> B \<equiv> \<Prod>x\<in> A. B"
 
 
-subsection \<open>Lambda abstraction\<close>
+section \<open>Lambda abstraction\<close>
 
 text \<open>Construct set-theoretic functions from HOL functions.\<close>
 
@@ -33,7 +33,7 @@ definition lambda :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> se
   where "lambda A b \<equiv> {\<langle>x, b x\<rangle> | x \<in> A}"
 
 syntax
-  "_lam"  :: "[pttrns, set, set] => set" ("(2\<lambda>_\<in> _./ _)" 60)
+  "_lam"  :: "[pttrns, set, set] \<Rightarrow> set" ("(2\<lambda>_\<in> _./ _)" 60)
   "_lam2" :: \<open>[pttrns, set, set] \<Rightarrow> set\<close>
 translations
   "\<lambda>x xs\<in> A. b" \<rightharpoonup> "CONST lambda A (\<lambda>x. _lam2 xs A b)"
@@ -64,10 +64,21 @@ lemma lambda_times_split: "(\<lambda>x\<in> A \<times> B. f x) = (\<lambda>\<lan
   by (rule lambda_cong) auto
 
 
-subsection \<open>Function application and \<beta>-reduction\<close>
+section \<open>Function application and \<beta>-reduction\<close>
 
 definition "apply" :: "set \<Rightarrow> set \<Rightarrow> set" ("_ `_" [999, 1000] 999)
   where "f `x = (THE y. \<langle>x, y\<rangle> \<in> f)"
+
+text \<open>
+  Math-style function syntax \<open>f\<^bold>(x\<^bold>)\<close> (bolded parentheses). Import
+  \<open>Function_Math_Syntax\<close> to also apply it to printing behavior.
+\<close>
+
+syntax
+  "_math_appl"  :: \<open>set \<Rightarrow> args \<Rightarrow> set\<close> ("_\<^bold>'(_\<^bold>')" [999, 0])
+translations
+  "F\<^bold>(x, xs\<^bold>)" \<rightleftharpoons> "(F `x)\<^bold>(xs\<^bold>)"
+  "F\<^bold>(x\<^bold>)" \<rightharpoonup> "F `x"
 
 lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x\<in> A. b x) `a = b a"
   by (auto simp: lambda_def apply_def)
@@ -78,7 +89,7 @@ lemma beta_split [simp]:
   using assms by auto
 
 
-subsection \<open>Set-theoretic rules\<close>
+section \<open>Set-theoretic rules\<close>
 
 lemma function_elem:
   assumes "f \<in> \<Prod>x\<in> A. (B x)" and "x \<in> A"
@@ -183,7 +194,7 @@ proof (rule subsetI, rule function_elemE, rule assms, assumption+)
   thus "\<langle>fst p, f `(fst p)\<rangle> \<in> g" using 2 by simp
 qed
 
-subsection \<open>Soft types and type theoretic rules\<close>
+section \<open>Soft types and type theoretic rules\<close>
 
 lemma FunctionI [intro!]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b x) \<in> \<Prod>x\<in> A. (B x)"
@@ -227,7 +238,7 @@ lemma split_FunctionI [intro]:
   using assms by auto
 
 
-subsection \<open>Function extensionality\<close>
+section \<open>Function extensionality\<close>
 
 lemma funext:
   assumes
@@ -271,7 +282,7 @@ corollary function_enlarge_range': "\<lbrakk>f \<in> A \<rightarrow> B; B \<subs
   by (rule function_enlarge_range)
 
 
-subsection \<open>More set-theoretic rules\<close>
+section \<open>More set-theoretic rules\<close>
 
 lemma function_empty_dom [simp]: "{} \<rightarrow> A = {{}}" by (auto intro: equalityI)
 
@@ -313,7 +324,7 @@ lemma function_collect_iff:
   by (auto intro: function_refine dest: FunctionE)
 
 
-subsection \<open>Injectivity and surjectivity\<close>
+section \<open>Injectivity and surjectivity\<close>
 
 definition "injective f \<equiv> \<forall>x \<in> dom f. \<forall>x' \<in> dom f. f `x = f `x' \<longrightarrow> x = x'"
 
@@ -334,7 +345,7 @@ proof
 qed
 
 
-subsection \<open>More function application\<close>
+section \<open>More function application\<close>
 
 lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
   by (auto simp: apply_def)
@@ -362,7 +373,7 @@ lemma apply_bin_union2:
   unfolding apply_def by (auto elim: not_in_domE)
 
 
-subsection \<open>More function extensionality\<close>
+section \<open>More function extensionality\<close>
 
 lemma funext_iff:
   "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); g \<in> \<Prod>x\<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f `a = g `a) \<longleftrightarrow> f = g"
@@ -390,7 +401,7 @@ lemma triv_ext_dom [simp]: "dom (triv_ext A f) = dom f \<union> A"
   unfolding triv_ext_def by (auto simp: bin_union_dom diff_partition')
 
 
-subsection \<open>Composition\<close>
+section \<open>Composition\<close>
 
 definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<circ>" 80)
   where "g \<circ> f = \<lambda>x\<in> dom f. g `(f `x)"
@@ -424,7 +435,7 @@ lemma fun_comp_type [derive]:
   by unfold_types (auto intro: assms)
 
 
-subsection \<open>Universes\<close>
+section \<open>Universes\<close>
 
 lemma Univ_Function_closed [intro]:
   assumes
