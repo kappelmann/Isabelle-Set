@@ -70,9 +70,11 @@ structure Current_Type = Generic_Data(
   type T = thm Termtab.table * thm Symtab.table
   val empty = (Termtab.empty, Symtab.empty)
   val extend = I
-  fun merge ((a1, b1), (a2, b2)) =
-    (Termtab.merge Thm.eq_thm_prop (a1, a2),
-     Symtab.merge Thm.eq_thm_prop (b1, b2))
+  fun merge ((T1, S1), (T2, S2)) =
+    (Termtab.join (K (fn (_, t) => t)) (T1, T2),
+      Symtab.join (K (fn (_, t) => t)) (S1, S2))
+    (* (Termtab.merge Thm.eq_thm_prop (T1, T2),
+     Symtab.merge Thm.eq_thm_prop (S1, S2)) *)
 )
 
 fun get_current_type ctxt t =
@@ -101,20 +103,28 @@ structure Adjectives = Generic_Data (
   type T = (thm list Termtab.table * thm list Symtab.table) * thm list
   val empty = ((Termtab.empty, Symtab.empty), [])
   val extend = I
-  fun merge (((a1, b1), ths1), ((a2, b2), ths2)) =
-    ((Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
-     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2)),
-      Library.merge Thm.eq_thm_prop (ths1, ths2))
+  fun merge (((T1, S1), ths1), ((T2, S2), ths2)) =
+    let
+      val merge_thm_lists = Library.merge Thm.eq_thm_prop
+    in
+      ((Termtab.join (K merge_thm_lists) (T1, T2),
+       Symtab.join (K merge_thm_lists) (S1, S2)),
+        merge_thm_lists (ths1, ths2))
+    end
 )
 
 structure Types = Generic_Data (
   type T = (thm list Termtab.table * thm list Symtab.table) * thm list
   val empty = ((Termtab.empty, Symtab.empty), [])
   val extend = I
-  fun merge (((a1, b1), ths1), ((a2, b2), ths2)) =
-    ((Termtab.merge (eq_set Thm.eq_thm_prop) (a1, a2),
-     Symtab.merge (eq_set Thm.eq_thm_prop) (b1, b2)),
-      Library.merge Thm.eq_thm_prop (ths1, ths2))
+  fun merge (((T1, S1), ths1), ((T2, S2), ths2)) =
+    let
+      val merge_thm_lists = Library.merge Thm.eq_thm_prop
+    in
+      ((Termtab.join (K merge_thm_lists) (T1, T2),
+       Symtab.join (K merge_thm_lists) (S1, S2)),
+        merge_thm_lists (ths1, ths2))
+    end
 )
 
 fun getter data ctxt ts =
