@@ -1180,6 +1180,9 @@ definition element :: "set \<Rightarrow> set type"
 definition subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "subset A \<equiv> element (Pow A)"
 
+lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : element A" by unfold_types
+lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : subset B" by unfold_types auto
+
 lemma subset_self [derive]: "A : subset A"
   by unfold_types auto
 
@@ -1193,10 +1196,8 @@ text \<open>Declare basic soft type translations.\<close>
 soft_type_translation
   "a \<in> A" \<rightleftharpoons> "a : element A" by unfold_types
 
-lemma element_iff: "a \<in> A \<longleftrightarrow> a : element A" by auto
-
 soft_type_translation
-  "A \<subseteq> B" \<rightleftharpoons> "A : subset B" by unfold_types auto
+  "A \<subseteq> B" \<rightleftharpoons> "A : subset B" by unfold_types auto  
 
 soft_type_translation
   "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x : element A. P x"

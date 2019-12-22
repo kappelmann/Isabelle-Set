@@ -29,7 +29,7 @@ lemma monop_subset_closed: "h : monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by unfold_types auto
 
 (* Elimination instead of destruction? *)
-lemma monopE: "\<lbrakk>h : monop D;  X \<subseteq> D;  W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
+lemma monopE: "\<lbrakk>h : monop D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by unfold_types
 
 lemma [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
