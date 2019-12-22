@@ -1,7 +1,7 @@
 chapter \<open>Natural numbers\<close>
 
 theory Nat
-imports Ordinal Function
+imports Ordinal Recursion
 
 begin
 
@@ -13,19 +13,21 @@ lemmas
   nat_unfold = omega_unfold[folded nat_def] and
   zero_nat [simp] = empty_in_omega[folded nat_def] and
   succ_nat [simp] = succ_omega[folded nat_def] and
+  nat_cases = omega_cases[folded nat_def] and
   nat_induct [case_names 0 succ, induct set: nat] = omega_induct[folded nat_def] and
   nat_pred_exists = omega_pred_exists[folded nat_def] and
   pred_nat [simp] = pred_omega[folded nat_def] and
-  pred_of_succ [simp] = Ordinal.pred_of_succ[folded nat_def] and
-  succ_of_pred [simp] = Ordinal.succ_of_pred[folded nat_def]
+  pred_0 = pred_empty and
+  pred_succ [simp] = Ordinal.pred_succ[folded nat_def] and
+  succ_pred [simp] = Ordinal.succ_pred[folded nat_def]
 
 
 section \<open>\<nat> as a type\<close>
 
-definition [typedef]: "Nat = element \<nat>"
+abbreviation "Nat \<equiv> element \<nat>"
 
 lemmas Nat_induct = nat_induct
-  [ simplified element_iff, folded Nat_def,
+  [ simplified element_iff,
     case_names 0 succ,
     induct set: nat ]
 
@@ -33,7 +35,7 @@ lemma Nat_Ord [derive]: "x : Nat \<Longrightarrow> x : Ord"
   by (induct x rule: Nat_induct) (auto intro: succ_Ord)
 
 lemma
-  zero_type (*[type]*): "{} : Nat" and
+  zero_type: "{} : Nat" and
   succ_type [type]: "succ : Nat \<Rightarrow> Nat" and
   pred_type [type]: "pred : Nat \<Rightarrow> Nat"
   by unfold_types auto
@@ -45,30 +47,64 @@ lemma
 
 section \<open>Primitive recursion\<close>
 
-definition "nat_primrec \<equiv> \<lambda>n\<^sub>0\<in> \<nat>. \<lambda>f\<in> \<nat> \<rightarrow> \<nat>. \<lambda>n\<in> \<nat>.
+definition "nat_case \<equiv> \<lambda>n\<^sub>0\<in> \<nat>. \<lambda>f\<in> \<nat> \<rightarrow> \<nat>. \<lambda>n\<in> \<nat>.
   if n = {} then n\<^sub>0 else f `(pred n)"
 
 text \<open>
-  Lift set-theoretic notion to HOL, by reflecting the argument HOL function f to
+  Lift set-theoretic notion to HOL by reflecting the argument HOL function f to
   the set theory.
+
+  Maybe this can be automated with syntax phase translations in the future?
 \<close>
 
-definition "natrec n\<^sub>0 f n = nat_primrec `n\<^sub>0 `(\<lambda>n\<in> \<nat>. f n) `n"
+definition "natcase n\<^sub>0 f n = nat_case `n\<^sub>0 `(\<lambda>n\<in> \<nat>. f n) `n"
 
-lemma natrec_type [type]:
-  "natrec: Nat \<Rightarrow> (Nat \<Rightarrow> Nat) \<Rightarrow> Nat \<Rightarrow> Nat"
-  unfolding natrec_def nat_primrec_def
+lemma natcase_type [type]:
+  "natcase: Nat \<Rightarrow> (Nat \<Rightarrow> Nat) \<Rightarrow> Nat \<Rightarrow> Nat"
+  unfolding natcase_def nat_case_def
   apply unfold_types
-  (*Observe that reasoning with set-theoretic function is still quite manual*)
+  text \<open>Reasoning with set-theoretic function is still quite manual\<close>
   apply (rule FunctionE)+
   apply (rule FunctionI)+
   by auto
 
-lemma nat_rec_0:
-  "\<lbrakk>n\<^sub>0 : Nat; f : Nat \<Rightarrow> Nat\<rbrakk> \<Longrightarrow> natrec n\<^sub>0 f {} = n\<^sub>0"
-  unfolding natrec_def nat_primrec_def
-  apply unfold_types
-  apply simp (*Need more results on reflected functions*)
+lemma natcase_0 [simp]:
+  assumes "n\<^sub>0 : Nat"
+      and "f : Nat \<Rightarrow> Nat"
+  shows "natcase n\<^sub>0 f {} = n\<^sub>0"
+  unfolding natcase_def nat_case_def
+  using assms by unfold_types fastforce
+
+lemma natcase_succ [simp]:
+  assumes "n\<^sub>0 : Nat"
+      and "f : Nat \<Rightarrow> Nat"
+      and "n : Nat"
+  shows "natcase n\<^sub>0 f (succ n) = f n"
+  unfolding natcase_def nat_case_def
+  using assms by unfold_types fastforce
+
+(*THIS DEFINITION IS WRONG: it needs the well-founded recursion operator*)
+definition "natrec n\<^sub>0 f n = natcase n\<^sub>0 (\<lambda>x. f (natcase n\<^sub>0 f x)) n"
+
+text \<open>
+  The next proof is a nontrivial *EXAMPLE* of where type derivation is doing
+  some nontrivial simplification of a proof! :) :) :)
+  (The derivation depth needs to be increased in order to derive the required
+  type of the inner function \<open>\<lambda>x. f (natcase n\<^sub>0 f (pred x))\<close>.
+\<close>
+
+lemma natrec_0 [simp]:
+  assumes "n\<^sub>0 : Nat"
+      and "f : Nat \<Rightarrow> Nat"
+  shows "natrec n\<^sub>0 f {} = n\<^sub>0"
+  unfolding natrec_def
+  using assms [[derivation_depth=3]] by auto
+
+lemma natrec_succ:
+  assumes "n\<^sub>0 : Nat"
+      and "f : Nat \<Rightarrow> Nat"
+      and "n : Nat"
+  shows "natrec n\<^sub>0 f (succ n) = f (natrec n\<^sub>0 f n)"
 oops
 
 

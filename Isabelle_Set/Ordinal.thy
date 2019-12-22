@@ -159,10 +159,13 @@ definition "pred n = (if n = {} then {} else (THE m \<in> \<omega>. n = succ m))
 lemma pred_omega [simp]: "n \<in> \<omega> \<Longrightarrow> pred n \<in> \<omega>"
   unfolding pred_def by (auto intro: BTheI1 omega_pred_exists)
 
-lemma pred_of_succ [simp]: "n \<in> \<omega> \<Longrightarrow> pred (succ n) = n"
+lemma pred_empty [simp]: "pred {} = {}"
   unfolding pred_def by auto
 
-lemma succ_of_pred [simp]: "\<lbrakk>n \<in> \<omega>; n \<noteq> {}\<rbrakk> \<Longrightarrow> succ (pred n) = n"
+lemma pred_succ [simp]: "n \<in> \<omega> \<Longrightarrow> pred (succ n) = n"
+  unfolding pred_def by auto
+
+lemma succ_pred [simp]: "\<lbrakk>n \<in> \<omega>; n \<noteq> {}\<rbrakk> \<Longrightarrow> succ (pred n) = n"
   unfolding pred_def by (simp, rule sym, rule BTheI2) (fact omega_pred_exists)
 
 

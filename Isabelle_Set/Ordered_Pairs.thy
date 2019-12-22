@@ -60,10 +60,10 @@ lemma opair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>
   by simp
 
 lemma opair_not_in_fst: "\<langle>a, b\<rangle> \<notin> a"
-  unfolding opair_def by (auto intro: mem_cycle3)
+  unfolding opair_def by (auto intro: mem_3_cycle)
 
 lemma opair_not_in_snd: "\<langle>a, b\<rangle> \<notin> b"
-  unfolding opair_def by (auto intro: equalityI' dest: mem_cycle3)
+  unfolding opair_def by (auto intro: equalityI' dest: mem_3_cycle)
 
 
 subsection \<open>Dependent pairs aka \<Sigma>-type\<close>

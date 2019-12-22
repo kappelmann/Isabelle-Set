@@ -66,7 +66,7 @@ lemma lambda_times_split: "(\<lambda>x\<in> A \<times> B. f x) = (\<lambda>\<lan
 
 section \<open>Function application and \<beta>-reduction\<close>
 
-definition "apply" :: "set \<Rightarrow> set \<Rightarrow> set" ("_ `_" [999, 1000] 999)
+definition "apply" :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> ("_ `_" [999, 1000] 999)
   where "f `x = (THE y. \<langle>x, y\<rangle> \<in> f)"
 
 text \<open>
@@ -194,7 +194,8 @@ proof (rule subsetI, rule function_elemE, rule assms, assumption+)
   thus "\<langle>fst p, f `(fst p)\<rangle> \<in> g" using 2 by simp
 qed
 
-section \<open>Soft types and type theoretic rules\<close>
+
+section \<open>Soft types and type theory-like rules\<close>
 
 lemma FunctionI [intro!]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b x) \<in> \<Prod>x\<in> A. (B x)"
@@ -202,6 +203,11 @@ lemma FunctionI [intro!]:
 
 corollary FunctionI' [intro]:
   "(\<And>x. x \<in> A \<Longrightarrow> b `x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b `x) \<in> \<Prod>x\<in> A. (B x)" ..
+
+lemma split_FunctionI [intro]:
+  assumes "\<And>x y. \<lbrakk>x \<in> X; y \<in> Y\<rbrakk> \<Longrightarrow> b x y \<in> B \<langle>x, y\<rangle>"
+  shows "(\<lambda>\<langle>x, y\<rangle>\<in> X \<times> Y. b x y) \<in> \<Prod>p\<in> X \<times> Y. (B p)"
+  using assms by auto
 
 lemma FunctionE [elim]:
   assumes "f \<in> \<Prod>x\<in> A. (B x)" and "a \<in> A"
@@ -232,10 +238,8 @@ lemma id_function [intro]: "(\<lambda>x\<in> A. x) \<in> A \<rightarrow> A" by a
 
 lemma [derive]: "(\<lambda>x\<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
 
-lemma split_FunctionI [intro]:
-  assumes "\<And>x y. \<lbrakk>x \<in> X; y \<in> Y\<rbrakk> \<Longrightarrow> b x y \<in> B \<langle>x, y\<rangle>"
-  shows "(\<lambda>\<langle>x, y\<rangle>\<in> X \<times> Y. b x y) \<in> \<Prod>p\<in> X \<times> Y. (B p)"
-  using assms by auto
+lemma [derive]: "f: element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>x\<in> A. f x): element (A \<rightarrow> B)"
+  by unfold_types auto
 
 
 section \<open>Function extensionality\<close>

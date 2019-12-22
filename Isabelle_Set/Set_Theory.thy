@@ -1066,6 +1066,26 @@ lemma foundation: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter
 lemma foundation2: "X = {} \<or> (\<exists>Y \<in> X. \<forall>y \<in> Y. y \<notin> X)"
   using foundation by blast
 
+lemma empty_in_transitive_set:
+  assumes "mem_transitive X"
+      and "X \<noteq> {}"
+  shows "{} \<in> X"
+proof (rule ccontr)
+  from foundation2 \<open>X \<noteq> {}\<close> obtain A where
+    1: "A \<in> X" and
+    2: "\<forall>a \<in> A. a \<notin> X"
+    by force
+
+  assume "{} \<notin> X" with 1 have "A \<noteq> {}" by auto
+  then obtain a where
+    3: "a \<in> A"
+    by auto
+
+  with \<open>mem_transitive X\<close> 1 have "a \<in> X"
+    unfolding mem_transitive_def by auto
+  thus False using 2 3 by auto
+qed
+
 lemma mem_asymE: "\<lbrakk>a \<in> b; \<not>P \<Longrightarrow> b \<in> a\<rbrakk> \<Longrightarrow> P"
   apply (rule classical)
   apply (rule_tac X1 = "{a,b}" in foundation2 [THEN disjE])
