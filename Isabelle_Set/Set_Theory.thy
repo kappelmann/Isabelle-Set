@@ -10,6 +10,10 @@ section \<open>Preliminaries\<close>
 abbreviation not_mem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
+lemma mem_transitiveI [intro]:
+  "(\<And>x y. x \<in> X \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> X) \<Longrightarrow> mem_transitive X"
+  unfolding mem_transitive_def subset_def by auto
+
 
 section \<open>Foundational axioms as rules\<close>
 
@@ -1065,6 +1069,13 @@ lemma foundation: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter
 
 lemma foundation2: "X = {} \<or> (\<exists>Y \<in> X. \<forall>y \<in> Y. y \<notin> X)"
   using foundation by blast
+
+lemma foundation3: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)"
+proof -
+  assume "X \<noteq> {}"
+  with foundation obtain Y where "Y \<in> X" and "Y \<inter> X = {}" by blast
+  thus "\<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)" by auto
+qed
 
 lemma empty_in_transitive_set:
   assumes "mem_transitive X"

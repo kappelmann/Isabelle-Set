@@ -10,7 +10,7 @@ struct
 
 (*** Tracing ***)
 
-val debug = Attrib.setup_config_bool \<^binding>\<open>type_derivation_debugger\<close> (K false)
+val debug = Attrib.setup_config_bool \<^binding>\<open>trace_type_derivation\<close> (K false)
 
 fun trace ctxt msg = if Config.get ctxt debug then tracing msg else ()
 fun warn ctxt msg = if Config.get ctxt debug then warning msg else ()

@@ -22,8 +22,7 @@ text \<open>Basic properties of ordinals:\<close>
 lemma Ord_mem_closed [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
   by unfold_types (fastforce simp: mem_transitive_def)
 
-lemma Ord_mem_transitive:
-  "x: Ord \<Longrightarrow> mem_transitive x"
+lemma Ord_mem_transitive: "x: Ord \<Longrightarrow> mem_transitive x"
   by unfold_types
 
 lemma Ord_mem_transitive' [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
@@ -65,7 +64,7 @@ section \<open>Successor ordinals\<close>
 
 definition "succ x \<equiv> x \<union> {x}"
 
-lemma succ_Ord: "x : Ord \<Longrightarrow> succ x : Ord"
+lemma succ_Ord [derive]: "x : Ord \<Longrightarrow> succ x : Ord"
   unfolding succ_def by unfold_types (fastforce simp: mem_transitive_def)
 
 lemma succ_neq [intro]: "x \<noteq> succ x"
@@ -133,6 +132,9 @@ lemma empty_in_omega [simp]: "{} \<in> \<omega>"
 lemma succ_omega [simp]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst omega_unfold, auto)
 
+lemma [type]: "{}: element \<omega>" by unfold_types auto
+lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>" by unfold_types auto
+
 lemma omega_cases:
   assumes "n \<in> \<omega>"
       and "P {}"
@@ -179,11 +181,11 @@ qed
 lemma omega_elem_Ord: "n \<in> \<omega> \<Longrightarrow> n: Ord"
   using omega_Ord Ord_mem_closed by auto
 
-lemma [derive]: "n: element \<omega> \<Longrightarrow> n: Ord"
-  by (fold element_type_iff) (fact omega_elem_Ord)
-
 lemma omega_elem_mem_transitive: "n \<in> \<omega> \<Longrightarrow> mem_transitive n"
   using omega_elem_Ord Ord_mem_transitive by auto
+
+lemma [derive]: "n: element \<omega> \<Longrightarrow> mem_transitive n"
+  by unfold_types (fact omega_elem_mem_transitive)
 
 lemma omega_elem_subset: "n \<in> \<omega> \<Longrightarrow> n \<subseteq> \<omega>"
   using omega_Ord Ord_mem_transitive' by auto
