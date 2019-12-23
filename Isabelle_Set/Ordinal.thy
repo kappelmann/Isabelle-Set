@@ -67,18 +67,16 @@ definition "succ x \<equiv> x \<union> {x}"
 lemma succ_Ord [derive]: "x : Ord \<Longrightarrow> succ x : Ord"
   unfolding succ_def by unfold_types (fastforce simp: mem_transitive_def)
 
-lemma succ_neq [intro]: "x \<noteq> succ x"
-unfolding succ_def
-proof (rule, elim equalityE)
-  assume "x \<union> {x} \<subseteq> x"
-  thus False using mem_irrefl by auto
-qed
+text \<open>Simp rules\<close>
 
-lemma succ_mem [simp]: "x \<in> succ x"
-  unfolding succ_def by auto
+lemma succ_empty [simp]: "succ {} = {{}}"
+  by (auto simp: succ_def)
 
-lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
-  unfolding succ_def by auto
+lemma succ_succ_empty [simp]: "succ (succ {}) = {{}} \<union> {succ {}}"
+  by (auto simp: succ_def)
+
+lemma succ_neq [simp]: "x \<noteq> succ x"
+  by (auto simp: succ_def)
 
 lemma succ_not_empty [simp]: "succ x \<noteq> {}"
   unfolding succ_def by auto
@@ -104,6 +102,34 @@ proof (rule ccontr)
 
   from \<open>x \<in> y\<close> \<open>y \<in> x\<close> show False using mem_asym by blast
 qed
+
+lemma succ_inject' [simp]:
+  "x \<noteq> y \<Longrightarrow> succ x \<noteq> succ y"
+  by auto
+
+lemma succ_mem [simp]: "x \<in> succ x"
+  unfolding succ_def by auto
+
+lemma [derive]: "x: element (succ x)"
+  by unfold_types auto
+
+lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
+  unfolding succ_def by auto
+
+lemma succ_mem_not_eq [simp]:
+  "x \<in> succ y \<Longrightarrow> x \<noteq> (succ y)"
+  by (rule mem_imp_not_eq)
+
+lemma succ_not_mem:
+  "succ x \<notin> x"
+  unfolding succ_def by (blast dest: mem_asym)
+
+lemma succ_cases [elim]:
+  assumes "x \<in> succ y"
+      and "\<And>x. x \<in> y \<Longrightarrow> P x"
+      and "P y"
+  shows "P x"
+  using assms unfolding succ_def by auto
 
 lemma Univ_succ_closed [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
   unfolding succ_def by auto
