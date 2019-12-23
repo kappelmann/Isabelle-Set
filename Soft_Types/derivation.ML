@@ -355,7 +355,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (*** Type derivation ***)
 
-val derive_depth = Attrib.setup_config_int \<^binding>\<open>derivation_depth\<close> (K 2)
+val derive_depth = Attrib.setup_config_int \<^binding>\<open>type_derivation_depth\<close> (K 2)
 
 (*
   Generate all possible type judgments for a given term that can be derived from
@@ -399,7 +399,7 @@ fun derive_jdgmts ctxt tms jdgmts rules =
       then
         ((* warning
           ("Type derivation depth limit reached; " ^
-          "consider increasing derivation_depth"); *)
+          "consider increasing type_derivation_depth"); *)
         jdgmts)
       else
         let

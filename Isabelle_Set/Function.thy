@@ -286,7 +286,7 @@ corollary function_enlarge_range': "\<lbrakk>f \<in> A \<rightarrow> B; B \<subs
   by (rule function_enlarge_range)
 
 
-section \<open>More set-theoretic rules\<close>
+section \<open>Set-theoretic rules\<close>
 
 lemma function_empty_dom [simp]: "{} \<rightarrow> A = {{}}" by (auto intro: equalityI)
 
@@ -294,6 +294,26 @@ lemma function_empty_range [simp]: "A \<rightarrow> {} = (if A = {} then {{}} el
   unfolding Function_def by (auto intro!: equalityI)
 
 lemma empty_function [intro]: "{} \<in> {} \<rightarrow> X" by auto
+
+lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
+  unfolding Function_def by auto
+
+lemma function_singletons [simp]: "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
+  unfolding Function_def by auto
+
+lemma cons_FunctionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+  unfolding Function_def using dom_def by auto
+
+lemma cons_FunctionI':
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A; y \<in> B\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B"
+  apply (drule cons_FunctionI, assumption)
+  apply (subst bin_union_singleton_absorb[symmetric, where ?t=B])
+  by (auto simp: bin_union_ac)
+
+lemma bin_union_FunctionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+  unfolding Function_def using dom_def by auto
 
 lemma Function_empty_iff [iff]: "A \<rightarrow> B = {} \<longleftrightarrow> A \<noteq> {} \<and> B = {}"
 proof (rule iffI, rule conjI)
@@ -305,25 +325,11 @@ proof (rule iffI, rule conjI)
   qed
 qed auto
 
-lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
-  unfolding Function_def by auto
-
-lemma function_singletons [simp]: "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
-  unfolding Function_def by auto
-
-lemma cons_functionI:
-  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
-  unfolding Function_def using dom_def by auto
-
-lemma bin_union_functionI:
-  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
-  unfolding Function_def using dom_def by auto
-
 (*
   Larry: Such functions arise in non-standard datatypes, ZF/ex/Ntree for
   instance.
 *)
-lemma function_collect_iff:
+lemma Function_collect_iff:
   "f \<in> \<Prod>x\<in> A. {y \<in> B x | P x y} \<longleftrightarrow> f \<in> \<Prod>x\<in> A. (B x) \<and> (\<forall>x \<in> A. P x (f `x))"
   by (auto intro: function_refine dest: FunctionE)
 

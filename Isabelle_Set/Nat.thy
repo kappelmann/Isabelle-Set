@@ -41,7 +41,7 @@ lemma
   by unfold_types auto
 
 
-section \<open>The \<open><\<close> order on Nat\<close>
+section \<open>The \<open><\<close> and \<open>\<le>\<close> orders on Nat\<close>
 
 definition "nat_lt m n = (m \<in> n)"
 
@@ -60,10 +60,25 @@ lemma nat_lt_total:
   using Ord_trichotomy by auto
   \<comment>\<open>Good *EXAMPLE* of type derivation helpfulness!\<close>
 
+definition "nat_le m n = (nat_lt m n \<or> m = n)"
+
+(* lemma nat_le_subset: "nat_le m n \<longleftrightarrow> m \<subseteq> n" *)
+
+
+section \<open>Finite induction\<close>
+
+lemma finite_induct:
+  assumes "n: Nat"
+      and "nat_le m n"
+      and "P {}"
+      and "\<And>m. nat_lt m n \<Longrightarrow> P m \<Longrightarrow> P (succ m)"
+  shows "P m"
+oops
+
 
 section \<open>Recursion\<close>
 
-text \<open>A specialization of well-founded recursion to \<open><\<close>>\<close>
+text \<open>A specialization of well-founded recursion to \<open><\<close>\<close>
 
 lemma Nat_recursion:
   assumes "f : element X \<Rightarrow> element X"
@@ -72,69 +87,131 @@ lemma Nat_recursion:
     "F : Nat \<Rightarrow> element X"
     "F {} = x\<^sub>0"
     "\<And>n. n: Nat \<Longrightarrow> F (succ n) = f (F n)"
-proof -
+
+proof
 
 fix n
-have "n: Nat \<Longrightarrow> \<exists>F. dom F = succ (succ n) \<and> F `{} = x\<^sub>0 \<and> F `(succ n) = f (F `n)"
+
+have "n: Nat \<Longrightarrow> \<exists>F.
+  dom F = succ (succ n) \<and> F `{} = x\<^sub>0 \<and>
+  (\<forall>m \<in> n. F `(succ m) = f (F `m)) \<and> F `(succ n) = f (F `n)"
 proof (induction n rule: Nat_induct)
   case base
-  show "\<exists>F. dom F = succ (succ {}) \<and> F `{} = x\<^sub>0 \<and> F `(succ {}) = f (F `{})"
-  proof
-    let ?F = "{\<langle>{}, x\<^sub>0\<rangle>, \<langle>succ {}, f x\<^sub>0\<rangle>}"
-    show "dom ?F = succ (succ {}) \<and> ?F `{} = x\<^sub>0 \<and> ?F `(succ {}) = f (?F `{})"
-      by (auto intro: equalityI simp: succ_def)
-  qed
+  let ?F = "{\<langle>{}, x\<^sub>0\<rangle>, \<langle>succ {}, f x\<^sub>0\<rangle>}"
+  have
+    "dom ?F = succ (succ {}) \<and> ?F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> {}. ?F `(succ m) = f (?F `m)) \<and> ?F `(succ {}) = f (?F `{})"
+    by (auto intro: equalityI simp: succ_def)
+  thus
+    "\<exists>F. dom F = succ (succ {}) \<and> F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> {}. F `(succ m) = f (F `m)) \<and> F `(succ {}) = f (F `{})"
+    by fast
 
   case (induct n)
-  then obtain F where IH:
+  obtain F where IH:
     "dom F = succ (succ n)"
     "F `{} = x\<^sub>0"
+    "\<forall>m \<in> n. F `(succ m) = f (F `m)"
     "F `(succ n) = f (F `n)"
-    by auto
-  show "\<exists>F.
-    dom F = succ (succ (succ n)) \<and> F `{} = x\<^sub>0 \<and>
-    F `(succ (succ n)) = f (F `(succ n))"
-  proof
-    let ?F = "F \<union> {\<langle>succ (succ n), f (F `(succ n))\<rangle>}"
-    have "dom ?F = succ (succ (succ n))"
-      by (auto intro: equalityI simp: IH(1) bin_union_dom succ_def)
-    moreover have "?F `{} = x\<^sub>0"
-      by (auto intro: equalityI simp: IH(2) bin_union_dom)
-    moreover have "?F `(succ (succ n)) = f (?F `(succ n))"
-      by(auto intro: equalityI simp: IH bin_union_dom mem_irrefl succ_neq)
-    ultimately show
-      "dom ?F = succ (succ (succ n)) \<and>
-      ?F `{} = x\<^sub>0 \<and> ?F `(succ (succ n)) = f (?F `(succ n))"
-      by fast
+    using induct.IH by auto
+  let ?F = "F \<union> {\<langle>succ (succ n), f (F `(succ n))\<rangle>}"
+
+  have 1: "dom ?F = succ (succ (succ n))"
+    using IH(1) by (auto intro: equalityI simp: bin_union_dom succ_def)
+
+  have 2: "?F `{} = x\<^sub>0"
+    using IH(2) by auto
+
+  have 3: "\<forall>m \<in> succ n. ?F `(succ m) = f (?F `m)"
+  proof (simp, clarify)
+    fix m show "m \<in> succ n \<Longrightarrow> F `(succ m) = f (F `m)"
+    using IH by (elim succ_cases) auto
   qed
+
+  have 4: "?F `(succ (succ n)) = f (?F `(succ n))"
+    by (simp add: IH(1) mem_irrefl)
+
+  thus "\<exists>F.
+    dom F = succ (succ (succ n)) \<and>
+    F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> succ n. F `(succ m) = f (F `m)) \<and>
+    F `(succ (succ n)) = f (F `(succ n))"
+    using 1 2 3 4 by fast
 qed
 
-have "n: Nat \<Longrightarrow>
-  F \<in> succ (succ n) \<rightarrow> X \<and> F `{} = x\<^sub>0 \<and> F `(succ n) = f (F `n) \<Longrightarrow>
-  G \<in> succ (succ n) \<rightarrow> X \<and> G `{} = x\<^sub>0 \<and> G `(succ n) = f (G `n) \<Longrightarrow>
-  F = G"
-proof (induction n arbitrary: F G rule: Nat_induct)
+have "n: Nat \<Longrightarrow> \<exists>F.
+  F \<in> succ (succ n) \<rightarrow> X \<and> F `{} = x\<^sub>0 \<and>
+  (\<forall>m \<in> n. F `(succ m) = f (F `m)) \<and> F `(succ n) = f (F `n)"
+proof (induction n rule: Nat_induct)
   case base
-  show "F = G"
-  proof (rule funext)
-    show "F \<in> succ (succ {}) \<rightarrow> X" and "G \<in> succ (succ {}) \<rightarrow> X"
-      using base by auto
-    have "succ (succ {}) = {{}, succ {}}"
-      by (auto intro: equalityI simp: succ_def)
-    thus "\<And>x. x \<in> succ (succ {}) \<Longrightarrow> F `x = G `x"
-      using base by force
-  qed
-next
-  case (induct n)
-  show "F = G"
-  proof (rule funext)
-    show "F \<in> succ (succ (succ n)) \<rightarrow> X" and "G \<in> succ (succ (succ n)) \<rightarrow> X"
-      using induct.prems by auto
+  let ?F = "{\<langle>{}, x\<^sub>0\<rangle>, \<langle>succ {}, f x\<^sub>0\<rangle>}"
+  have "succ (succ {}) = {succ {}} \<union> {{}}"
+    by (auto intro: equalityI simp: succ_def)
+  hence "?F \<in> succ (succ {}) \<rightarrow> X"
+    by (force intro: cons_FunctionI' assms)
+  hence
+    "?F \<in> succ (succ {}) \<rightarrow> X \<and> ?F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> {}. ?F `(succ m) = f (?F `m)) \<and> ?F `(succ {}) = f (?F `{})"
+    by (auto intro: equalityI simp: succ_def)
+  thus
+    "\<exists>F. F \<in> succ (succ {}) \<rightarrow> X \<and> F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> {}. F `(succ m) = f (F `m)) \<and> F `(succ {}) = f (F `{})"
+    by blast
 
-    let ?F = "\<lambda>m\<in> succ (succ n). F `(succ m)"
-    and ?G = "\<lambda>m\<in> succ (succ n). G `(succ m)"
-thm induct
+  case (induct n)
+  obtain F where IH:
+    "F \<in> succ (succ n) \<rightarrow> X"
+    "F `{} = x\<^sub>0"
+    "\<forall>m \<in> n. F `(succ m) = f (F `m)"
+    "F `(succ n) = f (F `n)"
+    using induct.IH by auto
+  let ?F = "cons \<langle>succ (succ n), f (F `(succ n))\<rangle> F"
+
+  have "?F \<in> succ (succ n) \<union> {succ (succ n)} \<rightarrow> X"
+   by
+    (rule cons_FunctionI')
+    (auto intro: IH simp: [[type_derivation_depth=3]] mem_irrefl) \<comment>\<open>*EXAMPLE*\<close>
+
+  hence 1: "?F \<in> succ (succ (succ n)) \<rightarrow> X"
+    by (simp add: succ_def)
+
+  have 2: "?F `{} = x\<^sub>0"
+    using IH(2) by auto
+
+  have 3: "\<forall>m \<in> succ n. ?F `(succ m) = f (?F `m)"
+  proof (simp, clarify)
+    fix m show "m \<in> succ n \<Longrightarrow> F `(succ m) = f (F `m)"
+    using IH by (elim succ_cases) auto
+  qed
+
+  have 4: "?F `(succ (succ n)) = f (?F `(succ n))"
+    by (simp add: IH(1) mem_irrefl)
+
+  show "\<exists>F.
+    F \<in> succ (succ (succ n)) \<rightarrow> X \<and>
+    F `{} = x\<^sub>0 \<and>
+    (\<forall>m \<in> succ n. F `(succ m) = f (F `m)) \<and>
+    F `(succ (succ n)) = f (F `(succ n))"
+    using 1 2 3 4 by blast
+qed
+
+let ?P = "\<lambda>F.
+  F \<in> succ (succ n) \<rightarrow> X \<and>
+  F `{} = x\<^sub>0 \<and>
+  (\<forall>m \<in> n. F `(succ m) = f (F `m)) \<and>
+  F `(succ n) = f (F `n)"
+
+fix F G
+assume n: "n: Nat" and F: "?P F" and G: "?P G"
+have "F = G"
+proof (rule funext)
+  show "F \<in> succ (succ n) \<rightarrow> X" "G \<in> succ (succ n) \<rightarrow> X"
+    using F G by auto
+
+  fix m show "m \<in> succ (succ n) \<Longrightarrow> F `m = G `m"
+  
 oops
+
 
 section \<open>Primitive recursion\<close>
 
@@ -189,7 +266,7 @@ lemma natrec_0 [simp]:
       and "f : Nat \<Rightarrow> Nat"
   shows "natrec n\<^sub>0 f {} = n\<^sub>0"
   unfolding natrec_def
-  using assms [[derivation_depth=3]] by auto
+  using assms [[type_derivation_depth=3]] by auto
 
 lemma natrec_succ:
   assumes "n\<^sub>0 : Nat"

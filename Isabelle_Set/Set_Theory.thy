@@ -753,6 +753,9 @@ lemma empty_bin_union_conv [simp]: "{} \<union> A = A"
 lemma bin_union_empty_conv [simp]: "A \<union> {} = A"
   by (rule extensionality) auto
 
+lemma bin_union_singleton_absorb [simp]: "a \<in> A \<Longrightarrow> {a} \<union> A = A"
+  by (rule equalityI) auto
+
 lemma bin_union_subset_iff: "A \<union> B \<subseteq> C \<longleftrightarrow> A \<subseteq> C \<and> B \<subseteq> C"
   by blast
 
@@ -1123,6 +1126,9 @@ lemma mem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
 
 lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
   by (blast elim: mem_irreflE)
+
+lemma union_singletonE [elim]: "A = A \<union> {A} \<Longrightarrow> P"
+  by (blast elim: equalityE mem_irreflE)
 
 lemma mem_double_induct:
   assumes "\<And>X Y. \<lbrakk>\<And>x. x \<in> X \<Longrightarrow> P x Y; \<And>y. y \<in> Y \<Longrightarrow> P X y\<rbrakk> \<Longrightarrow> P X Y"
