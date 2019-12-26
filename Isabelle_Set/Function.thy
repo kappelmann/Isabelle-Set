@@ -355,7 +355,7 @@ proof
 qed
 
 
-section \<open>More function application\<close>
+section \<open>More application\<close>
 
 lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
   by (auto simp: apply_def)
@@ -383,7 +383,7 @@ lemma apply_bin_union2 [simp]:
   unfolding apply_def by (auto elim: not_in_domE)
 
 
-section \<open>More function extensionality\<close>
+section \<open>More extensionality\<close>
 
 lemma funext_iff:
   "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); g \<in> \<Prod>x\<in> A. (C x)\<rbrakk> \<Longrightarrow> (\<forall>a \<in> A. f `a = g `a) \<longleftrightarrow> f = g"
@@ -444,6 +444,25 @@ lemma fun_comp_type [derive]:
   shows "g \<circ> f : element (\<Prod>x\<in> A. (C (f `x)))"
   by unfold_types (auto intro: assms)
 
+
+section \<open>Restriction\<close>
+
+definition restriction :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infix "\<restriction>" 100)
+  where "f \<restriction> A = {p \<in> f | fst p \<in> A}"
+
+lemma apply_restriction [simp]: "a \<in> A \<Longrightarrow> (f \<restriction> A) `a = f `a"
+  unfolding restriction_def apply_def by auto
+
+lemma restriction_dom: "dom (f \<restriction> A) = dom f \<inter> A"
+  unfolding restriction_def dom_def by (auto intro: equalityI)
+
+lemma restriction_function [intro]:
+  "f \<in> A \<rightarrow> B \<Longrightarrow> f \<restriction> A' \<in> (A \<inter> A') \<rightarrow> B"
+  unfolding restriction_def Function_def by auto
+
+lemma restriction_function_subset [intro]:
+  "\<lbrakk>f \<in> A \<rightarrow> B; A' \<subseteq> A\<rbrakk> \<Longrightarrow> f \<restriction> A' \<in> A' \<rightarrow> B"
+  by (subst (4) bin_inter_subset_right_absorb[symmetric]) auto
 
 section \<open>Universes\<close>
 
