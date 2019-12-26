@@ -498,10 +498,10 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
             ))
         end
 
-      val tm =
-        if Soft_Type.is_typing goal
+      val tm = Soft_Type.dest_Trueprop goal
+        (* if Soft_Type.is_typing goal
         then Soft_Type.term_of_typing goal
-        else Soft_Type.dest_Trueprop goal
+        else Soft_Type.dest_Trueprop goal *)
 
       val tms =
         distinct Term.aconv (
