@@ -845,10 +845,10 @@ lemma bin_inter_assoc: "(A \<inter> B) \<inter> C  =  A \<inter> (B \<inter> C)"
 lemmas bin_inter_ac =
   bin_inter_assoc bin_inter_left_absorb bin_inter_commute bin_inter_left_commute
 
-lemma bin_inter_absorb1: "B \<subseteq> A \<Longrightarrow> A \<inter> B = B"
+lemma bin_inter_subset_left_absorb: "B \<subseteq> A \<Longrightarrow> A \<inter> B = B"
   by (rule extensionality) auto
 
-lemma bin_inter_absorb2: "A \<subseteq> B \<Longrightarrow> A \<inter> B = A"
+lemma bin_inter_subset_right_absorb: "A \<subseteq> B \<Longrightarrow> A \<inter> B = A"
   by (rule extensionality) auto
 
 lemma bin_inter_bin_union_distrib: "A \<inter> (B \<union> C) = (A \<inter> B) \<union> (A \<inter> C)"
