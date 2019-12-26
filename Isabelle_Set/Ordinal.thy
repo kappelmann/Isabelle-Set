@@ -116,6 +116,9 @@ lemma [derive]: "x: element (succ x)"
 lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
   unfolding succ_def by auto
 
+lemma [derive]: "x : element y \<Longrightarrow> x : element (succ y)"
+  by unfold_types auto
+
 lemma succ_mem_not_eq [simp]:
   "x \<in> succ y \<Longrightarrow> x \<noteq> (succ y)"
   by (rule mem_imp_not_eq)
@@ -215,6 +218,12 @@ lemma [derive]: "n: element \<omega> \<Longrightarrow> mem_transitive n"
 
 lemma omega_elem_subset: "n \<in> \<omega> \<Longrightarrow> n \<subseteq> \<omega>"
   using omega_Ord Ord_mem_transitive' by auto
+
+lemma omega_mem_transitive: "x \<in> \<omega> \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> \<omega>"
+  using omega_elem_subset by auto
+
+lemma [derive]: "x: element \<omega> \<Longrightarrow> y: element x \<Longrightarrow> y: element \<omega>"
+  by unfold_types (fact omega_mem_transitive)
 
 text \<open>Truncated predecessor function\<close>
 
