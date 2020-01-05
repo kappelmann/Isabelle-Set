@@ -561,9 +561,9 @@ translations
   "\<Inter>x\<in> A. B" \<rightleftharpoons> "\<Inter>{B. x \<in> A}"
 
 lemma idxunion_iff [iff]: "b \<in> (\<Union>x\<in> A. (B x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
-  by (simp add: Bex_def, blast)
+  by (simp add: Bex_def) blast
 
-(* LP: The order of the premises presupposes that A is rigid; b may be flexible *)
+(*LP: The order of the premises presupposes that A is rigid; b may be flexible*)
 lemma idxunionI: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x\<in> A. B x)"
   by (simp, blast)
 
@@ -641,7 +641,7 @@ lemma idxunion_empty [simp]: "(\<Union>i \<in> {}. A i) = {}"
 lemma idxunion_singleton: "(\<Union>x\<in>A. {x}) = A"
   by (rule extensionality) auto
 
-lemma flatten_idxunion:
+lemma flatten_idxunion [simp]:
   "(\<Union>x\<in> (\<Union>y \<in> A. B y). C x) = (\<Union>y \<in> A. \<Union>x\<in> B y. C x)"
   by (rule extensionality) auto
 

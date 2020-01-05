@@ -1,4 +1,4 @@
-section \<open>Binary relations\<close>
+chapter \<open>Binary relations\<close>
 
 theory Relation
 imports Ordered_Pairs
@@ -15,12 +15,12 @@ definition fld :: "set \<Rightarrow> set"
   where "fld R \<equiv> dom R \<union> rng R"
 
 
-subsection \<open>Domain and range\<close>
+section \<open>Domain and range\<close>
 
-lemma domI: "\<langle>x, y\<rangle> \<in> R \<Longrightarrow> x \<in> dom R"
+lemma domI [intro]: "\<langle>x, y\<rangle> \<in> R \<Longrightarrow> x \<in> dom R"
   unfolding dom_def by auto
 
-lemma domE:
+lemma domE [elim]:
   assumes "x \<in> dom R" and "R \<subseteq> A \<times> B"
   shows "\<exists>y. \<langle>x, y\<rangle> \<in> R"
 proof -
@@ -28,6 +28,10 @@ proof -
   with assms(2) have "\<langle>x, snd p\<rangle> \<in> R" by auto
   thus ?thesis ..
 qed
+
+lemma dom_iff [iff]:
+  "R \<subseteq> A \<times> B \<Longrightarrow> x \<in> dom R \<longleftrightarrow> (\<exists>y. \<langle>x, y\<rangle> \<in> R)"
+  by auto
 
 lemma not_in_domE: "\<lbrakk>x \<notin> dom R; \<not>(\<exists>y. \<langle>x, y\<rangle> \<in> R) \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   unfolding dom_def by force
@@ -72,7 +76,7 @@ lemma cons_rng [simp]: "rng (cons \<langle>x, y\<rangle> A) = cons y (rng A)"
   unfolding rng_def by (rule extensionality) auto
 
 
-subsection \<open>Converse relations\<close>
+section \<open>Converse relations\<close>
 
 definition converse :: "set \<Rightarrow> set"
   where "converse R \<equiv> {\<langle>snd p, fst p\<rangle> | p \<in> R}"
@@ -113,7 +117,7 @@ lemma converse_type [type]: "converse : subset (A \<times> B) \<Rightarrow> subs
   by unfold_types auto
 
 
-subsection \<open>Relations on a set\<close>
+section \<open>Relations on a set\<close>
 
 definition "reflexive A R \<equiv> \<forall>x \<in> A. \<langle>x, x\<rangle> \<in> R"
 
@@ -135,7 +139,7 @@ definition "partially_ordered A R \<equiv>
 definition "linearly_ordered A R \<equiv> total A R \<and> partially_ordered A R"
 
 
-subsection \<open>Well-founded and well-ordered relations\<close>
+section \<open>Well-founded and well-ordered relations\<close>
 
 definition "well_founded A R \<equiv>
   \<forall>X. X \<subseteq> A \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<not>(\<exists>x \<in> X. \<langle>x, a\<rangle> \<in> R))"
@@ -145,43 +149,6 @@ lemma well_foundedI:
   unfolding well_founded_def by auto
 
 definition "well_ordered A R \<equiv> linearly_ordered A R \<and> well_founded A R"
-
-
-(* Should be structures *)
-(*
-subsection \<open>Partial and total orders\<close>
-
-definition partial_order :: "set \<Rightarrow> set type"
-  where partial_order_typedef:
-  "partial_order P \<equiv> reflexive \<sqdot> transitive \<sqdot> antisymmetric \<sqdot> subset (P \<times> P)"
-
-definition strict_partial_order :: "set \<Rightarrow> set type"
-  where strict_partial_order_typedef:
-  "strict_partial_order P \<equiv> irreflexive \<sqdot> transitive \<sqdot> subset (P \<times> P)"
-
-definition linear_order :: "set \<Rightarrow> set type"
-  where total_order_typedef:
-  "linear_order P \<equiv> total \<sqdot> partial_order P"
-*)
-
-(* Not sure we'd need these *)
-(*
-subsection \<open>Soft type and class relations\<close>
-
-definition relation :: "set type"
-  where relation_typedef: "relation \<equiv> Type (\<lambda>R. \<forall>z \<in> R. \<exists>x y. z = \<langle>x, y\<rangle>)"
-
-definition domed :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-domed)" [1000])
-  where "A-domed \<equiv> \<lambda>R. dom R \<subseteq> A"
-
-definition valued :: "set \<Rightarrow> set \<Rightarrow> bool" ("(_-valued)" [1000])
-  where "B-valued \<equiv> \<lambda>R. rng R \<subseteq> B"
-
-lemma relations_relation_type [elim]:
-  "R \<subseteq> A \<times> B \<Longrightarrow> R : A-domed \<sqdot> B-valued \<sqdot> relation"
-  unfolding domed_def valued_def dom_def rng_def relation_typedef adjective_def
-  by unfold_types auto
-*)
 
 
 end

@@ -213,6 +213,9 @@ lemma omega_elem_Ord: "n \<in> \<omega> \<Longrightarrow> n: Ord"
 lemma omega_elem_mem_transitive: "n \<in> \<omega> \<Longrightarrow> mem_transitive n"
   using omega_elem_Ord Ord_mem_transitive by auto
 
+lemma omega_elem_mem_transitive': "\<lbrakk>n \<in> \<omega>; m \<in> n; k \<in> m\<rbrakk> \<Longrightarrow> k \<in> n"
+  using omega_elem_mem_transitive unfolding mem_transitive_def by auto
+
 lemma [derive]: "n: element \<omega> \<Longrightarrow> mem_transitive n"
   by unfold_types (fact omega_elem_mem_transitive)
 
