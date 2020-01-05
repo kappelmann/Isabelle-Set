@@ -120,6 +120,10 @@ lemma function_dom [elim, simp]: "f \<in> \<Prod>x\<in> A. (B x) \<Longrightarro
   unfolding Function_def dom_def
   by (force intro: extensionality)
 
+(*For rewriting*)
+lemma function_dom_dom [simp]: "f \<in> \<Prod>x\<in> A. (B x) \<Longrightarrow> f \<in> \<Prod>x\<in> dom f. (B x)"
+  by auto
+
 lemma function_elem_dom: "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> x \<in> A"
   using domI function_dom by fastforce
 
@@ -193,6 +197,40 @@ proof (rule subsetI, rule function_elemE, rule assms, assumption+)
   from 1 assms(2) function_elem have "\<langle>fst p, g `(fst p)\<rangle> \<in> g" by auto
   thus "\<langle>fst p, f `(fst p)\<rangle> \<in> g" using 2 by simp
 qed
+
+lemma graph_FunctionI:
+  assumes
+    "f \<subseteq> \<Sum>x\<in> A. (B x)"
+    "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f"
+  shows "f \<in> \<Prod>x\<in> A. (B x)"
+  unfolding Function_def using assms by auto
+
+lemma function_empty_dom [simp]: "{} \<rightarrow> A = {{}}" by (auto intro: equalityI)
+
+lemma function_empty_range [simp]: "A \<rightarrow> {} = (if A = {} then {{}} else {})"
+  unfolding Function_def by (auto intro!: equalityI)
+
+lemma empty_function [intro]: "{} \<in> {} \<rightarrow> X" by auto
+
+lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
+  unfolding Function_def by auto
+
+lemma function_singletons [simp]: "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
+  unfolding Function_def by auto
+
+lemma cons_FunctionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+  unfolding Function_def using dom_def by auto
+
+lemma cons_FunctionI':
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A; y \<in> B\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B"
+  apply (drule cons_FunctionI, assumption)
+  apply (subst bin_union_singleton_absorb[symmetric, where ?t=B])
+  by (auto simp: bin_union_ac)
+
+lemma bin_union_FunctionI:
+  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
+  unfolding Function_def using dom_def by auto
 
 
 section \<open>Soft types and type theory-like rules\<close>
@@ -286,34 +324,7 @@ corollary function_enlarge_range': "\<lbrakk>f \<in> A \<rightarrow> B; B \<subs
   by (rule function_enlarge_range)
 
 
-section \<open>Set-theoretic rules\<close>
-
-lemma function_empty_dom [simp]: "{} \<rightarrow> A = {{}}" by (auto intro: equalityI)
-
-lemma function_empty_range [simp]: "A \<rightarrow> {} = (if A = {} then {{}} else {})"
-  unfolding Function_def by (auto intro!: equalityI)
-
-lemma empty_function [intro]: "{} \<in> {} \<rightarrow> X" by auto
-
-lemma singleton_function [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
-  unfolding Function_def by auto
-
-lemma function_singletons [simp]: "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
-  unfolding Function_def by auto
-
-lemma cons_FunctionI:
-  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
-  unfolding Function_def using dom_def by auto
-
-lemma cons_FunctionI':
-  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A; y \<in> B\<rbrakk> \<Longrightarrow> cons \<langle>x, y\<rangle> f \<in> A \<union> {x} \<rightarrow> B"
-  apply (drule cons_FunctionI, assumption)
-  apply (subst bin_union_singleton_absorb[symmetric, where ?t=B])
-  by (auto simp: bin_union_ac)
-
-lemma bin_union_FunctionI:
-  "\<lbrakk>f \<in> A \<rightarrow> B; x \<notin> A\<rbrakk> \<Longrightarrow> {\<langle>x, y\<rangle>} \<union> f \<in> A \<union> {x} \<rightarrow> B \<union> {y}"
-  unfolding Function_def using dom_def by auto
+section \<open>More set-theoretic rules\<close>
 
 lemma Function_empty_iff [iff]: "A \<rightarrow> B = {} \<longleftrightarrow> A \<noteq> {} \<and> B = {}"
 proof (rule iffI, rule conjI)
@@ -325,10 +336,7 @@ proof (rule iffI, rule conjI)
   qed
 qed auto
 
-(*
-  Larry: Such functions arise in non-standard datatypes, ZF/ex/Ntree for
-  instance.
-*)
+(*Larry: Such functions arise in non-standard datatypes, ZF/ex/Ntree for instance.*)
 lemma Function_collect_iff:
   "f \<in> \<Prod>x\<in> A. {y \<in> B x | P x y} \<longleftrightarrow> f \<in> \<Prod>x\<in> A. (B x) \<and> (\<forall>x \<in> A. P x (f `x))"
   by (auto intro: function_refine dest: FunctionE)
@@ -355,7 +363,7 @@ proof
 qed
 
 
-section \<open>More application\<close>
+section \<open>More function application\<close>
 
 lemma apply_singleton [simp]: "{\<langle>x, y\<rangle>} `x = y"
   by (auto simp: apply_def)
@@ -463,6 +471,60 @@ lemma restriction_function [intro]:
 lemma restriction_function_subset [intro]:
   "\<lbrakk>f \<in> A \<rightarrow> B; A' \<subseteq> A\<rbrakk> \<Longrightarrow> f \<restriction> A' \<in> A' \<rightarrow> B"
   by (subst (4) bin_inter_subset_right_absorb[symmetric]) auto
+
+
+section \<open>Gluing\<close>
+
+definition "glue X = \<Union>X"
+
+lemma glueI:
+  assumes "\<And>f. f \<in> X \<Longrightarrow> \<exists>A. f \<in> A \<rightarrow> B"
+      and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f \<inter> dom g\<rbrakk> \<Longrightarrow> f `x = g `x"
+  shows "glue X \<in> (\<Union>f\<in> X. dom f) \<rightarrow> B"
+unfolding glue_def
+proof (rule graph_FunctionI)
+  show "\<Union>X \<subseteq> (\<Union>f\<in> X. dom f) \<times> B"
+    using assms(1) by (force simp: Function_def dom_def)
+
+  fix x assume asm: "x \<in> (\<Union>f\<in> X. dom f)"
+  show "\<exists>!y. \<langle>x, y\<rangle> \<in> \<Union>X"
+  proof (rule ex_ex1I)
+    from asm assms(1) obtain f A where
+      f: "f \<in> X" "x \<in> dom f" and
+      "f \<in> A \<rightarrow> B"
+      by fastforce
+    then have "\<langle>x, f `x\<rangle> \<in> \<Union>X" using function_elem by auto
+    thus "\<exists>y. \<langle>x, y\<rangle> \<in> \<Union>X" ..
+
+    have "\<And>y. \<langle>x, y\<rangle> \<in> \<Union>X \<Longrightarrow> y = f `x"
+    proof -
+      fix y assume asm: "\<langle>x, y\<rangle> \<in> \<Union>X"
+      with assms(1) obtain g where
+        g: "g \<in> X" "x \<in> dom g" and
+        *: "y = g `x" by fastforce
+      have "g `x = f `x" using assms(2) by (fast intro: f g)
+      with * show "y = f `x" by simp
+    qed
+    thus "\<And>y y'. \<langle>x, y\<rangle> \<in> \<Union>X \<Longrightarrow> \<langle>x, y'\<rangle> \<in> \<Union>X \<Longrightarrow> y = y'" by auto
+  qed
+qed
+
+lemma apply_glue:
+  assumes "\<And>f. f \<in> X \<Longrightarrow> \<exists>A. f \<in> A \<rightarrow> B"
+      and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f \<inter> dom g\<rbrakk> \<Longrightarrow> f `x = g `x"
+      and "f \<in> X"
+      and "a \<in> dom f"
+  shows "(glue X) `a = f `a"
+proof (rule function_apply)
+  show "glue X \<in> (\<Union>f\<in> X. dom f) \<rightarrow> B" by (auto intro: glueI assms)
+
+  from assms(1, 3) obtain A where "f \<in> A \<rightarrow> B" by auto
+  hence "f \<in> dom f \<rightarrow> B" using function_dom_dom by auto
+  hence "\<langle>a, f `a\<rangle> \<in> f" using function_elem assms(4) by blast
+  with assms(3) show "\<langle>a, f `a\<rangle> \<in> glue X"
+    unfolding glue_def by blast
+qed
+
 
 section \<open>Universes\<close>
 
