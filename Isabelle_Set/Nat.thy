@@ -53,8 +53,8 @@ lemmas
   lt_succ [simp] = succ_mem[folded lt_def] and
   lt_succ_cases = succ_cases[folded lt_def]
 
-lemma lt_monotone [intro]:
-  "\<lbrakk>n: Nat; m: Nat; m < n\<rbrakk> \<Longrightarrow> succ m < succ n"
+lemma succ_lt_monotone [intro]:
+  "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m < succ n"
   unfolding lt_def by (induction n rule: Nat_induct) (auto simp: succ_def)
 
 lemma lt_trichotomy:
@@ -75,9 +75,13 @@ definition le (infix "\<le>" 60) where "m \<le> n = (m < n \<or> m = n)"
 lemma lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
   unfolding le_def ..
 
-lemma le_monotone [intro]:
-  "\<lbrakk>n: Nat; m: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
-  unfolding le_def using lt_monotone by auto
+lemma succ_le_monotone:
+  "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+  unfolding le_def using succ_lt_monotone by auto
+
+lemma succ_lt_le_monotone:
+  "\<lbrakk>n :Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+  unfolding le_def using succ_lt_monotone by auto
 
 lemma lt_0 [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
   unfolding lt_def nat_def by unfold_types (fact omega_empty_in_succ)
@@ -100,8 +104,21 @@ lemma le_cases:
   shows "P m"
   using assms unfolding le_def by auto
 
+lemma lt_transitive:
+  "n : Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k < n"
+  unfolding lt_def nat_def
+  by unfold_types (auto intro: omega_elem_mem_transitive')
 
-section \<open>More rewriting on \<open><\<close>\<close>
+lemma
+  le_transitive: "n: Nat \<Longrightarrow> k \<le> m \<Longrightarrow> m \<le> n \<Longrightarrow> k \<le> n" and
+  le_lt_lt:      "n: Nat \<Longrightarrow> k \<le> m \<Longrightarrow> m < n \<Longrightarrow> k < n" and
+  lt_le_lt:      "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m \<le> n \<Longrightarrow> k < n" and
+  lt_le_le:      "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m \<le> n \<Longrightarrow> k \<le> n" and
+  le_lt_le:      "n: Nat \<Longrightarrow> k \<le> m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n" and
+  lt_lt_le:      "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
+  unfolding le_def by (auto intro: lt_transitive)
+
+text \<open>More rewriting on \<open><\<close>\<close>
 
 lemma succ_lt: "\<lbrakk>m: Nat; n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
@@ -144,11 +161,12 @@ lemma
   [derive]: "n: Nat \<Longrightarrow> m: element n \<Longrightarrow> m: element {0, ..., n}"
   by unfold_types (auto simp: upto_eq_succ)
 
-lemma le_induct_raw [rule_format]:
+lemma upto_subset_upto [intro!]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> {0, ..., m} \<subseteq> {0, ..., n}"
+  unfolding upto_def le_def by (auto intro: lt_transitive)
+
+lemma le_induct_raw:
   "n: Nat \<Longrightarrow> P 0 \<Longrightarrow> (\<forall>m. m < n \<longrightarrow> P m \<longrightarrow> P (succ m)) \<longrightarrow> (\<forall>m. m \<le> n \<longrightarrow> P m)"
-
 text \<open>Proof sketch: case n = 0 is easy, case n > 0 is by induction.\<close>
-
 proof (cases n rule: Nat_cases, assumption; rule impI)
   assume "P 0"
   then show "\<forall>m. m \<le> 0 \<longrightarrow> P m" by (auto dest: le_0)
@@ -159,7 +177,7 @@ next
     "(\<forall>m. m < succ n \<longrightarrow> P m \<longrightarrow> P (succ m))"
   show "\<forall>m. m \<le> succ n \<longrightarrow> P m"
   proof clarify
-    have *: "succ n: Nat" using assms by auto
+    have succ_n: "succ n: Nat" using assms by auto
 
     { fix m have "m: Nat \<Longrightarrow> m < succ n \<Longrightarrow> P m"
       proof (induction m rule: Nat_induct)
@@ -170,12 +188,12 @@ next
         moreover have "P k" using assms' by auto
         ultimately show "P (succ k)" using assms(3) by auto
       qed
-      hence "m < succ n \<Longrightarrow> P m" using lt_imp_Nat[OF *] by auto
+      hence "m < succ n \<Longrightarrow> P m" using lt_imp_Nat[OF succ_n] by auto
     }
     hence 1: "\<And>m. m < succ n \<Longrightarrow> P m" by auto
     hence 2: "P (succ n)" using assms(3) by auto
 
-    fix m show "m \<le> succ n \<Longrightarrow> P m" using 1 2 by (auto elim: le_cases[OF *])
+    fix m show "m \<le> succ n \<Longrightarrow> P m" using 1 2 by (auto elim: le_cases[OF succ_n])
   qed
 qed
 
@@ -201,7 +219,7 @@ section \<open>Recursion\<close>
 
 text \<open>Well-founded recursion on Nat\<close>
 
-lemma Nat_recursion:
+theorem Nat_recursion:
   assumes "f : element X \<Rightarrow> element X"
       and "x\<^sub>0 : element X"
   obtains F where
@@ -211,80 +229,72 @@ lemma Nat_recursion:
 
 proof
 
-fix n
-
 text \<open>
   First construct partial functions that satisfy the recursion rule on their
   domain of definition.
 \<close>
 
-have partial_existence:
-  "n: Nat \<Longrightarrow> \<exists>F.
-    F \<in> {0, ..., succ n} \<rightarrow> X \<and>
-    F `0 = x\<^sub>0 \<and>
-    (\<forall>m. m < n \<longrightarrow> F `(succ m) = f (F `m)) \<and>
-    F `(succ n) = f (F `n)"
-
-  proof (induction n rule: Nat_induct)
-    case base
-    let ?F = "{\<langle>0, x\<^sub>0\<rangle>, \<langle>succ 0, f x\<^sub>0\<rangle>}"
-    have "{0, ..., succ 0} = {succ 0} \<union> {0}"
-      by (simp only: upto_eq_succ) (auto intro: equalityI simp: succ_def)
-    hence "?F \<in> {0, ..., succ 0} \<rightarrow> X"
-      by (force intro: cons_FunctionI' assms)
-    thus
-      "\<exists>F. F \<in> {0, ..., succ 0} \<rightarrow> X \<and> F `0 = x\<^sub>0 \<and>
-      (\<forall>m. m < 0 \<longrightarrow> F `(succ m) = f (F `m)) \<and> F `(succ 0) = f (F `0)"
-      by auto
-
-    case (induct n)
-    obtain F where IH:
-      "F \<in> {0, ..., succ n} \<rightarrow> X"
-      "F `0 = x\<^sub>0"
-      "\<forall>m. m < n \<longrightarrow> F `(succ m) = f (F `m)"
-      "F `(succ n) = f (F `n)"
-      using induct.IH by auto
-
-    let ?F = "cons \<langle>succ (succ n), f (F `(succ n))\<rangle> F"
-
-    have 1: "?F \<in> {0, ..., succ (succ n)} \<rightarrow> X"
-      by (fastforce intro: IH simp: [[type_derivation_depth=4]])
-      \<comment>\<open>*EXAMPLE*: needs derivation depth 4\<close>
-
-    have 2: "?F `0 = x\<^sub>0"
-      using IH(2) by auto
-
-    have 3: "\<forall>m. m < succ n \<longrightarrow> ?F `(succ m) = f (?F `m)"
-      using IH by (auto elim: succ_cases simp: lt_def)
-
-    have 4: "?F `(succ (succ n)) = f (?F `(succ n))"
-      by (simp add: IH(1) mem_irrefl)
-
-    show "\<exists>F.
-      F \<in> {0, ..., succ (succ n)} \<rightarrow> X \<and>
-      F `0 = x\<^sub>0 \<and>
-      (\<forall>m. m < succ n \<longrightarrow> F `(succ m) = f (F `m)) \<and>
-      F `(succ (succ n)) = f (F `(succ n))"
-      using 1 2 3 4 by blast
-  qed
-
-text \<open>Next show that these partial functions are unique for each n.\<close>
-
-let ?P = "\<lambda>F.
+let ?P = "\<lambda>n F.
   F \<in> {0, ..., succ n} \<rightarrow> X \<and>
   F `0 = x\<^sub>0 \<and>
   (\<forall>m. m < n \<longrightarrow> F `(succ m) = f (F `m)) \<and>
   F `(succ n) = f (F `n)"
 
-assume "n: Nat"
-
-have partial_uniqueness:
-  "\<And>F G. ?P F \<Longrightarrow> ?P G \<Longrightarrow> F = G"
-
+have partial_existence: "\<And>n. n: Nat \<Longrightarrow> \<exists>F. ?P n F"
   proof -
-    have succ_n: "succ n: Nat" by auto
+    fix n show "n: Nat \<Longrightarrow> \<exists>F. ?P n F"
+    proof (induction n rule: Nat_induct)
+      case base
+      let ?F = "{\<langle>0, x\<^sub>0\<rangle>, \<langle>succ 0, f x\<^sub>0\<rangle>}"
+      have "{0, ..., succ 0} = {succ 0} \<union> {0}"
+        by (simp only: upto_eq_succ) (auto intro: equalityI simp: succ_def)
+      hence "?F \<in> {0, ..., succ 0} \<rightarrow> X"
+        by (force intro: cons_FunctionI' assms)
+      thus
+        "\<exists>F. F \<in> {0, ..., succ 0} \<rightarrow> X \<and> F `0 = x\<^sub>0 \<and>
+        (\<forall>m. m < 0 \<longrightarrow> F `(succ m) = f (F `m)) \<and> F `(succ 0) = f (F `0)"
+        by auto
 
-    fix F G assume F: "?P F" and G: "?P G" show "F = G"
+      case (induct n)
+      obtain F where IH:
+        "F \<in> {0, ..., succ n} \<rightarrow> X"
+        "F `0 = x\<^sub>0"
+        "\<forall>m. m < n \<longrightarrow> F `(succ m) = f (F `m)"
+        "F `(succ n) = f (F `n)"
+        using induct.IH by auto
+
+      let ?F = "cons \<langle>succ (succ n), f (F `(succ n))\<rangle> F"
+
+      have 1: "?F \<in> {0, ..., succ (succ n)} \<rightarrow> X"
+        by (fastforce intro: IH simp: [[type_derivation_depth=4]])
+        \<comment>\<open>*EXAMPLE*: needs derivation depth 4\<close>
+
+      have 2: "?F `0 = x\<^sub>0"
+        using IH(2) by auto
+
+      have 3: "\<forall>m. m < succ n \<longrightarrow> ?F `(succ m) = f (?F `m)"
+        using IH by (auto simp: lt_def)
+
+      have 4: "?F `(succ (succ n)) = f (?F `(succ n))"
+        by (simp add: IH(1) mem_irrefl)
+
+      show "\<exists>F.
+        F \<in> {0, ..., succ (succ n)} \<rightarrow> X \<and>
+        F `0 = x\<^sub>0 \<and>
+        (\<forall>m. m < succ n \<longrightarrow> F `(succ m) = f (F `m)) \<and>
+        F `(succ (succ n)) = f (F `(succ n))"
+        using 1 2 3 4 by blast
+    qed
+  qed
+
+text \<open>Next show that these partial functions are unique for each n.\<close>
+
+have partial_uniqueness: "\<And>n F G. n: Nat \<Longrightarrow> ?P n F \<Longrightarrow> ?P n G \<Longrightarrow> F = G"
+  proof -
+    fix n assume "n: Nat"
+    hence succ_n: "succ n: Nat" by auto
+
+    fix F G assume F: "?P n F" and G: "?P n G" show "F = G"
     proof (rule funext)
       show "F \<in> {0, ..., succ n} \<rightarrow> X" and "G \<in> {0, ..., succ n} \<rightarrow> X"
         using F G by fast+
@@ -301,12 +311,97 @@ have partial_uniqueness:
           also have "f (G `x) = G `(succ x)" using G by auto
           finally show "F `(succ x) = G `(succ x)" .
 
-          next show "F `n = G `n \<Longrightarrow> F `(succ n) = G `(succ n)" using F G by auto
+          next show "F `n = G `n \<Longrightarrow> F `(succ n) = G `(succ n)"
+            using F G by auto
         qed
         thus "k < succ n \<Longrightarrow> F `k = G `k \<Longrightarrow> F `(succ k) = G `(succ k)" ..
       qed
     qed
   qed
+
+with partial_existence have partial_functions:
+  "\<And>n. n: Nat \<Longrightarrow> \<exists>!F. ?P n F"
+  by blast
+
+text \<open>
+  Thus obtain a sequence of partial functions on \<nat> satisfying the recursion
+  relation on their restricted domains.
+\<close>
+
+define F\<^sub>P where "F\<^sub>P \<equiv> \<lambda>n. THE F. ?P n F"
+
+have F\<^sub>P_props: "\<And>n. n \<in> \<nat> \<Longrightarrow> ?P n (F\<^sub>P n)"
+  unfolding F\<^sub>P_def using partial_functions by (rule theI') auto
+
+text \<open>
+  Any two partial function are compatible on the intersection of their domains.
+\<close>
+
+have compatibility: "\<And>m n. n: Nat \<Longrightarrow> m < n \<Longrightarrow> F\<^sub>P m \<subseteq> F\<^sub>P n"
+  proof (rule extend_function)
+    fix m n
+    assume
+      n: "n: Nat" and m_le_n: "m < n"
+    hence
+      m: "m: Nat"
+      ..
+
+    from m n have Fm: "?P m (F\<^sub>P m)" and Fn: "?P n (F\<^sub>P n)"
+      unfolding F\<^sub>P_def by (fast intro!: theI' partial_functions)+
+    thus
+      "F\<^sub>P m \<in> {0, ..., succ m} \<rightarrow> X" and
+      "F\<^sub>P n \<in> {0, ..., succ n} \<rightarrow> X"
+      by auto
+
+    show "{0, ..., succ m} \<subseteq> {0, ..., succ n}"
+      unfolding upto_def by (force intro: le_lt_le m_le_n)
+
+    have Fn_restricted: "?P m (F\<^sub>P n \<restriction> {0, ..., succ m})"
+      by (auto simp:
+        restriction_function_subset Fn
+        uptoI m_le_n
+        succ_lt_le_monotone lt_transitive lt_lt_le)
+
+    text \<open>The above shows that \<open>F\<^sub>P n\<close> restricted to {0, ..., succ m} is \<open>F\<^sub>P n\<close>.\<close>
+    note partial_uniqueness[OF m Fn_restricted Fm]
+    hence
+      "\<And>k. F\<^sub>P m `k = (F\<^sub>P n \<restriction> {0, ..., succ m}) `k"
+      by auto
+    also have
+      "\<And>k. k \<in> {0, ..., succ m} \<Longrightarrow> (F\<^sub>P n \<restriction> {0, ..., succ m}) `k = F\<^sub>P n `k"
+      by auto
+    finally show
+      "\<And>k. k \<in> {0, ..., succ m} \<Longrightarrow> F\<^sub>P m `k = F\<^sub>P n `k" .
+  qed
+
+text \<open>
+  This is enough to let us construct the final recursive function and prove it
+  has the necessary properties.
+\<close>
+
+let ?F\<^sub>S = "glue {{F\<^sub>P k} | k \<in> \<nat>}"
+define F where "F \<equiv> \<lambda>n. ?F\<^sub>S `n"
+
+have F\<^sub>S_functional:
+  "\<And>f. f \<in> ?F\<^sub>S \<Longrightarrow> \<exists>A. f \<in> A \<rightarrow> X"
+  unfolding glue_def using F\<^sub>P_props by blast
+
+(* have F_compatible:
+  "(\<And>f g x. f \<in> ?F\<^sub>S \<Longrightarrow> g \<in> ?F\<^sub>S \<Longrightarrow> x \<in> dom f \<inter> dom g \<Longrightarrow> f `x = g `x)"
+  sorry
+
+show "F: Nat \<Rightarrow> element X"
+unfolding F_def
+proof unfold_types
+  have "?F\<^sub>S \<in> \<nat> \<rightarrow> X" sorry
+  thus "\<And>n. n \<in> \<nat> \<Longrightarrow> ?F\<^sub>S `n \<in> X" ..
+qed *)
+
+show "F 0 = x\<^sub>0"
+unfolding F_def
+proof -
+  thm apply_glue
+  have "F\<^sub>P 0 \<in> ?F\<^sub>S" unfolding glue_def by force
 
 oops
 
