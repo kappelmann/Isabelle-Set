@@ -382,26 +382,38 @@ text \<open>
 let ?F\<^sub>S = "glue {{F\<^sub>P k} | k \<in> \<nat>}"
 define F where "F \<equiv> \<lambda>n. ?F\<^sub>S `n"
 
-have F\<^sub>S_functional:
-  "\<And>f. f \<in> ?F\<^sub>S \<Longrightarrow> \<exists>A. f \<in> A \<rightarrow> X"
-  unfolding glue_def using F\<^sub>P_props by blast
+have F\<^sub>S_elems:
+  "\<And>f. f \<in> ?F\<^sub>S \<Longrightarrow> \<exists>n: Nat. f = F\<^sub>P n"
+  unfolding glue_def by auto
 
-(* have F_compatible:
+have F\<^sub>S_compatible:
   "(\<And>f g x. f \<in> ?F\<^sub>S \<Longrightarrow> g \<in> ?F\<^sub>S \<Longrightarrow> x \<in> dom f \<inter> dom g \<Longrightarrow> f `x = g `x)"
-  sorry
+proof -
+  fix f g
+  assume "f \<in> ?F\<^sub>S" and "g \<in> ?F\<^sub>S"
+  then obtain m n where
+    m: "m: Nat" and n: "n: Nat" and "f = F\<^sub>P m" "g = F\<^sub>P n"
+    using F\<^sub>S_elems by blast
+  then have *:
+    "dom f = {0, ..., succ m}" "dom g = {0, ..., succ n}"
+    using F\<^sub>P_props by unfold_types fast+
 
-show "F: Nat \<Rightarrow> element X"
+  fix x assume "x \<in> dom f \<inter> dom g"
+  then have "x \<in> {0, ..., succ m} \<inter> {0, ..., succ n}" using * by simp
+  hence "F\<^sub>P m `x = F\<^sub>P n `x"
+
+(* show "F: Nat \<Rightarrow> element X"
 unfolding F_def
 proof unfold_types
   have "?F\<^sub>S \<in> \<nat> \<rightarrow> X" sorry
   thus "\<And>n. n \<in> \<nat> \<Longrightarrow> ?F\<^sub>S `n \<in> X" ..
-qed *)
+qed
 
 show "F 0 = x\<^sub>0"
 unfolding F_def
 proof -
   thm apply_glue
-  have "F\<^sub>P 0 \<in> ?F\<^sub>S" unfolding glue_def by force
+  have "F\<^sub>P 0 \<in> ?F\<^sub>S" unfolding glue_def by force *)
 
 oops
 

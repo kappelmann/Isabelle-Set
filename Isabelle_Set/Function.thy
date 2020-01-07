@@ -198,6 +198,18 @@ proof (rule subsetI, rule function_elemE, rule assms, assumption+)
   thus "\<langle>fst p, f `(fst p)\<rangle> \<in> g" using 2 by simp
 qed
 
+lemma function_subset:
+  assumes
+    "f \<in> \<Prod>x\<in> A. (B x)"
+    "g \<in> \<Prod>x\<in> A'. (B' x)"
+    "f \<subseteq> g"
+    "x \<in> A \<inter> A'"
+  shows "f `x = g `x"
+proof -
+  have "\<langle>x, f `x\<rangle> \<in> g" and "\<langle>x, g `x\<rangle> \<in> g" using function_elem assms by auto
+  thus ?thesis using function_uniq_val assms by auto
+qed
+
 lemma graph_FunctionI:
   assumes
     "f \<subseteq> \<Sum>x\<in> A. (B x)"
