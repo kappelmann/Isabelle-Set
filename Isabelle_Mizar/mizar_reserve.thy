@@ -58,7 +58,7 @@ fun reserve_cmd (vs, tm) lthy =
 val _ =
   Outer_Syntax.local_theory @{command_keyword reserve}
     "reserve variable names with types"
-    ((Parse.list1 Parse.text -- (Parse.$$$ "for" |-- Parse.term)) >> (fn (vs, tm) => fn lthy => reserve_cmd (vs, Syntax.read_term lthy tm) lthy))
+    ((Parse.list1 Parse.text -- (\<^keyword>\<open>for\<close> |-- Parse.term)) >> (fn (vs, tm) => fn lthy => reserve_cmd (vs, Syntax.read_term lthy tm) lthy))
 \<close>
 
 ML \<open>

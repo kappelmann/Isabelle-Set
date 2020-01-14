@@ -217,7 +217,7 @@ fun translation_defined_for ctxt head_tm =
 
 val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
   "declare automatic soft type translations"
-  (Parse.term -- (Parse.$$$ "\<rightleftharpoons>" |-- Parse.term) >> (fn (pred, styp) =>
+  (Parse.term -- (\<^keyword>\<open>\<rightleftharpoons>\<close> |-- Parse.term) >> (fn (pred, styp) =>
     Toplevel.theory_to_proof (fn thy =>
       let
         val ctxt = Proof_Context.init_global thy

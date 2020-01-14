@@ -39,7 +39,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
     val parser =
       Parse.name
       -- Scan.option (Scan.repeat Parse.term)
-      -- (Parse.$$$ "is" |-- Parse.term)
+      -- (\<^keyword>\<open>is\<close> |-- Parse.term)
 
     fun object_cmd (name, params, object_defstr) lthy =
       (let
