@@ -235,7 +235,7 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
         fun after_qed [[trans_to], [trans_from]] =
               Proof_Context.background_theory
                 (put_translation head_const trans_to trans_from)
-          | after_qed _ = raise ERROR "soft_type_translation: after_qed"
+          | after_qed _ = raise Fail "soft_type_translation: after_qed"
       in
         ctxt |> Proof.theorem NONE after_qed
           [ [(Logic.mk_implies (pred_tm', styp_tm'), [])],
