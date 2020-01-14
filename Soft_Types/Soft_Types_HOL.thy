@@ -6,15 +6,14 @@ text \<open>
 \<close>
 
 theory Soft_Types_HOL
-imports
-  HOL.HOL
-  Implicit_Arguments
-  "HOL-Eisbach.Eisbach"
-  "HOL-Eisbach.Eisbach_Tools"
-keywords
-  "opaque" "soft_type_translation" :: thy_decl and
-  "print_opaque_terms" "print_types" :: diag
-
+  imports
+    HOL.HOL
+    Implicit_Arguments
+    "HOL-Eisbach.Eisbach"
+    "HOL-Eisbach.Eisbach_Tools"
+  keywords
+    "opaque" "soft_type_translation" :: thy_decl and
+    "print_opaque_terms" "print_types" :: diag
 begin
 
 declare [[eta_contract=false]]
@@ -248,6 +247,5 @@ lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
 
 lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
   by unfold_types
-
 
 end

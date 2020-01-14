@@ -1,8 +1,8 @@
+section \<open>Implicit_Arguments\<close>
+
 theory Implicit_Arguments
   imports Pure
 begin
-
-subsection \<open>Implicit_Arguments\<close>
 
 text \<open>
   Two uninterpreted constants that can inject identifiers into the pre-term syntax without
@@ -28,6 +28,5 @@ text \<open>
 \<close>
 
 ML_file "implicit_arguments.ML"
-
 
 end
