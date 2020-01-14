@@ -139,11 +139,14 @@ text \<open>Dependent function soft type for HOL lambda terms.\<close>
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where [typedef]: "Pi_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
 
+abbreviation function_space :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
+  where "function_space A B \<equiv> Pi_type A (\<lambda>_. B)"
+
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
-  "A \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>_. B)"
+  "A \<Rightarrow> B" \<rightleftharpoons> "CONST function_space A B"
 
 lemma Pi_typeI [typeI]:
   "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
