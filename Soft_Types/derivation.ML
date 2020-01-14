@@ -164,6 +164,7 @@ fun put_opaque_terms tms =
 val _ =
   Outer_Syntax.local_theory \<^command_keyword>\<open>opaque\<close> "declare opaque terms"
     (Scan.repeat Parse.term >> (fn tms => fn lthy => lthy |>
+      (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
       Local_Theory.background_theory (Context.theory_map
         (put_opaque_terms (Syntax.read_terms lthy tms)))))
 
@@ -233,6 +234,7 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
           else ()
 
         fun after_qed [[trans_to], [trans_from]] =
+              (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
               Proof_Context.background_theory
                 (put_translation head_const trans_to trans_from)
           | after_qed _ = raise ERROR "soft_type_translation: after_qed"
