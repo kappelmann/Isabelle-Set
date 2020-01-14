@@ -204,13 +204,13 @@ fun get_forward_translation ctxt head_tm =
   SOME (#1 (the (Termtab.lookup
     (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
     head_tm)))
-  handle Option => NONE
+  handle Option.Option => NONE
 
 fun get_backward_translation ctxt head_tm =
   SOME (#2 (the (Termtab.lookup
     (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
     head_tm)))
-  handle Option => NONE
+  handle Option.Option => NONE
 
 fun translation_defined_for ctxt head_tm =
   Termtab.defined (Soft_Type_Translation.get (Proof_Context.theory_of ctxt)) head_tm
