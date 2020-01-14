@@ -5,7 +5,7 @@ Management and automation of type derivation, and setup of soft type interface.
 
 *)
 
-structure Derivation =
+structure Derivation =  (* FIXME proper ML signature as formal table-of-contents *)
 struct
 
 (*** Tracing ***)
@@ -419,6 +419,7 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
   if Soft_Type.is_jdgmt goal
   then
     let
+      (* FIXME implicit use of all facts violates Isar proof structure *)
       val facts = map fst (Facts.props (Proof_Context.facts_of ctxt))
 
       fun is_derivation_rule thm =
