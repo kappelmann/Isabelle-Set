@@ -200,14 +200,17 @@ fun put_type t thm context =
 
 (* Diagnostic command to show the currently known types *)
 
-fun pretty_types ctxt =
-  (all_types ctxt @ all_adjectives ctxt)
-  |> map (Thm.pretty_thm ctxt)
-  |> Pretty.chunks
-
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>print_types\<close>
     "print theorems of local theory or proof context"
-    (Scan.succeed (Toplevel.keep (Pretty.writeln o pretty_types o Toplevel.context_of)));
+    (Scan.succeed (Toplevel.keep (fn st =>
+      let
+        val ctxt = Toplevel.context_of st
+      in
+        (all_types ctxt @ all_adjectives ctxt)
+        |> map (Thm.pretty_thm ctxt)
+        |> Pretty.chunks
+        |> Pretty.writeln
+      end)))
 
 end

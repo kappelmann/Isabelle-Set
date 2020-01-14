@@ -161,28 +161,24 @@ fun get_opaque_terms ctxt = Opaque_Terms.get (Context.Proof ctxt)
 fun put_opaque_terms tms =
   Opaque_Terms.map (foldl1 (op o) (map Item_Net.update tms))
 
-val _ = (
+val _ =
   Outer_Syntax.local_theory \<^command_keyword>\<open>opaque\<close> "declare opaque terms"
-    let
-      val parser = Scan.repeat Parse.term
-    in
-      (parser >> (fn tms => fn lthy => lthy |>
-        Local_Theory.background_theory (Context.theory_map
-          (put_opaque_terms (Syntax.read_terms lthy tms)))))
-    end;
+    (Scan.repeat Parse.term >> (fn tms => fn lthy => lthy |>
+      Local_Theory.background_theory (Context.theory_map
+        (put_opaque_terms (Syntax.read_terms lthy tms)))))
 
+val _ =
   Outer_Syntax.command \<^command_keyword>\<open>print_opaque_terms\<close>
     "print opaque terms of the proof context or local theory"
-    let
-      fun pretty_terms ctxt =
+    (Scan.succeed (Toplevel.keep (fn st =>
+      let
+        val ctxt = Toplevel.context_of st
+      in
         Item_Net.content (get_opaque_terms ctxt)
         |> map (Syntax.pretty_term ctxt)
         |> Pretty.chunks
-    in
-      (Scan.succeed
-        (Toplevel.keep (Pretty.writeln o pretty_terms o Toplevel.context_of)))
-    end
-)
+        |> Pretty.writeln
+      end)))
 
 
 (** Soft type translation **)
