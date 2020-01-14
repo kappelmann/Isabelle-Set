@@ -53,6 +53,7 @@ fun reserve_cmd (vs, tm) lthy =
     fun reserve thy =
       fold (fn v => fn thy => Miz_Reserve_Data.map (Symtab.update (v, tm)) thy)
         vs thy;
+  (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
   in Local_Theory.background_theory reserve lthy end
 
 val _ =

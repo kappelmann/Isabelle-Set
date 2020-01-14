@@ -69,6 +69,7 @@ Outer_Syntax.local_theory \<^command_keyword>\<open>object\<close> "object decla
         (* fun define_label_const tm = fn lthy =>
           let val (name, typ) = dest_Free tm
           in
+            (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
             lthy |> Local_Theory.background_theory (
               snd o Sign.declare_const lthy ((Binding.qualified_name name, typ), NoSyn)) 
           end *)
