@@ -176,7 +176,7 @@ val _ = (
     let
       fun pretty_terms ctxt =
         Item_Net.content (get_opaque_terms ctxt)
-        |> map (Proof_Display.pp_term (K (Proof_Context.theory_of ctxt)))
+        |> map (Syntax.pretty_term ctxt)
         |> Pretty.chunks
     in
       (Scan.succeed
