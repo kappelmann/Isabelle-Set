@@ -12,7 +12,8 @@ theory Soft_Types_HOL
     "HOL-Eisbach.Eisbach"
     "HOL-Eisbach.Eisbach_Tools"
   keywords
-    "opaque" "soft_type_translation" :: thy_decl and
+    "opaque" :: thy_decl and
+    "soft_type_translation" :: thy_goal_stmt and
     "print_opaque_terms" "print_types" :: diag
 begin
 

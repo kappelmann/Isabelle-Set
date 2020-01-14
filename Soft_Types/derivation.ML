@@ -233,20 +233,13 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
           else ()
 
         fun after_qed [[trans_to], [trans_from]] =
-              (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
               Proof_Context.background_theory
                 (put_translation head_const trans_to trans_from)
           | after_qed _ = raise ERROR "soft_type_translation: after_qed"
-
-        val state = ctxt |> Proof.theorem NONE after_qed
+      in
+        ctxt |> Proof.theorem NONE after_qed
           [ [(Logic.mk_implies (pred_tm', styp_tm'), [])],
             [(Logic.mk_implies (styp_tm', pred_tm'), [])] ]
-
-        val _ = state
-          |> Pretty.string_of o Pretty.chunks o Proof.pretty_state
-          |> Output.state
-      in
-        state
       end)))
 
 
