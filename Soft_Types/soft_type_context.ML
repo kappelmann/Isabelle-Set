@@ -208,7 +208,7 @@ val _ =
         val ctxt = Toplevel.context_of st
       in
         (all_types ctxt @ all_adjectives ctxt)
-        |> map (Thm.pretty_thm ctxt)
+        |> map (Thm.pretty_thm ctxt #> single #> Pretty.item)
         |> Pretty.chunks
         |> Pretty.writeln
       end)))

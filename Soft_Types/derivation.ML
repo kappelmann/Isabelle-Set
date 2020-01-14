@@ -175,7 +175,7 @@ val _ =
         val ctxt = Toplevel.context_of st
       in
         Item_Net.content (get_opaque_terms ctxt)
-        |> map (Syntax.pretty_term ctxt)
+        |> map (Syntax.pretty_term ctxt #> single #> Pretty.item)
         |> Pretty.chunks
         |> Pretty.writeln
       end)))
