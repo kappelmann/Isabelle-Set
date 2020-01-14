@@ -192,7 +192,7 @@ fun put_type t thm context =
     fun put_type' t thm context =
       if Soft_Type.is_adj (Thm.prop_of thm) then put_adj t thm context
       else if Soft_Type.is_typing (Thm.prop_of thm) then put_atomic_type t thm context
-      else (raise THM ("Normalization error", 0, [thm]); context)
+      else raise THM ("Normalization error", 0, [thm]);
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end

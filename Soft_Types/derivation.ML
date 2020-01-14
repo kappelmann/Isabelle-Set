@@ -77,8 +77,7 @@ fun get_bderived_types ctxt = Backderived_Types.get (Context.Proof ctxt)
 
 fun put_bderived_type tm = (
   if is_Var tm
-  then raise TERM (
-    "put_bderived_type: backward derivation rule for schematic soft type", [tm])
+  then raise TERM ("put_bderived_type: backward derivation rule for schematic soft type", [tm])
   else ();
   Backderived_Types.map (Item_Net.update tm))
 
