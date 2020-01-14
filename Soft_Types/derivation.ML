@@ -217,14 +217,13 @@ fun translation_defined_for ctxt head_tm =
 
 val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
   "declare automatic soft type translations"
-  (Parse.term -- (\<^keyword>\<open>\<rightleftharpoons>\<close> |-- Parse.term) >> (fn (pred, styp) =>
+  (Parse.term -- (\<^keyword>\<open>\<rightleftharpoons>\<close> |-- Parse.term) >> (fn args =>
     Toplevel.theory_to_proof (fn thy =>
       let
         val ctxt = Proof_Context.init_global thy
 
-        val (pred_tm, styp_tm) = apply2 (Syntax.read_term ctxt) (pred, styp)
-        val (pred_tm', styp_tm') = apply2 Soft_Type.mk_Trueprop (pred_tm, styp_tm)
-        val head_const = head_of pred_tm
+        val (pred, styp) = apply2 (Syntax.read_prop ctxt) args
+        val head_const = head_of (Object_Logic.drop_judgment ctxt pred)
 
         val _ =
           if Termtab.defined (Soft_Type_Translation.get thy) head_const
@@ -238,8 +237,8 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
           | after_qed _ = raise Fail "soft_type_translation: after_qed"
       in
         ctxt |> Proof.theorem NONE after_qed
-          [ [(Logic.mk_implies (pred_tm', styp_tm'), [])],
-            [(Logic.mk_implies (styp_tm', pred_tm'), [])] ]
+          [ [(Logic.mk_implies (pred, styp), [])],
+            [(Logic.mk_implies (styp, pred), [])] ]
       end)))
 
 
