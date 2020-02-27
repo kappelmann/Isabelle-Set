@@ -192,7 +192,7 @@ fun put_type t thm context =
     fun put_type' t thm context =
       if Soft_Type.is_adj (Thm.prop_of thm) then put_adj t thm context
       else if Soft_Type.is_typing (Thm.prop_of thm) then put_atomic_type t thm context
-      else (raise THM ("Normalization error", 0, [thm]); context)
+      else raise THM ("Normalization error", 0, [thm]);
   in
     fold (put_type' t) (normalize (Context.proof_of context) thm) context
   end
@@ -200,16 +200,17 @@ fun put_type t thm context =
 
 (* Diagnostic command to show the currently known types *)
 
-fun pretty_types ctxt =
-  (all_types ctxt @ all_adjectives ctxt)
-  |> map (Proof_Display.pp_thm (K (Proof_Context.theory_of ctxt)))
-  |> Pretty.chunks
-
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>print_types\<close>
     "print theorems of local theory or proof context"
-    (Scan.succeed (Toplevel.keep (Pretty.writeln o pretty_types o Toplevel.context_of)));
-
-
+    (Scan.succeed (Toplevel.keep (fn st =>
+      let
+        val ctxt = Toplevel.context_of st
+      in
+        (all_types ctxt @ all_adjectives ctxt)
+        |> map (Thm.pretty_thm ctxt #> single #> Pretty.item)
+        |> Pretty.chunks
+        |> Pretty.writeln
+      end)))
 
 end

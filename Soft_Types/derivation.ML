@@ -5,7 +5,7 @@ Management and automation of type derivation, and setup of soft type interface.
 
 *)
 
-structure Derivation =
+structure Derivation =  (* FIXME proper ML signature as formal table-of-contents *)
 struct
 
 (*** Tracing ***)
@@ -77,8 +77,7 @@ fun get_bderived_types ctxt = Backderived_Types.get (Context.Proof ctxt)
 
 fun put_bderived_type tm = (
   if is_Var tm
-  then raise TERM (
-    "put_bderived_type: backward derivation rule for schematic soft type", [tm])
+  then raise TERM ("put_bderived_type: backward derivation rule for schematic soft type", [tm])
   else ();
   Backderived_Types.map (Item_Net.update tm))
 
@@ -161,28 +160,25 @@ fun get_opaque_terms ctxt = Opaque_Terms.get (Context.Proof ctxt)
 fun put_opaque_terms tms =
   Opaque_Terms.map (foldl1 (op o) (map Item_Net.update tms))
 
-val _ = (
+val _ =
   Outer_Syntax.local_theory \<^command_keyword>\<open>opaque\<close> "declare opaque terms"
-    let
-      val parser = Scan.repeat Parse.term
-    in
-      (parser >> (fn tms => fn lthy => lthy |>
-        Local_Theory.background_theory (Context.theory_map
-          (put_opaque_terms (Syntax.read_terms lthy tms)))))
-    end;
+    (Scan.repeat Parse.term >> (fn tms => fn lthy => lthy |>
+      (* FIXME proper Local_Theory.declaration instead of Local_Theory.background_theory *)
+      Local_Theory.background_theory (Context.theory_map
+        (put_opaque_terms (Syntax.read_terms lthy tms)))))
 
+val _ =
   Outer_Syntax.command \<^command_keyword>\<open>print_opaque_terms\<close>
     "print opaque terms of the proof context or local theory"
-    let
-      fun pretty_terms ctxt =
+    (Scan.succeed (Toplevel.keep (fn st =>
+      let
+        val ctxt = Toplevel.context_of st
+      in
         Item_Net.content (get_opaque_terms ctxt)
-        |> map (Proof_Display.pp_term (K (Proof_Context.theory_of ctxt)))
+        |> map (Syntax.pretty_term ctxt #> single #> Pretty.item)
         |> Pretty.chunks
-    in
-      (Scan.succeed
-        (Toplevel.keep (Pretty.writeln o pretty_terms o Toplevel.context_of)))
-    end
-)
+        |> Pretty.writeln
+      end)))
 
 
 (** Soft type translation **)
@@ -208,27 +204,26 @@ fun get_forward_translation ctxt head_tm =
   SOME (#1 (the (Termtab.lookup
     (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
     head_tm)))
-  handle Option => NONE
+  handle Option.Option => NONE
 
 fun get_backward_translation ctxt head_tm =
   SOME (#2 (the (Termtab.lookup
     (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
     head_tm)))
-  handle Option => NONE
+  handle Option.Option => NONE
 
 fun translation_defined_for ctxt head_tm =
   Termtab.defined (Soft_Type_Translation.get (Proof_Context.theory_of ctxt)) head_tm
 
 val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
   "declare automatic soft type translations"
-  (Parse.term -- (Parse.$$$ "\<rightleftharpoons>" |-- Parse.term) >> (fn (pred, styp) =>
+  (Parse.term -- (\<^keyword>\<open>\<rightleftharpoons>\<close> |-- Parse.term) >> (fn args =>
     Toplevel.theory_to_proof (fn thy =>
       let
         val ctxt = Proof_Context.init_global thy
 
-        val (pred_tm, styp_tm) = apply2 (Syntax.read_term ctxt) (pred, styp)
-        val (pred_tm', styp_tm') = apply2 Soft_Type.mk_Trueprop (pred_tm, styp_tm)
-        val head_const = head_of pred_tm
+        val (pred, styp) = apply2 (Syntax.read_prop ctxt) args
+        val head_const = head_of (Object_Logic.drop_judgment ctxt pred)
 
         val _ =
           if Termtab.defined (Soft_Type_Translation.get thy) head_const
@@ -239,17 +234,11 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
         fun after_qed [[trans_to], [trans_from]] =
               Proof_Context.background_theory
                 (put_translation head_const trans_to trans_from)
-          | after_qed _ = raise ERROR "soft_type_translation: after_qed"
-
-        val state = ctxt |> Proof.theorem NONE after_qed
-          [ [(Logic.mk_implies (pred_tm', styp_tm'), [])],
-            [(Logic.mk_implies (styp_tm', pred_tm'), [])] ]
-
-        val _ = state
-          |> Pretty.string_of o Pretty.chunks o Proof.pretty_state
-          |> Output.state
+          | after_qed _ = raise Fail "soft_type_translation: after_qed"
       in
-        state
+        ctxt |> Proof.theorem NONE after_qed
+          [ [(Logic.mk_implies (pred, styp), [])],
+            [(Logic.mk_implies (styp, pred), [])] ]
       end)))
 
 
@@ -429,6 +418,7 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
   if Soft_Type.is_jdgmt goal
   then
     let
+      (* FIXME implicit use of all facts violates Isar proof structure *)
       val facts = map fst (Facts.props (Proof_Context.facts_of ctxt))
 
       fun is_derivation_rule thm =

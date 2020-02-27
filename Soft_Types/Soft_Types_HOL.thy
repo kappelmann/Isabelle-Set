@@ -6,15 +6,15 @@ text \<open>
 \<close>
 
 theory Soft_Types_HOL
-imports
-  HOL.HOL
-  Implicit_Arguments
-  "HOL-Eisbach.Eisbach"
-  "HOL-Eisbach.Eisbach_Tools"
-keywords
-  "opaque" "soft_type_translation" :: thy_decl and
-  "print_opaque_terms" "print_types" :: diag
-
+  imports
+    HOL.HOL
+    Implicit_Arguments
+    "HOL-Eisbach.Eisbach"
+    "HOL-Eisbach.Eisbach_Tools"
+  keywords
+    "opaque" :: thy_decl and
+    "soft_type_translation" :: thy_goal_stmt and
+    "print_opaque_terms" "print_types" :: diag
 begin
 
 declare [[eta_contract=false]]
@@ -139,11 +139,14 @@ text \<open>Dependent function soft type for HOL lambda terms.\<close>
 definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
   where [typedef]: "Pi_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
 
+abbreviation fun_type :: "'a type \<Rightarrow> 'b type \<Rightarrow> ('a \<Rightarrow> 'b) type"
+  where "fun_type A B \<equiv> Pi_type A (\<lambda>_. B)"
+
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
-  "A \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>_. B)"
+  "A \<Rightarrow> B" \<rightleftharpoons> "CONST fun_type A B"
 
 lemma Pi_typeI [typeI]:
   "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
@@ -245,6 +248,5 @@ lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> bool"
 
 lemma imp_type [type]: "(\<longrightarrow>) : bool \<Rightarrow> bool \<Rightarrow> bool"
   by unfold_types
-
 
 end
