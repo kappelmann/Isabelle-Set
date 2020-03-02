@@ -34,7 +34,7 @@ lemma MonoidI:
           "M : Add A"
           "\<And>x. x \<in> A \<Longrightarrow> 0 + x = x"
           "\<And>x. x \<in> A \<Longrightarrow> x + 0 = x"
-          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> (x + y) + z = x + y + z"
+          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> x + y + z = x + (y + z)"
   shows "M : Monoid A"
   unfolding Monoid_def
   apply unfold_types
