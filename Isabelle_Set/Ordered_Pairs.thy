@@ -182,15 +182,15 @@ lemma splitD: "split R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
 
 text \<open>Splitting quantifiers:\<close>
 
-lemma split_paired_Bex_Pair [simp]:
+lemma split_paired_bex_Pair [simp]:
   "(\<exists>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<exists>x \<in> A. \<exists>y \<in> B x. P \<langle>x, y\<rangle>)"
   by blast
 
-lemma split_paired_Ball_Pair [simp]:
+lemma split_paired_ball_Pair [simp]:
   "(\<forall>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B x. P \<langle>x,y\<rangle>)"
   by blast
 
-lemma split_paired_Ball: (*this should be unnecessary with the soft type translation*)
+lemma split_paired_ball: (*this should be unnecessary with the soft type translation*)
   "(\<forall>x : element (A \<times> B). P x) \<longleftrightarrow> (\<forall>a : element A. \<forall>b : element B. P \<langle>a, b\<rangle>)"
   by unfold_types auto
 

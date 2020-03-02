@@ -29,149 +29,149 @@ lemmas
 
 section \<open>Bounded quantifiers\<close>
 
-definition Ball :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
-  where "Ball A P \<equiv> (\<forall>x. x \<in> A \<longrightarrow> P x)"
+definition ball :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
+  where "ball A P \<equiv> (\<forall>x. x \<in> A \<longrightarrow> P x)"
 
-definition Bex :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
-  where "Bex A P \<equiv> \<exists>x. x \<in> A \<and> P x"
+definition bex :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
+  where "bex A P \<equiv> \<exists>x. x \<in> A \<and> P x"
 
-definition Bex1 :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
-  where "Bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
+definition bex1 :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
+  where "bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
 
 syntax
-  "_Ball"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ \<in> _./ _)" 10)
-  "_Ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
-  "_Bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
-  "_Bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
-  "_Bex1"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
+  "_ball"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ \<in> _./ _)" 10)
+  "_ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
+  "_bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_bex1"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
 translations
-  "\<forall>x xs \<in> A. P" \<rightharpoonup> "CONST Ball A (\<lambda>x. _Ball2 xs A P)"
-  "_Ball2 x A P" \<rightharpoonup> "\<forall>x \<in> A. P"
-  "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST Ball A (\<lambda>x. P)"
+  "\<forall>x xs \<in> A. P" \<rightharpoonup> "CONST ball A (\<lambda>x. _ball2 xs A P)"
+  "_ball2 x A P" \<rightharpoonup> "\<forall>x \<in> A. P"
+  "\<forall>x \<in> A. P" \<rightleftharpoons> "CONST ball A (\<lambda>x. P)"
 
-  "\<exists>x xs \<in> A. P" \<rightharpoonup> "CONST Bex A (\<lambda>x. _Bex2 xs A P)"
-  "_Bex2 x A P" \<rightharpoonup> "\<exists>x \<in> A. P"
-  "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST Bex A (\<lambda>x. P)"
+  "\<exists>x xs \<in> A. P" \<rightharpoonup> "CONST bex A (\<lambda>x. _bex2 xs A P)"
+  "_bex2 x A P" \<rightharpoonup> "\<exists>x \<in> A. P"
+  "\<exists>x \<in> A. P" \<rightleftharpoons> "CONST bex A (\<lambda>x. P)"
 
-  "\<exists>!x \<in> A. P" \<rightleftharpoons> "CONST Bex1 A (\<lambda>x. P)"
+  "\<exists>!x \<in> A. P" \<rightleftharpoons> "CONST bex1 A (\<lambda>x. P)"
 
-lemma BallI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
-  by (simp add: Ball_def)
+lemma ballI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> \<forall>x \<in> A. P x"
+  by (simp add: ball_def)
 
-lemma Bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
-  by (simp add: Ball_def)
+lemma bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
+  by (simp add: ball_def)
 
-lemma BallE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  unfolding Ball_def by auto
+lemma ballE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  unfolding ball_def by auto
 
-corollary rev_BallE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  by (rule BallE)
+corollary rev_ballE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  by (rule ballE)
 
 
 (* LP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
-lemma Ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
-  by (simp add: Ball_def)
+lemma ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
+  by (simp add: ball_def)
 
-lemma Ball_cong [cong]:
+lemma ball_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<forall>x \<in> A. P x) \<longleftrightarrow> (\<forall>x \<in> A'. P' x)"
-  by (simp add: Ball_def)
+  by (simp add: ball_def)
 
-lemma atomize_Ball:
+lemma atomize_ball:
   "(\<And>x. x \<in> A \<Longrightarrow> P x) \<equiv> Trueprop (\<forall>x \<in> A. P x)"
-  by (simp only: Ball_def atomize_all atomize_imp)
+  by (simp only: ball_def atomize_all atomize_imp)
 
 lemmas
-  [symmetric, rulify] = atomize_Ball and
-  [symmetric, defn] = atomize_Ball
+  [symmetric, rulify] = atomize_ball and
+  [symmetric, defn] = atomize_ball
 
-lemma BexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
-  by (simp add: Bex_def, blast)
+lemma bexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
+  by (simp add: bex_def, blast)
 
 (* LP: The best argument order when there is only one @{term "x \<in> A"} *)
-corollary rev_BexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x" ..
+corollary rev_bexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x" ..
 
 (*
   LP: Not of the general form for such rules. The existential quantifier becomes
   universal.
 *)
-lemma BexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma bexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
-lemma BexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  by (simp add: Bex_def, blast)
+lemma bexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  by (simp add: bex_def, blast)
 
 (*
   LP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is
   nonempty.
 *)
-lemma Bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
-  by (simp add: Bex_def)
+lemma bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
+  by (simp add: bex_def)
 
-lemma Bex_cong [cong]:
+lemma bex_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>x \<in> A. P x) \<longleftrightarrow> (\<exists>x \<in> A'. P' x)"
-  by (simp add: Bex_def cong: conj_cong)
+  by (simp add: bex_def cong: conj_cong)
 
-lemma Bex1I [intro]: "\<lbrakk>P x; x \<in> A; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
-  by (simp add: Bex1_def, blast)
+lemma bex1I [intro]: "\<lbrakk>P x; x \<in> A; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+  by (simp add: bex1_def, blast)
 
-lemma rev_Bex1I: "\<lbrakk>x \<in> A; P x; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
+lemma rev_bex1I: "\<lbrakk>x \<in> A; P x; \<And>z. \<lbrakk>P z; z \<in> A\<rbrakk> \<Longrightarrow> z = x\<rbrakk> \<Longrightarrow> \<exists>!x \<in> A. P x"
   by blast
 
-lemma Bex1E [elim!]: "\<lbrakk>\<exists>!x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  by (simp add: Bex1_def, blast)
+lemma bex1E [elim!]: "\<lbrakk>\<exists>!x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  by (simp add: bex1_def, blast)
 
-lemma Bex1_triv [simp]: "(\<exists>!x \<in> A. P) \<longleftrightarrow> ((\<exists>!x. x \<in> A) \<and> P)"
-  by (auto simp add: Bex1_def)
+lemma bex1_triv [simp]: "(\<exists>!x \<in> A. P) \<longleftrightarrow> ((\<exists>!x. x \<in> A) \<and> P)"
+  by (auto simp add: bex1_def)
 
-lemma Bex1_iff: "(\<exists>!x \<in> A. P x) \<longleftrightarrow> (\<exists>!x. x \<in> A \<and> P x)"
-  by (auto simp add: Bex1_def)
+lemma bex1_iff: "(\<exists>!x \<in> A. P x) \<longleftrightarrow> (\<exists>!x. x \<in> A \<and> P x)"
+  by (auto simp add: bex1_def)
 
-lemma Bex1_cong [cong]:
+lemma bex1_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>!x \<in> A. P x) \<longleftrightarrow> (\<exists>!x \<in> A'. P' x)"
-  by (simp add: Bex1_def cong: conj_cong)
+  by (simp add: bex1_def cong: conj_cong)
 
-lemma Bex1_implies_Bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
+lemma bex1_implies_bex: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> A. P x"
   by auto
 
-lemma Ball_conj_distrib:
+lemma ball_conj_distrib:
   "(\<forall>x \<in> A. P x \<and> Q x) \<longleftrightarrow> (\<forall>x \<in> A. P x) \<and> (\<forall>x \<in> A. Q x)"
   by auto
 
 
 section \<open>Bounded definite description\<close>
 
-definition BThe :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
-  where "BThe A P \<equiv> The (\<lambda>x. x \<in> A \<and> P x)"
+definition bthe :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
+  where "bthe A P \<equiv> The (\<lambda>x. x \<in> A \<and> P x)"
 
-syntax "_BThe" :: "[pttrn, set, bool] \<Rightarrow> set" ("(3THE _ \<in> _./ _)" [0, 0, 10] 10)
-translations "THE x \<in> A. P" \<rightleftharpoons> "CONST BThe A (\<lambda>x. P)"
+syntax "_bthe" :: "[pttrn, set, bool] \<Rightarrow> set" ("(3THE _ \<in> _./ _)" [0, 0, 10] 10)
+translations "THE x \<in> A. P" \<rightleftharpoons> "CONST bthe A (\<lambda>x. P)"
 
-lemma BThe_equality [intro]:
+lemma bthe_equality [intro]:
   assumes "P a"
       and "a \<in> A"
       and "\<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x = a"
   shows "(THE x \<in> A. P x) = a"
-  unfolding BThe_def by (auto intro: assms)
+  unfolding bthe_def by (auto intro: assms)
 
-lemma BTheI:
+lemma btheI:
   "\<exists>!x \<in> A. P x \<Longrightarrow> (THE x \<in> A. P x) \<in> A \<and> P (THE x \<in> A. P x)"
-  unfolding Bex1_def BThe_def by (fact theI'[of "\<lambda>x. x \<in> A \<and> P x"])
+  unfolding bex1_def bthe_def by (fact theI'[of "\<lambda>x. x \<in> A \<and> P x"])
 
 lemma
-  BTheI1: "\<exists>!x \<in> A. P x \<Longrightarrow> (THE x \<in> A. P x) \<in> A" and
-  BTheI2: "\<exists>!x \<in> A. P x \<Longrightarrow> P (THE x \<in> A. P x)"
-  by (auto dest!: BTheI)
+  btheI1: "\<exists>!x \<in> A. P x \<Longrightarrow> (THE x \<in> A. P x) \<in> A" and
+  btheI2: "\<exists>!x \<in> A. P x \<Longrightarrow> P (THE x \<in> A. P x)"
+  by (auto dest!: btheI)
 
-simproc_setup defined_Bex ("\<exists>x \<in> A. P x \<and> Q x") =
+simproc_setup defined_bex ("\<exists>x \<in> A. P x \<and> Q x") =
   \<open>fn _ => Quantifier1.rearrange_bex
     (fn ctxt =>
-      unfold_tac ctxt @{thms Bex_def} THEN
+      unfold_tac ctxt @{thms bex_def} THEN
       Quantifier1.prove_one_point_ex_tac ctxt)\<close>
 
-simproc_setup defined_Ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
+simproc_setup defined_ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
   \<open>fn _ => Quantifier1.rearrange_ball
     (fn ctxt =>
-      unfold_tac ctxt @{thms Ball_def} THEN
+      unfold_tac ctxt @{thms ball_def} THEN
       Quantifier1.prove_one_point_all_tac ctxt)\<close>
 
 
@@ -482,7 +482,7 @@ proof -
   have "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. (\<exists>!y. P x y) \<and> b = (THE y. P x y))"
     using replace_def by auto
   also have "... \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
-  proof (rule Bex_cong[OF refl])
+  proof (rule bex_cong[OF refl])
     fix x assume "x \<in> A"
     show
       "(\<exists>!y. P x y) \<and> b = (THE y. P x y) \<longleftrightarrow> P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b)"
@@ -518,7 +518,7 @@ lemma replaceI [intro]:
 (* Elimination; may assume there is a unique y such that P x y, namely y = b. *)
 lemma replaceE:
   "\<lbrakk> b \<in> {y | x \<in> A, P x y};  \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R \<rbrakk> \<Longrightarrow> R"
-  by (rule replace_iff [THEN iffD1, THEN BexE], simp+)
+  by (rule replace_iff [THEN iffD1, THEN bexE], simp+)
 
 (* As above but without the (generally useless) third assumption *)
 lemma replaceE2 [elim!]:
@@ -561,7 +561,7 @@ translations
   "\<Inter>x\<in> A. B" \<rightleftharpoons> "\<Inter>{B. x \<in> A}"
 
 lemma idxunion_iff [iff]: "b \<in> (\<Union>x\<in> A. (B x)) \<longleftrightarrow> (\<exists>x \<in> A. b \<in> B x)"
-  by (simp add: Bex_def) blast
+  by (simp add: bex_def) blast
 
 (*LP: The order of the premises presupposes that A is rigid; b may be flexible*)
 lemma idxunionI: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x\<in> A. B x)"
@@ -584,7 +584,7 @@ lemma idxunion_empty_sets: "(\<Union>x\<in> A. {}) = {}"
   by auto
 
 lemma inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in> C. A \<in> x) \<and> C \<noteq> {}"
-  unfolding inter_def Ball_def
+  unfolding inter_def ball_def
   by (auto elim: not_emptyE)
 
 lemma idxunion_subset_iff: "(\<Union>x\<in>A. B x) \<subseteq> C \<longleftrightarrow> (\<forall>x \<in> A. B x \<subseteq> C)"
@@ -1202,6 +1202,10 @@ lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : subset B" by u
 
 lemma subset_self [derive]: "A : subset A"
   by unfold_types auto
+
+text \<open>Declare basic coercions.\<close>
+
+declare [[coercion_enabled, coercion element]]
 
 text \<open>Declare basic soft type translations.\<close>
 

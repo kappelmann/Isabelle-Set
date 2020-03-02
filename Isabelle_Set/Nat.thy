@@ -35,7 +35,7 @@ lemmas Nat_induct = nat_induct
 
 lemmas Nat_cases = nat_cases[simplified element_type_iff]
 
-lemma Nat_Ord [derive]: "x : Nat \<Longrightarrow> x : Ord"
+lemma Nat_Ord [derive]: "x : \<nat> \<Longrightarrow> x : Ord"
   by (induct x rule: Nat_induct) (auto intro: succ_Ord)
 
 lemma
