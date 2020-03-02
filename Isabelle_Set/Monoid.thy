@@ -65,9 +65,9 @@ lemma
     Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
     Monoid_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
   and
-    MonoidD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
-    MonoidD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
-    MonoidD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+    zero_add: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
+    add_zero: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
+    add_assoc: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
   unfolding Monoid_def
   subgoal by (drule Int_typeE1, drule Int_typeE1)
@@ -163,16 +163,16 @@ proof (intro typeI)
   fix x assume assmx: "x \<in> A \<times> B"
 
   show "plus (Monoid_Sum A B M1 M2) (zero (Monoid_Sum A B M1 M2)) x = x"
-    unfolding plus_def zero_def using assms1 assmx MonoidD1 by auto
+    unfolding plus_def zero_def using assms1 assmx zero_add by auto
 
   show "plus (Monoid_Sum A B M1 M2) x (zero (Monoid_Sum A B M1 M2)) = x"
-    unfolding plus_def zero_def using assms1 assmx MonoidD2 by auto
+    unfolding plus_def zero_def using assms1 assmx add_zero by auto
 
   fix y z assume assmsyz: "y \<in> A \<times> B" "z \<in> A \<times> B"
 
   show "plus (Monoid_Sum A B M1 M2) (plus (Monoid_Sum A B M1 M2) x y) z =
         plus (Monoid_Sum A B M1 M2) x (plus (Monoid_Sum A B M1 M2) y z)"
-    unfolding plus_def using assms1 assmx assmsyz MonoidD3 by force
+    unfolding plus_def using assms1 assmx assmsyz add_assoc by force
 qed
 
 lemma [type_instance]:
@@ -219,5 +219,47 @@ definition [typeclass]: "Group A = Monoid A \<bar>
 lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_def by (fact Int_typeE1)
 
+definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar> Comm_Plus A"
+
+subsection \<open>Multiplicative Structures\<close>
+
+text \<open>This is just a copy of the additive structures above and should be automatically generated
+in the future or be put in a unified framework.\<close>
+
+definition [typeclass]: "Mul_Monoid A = One A \<bar> Times A \<bar>
+  type (\<lambda>M.
+    (\<forall>x\<in> A.
+      times M (one M) x = x \<and>
+      times M x (one M) = x) \<and>
+    (\<forall>x y z \<in> A.
+      times M (times M x y) z = times M x (times M y z))
+  )"
+
+lemma Mul_MonoidI [typeI]:
+  assumes "M : One A"
+          "M : Times A"
+          "\<And>x. x \<in> A \<Longrightarrow> times M (one M) x = x"
+          "\<And>x. x \<in> A \<Longrightarrow> times M x (one M) = x"
+          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+            \<Longrightarrow> times M (times M x y) z = times M x (times M y z)"
+  shows "M : Mul_Monoid A"
+  unfolding Mul_Monoid_def by unfold_types (auto intro: assms)
+
+lemma
+  shows
+    Mul_Monoid_One [derive]: "M : Mul_Monoid A \<Longrightarrow> M : One A" and
+    Mul_Monoid_Times [derive]: "M : Mul_Monoid A \<Longrightarrow> M : Times A"
+  and
+    one_mul: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> times M (one M) x = x" and
+    mul_one: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> times M x (one M) = x" and
+    mul_assoc: "\<And>x y z. \<lbrakk>M : Mul_Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+                    \<Longrightarrow> times M (times M x y) z = times M x (times M y z)"
+  unfolding Mul_Monoid_def
+  subgoal by (drule Int_typeE1, drule Int_typeE1)
+  subgoal by (drule Int_typeE1, drule Int_typeE2)
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  done
 
 end

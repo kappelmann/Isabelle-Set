@@ -33,6 +33,7 @@ lemma plus_type [type]:
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
   where "x + y \<equiv> plus \<implicit>P x y"
 
+definition [typeclass]: "Comm_Plus A = Plus A \<bar> type (\<lambda>P. \<forall> a b \<in> A. plus P a b = plus P b a)"
 
 subsection \<open>Times (multiplicative binop) structures\<close>
 
@@ -57,6 +58,7 @@ lemma times_type [type]:
 abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
   where "x \<cdot> y \<equiv> times \<implicit>T x y"
 
+definition [typeclass]: "Comm_Times A = Times A \<bar> type (\<lambda>P. \<forall> a b \<in> A. times P a b = times P b a)"
 
 subsection \<open>"Zero" and "One" structures\<close>
 
