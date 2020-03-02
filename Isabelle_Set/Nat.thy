@@ -245,7 +245,7 @@ definition "nat_add m n = natrec m succ n"
 lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_add_def by auto
 
-no_notation plus_implicit (infixl "+" 65)
+no_notation add_implicit (infixl "+" 65)
 notation nat_add (infixl "+" 65)
 
 lemma nat_add_zero_left:
@@ -269,27 +269,27 @@ done
 
 section \<open>Monoid structure of (\<nat>, +)\<close>
 
-definition "Nat_monoid \<equiv> object {\<langle>@zero, 0\<rangle>, \<langle>@plus, \<lambda>m n\<in> \<nat>. nat_add m n\<rangle>}"
+definition "Nat_monoid \<equiv> object {\<langle>@zero, 0\<rangle>, \<langle>@add, \<lambda>m n\<in> \<nat>. nat_add m n\<rangle>}"
 
 lemma "Nat_monoid: Monoid \<nat>"
 proof unfold_types
   show "Nat_monoid @@ zero \<in> \<nat>"
-   and "Nat_monoid @@ plus \<in> \<nat> \<rightarrow> \<nat> \<rightarrow> \<nat>"
+   and "Nat_monoid @@ add \<in> \<nat> \<rightarrow> \<nat> \<rightarrow> \<nat>"
   unfolding Nat_monoid_def by auto
 
   fix x assume "x \<in> \<nat>"
-  show "plus Nat_monoid (zero Nat_monoid) x = x"
-   and "plus Nat_monoid x (zero Nat_monoid) = x"
+  show "add Nat_monoid (zero Nat_monoid) x = x"
+   and "add Nat_monoid x (zero Nat_monoid) = x"
   \<comment> \<open>Very low-level; lots of unfolding.\<close>
-  unfolding Nat_monoid_def plus_def zero_def
+  unfolding Nat_monoid_def add_def zero_def
   using nat_add_zero_left nat_add_zero_right
   by auto
 
   fix y z assume "y \<in> \<nat>" "z \<in> \<nat>"
   show
-    "plus Nat_monoid (plus Nat_monoid x y) z =
-      plus Nat_monoid x (plus Nat_monoid y z)"
-  unfolding Nat_monoid_def plus_def zero_def
+    "add Nat_monoid (add Nat_monoid x y) z =
+      add Nat_monoid x (add Nat_monoid y z)"
+  unfolding Nat_monoid_def add_def zero_def
   using nat_add_assoc by auto
 qed
 
