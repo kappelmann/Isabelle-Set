@@ -220,14 +220,28 @@ lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_def by (fact Int_typeE1)
 
 definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
-  type (\<lambda>P. \<forall> a b \<in> A. add P a b = add P b a)"
+  type (\<lambda>G. \<forall> a b \<in> A. add G a b = add G b a)"
+
+lemma Comm_GroupI [typeI]:
+  assumes "G : Group A"
+          "\<And>x y. \<lbrakk>x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
+  shows "G : Comm_Group A"
+  using assms unfolding Comm_Group_def by unfold_types blast
+
+lemma
+  shows Comm_Group_Group [derive]: "G : Comm_Group A \<Longrightarrow> G : Group A"
+  and add_comm: "\<And>x y. \<lbrakk>G : Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
+  unfolding Comm_Group_def
+  subgoal by (drule Int_typeE1)
+  subgoal by (drule Int_typeE2, drule has_type_typeE) blast
+  done
 
 
 subsection \<open>Multiplicative monoids\<close>
 
 text \<open>
   This is just a copy of the additive monoid structure above and should be
-  automatically generated in the future or be put in a unified framework.
+  automatically generated in the future, or be put in a unified framework.
 \<close>
 
 definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
@@ -235,8 +249,7 @@ definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
     (\<forall>x\<in> A.
       mul M (one M) x = x \<and>
       mul M x (one M) = x) \<and>
-    (\<forall>x y z \<in> A.
-      mul M (mul M x y) z = mul M x (mul M y z))
+      (\<forall>x y z \<in> A. mul M (mul M x y) z = mul M x (mul M y z))
   )"
 
 lemma Mul_MonoidI [typeI]:
