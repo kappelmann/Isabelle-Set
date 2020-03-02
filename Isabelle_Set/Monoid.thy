@@ -219,12 +219,16 @@ definition [typeclass]: "Group A = Monoid A \<bar>
 lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_def by (fact Int_typeE1)
 
-definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar> type (\<lambda>P. \<forall> a b \<in> A. add P a b = add P b a)"
+definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
+  type (\<lambda>P. \<forall> a b \<in> A. add P a b = add P b a)"
 
-subsection \<open>Multiplicative Structures\<close>
 
-text \<open>This is just a copy of the additive structures above and should be automatically generated
-in the future or be put in a unified framework.\<close>
+subsection \<open>Multiplicative monoids\<close>
+
+text \<open>
+  This is just a copy of the additive monoid structure above and should be
+  automatically generated in the future or be put in a unified framework.
+\<close>
 
 definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
   type (\<lambda>M.

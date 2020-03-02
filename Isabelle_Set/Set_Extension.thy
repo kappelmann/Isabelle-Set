@@ -7,29 +7,33 @@ begin
 text \<open>
   This theory defines a definitional principle for set extensions.
 
-  We assume that we have defined a set \<open>A\<close> (e.g., the naturals), for which we want to construct
-  an extension (e.g., the integers). A standard construction could be to adjoin a sign or to use
-  equivalence classes of pairs of naturals. In any case, we cannot identify the integers with these
-  constructions, since then they would not contain the naturals (which are already defined and
-  cannot be changed).
+  We assume that we have defined a set \<open>A\<close> (e.g., the naturals), for which we
+  want to construct an extension (e.g., the integers). A standard construction
+  could be to adjoin a sign or to use equivalence classes of pairs of naturals.
+  In any case, we cannot identify the integers with these constructions, since
+  then they would not contain the naturals (which are already defined and cannot
+  be changed).
 
-  This principle of set extensions solves this by plugging in the original set into the new
-  construction.
+  This principle of set extensions solves this by plugging in the original set
+  into the new construction.
 
   Formally, given
   \<^item> A set \<open>A\<close>, which is supposed to stay fixed
   \<^item> A set \<open>B\<close>, which is the new construction
-  \<^item> An injective function from \<open>A\<close> to \<open>B\<close>, which embeds the original set into the new one
+  \<^item> An injective function from \<open>A\<close> to \<open>B\<close>, which embeds the original set into
+    the new one
 
   we construct a set \<open>B'\<close>, such that
   \<^item> \<open>A \<subseteq> B'\<close>
-  \<^item> There are functions \<open>Rep : element B' \<Rightarrow> element B\<close> and \<open>Abs : element B' \<Rightarrow> element B\<close> that
-  are inverses of each other. In other words, there is a bijection between \<open>B\<close> and \<open>B'\<close>.
+  \<^item> There are functions \<open>Rep : element B' \<Rightarrow> element B\<close> and
+    \<open>Abs : element B' \<Rightarrow> element B\<close> that are inverses of each other. In other
+    words, there is a bijection between \<open>B\<close> and \<open>B'\<close>.
 
-  While the underlying construction involves case distinctions, this is hidden under the surface
-  of the bijection in the end, and will not get in the way when reasoning about the newly defined
-  set. Primitive operations on \<open>B'\<close> will usually be defined by lifting them over from operations
-  on \<open>B\<close>, in the same way as is done for type definitions in HOL.
+  While the underlying construction involves case distinctions, this is hidden
+  under the surface of the bijection in the end, and will not get in the way
+  when reasoning about the newly defined set. Primitive operations on \<open>B'\<close> will
+  usually be defined by lifting them over from operations on \<open>B\<close>, in the same
+  way as is done for type definitions in HOL.
 \<close>
 
 locale set_extension =
