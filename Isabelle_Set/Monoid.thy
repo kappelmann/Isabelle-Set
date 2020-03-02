@@ -17,13 +17,13 @@ text \<open>
   The monoid typeclass is defined using the standard soft type infrastructure.
 \<close>
 
-definition [typeclass]: "Monoid A = Zero A \<bar> Plus A \<bar>
+definition [typeclass]: "Monoid A = Zero A \<bar> Add A \<bar>
   type (\<lambda>M.
     (\<forall>x\<in> A.
-      plus M (zero M) x = x \<and>
-      plus M x (zero M) = x) \<and>
+      add M (zero M) x = x \<and>
+      add M x (zero M) = x) \<and>
     (\<forall>x y z \<in> A.
-      plus M (plus M x y) z = plus M x (plus M y z))
+      add M (add M x y) z = add M x (add M y z))
   )"
 
 text \<open>It would be really nice if this worked:\<close>
@@ -31,7 +31,7 @@ text \<open>It would be really nice if this worked:\<close>
 declare [[auto_elaborate]]
 lemma MonoidI:
   assumes "M : Zero A"
-          "M : Plus A"
+          "M : Add A"
           "\<And>x. x \<in> A \<Longrightarrow> 0 + x = x"
           "\<And>x. x \<in> A \<Longrightarrow> x + 0 = x"
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> (x + y) + z = x + y + z"
@@ -47,11 +47,11 @@ text \<open>Instead we have to do this for now:\<close>
 
 lemma MonoidI [typeI]:
   assumes "M : Zero A"
-          "M : Plus A"
-          "\<And>x. x \<in> A \<Longrightarrow> plus M (zero M) x = x"
-          "\<And>x. x \<in> A \<Longrightarrow> plus M x (zero M) = x"
+          "M : Add A"
+          "\<And>x. x \<in> A \<Longrightarrow> add M (zero M) x = x"
+          "\<And>x. x \<in> A \<Longrightarrow> add M x (zero M) = x"
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
-            \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+            \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   shows "M : Monoid A"
   unfolding Monoid_def by unfold_types (auto intro: assms)
 
@@ -63,12 +63,12 @@ text \<open>
 lemma
   shows
     Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
-    Monoid_Plus [derive]: "M : Monoid A \<Longrightarrow> M : Plus A"
+    Monoid_Add [derive]: "M : Monoid A \<Longrightarrow> M : Add A"
   and
-    MonoidD1: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M (zero M) x = x" and
-    MonoidD2: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> plus M x (zero M) = x" and
-    MonoidD3: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
-                    \<Longrightarrow> plus M (plus M x y) z = plus M x (plus M y z)"
+    zero_add: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M (zero M) x = x" and
+    add_zero: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M x (zero M) = x" and
+    add_assoc: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+                    \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   unfolding Monoid_def
   subgoal by (drule Int_typeE1, drule Int_typeE1)
   subgoal by (drule Int_typeE1, drule Int_typeE2)
@@ -82,7 +82,7 @@ subsection \<open>Direct sum\<close>
 
 text \<open>
   In this section we develop the structure constructor for direct sums of
-  monoids, by defining it as the (disjoint) structure union of the zero and plus
+  monoids, by defining it as the (disjoint) structure union of the zero and add
   pair structures.
 
   We emulate automation that needs to be implemented in future work.
@@ -97,31 +97,31 @@ lemma Zero_Pair_fields [simp]: "object_fields (Zero_Pair Z1 Z2) = {@zero}"
 lemma Zero_Pair_zero [simp]: "(Zero_Pair Z1 Z2) @@ zero = \<langle>zero Z1, zero Z2\<rangle>"
   unfolding Zero_Pair_def by simp
 
-definition "Plus_Pair A B P1 P2 = object {
-  \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>\<rangle>}"
+definition "Add_Pair A B P1 P2 = object {
+  \<langle>@add, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add P1 a1 a2, add P2 b1 b2\<rangle>\<rangle>}"
 
 (*Should be automatically generated*)
-lemma Plus_Pair_fields [simp]: "object_fields (Plus_Pair A B P1 P2) = {@plus}"
-  unfolding Plus_Pair_def by auto
+lemma Add_Pair_fields [simp]: "object_fields (Add_Pair A B P1 P2) = {@add}"
+  unfolding Add_Pair_def by auto
 
-lemma Plus_Pair_plus [simp]:
-  "(Plus_Pair A B P1 P2) @@ plus =
-    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus P1 a1 a2, plus P2 b1 b2\<rangle>"
-  unfolding Plus_Pair_def by simp
+lemma Add_Pair_add [simp]:
+  "(Add_Pair A B P1 P2) @@ add =
+    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add P1 a1 a2, add P2 b1 b2\<rangle>"
+  unfolding Add_Pair_def by simp
 
 text \<open>
   Monoid direct sum is the composition of the respective zero and pair instances.
   Eventually we'd want a composition keyword [+] of some kind, so e.g.
-    \<open>Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Plus_Pair A B M1 M2\<close>
+    \<open>Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Add_Pair A B M1 M2\<close>
   should generate the following definition, which we write manually for now.
 \<close>
 
 definition "Monoid_Sum A B M1 M2 = object {
   \<langle>@zero, \<langle>zero M1, zero M2\<rangle>\<rangle>,
-  \<langle>@plus, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>\<rangle>}"
+  \<langle>@add, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add M1 a1 a2, add M2 b1 b2\<rangle>\<rangle>}"
 
 lemma Monoid_Sum_fields [simp]:
-  "object_fields (Monoid_Sum A B M1 M2) = {@zero, @plus}"
+  "object_fields (Monoid_Sum A B M1 M2) = {@zero, @add}"
   unfolding Monoid_Sum_def by simp
 
 lemma [simp]:
@@ -129,9 +129,9 @@ lemma [simp]:
     Monoid_Sum_zero:
       "(Monoid_Sum A B M1 M2) @@ zero = \<langle>zero M1, zero M2\<rangle>"
   and
-    Monoid_Sum_plus:
-      "(Monoid_Sum A B M1 M2) @@ plus =
-        \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>plus M1 a1 a2, plus M2 b1 b2\<rangle>"
+    Monoid_Sum_add:
+      "(Monoid_Sum A B M1 M2) @@ add =
+        \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add M1 a1 a2, add M2 b1 b2\<rangle>"
   unfolding Monoid_Sum_def by auto
 
 text \<open>
@@ -144,9 +144,9 @@ lemma Zero_Pair_type [type]:
   unfolding Zero_Pair_def
   by unfold_types (auto simp: zero_def)
 
-lemma Plus_Pair_type [type]:
-  "Plus_Pair : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Plus A \<Rightarrow> Plus B \<Rightarrow> Plus (A \<times> B)"
-  unfolding Plus_Pair_def plus_def
+lemma Add_Pair_type [type]:
+  "Add_Pair : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
+  unfolding Add_Pair_def add_def
   by unfold_types fastforce
 
 lemma Monoid_Sum_type [type]:
@@ -157,26 +157,26 @@ proof (intro typeI)
   show "Monoid_Sum A B M1 M2 : Zero (A \<times> B)"
     using assms1 by (intro Zero_typeI) (auto dest!: Monoid_Zero)
 
-  show "Monoid_Sum A B M1 M2 : Plus (A \<times> B)"
-    by (intro Plus_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
+  show "Monoid_Sum A B M1 M2 : Add (A \<times> B)"
+    by (intro Add_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
 
   fix x assume assmx: "x \<in> A \<times> B"
 
-  show "plus (Monoid_Sum A B M1 M2) (zero (Monoid_Sum A B M1 M2)) x = x"
-    unfolding plus_def zero_def using assms1 assmx MonoidD1 by auto
+  show "add (Monoid_Sum A B M1 M2) (zero (Monoid_Sum A B M1 M2)) x = x"
+    unfolding add_def zero_def using assms1 assmx zero_add by auto
 
-  show "plus (Monoid_Sum A B M1 M2) x (zero (Monoid_Sum A B M1 M2)) = x"
-    unfolding plus_def zero_def using assms1 assmx MonoidD2 by auto
+  show "add (Monoid_Sum A B M1 M2) x (zero (Monoid_Sum A B M1 M2)) = x"
+    unfolding add_def zero_def using assms1 assmx add_zero by auto
 
   fix y z assume assmsyz: "y \<in> A \<times> B" "z \<in> A \<times> B"
 
-  show "plus (Monoid_Sum A B M1 M2) (plus (Monoid_Sum A B M1 M2) x y) z =
-        plus (Monoid_Sum A B M1 M2) x (plus (Monoid_Sum A B M1 M2) y z)"
-    unfolding plus_def using assms1 assmx assmsyz MonoidD3 by force
+  show "add (Monoid_Sum A B M1 M2) (add (Monoid_Sum A B M1 M2) x y) z =
+        add (Monoid_Sum A B M1 M2) x (add (Monoid_Sum A B M1 M2) y z)"
+    unfolding add_def using assms1 assmx assmsyz add_assoc by force
 qed
 
 lemma [type_instance]:
-  "M1 : Plus A \<Longrightarrow> M2 : Plus B \<Longrightarrow> Plus_Pair A B M1 M2 : Plus (A \<times> B)"
+  "M1 : Add A \<Longrightarrow> M2 : Add B \<Longrightarrow> Add_Pair A B M1 M2 : Add (A \<times> B)"
   "M1 : Zero A \<Longrightarrow> M2 : Zero B \<Longrightarrow> Zero_Pair M1 M2 : Zero (A \<times> B)"
   "M1 : Monoid A \<Longrightarrow> M2 : Monoid B \<Longrightarrow> Monoid_Sum A B M1 M2 : Monoid (A \<times> B)"
   by auto
@@ -212,12 +212,54 @@ subsection \<open>Extension to groups\<close>
 definition [typeclass]: "Group A = Monoid A \<bar>
   type (\<lambda>G.
     G @@ inv \<in> A \<rightarrow> A \<and>
-    (\<forall>x\<in> A. plus G x (G@@inv `x) = zero G) \<and>
-    (\<forall>x\<in> A. plus G (G@@inv `x) x = zero G)
+    (\<forall>x\<in> A. add G x (G@@inv `x) = zero G) \<and>
+    (\<forall>x\<in> A. add G (G@@inv `x) x = zero G)
   )"
 
 lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
   unfolding Group_def by (fact Int_typeE1)
 
+definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar> type (\<lambda>P. \<forall> a b \<in> A. add P a b = add P b a)"
+
+subsection \<open>Multiplicative Structures\<close>
+
+text \<open>This is just a copy of the additive structures above and should be automatically generated
+in the future or be put in a unified framework.\<close>
+
+definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
+  type (\<lambda>M.
+    (\<forall>x\<in> A.
+      mul M (one M) x = x \<and>
+      mul M x (one M) = x) \<and>
+    (\<forall>x y z \<in> A.
+      mul M (mul M x y) z = mul M x (mul M y z))
+  )"
+
+lemma Mul_MonoidI [typeI]:
+  assumes "M : One A"
+          "M : Mul A"
+          "\<And>x. x \<in> A \<Longrightarrow> mul M (one M) x = x"
+          "\<And>x. x \<in> A \<Longrightarrow> mul M x (one M) = x"
+          "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+            \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
+  shows "M : Mul_Monoid A"
+  unfolding Mul_Monoid_def by unfold_types (auto intro: assms)
+
+lemma
+  shows
+    Mul_Monoid_One [derive]: "M : Mul_Monoid A \<Longrightarrow> M : One A" and
+    Mul_Monoid_Mul [derive]: "M : Mul_Monoid A \<Longrightarrow> M : Mul A"
+  and
+    one_mul: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M (one M) x = x" and
+    mul_one: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M x (one M) = x" and
+    mul_assoc: "\<And>x y z. \<lbrakk>M : Mul_Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+                    \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
+  unfolding Mul_Monoid_def
+  subgoal by (drule Int_typeE1, drule Int_typeE1)
+  subgoal by (drule Int_typeE1, drule Int_typeE2)
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  done
 
 end

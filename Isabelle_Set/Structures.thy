@@ -8,55 +8,53 @@ begin
 text \<open>Various basic structure definitions.\<close>
 
 
-subsection \<open>Plus (additive binop) structures\<close>
+subsection \<open>Additive (binop) structures\<close>
 
 definition [typeclass]:
-  "Plus A \<equiv> type (\<lambda>P. P @@ plus \<in> A \<rightarrow> A \<rightarrow> A)"
+  "Add A \<equiv> type (\<lambda>P. P @@ add \<in> A \<rightarrow> A \<rightarrow> A)"
 
 ML \<open>Type_Classes.get_type_classes @{context}\<close>
 
-lemma Plus_typeI:
-  "P @@ plus : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> P : Plus A"
-  unfolding Plus_def by unfold_types
+lemma Add_typeI:
+  "P @@ add : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> P : Add A"
+  unfolding Add_def by unfold_types
 
-lemma Plus_plus_type [derive]:
-  "P: Plus A \<Longrightarrow> P @@ plus : element (A \<rightarrow> A \<rightarrow> A)"
-  unfolding Plus_def by unfold_types
+lemma Add_add_type [derive]:
+  "P: Add A \<Longrightarrow> P @@ add : element (A \<rightarrow> A \<rightarrow> A)"
+  unfolding Add_def by unfold_types
 
-definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  where "plus P = (\<lambda>x y. P @@ plus `x `y)"
+definition add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
+  where "add P = (\<lambda>x y. P @@ add `x `y)"
 
-lemma plus_type [type]:
-  "plus : Plus A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding plus_def by unfold_types
+lemma add_type [type]:
+  "add : Add A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  unfolding add_def by unfold_types
 
-abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
-  where "x + y \<equiv> plus \<implicit>P x y"
+abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
+  where "x + y \<equiv> add \<implicit>P x y"
 
-
-subsection \<open>Times (multiplicative binop) structures\<close>
+subsection \<open>Multiplicative (binop) structures\<close>
 
 definition [typeclass]:
-  "Times A \<equiv> type (\<lambda>T. T @@ times \<in> A \<rightarrow> A \<rightarrow> A)"
+  "Mul A \<equiv> type (\<lambda>T. T @@ mul \<in> A \<rightarrow> A \<rightarrow> A)"
 
-lemma Times_typeI:
-  "T @@ times : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> T : Times A"
-  unfolding Times_def by unfold_types
+lemma Mul_typeI:
+  "T @@ mul : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> T : Mul A"
+  unfolding Mul_def by unfold_types
 
-lemma Times_plus_type [derive]:
-  "T: Times A \<Longrightarrow> T @@ times : element (A \<rightarrow> A \<rightarrow> A)"
-  unfolding Times_def by unfold_types
+lemma Mul_mul_type [derive]:
+  "T: Mul A \<Longrightarrow> T @@ mul : element (A \<rightarrow> A \<rightarrow> A)"
+  unfolding Mul_def by unfold_types
 
-definition times :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  where "times T = (\<lambda>x y. T @@ times `x `y)"
+definition mul :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
+  where "mul T = (\<lambda>x y. T @@ mul `x `y)"
 
-lemma times_type [type]:
-  "times : Times A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
-  unfolding times_def by unfold_types
+lemma mul_type [type]:
+  "mul : Mul A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  unfolding mul_def by unfold_types
 
-abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
-  where "x \<cdot> y \<equiv> times \<implicit>T x y"
-
+abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
+  where "x \<cdot> y \<equiv> mul \<implicit>T x y"
 
 subsection \<open>"Zero" and "One" structures\<close>
 

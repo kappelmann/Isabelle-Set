@@ -15,6 +15,7 @@ imports
   Object
   Structures
   Monoid
+  Ring
   Category
 
 begin
