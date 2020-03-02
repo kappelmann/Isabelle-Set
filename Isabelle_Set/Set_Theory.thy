@@ -1203,10 +1203,6 @@ lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : subset B" by u
 lemma subset_self [derive]: "A : subset A"
   by unfold_types auto
 
-text \<open>Declare basic coercions.\<close>
-
-declare [[coercion_enabled, coercion element]]
-
 text \<open>Declare basic soft type translations.\<close>
 
 (*
