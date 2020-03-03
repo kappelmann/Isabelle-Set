@@ -33,7 +33,9 @@ lemmas
   pred_nat [simp] = pred_omega[folded nat_def] and
   pred_0 = pred_empty[folded nat_zero_def] and
   pred_succ [simp] = Ordinal.pred_succ[folded nat_def] and
-  succ_pred [simp] = Ordinal.succ_pred[folded nat_def nat_zero_def]
+  succ_pred [simp] = Ordinal.succ_pred[folded nat_def nat_zero_def] and
+  succ_not_empty [simp] = Ordinal.succ_not_empty[folded nat_zero_def] and
+  empty_not_succ [simp] = Ordinal.empty_not_succ[folded nat_zero_def]
 
 
 section \<open>\<nat> as a type\<close>

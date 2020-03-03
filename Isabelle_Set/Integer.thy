@@ -51,18 +51,12 @@ definition "int_add x y \<equiv> Sum_case
     y)
   x"
 
-definition "int_sub x y = Sum_case
-  (\<lambda>m. Sum_case
-    (\<lambda>n. if n \<le> m then pos (m - n) else neg (n - m))
-    (\<lambda>n. pos (m + n))
-    y)
-  (\<lambda>m. Sum_case
-    (\<lambda>n. neg (m + n))
-    (\<lambda>n. if m \<le> n then pos (n - m) else neg (m - n))
-    y)
-  x"
+definition "negate = Sum_case (\<lambda>n. if n = 0 then n else neg n) (\<lambda>n. pos n)"
 
-lemmas [arith] = pos_def neg_def int_add_def int_sub_def
+definition "int_sub x y = int_add x (negate y)"
+
+lemmas [arith] =
+  int_zero_def pos_def neg_def negate_def int_add_def int_sub_def
 
 subsection \<open>Notations\<close>
 
@@ -71,34 +65,25 @@ text \<open>
   Nat, Int, etc. Typeclass integration here already?...
 \<close>
 
-bundle notation_int_zero
-begin notation int_zero ("0")
-end
+bundle notation_int_zero begin notation int_zero ("0") end
+bundle no_notation_int_zero begin no_notation int_zero ("0") end
 
-bundle no_notation_int_zero
-begin no_notation int_zero ("0")
-end
+bundle notation_int_add begin notation int_add (infixl "+" 65) end
+bundle no_notation_int_add begin no_notation int_add (infixl "+" 65) end
 
-unbundle no_notation_nat_zero
-unbundle notation_int_zero
+bundle notation_int_sub begin notation int_sub (infixl "-" 65) end
+bundle no_notation_int_sub begin no_notation int_sub (infixl "-" 65) end
 
-bundle notation_int_add
-begin notation int_add (infixl "+" 65)
-end
+unbundle
+  no_notation_nat_add
+  no_notation_nat_sub
 
-bundle no_notation_int_add
-begin no_notation int_add (infixl "+" 65)
-end
-
-unbundle no_notation_nat_add
-unbundle notation_int_add
-
-unbundle no_notation_int_zero
-unbundle notation_nat_zero
+  notation_int_add
+  notation_int_sub
 
 \<comment> \<open>Examples\<close>
 schematic_goal
-  "pos 0 + neg (succ 0) + pos (succ 0) + neg (succ 0) = neg (?a)"
+  "pos 0 - neg (succ 0) + pos (succ 0) - pos (succ 0) = pos (?a)"
   apply (simp add: arith) done
 
 
