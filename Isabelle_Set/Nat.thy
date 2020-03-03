@@ -22,6 +22,19 @@ end
 unbundle no_notation_zero_implicit
 unbundle notation_nat_zero
 
+definition "nat_one \<equiv> succ 0"
+
+bundle notation_nat_one
+begin notation nat_one ("1")
+end
+
+bundle no_notation_nat_one
+begin no_notation nat_one ("1")
+end
+
+unbundle no_notation_one_implicit
+unbundle notation_nat_one
+
 lemmas
   nat_unfold = omega_unfold[folded nat_def nat_zero_def] and
   zero_nat [simp] = empty_in_omega[folded nat_def nat_zero_def] and
@@ -56,6 +69,8 @@ lemma
   pred_type [type]: "pred : Nat \<Rightarrow> Nat"
   by unfold_types auto
 
+lemma one_type [type]: "1 : Nat"
+  unfolding nat_one_def by discharge_types
 
 section \<open>The \<open><\<close> and \<open>\<le>\<close> orders on Nat\<close>
 
@@ -257,6 +272,9 @@ section \<open>Arithmetic\<close>
 
 definition "nat_add m n = natrec m succ n"
 
+lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
+  unfolding nat_add_def by auto
+
 bundle notation_nat_add
 begin notation nat_add (infixl "+" 65)
 end
@@ -267,9 +285,6 @@ end
 
 unbundle no_notation_add_implicit
 unbundle notation_nat_add
-
-lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
-  unfolding nat_add_def by auto
 
 lemma nat_add_zero_left:
   "m: Nat \<Longrightarrow> 0 + m = m"
@@ -291,6 +306,9 @@ done
 
 definition "nat_sub m n = natrec m pred n"
 
+lemma nat_sub_type [type]: "nat_sub : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
+  unfolding nat_sub_def by auto
+
 bundle notation_nat_sub
 begin notation nat_sub (infix "-" 65)
 end
@@ -302,6 +320,11 @@ end
 unbundle notation_nat_sub
 
 definition "nat_mul m n = natrec 0 (nat_add m) n"
+
+\<comment> \<open>TODO: Make type derivator work bottom-up to make the next proof work.\<close>
+lemma nat_mul_type [type]: "nat_mul : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
+  \<comment> \<open>unfolding nat_mul_def by auto\<close>
+  oops
 
 bundle notation_nat_mul
 begin notation nat_mul (infix "\<cdot>" 65)
