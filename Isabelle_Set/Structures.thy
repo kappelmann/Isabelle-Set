@@ -67,6 +67,14 @@ lemma mul_type [type]:
 abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
   where "x \<cdot> y \<equiv> mul \<implicit>T x y"
 
+bundle notation_mul_implicit
+begin notation mul_implicit  (infixl "\<cdot>" 65)
+end
+
+bundle no_notation_mul_implicit
+begin no_notation mul_implicit  (infixl "\<cdot>" 65)
+end
+
 subsection \<open>"Zero" and "One" structures\<close>
 
 text \<open>Structures with distinguished elements.\<close>

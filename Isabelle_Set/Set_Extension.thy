@@ -26,7 +26,7 @@ text \<open>
   we construct a set \<open>B'\<close>, such that
   \<^item> \<open>A \<subseteq> B'\<close>
   \<^item> There are functions \<open>Rep : element B' \<Rightarrow> element B\<close> and
-    \<open>Abs : element B' \<Rightarrow> element B\<close> that are inverses of each other. In other
+    \<open>Abs : element B \<Rightarrow> element B'\<close> that are inverses of each other. In other
     words, there is a bijection between \<open>B\<close> and \<open>B'\<close>.
 
   While the underlying construction involves case distinctions, this is hidden

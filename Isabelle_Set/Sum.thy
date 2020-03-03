@@ -22,6 +22,12 @@ lemma
 
   unfolding inl_def inr_def by auto
 
+lemma inl_in_Sum_iff [iff]: "inl a \<in> Sum A B \<longleftrightarrow> a \<in> A"
+  unfolding Sum_def by auto
+
+lemma inr_in_Sum_iff [iff]: "inr b \<in> Sum A B \<longleftrightarrow> b \<in> B"
+  unfolding Sum_def by auto
+
 definition "Sum_case l r x = (if fst x = {} then l (snd x) else r (snd x))"
 
 lemma
