@@ -65,13 +65,13 @@ definition "int_rep_negate =
 definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
 
 definition "int_rep_mul x y \<equiv> Sum_case
-  (\<lambda>n. Sum_case
-    (\<lambda>m. inl (n \<cdot> m))
-    (\<lambda>m. inr (n \<cdot> m))
+  (\<lambda>m. Sum_case
+    (\<lambda>n. inl (m \<cdot> n))
+    (\<lambda>n. inr (m \<cdot> n))
     y)
-  (\<lambda>n. Sum_case
-    (\<lambda>m. inr (n \<cdot> m))
-    (\<lambda>m. inl (n \<cdot> m))
+  (\<lambda>m. Sum_case
+    (\<lambda>n. inr (m \<cdot> n))
+    (\<lambda>n. inl (m \<cdot> n))
     y)
   x"
 
@@ -118,6 +118,11 @@ schematic_goal
   "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0)) -
     Int.Abs (inr (succ 0)) = Int.Abs (inl ?a)"
   by (simp add: arith)
+
+
+section \<open>Instances for algebraic structures\<close>
+
+definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>}"
 
 
 end

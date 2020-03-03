@@ -8,6 +8,73 @@ begin
 text \<open>Various basic structure definitions.\<close>
 
 
+subsection \<open>"Zero" and "One" structures\<close>
+
+text \<open>Structures with distinguished elements.\<close>
+
+definition [typeclass]:
+  "Zero A = type (\<lambda>Z. Z @@ zero \<in> A)"
+
+lemma Zero_typeI:
+  "Z @@ zero : element A \<Longrightarrow> Z : Zero A"
+  unfolding Zero_def by unfold_types
+
+lemma Zero_zero_type [derive]:
+  "Z: Zero A \<Longrightarrow> Z @@ zero : element A"
+  unfolding Zero_def by unfold_types
+
+definition zero :: "set \<Rightarrow> set"
+  where "zero Z = Z @@ zero"
+
+lemma zero_type [type]:
+  "zero : Zero A \<Rightarrow> element A"
+  unfolding zero_def by auto
+
+abbreviation zero_implicit :: "set"
+  where "zero_implicit \<equiv> zero \<implicit>Z"
+
+bundle notation_zero_implicit
+begin notation zero_implicit ("0")
+end
+
+bundle no_notation_zero_implicit
+begin no_notation zero_implicit ("0")
+end
+
+unbundle notation_zero_implicit
+
+definition [typeclass]:
+  "One A = type (\<lambda>O. O @@ one \<in> A)"
+
+lemma One_typeI:
+  "O @@ one : element A \<Longrightarrow> O : One A"
+  unfolding One_def by unfold_types
+
+lemma One_one_type [derive]:
+  "O: One A \<Longrightarrow> O @@ one : element A"
+  unfolding One_def by unfold_types
+
+definition one :: "set \<Rightarrow> set"
+  where "one O = O @@ one"
+
+lemma one_type [type]:
+  "one : One A \<Rightarrow> element A"
+  unfolding one_def by auto
+
+abbreviation one_implicit :: "set" ("1")
+  where "1 \<equiv> one \<implicit>O"
+
+bundle notation_one_implicit
+begin notation one_implicit ("1")
+end
+
+bundle no_notation_one_implicit
+begin no_notation one_implicit ("1")
+end
+
+unbundle notation_one_implicit
+
+
 subsection \<open>Additive (binop) structures\<close>
 
 definition [typeclass]:
@@ -74,62 +141,5 @@ end
 bundle no_notation_mul_implicit
 begin no_notation mul_implicit  (infixl "\<cdot>" 65)
 end
-
-subsection \<open>"Zero" and "One" structures\<close>
-
-text \<open>Structures with distinguished elements.\<close>
-
-definition [typeclass]:
-  "Zero A = type (\<lambda>Z. Z @@ zero \<in> A)"
-
-lemma Zero_typeI:
-  "Z @@ zero : element A \<Longrightarrow> Z : Zero A"
-  unfolding Zero_def by unfold_types
-
-lemma Zero_zero_type [derive]:
-  "Z: Zero A \<Longrightarrow> Z @@ zero : element A"
-  unfolding Zero_def by unfold_types
-
-definition zero :: "set \<Rightarrow> set"
-  where "zero Z = Z @@ zero"
-
-lemma zero_type [type]:
-  "zero : Zero A \<Rightarrow> element A"
-  unfolding zero_def by auto
-
-abbreviation zero_implicit :: "set"
-  where "zero_implicit \<equiv> zero \<implicit>Z"
-
-bundle notation_zero_implicit
-begin notation zero_implicit ("0")
-end
-
-bundle no_notation_zero_implicit
-begin no_notation zero_implicit ("0")
-end
-
-unbundle notation_zero_implicit
-
-definition [typeclass]:
-  "One A = type (\<lambda>O. O @@ one \<in> A)"
-
-lemma One_typeI:
-  "O @@ one : element A \<Longrightarrow> O : One A"
-  unfolding One_def by unfold_types
-
-lemma One_one_type [derive]:
-  "O: One A \<Longrightarrow> O @@ one : element A"
-  unfolding One_def by unfold_types
-
-definition one :: "set \<Rightarrow> set"
-  where "one O = O @@ one"
-
-lemma one_type [type]:
-  "one : One A \<Rightarrow> element A"
-  unfolding one_def by auto
-
-abbreviation one_implicit :: "set" ("1")
-  where "1 \<equiv> one \<implicit>O"
-
 
 end
