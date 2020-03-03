@@ -26,11 +26,9 @@ proof
     unfolding pos_def by auto
 qed
 
-definition "int = Int.def"
-notation int ("\<int>")
+abbreviation int ("\<int>") where "\<int> \<equiv> Int.def"
 
-lemma nat_in_int: "\<nat> \<subseteq> \<int>"
-  unfolding int_def by (rule Int.extension_subset)
+lemmas nat_in_int = Int.extension_subset
 
 corollary [derive]: "n : element \<nat> \<Longrightarrow> n : element \<int>"
   apply unfold_types
@@ -102,7 +100,6 @@ unbundle notation_nat_zero
 schematic_goal
   "pos 0 + neg (succ 0) + pos (succ 0) + neg (succ 0) = neg (?a)"
   apply (simp add: arith) done
-
 
 
 
