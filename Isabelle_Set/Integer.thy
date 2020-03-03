@@ -11,7 +11,7 @@ text \<open>
   By using the set extension principle, we ensure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
-definition "raw_int = Sum \<nat> (\<nat> \<setminus> {{}})"
+definition "raw_int = Sum \<nat> (\<nat> \<setminus> {0})"
 definition "pos = inl" \<comment> \<open>includes 0\<close>
 definition "neg = inr"
 
@@ -40,27 +40,6 @@ text\<open>In the following, we lift constants/functions from raw_int to \<int> 
 This should be automated in the future using some technique similar to transfer
 in Isabelle/HOL.\<close>
 
-section \<open>Notations\<close>
-
-definition "raw_int_zero \<equiv> pos 0"
-
-definition "int_zero \<equiv> Int.Abs raw_int_zero"
-
-text \<open>
-  Need a notation package that also does inference to determine if a number is a
-  Nat, Int, etc. Typeclass integration here already?...
-\<close>
-
-bundle notation_int_zero
-begin notation int_zero ("0")
-end
-
-bundle no_notation_int_zero
-begin no_notation int_zero ("0")
-end
-
-unbundle no_notation_nat_zero
-unbundle notation_int_zero
 
 section \<open>Basic arithmetic\<close>
 
@@ -76,6 +55,11 @@ definition "raw_int_add x y \<equiv> Sum_case
   x"
 
 definition "int_add x y = Int.Abs (raw_int_add (Int.Rep x) (Int.Rep y))"
+
+text \<open>
+  Need a notation package that also does inference to determine if a number is a
+  Nat, Int, etc. Typeclass integration here already?...
+\<close>
 
 bundle notation_int_add
 begin notation int_add (infixl "+" 65)
@@ -126,15 +110,14 @@ end
 lemmas [arith] = pos_def neg_def int_add_def raw_int_add_def int_sub_def
   raw_int_sub_def int_mul_def raw_int_mul_def
 
+
 subsection\<open>Examples\<close>
 
 text\<open>The next examples should compute without any intermediate steps.
 The premises of Int.Abs_inverse should be discharged automatically by the type
 inference tooling.\<close>
 
-unbundle no_notation_int_zero
-unbundle notation_nat_zero
-
+(*
 notepad
 begin
   have "Int.Abs (pos (succ 0)) + Int.Abs (pos (succ 0)) + Int.Abs (neg (succ 0))
@@ -143,7 +126,7 @@ begin
     have "pos (succ 0) \<in> raw_int" unfolding raw_int_def pos_def by simp
     moreover have "pos (succ (succ 0)) \<in> raw_int"
       unfolding raw_int_def pos_def by simp
-    moreover have "neg (succ 0) \<in> raw_int" unfolding raw_int_def neg_def by simp
+    moreover have "neg (succ 0) \<in> raw_int" unfolding raw_int_def neg_def sorry
     ultimately show ?thesis using Int.Abs_inverse by (simp add: arith)
   qed
 end
@@ -151,6 +134,11 @@ end
 schematic_goal
   "pos 0 + neg (succ 0) + pos (succ 0) + neg (succ 0) = neg (?a)"
   using Int.Abs_inverse by (simp add: arith) oops
+*)
+
+section \<open>Instances for algebraic structures\<close>
+
+definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>n m \<in> \<int>. int_mul n m\<rangle>}"
 
 
 end
