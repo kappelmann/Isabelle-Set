@@ -1117,7 +1117,7 @@ lemma mem_irreflE: "a \<in> a \<Longrightarrow> P"
   most goals, making proofs slower!
 *)
 
-lemma mem_irrefl: "a \<notin> a"
+lemma mem_irrefl [simp]: "a \<notin> a"
   by (rule notI) (erule mem_irreflE)
 
 (* LP: Good for proving inequalities by rewriting *)

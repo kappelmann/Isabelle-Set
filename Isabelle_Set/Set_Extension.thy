@@ -140,6 +140,7 @@ qed
 lemma extension_subset: "A \<subseteq> def"
   unfolding def_def by auto
 
+
 end
 
 end

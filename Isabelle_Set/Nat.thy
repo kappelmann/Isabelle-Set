@@ -103,9 +103,11 @@ lemma lt_0 [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
 lemma zero_ltE [elim]: "n < 0 \<Longrightarrow> P"
   unfolding lt_def nat_zero_def by auto
 
-lemma not_lt_zero [simp]: "\<not> n < 0" by auto
+lemma [simp]: "\<not> n < 0" by auto
 
-lemma not_succ_lt [simp]: "\<not> succ n < n"
+lemma
+  not_succ_lt [simp]: "\<not> succ n < n" and
+  not_succ_lt_succ [simp]: "\<not> succ n < succ n"
   unfolding lt_def by auto
 
 lemma le_0 [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
@@ -298,6 +300,12 @@ begin no_notation nat_sub (infix "-" 65)
 end
 
 unbundle notation_nat_sub
+
+text \<open>Simplification lemmas\<close>
+
+named_theorems arith
+
+lemmas [arith] = nat_add_def nat_sub_def
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>
