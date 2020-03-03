@@ -11,19 +11,23 @@ text \<open>
   By using the set extension principle, we ensure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
-definition "raw_int = Sum \<nat> (\<nat> \<setminus> {{}})"
-definition "pos = inl" \<comment> \<open>includes 0\<close>
-definition "neg = inr"
+definition "int_rep = Sum \<nat> (\<nat> \<setminus> {{}})"
 
-interpretation Int: set_extension \<nat> raw_int pos
+\<comment> \<open>Some type derivation rule setup\<close>
+lemma
+  [type]: "succ: element \<nat> \<Rightarrow> element (\<nat> \<setminus> {{}})" and
+  [type]: "inl : element \<nat> \<Rightarrow> element int_rep" and
+  [type]: "inr : element (\<nat> \<setminus> {{}}) \<Rightarrow> element int_rep"
+  unfolding int_rep_def by unfold_types auto
+
+interpretation Int: set_extension \<nat> int_rep inl
 proof
-  txt \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>raw_int\<close>:\<close>
+  text \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>int_rep\<close>:\<close>
 
-  show "pos : element \<nat> \<Rightarrow> element raw_int"
-    unfolding pos_def raw_int_def by (rule inl_type)
+  show "inl : element \<nat> \<Rightarrow> element int_rep"
+    unfolding int_rep_def by (rule inl_type)
 
-  show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. pos x = pos y \<longrightarrow> x = y"
-    unfolding pos_def by auto
+  show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. inl x = inl y \<longrightarrow> x = y" by auto
 qed
 
 abbreviation int ("\<int>") where "\<int> \<equiv> Int.def"
@@ -38,41 +42,62 @@ corollary [derive]: "n : element \<nat> \<Longrightarrow> n : element \<int>"
 
 section \<open>Basic arithmetic\<close>
 
-definition "int_zero \<equiv> pos 0"
+text \<open>
+  We lift constants/functions from \<open>int_rep\<close> to \<open>\<int>\<close> manually.
+  This should be automated in the future using some technique similar to
+  transfer in Isabelle/HOL.
+\<close>
 
-definition "int_add x y \<equiv> Sum_case
+definition "int_rep_add x y \<equiv> Sum_case
   (\<lambda>m. Sum_case
-    (\<lambda>n. pos (m + n))
-    (\<lambda>n. if m < n then neg (n - m) else pos (m - n))
+    (\<lambda>n. inl (m + n))
+    (\<lambda>n. if m < n then inr (n - m) else inl (m - n))
     y)
   (\<lambda>m. Sum_case
-    (\<lambda>n. if n < m then neg (m - n) else pos (n - m))
-    (\<lambda>n. neg (m + n))
+    (\<lambda>n. if n < m then inr (m - n) else inl (n - m))
+    (\<lambda>n. inr (m + n))
     y)
   x"
 
-definition "negate = Sum_case (\<lambda>n. if n = 0 then n else neg n) (\<lambda>n. pos n)"
+definition "int_rep_negate =
+  Sum_case (\<lambda>n. if n = 0 then n else inr n) (\<lambda>n. inl n)"
 
-definition "int_sub x y = int_add x (negate y)"
+definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
+
+definition "int_rep_mul x y \<equiv> Sum_case
+  (\<lambda>n. Sum_case
+    (\<lambda>m. inl (n \<cdot> m))
+    (\<lambda>m. inr (n \<cdot> m))
+    y)
+  (\<lambda>n. Sum_case
+    (\<lambda>m. inr (n \<cdot> m))
+    (\<lambda>m. inl (n \<cdot> m))
+    y)
+  x"
+
+definition "int_add x y = Int.Abs (int_rep_add (Int.Rep x) (Int.Rep y))"
+definition "int_sub x y = Int.Abs (int_rep_sub (Int.Rep x) (Int.Rep y))"
+definition "int_mul x y \<equiv> Int.Abs (int_rep_mul (Int.Rep x) (Int.Rep y))"
 
 lemmas [arith] =
-  int_zero_def pos_def neg_def negate_def int_add_def int_sub_def
+  int_rep_add_def int_rep_negate_def int_rep_sub_def int_rep_mul_def
+  int_add_def int_sub_def int_mul_def
 
-subsection \<open>Notations\<close>
+subsection \<open>Notation\<close>
 
 text \<open>
   Need a notation package that also does inference to determine if a number is a
   Nat, Int, etc. Typeclass integration here already?...
 \<close>
 
-bundle notation_int_zero begin notation int_zero ("0") end
-bundle no_notation_int_zero begin no_notation int_zero ("0") end
-
 bundle notation_int_add begin notation int_add (infixl "+" 65) end
 bundle no_notation_int_add begin no_notation int_add (infixl "+" 65) end
 
 bundle notation_int_sub begin notation int_sub (infixl "-" 65) end
 bundle no_notation_int_sub begin no_notation int_sub (infixl "-" 65) end
+
+bundle notation_int_mul begin notation int_mul (infixl "\<cdot>" 65) end
+bundle no_notation_int_mul begin no_notation int_mul (infixl "\<cdot>" 65) end
 
 unbundle
   no_notation_nat_add
@@ -81,11 +106,18 @@ unbundle
   notation_int_add
   notation_int_sub
 
-\<comment> \<open>Examples\<close>
-schematic_goal
-  "pos 0 - neg (succ 0) + pos (succ 0) - pos (succ 0) = pos (?a)"
-  apply (simp add: arith) done
 
+section \<open>Examples\<close>
+
+schematic_goal
+  "Int.Abs (inl (succ 0)) + Int.Abs (inl (succ 0)) + Int.Abs (inr (succ 0))
+    = Int.Abs (?a)"
+  by (simp add: arith)
+
+schematic_goal
+  "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0)) -
+    Int.Abs (inr (succ 0)) = Int.Abs (inl ?a)"
+  by (simp add: arith)
 
 
 end

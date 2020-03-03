@@ -26,7 +26,7 @@ text \<open>
   we construct a set \<open>B'\<close>, such that
   \<^item> \<open>A \<subseteq> B'\<close>
   \<^item> There are functions \<open>Rep : element B' \<Rightarrow> element B\<close> and
-    \<open>Abs : element B' \<Rightarrow> element B\<close> that are inverses of each other. In other
+    \<open>Abs : element B \<Rightarrow> element B'\<close> that are inverses of each other. In other
     words, there is a bijection between \<open>B\<close> and \<open>B'\<close>.
 
   While the underlying construction involves case distinctions, this is hidden
@@ -92,13 +92,13 @@ proof (rule Pi_typeI)
   qed
 qed    
 
-lemma Rep_inverse: 
+lemma Rep_inverse [simp]:
   assumes "x : element def"
   shows "Abs (Rep x) = x"
 proof (cases "x \<in> A")
   case True
   then have fx: "Rep x = f x" unfolding Rep_def by simp
-  with `x \<in> A` have exists: "x\<in>A \<and> f x = f x" by simp 
+  with `x \<in> A` have exists: "x\<in>A \<and> f x = f x" by simp
   with f_injective have unique: "\<And>z. z\<in>A \<and> f z = f x \<Longrightarrow> z = x" by force
 
   have "Abs (Rep x) = Abs (f x)" using `x \<in> A` by (simp add: fx)
@@ -117,7 +117,7 @@ next
   finally show "Abs (Rep x) = x" .
 qed
 
-lemma Abs_inverse: 
+lemma Abs_inverse [simp]:
   assumes "x : element B"
   shows "Rep (Abs x) = x"
 proof (cases "\<exists>z\<in>A. f z = x")

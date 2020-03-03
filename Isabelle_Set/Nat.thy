@@ -294,20 +294,33 @@ done
 definition "nat_sub m n = natrec m pred n"
 
 bundle notation_nat_sub
-begin notation nat_sub (infix "-" 65)
+begin notation nat_sub (infixl "-" 65)
 end
 
 bundle no_notation_nat_sub
-begin no_notation nat_sub (infix "-" 65)
+begin no_notation nat_sub (infixl "-" 65)
 end
 
 unbundle notation_nat_sub
+
+definition "nat_mul m n = natrec 0 (nat_add m) n"
+
+bundle notation_nat_mul
+begin notation nat_mul (infixl "\<cdot>" 65)
+end
+
+bundle no_notation_nat_mul
+begin no_notation nat_mul (infixl "\<cdot>" 65)
+end
+
+unbundle no_notation_mul_implicit
+unbundle notation_nat_mul
 
 text \<open>Simplification lemmas\<close>
 
 named_theorems arith
 
-lemmas [arith] = nat_add_def nat_sub_def
+lemmas [arith] = nat_add_def nat_sub_def nat_mul_def
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>
