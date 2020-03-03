@@ -11,8 +11,16 @@ definition nat ("\<nat>") where "\<nat> = \<omega>"
 
 definition "nat_zero \<equiv> {}"
 
-no_notation zero_implicit ("0")
-notation nat_zero ("0")
+bundle notation_nat_zero
+begin notation nat_zero ("0")
+end
+
+bundle no_notation_nat_zero
+begin no_notation nat_zero ("0")
+end
+
+unbundle no_notation_zero_implicit
+unbundle notation_nat_zero
 
 lemmas
   nat_unfold = omega_unfold[folded nat_def nat_zero_def] and
@@ -94,6 +102,11 @@ lemma lt_0 [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
 
 lemma zero_ltE [elim]: "n < 0 \<Longrightarrow> P"
   unfolding lt_def nat_zero_def by auto
+
+lemma not_lt_zero [simp]: "\<not> n < 0" by auto
+
+lemma not_succ_lt [simp]: "\<not> succ n < n"
+  unfolding lt_def by auto
 
 lemma le_0 [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
   unfolding le_def by auto
@@ -238,15 +251,23 @@ proof (intro typeI)
 qed
 
 
-section \<open>Addition\<close>
+section \<open>Arithmetic\<close>
 
 definition "nat_add m n = natrec m succ n"
 
+bundle notation_nat_add
+begin notation nat_add (infixl "+" 65)
+end
+
+bundle no_notation_nat_add
+begin no_notation nat_add (infixl "+" 65)
+end
+
+unbundle no_notation_add_implicit
+unbundle notation_nat_add
+
 lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_add_def by auto
-
-no_notation add_implicit (infixl "+" 65)
-notation nat_add (infixl "+" 65)
 
 lemma nat_add_zero_left:
   "m: Nat \<Longrightarrow> 0 + m = m"
@@ -265,6 +286,18 @@ apply (induct k rule: Nat_induct)
   apply simp
   subgoal by (rotate_tac, rotate_tac, induct n rule: Nat_induct) auto
 done
+
+definition "nat_sub m n = natrec m pred n"
+
+bundle notation_nat_sub
+begin notation nat_sub (infix "-" 65)
+end
+
+bundle no_notation_nat_sub
+begin no_notation nat_sub (infix "-" 65)
+end
+
+unbundle notation_nat_sub
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>

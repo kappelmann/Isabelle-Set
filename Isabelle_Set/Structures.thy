@@ -30,8 +30,19 @@ lemma add_type [type]:
   "add : Add A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding add_def by unfold_types
 
-abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
-  where "x + y \<equiv> add \<implicit>P x y"
+abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
+  where "add_implicit x y \<equiv> add \<implicit>P x y"
+
+bundle notation_add_implicit
+begin notation add_implicit  (infixl "+" 65)
+end
+
+bundle no_notation_add_implicit
+begin no_notation add_implicit  (infixl "+" 65)
+end
+
+unbundle notation_add_implicit
+
 
 subsection \<open>Multiplicative (binop) structures\<close>
 
@@ -78,8 +89,18 @@ lemma zero_type [type]:
   "zero : Zero A \<Rightarrow> element A"
   unfolding zero_def by auto
 
-abbreviation zero_implicit :: "set" ("0")
-  where "0 \<equiv> zero \<implicit>Z"
+abbreviation zero_implicit :: "set"
+  where "zero_implicit \<equiv> zero \<implicit>Z"
+
+bundle notation_zero_implicit
+begin notation zero_implicit ("0")
+end
+
+bundle no_notation_zero_implicit
+begin no_notation zero_implicit ("0")
+end
+
+unbundle notation_zero_implicit
 
 definition [typeclass]:
   "One A = type (\<lambda>O. O @@ one \<in> A)"

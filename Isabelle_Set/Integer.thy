@@ -8,7 +8,7 @@ section \<open>Construction of the carrier\<close>
 
 text \<open>
   We construct the integers as a pair of a non-negative and a negative part.
-  By using the set extension principle, we make sure that \<open>\<nat> \<subseteq> \<int>\<close>.
+  By using the set extension principle, we ensure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
 definition "raw_int = Sum \<nat> (\<nat> \<setminus> {})"
@@ -35,8 +35,48 @@ corollary [derive]: "n : element \<nat> \<Longrightarrow> n : element \<int>"
   by (rule nat_in_int)
 
 
-section \<open>Basic arithmetic operations\<close>
+section \<open>Basic arithmetic\<close>
 
+definition "int_zero \<equiv> inl 0"
+
+bundle notation_int_zero
+begin notation int_zero ("0")
+end
+
+bundle no_notation_int_zero
+begin no_notation int_zero ("0")
+end
+
+unbundle no_notation_nat_zero
+unbundle notation_int_zero
+
+definition "int_add x y \<equiv> Sum_case
+  (\<lambda>n. Sum_case
+    (\<lambda>m. inl (n + m))
+    (\<lambda>m. if n < m then inr (m - n) else inl (n - m))
+    y)
+  (\<lambda>n. Sum_case
+    (\<lambda>m. if m < n then inr (n - m) else inl (m - n))
+    (\<lambda>m. inr (n + m))
+    y)
+  x"
+
+bundle notation_int_add
+begin notation int_add (infixl "+" 65)
+end
+
+bundle no_notation_int_add
+begin no_notation int_add (infixl "+" 65)
+end
+
+unbundle no_notation_nat_add
+unbundle notation_int_add
+
+unbundle no_notation_int_zero
+unbundle notation_nat_zero
+
+lemma "inl (succ 0) + inl (succ 0) + inr (succ 0) = inl (succ 0)"
+  by (simp add: int_add_def nat_add_def nat_sub_def)
 
 
 end

@@ -62,7 +62,7 @@ lemma emptyset_Ord [type]: "{} : Ord"
 
 section \<open>Successor ordinals\<close>
 
-definition "succ x \<equiv> x \<union> {x}"
+definition succ where "succ x \<equiv> x \<union> {x}"
 
 lemma succ_Ord [derive]: "x : Ord \<Longrightarrow> succ x : Ord"
   unfolding succ_def by unfold_types (fastforce simp: mem_transitive_def)
@@ -123,7 +123,7 @@ lemma succ_mem_not_eq [simp]:
   "x \<in> succ y \<Longrightarrow> x \<noteq> (succ y)"
   by (rule mem_imp_not_eq)
 
-lemma succ_not_mem:
+lemma succ_not_mem [simp]:
   "succ x \<notin> x"
   unfolding succ_def by (blast dest: mem_asym)
 
