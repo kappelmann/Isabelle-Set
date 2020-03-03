@@ -120,7 +120,7 @@ schematic_goal
   by (simp add: arith)
 
 
-section \<open>Instances for algebraic structures\<close>
+section \<open>Algebraic structures\<close>
 
 definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>}"
 
