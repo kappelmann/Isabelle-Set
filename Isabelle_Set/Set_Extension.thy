@@ -46,7 +46,7 @@ assumes
 begin
 
 definition def :: set
-  where "def = A \<union> {\<langle>A, x\<rangle>. x \<in> B \<setminus> Repl A f}"
+  where "def = A \<union> {\<langle>A, x\<rangle> | x \<in> B \<setminus> {f a | a \<in> A}}"
 
 definition Rep :: "set \<Rightarrow> set"
   where "Rep y = (if y \<in> A then f y else snd y)"
@@ -54,7 +54,7 @@ definition Rep :: "set \<Rightarrow> set"
 definition Abs :: "set \<Rightarrow> set"
   where "Abs x = (if (\<exists>z\<in>A. f z = x) then (THE z. z\<in>A \<and> f z = x) else \<langle>A, x\<rangle>)"
 
-lemma Rep_type: "Rep : element def \<Rightarrow> element B"
+lemma Rep_type [type]: "Rep : element def \<Rightarrow> element B"
 proof (rule Pi_typeI)
   fix y assume "y : element def"
   show "Rep y : element B"
@@ -71,7 +71,7 @@ proof (rule Pi_typeI)
   qed
 qed
 
-lemma Abs_type: "Abs : element B \<Rightarrow> element def"
+lemma Abs_type [type]: "Abs : element B \<Rightarrow> element def"
 proof (rule Pi_typeI)
   fix x assume "x : element B"
   show "Abs x : element def"
