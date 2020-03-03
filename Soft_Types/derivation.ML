@@ -353,6 +353,10 @@ val derive_depth = Attrib.setup_config_int \<^binding>\<open>type_derivation_dep
 *)
 fun term_jdgmts_from_rule ctxt tm jdgmts rule =
   let
+    val probe = Config.get ctxt debug
+      andalso Term.aconv_untyped
+        (Const ("Nat.nat_add", dummyT) $ Free (":000", dummyT), tm)
+
     fun discharge_prems thms =
       let
         val in_jdgmts = member Thm.eq_thm_prop jdgmts
@@ -369,11 +373,12 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
       val inst =
         ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
         |> apply2 (Thm.cterm_of ctxt)
+        |> tap (if probe then @{print} else I)
         |> Thm.match
     in
       discharge_prems [Thm.instantiate inst rule]
     end
-    handle Pattern.MATCH => []
+    handle Pattern.MATCH => [] | TYPE _ => []
   end
 
 (*

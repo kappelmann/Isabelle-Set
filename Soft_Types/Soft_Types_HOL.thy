@@ -202,6 +202,7 @@ setup \<open>Isar_Integration.setup\<close>
 declare with_type_def [type_simp]
 declare any_typeI [type]
 declare Pi_typeI [backward_derive]
+declare Pi_typeE [derive]
 
 
 subsection \<open>Soft type methods II\<close>

@@ -305,7 +305,6 @@ done
 definition "nat_sub m n = natrec m pred n"
 
 lemma nat_sub_type [type]: "nat_sub : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
-  using [[trace_type_derivation]]
   unfolding nat_sub_def by auto
 
 bundle notation_nat_sub begin notation nat_sub (infixl "-" 65) end
@@ -315,19 +314,11 @@ unbundle notation_nat_sub
 
 definition "nat_mul m n = natrec 0 (nat_add m) n"
 
-\<comment> \<open>TODO: Make type derivator work bottom-up to make the next proof work.\<close>
 lemma nat_mul_type [type]: "nat_mul : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
-  using [[trace_type_derivation]]
-  unfolding nat_mul_def apply auto
-  oops
+  unfolding nat_mul_def by auto
 
-bundle notation_nat_mul
-begin notation nat_mul (infixl "\<cdot>" 65)
-end
-
-bundle no_notation_nat_mul
-begin no_notation nat_mul (infixl "\<cdot>" 65)
-end
+bundle notation_nat_mul begin notation nat_mul (infixl "\<cdot>" 65) end
+bundle no_notation_nat_mul begin no_notation nat_mul (infixl "\<cdot>" 65) end
 
 unbundle no_notation_mul_implicit
 unbundle notation_nat_mul

@@ -111,12 +111,12 @@ section \<open>Examples\<close>
 
 schematic_goal
   "Int.Abs (inl (succ 0)) + Int.Abs (inl (succ 0)) + Int.Abs (inr (succ 0))
-    = Int.Abs (?a)"
+    = Int.Abs ?a"
   by (simp add: arith)
 
 schematic_goal
   "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0)) -
-    Int.Abs (inr (succ 0)) = Int.Abs (inl ?a)"
+    Int.Abs (inr (succ 0)) = Int.Abs ?a"
   by (simp add: arith)
 
 

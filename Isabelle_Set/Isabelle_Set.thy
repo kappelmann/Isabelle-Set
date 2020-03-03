@@ -8,14 +8,14 @@ imports
   Subset
   Monops
   Ordinal
-  Set_Extension
-  Nat
-  Integer
   String
   Object
   Structures
   Monoid
   Ring
+  Set_Extension
+  Nat
+  Integer
   Category
 
 begin

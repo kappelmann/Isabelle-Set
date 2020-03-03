@@ -33,13 +33,8 @@ lemma zero_type [type]:
 abbreviation zero_implicit :: "set"
   where "zero_implicit \<equiv> zero \<implicit>Z"
 
-bundle notation_zero_implicit
-begin notation zero_implicit ("0")
-end
-
-bundle no_notation_zero_implicit
-begin no_notation zero_implicit ("0")
-end
+bundle notation_zero_implicit begin notation zero_implicit ("0") end
+bundle no_notation_zero_implicit begin no_notation zero_implicit ("0") end
 
 unbundle notation_zero_implicit
 
@@ -64,13 +59,8 @@ lemma one_type [type]:
 abbreviation one_implicit :: "set" ("1")
   where "1 \<equiv> one \<implicit>O"
 
-bundle notation_one_implicit
-begin notation one_implicit ("1")
-end
-
-bundle no_notation_one_implicit
-begin no_notation one_implicit ("1")
-end
+bundle notation_one_implicit begin notation one_implicit ("1") end
+bundle no_notation_one_implicit begin no_notation one_implicit ("1") end
 
 unbundle notation_one_implicit
 
@@ -101,12 +91,10 @@ abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
   where "add_implicit x y \<equiv> add \<implicit>P x y"
 
 bundle notation_add_implicit
-begin notation add_implicit  (infixl "+" 65)
-end
+  begin notation add_implicit  (infixl "+" 65) end
 
 bundle no_notation_add_implicit
-begin no_notation add_implicit  (infixl "+" 65)
-end
+  begin no_notation add_implicit  (infixl "+" 65) end
 
 unbundle notation_add_implicit
 
@@ -135,11 +123,10 @@ abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "
   where "x \<cdot> y \<equiv> mul \<implicit>T x y"
 
 bundle notation_mul_implicit
-begin notation mul_implicit  (infixl "\<cdot>" 65)
-end
+  begin notation mul_implicit  (infixl "\<cdot>" 65) end
 
 bundle no_notation_mul_implicit
-begin no_notation mul_implicit  (infixl "\<cdot>" 65)
-end
+  begin no_notation mul_implicit  (infixl "\<cdot>" 65) end
+
 
 end
