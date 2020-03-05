@@ -9,7 +9,7 @@ begin
 
 definition "inl a = \<langle>{}, a\<rangle>"
 definition "inr b = \<langle>{{}}, b\<rangle>"
-definition "Sum A B = Repl A inl \<union> Repl B inr"
+definition "Sum A B = {inl a | a \<in> A} \<union> {inr b | b \<in> B}"
 
 lemma Sum_iff: "x \<in> Sum A B \<longleftrightarrow> (\<exists>a \<in> A. x = inl a) \<or> (\<exists>b \<in> B. x = inr b)"
   unfolding Sum_def inl_def inr_def by blast
@@ -34,7 +34,6 @@ lemma
   Sum_case_inl [simp]: "Sum_case l r (inl a) = l a" and
   Sum_case_inr [simp]: "Sum_case l r (inr b) = r b"
   unfolding Sum_case_def inl_def inr_def by auto
-
 
 lemma SumE [case_names inl inr]:
   assumes "x \<in> Sum A B"
