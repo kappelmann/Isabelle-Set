@@ -413,6 +413,13 @@ bundle no_notation_nat_mul begin no_notation nat_mul (infixl "\<cdot>" 65) end
 unbundle no_notation_mul_implicit
 unbundle notation_nat_mul
 
+lemma nat_mul_nonzero [simp]:
+  assumes
+    "m: Nat" "n: Nat"
+    "m \<noteq> 0" "n \<noteq> 0"
+  shows "m \<cdot> n \<noteq> 0"
+oops
+
 
 section \<open>Monoid structure of (\<nat>, +)\<close>
 
