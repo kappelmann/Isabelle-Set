@@ -61,11 +61,6 @@ definition "int_rep_add x y \<equiv> Sum_case
     y)
   x"
 
-definition "int_rep_negate =
-  Sum_case (\<lambda>n. if n = 0 then n else inr n) (\<lambda>n. inl n)"
-
-definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
-
 definition "int_rep_mul x y \<equiv> Sum_case
   (\<lambda>m. Sum_case
     (\<lambda>n. inl (m \<cdot> n))
@@ -77,9 +72,14 @@ definition "int_rep_mul x y \<equiv> Sum_case
     y)
   x"
 
+definition "int_rep_negate =
+  Sum_case (\<lambda>n. if n = 0 then n else inr n) (\<lambda>n. inl n)"
+
+definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
+
 definition "int_add x y = Int.Abs (int_rep_add (Int.Rep x) (Int.Rep y))"
-definition "int_sub x y = Int.Abs (int_rep_sub (Int.Rep x) (Int.Rep y))"
 definition "int_mul x y \<equiv> Int.Abs (int_rep_mul (Int.Rep x) (Int.Rep y))"
+definition "int_sub x y = Int.Abs (int_rep_sub (Int.Rep x) (Int.Rep y))"
 
 lemmas [arith] =
   int_rep_add_def int_rep_negate_def int_rep_sub_def int_rep_mul_def
@@ -87,23 +87,15 @@ lemmas [arith] =
 
 lemma int_rep_add_type [type]:
   "int_rep_add : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  unfolding int_rep_def int_rep_add_def
+  by (unfold_types, erule SumE; erule SumE) auto
 
-  unfolding int_rep_def
-  apply unfold_types
-  subgoal for m n
-  apply (cases m rule: SumE; rotate_tac)
-    apply assumption
-    apply (cases n rule: SumE, assumption)
-      apply (unfold int_rep_add_def, auto) [2]
-      unfolding int_rep_add_def
-      apply auto
-
-(* unfolding int_rep_def
-proof unfold_types
-  let ?int_rep = "Sum \<nat> (\<nat> \<setminus> {0})"
-  fix m n assume "m \<in> ?int_rep" "n \<in> ?int_rep"
-  show "int_rep_add m n \<in> ?int_rep"
-  unfolding int_rep_add_def proof (cases m rule: SumE) *)
+lemma int_rep_mul_type [type]:
+  "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  unfolding int_rep_def int_rep_mul_def
+  apply (unfold_types, erule SumE; erule SumE)
+    apply auto [1]
+    apply auto [1]
 oops
 
 subsection \<open>Notation\<close>

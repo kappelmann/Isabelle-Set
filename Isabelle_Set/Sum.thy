@@ -35,14 +35,22 @@ lemma
   Sum_case_inr [simp]: "Sum_case l r (inr b) = r b"
   unfolding Sum_case_def inl_def inr_def by auto
 
-lemma SumE [case_names inl inr]:
+lemma SumE [elim, case_names inl inr]:
   assumes "x \<in> Sum A B"
   obtains a where "a \<in> A" "x = inl a" | b where "b \<in> B" "x = inr b"
   using assms unfolding Sum_def by blast
 
+lemma Sum_caseE [elim]:
+  assumes
+    "x \<in> Sum A B"
+    "\<And>a. a \<in> A \<Longrightarrow> l a \<in> C"
+    "\<And>b. b \<in> B \<Longrightarrow> r b \<in> C"
+  shows "Sum_case l r x \<in> C"
+  using assms by auto
+
 lemma Sum_case_type [type]:
   "Sum_case : (element A \<Rightarrow> X) \<Rightarrow> (element B \<Rightarrow> X) \<Rightarrow> element (Sum A B) \<Rightarrow> X"
-  by unfold_types (auto elim: SumE)
+  by unfold_types auto
 
 lemma inl_type [type]: "inl : element A \<Rightarrow> element (Sum A B)"
   unfolding inl_def Sum_def by unfold_types blast

@@ -142,6 +142,10 @@ lemma
   not_succ_lt_succ [simp]: "\<not> succ n < succ n"
   unfolding lt_def by auto
 
+lemma nat_neq_zero_imp_zero_lt:
+  "n: Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> 0 < n"
+  using nat_elems by unfold_types force
+
 lemma le_0 [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
   unfolding le_def by auto
 
@@ -351,6 +355,18 @@ apply (induct k rule: Nat_induct)
     unfolding nat_add_def
     by (rotate_tac, rotate_tac, induct n rule: Nat_induct) auto
 done
+
+lemma nat_add_nonzero [simp]:
+  assumes
+    "m: Nat" "n: Nat"
+    "m \<noteq> 0" "n \<noteq> 0"
+  shows "m + n \<noteq> 0"
+proof (insert assms(2), induction n rule: Nat_induct)
+  show "m + 0 \<noteq> 0"
+    using assms by auto
+  show "\<And>n. n : Nat \<Longrightarrow> m + n \<noteq> 0 \<Longrightarrow> m + succ n \<noteq> 0"
+    unfolding nat_add_def by auto
+qed
 
 subsection \<open>Subtraction (truncated)\<close>
 
