@@ -10,10 +10,6 @@ section \<open>Preliminaries\<close>
 abbreviation not_mem (infixl "\<notin>" 50)
   where "x \<notin> y \<equiv> \<not> x \<in> y"
 
-lemma mem_transitiveI [intro]:
-  "(\<And>x y. x \<in> X \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> X) \<Longrightarrow> mem_transitive X"
-  unfolding mem_transitive_def subset_def by auto
-
 
 section \<open>Foundational axioms as rules\<close>
 
@@ -214,6 +210,17 @@ declare
   subsetE [trans]
   rev_subsetE [trans]
   subset_trans [trans]
+
+
+section \<open>\<in>-transitivity\<close>
+
+lemma mem_transitiveI [intro]:
+  "(\<And>x y. x \<in> X \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> X) \<Longrightarrow> mem_transitive X"
+  unfolding mem_transitive_def by auto
+
+lemma mem_transitiveE [elim]:
+  "mem_transitive x \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
+  unfolding mem_transitive_def by auto
 
 
 section \<open>Set equality\<close>

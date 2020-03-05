@@ -191,6 +191,10 @@ proof (induction rule: omega_induct)
     thus "{} \<in> succ (succ n)" unfolding succ_def by auto
 qed
 
+lemma omega_succ_mem_monotone [intro]:
+  "\<lbrakk>n \<in> \<omega>; m \<in> n\<rbrakk> \<Longrightarrow> succ m \<in> succ n"
+  by (induction n rule: omega_induct) (auto simp: succ_def)
+
 (*Characterizes the elements of \<omega> as {} or succ n for some n \<in> \<omega>*)
 lemma omega_elems [rule_format]:
   "n \<in> \<omega> \<Longrightarrow> n \<noteq> {} \<longrightarrow> (\<exists>!m\<in> \<omega>. n = succ m)"
@@ -228,21 +232,15 @@ lemma omega_mem_transitive: "x \<in> \<omega> \<Longrightarrow> y \<in> x \<Long
 lemma [derive]: "x: element \<omega> \<Longrightarrow> y: element x \<Longrightarrow> y: element \<omega>"
   by unfold_types (fact omega_mem_transitive)
 
-text \<open>Truncated predecessor function\<close>
-
-definition "pred n = (if n = {} then {} else (THE m \<in> \<omega>. n = succ m))"
-
-lemma pred_omega [simp]: "n \<in> \<omega> \<Longrightarrow> pred n \<in> \<omega>"
-  unfolding pred_def by (auto intro: btheI1 omega_elems)
-
-lemma pred_empty [simp]: "pred {} = {}"
-  unfolding pred_def by auto
-
-lemma pred_succ [simp]: "n \<in> \<omega> \<Longrightarrow> pred (succ n) = n"
-  unfolding pred_def by auto
-
-lemma succ_pred [simp]: "\<lbrakk>n \<in> \<omega>; n \<noteq> {}\<rbrakk> \<Longrightarrow> succ (pred n) = n"
-  unfolding pred_def by (simp, rule sym, rule btheI2) (fact omega_elems)
+lemma omega_succ_mem_monotoneE:
+  assumes "n \<in> \<omega>" and "succ m \<in> succ n"
+  shows "m \<in> n"
+proof -
+  have "mem_transitive (succ n)" using assms by auto
+  hence "succ m \<subseteq> succ n" using assms mem_transitiveE by auto
+  hence "m \<in> n \<union> {n}" unfolding succ_def by auto
+  then show "m \<in> n" using assms by auto
+qed
 
 
 end

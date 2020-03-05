@@ -10,30 +10,20 @@ text \<open>The basic results have already been shown for \<nat> = \<omega>.\<cl
 definition nat ("\<nat>") where "\<nat> = \<omega>"
 
 definition "nat_zero \<equiv> {}"
+definition "nat_one \<equiv> succ nat_zero"
 
-bundle notation_nat_zero
-begin notation nat_zero ("0")
-end
+bundle notation_nat_zero begin notation nat_zero ("0") end
+bundle no_notation_nat_zero begin no_notation nat_zero ("0") end
 
-bundle no_notation_nat_zero
-begin no_notation nat_zero ("0")
-end
+bundle notation_nat_one begin notation nat_one ("1") end
+bundle no_notation_nat_one begin no_notation nat_one ("1") end
 
-unbundle no_notation_zero_implicit
-unbundle notation_nat_zero
+unbundle
+  no_notation_zero_implicit
+  no_notation_one_implicit
 
-definition "nat_one \<equiv> succ 0"
-
-bundle notation_nat_one
-begin notation nat_one ("1")
-end
-
-bundle no_notation_nat_one
-begin no_notation nat_one ("1")
-end
-
-unbundle no_notation_one_implicit
-unbundle notation_nat_one
+  notation_nat_zero
+  notation_nat_one
 
 lemmas
   nat_unfold = omega_unfold[folded nat_def nat_zero_def] and
@@ -43,12 +33,29 @@ lemmas
   nat_induct [case_names 0 induct, induct set: nat] =
     omega_induct[folded nat_def nat_zero_def] and
   nat_elems = omega_elems[folded nat_def nat_zero_def] and
-  pred_nat [simp] = pred_omega[folded nat_def] and
-  pred_0 = pred_empty[folded nat_zero_def] and
-  pred_succ [simp] = Ordinal.pred_succ[folded nat_def] and
-  succ_pred [simp] = Ordinal.succ_pred[folded nat_def nat_zero_def] and
   succ_not_empty [simp] = Ordinal.succ_not_empty[folded nat_zero_def] and
   empty_not_succ [simp] = Ordinal.empty_not_succ[folded nat_zero_def]
+
+
+text \<open>Truncated predecessor function\<close>
+
+definition "pred n = (if n = 0 then 0 else (THE m \<in> \<nat>. n = succ m))"
+
+lemma pred_nonzero:
+  "\<lbrakk>n \<in> \<nat>; n \<noteq> 0\<rbrakk> \<Longrightarrow> pred n = (THE m \<in> \<nat>. n = succ m)"
+  unfolding pred_def by auto
+
+lemma pred_nat [simp]: "n \<in> \<nat> \<Longrightarrow> pred n \<in> \<nat>"
+  unfolding pred_def by (auto intro: btheI1 nat_elems)
+
+lemma pred_zero [simp]: "pred 0 = 0"
+  unfolding pred_def by auto
+
+lemma pred_succ [simp]: "n \<in> \<nat> \<Longrightarrow> pred (succ n) = n"
+  unfolding pred_def by auto
+
+lemma succ_pred [simp]: "\<lbrakk>n \<in> \<nat>; n \<noteq> 0\<rbrakk> \<Longrightarrow> succ (pred n) = n"
+  unfolding pred_def by (simp, rule sym, rule btheI2) (fact nat_elems)
 
 
 section \<open>\<nat> as a type\<close>
@@ -72,7 +79,8 @@ lemma
   by unfold_types auto
 
 lemma one_type [type]: "1 : Nat"
-  unfolding nat_one_def by discharge_types
+  unfolding nat_one_def by auto
+
 
 section \<open>The \<open><\<close> and \<open>\<le>\<close> orders on Nat\<close>
 
@@ -82,10 +90,14 @@ lemmas
   lt_succ [simp] = succ_mem[folded lt_def] and
   lt_succ_cases = succ_cases[folded lt_def]
 
-lemma succ_lt_monotone [intro]:
-  "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m < succ n"
+lemma succ_lt_monotone:
+  "n : Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
+  unfolding lt_def by unfold_types (auto simp: nat_def)
+
+lemma succ_lt_monotoneE:
+  "\<lbrakk>n: Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"
   unfolding lt_def
-  by (induction n rule: Nat_induct) (auto simp: succ_def nat_zero_def)
+  by unfold_types (auto intro: omega_succ_mem_monotoneE simp: nat_def)
 
 lemma lt_trichotomy:
   "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> m < n \<or> m = n \<or> n < m"
@@ -110,7 +122,7 @@ lemma succ_le_monotone:
   unfolding le_def using succ_lt_monotone by auto
 
 lemma succ_lt_le_monotone:
-  "\<lbrakk>n :Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+  "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
 lemma lt_0 [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
@@ -120,7 +132,10 @@ lemma lt_0 [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
 lemma zero_ltE [elim]: "n < 0 \<Longrightarrow> P"
   unfolding lt_def nat_zero_def by auto
 
-lemma [simp]: "\<not> n < 0" by auto
+corollary [simp]: "\<not> n < 0" by auto
+
+lemma zero_lt_imp_neq [simp]: "0 < n \<Longrightarrow> n \<noteq> 0"
+  by auto
 
 lemma
   not_succ_lt [simp]: "\<not> succ n < n" and
@@ -142,6 +157,9 @@ lemma le_cases:
   shows "P m"
   using assms unfolding le_def by auto
 
+lemma lt_asym: "\<lbrakk>m < n; n < m\<rbrakk> \<Longrightarrow> P"
+  unfolding lt_def using mem_asym by blast
+
 lemma lt_transitive:
   "n : Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k < n"
   unfolding lt_def nat_def
@@ -156,11 +174,37 @@ lemma
   lt_lt_le:      "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
   unfolding le_def by (auto intro: lt_transitive)
 
-text \<open>More rewriting on \<open><\<close>\<close>
-
 lemma succ_lt: "\<lbrakk>m: Nat; n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
   by unfold_types (auto dest: omega_elem_Ord Ord_mem_transitive')
+
+lemma succ_zero_lt:
+  "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> succ m < n \<Longrightarrow> 0 < n"
+  by (rule lt_transitive) auto
+
+lemma pred_lt_monotone [intro]:
+  assumes "m: Nat" "n: Nat"
+      and "0 < m" "m < n"
+  shows "pred m < pred n"
+proof -
+  have "m \<in> \<nat>" "n \<in> \<nat>" "m \<noteq> 0" "n \<noteq> 0"
+    using assms by auto
+  then obtain k k' where "k \<in> \<nat>" "k'\<in> \<nat>" and
+    *: "m = succ k" "n = succ k'"
+    using nat_elems by blast
+  then have "succ k < succ k'"
+    using assms by simp
+  thus ?thesis
+    using succ_lt_monotoneE by (auto simp only: * pred_succ)
+qed
+
+lemma succ_lt_imp_lt_pred:
+  assumes "m: Nat" "n: Nat" "succ n < m"
+  shows "n < pred m"
+proof (rule succ_lt_monotoneE, discharge_types)
+  have "m \<noteq> 0" using assms by auto
+  thus "succ n < succ (pred m)" by auto
+qed
 
 
 section \<open>Ranges\<close>
@@ -272,7 +316,11 @@ qed
 
 section \<open>Arithmetic\<close>
 
-definition "nat_add m n = natrec m succ n"
+named_theorems arith
+
+subsection \<open>Addition\<close>
+
+definition [arith]: "nat_add m n = natrec m succ n"
 
 lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_add_def by auto
@@ -284,25 +332,29 @@ unbundle
   no_notation_add_implicit
   notation_nat_add
 
-lemma nat_add_zero_left:
+lemma nat_add_zero_left [simp]:
   "m: Nat \<Longrightarrow> 0 + m = m"
   unfolding nat_add_def
   by (induction m rule: Nat_induct) auto
 
-lemma nat_add_zero_right:
+lemma nat_add_zero_right [simp]:
   "m: Nat \<Longrightarrow> m + 0 = m"
   unfolding nat_add_def
   by (induction m rule: Nat_induct) auto
 
-lemma nat_add_assoc:
+lemma nat_add_assoc [simp]:
   "k: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n + k = m + (n + k)"
-unfolding nat_add_def
 apply (induct k rule: Nat_induct)
-  apply simp
-  subgoal by (rotate_tac, rotate_tac, induct n rule: Nat_induct) auto
+  subgoal
+    by simp
+  subgoal
+    unfolding nat_add_def
+    by (rotate_tac, rotate_tac, induct n rule: Nat_induct) auto
 done
 
-definition "nat_sub m n = natrec m pred n"
+subsection \<open>Subtraction (truncated)\<close>
+
+definition [arith]: "nat_sub m n = natrec m pred n"
 
 lemma nat_sub_type [type]: "nat_sub : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_sub_def by auto
@@ -312,7 +364,29 @@ bundle no_notation_nat_sub begin no_notation nat_sub (infixl "-" 65) end
 
 unbundle notation_nat_sub
 
-definition "nat_mul m n = natrec 0 (nat_add m) n"
+lemma nat_sub_zero [simp]: "m - 0 = m"
+  unfolding nat_sub_def by auto
+
+lemma nat_sub_succ [simp]:
+  "n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> succ m - succ n = m - n"
+  by (induction n rule: Nat_induct) (simp_all add: arith)
+
+lemma nat_sub_lt [simp]:
+  "\<lbrakk>n: Nat; m: Nat; n < m\<rbrakk> \<Longrightarrow> 0 < m - n"
+proof (induction n arbitrary: m rule: Nat_induct, clarsimp)
+  fix m n assume "m: Nat" "n: Nat" and
+    hyp: "\<And>m. m : Nat \<Longrightarrow> n < m \<Longrightarrow> 0 < m - n"
+  have "succ n < m \<longrightarrow> 0 < m - succ n"
+  proof (cases m rule: Nat_cases, simp, simp, clarsimp)
+    show "\<And>k. k : Nat \<Longrightarrow> succ n < succ k \<Longrightarrow> 0 < k - n"
+    using hyp by (auto intro: succ_lt_monotoneE)
+  qed
+  thus "succ n < m \<Longrightarrow> 0 < m - succ n" ..
+qed
+
+subsection \<open>Multiplication\<close>
+
+definition [arith]: "nat_mul m n = natrec 0 (nat_add m) n"
 
 lemma nat_mul_type [type]: "nat_mul : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_mul_def by auto
@@ -322,12 +396,6 @@ bundle no_notation_nat_mul begin no_notation nat_mul (infixl "\<cdot>" 65) end
 
 unbundle no_notation_mul_implicit
 unbundle notation_nat_mul
-
-text \<open>Simplification lemmas\<close>
-
-named_theorems arith
-
-lemmas [arith] = nat_add_def nat_sub_def nat_mul_def
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>

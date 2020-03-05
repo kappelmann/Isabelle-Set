@@ -32,7 +32,7 @@ definition "Sum_case l r x = (if fst x = {} then l (snd x) else r (snd x))"
 
 lemma
   Sum_case_inl [simp]: "Sum_case l r (inl a) = l a" and
-  Sum_case_inr [simp]: "Sum_case l r (inr b) = r b" 
+  Sum_case_inr [simp]: "Sum_case l r (inr b) = r b"
   unfolding Sum_case_def inl_def inr_def by auto
 
 
@@ -40,6 +40,10 @@ lemma SumE [case_names inl inr]:
   assumes "x \<in> Sum A B"
   obtains a where "a \<in> A" "x = inl a" | b where "b \<in> B" "x = inr b"
   using assms unfolding Sum_def by blast
+
+lemma Sum_case_type [type]:
+  "Sum_case : (element A \<Rightarrow> X) \<Rightarrow> (element B \<Rightarrow> X) \<Rightarrow> element (Sum A B) \<Rightarrow> X"
+  by unfold_types (auto elim: SumE)
 
 lemma inl_type [type]: "inl : element A \<Rightarrow> element (Sum A B)"
   unfolding inl_def Sum_def by unfold_types blast

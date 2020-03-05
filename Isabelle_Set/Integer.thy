@@ -11,13 +11,13 @@ text \<open>
   By using the set extension principle, we ensure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
-definition "int_rep = Sum \<nat> (\<nat> \<setminus> {{}})"
+definition "int_rep = Sum \<nat> (\<nat> \<setminus> {0})"
 
 \<comment> \<open>Some type derivation rule setup\<close>
 lemma
-  [type]: "succ: element \<nat> \<Rightarrow> element (\<nat> \<setminus> {{}})" and
+  [type]: "succ: element \<nat> \<Rightarrow> element (\<nat> \<setminus> {0})" and
   [type]: "inl : element \<nat> \<Rightarrow> element int_rep" and
-  [type]: "inr : element (\<nat> \<setminus> {{}}) \<Rightarrow> element int_rep"
+  [type]: "inr : element (\<nat> \<setminus> {0}) \<Rightarrow> element int_rep"
   unfolding int_rep_def by unfold_types auto
 
 interpretation Int: set_extension \<nat> int_rep inl
@@ -31,13 +31,15 @@ proof
 qed
 
 abbreviation int ("\<int>") where "\<int> \<equiv> Int.def"
+abbreviation "pos n \<equiv> Int.Abs (inl n)"
+abbreviation "neg n \<equiv> Int.Abs (inr n)"
 
-lemmas nat_in_int = Int.extension_subset
+lemmas nat_subset_int [intro, simp] = Int.extension_subset
 
-corollary [derive]: "n : element \<nat> \<Longrightarrow> n : element \<int>"
-  apply unfold_types
-  apply (rule subsetE)
-  by (rule nat_in_int)
+abbreviation "Int \<equiv> element \<int>"
+
+corollary [derive]: "n : Nat \<Longrightarrow> n : Int"
+  by (unfold_types, rule subsetE) auto
 
 
 section \<open>Basic arithmetic\<close>
@@ -83,6 +85,27 @@ lemmas [arith] =
   int_rep_add_def int_rep_negate_def int_rep_sub_def int_rep_mul_def
   int_add_def int_sub_def int_mul_def
 
+lemma int_rep_add_type [type]:
+  "int_rep_add : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+
+  unfolding int_rep_def
+  apply unfold_types
+  subgoal for m n
+  apply (cases m rule: SumE; rotate_tac)
+    apply assumption
+    apply (cases n rule: SumE, assumption)
+      apply (unfold int_rep_add_def, auto) [2]
+      unfolding int_rep_add_def
+      apply auto
+
+(* unfolding int_rep_def
+proof unfold_types
+  let ?int_rep = "Sum \<nat> (\<nat> \<setminus> {0})"
+  fix m n assume "m \<in> ?int_rep" "n \<in> ?int_rep"
+  show "int_rep_add m n \<in> ?int_rep"
+  unfolding int_rep_add_def proof (cases m rule: SumE) *)
+oops
+
 subsection \<open>Notation\<close>
 
 text \<open>
@@ -109,18 +132,25 @@ unbundle
 
 section \<open>Examples\<close>
 
+text \<open>
+  At some point we want to just be able to write \<open>succ n\<close> below, and
+  automatically infer that it has to have soft type .
+\<close>
+
 schematic_goal
-  "Int.Abs (inl (succ 0)) + Int.Abs (inl (succ 0)) + Int.Abs (inr (succ 0))
-    = Int.Abs ?a"
+  "pos (succ 0) + Int.Abs (inl (succ 0)) + Int.Abs (inr (succ 0))
+    = ?a"
   by (simp add: arith)
 
 schematic_goal
-  "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0)) -
-    Int.Abs (inr (succ 0)) = Int.Abs ?a"
+  "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0))
+    - Int.Abs (inr (succ 0)) = ?a"
   by (simp add: arith)
 
 
 section \<open>Algebraic structures\<close>
+
+
 
 definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>}"
 
