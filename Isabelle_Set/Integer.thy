@@ -73,7 +73,7 @@ definition "int_rep_mul x y \<equiv> Sum_case
   x"
 
 definition "int_rep_negate =
-  Sum_case (\<lambda>n. if n = 0 then n else inr n) (\<lambda>n. inl n)"
+  Sum_case (\<lambda>n. if n = 0 then inl n else inr n) (\<lambda>n. inl n)"
 
 definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
 
@@ -85,15 +85,31 @@ lemmas [arith] =
   int_rep_add_def int_rep_negate_def int_rep_sub_def int_rep_mul_def
   int_add_def int_sub_def int_mul_def
 
-lemma int_rep_add_type [type]:
+subsection \<open>Typing\<close>
+
+lemma [type]:
   "int_rep_add : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_add_def
   by (unfold_types, erule SumE; erule SumE) auto
 
-lemma int_rep_mul_type [type]:
+lemma [type]:
   "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_mul_def
   by (unfold_types, erule SumE; erule SumE) auto
+
+lemma [type]: "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
+  unfolding int_rep_def int_rep_negate_def
+  by unfold_types auto
+
+lemma [type]:
+  "int_rep_sub : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  unfolding int_rep_sub_def by auto
+
+lemma
+  int_add_type [type]: "int_add : Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int"
+  unfolding int_add_def int_mul_def int_sub_def by auto
 
 subsection \<open>Notation\<close>
 
