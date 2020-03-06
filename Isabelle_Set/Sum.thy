@@ -40,7 +40,13 @@ lemma SumE [elim, case_names inl inr]:
   obtains a where "a \<in> A" "x = inl a" | b where "b \<in> B" "x = inr b"
   using assms unfolding Sum_def by blast
 
-lemma Sum_caseE [elim]:
+lemma SumE_typed [case_names inl inr]:
+  assumes "x : element (Sum A B)"
+  obtains a where "a : element A" "x = inl a"
+  | b where "b : element B" "x = inr b"
+  using assms by unfold_types blast
+
+lemma Sum_caseI [intro]:
   assumes
     "x \<in> Sum A B"
     "\<And>a. a \<in> A \<Longrightarrow> l a \<in> C"

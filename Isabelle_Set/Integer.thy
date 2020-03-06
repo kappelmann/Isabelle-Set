@@ -25,7 +25,7 @@ proof
   text \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>int_rep\<close>:\<close>
 
   show "inl : element \<nat> \<Rightarrow> element int_rep"
-    unfolding int_rep_def by (rule inl_type)
+    unfolding int_rep_def by (fact inl_type)
 
   show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. inl x = inl y \<longrightarrow> x = y" by auto
 qed
@@ -34,7 +34,7 @@ abbreviation int ("\<int>") where "\<int> \<equiv> Int.def"
 abbreviation "pos n \<equiv> Int.Abs (inl n)"
 abbreviation "neg n \<equiv> Int.Abs (inr n)"
 
-lemmas nat_subset_int [intro, simp] = Int.extension_subset
+lemmas nat_subset_int [simp] = Int.extension_subset
 
 abbreviation "Int \<equiv> element \<int>"
 
@@ -61,6 +61,11 @@ definition "int_rep_add x y \<equiv> Sum_case
     y)
   x"
 
+definition "int_rep_negate =
+  Sum_case (\<lambda>n. if n = 0 then inl n else inr n) (\<lambda>n. inl n)"
+
+definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
+
 definition "int_rep_mul x y \<equiv> Sum_case
   (\<lambda>m. Sum_case
     (\<lambda>n. inl (m \<cdot> n))
@@ -72,14 +77,10 @@ definition "int_rep_mul x y \<equiv> Sum_case
     y)
   x"
 
-definition "int_rep_negate =
-  Sum_case (\<lambda>n. if n = 0 then inl n else inr n) (\<lambda>n. inl n)"
-
-definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
-
 definition "int_add x y = Int.Abs (int_rep_add (Int.Rep x) (Int.Rep y))"
-definition "int_mul x y \<equiv> Int.Abs (int_rep_mul (Int.Rep x) (Int.Rep y))"
+definition "int_negate x = Int.Abs (int_rep_negate (Int.Rep x))"
 definition "int_sub x y = Int.Abs (int_rep_sub (Int.Rep x) (Int.Rep y))"
+definition "int_mul x y \<equiv> Int.Abs (int_rep_mul (Int.Rep x) (Int.Rep y))"
 
 lemmas [arith] =
   int_rep_add_def int_rep_negate_def int_rep_sub_def int_rep_mul_def
@@ -87,29 +88,37 @@ lemmas [arith] =
 
 subsection \<open>Typing\<close>
 
-lemma [type]:
+\<comment> \<open>Note Kevin: I do not think unfolding everything for the following
+functions is a good idea. I think we want to get the type system up to a point
+where this is handled by said system.\<close>
+lemma int_rep_add_type [type]:
   "int_rep_add : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
-  unfolding int_rep_def int_rep_add_def
-  by (unfold_types, erule SumE; erule SumE) auto
+proof -
+  have [dest]: "\<And>m n. m \<in> \<nat> \<Longrightarrow> n \<in> \<nat> \<Longrightarrow> m < n \<Longrightarrow> 0 < n - m"
+    using nat_zero_lt_sub by simp
+  show ?thesis unfolding int_rep_def int_rep_add_def
+  by (unfold_types, erule SumE; erule SumE) (auto simp: nat_add_nonzero_right)
+qed
 
-lemma [type]:
-  "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
-  unfolding int_rep_def int_rep_mul_def
-  by (unfold_types, erule SumE; erule SumE) auto
-
-lemma [type]: "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
+lemma int_rep_negate_type [type]: "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_negate_def
   by unfold_types auto
 
-lemma [type]:
+lemma int_rep_sub_type [type]:
   "int_rep_sub : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_sub_def by auto
+
+lemma int_rep_mul_type [type]:
+  "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  unfolding int_rep_def int_rep_mul_def
+  by (unfold_types, erule SumE; erule SumE) (auto simp: nat_mul_ne_zero)
 
 lemma
   int_add_type [type]: "int_add : Int \<Rightarrow> Int \<Rightarrow> Int" and
   int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int" and
   int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int"
   unfolding int_add_def int_mul_def int_sub_def by auto
+
 
 subsection \<open>Notation\<close>
 
