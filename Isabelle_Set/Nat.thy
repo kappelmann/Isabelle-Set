@@ -117,9 +117,16 @@ definition le (infix "\<le>" 60) where "m \<le> n = (m < n \<or> m = n)"
 lemma lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
   unfolding le_def ..
 
+lemma le_succ [simp]: "n \<le> succ n"
+  unfolding le_def by auto
+
 lemma succ_le_monotone:
   "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
+
+lemma succ_le_monotoneE:
+  "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
+  unfolding le_def using succ_lt_monotoneE by auto
 
 lemma succ_lt_le_monotone:
   "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
@@ -250,46 +257,35 @@ lemma
 lemma upto_subset_upto [intro!]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> {0, ..., m} \<subseteq> {0, ..., n}"
   unfolding upto_def le_def by (auto intro: lt_transitive)
 
-lemma le_induct_raw:
-  "n: Nat \<Longrightarrow> P 0 \<Longrightarrow> (\<forall>m. m < n \<longrightarrow> P m \<longrightarrow> P (succ m)) \<longrightarrow> (\<forall>m. m \<le> n \<longrightarrow> P m)"
-text \<open>Proof sketch: case n = 0 is easy, case n > 0 is by induction.\<close>
-proof (cases n rule: Nat_cases, assumption; rule impI)
-  assume "P 0"
-  then show "\<forall>m. m \<le> 0 \<longrightarrow> P m" by (auto dest: le_0)
-next
-  fix n assume assms:
-    "n: Nat"
-    "P 0"
-    "(\<forall>m. m < succ n \<longrightarrow> P m \<longrightarrow> P (succ m))"
-  show "\<forall>m. m \<le> succ n \<longrightarrow> P m"
-  proof clarify
-    have succ_n: "succ n: Nat" using assms by auto
-
-    { fix m have "m: Nat \<Longrightarrow> m < succ n \<Longrightarrow> P m"
-      proof (induction m rule: Nat_induct)
-        show "P 0" by (fact assms)
-      next
-        fix k assume assms': "k: Nat" "k < succ n \<Longrightarrow> P k" "succ k < succ n"
-        then have "k < succ n" by (auto intro: succ_lt)
-        moreover have "P k" using assms' by auto
-        ultimately show "P (succ k)" using assms(3) by auto
-      qed
-      hence "m < succ n \<Longrightarrow> P m" using lt_imp_Nat[OF succ_n] by auto
-    }
-    hence 1: "\<And>m. m < succ n \<Longrightarrow> P m" by auto
-    hence 2: "P (succ n)" using assms(3) by auto
-
-    fix m show "m \<le> succ n \<Longrightarrow> P m" using 1 2 by (auto elim: le_cases[OF succ_n])
-  qed
-qed
-
 lemma le_induct:
-  assumes "n: Nat"
+  assumes "m: Nat"
+      and "n: Nat"
       and "m \<le> n"
       and "P 0"
       and "\<And>m. m < n \<Longrightarrow> P m \<Longrightarrow> P (succ m)"
   shows "P m"
-  using le_induct_raw assms by auto
+proof (cases n rule: Nat_cases, fact)
+  assume "n = 0"
+  hence "m = 0" using \<open>m \<le> n\<close> by auto
+  thus "P m" using assms by simp
+
+  next {
+  fix m
+  have "m: Nat \<Longrightarrow> (\<And>k. \<lbrakk>k: Nat; n = succ k; m \<le> n\<rbrakk> \<Longrightarrow> P m)"
+  proof (induction m rule: Nat_induct)
+    show "P 0" by fact
+    next
+    fix k l assume
+      "succ l \<le> n" and
+      hyp: "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
+      conds: "k: Nat" "n = succ k"
+    then have "l < n" by (auto intro: lt_succ lt_le_lt)
+    then moreover have "l \<le> n" by (rule lt_imp_le)
+    ultimately show "P (succ l)" using conds hyp assms(5) by auto
+  qed
+  }
+  thus "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> P m" using assms by blast
+qed
 
 lemma cons_upto_FunctionI [intro]:
   assumes "n: Nat"
@@ -346,27 +342,36 @@ lemma nat_add_zero_right [simp]:
   unfolding nat_add_def
   by (induction m rule: Nat_induct) auto
 
+lemma nat_add_comm:
+  "n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n = n + m"
+apply (induct n arbitrary: m rule: Nat_induct)
+  subgoal by simp
+  subgoal for _ m
+    by (rotate_tac, rotate_tac, induction m rule: Nat_induct)
+       (auto simp: nat_add_def)
+done
+
 lemma nat_add_assoc [simp]:
   "k: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n + k = m + (n + k)"
 apply (induct k rule: Nat_induct)
-  subgoal
-    by simp
-  subgoal
-    unfolding nat_add_def
-    by (rotate_tac, rotate_tac, induct n rule: Nat_induct) auto
+  subgoal by simp
+  subgoal unfolding nat_add_def
+    by (rotate_tac, rotate_tac, induction n rule: Nat_induct) auto
 done
 
-lemma nat_add_nonzero [simp]:
+lemma nat_add_nonzero_left [simp]:
   assumes
-    "m: Nat" "n: Nat"
-    "m \<noteq> 0" "n \<noteq> 0"
+    "m: Nat" "n: Nat" "m \<noteq> 0"
   shows "m + n \<noteq> 0"
-proof (insert assms(2), induction n rule: Nat_induct)
-  show "m + 0 \<noteq> 0"
-    using assms by auto
-  show "\<And>n. n : Nat \<Longrightarrow> m + n \<noteq> 0 \<Longrightarrow> m + succ n \<noteq> 0"
-    unfolding nat_add_def by auto
-qed
+  unfolding nat_add_def
+  by (insert assms(2), induction n rule: Nat_induct) auto
+
+lemma nat_add_nonzero_right [simp]:
+  assumes
+    "m: Nat" "n: Nat" "n \<noteq> 0"
+  shows "m + n \<noteq> 0"
+  using nat_add_nonzero_left assms by (subst nat_add_comm)
+
 
 subsection \<open>Subtraction (truncated)\<close>
 
@@ -393,7 +398,7 @@ proof (induction n arbitrary: m rule: Nat_induct, clarsimp)
   fix m n assume "m: Nat" "n: Nat" and
     hyp: "\<And>m. m : Nat \<Longrightarrow> n < m \<Longrightarrow> 0 < m - n"
   have "succ n < m \<longrightarrow> 0 < m - succ n"
-  proof (cases m rule: Nat_cases, simp, simp, clarsimp)
+  proof (cases m rule: Nat_cases, fact, simp, clarsimp)
     show "\<And>k. k : Nat \<Longrightarrow> succ n < succ k \<Longrightarrow> 0 < k - n"
     using hyp by (auto intro: succ_lt_monotoneE)
   qed
@@ -418,7 +423,11 @@ lemma nat_mul_nonzero [simp]:
     "m: Nat" "n: Nat"
     "m \<noteq> 0" "n \<noteq> 0"
   shows "m \<cdot> n \<noteq> 0"
-oops
+proof (cases n rule: Nat_cases)
+  fix k assume "k: Nat" and "n = succ k"
+  thus "m \<cdot> n \<noteq> 0" unfolding nat_mul_def by simp
+  next show "n = 0 \<Longrightarrow> m \<cdot> n \<noteq> 0" using \<open>n \<noteq> 0\<close> by auto
+qed fact
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>

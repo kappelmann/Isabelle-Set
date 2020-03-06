@@ -164,32 +164,30 @@ lemma succ_omega [simp]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omeg
 lemma [type]: "{}: element \<omega>" by unfold_types auto
 lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>" by unfold_types auto
 
-lemma omega_cases:
+lemma omega_cases_raw:
   assumes "n \<in> \<omega>"
       and "P {}"
       and "\<And>n. n \<in> \<omega> \<Longrightarrow> P (succ n)"
   shows "P n"
-  by
-    (rule def_lfp_induct)
-    (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
+  by (rule def_lfp_induct)
+     (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
+
+lemma omega_cases [case_names empty succ]:
+  assumes "n \<in> \<omega>"
+  obtains "n = {}" | k where "k \<in> \<omega>" "n = succ k"
+  using assms omega_cases_raw[where ?P="\<lambda>k. n = k \<longrightarrow> thesis"] by blast
 
 lemma omega_induct [case_names empty succ, induct set: omega]:
   assumes "n \<in> \<omega>"
       and "P {}"
       and "\<And>n. \<lbrakk>n \<in> \<omega>; P n\<rbrakk> \<Longrightarrow> P (succ n)"
   shows "P n"
-  by
-    (rule def_lfp_induct)
-    (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
+  by (rule def_lfp_induct)
+     (auto intro: assms omega_op_monop omega_def simp: omega_op_def)
 
 lemma omega_empty_in_succ:
   "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
-proof (induction rule: omega_induct)
-  case empty
-    show "{} \<in> succ {}" unfolding succ_def by auto
-  case (succ n)
-    thus "{} \<in> succ (succ n)" unfolding succ_def by auto
-qed
+  by (induction n rule: omega_induct) (auto simp: succ_def)
 
 lemma omega_succ_mem_monotone [intro]:
   "\<lbrakk>n \<in> \<omega>; m \<in> n\<rbrakk> \<Longrightarrow> succ m \<in> succ n"
