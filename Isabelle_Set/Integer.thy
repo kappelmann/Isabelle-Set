@@ -64,10 +64,10 @@ definition "int_rep_add x y \<equiv> Sum_case
 definition "int_rep_mul x y \<equiv> Sum_case
   (\<lambda>m. Sum_case
     (\<lambda>n. inl (m \<cdot> n))
-    (\<lambda>n. inr (m \<cdot> n))
+    (\<lambda>n. if m = 0 then inl 0 else inr (m \<cdot> n))
     y)
   (\<lambda>m. Sum_case
-    (\<lambda>n. inr (m \<cdot> n))
+    (\<lambda>n. if n = 0 then inl 0 else inr (m \<cdot> n))
     (\<lambda>n. inl (m \<cdot> n))
     y)
   x"
@@ -93,10 +93,7 @@ lemma int_rep_add_type [type]:
 lemma int_rep_mul_type [type]:
   "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_mul_def
-  apply (unfold_types, erule SumE; erule SumE)
-    apply auto [1]
-    apply auto [1]
-oops
+  by (unfold_types, erule SumE; erule SumE) auto
 
 subsection \<open>Notation\<close>
 
