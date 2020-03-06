@@ -74,6 +74,7 @@ lemma pred_zero [simp]: "pred 0 = 0"
 lemma pred_succ [simp]: "n : Nat \<Longrightarrow> pred (succ n) = n"
   unfolding pred_def by auto
 
+\<comment> \<open>Note Kevin: TODO: change to typed version\<close>
 lemma succ_pred: "\<lbrakk>n \<in> \<nat>; n \<noteq> 0\<rbrakk> \<Longrightarrow> succ (pred n) = n"
   unfolding pred_def by (simp, rule sym, rule btheI2) (fact nat_elems)
 
@@ -118,7 +119,7 @@ definition le (infix "\<le>" 60) where "m \<le> n = (m < n \<or> m = n)"
 lemma le_self [simp]: "n \<le> n"
   unfolding le_def by simp
 
-lemma lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
+lemma le_of_lt: "m < n \<Longrightarrow> m \<le> n"
   unfolding le_def ..
 
 lemma le_succ [simp]: "n \<le> succ n"
@@ -156,14 +157,14 @@ lemma
   not_lt_self [simp]: "\<not> n < n"
   unfolding lt_def by auto
 
-lemma nat_ne_zero_imp_zero_lt:
+lemma nat_zero_lt_of_ne_zero:
   "n: Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> 0 < n"
   using nat_elems by unfold_types force
 
 lemma le_0 [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
   unfolding le_def by auto
 
-lemma lt_imp_Nat [elim]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m: Nat"
+lemma Nat_of_lt [elim]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m: Nat"
   unfolding nat_def lt_def by unfold_types (fact omega_mem_transitive)
 
 (*Case splits*)
@@ -284,7 +285,7 @@ proof (cases n rule: Nat_cases, fact)
       hyp: "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
       conds: "k: Nat" "n = succ k"
     then have "l < n" by (auto intro: lt_succ lt_le_lt)
-    then moreover have "l \<le> n" by (rule lt_imp_le)
+    then moreover have "l \<le> n" by (rule le_of_lt)
     ultimately show "P (succ l)" using conds hyp assms(5) by auto
   qed
   }
