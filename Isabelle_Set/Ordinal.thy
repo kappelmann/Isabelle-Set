@@ -158,11 +158,12 @@ lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
 lemma empty_in_omega [simp]: "{} \<in> \<omega>"
   by (subst omega_unfold, auto)
 
-lemma succ_omega [simp]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
+lemma succ_omega: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst omega_unfold, auto)
 
 lemma [type]: "{}: element \<omega>" by unfold_types auto
-lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>" by unfold_types auto
+lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>"
+  by unfold_types (auto intro: succ_omega)
 
 lemma omega_cases_raw:
   assumes "n \<in> \<omega>"

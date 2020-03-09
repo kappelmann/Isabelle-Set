@@ -115,9 +115,10 @@ lemma int_rep_mul_type [type]:
 
 lemma
   int_add_type [type]: "int_add : Int \<Rightarrow> Int \<Rightarrow> Int" and
-  int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int" and
-  int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int"
-  unfolding int_add_def int_mul_def int_sub_def by auto
+  int_negate_type [type]: "int_negate : Int \<Rightarrow> Int" and
+  int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int"
+  unfolding int_add_def int_negate_def int_sub_def int_mul_def by auto
 
 
 subsection \<open>Notation\<close>
@@ -139,10 +140,53 @@ bundle no_notation_int_mul begin no_notation int_mul (infixl "\<cdot>" 65) end
 unbundle
   no_notation_nat_add
   no_notation_nat_sub
+  no_notation_nat_mul
 
   notation_int_add
   notation_int_sub
+  notation_int_mul
 
+
+subsection \<open>Basic arithmetic properties\<close>
+
+text\<open>First for the raw representation:\<close>
+
+lemma int_rep_one_mul: assumes "x \<in> int_rep"
+  shows "int_rep_mul (inl 1) x = x"
+  using assms unfolding int_rep_def int_rep_mul_def
+  by (rule SumE) (auto simp: nat_zero_ne_one[symmetric])
+
+lemma int_rep_mul_one: assumes "x \<in> int_rep"
+  shows "int_rep_mul x (inl 1) = x"
+  using assms unfolding int_rep_def int_rep_mul_def
+  by (rule SumE) (auto simp: nat_zero_ne_one[symmetric])
+
+lemma int_rep_mul_assoc: assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> int_rep"
+  shows "int_rep_mul (int_rep_mul x y) z = int_rep_mul x (int_rep_mul y z)"
+  unfolding int_rep_def int_rep_mul_def by (
+    rule SumE[OF assms(1)[unfolded int_rep_def]];
+    rule SumE[OF assms(2)[unfolded int_rep_def]];
+    rule SumE[OF assms(3)[unfolded int_rep_def]])
+    (auto simp: nat_mul_assoc nat_mul_ne_zero)
+
+text\<open>Now lift the results to the actual set \<int>. This should be automated in some
+way in the future.\<close>
+
+lemma int_one_mul [simp]: assumes "x : Int" shows "1 \<cdot> x = x"
+proof -
+  have "Int.Rep 1 = inl 1" unfolding Int.Rep_def by simp
+  with int_rep_one_mul show ?thesis unfolding int_mul_def by simp
+qed
+
+lemma int_mul_one [simp]: assumes "x : Int" shows "x \<cdot> 1 = x"
+proof -
+  have "Int.Rep 1 = inl 1" unfolding Int.Rep_def by simp
+  with int_rep_mul_one show ?thesis unfolding int_mul_def by simp
+qed
+
+lemma int_mul_assoc: assumes "x : Int" "y : Int" "z : Int"
+  shows "x \<cdot> y \<cdot> z = x \<cdot> (y \<cdot> z)"
+  using assms int_rep_mul_assoc unfolding int_mul_def by simp
 
 section \<open>Examples\<close>
 
@@ -164,9 +208,25 @@ schematic_goal
 
 section \<open>Algebraic structures\<close>
 
-
-
 definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>}"
+
+lemma "Int_mul_monoid : Mul_Monoid \<int>"
+proof unfold_types
+  show "Int_mul_monoid @@ one \<in> \<int>"
+   and "Int_mul_monoid @@ mul \<in> \<int> \<rightarrow> \<int> \<rightarrow> \<int>"
+  unfolding Int_mul_monoid_def by auto
+next
+  fix x assume "x \<in> \<int>"
+  show "mul Int_mul_monoid (one Int_mul_monoid) x = x" and
+    "mul Int_mul_monoid x (one Int_mul_monoid) = x"
+    unfolding Int_mul_monoid_def mul_def one_def by auto
+next
+  fix x y z assume "x \<in> \<int>" "y \<in> \<int>" "z \<in> \<int>"
+  show "mul Int_mul_monoid (mul Int_mul_monoid x y) z =
+    mul Int_mul_monoid x (mul Int_mul_monoid y z)"
+    unfolding Int_mul_monoid_def mul_def one_def
+    using int_mul_assoc by auto
+qed
 
 
 end

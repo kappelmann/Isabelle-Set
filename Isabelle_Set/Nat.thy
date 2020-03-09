@@ -28,13 +28,19 @@ unbundle
 lemmas
   nat_unfold = omega_unfold[folded nat_def nat_zero_def] and
   zero_nat [simp] = empty_in_omega[folded nat_def nat_zero_def] and
-  succ_nat [simp] = succ_omega[folded nat_def] and
+  succ_nat = succ_omega[folded nat_def] and
   nat_cases = omega_cases[folded nat_def nat_zero_def] and
   nat_induct [case_names 0 induct, induct set: nat] =
     omega_induct[folded nat_def nat_zero_def] and
   nat_elems = omega_elems[folded nat_def nat_zero_def] and
   succ_not_empty [simp] = Ordinal.succ_not_empty[folded nat_zero_def] and
   empty_not_succ [simp] = Ordinal.empty_not_succ[folded nat_zero_def]
+
+lemma nat_one_in_nat [simp]: "1 \<in> \<nat>"
+  unfolding nat_one_def by (auto intro: succ_nat)
+
+lemma nat_zero_ne_one [simp]: "0 \<noteq> 1"
+  unfolding nat_one_def by simp
 
 section \<open>\<nat> as a type\<close>
 
@@ -53,7 +59,7 @@ lemma Nat_Ord [derive]: "x : Nat \<Longrightarrow> x : Ord"
 lemma
   zero_type [type]: "0 : Nat" and
   succ_type [type]: "succ : Nat \<Rightarrow> Nat"
-  by unfold_types auto
+  by unfold_types (auto intro: succ_nat)
 
 lemma one_type [type]: "1 : Nat"
   unfolding nat_one_def by auto
@@ -203,7 +209,7 @@ proof -
     using assms by auto
   then obtain k k' where "k \<in> \<nat>" "k'\<in> \<nat>" and
     *: "m = succ k" "n = succ k'"
-    using nat_elems by blast
+  using nat_elems[of m] nat_elems[of n] by blast
   then have "succ k < succ k'"
     using assms by simp
   thus ?thesis
