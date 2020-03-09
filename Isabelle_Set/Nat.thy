@@ -90,7 +90,7 @@ lemma succ_lt_monotone [intro]:
   "n : Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
   unfolding lt_def nat_def by auto
 
-lemma nat_lt_of_succ_lt: "n : Nat \<Longrightarrow> succ m < succ n \<Longrightarrow> m < n"
+lemma nat_succ_lt_imp_lt: "n : Nat \<Longrightarrow> succ m < succ n \<Longrightarrow> m < n"
   unfolding lt_def nat_def by (auto intro: omega_succ_mem_monotoneE)
 
 lemma nat_lt_succ: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> m < succ n"
@@ -119,7 +119,7 @@ definition le (infix "\<le>" 60) where "m \<le> n = (m < n \<or> m = n)"
 lemma le_self [simp]: "n \<le> n"
   unfolding le_def by simp
 
-lemma le_of_lt: "m < n \<Longrightarrow> m \<le> n"
+lemma nat_lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
   unfolding le_def ..
 
 lemma le_succ [simp]: "n \<le> succ n"
@@ -146,10 +146,10 @@ lemma zero_ltE [elim]: "n < 0 \<Longrightarrow> P"
 
 corollary [simp]: "\<not> n < 0" by auto
 
-lemma ne_zero_of_gt_zero: "0 < n \<Longrightarrow> n \<noteq> 0"
+lemma nat_gt_zero_imp_ne_zero: "0 < n \<Longrightarrow> n \<noteq> 0"
   by auto
 
-lemma gt_zero_of_ne_zero: assumes "n : Nat" and "n \<noteq> 0" shows "0 < n"
+lemma nat_ne_zero_imp_gt_zero: assumes "n : Nat" and "n \<noteq> 0" shows "0 < n"
   by (rule lt_trichotomyE[of 0 n]) (auto simp: assms)
 
 lemma
@@ -157,14 +157,10 @@ lemma
   not_lt_self [simp]: "\<not> n < n"
   unfolding lt_def by auto
 
-lemma nat_zero_lt_of_ne_zero:
-  "n: Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> 0 < n"
-  using nat_elems by unfold_types force
-
 lemma le_0 [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
   unfolding le_def by auto
 
-lemma Nat_of_lt [elim]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m: Nat"
+lemma nat_lt_imp_Nat [elim]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m: Nat"
   unfolding nat_def lt_def by unfold_types (fact omega_mem_transitive)
 
 (*Case splits*)
@@ -214,7 +210,7 @@ proof -
     using succ_lt_monotoneE by (auto simp only: * pred_succ)
 qed
 
-lemma lt_pred_of_succ_lt:
+lemma nat_succ_lt_imp_lt_pred:
   assumes "m: Nat" "n: Nat" "succ n < m"
   shows "n < pred m"
 proof (rule succ_lt_monotoneE)
@@ -285,7 +281,7 @@ proof (cases n rule: Nat_cases, fact)
       hyp: "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
       conds: "k: Nat" "n = succ k"
     then have "l < n" by (auto intro: lt_succ lt_le_lt)
-    then moreover have "l \<le> n" by (rule le_of_lt)
+    then moreover have "l \<le> n" by (rule nat_lt_imp_le)
     ultimately show "P (succ l)" using conds hyp assms(5) by auto
   qed
   }
@@ -391,7 +387,7 @@ lemma nat_add_nonzero: assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 
 proof -
   \<comment> \<open>Note Kevin: why are these steps working without passing "assms"?
 Implicitly taking assumptions from the context is bad practice.\<close>
-  from gt_zero_of_ne_zero have "0 < m" and "0 < n" by auto
+  from nat_ne_zero_imp_gt_zero have "0 < m" and "0 < n" by auto
   then have "0 < m + n" using nat_lt_add by simp
   then show ?thesis by auto
 qed
@@ -427,7 +423,7 @@ lemma nat_zero_lt_sub: assumes "m : Nat" "n : Nat" and "m < n" shows "0 < n - m"
 using assms
 proof (induction m arbitrary: n rule: Nat_induct)
   case (induct m)
-  with lt_pred_of_succ_lt have "m < pred n" by simp
+  with nat_succ_lt_imp_lt_pred have "m < pred n" by simp
   then have "0 < pred n - m" using induct.IH by simp
   then show ?case using nat_pred_sub nat_sub_succ_eq_pred_sub by simp
 qed simp
@@ -467,7 +463,7 @@ lemma "nat_mul_eq_zero": assumes "m : Nat" "n : Nat" and "m \<cdot> n = 0"
   shows "m = 0 \<or> n = 0"
 proof (rule ccontr)
   presume "m \<noteq> 0" and "n \<noteq> 0"
-  with gt_zero_of_ne_zero have "0 < m" and "0 < n" using assms by simp_all
+  with nat_ne_zero_imp_gt_zero have "0 < m" and "0 < n" using assms by simp_all
   with nat_zero_lt_mul have "0 < m \<cdot> n" using assms by blast
   with \<open>m \<cdot> n = 0\<close> have "0 < 0" by simp
   then show "False" by simp
@@ -479,7 +475,7 @@ lemma nat_mul_eq_zeroE: assumes "m : Nat" "n : Nat" "m \<cdot> n = 0"
 
 lemma nat_mul_ne_zero: assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 0"
   shows "m \<cdot> n \<noteq> 0"
-  using gt_zero_of_ne_zero nat_mul_eq_zeroE[of m n] assms by simp
+  using nat_ne_zero_imp_gt_zero nat_mul_eq_zeroE[of m n] assms by simp
 
 
 section \<open>Monoid structure of (\<nat>, +)\<close>
