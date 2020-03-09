@@ -337,7 +337,7 @@ unbundle
 lemma nat_zero_add [simp]: "m: Nat \<Longrightarrow> 0 + m = m"
   unfolding nat_add_def by (induction m rule: Nat_induct) auto
 
-lemma nat_add_zero [simp]: "m: Nat \<Longrightarrow> m + 0 = m"
+lemma nat_add_zero [simp]: "m + 0 = m"
   unfolding nat_add_def by simp
 
 lemma nat_add_assoc: "k: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n + k = m + (n + k)"
@@ -352,6 +352,12 @@ lemma nat_succ_add: assumes "m : Nat" "n : Nat"
 
 lemma nat_add_comm: "n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n = n + m"
   by (induction n arbitrary: m rule: Nat_induct) (auto simp: nat_succ_add)
+
+lemma nat_add_one_eq_succ: "n + 1 = succ n"
+  unfolding nat_one_def by (simp add: arith)
+
+lemma nat_one_add_eq_succ: "n : Nat \<Longrightarrow> 1 + n = succ n"
+  using nat_add_comm[of 1 n] nat_add_one_eq_succ by simp
 
 lemma nat_add_nonzero_left:
   assumes
@@ -450,6 +456,45 @@ lemma nat_zero_mul [simp]: "0 \<cdot> n = 0"
 lemma nat_mul_zero [simp]: assumes "n : Nat" shows "n \<cdot> 0 = 0"
   using assms unfolding nat_mul_def by (induction n rule: Nat_induct) auto
 
+lemma nat_one_mul [simp]: "1 \<cdot> n = n"
+  unfolding nat_mul_def nat_one_def by simp
+
+lemma nat_mul_one [simp]: assumes "n : Nat" shows "n \<cdot> 1 = n"
+  using assms unfolding nat_mul_def nat_one_def
+  by (induction n rule: Nat_induct) (auto simp: nat_succ_add)
+
+lemma nat_mul_add: assumes "l: Nat" "m: Nat" "n: Nat"
+  shows "l \<cdot> (m + n) = (l \<cdot> m) + (l \<cdot> n)"
+using assms
+proof (induction l arbitrary: n m rule: Nat_induct)
+  case (induct l)
+  from nat_succ_mul have "succ l \<cdot> (m + n) = (m + n) + (l \<cdot> (m + n))" by simp
+  with induct.IH have "succ l \<cdot> (m + n) = (m + n) + ((l \<cdot> m) + (l \<cdot> n))" by simp
+  then have "succ l \<cdot> (m + n) = m + (n + (l \<cdot> m) + (l \<cdot> n))"
+    by (simp only: nat_add_assoc)
+  then have "succ l \<cdot> (m + n) = m + ((l \<cdot> m) + n + (l \<cdot> n))"
+    by (simp only: nat_add_comm)
+  then have "succ l \<cdot> (m + n) = (m + (l \<cdot> m)) + (n + (l \<cdot> n))"
+    by (simp only: nat_add_assoc)
+  with nat_succ_mul show ?case by simp
+qed simp
+
+lemma nat_mul_comm: "m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m \<cdot> n = n \<cdot> m"
+proof (induction m arbitrary: n rule: Nat_induct)
+  case (induct m)
+  with nat_succ_mul have "succ m \<cdot> n = n + (n \<cdot> m)" by simp
+  then show ?case by
+    (auto simp: nat_add_one_eq_succ[symmetric] nat_mul_add nat_add_comm)
+qed simp
+
+lemma nat_add_mul: assumes "l: Nat" "m: Nat" "n: Nat"
+  shows "(l + m) \<cdot> n = (l \<cdot> n) + (m \<cdot> n)"
+  by (simp only: nat_mul_comm nat_mul_add)
+
+lemma nat_mul_assoc: "l: Nat \<Longrightarrow> m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> l \<cdot> m \<cdot> n = l \<cdot> (m \<cdot> n)"
+  by (induction l arbitrary: n m rule: Nat_induct)
+  (auto simp: nat_succ_mul nat_add_mul)
+
 lemma nat_zero_lt_mul [intro]: assumes "m : Nat" "n : Nat" and "0 < m" "0 < n"
   shows "0 < m \<cdot> n"
 using assms
@@ -478,29 +523,44 @@ lemma nat_mul_ne_zero: assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 
   using nat_ne_zero_imp_gt_zero nat_mul_eq_zeroE[of m n] assms by simp
 
 
-section \<open>Monoid structure of (\<nat>, +)\<close>
+section \<open>Algebraic Structures\<close>
 
 definition Nat_monoid ("'(\<nat>, +')")
   where "(\<nat>, +) \<equiv> object {\<langle>@zero, 0\<rangle>, \<langle>@add, \<lambda>m n\<in> \<nat>. nat_add m n\<rangle>}"
 
 lemma "(\<nat>, +): Monoid \<nat>"
 proof unfold_types
-  show "(\<nat>, +) @@ zero \<in> \<nat>"
-   and "(\<nat>, +) @@ add \<in> \<nat> \<rightarrow> \<nat> \<rightarrow> \<nat>"
-  unfolding Nat_monoid_def by auto
+  show "(\<nat>, +) @@ zero \<in> \<nat>" and "(\<nat>, +) @@ add \<in> \<nat> \<rightarrow> \<nat> \<rightarrow> \<nat>"
+    unfolding Nat_monoid_def by auto
 
   fix x assume "x \<in> \<nat>"
-  show "add (\<nat>, +) (zero (\<nat>, +)) x = x"
-   and "add (\<nat>, +) x (zero (\<nat>, +)) = x"
-  \<comment> \<open>Very low-level; lots of unfolding.\<close>
-  unfolding Nat_monoid_def add_def zero_def by auto
+  show "add (\<nat>, +) (zero (\<nat>, +)) x = x" and "add (\<nat>, +) x (zero (\<nat>, +)) = x"
+    \<comment> \<open>Very low-level; lots of unfolding.\<close>
+    unfolding Nat_monoid_def add_def zero_def by auto
 
   fix y z assume "y \<in> \<nat>" "z \<in> \<nat>"
-  show
-    "add (\<nat>, +) (add (\<nat>, +) x y) z =
-      add (\<nat>, +) x (add (\<nat>, +) y z)"
-  unfolding Nat_monoid_def add_def zero_def
-  using nat_add_assoc by auto
+  show "add (\<nat>, +) (add (\<nat>, +) x y) z = add (\<nat>, +) x (add (\<nat>, +) y z)"
+    unfolding Nat_monoid_def add_def zero_def
+    using nat_add_assoc by auto
+qed
+
+definition "Nat_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<nat>. nat_mul m n\<rangle>}"
+
+lemma "Nat_mul_monoid: Mul_Monoid \<nat>"
+proof unfold_types
+  show "Nat_mul_monoid @@ one \<in> \<nat>" and "Nat_mul_monoid @@ mul \<in> \<nat> \<rightarrow> \<nat> \<rightarrow> \<nat>"
+    unfolding Nat_mul_monoid_def by auto
+next
+  fix x assume "x \<in> \<nat>"
+  show "mul Nat_mul_monoid (one Nat_mul_monoid) x = x" and
+    "mul Nat_mul_monoid x (one Nat_mul_monoid) = x"
+    unfolding Nat_mul_monoid_def mul_def one_def by auto
+next
+  fix x y z assume "x \<in> \<nat>" "y \<in> \<nat>" "z \<in> \<nat>"
+  show "mul Nat_mul_monoid (mul Nat_mul_monoid x y) z =
+    mul Nat_mul_monoid x (mul Nat_mul_monoid y z)"
+    unfolding Nat_mul_monoid_def mul_def one_def
+    using nat_mul_assoc by auto
 qed
 
 
