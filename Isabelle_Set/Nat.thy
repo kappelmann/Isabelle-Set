@@ -92,7 +92,7 @@ lemmas
 
 lemma succ_lt_monotone:
   "n : Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
-  unfolding lt_def by unfold_types (auto simp: nat_def)
+  unfolding lt_def nat_def by auto
 
 lemma succ_lt_monotoneE:
   "\<lbrakk>n: Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"

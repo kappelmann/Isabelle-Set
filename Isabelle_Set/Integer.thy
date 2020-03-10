@@ -21,20 +21,13 @@ lemma
   unfolding int_rep_def by unfold_types auto
 
 interpretation Int: set_extension \<nat> int_rep inl
-proof
-  text \<open>We must provide an injective function from \<open>\<nat>\<close> to \<open>int_rep\<close>:\<close>
-
-  show "inl : element \<nat> \<Rightarrow> element int_rep"
-    unfolding int_rep_def by (rule inl_type)
-
-  show "\<forall>x \<in> \<nat>. \<forall>y \<in> \<nat>. inl x = inl y \<longrightarrow> x = y" by auto
-qed
+  proof qed auto
 
 abbreviation int ("\<int>") where "\<int> \<equiv> Int.def"
 abbreviation "pos n \<equiv> Int.Abs (inl n)"
 abbreviation "neg n \<equiv> Int.Abs (inr n)"
 
-lemmas nat_subset_int [intro, simp] = Int.extension_subset
+lemmas nat_subset_int [simp] = Int.extension_subset
 
 abbreviation "Int \<equiv> element \<int>"
 
@@ -98,7 +91,8 @@ lemma [type]:
   unfolding int_rep_def int_rep_mul_def
   by (unfold_types, erule SumE; erule SumE) auto
 
-lemma [type]: "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
+lemma [type]:
+  "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_negate_def
   by unfold_types auto
 
