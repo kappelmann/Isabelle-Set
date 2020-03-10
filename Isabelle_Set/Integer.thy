@@ -79,6 +79,7 @@ definition "int_rep_sub x y = int_rep_add x (int_rep_negate y)"
 
 definition "int_add x y = Int.Abs (int_rep_add (Int.Rep x) (Int.Rep y))"
 definition "int_mul x y \<equiv> Int.Abs (int_rep_mul (Int.Rep x) (Int.Rep y))"
+definition "int_negate x \<equiv> Int.Abs (int_rep_negate (Int.Rep x))"
 definition "int_sub x y = Int.Abs (int_rep_sub (Int.Rep x) (Int.Rep y))"
 
 lemmas [arith] =
@@ -108,8 +109,9 @@ lemma [type]:
 lemma
   int_add_type [type]: "int_add : Int \<Rightarrow> Int \<Rightarrow> Int" and
   int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_negate_type [type]: "int_negate : Int \<Rightarrow> Int" and
   int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int"
-  unfolding int_add_def int_mul_def int_sub_def by auto
+  unfolding int_add_def int_mul_def int_negate_def int_sub_def by auto
 
 subsection \<open>Notation\<close>
 
@@ -139,25 +141,46 @@ section \<open>Examples\<close>
 
 text \<open>
   At some point we want to just be able to write \<open>succ n\<close> below, and
-  automatically infer that it has to have soft type .
+  automatically infer that it has to have soft type \<open>Int\<close>.
 \<close>
 
 schematic_goal
-  "pos (succ 0) + Int.Abs (inl (succ 0)) + Int.Abs (inr (succ 0))
-    = ?a"
+  "pos (succ 0) + pos (succ 0) + neg (succ 0) = ?a"
   by (simp add: arith)
 
 schematic_goal
-  "Int.Abs (inl 0) - Int.Abs (inr (succ 0)) + Int.Abs (inl (succ 0))
-    - Int.Abs (inr (succ 0)) = ?a"
+  "pos 0 - neg (succ 0) + pos (succ 0) - neg (succ 0) = ?a"
   by (simp add: arith)
 
 
-section \<open>Algebraic structures\<close>
+section \<open>Algebraic properties\<close>
 
+subsection \<open>Additive group structure\<close>
 
+definition Int_group ("'(\<int>, +')") where
+  "(\<int>, +) \<equiv> object {
+    \<langle>@zero, 0\<rangle>,
+    \<langle>@add, \<lambda>x y\<in> \<int>. int_add x y\<rangle>,
+    \<langle>@inv, \<lambda>x\<in> \<int>. int_negate x\<rangle>
+  }"
 
-definition "Int_mul_monoid \<equiv> object {\<langle>@one, 1\<rangle>, \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>}"
+text \<open>Again, the following should be automatically generated.\<close>
+
+lemma [simp]:
+  "(\<int>, +) @@ zero = 0"
+  "(\<int>, +) @@ add = \<lambda>x y\<in> \<int>. int_add x y"
+  "(\<int>, +) @@ inv = \<lambda>x\<in> \<int>. int_negate x"
+  unfolding Int_group_def by simp_all
+
+lemma Int_group: "(\<int>, +) : Group \<int>"
+oops
+
+subsection \<open>Multiplicative monoid structure\<close>
+
+definition "Int_mul_monoid \<equiv> object {
+  \<langle>@one, 1\<rangle>,
+  \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>
+}"
 
 
 end
