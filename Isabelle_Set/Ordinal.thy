@@ -121,7 +121,7 @@ lemma [derive]: "x : element y \<Longrightarrow> x : element (succ y)"
 
 lemma succ_mem_not_eq [simp]:
   "x \<in> succ y \<Longrightarrow> x \<noteq> (succ y)"
-  by (rule mem_imp_not_eq)
+  by (rule mem_imp_ne)
 
 lemma succ_not_mem [simp]:
   "succ x \<notin> x"
@@ -158,11 +158,12 @@ lemma omega_unfold: "\<omega> = {{}} \<union> {succ n | n \<in> \<omega>}"
 lemma empty_in_omega [simp]: "{} \<in> \<omega>"
   by (subst omega_unfold, auto)
 
-lemma succ_omega [simp]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
+lemma succ_omega [intro]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst omega_unfold, auto)
 
 lemma [type]: "{}: element \<omega>" by unfold_types auto
-lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>" by unfold_types auto
+lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>"
+  by unfold_types auto
 
 lemma omega_cases_raw:
   assumes "n \<in> \<omega>"

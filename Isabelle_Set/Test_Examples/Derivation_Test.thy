@@ -3,7 +3,15 @@ imports "../Isabelle_Set"
 
 begin
 
-declare [[derive_debug]]
+declare [[trace_type_derivation]]
+
+\<comment> \<open>Note Kevin: This should work. I think once we start with typeclasses, we
+might also need to think about making the type derivator more syntax directed
+and then to allow for unification hints.\<close>
+lemma assumes "f : (A \<Rightarrow> C) \<Rightarrow> (B \<Rightarrow> C) \<Rightarrow> D \<Rightarrow> C" and "c : C" "d : D"
+  shows "f (\<lambda> a. c) (\<lambda> a. c) d : C"
+  using assms apply auto
+  oops
 
 typedecl set
 axiomatization set :: "set type" and empty finite infinite :: "set \<Rightarrow> bool" 

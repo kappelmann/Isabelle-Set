@@ -1128,7 +1128,7 @@ lemma mem_irrefl [simp]: "a \<notin> a"
   by (rule notI) (erule mem_irreflE)
 
 (* LP: Good for proving inequalities by rewriting *)
-lemma mem_imp_not_eq: "a \<in> A \<Longrightarrow> a \<noteq> A"
+lemma mem_imp_ne: "a \<in> A \<Longrightarrow> a \<noteq> A"
   by (blast elim: mem_irreflE)
 
 lemma eq_imp_not_elem: "a = A \<Longrightarrow> a \<notin> A"
