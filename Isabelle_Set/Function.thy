@@ -286,11 +286,17 @@ lemma apply_dep_type:
 
 lemma id_function [intro]: "(\<lambda>x\<in> A. x) \<in> A \<rightarrow> A" by auto
 
-lemma [derive]: "(\<lambda>x\<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
+lemma id_type [derive]: "(\<lambda>x \<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
 
-lemma [derive]: "f: element A \<Rightarrow> element B \<Longrightarrow> (\<lambda>x\<in> A. f x): element (A \<rightarrow> B)"
+lemma Function_typeI [derive]:
+  assumes "f : (x : element A) \<Rightarrow> element (B x)"
+  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
   by unfold_types auto
 
+lemma Function_typeI' [backward_derive]:
+  assumes "\<And>x. (x : element A \<Longrightarrow> f x : element (B x))"
+  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
+  by (auto intro: Function_typeI)
 
 section \<open>Function extensionality\<close>
 
