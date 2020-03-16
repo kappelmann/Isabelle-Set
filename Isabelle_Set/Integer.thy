@@ -147,12 +147,12 @@ text\<open>First for the raw representation:\<close>
 lemma int_rep_one_mul: assumes "x \<in> int_rep"
   shows "int_rep_mul (inl 1) x = x"
   using assms unfolding int_rep_def int_rep_mul_def
-  by (rule SumE) (auto simp: nat_zero_ne_one[symmetric])
+  by (rule SumE) auto
 
 lemma int_rep_mul_one: assumes "x \<in> int_rep"
   shows "int_rep_mul x (inl 1) = x"
   using assms unfolding int_rep_def int_rep_mul_def
-  by (rule SumE) (auto simp: nat_zero_ne_one[symmetric])
+  by (rule SumE) auto
 
 lemma int_rep_mul_assoc: assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> int_rep"
   shows "int_rep_mul (int_rep_mul x y) z = int_rep_mul x (int_rep_mul y z)"
@@ -228,8 +228,7 @@ definition "Int_mul_monoid \<equiv> object {
 
 lemma "Int_mul_monoid : Mul_Monoid \<int>"
 proof unfold_types
-  show "Int_mul_monoid @@ one \<in> \<int>"
-   and "Int_mul_monoid @@ mul \<in> \<int> \<rightarrow> \<int> \<rightarrow> \<int>"
+  show "Int_mul_monoid @@ one \<in> \<int>" and "Int_mul_monoid @@ mul \<in> \<int> \<rightarrow> \<int> \<rightarrow> \<int>"
   unfolding Int_mul_monoid_def by auto
 next
   fix x assume "x \<in> \<int>"
@@ -240,8 +239,7 @@ next
   fix x y z assume "x \<in> \<int>" "y \<in> \<int>" "z \<in> \<int>"
   show "mul Int_mul_monoid (mul Int_mul_monoid x y) z =
     mul Int_mul_monoid x (mul Int_mul_monoid y z)"
-    unfolding Int_mul_monoid_def mul_def one_def
-    using int_mul_assoc by auto
+    using int_mul_assoc unfolding Int_mul_monoid_def mul_def one_def by auto
 qed
 
 

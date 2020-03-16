@@ -42,6 +42,7 @@ lemma nat_one_in_nat [simp]: "1 \<in> \<nat>"
 lemma nat_zero_ne_one [simp]: "0 \<noteq> 1"
   unfolding nat_one_def by simp
 
+lemmas nat_one_ne_zero [simp] = nat_zero_ne_one[symmetric]
 
 section \<open>\<nat> as a type\<close>
 
