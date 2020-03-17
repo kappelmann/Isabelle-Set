@@ -154,9 +154,9 @@ lemma function_elem_opair':
   "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); p \<in> f\<rbrakk> \<Longrightarrow> p = \<langle>fst p, f `(fst p)\<rangle>"
   using function_elem_opair function_apply apply_to_fst by fastforce
 
-lemma function_graph:
+lemma function_graph [simp]:
   assumes "f \<in> \<Prod>x\<in> A. (B x)"
-  shows "f = {\<langle>x, f `x\<rangle> | x \<in> A}"
+  shows "{\<langle>x, f `x\<rangle> | x \<in> A} = f"
 proof (rule equalityI)
   fix p
 
@@ -268,19 +268,12 @@ lemma Function_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Prod>x\<in> A. (B x) = \<Prod>x\<in> A'. (B' x)"
   by (simp add: Function_def cong: Pair_cong)
 
-lemma lambda_simple_type [type]:
-  "lambda : (A : set) \<Rightarrow> (element A \<Rightarrow> element B) \<Rightarrow> element (A \<rightarrow> B)"
+lemma lambda_type [type]:
+  "lambda : (A : set) \<Rightarrow> ((x : element A) \<Rightarrow> element (B x)) \<Rightarrow>
+    element (\<Prod>x\<in> A. (B x))"
   by unfold_types auto
 
-lemma lambda_dep_type:
-  "lambda : (A : set) \<Rightarrow> ((x : element A) \<Rightarrow> element (B x)) \<Rightarrow> element (\<Prod>x\<in> A. (B x))"
-  by unfold_types auto
-
-lemma apply_simple_type [type]:
-  "apply : element (A \<rightarrow> B) \<Rightarrow> element A \<Rightarrow> element B"
-  by unfold_types auto
-
-lemma apply_dep_type:
+lemma apply_type [type]:
   "apply : element (\<Prod>x\<in> A. (B x)) \<Rightarrow> (x : element A) \<Rightarrow> element (B x)"
   by unfold_types auto
 
@@ -291,12 +284,18 @@ lemma id_type [derive]: "(\<lambda>x \<in> A. x) : element (A \<rightarrow> A)" 
 lemma Function_typeI [derive]:
   assumes "f : (x : element A) \<Rightarrow> element (B x)"
   shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
-  by unfold_types auto
+  by discharge_types
 
 lemma Function_typeI' [backward_derive]:
   assumes "\<And>x. (x : element A \<Longrightarrow> f x : element (B x))"
   shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
   by (auto intro: Function_typeI)
+
+lemma lambda_ext: assumes "g : element \<Prod>a \<in> A. (B a)"
+  and "\<And>a. a \<in> A \<Longrightarrow> f a = g `a"
+  shows "(\<lambda>a \<in> A. f a) = g"
+  using assms unfolding lambda_def by unfold_types auto
+
 
 section \<open>Function extensionality\<close>
 
