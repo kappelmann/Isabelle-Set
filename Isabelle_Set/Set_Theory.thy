@@ -1207,7 +1207,7 @@ definition subset :: "set \<Rightarrow> set type"
 lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : element A" by unfold_types
 lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : subset B" by unfold_types auto
 
-lemma subset_self [derive]: "A : subset A"
+lemma subset_self [simp]: "A : subset A"
   by unfold_types auto
 
 text \<open>Declare basic soft type translations.\<close>

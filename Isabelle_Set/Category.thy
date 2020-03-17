@@ -120,7 +120,7 @@ lemma [type]:
 
 lemma [type]:
   "id: (\<C>: Category' U) \<Rightarrow> (A: element (obj \<C>)) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A A)"
-  by (rule typeI, drule Category'D(4), unfold_types) (rule FunctionE)
+  by (rule typeI, drule Category'D(4)) discharge_types
 
 
 section \<open>The category of sets\<close>
