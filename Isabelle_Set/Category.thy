@@ -146,6 +146,7 @@ lemma [simp]:
     and Set_cat_id:   "\<S>et @@ id = Set_id"
   unfolding Set_cat_def by auto
 
+\<comment> \<open>TODO Kevin: How come id_type needs to be inserted here?\<close>
 lemma Set_cat_type [type]: "\<S>et : Category"
   by (rule typeI, insert id_type, unfold_types) auto
 
