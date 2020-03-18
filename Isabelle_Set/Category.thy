@@ -147,7 +147,7 @@ lemma [simp]:
   unfolding Set_cat_def by auto
 
 lemma Set_cat_type [type]: "\<S>et : Category"
-  by (rule typeI) (unfold_types, auto)
+  by (rule typeI, insert id_type, unfold_types) auto
 
 
 section \<open>Functors and natural transformations\<close>

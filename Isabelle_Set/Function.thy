@@ -183,7 +183,7 @@ lemma function_elemE [elim]:
   "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); p \<in> f; P p \<Longrightarrow> Q; P \<langle>fst p, f `(fst p)\<rangle>\<rbrakk> \<Longrightarrow> Q"
   using function_elem_opair' by auto
 
-lemma extend_function:
+lemma function_subsetI:
   assumes
     "f \<in> \<Prod>x\<in> A. (B x)"
     "g \<in> \<Prod>x\<in> A'. (B' x)"
@@ -198,7 +198,7 @@ proof (rule subsetI, rule function_elemE, rule assms, assumption+)
   thus "\<langle>fst p, f `(fst p)\<rangle> \<in> g" using 2 by simp
 qed
 
-lemma function_subset:
+lemma function_apply_eqI:
   assumes
     "f \<in> \<Prod>x\<in> A. (B x)"
     "g \<in> \<Prod>x\<in> A'. (B' x)"
@@ -210,7 +210,7 @@ proof -
   thus ?thesis using function_uniq_val assms by auto
 qed
 
-lemma graph_FunctionI:
+lemma function_in_PiI:
   assumes
     "f \<subseteq> \<Sum>x\<in> A. (B x)"
     "\<And>x. x \<in> A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f"
@@ -273,28 +273,23 @@ lemma lambda_type [type]:
     element (\<Prod>x\<in> A. (B x))"
   by unfold_types auto
 
+lemma lambda_function_typeI [derive]:
+  assumes "f : (x : element A) \<Rightarrow> element (B x)"
+  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
+  by discharge_types
+
+lemma lambda_function_typeI' [backward_derive]:
+  assumes "\<And>x. (x : element A \<Longrightarrow> f x : element (B x))"
+  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
+  by (auto intro: lambda_function_typeI)
+
 lemma apply_type [type]:
   "apply : element (\<Prod>x\<in> A. (B x)) \<Rightarrow> (x : element A) \<Rightarrow> element (B x)"
   by unfold_types auto
 
 lemma id_function [intro]: "(\<lambda>x\<in> A. x) \<in> A \<rightarrow> A" by auto
 
-lemma id_type [derive]: "(\<lambda>x \<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
-
-lemma Function_typeI [derive]:
-  assumes "f : (x : element A) \<Rightarrow> element (B x)"
-  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
-  by discharge_types
-
-lemma Function_typeI' [backward_derive]:
-  assumes "\<And>x. (x : element A \<Longrightarrow> f x : element (B x))"
-  shows "(\<lambda>x \<in> A. f x) : element \<Prod>x \<in> A. (B x)"
-  by (auto intro: Function_typeI)
-
-lemma lambda_ext: assumes "g : element \<Prod>a \<in> A. (B a)"
-  and "\<And>a. a \<in> A \<Longrightarrow> f a = g `a"
-  shows "(\<lambda>a \<in> A. f a) = g"
-  using assms unfolding lambda_def by unfold_types auto
+lemma id_type [type]: "(\<lambda>x \<in> A. x) : element (A \<rightarrow> A)" by unfold_types auto
 
 
 section \<open>Function extensionality\<close>
@@ -307,7 +302,12 @@ lemma funext:
   shows
     "f = g"
   apply (rule extensionality)
-  using assms extend_function by auto
+  using assms function_subsetI by auto
+
+lemma lambda_ext: assumes "g : element \<Prod>a \<in> A. (B a)"
+  and "\<And>a. a \<in> A \<Longrightarrow> f a = g `a"
+  shows "(\<lambda>a \<in> A. f a) = g"
+  using assms unfolding lambda_def by unfold_types auto
 
 lemma eta: "f \<in> \<Prod>x\<in> A. (B x) \<Longrightarrow> (\<lambda>x\<in> A. f `x) = f"
   by (rule funext) auto
@@ -415,7 +415,7 @@ lemma funext_iff:
   by (auto intro: funext)
 
 (*Larry: Theorem by Mark Staples, proof by LCP.*)
-lemma extend_function_eq:
+lemma function_dom_imp_subset_iff_eq:
   "\<lbrakk>f \<in> \<Prod>x\<in> A. (B x); g \<in> \<Prod>x\<in> A. (C x)\<rbrakk> \<Longrightarrow> f \<subseteq> g \<longleftrightarrow> (f = g)"
   by (blast dest: function_elem intro: funext function_apply[symmetric])
 
@@ -425,7 +425,7 @@ lemma function_lambdaE:
     "f \<in> \<Prod>x\<in> A. (B x)" and
     "\<And>b. \<lbrakk>\<forall>x \<in> A. b x \<in> B x; f = (\<lambda>x\<in> A. b x)\<rbrakk> \<Longrightarrow> P"
   shows "P"
-  by (auto intro!: assms FunctionE simp: eta)
+  by (rule assms(2)[of "apply f"]) (auto simp: assms(1) eta)
 
 text \<open>Extend a function's domain by mapping new elements to the empty set.\<close>
 
@@ -499,7 +499,7 @@ lemma glueI:
       and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f \<inter> dom g\<rbrakk> \<Longrightarrow> f `x = g `x"
   shows "glue X \<in> (\<Union>f\<in> X. dom f) \<rightarrow> B"
 unfolding glue_def
-proof (rule graph_FunctionI)
+proof (rule function_in_PiI)
   show "\<Union>X \<subseteq> (\<Union>f\<in> X. dom f) \<times> B"
     using assms(1) by (force simp: Function_def dom_def)
 
@@ -528,18 +528,49 @@ qed
 
 lemma apply_glue:
   assumes "\<And>f. f \<in> X \<Longrightarrow> \<exists>A. f \<in> A \<rightarrow> B"
-      and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f \<inter> dom g\<rbrakk> \<Longrightarrow> f `x = g `x"
-      and "f \<in> X"
-      and "a \<in> dom f"
+  and "\<And>f g. \<lbrakk>f \<in> X; g \<in> X; a \<in> dom f \<inter> dom g\<rbrakk> \<Longrightarrow> f `a = g `a"
+  and "f \<in> X"
+  and "a \<in> dom f"
   shows "(glue X) `a = f `a"
-proof (rule function_apply)
-  show "glue X \<in> (\<Union>f\<in> X. dom f) \<rightarrow> B" by (auto intro: glueI assms)
+proof (subst apply_def, subst glue_def, subst union, rule the_equality)
+  from assms(1)[OF assms(3)] obtain A where f_func: "f \<in> A \<rightarrow> B" ..
+  with assms(4) have "a \<in> A" by simp
+  from function_elem[OF f_func this] have "\<langle>a, f `a\<rangle> \<in> f" .
+  show "\<exists>g. g \<in> X \<and> \<langle>a, f `a\<rangle> \<in> g" by (rule exI[where ?x=f]) auto
+next
+  fix b assume "\<exists>g. g \<in> X \<and> \<langle>a, b\<rangle> \<in> g"
+  then obtain g where g_in_X: "g \<in> X" and "\<langle>a, b\<rangle> \<in> g" by auto
+  from assms(1)[OF this(1)] obtain A where f_func: "g \<in> A \<rightarrow> B" ..
+  with \<open>\<langle>a, b\<rangle> \<in> g\<close> have g_a_eq_b: "g `a = b" and "a \<in> dom g" by auto
+  from this(2) and assms(4) have "a \<in> dom g \<inter> dom f" by simp
+  from assms(2)[OF g_in_X assms(3) this] have "g `a = f `a" .
+  with g_a_eq_b show "b = f `a" by simp
+qed
 
-  from assms(1, 3) obtain A where "f \<in> A \<rightarrow> B" by auto
-  hence "f \<in> dom f \<rightarrow> B" using function_dom_dom by auto
-  hence "\<langle>a, f `a\<rangle> \<in> f" using function_elem assms(4) by blast
-  with assms(3) show "\<langle>a, f `a\<rangle> \<in> glue X"
-    unfolding glue_def by blast
+lemma apply_glue_bin: assumes "f \<in> A \<rightarrow> B" "g \<in> A' \<rightarrow> B"
+  and "a \<in> A"
+  and "a \<in> A' \<Longrightarrow> f `a = g `a"
+  shows "glue {f, g} `a = f `a"
+proof (rule apply_glue)
+  let ?G = "{f, g}"
+  fix h i assume "h \<in> ?G" and "i \<in> ?G" and "a \<in> dom h \<inter> dom i"
+  then show "h `a = i `a"
+    by (cases "h = i") (auto intro: assms(4) assms(4)[symmetric])
+qed auto
+
+lemma apply_glue_bin': assumes "f \<in> A \<rightarrow> B" "g \<in> A' \<rightarrow> B"
+  and "a \<in> A'"
+  and "a \<in> A \<Longrightarrow> f `a = g `a"
+  shows "glue {f, g} `a = g `a"
+  by (subst cons_commute, rule apply_glue_bin[OF assms(2)]) (auto simp: assms)
+
+lemma glue_pairI:
+  assumes "f \<in> A \<rightarrow> B" "g \<in> A' \<rightarrow> B"
+  and "\<And>a. \<lbrakk>a \<in> A \<inter> A'\<rbrakk> \<Longrightarrow> f `a = g `a"
+  shows "glue {f, g} \<in> (A \<union> A') \<rightarrow> B" (is "glue ?X \<in> ?D \<rightarrow> B")
+proof -
+  have 1: "?D = (\<Union>f \<in> ?X. dom f)" using Repl_cons bin_union_def by auto
+  show ?thesis by (subst 1, rule glueI) (auto simp: assms)
 qed
 
 
