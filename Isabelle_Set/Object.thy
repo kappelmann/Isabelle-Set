@@ -31,7 +31,18 @@ to define structure object types, which should generate
 
 subsection \<open>Object instance constructors\<close>
 
+definition [typedef]: "Object A B \<equiv> element (A \<rightarrow> B)"
+\<comment> \<open>Note Kevin: We need to think about how the lifting of lemmas
+from functions to objects should work.\<close>
 definition "object graph = graph"
+
+lemma object_type [type]: "object : element (A \<rightarrow> B) \<Rightarrow> Object A B"
+  unfolding Object_def object_def by discharge_types
+
+definition "extend Base Ext \<equiv> object (glue {
+  THE graph. Base = object graph,
+  THE graph. Ext = object graph
+})"
 
 
 subsection \<open>Object fields\<close>
@@ -50,6 +61,36 @@ lemma object_selector_simps [simp]:
   "x \<noteq> y \<Longrightarrow> (object (cons \<langle>y, z\<rangle> A)) @ x = A `x"
   unfolding object_def object_selector_def
   using apply_cons_head apply_cons_tail by auto
+
+lemma object_selector_extend: assumes "Base : Object A B" "Ext : Object A' B"
+  and "a \<in> object_fields Base"
+  and "a \<in> object_fields Ext \<Longrightarrow> object_selector Base a = object_selector Ext a"
+  shows "object_selector (extend Base Ext) a = object_selector Base a"
+  unfolding extend_def using assms by unfold_types
+    (auto intro: apply_glue_bin simp: object_selector_def object_def
+      object_fields_def)
+
+lemma object_selector_extend': assumes "Base : Object A B" "Ext : Object A' B"
+  and "a \<in> object_fields Ext"
+  and "a \<in> object_fields Base \<Longrightarrow> object_selector Base a = object_selector Ext a"
+  shows "object_selector (extend Base Ext) a = object_selector Ext a"
+  unfolding extend_def using assms by unfold_types
+    (auto intro: apply_glue_bin' simp: object_selector_def object_def
+      object_fields_def)
+
+lemma object_extend_preserve: assumes "Base : Object A B" "Ext : Object A' B"
+  and "s \<in> object_fields Base"
+  and "s \<in> object_fields Ext \<Longrightarrow> object_selector Base s = object_selector Ext s"
+  and "P (object_selector Base s)"
+  shows "P (object_selector (extend Base Ext) s)"
+  using assms(5) by (subst object_selector_extend[OF assms(1-4)])
+
+lemma extend_typeI: assumes "Base : Object A B" "Ext : Object A' B"
+  and "\<And>a. \<lbrakk>a \<in> A \<inter> A'\<rbrakk> \<Longrightarrow> object_selector Base a = object_selector Ext a"
+  shows "extend Base Ext : Object (A \<union> A') B"
+  unfolding extend_def object_def
+  by (unfold_types, rule glue_pairI, insert assms,
+    unfold_types) (auto simp: object_selector_def object_def)
 
 lemma not_in_cons_dom: "\<lbrakk>x \<noteq> a; x \<notin> A\<rbrakk> \<Longrightarrow> x \<notin> cons a A" by auto
 
