@@ -467,8 +467,11 @@ lemma collect_mono: "A \<subseteq> B \<Longrightarrow> collect A P \<subseteq> c
 
 section \<open>More replacement\<close>
 
-lemma Repl_singleton: "{f x | x \<in> {a}} = {f a}"
+lemma Repl_singleton [simp]: "{f x | x \<in> {a}} = {f a}"
   by (rule equalityI) auto
+
+lemma Repl_cons: "{f x | x \<in> cons x A} = cons (f x) {f x | x \<in> A}"
+  by (rule extensionality) auto
 
 text \<open>Replacement based on function-like predicates, as formulated in first-order theories.\<close>
 
@@ -1235,6 +1238,14 @@ subsection \<open>Collections of sets\<close>
 
 definition collection :: "set type \<Rightarrow> set type"
   where [typeclass]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
+
+lemma collection_element_imp_subset [derive]:
+  "A : collection (element B) \<Longrightarrow> A : subset B"
+  by unfold_types blast
+
+lemma subset_imp_collection_element [derive]:
+  "A : subset B \<Longrightarrow> A : collection (element B)"
+  by unfold_types blast
 
 subsection \<open>Basic constant types\<close>
 
