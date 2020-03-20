@@ -31,6 +31,16 @@ to define structure object types, which should generate
 
 subsection \<open>Object instance constructors\<close>
 
+\<comment> \<open>Presumaby better approach:\<close>
+\<comment> \<open>definition Function :: "set type"
+  where [typedef]: "Function \<equiv> type (\<lambda>f. f \<in> dom f \<rightarrow> rng f)"
+
+lemma [derive]: "f : element (\<Prod>a \<in> A. (B a)) \<Longrightarrow> f : Function"
+  sorry
+
+definition [typedef]: "Object \<equiv> Function"
+\<close>
+
 definition [typedef]: "Object A B \<equiv> element (A \<rightarrow> B)"
 \<comment> \<open>Note Kevin: We need to think about how the lifting of lemmas
 from functions to objects should work.\<close>
