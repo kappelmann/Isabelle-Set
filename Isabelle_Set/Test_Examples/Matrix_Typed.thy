@@ -52,4 +52,22 @@ lemma assumes "A: Add C" "m: Nat" "n: Nat"
 "M N: Matrix A m n", I could not write "M + N" but need to write
 "matrix_to_Matrix (Matrix_to_matrix m n M + Matrix_to_matrix m n N).\<close>
 
+lemma Matrix_add_assoc: assumes "M : Monoid A" "N : Matrix A m n"
+  "O : Matrix A m n" "P : Matrix A m n"
+  "i : element {0..<m}" "j : element {0..<n}"
+  shows "Matrix_add M (Matrix_add M N O) P i j =
+    Matrix_add M N (Matrix_add M O P) i j"
+  unfolding Matrix_add_def
+  using assms add_assoc by (auto simp: Matrix_def)
+
+definition "matrix_add A m n M N \<equiv> Matrix_to_matrix m n
+  (Matrix_add A (matrix_to_Matrix M) (matrix_to_Matrix N))"
+
+lemma matrix_add_assoc: assumes "M : Monoid A" "N : element (matrix A m n)"
+  "O : element (matrix A m n)" "P : element (matrix A m n)"
+  shows "matrix_add M m n (matrix_add M m n N O) P =
+    matrix_add M m n N (matrix_add M m n O P)"
+  oops
+
+
 end

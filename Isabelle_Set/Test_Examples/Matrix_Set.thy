@@ -83,14 +83,17 @@ definition "matrix_Monoid A M m n \<equiv> object {
   \<langle>@add, \<lambda>N O \<in> matrix A m n. matrix_add M m n N O\<rangle>
 }"
 
-\<comment> \<open>TODO Kevin: Create object extension method so that one can re-use the proofs
-from matrix_Add_type and matrix_Zero_type instead of unfolding and
-proving everything again.\<close>
-lemma assumes "M: Monoid A" "m: Nat" "n: Nat"
-  shows "matrix_Monoid A M m n: Monoid (matrix A m n)"
+\<comment> \<open>TODO Kevin: Create object extension method (cf branch kevin_object_extend)
+so that one can re-use the proofs from matrix_Add_type and matrix_Zero_type
+instead of unfolding and proving everything again.\<close>
+lemma assumes "M : Monoid A" "m : Nat" "n : Nat"
+  shows "matrix_Monoid A M m n : Monoid (matrix A m n)"
   unfolding matrix_Monoid_def by (rule MonoidI)
   (auto simp: matrix_add_zero matrix_zero_add matrix_add_assoc add_def zero_def
     intro!: Zero_typeI Add_typeI)
+
+
+subsection \<open>Multiplication\<close>
 
 
 end
