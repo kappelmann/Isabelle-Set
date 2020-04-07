@@ -209,15 +209,27 @@ end
 
 subsection \<open>Extension to groups\<close>
 
-definition [typeclass]: "Group A = Monoid A \<bar>
+definition [typeclass]: "Group A = Monoid A \<bar> Inv A \<bar>
   type (\<lambda>G.
-    G @@ inv \<in> A \<rightarrow> A \<and>
-    (\<forall>x\<in> A. add G x (G@@inv `x) = zero G) \<and>
-    (\<forall>x\<in> A. add G (G@@inv `x) x = zero G)
+    (\<forall>x\<in> A. add G x (inv G x) = zero G) \<and>
+    (\<forall>x\<in> A. add G (inv G x) x = zero G)
   )"
 
+lemma GroupI:
+  assumes "G: Monoid A"
+      and (* "\<And>x. x \<in> A \<Longrightarrow> inv G x \<in> A" *) "G : Inv A" (*use this for now*)
+      and "\<And>x. x \<in> A \<Longrightarrow> add G x (inv G x) = zero G"
+      and "\<And>x. x \<in> A \<Longrightarrow> add G (inv G x) x = zero G"
+  shows "G: Group A"
+unfolding Group_def
+apply (intro Int_typeI)
+apply fact
+apply (intro Inv_typeI)
+apply unfold_types using assms(2) unfolding inv_def
+oops
+
 lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
-  unfolding Group_def by (fact Int_typeE1)
+  unfolding Group_def by (drule Int_typeE1)+
 
 definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
   type (\<lambda>G. \<forall> a b \<in> A. add G a b = add G b a)"
