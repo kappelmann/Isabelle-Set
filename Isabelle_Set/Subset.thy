@@ -120,9 +120,8 @@ proof (rule extensionality)
       by (rule monopE) auto
     with \<open>h A \<subseteq> A\<close> show "h (lfp D h) \<subseteq> A" by blast
   qed
-
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopE[of h] *) auto
+    by (intro lfp_lowerbound monopE[of h] *) (auto simp only: subset_self)
 qed
 
 (*Definition form, to control unfolding*)

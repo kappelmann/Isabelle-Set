@@ -65,8 +65,8 @@ lemma
     Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
     Monoid_Add [derive]: "M : Monoid A \<Longrightarrow> M : Add A"
   and
-    zero_add: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M (zero M) x = x" and
-    add_zero: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M x (zero M) = x" and
+    zero_add [simp]: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M (zero M) x = x" and
+    add_zero [simp]: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M x (zero M) = x" and
     add_assoc: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   unfolding Monoid_def

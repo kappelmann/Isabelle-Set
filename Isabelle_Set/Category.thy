@@ -120,7 +120,7 @@ lemma [type]:
 
 lemma [type]:
   "id: (\<C>: Category' U) \<Rightarrow> (A: element (obj \<C>)) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A A)"
-  by (rule typeI, drule Category'D(4), unfold_types) (rule FunctionE)
+  by (rule typeI, drule Category'D(4)) discharge_types
 
 
 section \<open>The category of sets\<close>
@@ -146,8 +146,9 @@ lemma [simp]:
     and Set_cat_id:   "\<S>et @@ id = Set_id"
   unfolding Set_cat_def by auto
 
+\<comment> \<open>TODO Kevin: How come id_type needs to be inserted here?\<close>
 lemma Set_cat_type [type]: "\<S>et : Category"
-  by (rule typeI) (unfold_types, auto)
+  by (rule typeI, insert id_type, unfold_types) auto
 
 
 section \<open>Functors and natural transformations\<close>
