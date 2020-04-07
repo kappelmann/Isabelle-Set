@@ -65,7 +65,7 @@ bundle no_notation_one_implicit begin no_notation one_implicit ("1") end
 unbundle notation_one_implicit
 
 
-subsection \<open>Additive (binop) structures\<close>
+subsection \<open>Additive structures\<close>
 
 definition [typeclass]:
   "Add A \<equiv> type (\<lambda>P. P @@ add \<in> A \<rightarrow> A \<rightarrow> A)"
@@ -99,7 +99,7 @@ bundle no_notation_add_implicit
 unbundle notation_add_implicit
 
 
-subsection \<open>Multiplicative (binop) structures\<close>
+subsection \<open>Multiplicative structures\<close>
 
 definition [typeclass]:
   "Mul A \<equiv> type (\<lambda>T. T @@ mul \<in> A \<rightarrow> A \<rightarrow> A)"
@@ -119,14 +119,42 @@ lemma mul_type [type]:
   "mul : Mul A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding mul_def by unfold_types
 
-abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
-  where "x \<cdot> y \<equiv> mul \<implicit>T x y"
+abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
+  where "mul_implicit x y \<equiv> mul \<implicit>T x y"
 
 bundle notation_mul_implicit
   begin notation mul_implicit  (infixl "\<cdot>" 65) end
 
 bundle no_notation_mul_implicit
   begin no_notation mul_implicit  (infixl "\<cdot>" 65) end
+
+
+subsection \<open>Structures with inverses\<close>
+
+definition [typeclass]:
+  "Inv A \<equiv> type (\<lambda>I. I @@ inv \<in> A \<rightarrow> A)"
+
+lemma Inv_typeI:
+  "I @@ inv : element (A \<rightarrow> A) \<Longrightarrow> I: Inv A"
+  unfolding Inv_def by unfold_types
+
+lemma Inv_inv_type [derive]:
+  "I: Inv A \<Longrightarrow> I @@ inv: element (A \<rightarrow> A)"
+  unfolding Inv_def by unfold_types
+
+definition "inv I x = I @@ inv `x"
+
+lemma inv_type [type]:
+  "inv: Inv A \<Rightarrow> element A \<Rightarrow> element A"
+  unfolding inv_def by unfold_types
+
+abbreviation inv_implicit where "inv_implicit x \<equiv> inv \<implicit>I x"
+
+bundle notation_inv_implicit
+  begin notation inv_implicit  ("-_" [1000]) end
+
+bundle no_notation_inv_implicit
+  begin no_notation inv_implicit  ("-_" [1000]) end
 
 
 end
