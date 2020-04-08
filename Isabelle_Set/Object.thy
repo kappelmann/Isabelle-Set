@@ -31,22 +31,23 @@ to define structure object types, which should generate
 
 subsection \<open>Object instance constructors\<close>
 
-\<comment> \<open>Presumaby better approach:\<close>
-\<comment> \<open>definition Function :: "set type"
-  where [typedef]: "Function \<equiv> type (\<lambda>f. f \<in> dom f \<rightarrow> rng f)"
+definition Function :: "set type"
+  where [typedef]: "Function \<equiv> type (\<lambda>f. \<exists> A B. f \<in> A \<rightarrow> B)"
 
-lemma [derive]: "f : element (\<Prod>a \<in> A. (B a)) \<Longrightarrow> f : Function"
-  sorry
+lemma FunctionI [derive]: "f : element (\<Prod>a \<in> A. (B a)) \<Longrightarrow> f : Function"
+  by unfold_types (auto dest: function_forget)
+
+lemma FunctionE: assumes "f : Function"
+  obtains A B where "f \<in> A \<rightarrow> B"
+  unfolding Function_def using assms by unfold_types auto
 
 definition [typedef]: "Object \<equiv> Function"
-\<close>
 
-definition [typedef]: "Object A B \<equiv> element (A \<rightarrow> B)"
 \<comment> \<open>Note Kevin: We need to think about how the lifting of lemmas
 from functions to objects should work.\<close>
 definition "object graph = graph"
 
-lemma object_type [type]: "object : element (A \<rightarrow> B) \<Rightarrow> Object A B"
+lemma object_type [type]: "object : Function \<Rightarrow> Object"
   unfolding Object_def object_def by discharge_types
 
 definition "extend Base Ext \<equiv> object (glue {
@@ -72,35 +73,71 @@ lemma object_selector_simps [simp]:
   unfolding object_def object_selector_def
   using apply_cons_head apply_cons_tail by auto
 
-lemma object_selector_extend: assumes "Base : Object A B" "Ext : Object A' B"
+lemma object_selector_extend: assumes "Base : Object" "Ext : Object"
   and "a \<in> object_fields Base"
   and "a \<in> object_fields Ext \<Longrightarrow> object_selector Base a = object_selector Ext a"
   shows "object_selector (extend Base Ext) a = object_selector Base a"
-  unfolding extend_def using assms by unfold_types
-    (auto intro: apply_glue_bin simp: object_selector_def object_def
-      object_fields_def)
+proof -
+  from assms(1) obtain A B where 1: "Base \<in> A \<rightarrow> B"
+    unfolding Object_def using FunctionE by auto
+  from assms(2) obtain A' B' where 2: "Ext \<in> A' \<rightarrow> B'"
+    unfolding Object_def using FunctionE by auto
+  let ?C = "B \<union> B'"
+  from 1 2 have 3: "Base \<in> A \<rightarrow> ?C" "Ext \<in> A' \<rightarrow> ?C"
+    by (auto intro: function_enlarge_range')
+  from 1 2 have 4: "a \<in> dom Base \<Longrightarrow> a \<in> A" "a \<in> A' \<Longrightarrow> a \<in> dom Ext"
+    by simp_all
+  show ?thesis using assms(3-4)
+    unfolding object_selector_def object_def object_fields_def extend_def
+    by (simp only: the_sym_eq_trivial)
+      (blast intro: apply_glue_bin[OF 3] dest: 4)
+qed
 
-lemma object_selector_extend': assumes "Base : Object A B" "Ext : Object A' B"
+lemma object_selector_extend': assumes "Base : Object" "Ext : Object"
   and "a \<in> object_fields Ext"
   and "a \<in> object_fields Base \<Longrightarrow> object_selector Base a = object_selector Ext a"
   shows "object_selector (extend Base Ext) a = object_selector Ext a"
-  unfolding extend_def using assms by unfold_types
-    (auto intro: apply_glue_bin' simp: object_selector_def object_def
-      object_fields_def)
+proof -
+  from assms(1) obtain A B where 1: "Base \<in> A \<rightarrow> B"
+    unfolding Object_def using FunctionE by auto
+  from assms(2) obtain A' B' where 2: "Ext \<in> A' \<rightarrow> B'"
+    unfolding Object_def using FunctionE by auto
+  let ?C = "B \<union> B'"
+  from 1 2 have 3: "Base \<in> A \<rightarrow> ?C" "Ext \<in> A' \<rightarrow> ?C"
+    by (auto intro: function_enlarge_range')
+  from 1 2 have 4: "a \<in> dom Ext \<Longrightarrow> a \<in> A'" "a \<in> A \<Longrightarrow> a \<in> dom Base"
+    by simp_all
+  show ?thesis using assms(3-4)
+    unfolding object_selector_def object_def object_fields_def extend_def
+    by (simp only: the_sym_eq_trivial)
+      (blast intro: apply_glue_bin'[OF 3] dest: 4)
+qed
 
-lemma object_extend_preserve: assumes "Base : Object A B" "Ext : Object A' B"
+lemma object_extend_preserve: assumes "Base : Object" "Ext : Object"
   and "s \<in> object_fields Base"
   and "s \<in> object_fields Ext \<Longrightarrow> object_selector Base s = object_selector Ext s"
   and "P (object_selector Base s)"
   shows "P (object_selector (extend Base Ext) s)"
   using assms(5) by (subst object_selector_extend[OF assms(1-4)])
 
-lemma extend_typeI: assumes "Base : Object A B" "Ext : Object A' B"
-  and "\<And>a. \<lbrakk>a \<in> A \<inter> A'\<rbrakk> \<Longrightarrow> object_selector Base a = object_selector Ext a"
-  shows "extend Base Ext : Object (A \<union> A') B"
-  unfolding extend_def object_def
-  by (unfold_types, rule glue_pairI, insert assms,
-    unfold_types) (auto simp: object_selector_def object_def)
+lemma extend_typeI: assumes "Base : Object" "Ext : Object"
+  and "\<And>a. \<lbrakk>a \<in> object_fields Base \<inter> object_fields Ext\<rbrakk>
+    \<Longrightarrow> object_selector Base a = object_selector Ext a"
+  shows "extend Base Ext : Object"
+proof -
+  from assms(1) obtain A B where 1: "Base \<in> A \<rightarrow> B"
+    unfolding Object_def using FunctionE by auto
+  from assms(2) obtain A' B' where 2: "Ext \<in> A' \<rightarrow> B'"
+    unfolding Object_def using FunctionE by auto
+  let ?C = "B \<union> B'"
+  from 1 2 have 3: "Base \<in> A \<rightarrow> ?C" "Ext \<in> A' \<rightarrow> ?C"
+    by (auto intro: function_enlarge_range')
+  from assms(3) have 4: "\<And>a. a \<in> A' \<and> a \<in> A \<Longrightarrow> Base `a = Ext `a"
+    unfolding object_selector_def object_fields_def object_def by simp
+  show ?thesis unfolding extend_def object_def
+    by (unfold_types, rule exI[where ?x="A \<union> A'"], rule exI[where ?x="B \<union> B'"],
+      rule glue_pairI) (auto intro: 4)
+qed
 
 lemma not_in_cons_dom: "\<lbrakk>x \<noteq> a; x \<notin> A\<rbrakk> \<Longrightarrow> x \<notin> cons a A" by auto
 
