@@ -75,7 +75,7 @@ lemma Category'I [typeI]:
             comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
   shows
     "\<C> : Category' U"
-  unfolding Category'_def by (fast intro: has_type_typeI assms)
+  unfolding Category'_def by (fast intro: has_typeI assms)
 
 lemma Category'D:
   shows
@@ -95,7 +95,7 @@ lemma Category'D:
       \<forall>A B C D \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B. \<forall>g \<in> hom\<^bsub>\<C>\<^esub> B C. \<forall>h \<in> hom\<^bsub>\<C>\<^esub> C D.
         comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
           comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
-  unfolding Category'_def by (drule_tac [1-6] has_type_typeE) fast+
+  unfolding Category'_def by (drule_tac [1-6] has_typeD) fast+
 
 lemmas CategoryI [typeI] = Category'I[where ?U=V, folded Category_def]
 lemmas CategoryD = Category'D[where ?U=V, folded Category_def]
@@ -224,19 +224,19 @@ lemma Product_Cat_fields [simp]:
 
 lemma Product_Cat_type [derive]:
   assumes
-    "\<C> : Category' (Univ U)"
-    "\<D> : Category' (Univ U)"
+    "\<C> : Category' (univ U)"
+    "\<D> : Category' (univ U)"
   shows
-    "Product_Cat \<C> \<D> : Category' (Univ U)"
+    "Product_Cat \<C> \<D> : Category' (univ U)"
 proof (rule typeI, simp_all only: Product_Cat_fields)
   show
-    "Product_Cat_obj \<C> \<D> : non-empty \<sqdot> subset (Univ U)"
+    "Product_Cat_obj \<C> \<D> : non-empty \<sqdot> subset (univ U)"
     using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
     by (auto simp: Product_Cat_obj_def)
   
   show
     "Product_Cat_hom \<C> \<D> \<in>
-      Product_Cat_obj \<C> \<D> \<rightarrow> Product_Cat_obj \<C> \<D> \<rightarrow> Univ U"
+      Product_Cat_obj \<C> \<D> \<rightarrow> Product_Cat_obj \<C> \<D> \<rightarrow> univ U"
     by (auto simp: Product_Cat_obj_def Product_Cat_hom_def)
 
   show

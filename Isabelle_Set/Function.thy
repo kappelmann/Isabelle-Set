@@ -11,7 +11,7 @@ text \<open>
 \<close>
 
 definition Function :: "[set, set \<Rightarrow> set] \<Rightarrow> set"
-  where "Function A B \<equiv> {f \<in> Pow (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
+  where "Function A B \<equiv> {f \<in> powerset (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
 
 syntax
   "_Function"  :: "[pttrns, set, set] \<Rightarrow> set type" ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
@@ -54,7 +54,7 @@ lemma lambda_dom [simp]: "dom (\<lambda>x\<in> A. b x) = A"
 
 lemma lambda_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> b x = b' x\<rbrakk> \<Longrightarrow> (\<lambda>x\<in> A. b x) = \<lambda>x\<in> A'. b' x"
-  by (simp only: lambda_def cong add: Repl_cong)
+  by (simp only: lambda_def cong add: repl_cong)
 
 lemma lambda_eqE: "\<lbrakk>(\<lambda>x\<in> A. f x) = \<lambda>x\<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
   by (auto elim: equalityE)
@@ -569,24 +569,24 @@ lemma glue_pairI:
   and "\<And>a. \<lbrakk>a \<in> A \<inter> A'\<rbrakk> \<Longrightarrow> f `a = g `a"
   shows "glue {f, g} \<in> (A \<union> A') \<rightarrow> B" (is "glue ?X \<in> ?D \<rightarrow> B")
 proof -
-  have 1: "?D = (\<Union>f \<in> ?X. dom f)" using Repl_cons bin_union_def by auto
+  have 1: "?D = (\<Union>f \<in> ?X. dom f)" using repl_cons bin_union_def by auto
   show ?thesis by (subst 1, rule glueI) (auto simp: assms)
 qed
 
 
 section \<open>Universes\<close>
 
-lemma Univ_Function_closed [intro]:
+lemma univ_Function_closed [intro]:
   assumes
-    "A \<in> Univ U"
-    "\<And>x. x \<in> A \<Longrightarrow> B x \<in> Univ U"
+    "A \<in> univ U"
+    "\<And>x. x \<in> A \<Longrightarrow> B x \<in> univ U"
   shows
-    "\<Prod>x\<in> A. (B x) \<in> Univ U"
+    "\<Prod>x\<in> A. (B x) \<in> univ U"
 proof -
-  let ?P = "Pow \<Sum>x\<in> A. (B x)"
+  let ?P = "powerset \<Sum>x\<in> A. (B x)"
   have "\<Prod>x\<in> A. (B x) \<subseteq> ?P" unfolding Function_def by (fact collect_subset)
-  moreover have "?P \<in> Univ U" using assms by auto
-  ultimately show ?thesis by (auto intro: Univ_transitive)
+  moreover have "?P \<in> univ U" using assms by auto
+  ultimately show ?thesis by (auto intro: univ_transitive)
 qed
 
 

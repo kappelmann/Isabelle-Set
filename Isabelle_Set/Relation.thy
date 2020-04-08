@@ -8,13 +8,13 @@ begin
 definition dom :: "set \<Rightarrow> set"
   where "dom R \<equiv> {fst p | p \<in> R}"
 
-lemma dom_type [type]: "dom : subset (A \<times> B) \<Rightarrow> subset A"
+lemma dom_type [type]: "dom : Subset (A \<times> B) \<Rightarrow> Subset A"
   unfolding dom_def by discharge_types
 
 definition rng :: "set \<Rightarrow> set"
   where "rng R \<equiv> {snd p | p \<in> R}"
 
-lemma rng_type [type]: "rng : subset (A \<times> B) \<Rightarrow> subset B"
+lemma rng_type [type]: "rng : Subset (A \<times> B) \<Rightarrow> Subset B"
   unfolding rng_def by discharge_types
 
 definition fld :: "set \<Rightarrow> set"

@@ -5,6 +5,7 @@ imports Axioms
 
 begin
 
+
 section \<open>Preliminaries\<close>
 
 abbreviation not_mem (infixl "\<notin>" 50)
@@ -63,8 +64,7 @@ lemma ballE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<not
 corollary rev_ballE [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (rule ballE)
 
-
-(* LP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty! *)
+(*LP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty!*)
 lemma ball_triv [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
   by (simp add: ball_def)
 
@@ -83,23 +83,19 @@ lemmas
 lemma bexI [intro]: "\<lbrakk>P x; x \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by (simp add: bex_def, blast)
 
-(* LP: The best argument order when there is only one @{term "x \<in> A"} *)
+(*LP: The best argument order when there is only one @{term "x \<in> A"}*)
 corollary rev_bexI: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x" ..
 
-(*
-  LP: Not of the general form for such rules. The existential quantifier becomes
-  universal.
-*)
+(*LP: Not of the general form for such rules. The existential quantifier becomes
+  universal.*)
 lemma bexCI: "\<lbrakk>\<forall>x \<in> A. \<not>P x \<Longrightarrow> P a; a \<in> A\<rbrakk> \<Longrightarrow> \<exists>x \<in> A. P x"
   by blast
 
 lemma bexE [elim!]: "\<lbrakk>\<exists>x \<in> A. P x; \<And>x. \<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by (simp add: bex_def, blast)
 
-(*
-  LP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is
-  nonempty.
-*)
+(*LP: We do not even have @{term "(\<exists>x \<in> A. True) \<longleftrightarrow> True"} unless @{term "A"} is
+  nonempty.*)
 lemma bex_triv [simp]: "(\<exists>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<and> P)"
   by (simp add: bex_def)
 
@@ -200,7 +196,7 @@ lemma subset_refl [simp]: "A \<subseteq> A"
 lemma subset_trans: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> A \<subseteq> C"
   by blast
 
-(* LP: Useful for proving A \<subseteq> B by rewriting in some cases *)
+(*LP: Useful for proving A \<subseteq> B by rewriting in some cases*)
 lemma subset_iff: "A \<subseteq> B \<longleftrightarrow> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
   unfolding subset_def ..
 
@@ -244,43 +240,43 @@ lemma equalityD: "A = B \<Longrightarrow> (\<And>x. x \<in> A \<longleftrightarr
 section \<open>Replacement\<close>
 
 syntax
-  "_Repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ ./ _ \<in> _})")
-  "_Repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
+  "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ ./ _ \<in> _})")
+  "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
 translations
-  "{y | x \<in> A}" \<rightleftharpoons> "CONST Repl A (\<lambda>x. y)"
-  "{y . x \<in> A}" \<rightharpoonup> "CONST Repl A (\<lambda>x. y)"
+  "{y | x \<in> A}" \<rightleftharpoons> "CONST repl A (\<lambda>x. y)"
+  "{y . x \<in> A}" \<rightharpoonup> "CONST repl A (\<lambda>x. y)"
 
-lemma ReplI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
+lemma replI: "a \<in> A \<Longrightarrow> f a \<in> {f x. x \<in> A}"
   by (unfold replacement) auto
 
-(* LP: Useful for coinduction proofs *)
+(*LP: Useful for coinduction proofs*)
 lemma RepFun_eqI [intro]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x. x \<in> A}"
   apply (erule ssubst)
-  apply (erule ReplI)
+  apply (erule replI)
   done
 
-(* The converse of the above *)
-lemma ReplD:  "b \<in> {f x | x \<in> A} \<Longrightarrow> \<exists>a \<in> A. b = f a"
+(*The converse of the above*)
+lemma replD:  "b \<in> {f x | x \<in> A} \<Longrightarrow> \<exists>a \<in> A. b = f a"
   by auto
 
-lemma ReplE [elim!]:
+lemma replE [elim!]:
   "\<lbrakk>b \<in> {f x. x \<in> A}; \<And>x. \<lbrakk>x \<in> A; b = f x\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-lemma Repl_cong [cong]:
+lemma repl_cong [cong]:
   "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> {f x. x \<in> A} = {g x. x \<in> B}"
   by (rule extensionality) auto
 
-lemma Repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
+lemma repl_comp [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
   by (rule extensionality) auto
 
-lemma Repl_triv [simp]: "{x. x \<in> A} = A"
+lemma repl_triv [simp]: "{x. x \<in> A} = A"
   by (rule extensionality) auto
 
-lemma Repl_empty [iff]: "{f x. x \<in> {}} = {}"
+lemma repl_empty [iff]: "{f x. x \<in> {}} = {}"
   by (rule extensionality) auto
 
-lemma Repl_is_empty [iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
+lemma repl_is_empty [iff]: "{f x. x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: equalityD intro!: equalityI')
 
 
@@ -319,33 +315,36 @@ lemma emptyset_mem_transitive [intro]: "mem_transitive {}"
 
 section \<open>Power set\<close>
 
-lemma PowI: "A \<subseteq> B \<Longrightarrow> A \<in> Pow B"
+lemma powersetI: "A \<subseteq> B \<Longrightarrow> A \<in> powerset B"
   by auto
 
-lemma PowD: "A \<in> Pow(B) \<Longrightarrow> A \<subseteq> B"
+lemma powersetD: "A \<in> powerset B  \<Longrightarrow> A \<subseteq> B"
   by auto
 
-lemma Pow_bottom [intro]: "{} \<in> Pow A"
+lemma powerset_bottom [intro]: "{} \<in> powerset A"
   by auto
 
-lemma Pow_top [intro]: "A \<in> Pow A"
+lemma powerset_top [intro]: "A \<in> powerset A"
   by auto
 
-lemma Pow_empty: "x \<in> Pow {} \<longleftrightarrow> x = {}"
+lemma powerset_empty: "x \<in> powerset {} \<longleftrightarrow> x = {}"
   by auto
 
 
-section \<open>Finite sets, singletons, pairs\<close>
+section \<open>Unordered pairs, finite sets, singletons\<close>
 
-text \<open>Define an unordered pair \<open>upair\<close> using replacement, then use it to define finite sets.\<close>
+text \<open>
+Define an unordered pair \<open>upair\<close> using replacement, then use it to define
+finite sets.
+\<close>
 
 definition upair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
-  where "upair a b = {if i = {} then a else b | i \<in> Pow (Pow {})}"
+  where "upair a b = {if i = {} then a else b | i \<in> powerset (powerset {})}"
 
 definition cons :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
   where "cons x A = \<Union>(upair A (upair x x))"
 
-lemma cons_mems [iff]: "y \<in> cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
+lemma cons_elems [iff]: "y \<in> cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
   by (auto simp: cons_def upair_def)
 
 lemma consI1 [simp]: "a \<in> cons a A"
@@ -357,12 +356,12 @@ lemma consI2: "a \<in> A \<Longrightarrow> a \<in> cons b A"
 lemma consE [elim!]: "\<lbrakk>a \<in> cons b A; a = b \<Longrightarrow> P; a \<in> A \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* LP: Stronger version of the rule above *)
+(*LP: Stronger version of the rule above*)
 lemma consE':
   "\<lbrakk>a \<in> cons b A; a = b \<Longrightarrow> P; \<lbrakk>a \<in> A; a \<noteq> b\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* LP: Classical introduction rule *)
+(*LP: Classical introduction rule*)
 lemma consCI [intro!]: "(a \<notin> B \<Longrightarrow> a = b) \<Longrightarrow> a \<in> cons b B"
   by auto
 
@@ -371,9 +370,9 @@ lemma cons_not_empty [simp]: "cons a B \<noteq> {}"
 
 declare cons_not_empty [THEN not_sym, simp]
 
-lemmas cons_neq_empty = cons_not_empty [THEN notE]
+lemmas cons_ne_empty = cons_not_empty [THEN notE]
 
-(* TODO: [simp]? *)
+(*TODO: [simp]?*)
 lemma cons_commute: "cons x (cons y A) = cons y (cons x A)"
   by (rule extensionality) auto
 
@@ -386,7 +385,7 @@ translations
   "{x, xs}" \<rightleftharpoons> "CONST cons x {xs}"
   "{x}" \<rightleftharpoons> "CONST cons x {}"
 
-(* TODO: proper rewrite rules for finite sets! *)
+(*TODO: proper rewrite rules for finite sets!*)
 
 lemma singleton_eq_iff [iff]: "{a} = {b} \<longleftrightarrow> a = b"
   by (auto dest: equalityD)
@@ -398,22 +397,25 @@ lemma singleton_memI: "a \<in> {a}" by auto
 
 lemma singleton_dup: "{a} = {a, a}" by (rule extensionality) auto
 
-lemma Pow_singleton: "Pow {a} = {{}, {a}}"
+lemma powerset_singleton: "powerset {a} = {{}, {a}}"
   by (rule extensionality) (auto intro: equalityI')
 
-corollary Pow_singleton_elems [iff]: "x \<in> Pow {a} \<longleftrightarrow> x = {} \<or> x = {a}"
-  using Pow_singleton by auto
+corollary powerset_singleton_elems [iff]: "x \<in> powerset {a} \<longleftrightarrow> x = {} \<or> x = {a}"
+  using powerset_singleton by auto
 
 corollary subset_singleton_elems [iff]: "x \<subseteq> {a} \<longleftrightarrow> x = {} \<or> x = {a}"
-  using Pow_singleton_elems by auto
+  using powerset_singleton_elems by auto
 
-lemma pair_mems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
+lemma pair_elems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
   by auto
 
 lemma pair_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
   by (auto intro: equalityI' dest: equalityD)
 
-text \<open>\<open>upair x y\<close> and \<open>{x, y}\<close> are equal, and thus interchangeable in developments.\<close>
+text \<open>
+\<^term>\<open>upair x y\<close> and \<^term>\<open>{x, y}\<close> are equal, and thus interchangeable in
+developments.
+\<close>
 
 lemma upair_eq_pair: "upair x y = {x, y}"
   unfolding upair_def
@@ -428,8 +430,8 @@ definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Righta
   where "collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
 
 syntax
-  "_collect" :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ ./ _})")
-  "_collect" :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
+  "_collect." :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ ./ _})")
+  "_collect|" :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
 translations
   "{x \<in> A . P}" \<rightharpoonup> "CONST collect A (\<lambda>x. P)"
   "{x \<in> A | P}" \<rightleftharpoons> "CONST collect A (\<lambda>x. P)"
@@ -467,24 +469,26 @@ lemma collect_mono: "A \<subseteq> B \<Longrightarrow> collect A P \<subseteq> c
 
 section \<open>More replacement\<close>
 
-lemma Repl_singleton [simp]: "{f x | x \<in> {a}} = {f a}"
+lemma repl_singleton [simp]: "{f x | x \<in> {a}} = {f a}"
   by (rule equalityI) auto
 
-lemma Repl_cons: "{f x | x \<in> cons x A} = cons (f x) {f x | x \<in> A}"
+lemma repl_cons: "{f x | x \<in> cons x A} = cons (f x) {f x | x \<in> A}"
   by (rule extensionality) auto
 
-text \<open>Replacement based on function-like predicates, as formulated in first-order theories.\<close>
+text \<open>
+Replacement based on function-like predicates, as formulated in first-order
+theories.
+\<close>
 
 definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
 
 syntax
-  "_replace" :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ ./ _ \<in> _, _})")
-  "_replace" :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+  "_replace." :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ ./ _ \<in> _, _})")
+  "_replace|" :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
 translations
   "{y . x \<in> A, Q}" \<rightharpoonup> "CONST replace A (\<lambda>x y. Q)"
   "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST replace A (\<lambda>x y. Q)"
-
 
 lemma replace_iff:
   "b \<in> {y | x \<in> A, P x y} \<longleftrightarrow> (\<exists>x \<in> A. P x b \<and> (\<forall>y. P x y \<longrightarrow> y = b))"
@@ -520,17 +524,17 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-(* Introduction; there must be a unique y such that P x y, namely y = b. *)
+(*Introduction; there must be a unique y such that P x y, namely y = b.*)
 lemma replaceI [intro]:
   "\<lbrakk> P x b;  x \<in> A;  \<And>y. P x y \<Longrightarrow> y = b \<rbrakk> \<Longrightarrow> b \<in> {y | x \<in> A, P x y}"
   by (rule replace_iff [THEN iffD2], blast)
 
-(* Elimination; may assume there is a unique y such that P x y, namely y = b. *)
+(*Elimination; may assume there is a unique y such that P x y, namely y = b.*)
 lemma replaceE:
   "\<lbrakk> b \<in> {y | x \<in> A, P x y};  \<And>x. \<lbrakk>x \<in> A; P x b; \<forall>y. P x y \<longrightarrow> y = b\<rbrakk> \<Longrightarrow> R \<rbrakk> \<Longrightarrow> R"
   by (rule replace_iff [THEN iffD1, THEN bexE], simp+)
 
-(* As above but without the (generally useless) third assumption *)
+(*As above but without the (generally useless) third assumption*)
 lemma replaceE2 [elim!]:
   "\<lbrakk>b \<in> {y. x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by (erule replaceE, blast)
@@ -540,7 +544,7 @@ lemma replace_cong [cong]:
   by (rule equalityI') (simp add: replace_iff)
 
 
-section \<open>Union and intersection\<close>
+section \<open>Set union and intersection\<close>
 
 definition inter :: \<open>set => set\<close> ("\<Inter>_" [90] 90)
   where "\<Inter>A \<equiv> {x \<in> \<Union>A . \<forall>y \<in> A. x \<in> y}"
@@ -559,7 +563,6 @@ lemma union_upper: "B \<in> A \<Longrightarrow> B \<subseteq> \<Union>A"
 
 lemma union_least: "(\<And>x. x \<in> A \<Longrightarrow> x \<subseteq> C) \<Longrightarrow> \<Union>A \<subseteq> C"
   by blast
-
 
 text \<open>Indexed union and intersection:\<close>
 
@@ -663,12 +666,12 @@ lemma idxinter_constant [simp]:
   "(\<Inter>y \<in> A. c) = (if A = {} then {} else c)"
   by (rule extensionality) auto
 
-lemma idxunion_Repl [simp]:
-  "(\<Union>y \<in> Repl A f. B y) = (\<Union>x\<in> A. B (f x))"
+lemma idxunion_repl [simp]:
+  "(\<Union>y \<in> repl A f. B y) = (\<Union>x\<in> A. B (f x))"
   by auto
 
-lemma idxinter_Repl [simp]:
-  "(\<Inter>x \<in> Repl A f. B x) = (\<Inter>a \<in> A. B(f a))"
+lemma idxinter_repl [simp]:
+  "(\<Inter>x \<in> repl A f. B x) = (\<Inter>a \<in> A. B(f a))"
   by (auto simp add: inter_def)
 
 lemma idxinter_union_eq:
@@ -695,14 +698,12 @@ text \<open>Intersection is well-behaved only if the family is non-empty!\<close
 lemma interI [intro!]: "\<lbrakk>\<And>x. x \<in> C \<Longrightarrow> A \<in> x; C \<noteq> {}\<rbrakk> \<Longrightarrow> A \<in> \<Inter>C"
   by auto
 
-(*
-  LP: A "destruct" rule: every B in C contains A as an element, but A \<in> B can hold when
-  B \<in> C does not! This rule is analogous to "spec".
-*)
+(*LP: A "destruct" rule: every B in C contains A as an element, but A \<in> B can
+  hold when B \<in> C does not! This rule is analogous to "spec".*)
 lemma interD [elim, Pure.elim]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B"
   by auto
 
-(* LP: "Classical" elimination rule - does not require exhibiting "B \<in> C" *)
+(*LP: "Classical" elimination rule - does not require exhibiting "B \<in> C"*)
 lemma interE [elim]: "\<lbrakk>A \<in> \<Inter>C; B \<notin> C \<Longrightarrow> R; A \<in> B \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by auto
 
@@ -743,11 +744,11 @@ lemma bin_unionI2 [elim?]: "c \<in> B \<Longrightarrow> c \<in> A \<union> B"
 lemma bin_unionE [elim!]: "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; c \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* LP: Stronger version of the rule above *)
+(*LP: Stronger version of the rule above*)
 lemma bin_unionE': "\<lbrakk>c \<in> A \<union> B; c \<in> A \<Longrightarrow> P; \<lbrakk>c \<in> B; c \<notin> A\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
-(* LP: Classical introduction rule: no commitment to A vs B *)
+(*LP: Classical introduction rule: no commitment to A vs B*)
 lemma bin_unionCI [intro!]: "(c \<notin> B \<Longrightarrow> c \<in> A) \<Longrightarrow> c \<in> A \<union> B"
   by auto
 
@@ -787,7 +788,7 @@ lemma bin_union_left_absorb: "A \<union> (A \<union> B) = A \<union> B"
 lemma bin_union_assoc: "(A \<union> B) \<union> C  =  A \<union> (B \<union> C)"
   by (rule extensionality) auto
 
-(* Binary union is an AC-operator *)
+(*Binary union is an AC-operator*)
 lemmas bin_union_ac =
   bin_union_assoc bin_union_left_absorb bin_union_commute bin_union_left_commute
 
@@ -851,7 +852,7 @@ lemma bin_inter_left_commute: "A \<inter> (B \<inter> C) = B \<inter> (A \<inter
 lemma bin_inter_assoc: "(A \<inter> B) \<inter> C  =  A \<inter> (B \<inter> C)"
   by (rule extensionality) auto
 
-(* Binary intersection is an AC-operator *)
+(*Binary intersection is an AC-operator*)
 lemmas bin_inter_ac =
   bin_inter_assoc bin_inter_left_absorb bin_inter_commute bin_inter_left_commute
 
@@ -947,10 +948,10 @@ lemma idxinter_union:
   "(\<Inter>i\<in> I \<union> J. A i) = (
     if I = {} then \<Inter>j\<in> J. A j
     else if J = {} then \<Inter>i\<in> I. A i
-    else ((\<Inter>i\<in> I. A i) \<inter> (\<Inter>j\<in> J. A j)))"
+    else (\<Inter>i\<in> I. A i) \<inter> (\<Inter>j\<in> J. A j))"
   by (rule extensionality) auto
 
-(* Halmos, Naive Set Theory, page 35 *)
+(*Halmos, Naive Set Theory, page 35*)
 lemma bin_inter_idxunion_distrib:
   "B \<inter> (\<Union>i\<in> I. A i) = (\<Union>i\<in> I. B \<inter> A i)"
   by (rule extensionality) auto
@@ -983,7 +984,7 @@ lemma idxunion_bin_inter_subset:
 
 section \<open>Set difference\<close>
 
-definition diff :: "[set, set] \<Rightarrow> set"  (infixl "\<setminus>" 65)
+definition diff :: \<open>[set, set] \<Rightarrow> set\<close>  (infixl "\<setminus>" 65)
   where "A \<setminus> B \<equiv> {x \<in> A | x \<notin> B}"
 
 lemma diff_iff [simp]: "c \<in> A \<setminus> B \<longleftrightarrow> (c \<in> A \<and> c \<notin> B)"
@@ -1122,15 +1123,13 @@ lemma mem_asym: "a \<in> b \<Longrightarrow> b \<notin> a"
 lemma mem_irreflE: "a \<in> a \<Longrightarrow> P"
   by (blast intro: mem_asymE)
 
-(*
-  LP: @{thm mem_irreflE} should NOT be added to default databases: it would be tried on
-  most goals, making proofs slower!
-*)
+(*LP: @{thm mem_irreflE} should NOT be added to default databases: it would be
+  tried on most goals, making proofs slower!*)
 
 lemma mem_irrefl [simp]: "a \<notin> a"
   by (rule notI) (erule mem_irreflE)
 
-(* LP: Good for proving inequalities by rewriting *)
+(*LP: Good for proving inequalities by rewriting*)
 lemma mem_imp_ne: "a \<in> A \<Longrightarrow> a \<noteq> A"
   by (blast elim: mem_irreflE)
 
@@ -1180,10 +1179,10 @@ qed
 
 section \<open>More finite sets\<close>
 
-lemma cons_neq_mem [simp]: "cons x A \<noteq> x"
+lemma cons_ne_elem [simp]: "cons x A \<noteq> x"
   by (auto intro: consI1 mem_irreflE)
 
-lemmas cons_neq_mem [symmetric, simp]
+lemmas cons_ne_elem [symmetric, simp]
 
 lemma bin_union_eq_cons: "{x} \<union> A = cons x A"
   by (rule extensionality) auto
@@ -1195,169 +1194,163 @@ section \<open>Soft types\<close>
 
 subsection \<open>Sets, elements and subsets\<close>
 
-abbreviation set :: "set type"
-  where "set \<equiv> any"
+abbreviation Set :: "set type"
+  where "Set \<equiv> Any"
 
 definition empty :: "set \<Rightarrow> bool"
   where "empty A \<equiv> A = {}"
 
-definition element :: "set \<Rightarrow> set type"
-  where [typedef]: "element A \<equiv> type (\<lambda>x. x \<in> A)"
+definition Element :: "set \<Rightarrow> set type"
+  where [typedef]: "Element A \<equiv> type (\<lambda>x. x \<in> A)"
 
-definition subset :: "set \<Rightarrow> set type"
-  where [typedef, type_simp]: "subset A \<equiv> element (Pow A)"
+definition Subset :: "set \<Rightarrow> set type"
+  where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
-lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : element A" by unfold_types
-lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : subset B" by unfold_types auto
+lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : Element A" by unfold_types
+lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : Subset B" by unfold_types auto
 
-lemma subset_self [simp]: "A : subset A"
+lemma subset_self [derive]: "A : Subset A"
   by unfold_types auto
 
-text \<open>Declare basic soft type translations.\<close>
-
-(*
-  Note: soft type translations go on the right of the "\<rightleftharpoons>".
-  This should either be documented, or else made unnecessary.
-*)
+text \<open>Soft type translations go on the right of the "\<rightleftharpoons>".\<close>
 
 soft_type_translation
-  "a \<in> A" \<rightleftharpoons> "a : element A" by unfold_types
+  "a \<in> A" \<rightleftharpoons> "a : Element A" by unfold_types
 
 soft_type_translation
-  "A \<subseteq> B" \<rightleftharpoons> "A : subset B" by unfold_types auto  
+  "A \<subseteq> B" \<rightleftharpoons> "A : Subset B" by unfold_types auto  
 
 soft_type_translation
-  "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x : element A. P x"
+  "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x : Element A. P x"
   by unfold_types auto
 
 soft_type_translation
-  "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : element A. P x"
+  "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : Element A. P x"
   by unfold_types auto
 
 subsection \<open>Collections of sets\<close>
 
-definition collection :: "set type \<Rightarrow> set type"
-  where [typeclass]: "collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
+definition Collection :: "set type \<Rightarrow> set type"
+  where [typeclass]: "Collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
 lemma collection_element_imp_subset [derive]:
-  "A : collection (element B) \<Longrightarrow> A : subset B"
+  "A : Collection (Element B) \<Longrightarrow> A : Subset B"
   by unfold_types blast
 
 lemma subset_imp_collection_element [derive]:
-  "A : subset B \<Longrightarrow> A : collection (element B)"
+  "A : Subset B \<Longrightarrow> A : Collection (Element B)"
   by unfold_types blast
 
 subsection \<open>Basic constant types\<close>
 
 text \<open>
-  The following typing rules are less general than what could be proved, since
-  the \<open>bool\<close> soft type is trivial. But the rules also determine the behavior of
-  type inference.
-  
-  The rule for HOL.All currently needs to be restricted due to a deficiency in
-  the elaboration algorithm.
+The following typing rules are less general than what could be proved, since the
+\<^term>\<open>Bool\<close> soft type is trivial. But the rules also determine the behavior of
+type inference.
+
+The rule for \<^term>\<open>HOL.All\<close> currently needs to be restricted due to a deficiency
+in the elaboration algorithm.
 \<close>
 
 lemma
-  [type]: "(\<in>) : element A \<Rightarrow> subset A \<Rightarrow> bool" and
-  [type]: "Pow : collection T \<Rightarrow> collection (collection T)" and
-  [type]: "Un : collection (collection T) \<Rightarrow> collection T" and
-  [type]: "Repl : collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> collection S" and
+  [type]: "(\<in>) : (Element A) \<Rightarrow> (Subset A) \<Rightarrow> Bool" and
+  [type]: "powerset : Collection T \<Rightarrow> Collection (Collection T)" and
+  [type]: "union : Collection (Collection T) \<Rightarrow> Collection T" and
+  [type]: "repl : Collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> Collection S" and
 
-  [type]: "HOL.All : ((T::set type) \<Rightarrow> bool) \<Rightarrow> bool" and
-  [type]: "{} : subset A" and
-  [type]: "(\<subseteq>) : subset A \<Rightarrow> subset A \<Rightarrow> bool" and
-  [type]: "cons : element A \<Rightarrow> subset A \<Rightarrow> subset A" and
+  [type]: "HOL.All : ((T::set type) \<Rightarrow> Bool) \<Rightarrow> Bool" and
+  [type]: "{} : Subset A" and
+  [type]: "(\<subseteq>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Bool" and
+  [type]: "cons : Element A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
 
-  [type]: "(\<union>) : subset A \<Rightarrow> subset A \<Rightarrow> subset A" and
-  [type]: "(\<inter>) : subset A \<Rightarrow> subset A \<Rightarrow> subset A" and
-  [type]: "collect : subset A \<Rightarrow> (element A \<Rightarrow> bool) \<Rightarrow> subset A"
+  [type]: "(\<union>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
+  [type]: "(\<inter>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
+  [type]: "collect : Subset A \<Rightarrow> (Element A \<Rightarrow> Bool) \<Rightarrow> Subset A"
 
   by unfold_types auto
 
+subsection \<open>Set theory and Pi types\<close>
 
-section \<open>Set theory and Pi types\<close>
-
-lemma set_Pi_typeI [dest]: "\<forall>x. x \<in> A \<longrightarrow> f x \<in> B \<Longrightarrow> f: element A \<Rightarrow> element B"
+lemma set_Pi_typeI [dest]: "\<forall>x. x \<in> A \<longrightarrow> f x \<in> B \<Longrightarrow> f: Element A \<Rightarrow> Element B"
   by unfold_types
 
-lemma set_Pi_typeI' [dest]: "\<forall>x \<in> A. f x \<in> B \<Longrightarrow> f: element A \<Rightarrow> element B"
+lemma set_Pi_typeI' [dest]: "\<forall>x \<in> A. f x \<in> B \<Longrightarrow> f: Element A \<Rightarrow> Element B"
   by unfold_types auto
 
 
 section \<open>Universes\<close>
 
-abbreviation V :: set where "V \<equiv> Univ {}"
+abbreviation V :: set where "V \<equiv> univ {}"
 
 lemma
   assumes "ZF_closed U" and "X \<in> U"
   shows
     ZF_closed_union: "\<Union>X \<in> U" and
-    ZF_closed_powerset: "Pow X \<in> U" and
-    ZF_closed_replacement: "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> Repl X f \<in> U"
+    ZF_closed_powerset: "powerset X \<in> U" and
+    ZF_closed_replacement: "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> repl X f \<in> U"
   using assms by (auto simp: ZF_closed_def)
 
 lemma
-  assumes "A \<in> Univ X"
+  assumes "A \<in> univ X"
   shows
-    Univ_union_closed [intro]: "\<Union>A \<in> Univ X"
+    univ_union_closed [intro]: "\<Union>A \<in> univ X"
   and
-    Univ_powerset_closed [intro]: "Pow A \<in> Univ X"
+    univ_powerset_closed [intro]: "powerset A \<in> univ X"
   and
-    Univ_replacement_closed [intro]:
-      "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> Univ X) \<Longrightarrow> Repl A f \<in> Univ X"
+    univ_replacement_closed [intro]:
+      "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> univ X) \<Longrightarrow> repl A f \<in> univ X"
   by (auto intro: assms
-    Univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
+    univ_ZF_closed ZF_closed_union ZF_closed_powerset ZF_closed_replacement)
 
-text \<open>Variations on transitivity\<close>
+text \<open>Variations on transitivity:\<close>
 
-lemma Univ_transitive: "A \<in> Univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> Univ X"
-  using Univ_trans[unfolded mem_transitive_def] by auto
+lemma univ_transitive: "A \<in> univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> univ X"
+  using univ_trans[unfolded mem_transitive_def] by auto
 
-lemma Univ_transitive2: "A \<in> Univ X \<Longrightarrow> A \<subseteq> Univ X"
-  using Univ_transitive by auto
+lemma univ_transitive2: "A \<in> univ X \<Longrightarrow> A \<subseteq> univ X"
+  using univ_transitive by auto
 
-lemma Univ_transitive3: "x \<in> X \<Longrightarrow> x \<in> Univ X"
-  using Univ_transitive Univ_elem by auto
+lemma univ_transitive3: "x \<in> X \<Longrightarrow> x \<in> univ X"
+  using univ_transitive univ_elem by auto
 
-lemma empty_in_Univ [intro]: "{} \<in> Univ X"
+lemma empty_in_univ [intro]: "{} \<in> univ X"
 proof -
-  have "X \<in> Univ X" by (rule Univ_elem)
-  then have "Pow X \<subseteq> Univ X" by (auto intro: Univ_transitive)
-  then show "{} \<in> Univ X" by auto
+  have "X \<in> univ X" by (rule univ_elem)
+  then have "powerset X \<subseteq> univ X" by (auto intro: univ_transitive)
+  then show "{} \<in> univ X" by auto
 qed
 
-lemma Univ_nonempty [intro]: "non-empty (Univ X)"
+lemma univ_nonempty [intro]: "non-empty (univ X)"
   unfolding non_def empty_def by auto
 
-lemma Univ_subset [intro]: "A \<subseteq> Univ A"
-  by (auto intro: Univ_transitive Univ_elem)
+lemma univ_subset [intro]: "A \<subseteq> univ A"
+  by (auto intro: univ_transitive univ_elem)
 
-lemma Univ_upair_closed [intro]:
-  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> upair x y \<in> Univ X"
-  unfolding upair_def by (rule Univ_replacement_closed) auto
+lemma univ_upair_closed [intro]:
+  "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> upair x y \<in> univ X"
+  unfolding upair_def by (rule univ_replacement_closed) auto
 
-lemma Univ_cons_closed [intro]:
-  "x \<in> Univ X \<Longrightarrow> A \<in> Univ X \<Longrightarrow> cons x A \<in> Univ X"
-  unfolding cons_def by (intro Univ_union_closed Univ_upair_closed)
+lemma univ_cons_closed [intro]:
+  "x \<in> univ X \<Longrightarrow> A \<in> univ X \<Longrightarrow> cons x A \<in> univ X"
+  unfolding cons_def by (intro univ_union_closed univ_upair_closed)
 
-corollary Univ_pair_closed [intro]:
-  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> {x, y} \<in> Univ X"
+corollary univ_pair_closed [intro]:
+  "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> {x, y} \<in> univ X"
   by auto
 
-lemma Univ_bin_union_closed [intro]:
-  "\<lbrakk>x \<in> Univ X; y \<in> Univ X\<rbrakk> \<Longrightarrow> x \<union> y \<in> Univ X"
+lemma univ_bin_union_closed [intro]:
+  "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> x \<union> y \<in> univ X"
   unfolding bin_union_def by auto
 
-lemma Univ_singleton_closed [intro]:
-  "x \<in> Univ U \<Longrightarrow> {x} \<in> Univ U"
+lemma univ_singleton_closed [intro]:
+  "x \<in> univ U \<Longrightarrow> {x} \<in> univ U"
   by auto
 
-lemma Univ_bin_union_left:
-  "A \<in> Univ U \<Longrightarrow> A \<union> Univ U = Univ U"
-  by (rule extensionality) (auto intro: Univ_transitive)
+lemma univ_bin_union_left:
+  "A \<in> univ U \<Longrightarrow> A \<union> univ U = univ U"
+  by (rule extensionality) (auto intro: univ_transitive)
 
-lemmas Univ_bin_union_right = Univ_bin_union_left[simplified bin_union_commute]
+lemmas univ_bin_union_right = univ_bin_union_left[simplified bin_union_commute]
 
 
 end

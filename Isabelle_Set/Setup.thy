@@ -5,6 +5,7 @@ imports "../Soft_Types/Soft_Types_HOL"
 
 begin
 
+
 subsection \<open>Utility\<close>
 
 abbreviation (input) "K x \<equiv> \<lambda>_. x"

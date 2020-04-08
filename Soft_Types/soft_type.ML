@@ -39,8 +39,8 @@ val type_of_typing: term -> term
 val term_of_jdgmt: term -> term
 
 (* Unrestricted type *)
-val any: typ -> term
-val mk_any_fun: typ -> term
+val Any: typ -> term
+val mk_Any_fun: typ -> term
 
 (* Type annotations *)
 val annotate: term -> term -> term
@@ -175,14 +175,14 @@ val term_of_typing = #1 o dest_typing
 val type_of_typing = #2 o dest_typing
 
 
-fun any T = Const (\<^const_name>\<open>any\<close>, typeT T)
+fun Any T = Const (\<^const_name>\<open>Any_type\<close>, typeT T)
 
-fun mk_any_fun T =
+fun mk_Any_fun T =
   let
     val (binderTs, bodyT) = strip_type T
     val names = Name.invent_list [] "a" (length binderTs)
   in
-    (any bodyT, bodyT)
+    (Any bodyT, bodyT)
     |> fold_rev
         (fn (n, S) => fn (t, T) => 
           (Pi_const S T $ Var ((n, 0), typeT S) $ Abs ("uu_", S, t), S --> T))

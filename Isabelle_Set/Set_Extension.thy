@@ -87,7 +87,7 @@ proof (rule Pi_typeI)
   next
     case False
     with `x : element B` 
-    have "x \<in> B \<setminus> Repl A f" by unfold_types auto
+    have "x \<in> B \<setminus> repl A f" by unfold_types auto
     then show ?thesis unfolding def_def Abs_def by unfold_types auto
   qed
 qed    
@@ -107,7 +107,7 @@ proof (cases "x \<in> A")
   finally show "Abs (Rep x) = x" .
 next
   case False
-  with assms obtain y where y: "y\<in>B" "y \<notin> Repl A f" and x_eq: "x = \<langle>A, y\<rangle>"
+  with assms obtain y where y: "y\<in>B" "y \<notin> repl A f" and x_eq: "x = \<langle>A, y\<rangle>"
     unfolding def_def by unfold_types auto
 
   from `x \<notin> A` have "Abs (Rep x) = Abs (snd x)" by (simp add: Rep_def)

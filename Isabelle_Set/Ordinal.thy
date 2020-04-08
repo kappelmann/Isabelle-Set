@@ -15,7 +15,7 @@ definition [typedef]:
 
 lemma OrdI:
   "mem_transitive X \<Longrightarrow> (\<And>x. x \<in> X \<Longrightarrow> mem_transitive x) \<Longrightarrow> X: Ord"
-  unfolding Ord_def by (auto simp: has_type_type)
+  unfolding Ord_def by (auto simp: meaning_of_type) (*Low-level! Fix this.*)
 
 text \<open>Basic properties of ordinals:\<close>
 
@@ -134,16 +134,16 @@ lemma succ_cases [elim]:
   shows "P x"
   using assms unfolding succ_def by auto
 
-lemma Univ_succ_closed [intro]: "x \<in> Univ X \<Longrightarrow> succ x \<in> Univ X"
+lemma univ_succ_closed [intro]: "x \<in> univ X \<Longrightarrow> succ x \<in> univ X"
   unfolding succ_def by auto
 
-lemma [derive]: "x : element (Univ X) \<Longrightarrow> succ x : element (Univ X)"
+lemma [derive]: "x : element (univ X) \<Longrightarrow> succ x : element (univ X)"
   by unfold_types auto
 
 
 section \<open>\<omega>, the smallest infinite ordinal\<close>
 
-definition "omega_op X = {{}} \<union> Repl X succ"
+definition "omega_op X = {{}} \<union> repl X succ"
 
 lemma omega_op_monop: "omega_op : monop V"
   unfolding omega_op_def by (fast intro: monopI)

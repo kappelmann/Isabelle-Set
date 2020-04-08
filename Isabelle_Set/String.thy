@@ -165,36 +165,36 @@ subsection \<open>String disequality\<close>
 lemma neqE: "a = b \<Longrightarrow> a \<noteq> b \<Longrightarrow> False" by auto
 
 ML \<open>
-fun string_neq_tac ctxt =
+fun string_ne_tac ctxt =
   let
-    val char_neq_word_tac = SUBGOAL (fn (_, i) =>
+    val char_ne_word_tac = SUBGOAL (fn (_, i) =>
       rewrite_goal_tac ctxt @{thms char_simps} i
       THEN HEADGOAL (eresolve0_tac @{thms succ_not_opair opair_not_succ}))
 
-    fun word_neq_tac i =
+    fun word_ne_tac i =
       let
-        val char_neq_tac = SUBGOAL (fn (_, i) =>
+        val char_ne_tac = SUBGOAL (fn (_, i) =>
           rewrite_goal_tac ctxt @{thms char_simps} i
           THEN REPEAT (HEADGOAL (dresolve0_tac @{thms succ_inject}))
           THEN HEADGOAL (eresolve0_tac @{thms neqE})
           THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
 
-        val first_char_neq_tac =
-          TRY o dresolve0_tac @{thms opair_inject1} THEN' char_neq_tac
+        val first_char_ne_tac =
+          TRY o dresolve0_tac @{thms opair_inject1} THEN' char_ne_tac
       in
         REPEAT (CHANGED
-          ((char_neq_word_tac
-          ORELSE' first_char_neq_tac
+          ((char_ne_word_tac
+          ORELSE' first_char_ne_tac
           ORELSE' dresolve0_tac @{thms opair_inject2}) i))
       end
   in
     resolve_tac ctxt @{thms notI}
     THEN' rewrite_goal_tac ctxt @{thms string_def}
-    THEN' word_neq_tac
+    THEN' word_ne_tac
   end
 
 val string_simp_solver = map_theory_simpset
-  (fn ctxt => ctxt addSolver (mk_solver "distinguish strings" string_neq_tac))
+  (fn ctxt => ctxt addSolver (mk_solver "distinguish strings" string_ne_tac))
 \<close>
 
 setup \<open>string_simp_solver\<close>
@@ -202,7 +202,7 @@ setup \<open>string_simp_solver\<close>
 method_setup string_neq =
   \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (
     (TRY o eresolve_tac ctxt @{thms neqE})
-    THEN' string_neq_tac ctxt))\<close>
+    THEN' string_ne_tac ctxt))\<close>
 
 (* Example *)
 lemma

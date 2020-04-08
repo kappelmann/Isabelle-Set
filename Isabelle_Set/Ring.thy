@@ -17,7 +17,7 @@ lemma RingI [typeI]:
   and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> mul R x (add R y z) = add R (mul R x y) (mul R x z)"
   and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> mul R (add R x y) z = add R (mul R x z) (mul R y z)"
   shows "R : Ring A"
-  using assms unfolding Ring_def by (auto intro: has_type_typeI)
+  using assms unfolding Ring_def by (auto intro: has_typeI)
 
 lemma
   shows Ring_Comm_Group [derive]: "R : Ring A \<Longrightarrow> R : Comm_Group A"
@@ -27,10 +27,10 @@ lemma
   and add_mul: "\<And>x y z. \<lbrakk>R : Ring A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
     \<Longrightarrow> mul R (add R x y) z = add R (mul R x z) (mul R y z)"
   unfolding Ring_def
-  subgoal by (drule Int_typeE1, drule Int_typeE1)
-  subgoal by (drule Int_typeE1, drule Int_typeE2)
-  subgoal by (drule Int_typeE2, drule has_type_typeE) blast
-  subgoal by (drule Int_typeE2, drule has_type_typeE) blast
+  subgoal by (drule Int_typeD1, drule Int_typeD1)
+  subgoal by (drule Int_typeD1, drule Int_typeD2)
+  subgoal by (drule Int_typeD2, drule has_typeD) blast
+  subgoal by (drule Int_typeD2, drule has_typeD) blast
   done
 
 end

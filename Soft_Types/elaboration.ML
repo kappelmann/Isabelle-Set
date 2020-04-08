@@ -107,7 +107,7 @@ struct
     | Const (_, T) => 
         let
           (* If constant type cannot be found, invent a generic type *)
-          val st = (case get_const_type E t of SOME st => st | NONE => Soft_Type.mk_any_fun T)
+          val st = (case get_const_type E t of SOME st => st | NONE => Soft_Type.mk_Any_fun T)
           (* Ensure that unification variables are fresh for each constant occurrence
              and make them depend on the current binders. *)
           val binder_types = rev (map #3 Gamma)

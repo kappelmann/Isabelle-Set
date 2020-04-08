@@ -577,7 +577,7 @@ fun full_discharge_types_tac add_facts add_tms ctxt =
         (* (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' *)
         raw_discharge_type_tac add_facts add_tms ctxt)))
 
-    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm has_type_adjI}])
+    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm has_adjI}])
 
     val backward_tac = resolve_tac ctxt
       (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)

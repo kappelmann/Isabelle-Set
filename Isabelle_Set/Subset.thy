@@ -76,7 +76,7 @@ qed
 lemma monop_replacementI:
   assumes "A : monop D"
   assumes "\<And>x y. x : subset D \<Longrightarrow> y : element (A x) \<Longrightarrow> f y : element D"
-  shows "(\<lambda>x. Repl (A x) f) : monop D"
+  shows "(\<lambda>x. repl (A x) f) : monop D"
   apply (insert assms)
   apply (rule monopI)
    apply unfold_types[1]
@@ -87,7 +87,7 @@ lemma monop_replacementI:
 subsection \<open>The Knaster-Tarski theorem\<close>
 
 definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  where "lfp D h \<equiv> \<Inter>{X \<in> Pow D. h X \<subseteq> X}"
+  where "lfp D h \<equiv> \<Inter>{X \<in> powerset D. h X \<subseteq> X}"
 
 lemma lfp_type [type]:
   "lfp : (D : set) \<Rightarrow> monop D \<Rightarrow> subset D"
@@ -167,7 +167,7 @@ lemma lfp_cong:
   assumes h: "\<And>X. X \<subseteq> D' \<Longrightarrow> h X = h' X"
   shows "lfp D h = lfp D' h'"
 proof -
-  have "{x \<in> Pow D | h x \<subseteq> x} = {x \<in> Pow D' | h' x \<subseteq> x}"
+  have "{x \<in> powerset D | h x \<subseteq> x} = {x \<in> powerset D' | h' x \<subseteq> x}"
     unfolding D
     by (rule collect_cong) (auto simp: h)
   then show ?thesis by (simp add: lfp_def)

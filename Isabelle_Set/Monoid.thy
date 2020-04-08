@@ -70,11 +70,11 @@ lemma
     add_assoc: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   unfolding Monoid_def
-  subgoal by (drule Int_typeE1, drule Int_typeE1)
-  subgoal by (drule Int_typeE1, drule Int_typeE2)
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeD1, drule Int_typeD1)
+  subgoal by (drule Int_typeD1, drule Int_typeD2)
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
   done
 
 
@@ -229,7 +229,7 @@ apply unfold_types using assms(2) unfolding inv_def
 oops
 
 lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
-  unfolding Group_def by (drule Int_typeE1)+
+  unfolding Group_def by (drule Int_typeD1)+
 
 definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
   type (\<lambda>G. \<forall> a b \<in> A. add G a b = add G b a)"
@@ -244,8 +244,8 @@ lemma
   shows Comm_Group_Group [derive]: "G : Comm_Group A \<Longrightarrow> G : Group A"
   and add_comm: "\<And>x y. \<lbrakk>G : Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
   unfolding Comm_Group_def
-  subgoal by (drule Int_typeE1)
-  subgoal by (drule Int_typeE2, drule has_type_typeE) blast
+  subgoal by (drule Int_typeD1)
+  subgoal by (drule Int_typeD2, drule has_typeD) blast
   done
 
 
@@ -284,11 +284,11 @@ lemma
     mul_assoc: "\<And>x y z. \<lbrakk>M : Mul_Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
   unfolding Mul_Monoid_def
-  subgoal by (drule Int_typeE1, drule Int_typeE1)
-  subgoal by (drule Int_typeE1, drule Int_typeE2)
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
-  subgoal by (drule Int_typeE2, drule has_type_typeE) auto
+  subgoal by (drule Int_typeD1, drule Int_typeD1)
+  subgoal by (drule Int_typeD1, drule Int_typeD2)
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
+  subgoal by (drule Int_typeD2, drule has_typeD) auto
   done
 
 end

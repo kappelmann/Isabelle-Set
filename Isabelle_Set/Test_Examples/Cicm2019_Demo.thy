@@ -13,7 +13,8 @@ begin
 
 typedecl i
 type_synonym U = "i type"
-abbreviation "U \<equiv> any :: U type" \<comment>\<open>reflection of the rigid type into the soft type system\<close>
+abbreviation "U \<equiv> Any :: U type"
+  \<comment>\<open>reflection of the rigid type into the soft type system\<close>
 
 
 text \<open>Polymorphic lists:\<close>

@@ -119,23 +119,23 @@ theorem Th1:
    Intelligent Computer Mathematics - 12th Conference on Intelligent Computer Mathematics, CIIRC, Prague, Czech Republic, July 8-12, 2019.	*)
 
 definition VV:: " set \<Rightarrow> set" where
-  "VV = R_CB (\<lambda> X v . ( \<Union>x \<in> X. (Pow (v x))))"  
+  "VV = R_CB (\<lambda> X v . ( \<Union>x \<in> X. (powerset (v x))))"  
 
 theorem VTh1:
-  "\<forall> X. VV X = (\<Union>x \<in> X. Pow (VV x))"
+  "\<forall> X. VV X = (\<Union>x \<in> X. powerset (VV x))"
 proof
   fix X
-  let ?\<Phi> = "\<lambda> X v . ( \<Union>x \<in> X. (Pow (v x)))"
+  let ?\<Phi> = "\<lambda> X v . ( \<Union>x \<in> X. (powerset (v x)))"
   have "C ?\<Phi>" unfolding C_def by auto
   hence "R_CB ?\<Phi> X = ?\<Phi> X (R_CB ?\<Phi>)" using Th1 by auto
-  then show "VV X = (\<Union>x \<in> X. Pow (VV x))" using VV_def by auto
+  then show "VV X = (\<Union>x \<in> X. powerset (VV x))" using VV_def by auto
 qed
 
 theorem VTh2_1:
   "x \<in> X \<and> y \<subseteq> VV x \<longrightarrow> y \<in> VV X"
 proof
   assume "x \<in> X \<and> y \<subseteq> VV x" 
-  hence " y \<in> (\<Union>x \<in> X. Pow (VV x))" by auto
+  hence " y \<in> (\<Union>x \<in> X. powerset (VV x))" by auto
   then show "y \<in> VV X" using VTh1[rule_format, of X] by auto
 qed
 
@@ -143,7 +143,7 @@ theorem VTh2_2:
   "y \<in> VV X \<longrightarrow> (\<exists> x . x \<in> X \<and> y \<subseteq> VV x)"
 proof
   assume "y \<in> VV X"
-  hence "y \<in> (\<Union>x \<in> X. Pow (VV x))" using VTh1[rule_format, of X] by auto
+  hence "y \<in> (\<Union>x \<in> X. powerset (VV x))" using VTh1[rule_format, of X] by auto
   then show "\<exists> x . x \<in> X \<and> y \<subseteq> VV x" by auto
 qed
 
@@ -251,7 +251,7 @@ proof-
   let ?H = "\<lambda> X. X  \<in> U \<longrightarrow> VV X \<in> U"
   have "\<forall>X. (\<forall>x. x \<in> X \<longrightarrow> ?H x) \<longrightarrow> ?H X"
   proof(intro allI impI)
-    let ?PV = "\<lambda> x . Pow (VV x)"
+    let ?PV = "\<lambda> x . powerset (VV x)"
     fix X assume IH: "\<forall>x. x \<in> X \<longrightarrow> ?H x" "X \<in> U"
     have "\<forall>x. x \<in> X \<longrightarrow> ?PV x \<in> U"
     proof(intro allI impI)
@@ -261,7 +261,7 @@ proof-
       thus  "?PV x \<in> U" using assms(2) ZF_closed_def by auto
     qed
     hence "{?PV  x| x \<in> X} \<in> U" using IH assms(2) ZF_closed_def[of U] by auto
-    hence "(\<Union>x \<in> X. Pow (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
+    hence "(\<Union>x \<in> X. powerset (VV x)) \<in> U" using assms(2) ZF_closed_def[of U] by auto
     then show "VV X \<in> U" using VTh1[rule_format, of X] by auto
   qed
   then show "\<forall>X. ?H X" using mem_induction[of ?H] by blast
@@ -396,12 +396,12 @@ proof-
   let ?P = "\<lambda> a x f . x \<in> X\<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x)"
   obtain  Q where 
     QDef: "Q \<equiv> \<lambda> a f x . ?P a x f \<and>(\<forall>y. ?P a y f \<longrightarrow> VV x \<subseteq> VV y)" by simp
-  let ?PowX = "(Pow X) \<setminus> {{}}"
+  let ?powersetX = "(powerset X) \<setminus> {{}}"
   have ACd: "\<And> X. {} \<notin>  X \<Longrightarrow> (\<exists> f. (f \<in> X \<rightarrow> \<Union> X) \<and> (\<forall>A. A\<in> X \<longrightarrow> f` A \<in> A))" 
      using assms(3) AC_axiom_def by auto
-  have "{} \<notin> ?PowX" by auto
+  have "{} \<notin> ?powersetX" by auto
   then obtain AC where
-    AC: "(AC \<in> ?PowX \<rightarrow> \<Union> ?PowX) \<and> (\<forall>A. A\<in> ?PowX \<longrightarrow> AC` A \<in> A)" using ACd[of ?PowX] by auto
+    AC: "(AC \<in> ?powersetX \<rightarrow> \<Union> ?powersetX) \<and> (\<forall>A. A\<in> ?powersetX \<longrightarrow> AC` A \<in> A)" using ACd[of ?powersetX] by auto
   obtain  F where
      FDef: "F\<equiv> \<lambda> a f . AC` {x\<in>X| Q a f x}" by simp
   let ?f=  "R_CB F"
@@ -438,7 +438,7 @@ proof-
       fix a assume HI: "\<forall>x. x \<in> a \<longrightarrow> ?I x"
       assume a:"a \<in> ?Lamb"
       hence O: "a \<in> U \<and> a:Ord" by auto
-      hence P: "Pow a \<subseteq> U" using assms ZF_closed_def mem_transitive_def[of U] by auto 
+      hence P: "powerset a \<subseteq> U" using assms ZF_closed_def mem_transitive_def[of U] by auto 
       have C13: "\<And> b. b \<in> a \<longrightarrow> Q b ?f (?f b)"
       proof(intro impI)
         have E: " mem_transitive a" using O unfolding Ord_typedef by unfold_types
@@ -474,7 +474,7 @@ proof-
        x: "v = VV x \<and> ?P a x ?f" by auto
       have "\<forall>y. ?P a y ?f \<longrightarrow> VV x \<subseteq> VV y" using x v VTh2_7[of _ x] by auto 
       hence C18: "Q a ?f x" unfolding QDef using x by auto 
-      hence "{x\<in>X| Q a ?f x} \<in> ?PowX" using x by auto
+      hence "{x\<in>X| Q a ?f x} \<in> ?powersetX" using x by auto
       hence A18: "AC` {x\<in>X| Q a ?f x} \<in> {x\<in>X| Q a ?f x}" using AC by auto
       have C19: "F a ?f =  AC` {x\<in>X| Q a ?f x}" using FDef by auto
       have "F a ?f = ?f a" using C1 FDef by auto
@@ -546,15 +546,15 @@ proof-
     proof-
       have "x \<in> U" using assms(4) A by auto
       hence "VV x \<in> U" using assms CB_Th_3 by auto
-      hence "Pow (Pow (VV x)) \<in> U" using assms(2) ZF_closed_def by auto
-      hence P: "Pow (Pow (VV x)) \<subseteq> U" using assms(1) mem_transitive_def by auto
-      have "{?f a|a \<in> ?Lamb} \<subseteq> Pow (VV x)"
+      hence "powerset (powerset (VV x)) \<in> U" using assms(2) ZF_closed_def by auto
+      hence P: "powerset (powerset (VV x)) \<subseteq> U" using assms(1) mem_transitive_def by auto
+      have "{?f a|a \<in> ?Lamb} \<subseteq> powerset (VV x)"
       proof
         fix fa assume "fa \<in> {?f a|a \<in> ?Lamb}"
         then obtain a where
            fa: "fa = ?f a \<and> a \<in>?Lamb" by auto
         hence "fa \<subseteq> VV fa" "VV (?f a) \<subseteq> VV x" using VTh2_3 C21 by auto
-        then show "fa \<in> Pow (VV x)" using fa by auto
+        then show "fa \<in> powerset (VV x)" using fa by auto
       qed
       then show "?faLamb \<in> U"  using P by auto
     qed
@@ -567,7 +567,7 @@ proof-
       hence "?g y = a" using C4 by blast
       thus "?g y \<in> U" using a by auto
     qed
-    have T1: "\<And> g. ?faLamb \<in> U \<longrightarrow> (\<forall>x. x \<in> ?faLamb \<longrightarrow> g x \<in> U) \<longrightarrow> Repl ?faLamb g \<in> U" 
+    have T1: "\<And> g. ?faLamb \<in> U \<longrightarrow> (\<forall>x. x \<in> ?faLamb \<longrightarrow> g x \<in> U) \<longrightarrow> repl ?faLamb g \<in> U" 
        using assms(2) unfolding ZF_closed_def by auto
     have "?Lamb \<in> U" using T1[of ?g, rule_format, OF C22 C23] C6 by auto
     then show "False" using mem_irrefl OL by auto  

@@ -6,7 +6,7 @@ begin
 
 text \<open>Proving that something is in some universe.\<close>
 
-lemma "inl {} : element (Univ A)"
+lemma "inl {} : element (univ A)"
   by discharge_types
 
 text \<open>Eta-normalization.\<close>

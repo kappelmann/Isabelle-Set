@@ -59,7 +59,7 @@ ML \<open>
 fun selector_tac ctxt =
   REPEAT o (EqSubst.eqsubst_tac ctxt [0] @{thms cons_dom})
   THEN' CHANGED_PROP o REPEAT_ALL_NEW (match_tac ctxt @{thms not_in_cons_dom})
-  THEN' REPEAT o SOLVED' (string_neq_tac ctxt)
+  THEN' REPEAT o SOLVED' (string_ne_tac ctxt)
   THEN' (EqSubst.eqsubst_tac ctxt [0] @{thms dom_empty})
   THEN' resolve_tac ctxt @{thms emptyset}
 

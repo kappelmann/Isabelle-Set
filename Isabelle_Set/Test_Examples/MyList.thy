@@ -19,11 +19,11 @@ definition Nil where "Nil = inl {}"
 definition Cons where "Cons x xs = inr \<langle>x, xs\<rangle>"
 
 definition List where
-  "List A = lfp (Univ A) (\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L})"
+  "List A = lfp (univ A) (\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L})"
 
 lemma
-  Nil_Univ[derive]: "Nil : element (Univ A)" and
-  Cons_Univ[derive]: "x : element (Univ A) \<Longrightarrow> xs : element (Univ A) \<Longrightarrow> Cons x xs : element (Univ A)"
+  Nil_univ[derive]: "Nil : element (univ A)" and
+  Cons_univ[derive]: "x : element (univ A) \<Longrightarrow> xs : element (univ A) \<Longrightarrow> Cons x xs : element (univ A)"
   unfolding Nil_def Cons_def
   by discharge_types
 
@@ -33,16 +33,16 @@ lemma List_distinct[simp]: "Nil \<noteq> Cons x xs"
 lemma Cons_inject[simp]: "Cons x xs = Cons y ys \<longleftrightarrow> (x = y \<and> xs = ys)"
   unfolding Cons_def by simp
 
-lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}) : monop (Univ A)"
+lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}) : monop (univ A)"
   apply (unfold split_def)
   apply (rule monop_unionI)
    apply discharge_types[1]
   apply (rule monop_replacementI)
    apply (rule monop_prodI)
   apply discharge_types
-  apply (rule Cons_Univ)
+  apply (rule Cons_univ)
    apply unfold_types
-   using Univ_subset
+   using univ_subset
    apply auto+
   done
 
