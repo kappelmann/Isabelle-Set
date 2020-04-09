@@ -23,14 +23,14 @@ lemma Zero_zero_type [derive]:
   "Z: Zero A \<Longrightarrow> Z @@ zero : element A"
   unfolding Zero_def by unfold_types
 
-lemma assumes "Z : Zero A" "Ext : Object A' B"
+lemma assumes "Z : Zero A" "Ext : Object"
   and "@zero \<in> object_fields Ext \<Longrightarrow> Z @@ zero = Ext @@ zero"
   shows "extend Z Ext : Zero A"
-  by (rule Zero_typeI,
+  \<comment> \<open>by (rule Zero_typeI,
     rule object_extend_preserve[where s="@zero", OF _ assms(2)])
-  (auto simp: assms(3))
-\<comment> \<open>Note Kevin: Problem: what are the universes A and B when also requiring that
-  "Zero A : Object A B"?\<close>
+  (auto simp: assms(3))\<close>
+oops
+\<comment> \<open>Note Kevin: Problem: also requires that "Zero A : Object"\<close>
 
 definition zero :: "set \<Rightarrow> set"
   where "zero Z = Z @@ zero"
