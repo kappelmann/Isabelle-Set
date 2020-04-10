@@ -110,13 +110,13 @@ lemma succ_inject' [simp]:
 lemma succ_mem [simp]: "x \<in> succ x"
   unfolding succ_def by auto
 
-lemma [derive]: "x: Element (succ x)"
+lemma element_succ_self: "x: Element (succ x)"
   by unfold_types auto
 
 lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
   unfolding succ_def by auto
 
-lemma [derive]: "x: Element y \<Longrightarrow> x: Element (succ y)"
+lemma element_imp_element_succ: "x : Element y \<Longrightarrow> x : Element (succ y)"
   by unfold_types auto
 
 lemma succ_mem_not_eq [simp]:
