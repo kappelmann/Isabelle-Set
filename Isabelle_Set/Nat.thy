@@ -209,6 +209,10 @@ lemma
   lt_lt_le: "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
   unfolding le_def by (auto intro: lt_trans)
 
+
+lemma zero_le [simp]: assumes "n : Nat" shows "0 \<le> n"
+  by (induction rule: Nat_induct[OF assms(1)]) (auto intro: le_trans)
+
 lemma succ_lt: "\<lbrakk>n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
   by unfold_types (auto dest: omega_elem_Ord Ord_mem_transitive')
@@ -258,42 +262,45 @@ lemma nat_lt_pred_imp_succ_lt:
 
 section \<open>Ranges\<close>
 
-definition upto ("{0, ..., _}") where "{0, ..., n} = {i \<in> \<nat> | i \<le> n}"
+definition range ("{_.._}") where "{l..u} = {i \<in> \<nat> | l \<le> i \<and> i \<le> u}"
 
-lemma succ_eq_upto: "n: Nat \<Longrightarrow> succ n = {0, ..., n}"
-  unfolding succ_def upto_def le_def lt_def
-  by unfold_types (auto intro: equalityI omega_mem_transitive simp: nat_def)
+lemma succ_eq_range_zero: assumes "n : Nat" shows "succ n = {0..n}"
+proof -
+  have "{0..n} = {i \<in> \<nat> | i \<le> n}" unfolding range_def by simp
+  then show ?thesis using assms
+    unfolding succ_def range_def le_def lt_def nat_def Element_def meaning_of_type
+    by (intro equalityI) (auto intro: omega_mem_transitive)
+qed
 
-lemmas upto_eq_succ = succ_eq_upto[symmetric]
+lemmas range_zero_eq_succ = succ_eq_range_zero[symmetric]
 
-lemma uptoI: "n: Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<in> {0, ..., n}"
-  by unfold_types (auto simp: upto_eq_succ le_def lt_def)
+lemma range_zeroI: "n: Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<in> {0..n}"
+  by unfold_types (auto simp: range_zero_eq_succ le_def lt_def)
 
-lemma uptoE1: "m \<in> {0, ..., n} \<Longrightarrow> m: Nat"
-  unfolding upto_def by auto
+lemma range_zeroE1: "m \<in> {0..n} \<Longrightarrow> m : Nat"
+  unfolding range_def by auto
 
-lemmas [derive] = uptoE1[simplified Element_iff]
+lemmas [derive] = range_zeroE1[simplified Element_iff]
 
-lemma uptoE2: "m \<in> {0, ..., n} \<Longrightarrow> m \<le> n"
-  unfolding upto_def by auto
+lemma range_zeroE2: "m \<in> {0..n} \<Longrightarrow> m \<le> n"
+  unfolding range_def by auto
 
-lemma le_iff_upto: "n: Nat \<Longrightarrow> m \<le> n = (m \<in> {0, ..., n})"
-  by (auto intro: uptoI elim: uptoE2)
+lemma le_iff_in_range_zero: "n : Nat \<Longrightarrow> m \<le> n \<longleftrightarrow> (m \<in> {0..n})"
+  by (auto intro: range_zeroI elim: range_zeroE2)
 
-lemmas upto_iff_le = le_iff_upto[symmetric]
+lemmas in_range_zero_iff_le = le_iff_in_range_zero[symmetric]
 
-lemma [derive]: "n: Nat \<Longrightarrow> 0: Element {0, ..., n}"
-  by
-    (simp add: upto_eq_succ nat_def nat_zero_def, unfold_types)
-    (auto intro: omega_empty_in_succ)
+lemma zero_in_range_zero [derive]: "n : Nat \<Longrightarrow> 0 : Element {0..n}"
+  unfolding range_def by unfold_types simp 
 
 lemma
-  [derive]: "n: Nat \<Longrightarrow> n: Element {0, ..., n}" and
-  [derive]: "n: Nat \<Longrightarrow> m: Element n \<Longrightarrow> m: Element {0, ..., n}"
-  by unfold_types (auto simp: upto_eq_succ)
+  [derive]: "n : Nat \<Longrightarrow> n : Element {0..n}" and
+  [derive]: "n : Nat \<Longrightarrow> m : Element n \<Longrightarrow> m : Element {0..n}"
+  by unfold_types (auto simp: range_zero_eq_succ)
 
-lemma upto_subset_upto [intro!]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> {0, ..., m} \<subseteq> {0, ..., n}"
-  unfolding upto_def le_def by (auto intro: lt_trans)
+lemma le_imp_range_zero_subset_ [intro!]:
+  "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> {0..m} \<subseteq> {0..n}"
+  unfolding range_def le_def by (auto intro: lt_trans)
 
 lemma le_induct:
   assumes "m: Nat"
@@ -325,20 +332,21 @@ proof (cases n rule: Nat_cases, fact)
   thus "\<And>k. k: Nat \<Longrightarrow> n = succ k \<Longrightarrow> P m" using assms by blast
 qed
 
-lemma cons_upto_FunctionI [intro]:
+lemma cons_range_zero_FunctionI [intro]:
   assumes "n: Nat"
-      and "f: {0, ..., n} \<rightarrow> X"
+      and "f : {0..n} \<rightarrow> X"
       and "x \<in> X"
-  shows "cons \<langle>succ n, x\<rangle> f: {0, ..., succ n} \<rightarrow> X"
+  shows "cons \<langle>succ n, x\<rangle> f : {0..succ n} \<rightarrow> X"
   by
-    (simp only: upto_eq_succ, subst (2) succ_def)
-    (auto intro: assms cons_FunctionI' simp: succ_eq_upto)
+    (simp only: range_zero_eq_succ, subst (2) succ_def)
+    (auto intro: assms cons_FunctionI' simp: succ_eq_range_zero)
 
 
 section \<open>Recursion\<close>
 
 text \<open>Recursion on Nat. Axiomatized, for now.\<close>
 
+\<comment> \<open>Note Kevin: TODO: the natural number to recurse on should come first.\<close>
 axiomatization natrec :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set\<close> where
   natrec_0 [simp]: "natrec x\<^sub>0 f 0 = x\<^sub>0" and
   natrec_succ [simp]: "n: Nat \<Longrightarrow> natrec x\<^sub>0 f (succ n) = f (natrec x\<^sub>0 f n)"
@@ -350,7 +358,6 @@ proof discharge_types
   show "n: Nat \<Longrightarrow> x: X \<Longrightarrow> f: X \<Rightarrow> X \<Longrightarrow> natrec x f n: X"
   by (induct n rule: Nat_induct) auto
 qed
-
 
 section \<open>Arithmetic\<close>
 
