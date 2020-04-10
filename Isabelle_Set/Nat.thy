@@ -263,16 +263,15 @@ proof (cases n rule: Nat_cases, fact)
   thus "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> P m" using assms by blast
 qed
 
-lemma zero_le [simp]: assumes "n : Nat" shows "0 \<le> n"
-  by (induction rule: Nat_induct[OF assms(1)]) (auto intro: le_trans)
-
-
 lemma ne_zero_if_gt: assumes "m : Nat" "n : Nat" "m < n" shows "n \<noteq> 0"
   by (rule ne_zero_if_zero_lt, intro le_lt_lt[of n 0 m]) auto
 
 lemma succ_lt: "\<lbrakk>n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
   by unfold_types (auto dest: omega_elem_Ord Ord_mem_transitive')
+
+lemma zero_le [simp]: assumes "n : Nat" shows "0 \<le> n"
+  by (induction rule: Nat_induct[OF assms(1)]) (auto intro: le_trans)
 
 lemma succ_le:
   assumes "n: Nat" shows "succ m \<le> n \<Longrightarrow> m < n"
@@ -411,19 +410,19 @@ lemma le_iff_in_range_zero: "n : Nat \<Longrightarrow> m \<le> n \<longleftright
 lemmas in_range_zero_iff_le = le_iff_in_range_zero[symmetric]
 
 lemma zero_in_range_zero [derive]: "n : Nat \<Longrightarrow> 0 : Element {0..n}"
-  by unfold_types auto
+  unfolding range_def by unfold_types simp
 
 lemma
   [derive]: "n : Nat \<Longrightarrow> n : Element {0..n}" and
   [derive]: "n : Nat \<Longrightarrow> m : Element n \<Longrightarrow> m : Element {0..n}"
   by unfold_types (auto simp: range_zero_eq_succ)
 
-lemma le_imp_range_zero_subset_ [intro!]:
+lemma range_zero_subset_if_le [intro!]:
   "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> {0..m} \<subseteq> {0..n}"
   unfolding range_def le_def by (auto intro: lt_trans)
 
 lemma cons_range_zero_FunctionI [intro]:
-  assumes "n: Nat"
+  assumes "n : Nat"
       and "f : {0..n} \<rightarrow> X"
       and "x \<in> X"
   shows "cons \<langle>succ n, x\<rangle> f : {0..succ n} \<rightarrow> X"
@@ -449,6 +448,7 @@ proof discharge_types
   by (induct n rule: Nat_induct) auto
 qed
 
+<<<<<<< HEAD
 text \<open>Recursion on Nat with index\<close>
 definition "natrec' n x\<^sub>0 f \<equiv> snd (natrec
   \<langle>0, x\<^sub>0\<rangle>
@@ -483,6 +483,9 @@ proof -
     by (rule Nat_induct) auto
   then show ?thesis unfolding natrec'_def by auto
 qed
+=======
+section \<open>Arithmetic\<close>
+>>>>>>> (Nat) generalise range with lower bound
 
 
 section \<open>Arithmetic\<close>
