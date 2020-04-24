@@ -1228,6 +1228,15 @@ corollary
 
 lemma Subset_iff: "A \<subseteq> B \<longleftrightarrow> A: Subset B" by unfold_types auto
 
+lemma func_type_restrict_set_domain:
+  assumes "A \<subseteq> B" "f : (b : Element B) \<Rightarrow> T b"
+  shows "f : (a : Element A) \<Rightarrow> T a"
+  (* Note Kevin: for some reason, the following loops: *)
+  (* using assms by unfold_types auto) *)
+  by (insert assms, unfold_types, auto)
+
+text \<open>Declare basic soft type translations.\<close>
+
 corollary
   SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B" and
   SubsetD: "A: Subset B \<Longrightarrow> A \<subseteq> B"
