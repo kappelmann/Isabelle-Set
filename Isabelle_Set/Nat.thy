@@ -105,7 +105,7 @@ lemma succ_lt_monotoneE:
   "\<lbrakk>n: Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"
   unfolding lt_def nat_def by (auto intro: omega_succ_mem_monotoneE)
 
-lemma nat_lt_succ: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m < succ n"
+lemma lt_succ_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> m < succ n"
   unfolding lt_def by simp
 
 lemma lt_trichotomy:
@@ -132,7 +132,11 @@ lemma nat_lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
 lemma le_succ [simp]: "n \<le> succ n"
   unfolding le_def by auto
 
-lemma succ_le_monotone: "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+lemma not_le_zero [simp]: "\<not> succ n \<le> 0"
+  unfolding succ_def le_def nat_zero_def lt_def by auto
+
+lemma succ_le_monotone:
+  "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
 lemma succ_le_monotoneE: "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
@@ -141,25 +145,27 @@ lemma succ_le_monotoneE: "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longri
 lemma succ_lt_le_monotone: "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
-lemma nat_zero_lt_succ [simp]: "n: Nat \<Longrightarrow> 0 < succ n"
+lemma lt_succ_if_le: "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m < succ n"
+  unfolding lt_def le_def succ_def by simp
+
+lemma nat_zero_lt_succ [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
   unfolding lt_def nat_def nat_zero_def
   by unfold_types (fact omega_empty_in_succ)
 
-lemma zero_ltE [elim]: "n < 0 \<Longrightarrow> P"
+lemma lt_zerotE [elim]: "n < 0 \<Longrightarrow> P"
   unfolding lt_def nat_zero_def by auto
 
 corollary [simp]: "\<not> n < 0" by auto
 
-lemma nat_gt_zero_imp_ne_zero: "0 < n \<Longrightarrow> n \<noteq> 0"
+lemma ne_zero_if_zero_lt: "0 < n \<Longrightarrow> n \<noteq> 0"
   by auto
 
-lemma nat_ne_zero_imp_gt_zero:
-  assumes "n: Nat" and "n \<noteq> 0" shows "0 < n"
+lemma zero_lt_if_ne_zero: assumes "n : Nat" and "n \<noteq> 0" shows "0 < n"
   by (rule lt_trichotomyE[of 0 n]) (auto simp: assms)
 
 corollary nat_gt_zero_iff_ne_zero [iff]:
   "n: Nat \<Longrightarrow> 0 < n \<longleftrightarrow> n \<noteq> 0"
-  using nat_gt_zero_imp_ne_zero nat_ne_zero_imp_gt_zero ..
+  using zero_lt_if_ne_zero by auto
 
 lemma nat_zero_le [simp]: "n: Nat \<Longrightarrow> 0 \<le> n"
   by (induction rule: Nat_induct) (auto intro: nat_lt_imp_le)
@@ -209,9 +215,42 @@ lemma
   lt_lt_le: "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
   unfolding le_def by (auto intro: lt_trans)
 
+lemma le_induct:
+  assumes "m: Nat"
+      and "n: Nat"
+      and "m \<le> n"
+      and "P 0"
+      and "\<And>m. m < n \<Longrightarrow> P m \<Longrightarrow> P (succ m)"
+  shows "P m"
+proof (cases n rule: Nat_cases, fact)
+  assume "n = 0"
+  hence "m = 0" using \<open>m \<le> n\<close> by auto
+  thus "P m" using assms by simp
+
+  next {
+  fix m
+  have "m: Nat \<Longrightarrow> (\<And>k. \<lbrakk>k: Nat; n = succ k; m \<le> n\<rbrakk> \<Longrightarrow> P m)"
+  proof (induction m rule: Nat_induct)
+    show "P 0" by fact
+    next
+    fix k l assume
+      "succ l \<le> n" and
+      hyp: "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
+      conds: "k: Nat" "n = succ k"
+    then have "l < n" by (auto intro: lt_succ lt_le_lt)
+    then moreover have "l \<le> n" by (rule nat_lt_imp_le)
+    ultimately show "P (succ l)" using conds hyp assms(5) by auto
+  qed
+  }
+  thus "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> P m" using assms by blast
+qed
 
 lemma zero_le [simp]: assumes "n : Nat" shows "0 \<le> n"
   by (induction rule: Nat_induct[OF assms(1)]) (auto intro: le_trans)
+
+
+lemma ne_zero_if_gt: assumes "m : Nat" "n : Nat" "m < n" shows "n \<noteq> 0"
+  by (rule ne_zero_if_zero_lt, intro le_lt_lt[of n 0 m]) auto
 
 lemma succ_lt: "\<lbrakk>n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
@@ -247,7 +286,7 @@ lemma pred_lt_monotoneE:
   using \<open>m: Nat\<close> apply (induction, clarsimp)
   using \<open>n: Nat\<close> by induction auto
 
-lemma nat_succ_lt_imp_lt_pred:
+lemma lt_pred_if_succ_lt:
   assumes "m: Nat" "n: Nat" "succ n < m"
   shows "n < pred m"
 proof (rule succ_lt_monotoneE)
@@ -255,14 +294,77 @@ proof (rule succ_lt_monotoneE)
   with succ_pred show "succ n < succ (pred m)" by auto
 qed discharge_types
 
-lemma nat_lt_pred_imp_succ_lt:
+lemma succ_lt_if_lt_pred:
   "\<lbrakk>m: Nat; n: Nat; n < pred m\<rbrakk> \<Longrightarrow> succ n < m"
   by (auto intro: pred_lt_monotoneE)
+  
+lemma pred_le_mono [intro!]:
+  assumes "m: Nat" "n: Nat" "m \<le> n"
+  shows "pred m \<le> pred n"
+using assms
+proof (induction m rule: Nat_induct)
+  case (induct m)
+  then show ?case unfolding le_def by (auto intro: lt_pred_if_succ_lt)
+qed simp
+
+lemma le_if_lt_succ: "\<lbrakk>m: Nat; n: Nat; m < succ n\<rbrakk> \<Longrightarrow> m \<le> n"
+  unfolding succ_def lt_def le_def by simp
+
+lemma le_pred_if_succ_le [intro!]:
+  assumes "m : Nat" "n : Nat" "succ m \<le> n"
+  shows "m \<le> pred n"
+  by (subst pred_succ[OF \<open>m : Nat\<close>, symmetric], rule pred_le_mono)
+  discharge_types
+
+lemma le_succ_if_le: "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<le> succ n"
+proof (rule le_induct[of m n])
+  assume "n : Nat" "m \<le> n"
+  then show "m : Nat" unfolding le_def using nat_lt_imp_Nat by auto
+next
+  fix l
+  assume "n : Nat" "m \<le> n" "l < n" "l \<le> succ n"
+  with nat_lt_imp_le have "l \<le> n" by simp
+  then show "succ l \<le> succ n" using succ_le_monotone by auto
+qed auto
+
+lemma succ_le_if_lt:
+  assumes "m: Nat" "n: Nat" "m < n"
+  shows "succ m \<le> n"
+proof -
+  have "succ m < succ n" using assms by auto
+  then show ?thesis using le_if_lt_succ assms by auto
+qed
+
+lemma le_pred_if_lt:
+  assumes "m: Nat" "n: Nat" "m < n"
+  shows "m \<le> pred n"
+proof -
+  have "succ m \<le> n" using succ_le_if_lt assms by auto
+  then show ?thesis using le_pred_if_succ_le assms by auto
+qed
+
+lemma pred_lt_if_le_if_ne_zero:
+  assumes "m : Nat" "n : Nat"
+  and "m \<noteq> 0" "m \<le> n"
+  shows "pred m < n"
+  using assms succ_pred succ_lt_monotoneE[where ?m="pred m"]
+  by (cases n rule: Nat_cases) (auto dest: lt_succ_if_le)
+
+lemma pred_lt_if_le_if_zero_lt:
+  assumes "m : Nat" "n : Nat"
+  and "0 < m" "m \<le> n"
+  shows "pred m < n"
+  using assms by (auto intro: pred_lt_if_le_if_ne_zero)
 
 
 section \<open>Ranges\<close>
 
 definition range ("{_.._}") where "{l..u} = {i \<in> \<nat> | l \<le> i \<and> i \<le> u}"
+
+lemma in_rangeI [intro]:
+  assumes "n : Nat" "l \<le> n" "n \<le> u"
+  shows "n \<in> {l..u}"
+  unfolding range_def by auto
 
 lemma succ_eq_range_zero: assumes "n : Nat" shows "succ n = {0..n}"
 proof -
@@ -302,36 +404,6 @@ lemma le_imp_range_zero_subset_ [intro!]:
   "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> {0..m} \<subseteq> {0..n}"
   unfolding range_def le_def by (auto intro: lt_trans)
 
-lemma le_induct:
-  assumes "m: Nat"
-      and "n: Nat"
-      and "m \<le> n"
-      and "P 0"
-      and "\<And>m. m < n \<Longrightarrow> P m \<Longrightarrow> P (succ m)"
-  shows "P m"
-proof (cases n rule: Nat_cases, fact)
-  assume "n = 0"
-  hence "m = 0" using \<open>m \<le> n\<close> by auto
-  thus "P m" using assms by simp
-
-  next {
-  fix m
-  have "m: Nat \<Longrightarrow> (\<And>k. \<lbrakk>k: Nat; n = succ k; m \<le> n\<rbrakk> \<Longrightarrow> P m)"
-  proof (induction m rule: Nat_induct)
-    show "P 0" by fact
-    next
-    fix k l assume
-      "succ l \<le> n" and
-      hyp: "\<And>k. k: Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
-      conds: "k: Nat" "n = succ k"
-    then have "l < n" by (auto intro: lt_succ lt_le_lt)
-    then moreover have "l \<le> n" by (rule nat_lt_imp_le)
-    ultimately show "P (succ l)" using conds hyp assms(5) by auto
-  qed
-  }
-  thus "\<And>k. k: Nat \<Longrightarrow> n = succ k \<Longrightarrow> P m" using assms by blast
-qed
-
 lemma cons_range_zero_FunctionI [intro]:
   assumes "n: Nat"
       and "f : {0..n} \<rightarrow> X"
@@ -358,6 +430,42 @@ proof discharge_types
   show "n: Nat \<Longrightarrow> x: X \<Longrightarrow> f: X \<Rightarrow> X \<Longrightarrow> natrec x f n: X"
   by (induct n rule: Nat_induct) auto
 qed
+
+text \<open>Recursion on Nat with index\<close>
+definition "natrec' n x\<^sub>0 f \<equiv> snd (natrec
+  \<langle>0, x\<^sub>0\<rangle>
+  (\<lambda>p. \<langle>succ (fst p), f (succ (fst p)) (snd p)\<rangle>)
+  n
+)"
+
+(*Note Kevin: TODO: type derivator is not able to handle this automatically yet.*)
+(*Note Kevin: dependent type can be found in Matrix.thy at the moment as it relies
+on things I do not want to put in the Nat library yet.*)
+lemma natrec'_type [type]:
+  "natrec' : Nat \<Rightarrow> Element A \<Rightarrow> (Nat \<Rightarrow> Element A \<Rightarrow> Element A) \<Rightarrow> Element A"
+proof (rule type_intro)+
+  fix x\<^sub>0 f n
+  assume "x\<^sub>0 : Element A" "f : Nat \<Rightarrow> Element A \<Rightarrow> Element A" "n : Nat"
+  have "(\<lambda>p. \<langle>succ (fst p), f (succ (fst p)) (snd p)\<rangle>)
+    : Element (\<nat> \<times> A) \<Rightarrow> Element (\<nat> \<times> A)" using [[type_derivation_depth=4]]
+    by discharge_types
+  then show "natrec' n x\<^sub>0 f : Element A" unfolding natrec'_def using [[type_derivation_depth=4]]
+    by discharge_types
+qed
+
+lemma natrec'_zero [simp]: "natrec' 0 x\<^sub>0 f = x\<^sub>0"
+  unfolding natrec'_def by simp
+
+lemma natrec'_succ [simp]:
+  assumes "n : Nat"
+  shows "natrec' (succ n) x\<^sub>0 f = f (succ n) (natrec' n x\<^sub>0 f)"
+proof -
+  have "\<And> m. m : Nat \<Longrightarrow>
+    fst (natrec \<langle>0, x\<^sub>0\<rangle> (\<lambda>p. \<langle>succ (fst p), f (succ (fst p)) (snd p)\<rangle>) m) = m"
+    by (rule Nat_induct) auto
+  then show ?thesis unfolding natrec'_def by auto
+qed
+
 
 section \<open>Arithmetic\<close>
 
@@ -487,7 +595,7 @@ lemma nat_lt_imp_zero_lt_sub [simp]:
 using assms
 proof (induction m arbitrary: n rule: Nat_induct)
   case (induct m)
-  with nat_succ_lt_imp_lt_pred have "m < pred n" by simp
+  with lt_pred_if_succ_lt have "m < pred n" by simp
   then have "0 < pred n - m" using induct.IH by simp
   then show ?case using nat_pred_sub nat_sub_succ by simp
 qed simp
@@ -662,7 +770,7 @@ lemma "nat_mul_eq_zero":
   shows "m = 0 \<or> n = 0"
 proof (rule ccontr)
   presume "m \<noteq> 0" and "n \<noteq> 0"
-  with nat_ne_zero_imp_gt_zero have "0 < m" and "0 < n" using assms by simp_all
+  with zero_lt_if_ne_zero have "0 < m" and "0 < n" using assms by simp_all
   with nat_zero_lt_mul have "0 < m \<cdot> n" using assms by blast
   with \<open>m \<cdot> n = 0\<close> have "0 < 0" by simp
   then show "False" by simp
@@ -676,7 +784,7 @@ lemma nat_mul_eq_zeroE:
 lemma nat_mul_ne_zero:
   assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 0"
   shows "m \<cdot> n \<noteq> 0"
-  using nat_ne_zero_imp_gt_zero nat_mul_eq_zeroE[of m n] assms by simp
+  using zero_lt_if_ne_zero nat_mul_eq_zeroE[of m n] assms by simp
 
 subsection \<open>More inequalities\<close>
 
@@ -765,7 +873,7 @@ lemma nat_add_lt_imp_lt_sub:
 using \<open>b: Nat\<close> \<open>c: Nat\<close> \<open>a + b < c\<close> proof (induction b arbitrary: c)
   case (induct b)
   from induct.prems have "a + b < pred c"
-    by (auto intro: nat_succ_lt_imp_lt_pred)
+    by (auto intro: lt_pred_if_succ_lt)
   thus "a < c - succ b"
     using induct.IH by (simp add: nat_sub_succ nat_pred_sub[symmetric])
 qed simp
@@ -777,7 +885,7 @@ lemma nat_lt_sub_imp_add_lt:
 using \<open>b: Nat\<close> \<open>c: Nat\<close> \<open>a < c - b\<close> proof (induction b arbitrary: c)
   case (induct b)
   then have "a + b < pred c" by (simp add: nat_sub_succ nat_pred_sub)
-  thus "a + succ b < c" by (auto intro: nat_lt_pred_imp_succ_lt)
+  thus "a + succ b < c" by (auto intro: succ_lt_if_lt_pred)
 qed simp
 
 corollary nat_add_lt_iff_lt_sub:

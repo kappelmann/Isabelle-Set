@@ -69,12 +69,12 @@ definition "int_rep_mul x y \<equiv> Sum_case
 lemma int_rep_zero_add:
   "n \<in> int_rep \<Longrightarrow> int_rep_add (inl 0) n = n"
   unfolding int_rep_def int_rep_add_def
-  by (elim SumE) (auto intro: nat_ne_zero_imp_gt_zero)
+  by (elim SumE) (auto intro: zero_lt_if_ne_zero)
 
 lemma int_rep_add_zero:
   "n \<in> int_rep \<Longrightarrow> int_rep_add n (inl 0) = n"
   unfolding int_rep_def int_rep_add_def
-  by (elim SumE) (auto intro: nat_ne_zero_imp_gt_zero)
+  by (elim SumE) (auto intro: zero_lt_if_ne_zero)
 
 lemma int_rep_add_assoc:
   assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> int_rep"
