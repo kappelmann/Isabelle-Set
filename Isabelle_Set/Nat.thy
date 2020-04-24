@@ -109,6 +109,9 @@ lemma lt_if_succ_lt_succ:
 lemma lt_if_succ_lt: "n : Nat \<Longrightarrow> succ m < n \<Longrightarrow> m < n"
   unfolding lt_def nat_def by (auto intro: omega_succ_mem_monotoneE)
 
+lemma lt_succ_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> m < succ n"
+  unfolding lt_def by simp
+
 lemma lt_trichotomy:
   assumes "m: Nat" "n: Nat"
   obtains (lt) "m < n" | (eq) "m = n" | (gt) "n < m"
@@ -173,6 +176,9 @@ lemma ne_zero_if_zero_lt: "0 < n \<Longrightarrow> n \<noteq> 0"
   by auto
 
 lemma zero_lt_if_ne_zero: assumes "n : Nat" and "n \<noteq> 0" shows "0 < n"
+  using assms by (cases n rule: Nat_cases) auto
+
+lemma nat_ne_zero_imp_gt_zero: assumes "n : Nat" and "n \<noteq> 0" shows "0 < n"
   by (rule lt_trichotomyE[of 0 n]) (auto simp: assms)
 
 corollary nat_gt_zero_iff_ne_zero [iff]:
@@ -269,9 +275,6 @@ lemma ne_zero_if_gt: assumes "m : Nat" "n : Nat" "m < n" shows "n \<noteq> 0"
 lemma succ_lt: "\<lbrakk>n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
   by unfold_types (auto dest: omega_elem_Ord Ord_mem_transitive')
-
-lemma zero_le [simp]: assumes "n : Nat" shows "0 \<le> n"
-  by (induction rule: Nat_induct[OF assms(1)]) (auto intro: le_trans)
 
 lemma succ_le:
   assumes "n: Nat" shows "succ m \<le> n \<Longrightarrow> m < n"
@@ -448,7 +451,6 @@ proof discharge_types
   by (induct n rule: Nat_induct) auto
 qed
 
-<<<<<<< HEAD
 text \<open>Recursion on Nat with index\<close>
 definition "natrec' n x\<^sub>0 f \<equiv> snd (natrec
   \<langle>0, x\<^sub>0\<rangle>
@@ -483,10 +485,9 @@ proof -
     by (rule Nat_induct) auto
   then show ?thesis unfolding natrec'_def by auto
 qed
-=======
-section \<open>Arithmetic\<close>
->>>>>>> (Nat) generalise range with lower bound
 
+
+section \<open>Arithmetic\<close>
 
 section \<open>Arithmetic\<close>
 
