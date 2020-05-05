@@ -2,8 +2,8 @@ theory Typing_Examples
   imports "../Ordered_Pairs"
 begin
 
-lemma "{} : empty \<sqdot> set" unfolding empty_def by unfold_types
-lemma "{a} : non-empty \<sqdot> set" unfolding non_def empty_def by unfold_types auto
+lemma "{}: empty \<sqdot> set" unfolding empty_def by unfold_types
+lemma "{a}: non-empty \<sqdot> set" unfolding non_def empty_def by unfold_types auto
 
 
 declare [[ trace_soft_types ]]
@@ -21,9 +21,9 @@ axiomatization
     and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     where
-      Nil_type[type]: "Nil : (A: set) \<Rightarrow> element (List A)"
-    and List_Cons_type[type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
-    and append[type]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+      Nil_type[type]: "Nil: (A: set) \<Rightarrow> element (List A)"
+    and List_Cons_type[type]: "Cons: (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    and append[type]: "append: (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
 text \<open>
   Currently, these are mostly test cases, as there is no way to insert the inferred pieces into
@@ -57,7 +57,7 @@ ML \<open>
 
 ML \<open>
 
-fun should_throw (P : exn -> bool) (f: unit -> 'a) =
+fun should_throw (P: exn -> bool) (f: unit -> 'a) =
   let
     val res = Exn.capture f ()
     fun check (Exn.Exn exn) = if P exn then () else raise Match
@@ -119,14 +119,14 @@ context
     and VNil :: "set \<Rightarrow> set"
     and VCons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
     and vappend :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes [type]: "Vec : set \<Rightarrow> element nat \<Rightarrow> set"
-    and [type]: "VNil : (A: set) \<Rightarrow> element (Vec A 0)"
-    and [type]: "VCons : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow>
+  assumes [type]: "Vec: set \<Rightarrow> element nat \<Rightarrow> set"
+    and [type]: "VNil: (A: set) \<Rightarrow> element (Vec A 0)"
+    and [type]: "VCons: (A: set) \<Rightarrow> (n: element nat) \<Rightarrow>
           element A \<Rightarrow> element (Vec A n) \<Rightarrow> element (Vec A (Suc n))"
-    and [type]: "add : element nat \<Rightarrow> element nat \<Rightarrow> element nat"
-    and [type]: "Suc : element nat \<Rightarrow> element nat"
-    and [type]: "0 : element nat"
-    and [type]: "vappend : (A: set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
+    and [type]: "add: element nat \<Rightarrow> element nat \<Rightarrow> element nat"
+    and [type]: "Suc: element nat \<Rightarrow> element nat"
+    and [type]: "0: element nat"
+    and [type]: "vappend: (A: set) \<Rightarrow> (n: element nat) \<Rightarrow> (m: element nat) \<Rightarrow>
           element (Vec A n) \<Rightarrow> element (Vec A m) \<Rightarrow> element (Vec A (add n m))"
     and [type_simp]: "add (succ n) m = succ (add n m)"
 begin

@@ -275,17 +275,17 @@ definition bij where
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2) )" 
 
-lemma bij_type_iff []: "f : bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
+lemma bij_type_iff []: "f: bij X Y  \<longleftrightarrow> f \<in> X\<rightarrow>Y \<and> 
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
   using bij_typedef by unfold_types
 
 lemma bij_typeI [intro]: "f \<in> X\<rightarrow>Y \<Longrightarrow>
                         {f`x |x \<in> X} = Y \<Longrightarrow> 
-                        \<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2 \<Longrightarrow> f : bij X Y"
+                        \<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2 \<Longrightarrow> f: bij X Y"
   using bij_type_iff[of f X Y] by blast
 
-lemma bij_typeE:  " f : bij X Y \<Longrightarrow>
+lemma bij_typeE:  " f: bij X Y \<Longrightarrow>
                         f \<in> X \<rightarrow> Y \<and>
                         {f`x |x \<in> X} = Y \<and> 
                         (\<forall> x1 x2. x1\<in> X\<and> x2 \<in> X \<and> f`x1 = f`x2 \<longrightarrow> x1=x2)"
@@ -390,7 +390,7 @@ qed
 theorem CB_Lm_1:
   assumes "mem_transitive U" "ZF_closed U" "AC_axiom"
           "X \<subseteq>  U" "X \<notin> U"
-  shows   "\<exists> b . b : bij {x \<in> U | x:Ord} X"
+  shows   "\<exists> b . b: bij {x \<in> U | x:Ord} X"
 proof-
   let ?Lamb ="{ x \<in> U |  x:Ord}"
   let ?P = "\<lambda> a x f . x \<in> X\<and> (\<forall> b. b \<in> a \<longrightarrow> f b \<noteq> x)"
@@ -574,7 +574,7 @@ proof-
   qed
   let ?T = "\<lambda>x \<in> ?Lamb. ?f x"
    
-  have "?T : bij ?Lamb X"
+  have "?T: bij ?Lamb X"
   proof
     have O1: "{?f x | x \<in> ?Lamb} = X" using C3 C7 extensionality[rule_format, of "{?f x | x \<in> ?Lamb}" X] by auto
     thus T1: "?T \<in> ?Lamb \<rightarrow> X" by auto
@@ -591,21 +591,21 @@ proof-
     show "\<forall>x1 x2. x1 \<in> ?Lamb \<and> x2 \<in> ?Lamb \<and> ?T `x1 = ?T ` x2 \<longrightarrow>
        x1 = x2" using C4 by (auto simp: beta)
   qed
-  thus "\<exists> b . b : bij {x \<in> U | x:Ord} X" by auto
+  thus "\<exists> b . b: bij {x \<in> U | x:Ord} X" by auto
 qed
 
 theorem CB_Th_5:
   assumes "mem_transitive U" "ZF_closed U" "AC_axiom"
       "X \<subseteq>  U" "X \<notin> U"
-  shows "\<exists> b . b : bij X U" 
+  shows "\<exists> b . b: bij X U" 
 proof-
-  have "\<exists> b . b : bij {x \<in> U | x:Ord} X" using CB_Lm_1 assms by auto
+  have "\<exists> b . b: bij {x \<in> U | x:Ord} X" using CB_Lm_1 assms by auto
   then obtain b where
     b:  "b: bij X {x \<in> U | x:Ord}" using bij_inv by blast
   have "U \<subseteq> U" "U \<notin> U" using mem_irrefl by auto
   then obtain c where
     "c: bij {x \<in> U | x:Ord} U " using  CB_Lm_1 assms by blast
-  thus "\<exists> b . b : bij X U" using bij_prod b by auto
+  thus "\<exists> b . b: bij X U" using bij_prod b by auto
 qed
 
 end

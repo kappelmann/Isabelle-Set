@@ -16,9 +16,9 @@ axiomatization
   and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where
-    Nil_type[type implicit: 1]: "Nil : (A: set) \<Rightarrow> element (List A)"
-    and Cons_type[type implicit: 1]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
-    and append_type[type implicit: 1]: "append : (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+    Nil_type[type implicit: 1]: "Nil: (A: set) \<Rightarrow> element (List A)"
+    and Cons_type[type implicit: 1]: "Cons: (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    and append_type[type implicit: 1]: "append: (A: set) \<Rightarrow> element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
 
 declare [[auto_elaborate]]
 

@@ -30,12 +30,12 @@ text \<open>It would be really nice if this worked:\<close>
 
 declare [[auto_elaborate]]
 lemma MonoidI:
-  assumes "M : Zero A"
-          "M : Add A"
+  assumes "M: Zero A"
+          "M: Add A"
           "\<And>x. x \<in> A \<Longrightarrow> 0 + x = x"
           "\<And>x. x \<in> A \<Longrightarrow> x + 0 = x"
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> x + y + z = x + (y + z)"
-  shows "M : Monoid A"
+  shows "M: Monoid A"
   unfolding Monoid_def
   apply unfold_types
   apply auto \<comment>\<open>Doesn't use the assumptions as they weren't elaborated correctly\<close>
@@ -45,14 +45,14 @@ declare [[auto_elaborate=false]]
 
 text \<open>Instead we have to do this for now:\<close>
 
-lemma MonoidI [typeI]:
-  assumes "M : Zero A"
-          "M : Add A"
+lemma MonoidI:
+  assumes "M: Zero A"
+          "M: Add A"
           "\<And>x. x \<in> A \<Longrightarrow> add M (zero M) x = x"
           "\<And>x. x \<in> A \<Longrightarrow> add M x (zero M) = x"
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
             \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
-  shows "M : Monoid A"
+  shows "M: Monoid A"
   unfolding Monoid_def by unfold_types (auto intro: assms)
 
 text \<open>
@@ -62,12 +62,12 @@ text \<open>
 
 lemma
   shows
-    Monoid_Zero [derive]: "M : Monoid A \<Longrightarrow> M : Zero A" and
-    Monoid_Add [derive]: "M : Monoid A \<Longrightarrow> M : Add A"
+    Monoid_Zero [derive]: "M: Monoid A \<Longrightarrow> M: Zero A" and
+    Monoid_Add [derive]: "M: Monoid A \<Longrightarrow> M: Add A"
   and
-    zero_add [simp]: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M (zero M) x = x" and
-    add_zero [simp]: "\<And>x. M : Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M x (zero M) = x" and
-    add_assoc: "\<And>x y z. \<lbrakk>M : Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+    zero_add [simp]: "\<And>x. M: Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M (zero M) x = x" and
+    add_zero [simp]: "\<And>x. M: Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> add M x (zero M) = x" and
+    add_assoc: "\<And>x y z. \<lbrakk>M: Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   unfolding Monoid_def
   subgoal by (drule Int_typeD1, drule Int_typeD1)
@@ -140,24 +140,24 @@ text \<open>
 \<close>
 
 lemma Zero_Pair_type [type]:
-  "Zero_Pair : Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
+  "Zero_Pair: Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
   unfolding Zero_Pair_def
   by unfold_types (auto simp: zero_def)
 
 lemma Add_Pair_type [type]:
-  "Add_Pair : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
+  "Add_Pair: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
   unfolding Add_Pair_def add_def
   by unfold_types fastforce
 
 lemma Monoid_Sum_type [type]:
-  "Monoid_Sum : (A : set) \<Rightarrow> (B : set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
+  "Monoid_Sum: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
 proof (intro typeI)
-  fix A B M1 M2 assume assms1: "M1 : Monoid A" "M2 : Monoid B"
+  fix A B M1 M2 assume assms1: "M1: Monoid A" "M2: Monoid B"
 
-  show "Monoid_Sum A B M1 M2 : Zero (A \<times> B)"
+  show "Monoid_Sum A B M1 M2: Zero (A \<times> B)"
     using assms1 by (intro Zero_typeI) (auto dest!: Monoid_Zero)
 
-  show "Monoid_Sum A B M1 M2 : Add (A \<times> B)"
+  show "Monoid_Sum A B M1 M2: Add (A \<times> B)"
     by (intro Add_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
 
   fix x assume assmx: "x \<in> A \<times> B"
@@ -176,9 +176,9 @@ proof (intro typeI)
 qed
 
 lemma [type_instance]:
-  "M1 : Add A \<Longrightarrow> M2 : Add B \<Longrightarrow> Add_Pair A B M1 M2 : Add (A \<times> B)"
-  "M1 : Zero A \<Longrightarrow> M2 : Zero B \<Longrightarrow> Zero_Pair M1 M2 : Zero (A \<times> B)"
-  "M1 : Monoid A \<Longrightarrow> M2 : Monoid B \<Longrightarrow> Monoid_Sum A B M1 M2 : Monoid (A \<times> B)"
+  "M1: Add A \<Longrightarrow> M2: Add B \<Longrightarrow> Add_Pair A B M1 M2: Add (A \<times> B)"
+  "M1: Zero A \<Longrightarrow> M2: Zero B \<Longrightarrow> Zero_Pair M1 M2: Zero (A \<times> B)"
+  "M1: Monoid A \<Longrightarrow> M2: Monoid B \<Longrightarrow> Monoid_Sum A B M1 M2: Monoid (A \<times> B)"
   by auto
 
 
@@ -217,7 +217,7 @@ definition [typeclass]: "Group A = Monoid A \<bar> Inv A \<bar>
 
 lemma GroupI:
   assumes "G: Monoid A"
-      and (* "\<And>x. x \<in> A \<Longrightarrow> inv G x \<in> A" *) "G : Inv A" (*use this for now*)
+      and (* "\<And>x. x \<in> A \<Longrightarrow> inv G x \<in> A" *) "G: Inv A" (*use this for now*)
       and "\<And>x. x \<in> A \<Longrightarrow> add G x (inv G x) = zero G"
       and "\<And>x. x \<in> A \<Longrightarrow> add G (inv G x) x = zero G"
   shows "G: Group A"
@@ -228,21 +228,21 @@ apply (intro Inv_typeI)
 apply unfold_types using assms(2) unfolding inv_def
 oops
 
-lemma Group_Monoid [derive]:  "G : Group A \<Longrightarrow> G : Monoid A"
+lemma Group_Monoid [derive]:  "G: Group A \<Longrightarrow> G: Monoid A"
   unfolding Group_def by (drule Int_typeD1)+
 
 definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
   type (\<lambda>G. \<forall> a b \<in> A. add G a b = add G b a)"
 
-lemma Comm_GroupI [typeI]:
-  assumes "G : Group A"
+lemma Comm_GroupI:
+  assumes "G: Group A"
           "\<And>x y. \<lbrakk>x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
-  shows "G : Comm_Group A"
+  shows "G: Comm_Group A"
   using assms unfolding Comm_Group_def by unfold_types blast
 
 lemma
-  shows Comm_Group_Group [derive]: "G : Comm_Group A \<Longrightarrow> G : Group A"
-  and add_comm: "\<And>x y. \<lbrakk>G : Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
+  shows Comm_Group_Group [derive]: "G: Comm_Group A \<Longrightarrow> G: Group A"
+  and add_comm: "\<And>x y. \<lbrakk>G: Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
   unfolding Comm_Group_def
   subgoal by (drule Int_typeD1)
   subgoal by (drule Int_typeD2, drule has_typeD) blast
@@ -264,24 +264,24 @@ definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
       (\<forall>x y z \<in> A. mul M (mul M x y) z = mul M x (mul M y z))
   )"
 
-lemma Mul_MonoidI [typeI]:
-  assumes "M : One A"
-          "M : Mul A"
+lemma Mul_MonoidI:
+  assumes "M: One A"
+          "M: Mul A"
           "\<And>x. x \<in> A \<Longrightarrow> mul M (one M) x = x"
           "\<And>x. x \<in> A \<Longrightarrow> mul M x (one M) = x"
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
             \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
-  shows "M : Mul_Monoid A"
+  shows "M: Mul_Monoid A"
   unfolding Mul_Monoid_def by unfold_types (auto intro: assms)
 
 lemma
   shows
-    Mul_Monoid_One [derive]: "M : Mul_Monoid A \<Longrightarrow> M : One A" and
-    Mul_Monoid_Mul [derive]: "M : Mul_Monoid A \<Longrightarrow> M : Mul A"
+    Mul_Monoid_One [derive]: "M: Mul_Monoid A \<Longrightarrow> M: One A" and
+    Mul_Monoid_Mul [derive]: "M: Mul_Monoid A \<Longrightarrow> M: Mul A"
   and
-    one_mul: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M (one M) x = x" and
-    mul_one: "\<And>x. M : Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M x (one M) = x" and
-    mul_assoc: "\<And>x y z. \<lbrakk>M : Mul_Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
+    one_mul: "\<And>x. M: Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M (one M) x = x" and
+    mul_one: "\<And>x. M: Mul_Monoid A \<Longrightarrow> x \<in> A \<Longrightarrow> mul M x (one M) = x" and
+    mul_assoc: "\<And>x y z. \<lbrakk>M: Mul_Monoid A; x \<in> A; y \<in> A; z \<in> A\<rbrakk>
                     \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
   unfolding Mul_Monoid_def
   subgoal by (drule Int_typeD1, drule Int_typeD1)

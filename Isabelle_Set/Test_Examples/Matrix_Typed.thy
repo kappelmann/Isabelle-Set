@@ -19,7 +19,7 @@ definition "matrix A m n \<equiv> {0..<m} \<rightarrow> {0..<n} \<rightarrow> A"
 definition "Matrix_to_matrix m n M \<equiv> \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. M i j"
 
 lemma Matrix_to_matrix_type [type]:
-  "Matrix_to_matrix : (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n \<Rightarrow>
+  "Matrix_to_matrix: (m: Nat) \<Rightarrow> (n: Nat) \<Rightarrow> Matrix A m n \<Rightarrow>
     element (matrix A m n)"
   unfolding matrix_def Matrix_def Matrix_to_matrix_def
   by discharge_types
@@ -27,7 +27,7 @@ lemma Matrix_to_matrix_type [type]:
 definition "matrix_to_Matrix M \<equiv> \<lambda>i j. M `i `j"
 
 lemma matrix_to_Matrix_type [type]:
-  "matrix_to_Matrix : element (matrix A m n) \<Rightarrow> Matrix A m n"
+  "matrix_to_Matrix: element (matrix A m n) \<Rightarrow> Matrix A m n"
   unfolding matrix_to_Matrix_def Matrix_def matrix_def by discharge_types
 
 
@@ -35,7 +35,7 @@ subsection \<open>Addition\<close>
 
 definition "Matrix_add A M N i j = add A (M i j) (N i j)"
 
-lemma Matrix_add_type [type]: "Matrix_add : Add A \<Rightarrow> Matrix A m n \<Rightarrow>
+lemma Matrix_add_type [type]: "Matrix_add: Add A \<Rightarrow> Matrix A m n \<Rightarrow>
   Matrix A m n \<Rightarrow> Matrix A m n"
   unfolding Matrix_def Matrix_add_def by discharge_types
 
@@ -44,12 +44,12 @@ definition "matrix_Add C A m n \<equiv> object {
     (Matrix_add A (matrix_to_Matrix M) (matrix_to_Matrix N))\<rangle>
 }"
 
-lemma assumes "A : Add C" "m : Nat" "n : Nat"
-  shows "matrix_Add C A m n : Add (matrix C m n)"
+lemma assumes "A: Add C" "m: Nat" "n: Nat"
+  shows "matrix_Add C A m n: Add (matrix C m n)"
   unfolding matrix_Add_def by (rule Add_typeI) auto
                                       
 \<comment> \<open>Note Kevin: Now, given "M N \<in> matrix A m n", I could write "M + N" but given
-"M N : Matrix A m n", I could not write "M + N" but need to write
+"M N: Matrix A m n", I could not write "M + N" but need to write
 "matrix_to_Matrix (Matrix_to_matrix m n M + Matrix_to_matrix m n N).\<close>
 
 end

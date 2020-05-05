@@ -16,18 +16,18 @@ definition [typeclass]:
   "Zero A = type (\<lambda>Z. Z @@ zero \<in> A)"
 
 lemma Zero_typeI:
-  "Z @@ zero : element A \<Longrightarrow> Z : Zero A"
+  "Z @@ zero: element A \<Longrightarrow> Z: Zero A"
   unfolding Zero_def by unfold_types
 
 lemma Zero_zero_type [derive]:
-  "Z: Zero A \<Longrightarrow> Z @@ zero : element A"
+  "Z: Zero A \<Longrightarrow> Z @@ zero: element A"
   unfolding Zero_def by unfold_types
 
 definition zero :: "set \<Rightarrow> set"
   where "zero Z = Z @@ zero"
 
 lemma zero_type [type]:
-  "zero : Zero A \<Rightarrow> element A"
+  "zero: Zero A \<Rightarrow> element A"
   unfolding zero_def by auto
 
 abbreviation zero_implicit :: "set"
@@ -42,18 +42,18 @@ definition [typeclass]:
   "One A = type (\<lambda>O. O @@ one \<in> A)"
 
 lemma One_typeI:
-  "O @@ one : element A \<Longrightarrow> O : One A"
+  "O @@ one: element A \<Longrightarrow> O: One A"
   unfolding One_def by unfold_types
 
 lemma One_one_type [derive]:
-  "O: One A \<Longrightarrow> O @@ one : element A"
+  "O: One A \<Longrightarrow> O @@ one: element A"
   unfolding One_def by unfold_types
 
 definition one :: "set \<Rightarrow> set"
   where "one O = O @@ one"
 
 lemma one_type [type]:
-  "one : One A \<Rightarrow> element A"
+  "one: One A \<Rightarrow> element A"
   unfolding one_def by auto
 
 abbreviation one_implicit :: "set" ("1")
@@ -73,18 +73,18 @@ definition [typeclass]:
 ML \<open>Type_Classes.get_type_classes @{context}\<close>
 
 lemma Add_typeI:
-  "P @@ add : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> P : Add A"
+  "P @@ add: element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> P: Add A"
   unfolding Add_def by unfold_types
 
 lemma Add_add_type [derive]:
-  "P: Add A \<Longrightarrow> P @@ add : element (A \<rightarrow> A \<rightarrow> A)"
+  "P: Add A \<Longrightarrow> P @@ add: element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Add_def by unfold_types
 
 definition add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "add P = (\<lambda>x y. P @@ add `x `y)"
 
 lemma add_type [type]:
-  "add : Add A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  "add: Add A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding add_def by unfold_types
 
 abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -105,18 +105,18 @@ definition [typeclass]:
   "Mul A \<equiv> type (\<lambda>T. T @@ mul \<in> A \<rightarrow> A \<rightarrow> A)"
 
 lemma Mul_typeI:
-  "T @@ mul : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> T : Mul A"
+  "T @@ mul: element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> T: Mul A"
   unfolding Mul_def by unfold_types
 
 lemma Mul_mul_type [derive]:
-  "T: Mul A \<Longrightarrow> T @@ mul : element (A \<rightarrow> A \<rightarrow> A)"
+  "T: Mul A \<Longrightarrow> T @@ mul: element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Mul_def by unfold_types
 
 definition mul :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "mul T = (\<lambda>x y. T @@ mul `x `y)"
 
 lemma mul_type [type]:
-  "mul : Mul A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+  "mul: Mul A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding mul_def by unfold_types
 
 abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -135,7 +135,7 @@ definition [typeclass]:
   "Inv A \<equiv> type (\<lambda>I. I @@ inv \<in> A \<rightarrow> A)"
 
 lemma Inv_typeI:
-  "I @@ inv : element (A \<rightarrow> A) \<Longrightarrow> I: Inv A"
+  "I @@ inv: element (A \<rightarrow> A) \<Longrightarrow> I: Inv A"
   unfolding Inv_def by unfold_types
 
 lemma Inv_inv_type [derive]:

@@ -25,8 +25,8 @@ text \<open>
 
   we construct a set \<open>B'\<close>, such that
   \<^item> \<open>A \<subseteq> B'\<close>
-  \<^item> There are functions \<open>Rep : element B' \<Rightarrow> element B\<close> and
-    \<open>Abs : element B \<Rightarrow> element B'\<close> that are inverses of each other. In other
+  \<^item> There are functions \<open>Rep: element B' \<Rightarrow> element B\<close> and
+    \<open>Abs: element B \<Rightarrow> element B'\<close> that are inverses of each other. In other
     words, there is a bijection between \<open>B\<close> and \<open>B'\<close>.
 
   While the underlying construction involves case distinctions, this is hidden
@@ -41,7 +41,7 @@ fixes
   A B :: set
   and f :: "set \<Rightarrow> set"
 assumes
- f_type: "f : element A \<Rightarrow> element B"
+ f_type: "f: element A \<Rightarrow> element B"
  and f_injective: "\<forall>x\<in>A. \<forall>y\<in>A. f x = f y \<longrightarrow> x = y"
 begin
 
@@ -54,27 +54,27 @@ definition Rep :: "set \<Rightarrow> set"
 definition Abs :: "set \<Rightarrow> set"
   where "Abs x = (if (\<exists>z\<in>A. f z = x) then (THE z. z\<in>A \<and> f z = x) else \<langle>A, x\<rangle>)"
 
-lemma Rep_type [type]: "Rep : element def \<Rightarrow> element B"
+lemma Rep_type [type]: "Rep: element def \<Rightarrow> element B"
 proof (rule Pi_typeI)
-  fix y assume "y : element def"
-  show "Rep y : element B"
+  fix y assume "y: element def"
+  show "Rep y: element B"
   proof (cases "y \<in> A")
     case True
     then have "Rep y = f y" unfolding Rep_def by simp
     with f_type True show ?thesis by unfold_types
   next
     case False
-    with `y : element def` obtain x where "x \<in> B" "y = \<langle>A, x\<rangle>"
+    with `y: element def` obtain x where "x \<in> B" "y = \<langle>A, x\<rangle>"
       unfolding def_def by unfold_types auto
     then have "Rep y = x" unfolding Rep_def using False by simp
     with `x \<in> B` show ?thesis by unfold_types
   qed
 qed
 
-lemma Abs_type [type]: "Abs : element B \<Rightarrow> element def"
+lemma Abs_type [type]: "Abs: element B \<Rightarrow> element def"
 proof (rule Pi_typeI)
-  fix x assume "x : element B"
-  show "Abs x : element def"
+  fix x assume "x: element B"
+  show "Abs x: element def"
   proof (cases "\<exists>z\<in>A. f z = x")
     case True then obtain z where z: "z \<in> A \<and> f z = x" by auto
     with f_injective
@@ -86,14 +86,14 @@ proof (rule Pi_typeI)
     then show ?thesis by unfold_types
   next
     case False
-    with `x : element B` 
+    with `x: element B` 
     have "x \<in> B \<setminus> repl A f" by unfold_types auto
     then show ?thesis unfolding def_def Abs_def by unfold_types auto
   qed
 qed    
 
 lemma Rep_inverse [simp]:
-  assumes "x : element def"
+  assumes "x: element def"
   shows "Abs (Rep x) = x"
 proof (cases "x \<in> A")
   case True
@@ -118,7 +118,7 @@ next
 qed
 
 lemma Abs_inverse [simp]:
-  assumes "x : element B"
+  assumes "x: element B"
   shows "Rep (Abs x) = x"
 proof (cases "\<exists>z\<in>A. f z = x")
   case True then obtain z where z: "z \<in> A \<and> f z = x" by auto

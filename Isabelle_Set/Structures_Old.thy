@@ -12,12 +12,12 @@ subsection \<open>Various basic structure templates\<close>
 text \<open>Structures with a distinguished element.\<close>
 
 object Pointed "name::set" "A::set"
-  is "\<lparr> (base name). base : element A \<rparr>"
+  is "\<lparr> (base name). base: element A \<rparr>"
 
 text \<open>Structures with binary operation.\<close>
 
 object Binop_Equipped "name::set" "A::set"
-  is "\<lparr> (op name). op : element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
+  is "\<lparr> (op name). op: element (A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 declare Pointed_def [typedef] Binop_Equipped_def [typedef]
 
@@ -28,17 +28,17 @@ definition Plus :: "set \<Rightarrow> set type"
   where [typeclass]: "Plus A \<equiv> Binop_Equipped @plus A"
 
 lemma Plus_typeI:
-  "struct[@plus] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Plus A"
+  "struct[@plus]: element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct: Plus A"
   unfolding Plus_def Binop_Equipped_def by unfold_types (simp add: object_simps)
 
 lemma Plus_plus_type [derive]:
-  "struct: Plus A \<Longrightarrow> struct[@plus] : element (A \<rightarrow> A \<rightarrow> A)"
+  "struct: Plus A \<Longrightarrow> struct[@plus]: element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Plus_def Binop_Equipped_def by unfold_types (simp add: object_simps)
 
 definition plus :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "plus p = (\<lambda>x y. p[@plus] `x `y)"
 
-lemma plus_type [type]: "plus : Plus A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+lemma plus_type [type]: "plus: Plus A \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   sorry
 
 abbreviation plus_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "+" 65)
@@ -51,17 +51,17 @@ definition Times :: "set \<Rightarrow> set type"
   where [typeclass]: "Times A \<equiv> Binop_Equipped @times A"
 
 lemma Times_typeI:
-  "struct[@times] : element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct : Times A"
+  "struct[@times]: element (A \<rightarrow> A \<rightarrow> A) \<Longrightarrow> struct: Times A"
   unfolding Times_def Binop_Equipped_def by unfold_types (simp add: object_simps)
 
 lemma Times_times_type [derive]:
-  "struct: Times A \<Longrightarrow> struct[@times] : element (A \<rightarrow> A \<rightarrow> A)"
+  "struct: Times A \<Longrightarrow> struct[@times]: element (A \<rightarrow> A \<rightarrow> A)"
   unfolding Times_def Binop_Equipped_def by unfold_types (simp add: object_simps)
 
 definition times :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "times p = (\<lambda>x y. p[@times] `x `y)"
 
-lemma times_type [type]: "times : (P : Times A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
+lemma times_type [type]: "times: (P: Times A) \<Rightarrow> element A \<Rightarrow> element A \<Rightarrow> element A"
   unfolding times_def oops
 
 abbreviation times_implicit :: "set \<Rightarrow> set \<Rightarrow> set" (infixl "\<cdot>" 65)
@@ -75,16 +75,16 @@ text \<open>Just structures with distinguished elements of their carriers.\<clos
 definition Zero :: \<open>set \<Rightarrow> set type\<close>
   where [typeclass]: "Zero A = Pointed @zero A"
 
-lemma Zero_typeI: "struct[@zero] : element A \<Longrightarrow> struct : Zero A"
+lemma Zero_typeI: "struct[@zero]: element A \<Longrightarrow> struct: Zero A"
   unfolding Zero_def Pointed_def by unfold_types (simp add: object_simps)
 
-lemma Zero_zero_type [derive]: "struct: Zero A \<Longrightarrow> struct[@zero] : element A"
+lemma Zero_zero_type [derive]: "struct: Zero A \<Longrightarrow> struct[@zero]: element A"
   unfolding Zero_def Pointed_def by unfold_types (simp add: object_simps)
 
 definition zero :: "set \<Rightarrow> set"
   where "zero struct = struct[@zero]"
 
-lemma zero_type [type]: "zero : (struct : Zero A) \<Rightarrow> element A"
+lemma zero_type [type]: "zero: (struct: Zero A) \<Rightarrow> element A"
   unfolding zero_def by discharge_types
 
 abbreviation zero_implicit :: "set" ("0")
@@ -94,16 +94,16 @@ abbreviation zero_implicit :: "set" ("0")
 definition One :: \<open>set \<Rightarrow> set type\<close>
   where [typeclass]: "One A = Pointed @one A"
 
-lemma One_typeI: "struct[@one] : element A \<Longrightarrow> struct : One A"
+lemma One_typeI: "struct[@one]: element A \<Longrightarrow> struct: One A"
   unfolding One_def Pointed_def by unfold_types (simp add: object_simps)
 
-lemma One_one_type [derive]: "struct: One A \<Longrightarrow> struct[@one] : element A"
+lemma One_one_type [derive]: "struct: One A \<Longrightarrow> struct[@one]: element A"
   unfolding One_def Pointed_def by unfold_types (simp add: object_simps)
 
 definition one :: "set \<Rightarrow> set"
   where "one struct = struct[@one]"
 
-lemma one_type [type]: "one : (struct : One A) \<Rightarrow> element A"
+lemma one_type [type]: "one: (struct: One A) \<Rightarrow> element A"
   unfolding one_def by discharge_types
 
 abbreviation one_implicit :: "set" ("1")

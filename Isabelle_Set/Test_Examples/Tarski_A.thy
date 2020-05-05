@@ -30,7 +30,7 @@ proof(intro impI allI)
       thus "Y \<in> univ N" using A by auto
     qed
     show "\<forall>X. X \<in> univ N \<longrightarrow> powerset X \<in> univ N"  using ZF_closed_def univ_ZF_closed by auto
-    show "\<forall>X. X \<subseteq> univ N \<longrightarrow> (\<exists>b. b : bij X (univ N)) \<or> X \<in> univ N" using  
+    show "\<forall>X. X \<subseteq> univ N \<longrightarrow> (\<exists>b. b: bij X (univ N)) \<or> X \<in> univ N" using  
       Axioms.univ_transitive univ_ZF_closed CB_Th_5 AC by auto
   qed
 qed

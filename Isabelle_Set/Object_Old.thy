@@ -135,8 +135,8 @@ translations
 subsection \<open>Rules\<close>
 
 lemma object_iffs [simp]:
-  "M : type (composer A P) \<longleftrightarrow> M : type (P (M[A]))"
-  "M : type (K Q) \<longleftrightarrow> Q"
+  "M: type (composer A P) \<longleftrightarrow> M: type (P (M[A]))"
+  "M: type (K Q) \<longleftrightarrow> Q"
   by unfold_types (auto simp: selector_def composer_def)
 
 lemmas object_simps =

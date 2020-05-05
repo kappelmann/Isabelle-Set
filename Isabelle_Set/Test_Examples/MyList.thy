@@ -22,8 +22,8 @@ definition List where
   "List A = lfp (univ A) (\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L})"
 
 lemma
-  Nil_univ[derive]: "Nil : element (univ A)" and
-  Cons_univ[derive]: "x : element (univ A) \<Longrightarrow> xs : element (univ A) \<Longrightarrow> Cons x xs : element (univ A)"
+  Nil_univ[derive]: "Nil: element (univ A)" and
+  Cons_univ[derive]: "x: element (univ A) \<Longrightarrow> xs: element (univ A) \<Longrightarrow> Cons x xs: element (univ A)"
   unfolding Nil_def Cons_def
   by discharge_types
 
@@ -33,7 +33,7 @@ lemma List_distinct[simp]: "Nil \<noteq> Cons x xs"
 lemma Cons_inject[simp]: "Cons x xs = Cons y ys \<longleftrightarrow> (x = y \<and> xs = ys)"
   unfolding Cons_def by simp
 
-lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}) : monop (univ A)"
+lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangle> \<in> A \<times> L}): monop (univ A)"
   apply (unfold split_def)
   apply (rule monop_unionI)
    apply discharge_types[1]
@@ -48,19 +48,19 @@ lemma List_mono: "(\<lambda>L. {Nil} \<union> {Cons x xs | \<langle>x, xs\<rangl
 
 lemmas List_unfold = def_lfp_unfold[OF any_typeI List_mono List_def]
 
-lemma Nil_type [type]: "Nil : element (List A)"
+lemma Nil_type [type]: "Nil: element (List A)"
   by (subst List_unfold) (unfold_types, auto)
 
-lemma Cons_type [type]: "Cons : element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+lemma Cons_type [type]: "Cons: element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
   by (subst (2) List_unfold) (unfold_types, auto)
 
-lemma List_type [type]: "List : set \<Rightarrow> set"
+lemma List_type [type]: "List: set \<Rightarrow> set"
   by discharge_types
 
 lemma List_induct:
-  assumes xs_type: "xs : element (List A)"
+  assumes xs_type: "xs: element (List A)"
   assumes Nil: "P Nil"
-  assumes Cons: "\<And>x xs. x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> P xs \<Longrightarrow> P (Cons x xs)"
+  assumes Cons: "\<And>x xs. x: element A \<Longrightarrow> xs: element (List A) \<Longrightarrow> P xs \<Longrightarrow> P (Cons x xs)"
   shows "P xs"
 proof (rule def_lfp_induct[OF any_typeI List_mono List_def, of xs A P])
   from xs_type show "xs \<in> List A" by unfold_types
@@ -74,18 +74,18 @@ axiomatization
   List_rec :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
   where
   List_rec_Nil: "List_rec N C Nil = N" and
-  List_rec_Cons: "x : element A \<Longrightarrow> xs : element (List A) \<Longrightarrow> 
+  List_rec_Cons: "x: element A \<Longrightarrow> xs: element (List A) \<Longrightarrow> 
     List_rec N C (Cons x xs) = C x xs (List_rec N C xs)"
 
 setup \<open>soft_type_simp_solver\<close>
 
 lemma List_rec_type[type]:
-  "List_rec : R \<Rightarrow> (element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R) \<Rightarrow> element (List A) \<Rightarrow> R"
+  "List_rec: R \<Rightarrow> (element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R) \<Rightarrow> element (List A) \<Rightarrow> R"
 proof (intro Pi_typeI)
   fix N C xs
-  assume [type]: "N : R" "C : element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R" "xs : element (List A)"
+  assume [type]: "N: R" "C: element A \<Rightarrow> element (List A) \<Rightarrow> R \<Rightarrow> R" "xs: element (List A)"
 
-  show "List_rec N C xs : R"
+  show "List_rec N C xs: R"
     by (induct xs rule: List_induct, auto simp: List_rec_Nil List_rec_Cons) discharge_types
 qed
 
@@ -95,7 +95,7 @@ subsection \<open>Append\<close>
 definition append where
   "append xs ys = List_rec ys (\<lambda>x xs xsys. Cons x xsys) xs"
 
-lemma append_type[type]: "append : element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
+lemma append_type[type]: "append: element (List A) \<Rightarrow> element (List A) \<Rightarrow> element (List A)"
   unfolding append_def by discharge_types
 
 declare [[auto_elaborate, trace_soft_types]]
@@ -129,7 +129,7 @@ declare [[auto_elaborate = false]]
 definition
   "rev = List_rec Nil (\<lambda>x xs rxs. append rxs (Cons x Nil))"
 
-lemma rev_type[type]: "rev : element (List A) \<Rightarrow> element (List A)"
+lemma rev_type[type]: "rev: element (List A) \<Rightarrow> element (List A)"
   unfolding rev_def by discharge_types
 
 declare [[auto_elaborate]]

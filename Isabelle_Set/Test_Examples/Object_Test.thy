@@ -9,8 +9,8 @@ object function "A::set" "B::set"
 term "function A B"
 
 object magma is "\<lparr> (A @carrier) (op @op).
-  A : non-empty\<sqdot>set
-  \<and> op : element(A \<rightarrow> A \<rightarrow> A) \<rparr>"
+  A: non-empty\<sqdot>set
+  \<and> op: element(A \<rightarrow> A \<rightarrow> A) \<rparr>"
 
 thm magma_typedef
 
@@ -37,7 +37,7 @@ definition "Z2 \<equiv> \<lparr>
   @neut = 0
 \<rparr>"
 
-lemma "Z2 : monoid"
+lemma "Z2: monoid"
 unfolding monoid_typedef adjective_def
   oops
 

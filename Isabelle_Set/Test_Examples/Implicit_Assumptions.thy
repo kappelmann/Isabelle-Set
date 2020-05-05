@@ -18,8 +18,8 @@ axiomatization
   List :: "set \<Rightarrow> set"
     and Nil :: "set \<Rightarrow> set"
     and Cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-    where Nil_type[type]: "Nil : (A: set) \<Rightarrow> element (List A)"
-    and List_Cons_type[type]: "Cons : (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
+    where Nil_type[type]: "Nil: (A: set) \<Rightarrow> element (List A)"
+    and List_Cons_type[type]: "Cons: (A: set) \<Rightarrow> element A \<Rightarrow> element (List A) \<Rightarrow> element (List A)" 
 
 
 subsection \<open>Top-level lemma statements\<close>

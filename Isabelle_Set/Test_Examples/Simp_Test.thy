@@ -11,17 +11,17 @@ notepad
 begin
 
   fix A
-  have "A : set" by simp
+  have "A: set" by simp
 
 next
 
   fix x f A B
   assume [type]:
-    "x : element A"
-    "f : element A \<Rightarrow> element B"
+    "x: element A"
+    "f: element A \<Rightarrow> element B"
 
-  have "x : element A" by simp
-  have "f x : element B" by simp
+  have "x: element A" by simp
+  have "f x: element B" by simp
 
 end
 

@@ -27,7 +27,7 @@ abbreviation comp ("comp\<^bsub>_, _, _, _\<^esub>")
 
 definition [typeclass]: "Category' U \<equiv>
   type (\<lambda>\<C>.
-    obj \<C> : non-empty \<sqdot> subset U \<and>
+    obj \<C>: non-empty \<sqdot> subset U \<and>
 
     \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
 
@@ -52,9 +52,9 @@ text \<open>
   automatically generated.
 \<close>
 
-lemma Category'I [typeI]:
+lemma Category'I:
   assumes
-    "obj \<C> : non-empty \<sqdot> subset U"
+    "obj \<C>: non-empty \<sqdot> subset U"
 
     "\<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
 
@@ -74,30 +74,30 @@ lemma Category'I [typeI]:
       \<Longrightarrow> comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
             comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
   shows
-    "\<C> : Category' U"
+    "\<C>: Category' U"
   unfolding Category'_def by (fast intro: has_typeI assms)
 
 lemma Category'D:
   shows
-    "\<C> : Category' U \<Longrightarrow> obj \<C> : non-empty \<sqdot> subset U"
+    "\<C>: Category' U \<Longrightarrow> obj \<C>: non-empty \<sqdot> subset U"
   and
-    "\<C> : Category' U \<Longrightarrow> \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
+    "\<C>: Category' U \<Longrightarrow> \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
   and
-    "\<C> : Category' U \<Longrightarrow>
+    "\<C>: Category' U \<Longrightarrow>
       \<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C)"
   and
-    "\<C> : Category' U \<Longrightarrow> \<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A)"
+    "\<C>: Category' U \<Longrightarrow> \<C> @@ id \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> A A)"
   and
-    "\<C> : Category' U \<Longrightarrow> \<forall>A B \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B.
+    "\<C>: Category' U \<Longrightarrow> \<forall>A B \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B.
       (comp\<^bsub>\<C>,A,B,B\<^esub> (id\<^bsub>\<C>\<^esub> B) f = f) \<and> (comp\<^bsub>\<C>,A,A,B\<^esub> f (id\<^bsub>\<C>\<^esub> A) = f)"
   and
-    "\<C> : Category' U \<Longrightarrow>
+    "\<C>: Category' U \<Longrightarrow>
       \<forall>A B C D \<in> obj \<C>. \<forall>f \<in> hom\<^bsub>\<C>\<^esub> A B. \<forall>g \<in> hom\<^bsub>\<C>\<^esub> B C. \<forall>h \<in> hom\<^bsub>\<C>\<^esub> C D.
         comp\<^bsub>\<C>,A,B,D\<^esub> (comp\<^bsub>\<C>,B,C,D\<^esub> h g) f =
           comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
   unfolding Category'_def by (drule_tac [1-6] has_typeD) fast+
 
-lemmas CategoryI [typeI] = Category'I[where ?U=V, folded Category_def]
+lemmas CategoryI = Category'I[where ?U=V, folded Category_def]
 lemmas CategoryD = Category'D[where ?U=V, folded Category_def]
 
 
@@ -147,7 +147,7 @@ lemma [simp]:
   unfolding Set_cat_def by auto
 
 \<comment> \<open>TODO Kevin: How come id_type needs to be inserted here?\<close>
-lemma Set_cat_type [type]: "\<S>et : Category"
+lemma Set_cat_type [type]: "\<S>et: Category"
   by (rule typeI, insert id_type, unfold_types) auto
 
 
@@ -176,8 +176,8 @@ definition "Functor \<C> \<D> \<equiv>
 
 definition "Nat_Trans \<C> \<D> \<F> \<G> \<equiv>
   type (\<lambda>\<eta>.
-    \<F> : Functor \<C> \<D> \<and>
-    \<G> : Functor \<C> \<D> \<and>
+    \<F>: Functor \<C> \<D> \<and>
+    \<G>: Functor \<C> \<D> \<and>
 
     \<eta> \<in> \<Prod>A\<in> obj \<C>. (hom\<^bsub>\<D>\<^esub> (\<F>\<^bsub>obj\<^esub>A) (\<G>\<^bsub>obj\<^esub>A)) \<and>
 
@@ -224,13 +224,13 @@ lemma Product_Cat_fields [simp]:
 
 lemma Product_Cat_type [derive]:
   assumes
-    "\<C> : Category' (univ U)"
-    "\<D> : Category' (univ U)"
+    "\<C>: Category' (univ U)"
+    "\<D>: Category' (univ U)"
   shows
-    "Product_Cat \<C> \<D> : Category' (univ U)"
+    "Product_Cat \<C> \<D>: Category' (univ U)"
 proof (rule typeI, simp_all only: Product_Cat_fields)
   show
-    "Product_Cat_obj \<C> \<D> : non-empty \<sqdot> subset (univ U)"
+    "Product_Cat_obj \<C> \<D>: non-empty \<sqdot> subset (univ U)"
     using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
     by (auto simp: Product_Cat_obj_def)
   

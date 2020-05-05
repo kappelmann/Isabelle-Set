@@ -19,36 +19,36 @@ lemma OrdI:
 
 text \<open>Basic properties of ordinals:\<close>
 
-lemma Ord_mem_closed [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
+lemma Ord_mem_closed [elim]: "x: Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y: Ord"
   by unfold_types (fastforce simp: mem_transitive_def)
 
 lemma Ord_mem_transitive: "x: Ord \<Longrightarrow> mem_transitive x"
   by unfold_types
 
-lemma Ord_mem_transitive' [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
+lemma Ord_mem_transitive' [elim]: "x: Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
   by unfold_types (fastforce simp: mem_transitive_def)
 
-lemma [derive]: "x: Ord \<Longrightarrow> y: element x \<Longrightarrow> y: subset x"
+lemma [derive]: "x: Ord \<Longrightarrow> y: Element x \<Longrightarrow> y: Subset x"
   by (fold element_type_iff subset_type_iff) (fact Ord_mem_transitive')
 
 (*Adapted from a proof by Chad Brown*)
 lemma Ord_trichotomy_aux:
-  "X : Ord \<Longrightarrow> Y : Ord \<Longrightarrow> X \<notin> Y \<Longrightarrow> Y \<notin> X \<Longrightarrow> X = Y"
+  "X: Ord \<Longrightarrow> Y: Ord \<Longrightarrow> X \<notin> Y \<Longrightarrow> Y \<notin> X \<Longrightarrow> X = Y"
 proof (induction X Y rule: mem_double_induct)
   fix X Y
   assume
-    ord: "X : Ord" "Y : Ord" and
-    IH1: "\<And>x. x \<in> X \<Longrightarrow> x : Ord \<Longrightarrow> Y : Ord \<Longrightarrow> x \<notin> Y \<Longrightarrow> Y \<notin> x \<Longrightarrow> x = Y" and
-    IH2: "\<And>y. y \<in> Y \<Longrightarrow> X : Ord \<Longrightarrow> y : Ord \<Longrightarrow> X \<notin> y \<Longrightarrow> y \<notin> X \<Longrightarrow> X = y" and
+    ord: "X: Ord" "Y: Ord" and
+    IH1: "\<And>x. x \<in> X \<Longrightarrow> x: Ord \<Longrightarrow> Y: Ord \<Longrightarrow> x \<notin> Y \<Longrightarrow> Y \<notin> x \<Longrightarrow> x = Y" and
+    IH2: "\<And>y. y \<in> Y \<Longrightarrow> X: Ord \<Longrightarrow> y: Ord \<Longrightarrow> X \<notin> y \<Longrightarrow> y \<notin> X \<Longrightarrow> X = y" and
     *: "X \<notin> Y" "Y \<notin> X"
   show "X = Y"
   proof (rule equalityI)
     fix x assume "x \<in> X"
-    with ord have "x \<subseteq> X" "x : Ord" by (auto elim!: Ord_mem_transitive')
+    with ord have "x \<subseteq> X" "x: Ord" by (auto elim!: Ord_mem_transitive')
     with * ord IH1 \<open>x \<in> X\<close> show "x \<in> Y" by blast
   next
     fix y assume "y \<in> Y"
-    with ord have "y \<subseteq> Y" "y : Ord" by (auto elim!: Ord_mem_transitive')
+    with ord have "y \<subseteq> Y" "y: Ord" by (auto elim!: Ord_mem_transitive')
     with * ord IH2 \<open>y \<in> Y\<close> show "y \<in> X" by blast
   qed
 qed
@@ -56,7 +56,7 @@ qed
 lemma Ord_trichotomy: "\<lbrakk>X: Ord; Y: Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
   using Ord_trichotomy_aux by auto
 
-lemma emptyset_Ord [type]: "{} : Ord"
+lemma emptyset_Ord [type]: "{}: Ord"
   by unfold_types auto
 
 
@@ -64,7 +64,7 @@ section \<open>Successor ordinals\<close>
 
 definition succ where "succ x \<equiv> x \<union> {x}"
 
-lemma succ_Ord [derive]: "x : Ord \<Longrightarrow> succ x : Ord"
+lemma succ_Ord [derive]: "x: Ord \<Longrightarrow> succ x: Ord"
   unfolding succ_def by unfold_types (fastforce simp: mem_transitive_def)
 
 text \<open>Simp rules\<close>
@@ -116,7 +116,7 @@ lemma [derive]: "x: element (succ x)"
 lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
   unfolding succ_def by auto
 
-lemma [derive]: "x : element y \<Longrightarrow> x : element (succ y)"
+lemma [derive]: "x: element y \<Longrightarrow> x: element (succ y)"
   by unfold_types auto
 
 lemma succ_mem_not_eq [simp]:
@@ -137,7 +137,7 @@ lemma succ_cases [elim]:
 lemma univ_succ_closed [intro]: "x \<in> univ X \<Longrightarrow> succ x \<in> univ X"
   unfolding succ_def by auto
 
-lemma [derive]: "x : element (univ X) \<Longrightarrow> succ x : element (univ X)"
+lemma [derive]: "x: element (univ X) \<Longrightarrow> succ x: element (univ X)"
   by unfold_types auto
 
 
@@ -145,7 +145,7 @@ section \<open>\<omega>, the smallest infinite ordinal\<close>
 
 definition "omega_op X = {{}} \<union> repl X succ"
 
-lemma omega_op_monop: "omega_op : monop V"
+lemma omega_op_monop: "omega_op: monop V"
   unfolding omega_op_def by (fast intro: monopI)
 
 definition omega ("\<omega>")

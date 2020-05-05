@@ -20,16 +20,12 @@ begin
 declare [[eta_contract=false]]
 
 
-section \<open>Basic type setup\<close>
+section \<open>Basic type judgments\<close>
 
 text \<open>
 Soft types are "just" predicates wrapped up in a constructor. Adjectives are
 predicates that modify soft types.
 \<close>
-
-(*Josh: I think adjectives should really have their own constructor, and
-  be registered similarly to types, so that we can treat them in a more
-  structured way, e.g. in the derivator. FUTURE WORK!*)
 
 typedecl 'a type
 
@@ -63,11 +59,6 @@ lemma has_adjE:
   "\<lbrakk>x: P \<sqdot> T; \<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   unfolding meaning_of_adj by auto
 
-text \<open>The "non-" modifier gives the negation of a predicate.\<close>
-
-definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
-  where "non-P \<equiv> \<lambda>x. \<not> P x"
-
 
 section \<open>Bounded quantifiers\<close>
 
@@ -100,43 +91,20 @@ lemma sbexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; P x\
   unfolding sbex_def by auto
 
 
-section \<open>Soft type methods I\<close>
+section \<open>Low-level soft type methods\<close>
+
+(*FUTURE: Dedicated keyword setup for soft type declarations should go here*)
 
 text \<open>Unfold all type information to work only in the underlying theory:\<close>
 
 named_theorems typedef \<comment>\<open>soft type definitions\<close>
-named_theorems typeI   \<comment>\<open>soft type introduction rules\<close>
+named_theorems type_intro \<comment>\<open>soft type introduction rules\<close>
+  (*FUTURE: This should be kept for typechecking, so only introduction rules
+    whose premises and conclusion are type judgments should be declared*)
 
 method unfold_types =
-  ((intro typeI)?,
-  simp_all only: typedef meaning_of_type meaning_of_adj sball_def sbex_def)
-
-
-section \<open>Intersection types\<close>
-
-definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
-  where "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
-
-lemma
-  Int_typeI [typeI]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
-  Int_typeD1: "x : A \<bar> B \<Longrightarrow> x : A" and
-  Int_typeD2: "x : A \<bar> B \<Longrightarrow> x : B" and
-  Int_typeE: "\<lbrakk>x: A \<bar> B; \<lbrakk>x: A; x : B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
-  unfolding Int_type_def by unfold_types
-
-
-section \<open>The "Any" type\<close>
-
-text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
-
-definition Any_type :: "'a type" ("Any")
-  where [typedef]: "Any \<equiv> type (\<lambda>_. True)"
-
-lemma Any_typeI: "x : Any"
-  by unfold_types
-
-abbreviation Bool_type :: "bool type" ("Bool")
-  where "Bool \<equiv> Any"
+  (rule type_intro
+  |simp_all only: typedef meaning_of_type meaning_of_adj sball_def sbex_def)+
 
 
 section \<open>Pi types\<close>
@@ -156,13 +124,40 @@ translations
   "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
   "A \<Rightarrow> B" \<rightleftharpoons> "CONST Nondep_Pi_type A B"
 
-lemma Pi_typeI [typeI]:
+lemma Pi_typeI [type_intro]:
   "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
   unfolding Pi_type_def meaning_of_type by auto
 
 lemma Pi_typeE:
   "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
   unfolding Pi_type_def meaning_of_type by auto
+
+
+section \<open>Intersection types\<close>
+
+definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
+  where [typedef]: "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
+
+lemma
+  Int_typeI [type_intro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
+  Int_typeD1: "x : A \<bar> B \<Longrightarrow> x : A" and
+  Int_typeD2: "x : A \<bar> B \<Longrightarrow> x : B" and
+  Int_typeE: "\<lbrakk>x: A \<bar> B; \<lbrakk>x: A; x : B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  unfolding Int_type_def by unfold_types
+
+
+section \<open>The Any type\<close>
+
+text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
+
+definition Any_type :: "'a type" ("Any")
+  where [typedef]: "Any \<equiv> type (\<lambda>_. True)"
+
+lemma Any_typeI [type_intro]: "x : Any"
+  by unfold_types
+
+abbreviation Bool_type :: "bool type" ("Bool")
+  where "Bool \<equiv> Any"
 
 
 section \<open>Type annotations\<close>
@@ -192,7 +187,7 @@ named_theorems backderivation_rules
 text \<open>
 @{thm derivation_rules}, @{thm backderivation_rules} \<open>(*and @{thm subtype_rules}*)\<close>
 should only be inspected and not assigned to directly; use the \<open>derive\<close>,
-\<open>backward_derive\<close> and \<open>subtype\<close> attributes instead.
+\<open>backward_derive\<close> \<open>(*and \<open>subtype\<close>*)\<close> attributes instead.
 \<close>
 
 (* Enable this when debugging exceptions:
@@ -210,14 +205,13 @@ ML_file \<open>isar_integration.ML\<close>
 setup \<open>Isar_Integration.setup\<close>
 
 declare with_type_def [type_simp]
+
+\<comment> \<open>Declarations for the derivator; currently slightly ad hoc.\<close>
 declare Any_typeI [type]
 declare Pi_typeI [backward_derive]
 declare Pi_typeE [derive]
 
-
-section \<open>Soft type methods II\<close>
-
-text \<open>Use type derivation to prove typing subgoals.\<close>
+subsection \<open>Type derivation\<close>
 
 method_setup raw_discharge_type =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) []
@@ -229,9 +223,6 @@ method_setup discharge_types =
     >> (fn add_tms => fn ctxt => SIMPLE_METHOD (
       REPEAT1 (CHANGED (ALLGOALS (TRY o (
         Derivation.full_discharge_types_tac [] add_tms ctxt))))))\<close>
-
-
-section \<open>Simplifier integration\<close>
 
 ML \<open> 
 val soft_type_simp_solver =
@@ -252,13 +243,18 @@ val soft_type_simp_solver =
 setup \<open>soft_type_simp_solver\<close>
 
 
-section \<open>Basic HOL declarations\<close>
+section \<open>Basic declarations\<close>
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> Bool"
   by unfold_types
 
 lemma imp_type [type]: "(\<longrightarrow>) : Bool \<Rightarrow> Bool \<Rightarrow> Bool"
   by unfold_types
+
+text \<open>The "non-" modifier gives the negation of a predicate.\<close>
+
+definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
+  where "non-P \<equiv> \<lambda>x. \<not> P x"
 
 
 end

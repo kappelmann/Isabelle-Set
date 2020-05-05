@@ -10,10 +10,11 @@ subsection \<open>Monotone operators\<close>
 definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
   where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
 
-lemma monotone_type [type]: "monotone : (D : set) \<Rightarrow> (subset D \<Rightarrow> subset D) \<Rightarrow> bool"
+lemma monotone_type [type]:
+  "monotone: (D: Set) \<Rightarrow> (Subset D \<Rightarrow> Subset D) \<Rightarrow> Bool"
   by unfold_types
 
-abbreviation "monop D \<equiv> monotone D \<sqdot> (subset D \<Rightarrow> subset D)"
+abbreviation "Monop D \<equiv> monotone D \<sqdot> (Subset D \<Rightarrow> Subset D)"
 
 lemma monotoneI:
   assumes "\<And>W X. \<lbrakk>W \<subseteq> D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
@@ -25,62 +26,62 @@ proof (intro allI impI)
   with * assms show "h W \<subseteq> h X" by auto
 qed
 
-lemma monop_subset_closed: "h : monop D \<Longrightarrow> h D \<subseteq> D"
+lemma Monop_subset_closed: "h: Monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by unfold_types auto
 
 (* Elimination instead of destruction? *)
-lemma monopE: "\<lbrakk>h : monop D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
+lemma MonopE: "\<lbrakk>h: Monop D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by unfold_types
 
-lemma [derive]: "h : monop D \<Longrightarrow> X : subset D \<Longrightarrow> h X : subset D"
+lemma [derive]: "h: Monop D \<Longrightarrow> X: Subset D \<Longrightarrow> h X: Subset D"
   by unfold_types
 
-lemma [derive]: "(\<lambda>L. L) : monop D"
+lemma [derive]: "(\<lambda>L. L): Monop D"
   by unfold_types (auto simp: monotone_def)
 
-lemma [derive]: "x : subset D \<Longrightarrow> (\<lambda>L. x) : monop D"
+lemma [derive]: "x: Subset D \<Longrightarrow> (\<lambda>L. x): Monop D"
   by unfold_types (auto simp: monotone_def)
 
-lemma monop_union_subset:
-  assumes "h : monop D" "A \<subseteq> D" "B \<subseteq> D"
+lemma Monop_union_subset:
+  assumes "h: Monop D" "A \<subseteq> D" "B \<subseteq> D"
   shows "h A \<union> h B \<subseteq> h (A \<union> B)"
 proof -
   have "h A \<subseteq> h (A \<union> B)"
-    by (rule monopE, discharge_types) auto
+    by (rule MonopE, discharge_types) auto
   moreover have "h B \<subseteq> h (A \<union> B)"
-    by (rule monopE, discharge_types) auto
+    by (rule MonopE, discharge_types) auto
   ultimately show ?thesis by auto
 qed
 
-lemma monopI:
+lemma MonopI:
   assumes 1: "\<And>x. x \<subseteq> D \<Longrightarrow> h x \<subseteq> D"
   assumes 2: "\<And>W X. W \<subseteq> D \<Longrightarrow> X \<subseteq> D \<Longrightarrow> W \<subseteq> X \<Longrightarrow> h W \<subseteq> h X"
-  shows "h : monop D"
+  shows "h: Monop D"
   apply unfold_types
   apply (auto intro!: 1 monotoneI)
   using 2 by blast
 
-lemma monop_unionI [derive]:
-  assumes "A : monop D" "B : monop D"
-  shows "(\<lambda>x. A x \<union> B x) : monop D"
-proof (rule monopI)
+lemma Monop_unionI [derive]:
+  assumes "A: Monop D" "B: Monop D"
+  shows "(\<lambda>x. A x \<union> B x): Monop D"
+proof (rule MonopI)
   fix W X assume "W \<subseteq> D" "X \<subseteq> D"
   show "A X \<union> B X \<subseteq> D" by auto
 
   assume "W \<subseteq> X"
-  have "A W \<subseteq> A X" by (rule monopE) auto
-  moreover have "B W \<subseteq> B X" by (rule monopE) auto
+  have "A W \<subseteq> A X" by (rule MonopE) auto
+  moreover have "B W \<subseteq> B X" by (rule MonopE) auto
   ultimately show "A W \<union> B W \<subseteq> A X \<union> B X" by auto
 qed
 
-lemma monop_replacementI:
-  assumes "A : monop D"
-  assumes "\<And>x y. x : subset D \<Longrightarrow> y : element (A x) \<Longrightarrow> f y : element D"
-  shows "(\<lambda>x. repl (A x) f) : monop D"
+lemma Monop_replacementI:
+  assumes "A: Monop D"
+  assumes "\<And>x y. x: Subset D \<Longrightarrow> y: Element (A x) \<Longrightarrow> f y: Element D"
+  shows "(\<lambda>x. repl (A x) f): Monop D"
   apply (insert assms)
-  apply (rule monopI)
+  apply (rule MonopI)
    apply unfold_types[1]
-  apply (auto dest: monopE)
+  apply (auto dest: MonopE)
   done
 
 
@@ -90,24 +91,24 @@ definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
   where "lfp D h \<equiv> \<Inter>{X \<in> powerset D. h X \<subseteq> X}"
 
 lemma lfp_type [type]:
-  "lfp : (D : set) \<Rightarrow> monop D \<Rightarrow> subset D"
+  "lfp: (D: Set) \<Rightarrow> Monop D \<Rightarrow> Subset D"
   unfolding lfp_def by unfold_types auto
 
 lemma lfp_subset:
-  "h : monop D \<Longrightarrow> lfp D h \<subseteq> D"
+  "h: Monop D \<Longrightarrow> lfp D h \<subseteq> D"
   unfolding lfp_def by unfold_types auto
 
 (*Explicitly set the context for now. This can actually be inferred.*)
 context
   fixes D h
-  assumes h_type: "h : monop D"
+  assumes h_type: "h: Monop D"
 begin
 
 lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A \<subseteq> D \<Longrightarrow> lfp D h \<subseteq> A"
   unfolding lfp_def by auto
 
 lemma lfp_greatest: "(\<And>X. X \<subseteq> D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
-  using monop_subset_closed[OF h_type] unfolding lfp_def by auto
+  using Monop_subset_closed[OF h_type] unfolding lfp_def by auto
 
 lemma lfp_unfold: "lfp D h = h (lfp D h)"
 proof (rule extensionality)
@@ -117,11 +118,11 @@ proof (rule extensionality)
     assume "h A \<subseteq> A"
     hence "lfp D h \<subseteq> A" by (rule lfp_lowerbound) auto
     have "h (lfp D h) \<subseteq> h A"
-      by (rule monopE) auto
+      by (rule MonopE) auto
     with \<open>h A \<subseteq> A\<close> show "h (lfp D h) \<subseteq> A" by blast
   qed
   show "lfp D h \<subseteq> h (lfp D h)"
-    by (intro lfp_lowerbound monopE[of h] *) (auto simp only: subset_self)
+    by (intro lfp_lowerbound MonopE[of h] *) (auto simp only: subset_self)
 qed
 
 (*Definition form, to control unfolding*)
@@ -136,7 +137,7 @@ lemma collect_is_prefixed_point:
   shows "h (collect (lfp D h) P) \<subseteq> collect (lfp D h) P"
 proof -
   have "h (collect (lfp D h) P) \<subseteq> h (lfp D h)"
-    by (intro monopE[of h] collect_subset) simp
+    by (intro MonopE[of h] collect_subset) simp
   moreover have "... = lfp D h" by (simp only: lfp_unfold[symmetric])
   ultimately show ?thesis using assms by auto
 qed
@@ -146,7 +147,7 @@ lemma lfp_induct:
   assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
-  have "P : element D \<Rightarrow> bool" by unfold_types
+  have "P: Element D \<Rightarrow> Bool" by unfold_types
 
   have "lfp D h \<subseteq> collect (lfp D h) P"
   proof (rule lfp_lowerbound)

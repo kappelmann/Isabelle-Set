@@ -58,6 +58,9 @@ lemma ballI [intro!]: "\<lbrakk>\<And>x. x \<in> A \<Longrightarrow> P x\<rbrakk
 lemma bspec [dest?]: "\<lbrakk>\<forall>x \<in> A. P x; x \<in> A\<rbrakk> \<Longrightarrow> P x"
   by (simp add: ball_def)
 
+lemma ballD: "\<forall>x \<in> A. P x \<Longrightarrow> (\<And>x. x \<in> A \<Longrightarrow> P x)"
+  by (simp add: ball_def)
+
 lemma ballE: "\<lbrakk>\<forall>x \<in> A. P x; P x \<Longrightarrow> Q; x \<notin> A \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   unfolding ball_def by auto
 
@@ -353,7 +356,7 @@ lemma consI1 [simp]: "a \<in> cons a A"
 lemma consI2: "a \<in> A \<Longrightarrow> a \<in> cons b A"
   by simp
 
-lemma consE [elim!]: "\<lbrakk>a \<in> cons b A; a = b \<Longrightarrow> P; a \<in> A \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+lemma consE [elim]: "\<lbrakk>a \<in> cons b A; a = b \<Longrightarrow> P; a \<in> A \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by auto
 
 (*LP: Stronger version of the rule above*)
@@ -412,6 +415,11 @@ lemma pair_elems: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
 lemma pair_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) \<or> (a = d \<and> b = c)"
   by (auto intro: equalityI' dest: equalityD)
 
+lemma pair_cases:
+  assumes "x \<in> {a, b}"
+  obtains "x = a" | "x = b"
+  using assms by (auto iff: pair_elems)
+
 text \<open>
 \<^term>\<open>upair x y\<close> and \<^term>\<open>{x, y}\<close> are equal, and thus interchangeable in
 developments.
@@ -419,7 +427,7 @@ developments.
 
 lemma upair_eq_pair: "upair x y = {x, y}"
   unfolding upair_def
-  by (rule extensionality) (auto, auto)
+  by (rule equalityI) auto
 
 lemmas pair_eq_upair = upair_eq_pair[symmetric]
 
@@ -577,10 +585,10 @@ lemma idxunion_iff [iff]: "b \<in> (\<Union>x\<in> A. (B x)) \<longleftrightarro
   by (simp add: bex_def) blast
 
 (*LP: The order of the premises presupposes that A is rigid; b may be flexible*)
-lemma idxunionI: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x\<in> A. B x)"
+lemma idxunionI [intro]: "a \<in> A \<Longrightarrow>  b \<in> B a \<Longrightarrow> b \<in> (\<Union>x\<in> A. B x)"
   by (simp, blast)
 
-lemma idxunionE [elim!]: "\<lbrakk>b \<in> (\<Union>x\<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+lemma idxunionE [elim]: "\<lbrakk>b \<in> (\<Union>x\<in> A. B x); \<And>x. \<lbrakk>x \<in> A; b \<in> B x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by blast
 
 lemma idxunion_cong:
@@ -603,7 +611,7 @@ lemma inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> (\<forall>x \<in
 lemma idxunion_subset_iff: "(\<Union>x\<in>A. B x) \<subseteq> C \<longleftrightarrow> (\<forall>x \<in> A. B x \<subseteq> C)"
 by blast
 
-lemma idxunion_upper: "x \<in> A \<Longrightarrow> B x \<subseteq> (\<Union>x\<in>A. B x)"
+lemma idxunion_upper: "x \<in> A \<Longrightarrow> B x \<subseteq> (\<Union>x\<in> A. B x)"
   by blast
 
 lemma idxunion_least: "(\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> C) \<Longrightarrow> (\<Union>x\<in>A. B x) \<subseteq> C"
@@ -1206,39 +1214,52 @@ definition Element :: "set \<Rightarrow> set type"
 definition Subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
-lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : Element A" by unfold_types
-lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : Subset B" by unfold_types auto
+lemma ElementI: "a \<in> A \<Longrightarrow> a: Element A"
+  by unfold_types
 
-lemma subset_self [derive]: "A : Subset A"
+lemma ElementD: "a: Element A \<Longrightarrow> a \<in> A"
+  by unfold_types
+
+lemma SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B"
   by unfold_types auto
 
-text \<open>Soft type translations go on the right of the "\<rightleftharpoons>".\<close>
+lemma subset_self [derive]: "A: Subset A"
+  by unfold_types auto
+
+text \<open>
+Soft type translations let the typing automation prove set-theoretic statements.
+\<close>
 
 soft_type_translation
-  "a \<in> A" \<rightleftharpoons> "a : Element A" by unfold_types
+  "a \<in> A" \<rightleftharpoons> "a: Element A" by unfold_types
 
 soft_type_translation
-  "A \<subseteq> B" \<rightleftharpoons> "A : Subset B" by unfold_types auto  
+  "A \<subseteq> B" \<rightleftharpoons> "A: Subset B" by unfold_types auto  
 
 soft_type_translation
-  "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x : Element A. P x"
+  "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x: Element A. P x"
   by unfold_types auto
 
 soft_type_translation
-  "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : Element A. P x"
+  "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x: Element A. P x"
   by unfold_types auto
+
+text \<open>
+The following coercion allows us to use set constructions as if they were types.
+\<close>
+declare [[coercion_enabled, coercion Element]]
 
 subsection \<open>Collections of sets\<close>
 
 definition Collection :: "set type \<Rightarrow> set type"
-  where [typeclass]: "Collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
+  where [typeclass]: "Collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y: T)"
 
 lemma collection_element_imp_subset [derive]:
-  "A : Collection (Element B) \<Longrightarrow> A : Subset B"
+  "A: Collection (Element B) \<Longrightarrow> A: Subset B"
   by unfold_types blast
 
 lemma subset_imp_collection_element [derive]:
-  "A : Subset B \<Longrightarrow> A : Collection (Element B)"
+  "A: Subset B \<Longrightarrow> A: Collection (Element B)"
   by unfold_types blast
 
 subsection \<open>Basic constant types\<close>
@@ -1253,19 +1274,19 @@ in the elaboration algorithm.
 \<close>
 
 lemma
-  [type]: "(\<in>) : (Element A) \<Rightarrow> (Subset A) \<Rightarrow> Bool" and
-  [type]: "powerset : Collection T \<Rightarrow> Collection (Collection T)" and
-  [type]: "union : Collection (Collection T) \<Rightarrow> Collection T" and
-  [type]: "repl : Collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> Collection S" and
+  [type]: "(\<in>): (Element A) \<Rightarrow> (Subset A) \<Rightarrow> Bool" and
+  [type]: "powerset: Collection T \<Rightarrow> Collection (Collection T)" and
+  [type]: "union: Collection (Collection T) \<Rightarrow> Collection T" and
+  [type]: "repl: Collection T \<Rightarrow> (T \<Rightarrow> S) \<Rightarrow> Collection S" and
 
-  [type]: "HOL.All : ((T::set type) \<Rightarrow> Bool) \<Rightarrow> Bool" and
-  [type]: "{} : Subset A" and
-  [type]: "(\<subseteq>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Bool" and
-  [type]: "cons : Element A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
+  [type]: "HOL.All: ((T::set type) \<Rightarrow> Bool) \<Rightarrow> Bool" and
+  [type]: "{}: Subset A" and
+  [type]: "(\<subseteq>): Subset A \<Rightarrow> Subset A \<Rightarrow> Bool" and
+  [type]: "cons: Element A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
 
-  [type]: "(\<union>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
-  [type]: "(\<inter>) : Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
-  [type]: "collect : Subset A \<Rightarrow> (Element A \<Rightarrow> Bool) \<Rightarrow> Subset A"
+  [type]: "(\<union>): Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
+  [type]: "(\<inter>): Subset A \<Rightarrow> Subset A \<Rightarrow> Subset A" and
+  [type]: "collect: Subset A \<Rightarrow> (Element A \<Rightarrow> Bool) \<Rightarrow> Subset A"
 
   by unfold_types auto
 

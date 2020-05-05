@@ -1,17 +1,19 @@
-section \<open>Setup\<close>
+chapter \<open>Setup\<close>
 
 theory Setup
-imports "../Soft_Types/Soft_Types_HOL"
+imports "../Soft_Types/Soft_Types_HOL" Rewrite
 
 begin
 
 
-subsection \<open>Utility\<close>
+section \<open>Combinators\<close>
 
 abbreviation (input) "K x \<equiv> \<lambda>_. x"
+abbreviation (input) "app2 f x \<equiv> f x x"
+abbreviation (input) comp (infixl "o" 55) where "g o f \<equiv> \<lambda>x. g (f x)"
 
 
-subsection \<open>Notation\<close>
+section \<open>Notation\<close>
 
 declare [[eta_contract=false]]
 
@@ -30,7 +32,7 @@ no_notation Pure.eq (infix "\<equiv>" 2)
 notation Pure.eq ("(1_ \<equiv>/ _)" [3, 3] 2) \<comment>\<open>Just some prettier formatting\<close>
 
 
-subsection \<open>Additional logical rules\<close>
+section \<open>Additional logical rules\<close>
 
 lemma True_simp: "P \<equiv> True \<Longrightarrow> P" by simp
 

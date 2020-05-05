@@ -32,9 +32,9 @@ lemmas opair_inject2 = opair_eq_iff [THEN iffD1, THEN conjunct2]
 lemma opair_nonempty: "\<langle>a, b\<rangle> \<noteq> {}"
   unfolding opair_def by (blast elim: equalityE)
 
-lemmas opair_emptyD = opair_nonempty [THEN notE, elim!]
+lemmas opair_emptyE = opair_nonempty [THEN notE, elim!]
 
-declare sym [THEN opair_emptyD, elim!]
+declare sym [THEN opair_emptyE, elim!]
 
 lemma opair_ne_fst: "\<langle>a, b\<rangle> = a \<Longrightarrow> P"
   unfolding opair_def by (auto intro: mem_asymE)
@@ -55,7 +55,7 @@ lemma fst_conv [simp]: "fst \<langle>a,b\<rangle> = a"
 lemma snd_conv [simp]: "snd \<langle>a,b\<rangle> = b"
   by (simp add: snd_def)
 
-lemma opair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma opair_conv [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> p = \<langle>fst p, snd p\<rangle>"
   by simp
 
 lemma opair_not_in_fst: "\<langle>a, b\<rangle> \<notin> a"
@@ -75,7 +75,7 @@ syntax
 translations
   "\<Sum>x\<in> A. B" \<rightleftharpoons> "CONST pairset A (\<lambda>x. B)"
 
-abbreviation setprod :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<times>" 80)
+abbreviation prodset :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<times>" 80)
   where "A \<times> B \<equiv> \<Sum>_\<in> A. B"
 
 lemma pairset_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
@@ -102,21 +102,6 @@ lemma pairset_cong:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Sum>x\<in> A. (B x) = \<Sum>x\<in> A'. (B' x)"
   by (simp add: pairset_def)
 
-lemma pairset_empty_index [simp]: "\<Sum>x\<in> {}. (B x) = {}"
-  by (rule extensionality) auto
-
-lemma pairset_empty_sets [simp]: "\<Sum>x\<in> A. {} = {}"
-  by (rule extensionality) auto
-
-lemma pairset_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
-  by (auto intro!: equalityI')
-
-lemma setprod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
-  by (rule equalityI) auto
-
-lemma pairset_subset_setprod: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
-  by auto
-
 lemma pairset_fst: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
 
@@ -134,6 +119,21 @@ lemma pairset_subset_elemE:
   "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x\<in> A. (B x); \<And>a b. \<lbrakk>a \<in> A; b \<in> B a; p = \<langle>a, b\<rangle>\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by auto
 
+lemma pairset_empty_index [simp]: "\<Sum>x\<in> {}. (B x) = {}"
+  by (rule extensionality) auto
+
+lemma pairset_empty_sets [simp]: "\<Sum>x\<in> A. {} = {}"
+  by (rule extensionality) auto
+
+lemma pairset_empty_iff: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
+  by (auto intro!: equalityI')
+
+lemma setprod_singletons [simp]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
+  by (rule equalityI) auto
+
+lemma pairset_subset_setprod: "\<Sum>x\<in> A. (B x) \<subseteq> A \<times> (\<Union>x\<in> A. (B x))"
+  by auto
+
 
 subsection \<open>Monotonicity\<close>
 
@@ -142,7 +142,7 @@ lemma setprod_monotone1: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subs
 lemma setprod_monotone2: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'" by auto
 
 
-subsection \<open>Functions on \<Sigma>-type\<close>
+subsection \<open>Functions on dependent pairs\<close>
 
 definition split :: "(set \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" \<comment>\<open>for pattern-matching\<close>
   where "split f \<equiv> \<lambda>p. f (fst p) (snd p)"
@@ -199,7 +199,7 @@ lemma univ_pairset_closed [intro]:
     "\<Sum>x \<in> A. (B x) \<in> univ U"
   unfolding pairset_def opair_def
   by (auto intro: univ_transitive assms
-    intro!: univ_union_closed univ_replacement_closed univ_cons_closed)
+      intro!: univ_union_closed univ_replacement_closed univ_cons_closed)
 
 lemma univ_opair_closed [intro]:
   "x \<in> univ A \<Longrightarrow> y \<in> univ A \<Longrightarrow> \<langle>x, y\<rangle> \<in> univ A"
@@ -214,18 +214,18 @@ lemma univ_setprod_subset_closed [intro]:
   by auto
 
 lemma [derive]:
-  "\<lbrakk>A : Element (univ U); B : Element (univ U)\<rbrakk> \<Longrightarrow> A \<times> B : Element (univ U)"
-  "\<lbrakk>A : Subset (univ U); B : Subset (univ U)\<rbrakk> \<Longrightarrow> A \<times> B : Subset (univ U)"
+  "\<lbrakk>A: Element (univ U); B: Element (univ U)\<rbrakk> \<Longrightarrow> A \<times> B: Element (univ U)"
+  "\<lbrakk>A: Subset (univ U); B: Subset (univ U)\<rbrakk> \<Longrightarrow> A \<times> B: Subset (univ U)"
   by unfold_types auto
 
 
 subsection \<open>Soft types\<close>
 
 lemma
-  prod_type [type]: "(\<times>) : Subset A \<Rightarrow> Subset B \<Rightarrow> Subset (A \<times> B)" and
-  opair_type [type]: "opair : Element A \<Rightarrow> Element B \<Rightarrow> Element (A \<times> B)" and
-  fst_type [type]: "fst : Element (A \<times> B) \<Rightarrow> Element A" and
-  snd_type [type]: "snd : Element (A \<times> B) \<Rightarrow> Element B"
+  prod_type [type]: "(\<times>): Subset A \<Rightarrow> Subset B \<Rightarrow> Subset (A \<times> B)" and
+  opair_type [type]: "opair: Element A \<Rightarrow> Element B \<Rightarrow> Element (A \<times> B)" and
+  fst_type [type]: "fst: Element (A \<times> B) \<Rightarrow> Element A" and
+  snd_type [type]: "snd: Element (A \<times> B) \<Rightarrow> Element B"
   by unfold_types auto
 
 lemma setprod_nonempty [derive]:
@@ -238,15 +238,15 @@ don't declare them by default for now.
 \<close>
 
 lemma opair_dep_type:
-  "opair : (x : Element A) \<Rightarrow> Element (B x) \<Rightarrow> Element (\<Sum>x\<in> A. (B x))"
+  "opair: (x: Element A) \<Rightarrow> Element (B x) \<Rightarrow> Element (\<Sum>x\<in> A. (B x))"
   by unfold_types auto
 
 lemma fst_dep_type:
-  "fst : Element (\<Sum>x\<in> A. (B x)) \<Rightarrow> Element A"
+  "fst: Element (\<Sum>x\<in> A. (B x)) \<Rightarrow> Element A"
   by unfold_types auto
 
 lemma snd_dep_type:
-  "snd : (p : Element (\<Sum>x\<in> A. (B x))) \<Rightarrow> Element (B (fst p))"
+  "snd: (p: Element (\<Sum>x\<in> A. (B x))) \<Rightarrow> Element (B (fst p))"
   by unfold_types auto
 
 

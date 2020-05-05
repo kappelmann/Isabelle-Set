@@ -26,9 +26,9 @@ and
 
 \<comment>\<open>Declare the (soft!) types of constructors:\<close>
 where
-  1[type implicit: 1]: "nil    : (A: U) \<Rightarrow> List A" and
-  2[type implicit: 1]: "cons   : (A: U) \<Rightarrow> A \<Rightarrow> List A \<Rightarrow> List A" and
-  3[type implicit: 1]: "append : (A: U) \<Rightarrow> List A \<Rightarrow> List A \<Rightarrow> List A"
+  1[type implicit: 1]: "nil   : (A: U) \<Rightarrow> List A" and
+  2[type implicit: 1]: "cons  : (A: U) \<Rightarrow> A \<Rightarrow> List A \<Rightarrow> List A" and
+  3[type implicit: 1]: "append: (A: U) \<Rightarrow> List A \<Rightarrow> List A \<Rightarrow> List A"
 
 
 declare [[auto_elaborate]]
@@ -49,13 +49,13 @@ axiomatization
   Id and refl and J
 where
   Id_type [type implicit: 1]:
-    "Id : (A: U) \<Rightarrow> A \<Rightarrow> A \<Rightarrow> U" and
+    "Id: (A: U) \<Rightarrow> A \<Rightarrow> A \<Rightarrow> U" and
 
   refl_type [type implicit: 1]:
-    "refl : (A: U) \<Rightarrow> (x: A) \<Rightarrow> Id A x x" and
+    "refl: (A: U) \<Rightarrow> (x: A) \<Rightarrow> Id A x x" and
 
   J_type [type implicit: 2]:
-    "J : (A: U)
+    "J: (A: U)
         \<Rightarrow> (C: (x: A) \<Rightarrow> (y: A) \<Rightarrow> (p: Id A x y) \<Rightarrow> U)
         \<Rightarrow> ((x: A) \<Rightarrow> C x x (refl A x))
         \<Rightarrow> (a: A) \<Rightarrow> (b: A) \<Rightarrow> (p: Id A a b)

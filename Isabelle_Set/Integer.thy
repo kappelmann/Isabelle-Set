@@ -16,8 +16,8 @@ definition "int_rep = Sum \<nat> (\<nat> \<setminus> {0})"
 \<comment> \<open>Some type derivation rule setup\<close>
 lemma
   [type]: "succ: element \<nat> \<Rightarrow> element (\<nat> \<setminus> {0})" and
-  [type]: "inl : element \<nat> \<Rightarrow> element int_rep" and
-  [type]: "inr : element (\<nat> \<setminus> {0}) \<Rightarrow> element int_rep"
+  [type]: "inl: element \<nat> \<Rightarrow> element int_rep" and
+  [type]: "inr: element (\<nat> \<setminus> {0}) \<Rightarrow> element int_rep"
   unfolding int_rep_def by unfold_types auto
 
 interpretation Int: set_extension \<nat> int_rep inl
@@ -31,7 +31,7 @@ lemmas nat_subset_int [simp] = Int.extension_subset
 
 abbreviation "Int \<equiv> element \<int>"
 
-corollary [derive]: "n : Nat \<Longrightarrow> n : Int"
+corollary [derive]: "n: Nat \<Longrightarrow> n: Int"
   by (unfold_types, rule subsetE) auto
 
 
@@ -85,7 +85,7 @@ subsection \<open>Typing\<close>
 functions is a good idea. I think we want to get the type system up to a point
 where this is handled by said system.\<close>
 lemma int_rep_add_type [type]:
-  "int_rep_add : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  "int_rep_add: element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
 proof -
   have [dest]: "\<And>m n. m \<in> \<nat> \<Longrightarrow> n \<in> \<nat> \<Longrightarrow> m < n \<Longrightarrow> 0 < n - m"
     using nat_zero_lt_sub by simp
@@ -94,24 +94,24 @@ proof -
 qed
 
 lemma [type]:
-  "int_rep_negate : element int_rep \<Rightarrow> element int_rep"
+  "int_rep_negate: element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_negate_def
   by unfold_types auto
 
 lemma int_rep_sub_type [type]:
-  "int_rep_sub : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  "int_rep_sub: element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_sub_def by auto
 
 lemma int_rep_mul_type [type]:
-  "int_rep_mul : element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
+  "int_rep_mul: element int_rep \<Rightarrow> element int_rep \<Rightarrow> element int_rep"
   unfolding int_rep_def int_rep_mul_def
   by (unfold_types, erule SumE; erule SumE) (auto simp: nat_mul_ne_zero)
 
 lemma
-  int_add_type [type]: "int_add : Int \<Rightarrow> Int \<Rightarrow> Int" and
-  int_negate_type [type]: "int_negate : Int \<Rightarrow> Int" and
-  int_sub_type [type]: "int_sub : Int \<Rightarrow> Int \<Rightarrow> Int" and
-  int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int"
+  int_add_type [type]: "int_add: Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_negate_type [type]: "int_negate: Int \<Rightarrow> Int" and
+  int_sub_type [type]: "int_sub: Int \<Rightarrow> Int \<Rightarrow> Int" and
+  int_mul_type [type]: "int_mul: Int \<Rightarrow> Int \<Rightarrow> Int"
   unfolding int_add_def int_negate_def int_sub_def int_mul_def by auto
 
 subsection \<open>Notation\<close>
@@ -165,19 +165,19 @@ lemma int_rep_mul_assoc: assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> in
 text\<open>Now lift the results to the actual set \<int>. This should be automated in some
 way in the future.\<close>
 
-lemma int_one_mul [simp]: assumes "x : Int" shows "1 \<cdot> x = x"
+lemma int_one_mul [simp]: assumes "x: Int" shows "1 \<cdot> x = x"
 proof -
   have "Int.Rep 1 = inl 1" unfolding Int.Rep_def by simp
   with int_rep_one_mul show ?thesis unfolding int_mul_def by simp
 qed
 
-lemma int_mul_one [simp]: assumes "x : Int" shows "x \<cdot> 1 = x"
+lemma int_mul_one [simp]: assumes "x: Int" shows "x \<cdot> 1 = x"
 proof -
   have "Int.Rep 1 = inl 1" unfolding Int.Rep_def by simp
   with int_rep_mul_one show ?thesis unfolding int_mul_def by simp
 qed
 
-lemma int_mul_assoc: assumes "x : Int" "y : Int" "z : Int"
+lemma int_mul_assoc: assumes "x: Int" "y: Int" "z: Int"
   shows "x \<cdot> y \<cdot> z = x \<cdot> (y \<cdot> z)"
   using assms int_rep_mul_assoc unfolding int_mul_def by simp
 
@@ -216,7 +216,7 @@ lemma [simp]:
   "(\<int>, +) @@ inv = \<lambda>x\<in> \<int>. int_negate x"
   unfolding Int_group_def by simp_all
 
-lemma Int_group: "(\<int>, +) : Group \<int>"
+lemma Int_group: "(\<int>, +): Group \<int>"
 oops
 
 subsection \<open>Multiplicative monoid structure\<close>
@@ -226,7 +226,7 @@ definition "Int_mul_monoid \<equiv> object {
   \<langle>@mul, \<lambda>m n\<in> \<int>. int_mul m n\<rangle>
 }"
 
-lemma "Int_mul_monoid : Mul_Monoid \<int>"
+lemma "Int_mul_monoid: Mul_Monoid \<int>"
 proof unfold_types
   show "Int_mul_monoid @@ one \<in> \<int>" and "Int_mul_monoid @@ mul \<in> \<int> \<rightarrow> \<int> \<rightarrow> \<int>"
   unfolding Int_mul_monoid_def by auto
