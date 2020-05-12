@@ -186,34 +186,30 @@ val _ =
 (*Automatically convert certain predicates to type judgments*)
 
 structure Soft_Type_Translation = Theory_Data (
-  type T = (thm * thm) Termtab.table
-  val empty = Termtab.empty
+  type T = (thm * thm) Item_Net.T
+  val empty = Item_Net.init
+    (fn ((fwd1, bwd1), (fwd2, bwd2)) =>
+        Term.aconv (apply2 Thm.full_prop_of (fwd1, fwd2)) andalso
+        Term.aconv (apply2 Thm.full_prop_of (bwd1, bwd2)))
+    (fn (fwd, _) => single (
+      fwd |> Thm.major_prem_of |> Soft_Type.dest_Trueprop |> Soft_Type.varify))
   val extend = I
-  val merge =
-    Termtab.merge
-      (fn ((th1, th1'), (th2, th2')) =>
-        Term.aconv (apply2 Thm.full_prop_of (th1, th2)) andalso
-        Term.aconv (apply2 Thm.full_prop_of (th1', th2')))
+  val merge = Item_Net.merge
 )
 
-fun put_translation pred trans_to trans_from =
-  Soft_Type_Translation.map
-    (Termtab.update_new (head_of pred, (trans_to, trans_from)))
+fun put_translation fwd bwd =
+  Soft_Type_Translation.map (fn net =>
+    if Item_Net.member net (fwd, bwd)
+    then error "soft type translation already declared"
+    else Item_Net.update (fwd, bwd) net)
 
-fun get_forward_translation ctxt head_tm =
-  SOME (#1 (the (Termtab.lookup
+fun get_translations ctxt pred =
+  Item_Net.retrieve
     (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
-    head_tm)))
-  handle Option.Option => NONE
+    pred
 
-fun get_backward_translation ctxt head_tm =
-  SOME (#2 (the (Termtab.lookup
-    (Soft_Type_Translation.get (Proof_Context.theory_of ctxt))
-    head_tm)))
-  handle Option.Option => NONE
-
-fun translation_defined_for ctxt head_tm =
-  Termtab.defined (Soft_Type_Translation.get (Proof_Context.theory_of ctxt)) head_tm
+val get_forward_translations = (map #1) oo get_translations
+val get_backward_translations = (map #2) oo get_translations
 
 val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<close>
   "declare automatic soft type translations"
@@ -225,15 +221,9 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
         val (pred, styp) = apply2 (Syntax.read_prop ctxt) args
         val head_const = head_of (Object_Logic.drop_judgment ctxt pred)
 
-        val _ =
-          if Termtab.defined (Soft_Type_Translation.get thy) head_const
-          then error ("Translation already declared for " ^
-            Syntax.string_of_term ctxt head_const)
-          else ()
-
-        fun after_qed [[trans_to], [trans_from]] =
+        fun after_qed [[fwd], [bwd]] =
               Proof_Context.background_theory
-                (put_translation head_const trans_to trans_from)
+                (put_translation fwd bwd)
           | after_qed _ = raise Fail "soft_type_translation: after_qed"
       in
         ctxt |> Proof.theorem NONE after_qed
@@ -435,21 +425,21 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
         let
           val prem_prop = Thm.prop_of prem
 
-          val trans_opt =
-            get_forward_translation (Context.proof_of context)
-                (head_of (Soft_Type.dest_Trueprop prem_prop))
-
-          val add_translation =
-            case trans_opt of
-              SOME th =>
-                let val typing = prem RS th
+          val translations =
+            (get_forward_translations
+              (Context.proof_of context)
+              (Soft_Type.dest_Trueprop prem_prop)
+            |> map (fn th => prem RS th)
+            |> fold (fn th => fn typings =>
+                let val th_prop = Thm.prop_of th
                 in
-                  Soft_Type_Context.put_type
-                    (Soft_Type.term_of_typing (Thm.prop_of typing))
-                    typing
-                  handle TERM _ => I
-                end
-            | NONE => I
+                  if Soft_Type.is_typing th_prop
+                  then (Soft_Type.term_of_typing th_prop, th)::typings
+                  else typings
+                end)) []
+
+          val add_translations =
+            fold (uncurry Soft_Type_Context.put_type) translations
         in
           (if Soft_Type.is_typing prem_prop
           then
@@ -465,7 +455,7 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
           then
             put_derivation_rule prem context
           else context)
-          |> add_translation
+          |> add_translations
         end
   
       val ctxt' =
@@ -547,14 +537,8 @@ fun raw_discharge_type_tac add_facts add_tms ctxt = SUBGOAL (fn (goal, _) =>
     val concl = Logic.strip_assums_concl goal
 
     val translate_tac =
-      let
-        val head_tm = head_of (Soft_Type.dest_Trueprop concl)
-        val lookup = get_backward_translation ctxt head_tm
-      in
-        case lookup of
-            NONE => no_tac
-          | SOME th => HEADGOAL (resolve_tac ctxt [th])
-      end
+      HEADGOAL (resolve_tac ctxt
+        (get_backward_translations ctxt (Soft_Type.dest_Trueprop concl)))
   in
     TRY translate_tac THEN
     HEADGOAL (Subgoal.FOCUS_PREMS (fn {context = ctxt, prems, concl, ...} =>
