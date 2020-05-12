@@ -46,10 +46,9 @@ definition object_selector :: \<open>set \<Rightarrow> set \<Rightarrow> set\<cl
   where "O@s \<equiv> (THE graph. O = object graph) `s"
 
 lemma object_selector_simps [simp]:
-  "x \<notin> dom A \<Longrightarrow> (object (cons \<langle>x, y\<rangle> A)) @ x = y"
-  "x \<noteq> y \<Longrightarrow> (object (cons \<langle>y, z\<rangle> A)) @ x = A `x"
-  unfolding object_def object_selector_def
-  using apply_cons_head apply_cons_tail by auto
+  "x \<notin> dom A \<Longrightarrow> (object (cons \<langle>x, y\<rangle> A))@x = y"
+  "x \<noteq> y \<Longrightarrow> (object (cons \<langle>y, z\<rangle> A))@x = A`x"
+  unfolding object_def object_selector_def by auto
 
 lemma not_in_cons_dom: "\<lbrakk>x \<noteq> a; x \<notin> A\<rbrakk> \<Longrightarrow> x \<notin> cons a A" by auto
 

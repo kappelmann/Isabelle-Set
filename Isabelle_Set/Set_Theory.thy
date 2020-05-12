@@ -350,6 +350,11 @@ definition cons :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
 lemma cons_elems [iff]: "y \<in> cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
   by (auto simp: cons_def upair_def)
 
+lemma cons_induct:
+  assumes "P a" and "\<And>x. x \<in> A \<Longrightarrow> P x"
+  shows "\<And>x. x \<in> cons a A \<Longrightarrow> P x"
+  using assms by auto
+
 lemma consI1 [simp]: "a \<in> cons a A"
   by simp
 
@@ -1223,6 +1228,9 @@ lemma ElementD: "a: Element A \<Longrightarrow> a \<in> A"
 lemma SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B"
   by unfold_types auto
 
+lemma SubsetD: "A: Subset B \<Longrightarrow> A \<subseteq> B"
+  by unfold_types auto
+
 lemma subset_self [derive]: "A: Subset A"
   by unfold_types auto
 
@@ -1244,10 +1252,12 @@ soft_type_translation
   "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x: Element A. P x"
   by unfold_types auto
 
+(* 
 text \<open>
 The following coercion allows us to use set constructions as if they were types.
 \<close>
 declare [[coercion_enabled, coercion Element]]
+ *)
 
 subsection \<open>Collections of sets\<close>
 

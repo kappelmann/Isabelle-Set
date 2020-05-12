@@ -42,19 +42,19 @@ lemma SumE [elim, case_names inl inr]:
   using assms unfolding Sum_def by blast
 
 lemma SumE_typed [case_names inl inr]:
-  assumes "x: element (Sum A B)"
-  obtains a where "a: element A" "x = inl a"
-        | b where "b: element B" "x = inr b"
+  assumes "x: Element (Sum A B)"
+  obtains a where "a: Element A" "x = inl a"
+        | b where "b: Element B" "x = inr b"
   using assms by unfold_types blast
 
 lemma Sum_case_type [type]:
-  "Sum_case: (element A \<Rightarrow> X) \<Rightarrow> (element B \<Rightarrow> X) \<Rightarrow> element (Sum A B) \<Rightarrow> X"
+  "Sum_case: (Element A \<Rightarrow> X) \<Rightarrow> (Element B \<Rightarrow> X) \<Rightarrow> Element (Sum A B) \<Rightarrow> X"
   by unfold_types auto
 
-lemma inl_type [type]: "inl: element A \<Rightarrow> element (Sum A B)"
+lemma inl_type [type]: "inl: Element A \<Rightarrow> Element (Sum A B)"
   unfolding inl_def Sum_def by unfold_types blast
 
-lemma inr_type [type]: "inr: element B \<Rightarrow> element (Sum A B)"
+lemma inr_type [type]: "inr: Element B \<Rightarrow> Element (Sum A B)"
   unfolding inr_def Sum_def by unfold_types blast
 
 lemma univ_closed_inl [intro]: "x \<in> univ A \<Longrightarrow> inl x \<in> univ A"

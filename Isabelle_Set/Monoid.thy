@@ -147,7 +147,7 @@ lemma Zero_Pair_type [type]:
 lemma Add_Pair_type [type]:
   "Add_Pair: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
   unfolding Add_Pair_def add_def
-  by unfold_types fastforce
+  (* by unfold_types fastforce *)
 
 lemma Monoid_Sum_type [type]:
   "Monoid_Sum: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"

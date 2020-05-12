@@ -164,6 +164,9 @@ subsection \<open>String disequality\<close>
 
 lemma neqE: "a = b \<Longrightarrow> a \<noteq> b \<Longrightarrow> False" by auto
 
+lemma string_conj_simp [simp]:
+  "\<lbrakk>string a \<noteq> string b; P\<rbrakk> \<Longrightarrow> string a \<noteq> string b \<and> P" ..
+
 ML \<open>
 fun string_ne_tac ctxt =
   let

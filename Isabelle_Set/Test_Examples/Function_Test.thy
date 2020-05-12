@@ -3,26 +3,44 @@ imports "../String" "../Function"
 
 begin
 
+lemma beta_should_fail:
+  "(\<lambda>x\<in> A. \<langle>x, x\<rangle>)`x = \<langle>x, x\<rangle>"
+  oops
 
-lemma test1: "{\<langle>x, y\<rangle>} `x = y"
-  apply (rule apply_function, auto)
-  done
+schematic_goal beta_should_succeed:
+  "x \<in> A \<Longrightarrow> (\<lambda>x\<in> A. \<langle>x, x\<rangle>)`x = ?p"
+  by simp
 
-lemma test2: "{\<langle>@x1, @y1\<rangle>, \<langle>@x2, @y2\<rangle>} `@x1 = @y1"
-  apply (rule apply_function, auto)
-  apply (rule cons_functionI, strings)+
-  done
+lemma graph_eval1:
+  "{\<langle>x, y\<rangle>}`x = y"
+  by simp
 
-lemma test2': "{\<langle>@x1, @y1\<rangle>, \<langle>@x2, @y2\<rangle>} `@x2 = @y2"
-  apply (rule apply_function, auto)
-  apply (rule cons_functionI, strings)+
-  done
+lemma graph_eval2:
+  assumes "x1 \<noteq> x2"
+  shows "{\<langle>x1, y1\<rangle>, \<langle>x2, y2\<rangle>}`x1 = y1"
+    and "{\<langle>x1, y1\<rangle>, \<langle>x2, y2\<rangle>}`x2 = y2"
+  using assms by simp_all
 
-thm apply_function
+lemma graph_eval3:
+  assumes "x1 \<noteq> x2" "x2 \<noteq> x3" "x1 \<noteq> x3"
+  shows "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>}`x1 = y1"
+    and "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>}`x2 = y2"
+    and "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>}`x3 = y3"
+  using assms by simp_all
 
-lemma test3: "{\<langle>@x1, @y1\<rangle>, \<langle>@x2, @y2\<rangle>, \<langle>@x3, @y3\<rangle>} `@x2 = @y2"
-  apply (rule apply_function, auto)
-  apply (rule cons_functionI, strings)+
-  done
+lemma graph_eval4:
+  assumes "x1 \<noteq> x2" "x2 \<noteq> x3" "x3 \<noteq> x4" "x4 \<noteq> x1" "x2 \<noteq> x4" "x1 \<noteq> x3"
+  shows "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>,\<langle>x4,y4\<rangle>}`x1 = y1"
+    and "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>,\<langle>x4,y4\<rangle>}`x2 = y2"
+    and "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>,\<langle>x4,y4\<rangle>}`x3 = y3"
+    and "{\<langle>x1,y1\<rangle>,\<langle>x2,y2\<rangle>,\<langle>x3,y3\<rangle>,\<langle>x4,y4\<rangle>}`x4 = y4"
+  using assms by simp_all
+
+lemma labelled_graph_eval4:
+  shows "{\<langle>@x1,@y1\<rangle>,\<langle>@x2,@y2\<rangle>,\<langle>@x3,@y3\<rangle>,\<langle>@x4,@y4\<rangle>}`@x1 = @y1"
+    and "{\<langle>@x1,@y1\<rangle>,\<langle>@x2,@y2\<rangle>,\<langle>@x3,@y3\<rangle>,\<langle>@x4,@y4\<rangle>}`@x2 = @y2"
+    and "{\<langle>@x1,@y1\<rangle>,\<langle>@x2,@y2\<rangle>,\<langle>@x3,@y3\<rangle>,\<langle>@x4,@y4\<rangle>}`@x3 = @y3"
+    and "{\<langle>@x1,@y1\<rangle>,\<langle>@x2,@y2\<rangle>,\<langle>@x3,@y3\<rangle>,\<langle>@x4,@y4\<rangle>}`@x4 = @y4"
+  by simp_all
 
 end

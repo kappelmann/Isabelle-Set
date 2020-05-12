@@ -14,22 +14,35 @@ relation-like elsewhere).
 \<close>
 definition "function_like A S \<equiv> \<forall>a \<in> A. \<exists>!y. \<langle>a, y\<rangle> \<in> S"
 
-definition eval ("_`_" [1000, 1000]) where "S`x \<equiv> THE y. \<langle>x, y\<rangle> \<in> S"
+definition eval ("_`_" [999, 1000] 999) where "S`x \<equiv> THE y. \<langle>x, y\<rangle> \<in> S"
 
-lemma
-  function_likeI [intro]: "\<forall>a \<in> A. \<exists>!y. \<langle>a, y\<rangle> \<in> S \<Longrightarrow> function_like A S" and
-  function_likeD: "function_like A S \<Longrightarrow> \<forall>a \<in> A. \<exists>!y. \<langle>a, y\<rangle> \<in> S"
+lemma function_likeI [intro]:
+  assumes "\<And>a x y. \<lbrakk>a \<in> A; \<langle>a, x\<rangle> \<in> S; \<langle>a, y\<rangle> \<in> S\<rbrakk> \<Longrightarrow> x = y"
+      and "\<And>a. a \<in> A \<Longrightarrow> \<exists>y. \<langle>a, y\<rangle> \<in> S"
+  shows "function_like A S"
+  unfolding function_like_def
+  by (auto intro: assms)
+
+lemma function_likeD: "function_like A S \<Longrightarrow> \<forall>a \<in> A. \<exists>!y. \<langle>a, y\<rangle> \<in> S"
+  unfolding function_like_def by auto
+
+lemma function_likeD1: \<comment> \<open>existence of image\<close>
+  assumes "function_like A S" and "a \<in> A"
+  obtains y where "\<langle>a, y\<rangle> \<in> S"
+  using assms unfolding function_like_def by auto
+
+lemma function_ilkeD2: \<comment> \<open>uniqueness of image\<close>
+  "\<lbrakk>function_like A S; a \<in> A; \<langle>a, y\<rangle> \<in> S; \<langle>a, y'\<rangle> \<in> S\<rbrakk> \<Longrightarrow> y = y'"
   unfolding function_like_def by auto
 
 lemma function_like_elem [elim]:
   "\<lbrakk>function_like A S; a \<in> A\<rbrakk> \<Longrightarrow> \<langle>a, S`a\<rangle> \<in> S"
   unfolding eval_def
-  by (auto dest!: function_likeD ballD intro: theI')
+  by (auto simp: function_like_def dest!: ballD intro: theI')
 
 lemma function_like_eval [simp]:
   "\<lbrakk>function_like A S; a \<in> A; \<langle>a, y\<rangle> \<in> S\<rbrakk> \<Longrightarrow> S`a = y"
-  unfolding eval_def
-  by (auto dest!: function_likeD)
+  unfolding function_like_def eval_def by auto
 
 lemma function_like_empty: "function_like {} {}"
   unfolding function_like_def by auto
@@ -54,8 +67,8 @@ lemma Fun_uniq_val:
   shows "y = y'"
 proof -
   from assms(1) have "function_like (dom f) f" by (auto dest: FunD)
-  moreover from assms(1-2) have "x \<in> dom f" by auto
-  ultimately show ?thesis using assms(3) by (auto dest!: function_likeD)
+  moreover from assms have "x \<in> dom f" by auto
+  ultimately show ?thesis using assms(3) unfolding function_like_def by auto
 qed
 
 lemma Fun_comp [simp]:
@@ -89,13 +102,38 @@ definition [typedef]: "DepFunction A B \<equiv> function_like A \<sqdot> Subset 
 
 abbreviation "Function A B \<equiv> DepFunction A (\<lambda>_. B)"
 
+text \<open>Set model of \<^term>\<open>DepFunction\<close>:\<close>
+
+definition
+  "piset A B \<equiv> {f \<in> powerset (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
+
+syntax
+  "_piset"  :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close> ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
+  "_piset2" :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close>
+translations
+  "\<Prod>x xs\<in> A. B" \<rightharpoonup> "CONST piset A (\<lambda>x. _piset2 xs A B)"
+  "_piset2 x A B" \<rightharpoonup> "\<Prod>x\<in> A. B"
+  "\<Prod>x\<in> A. B" \<rightleftharpoons> "CONST piset A (\<lambda>x. B)"
+
+text \<open>Syntax rules converting soft type notation to underlying set representation:\<close>
 syntax
   "_telescope'" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>" 50)
 translations
-  "(x y \<in> A) \<rightarrow> B" \<rightharpoonup> "(x \<in> A)(y \<in> A) \<rightarrow> B"
-  "(x \<in> A) args \<rightarrow> B" \<rightleftharpoons> "(x \<in> A) \<rightarrow> args \<rightarrow> B"
+  "(x \<in> A) \<rightarrow> (y \<in> B) \<rightarrow> C" \<rightleftharpoons> "(x \<in> A) \<rightarrow> \<Prod>y\<in> B. C"
+  "(x \<in> A) \<rightarrow> B \<rightarrow> C" \<rightleftharpoons> "(x \<in> A) \<rightarrow> \<Prod>_\<in> B. C"
+  "A \<rightarrow> (y \<in> B) \<rightarrow> C" \<rightleftharpoons> "A \<rightarrow> \<Prod>y\<in> B. C"
+  "A \<rightarrow> B \<rightarrow> C" \<rightleftharpoons> "A \<rightarrow> \<Prod>_\<in> B. C"
+  "\<Prod>x\<in> A. ((y \<in> B) \<rightarrow> C)" \<rightharpoonup> "\<Prod>x\<in> A. \<Prod>y\<in> B. C"
+  "\<Prod>x\<in> A. (B \<rightarrow> C)" \<rightharpoonup> "\<Prod>x\<in> A. \<Prod>_\<in> B. C"
   "(x \<in> A) \<rightarrow> B" \<rightleftharpoons> "CONST DepFunction A (\<lambda>x. B)"
   "A \<rightarrow> B" \<rightleftharpoons> "CONST Function A B"
+
+lemma piset_models_DepFunction:
+  "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x"
+  unfolding piset_def by unfold_types (auto simp: function_like_def)
+
+(*TODO: Soft type translation needs to be a bit more flexible/powerful...*)
+soft_type_translation "f \<in> \<Prod>x\<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
 
 lemma
   DepFunction_imp_function_like [derive]:
@@ -161,11 +199,11 @@ lemma DepFunction_elem_snd:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> B x; p \<in> f\<rbrakk> \<Longrightarrow> snd p \<in> B (fst p)"
   by (rule DepFunction_elem_proj2) (auto intro: Fun_elem_rewrite)
 
-lemma DepFunction_as_relation [elim]:
+lemma DepFunction_as_relation:
   "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f \<subseteq> A \<times> (\<Union>x \<in> A. B x)"
   by unfold_types auto
 
-lemma Function_as_relation [elim]:
+lemma Function_as_relation:
   "f: A \<rightarrow> B \<Longrightarrow> f \<subseteq> A \<times> B"
   by unfold_types auto
 
@@ -285,12 +323,12 @@ lemma lambda_eqE: "\<lbrakk>(\<lambda>x\<in> A. f x) = \<lambda>x\<in> A. g x; a
 
 section \<open>Type theoretic rules\<close>
 
-lemma DepFunctionI [intro!]:
+lemma DepFunctionI [backward_derive]:
   "(\<And>x. x \<in> A \<Longrightarrow> b x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b x): (x \<in> A) \<rightarrow> B x"
   unfolding lambda_def by unfold_types auto
 
-corollary DepFunctionI' [intro]:
-  "(\<And>x. x \<in> A \<Longrightarrow> b`x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b`x): (x \<in> A) \<rightarrow> B x" ..
+corollary DepFunctionI':
+  "(\<And>x. x \<in> A \<Longrightarrow> b`x \<in> B x) \<Longrightarrow> (\<lambda>x\<in> A. b`x): (x \<in> A) \<rightarrow> B x" by auto
 
 lemma split_DepFunctionI [intro]:
   assumes "\<And>x y. \<lbrakk>x \<in> X; y \<in> Y\<rbrakk> \<Longrightarrow> b x y \<in> B \<langle>x, y\<rangle>"
@@ -326,8 +364,14 @@ lemma eval_type [type]:
     Note how type derivation fails to solve this immediately because of the
     `Element` coercion.
   \<close>
-  apply discharge_types
-  by (fast intro: ElementI dest: ElementD)
+  by discharge_types (rule ElementI, auto)
+
+thm derivation_rules
+
+lemma DepFunctionE':
+  "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> a: Element A \<Longrightarrow> f`a: Element (B a)" by auto
+
+thm derivation_rules
 
 lemma id_function_type [type]: "(\<lambda>x\<in> A. x): A \<rightarrow> A" by discharge_types
 
@@ -375,7 +419,7 @@ corollary function_enlarge_range:
 proof -
   from assms(1) have "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x" by auto
   with assms(2) have "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x" by auto
-  hence "(\<lambda>x\<in> A. f`x): (x\<in> A) \<rightarrow> C x" ..
+  hence "(\<lambda>x\<in> A. f`x): (x\<in> A) \<rightarrow> C x" by auto
   thus ?thesis using assms(1) eta by auto
 qed
 
@@ -391,22 +435,6 @@ lemma DepFunction_collectI:
   by (auto intro: function_refine dest: DepFunctionE)
 
 
-section \<open>Set model of \<^term>\<open>DepFunction\<close>.\<close>
-
-definition
-  "piset A B \<equiv> {f \<in> powerset (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
-
-syntax
-  "_piset"  :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close> ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
-  "_piset2" :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close>
-translations
-  "\<Prod>x xs\<in> A. B" \<rightharpoonup> "CONST piset A (\<lambda>x. _piset2 xs A B)"
-  "_piset2 x A B" \<rightharpoonup> "\<Prod>x\<in> A. B"
-  "\<Prod>x\<in> A. B" \<rightleftharpoons> "CONST piset A (\<lambda>x. B)"
-
-lemma piset_models_DepFunction [iff]:
-  "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x"
-  unfolding piset_def by unfold_types (auto simp: function_like_def)
 
 
 section \<open>Injectivity and surjectivity\<close>
@@ -430,16 +458,7 @@ proof
 qed
 
 
-section \<open>More function application\<close>
-
-lemma eval_singleton [simp]: "{\<langle>x, y\<rangle>}`x = y"
-  by (auto simp: eval_def)
-
-lemma eval_pair1 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>}`x = a"
-  by (auto simp: eval_def)
-
-lemma eval_pair2 [simp]: "x \<noteq> y \<Longrightarrow> {\<langle>x, a\<rangle>, \<langle>y, b\<rangle>}`y = b"
-  by (auto simp: eval_def)
+section \<open>Evaluation of function graphs\<close>
 
 lemma eval_cons_head [simp]:
   "x \<notin> dom A \<Longrightarrow> (cons \<langle>x, y\<rangle> A)`x = y"
@@ -493,17 +512,18 @@ section \<open>Composition\<close>
 definition fun_comp :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<circ>" 80)
   where "g \<circ> f = \<lambda>x\<in> dom f. g`(f`x)"
 
+lemma fun_comp_type [type]:
+  "(\<circ>): ((x \<in> B) \<rightarrow> C x) \<Rightarrow> (f: A \<rightarrow> B) \<Rightarrow> (x \<in> A) \<rightarrow> C (f`x)"
+  unfolding fun_comp_def by auto
+
+lemma compose_functions:
+  assumes "f: A \<rightarrow> B" and "g: (x \<in> B) \<rightarrow> C x"
+  shows "g \<circ> f: (x \<in> A) \<rightarrow> C (f`x)"
+  by auto
+
 lemma compose_lambdas:
   "f: Element A \<Rightarrow> Element B \<Longrightarrow> (\<lambda>y\<in> B. g y) \<circ> (\<lambda>x\<in> A. f x) = \<lambda>x\<in> A. g (f x)"
   by (auto simp: fun_comp_def)
-
-lemma compose_functions [derive]:
-  assumes "f: A \<rightarrow> B" and "g: (x \<in> B) \<rightarrow> C x"
-  shows "g \<circ> f: (x \<in> A) \<rightarrow> C (f`x)"
-proof -
-  have "dom f = A" using assms(1) by auto
-  with assms show ?thesis unfolding fun_comp_def by fast
-qed
 
 lemma compose_idr [simp]: "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f \<circ> (\<lambda>x\<in> A. x) = f"
   unfolding fun_comp_def by (auto simp: eta)
@@ -520,21 +540,30 @@ lemma compose_assoc [simp]:
 section \<open>Restriction\<close>
 
 definition restriction :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infix "\<restriction>" 100)
-  where "f \<restriction> A = {p \<in> f | fst p \<in> A}"
+  where "f \<restriction> A = \<lambda>a\<in> A \<inter> dom f. f`a" (* {p \<in> f | fst p \<in> A}" *)
 
-lemma eval_restriction [simp]: "a \<in> A \<Longrightarrow> (f \<restriction> A)`a = f`a"
-  unfolding restriction_def eval_def by auto
+lemma restriction_type [type]:
+  "(\<restriction>): ((x \<in> A) \<rightarrow> B x) \<Rightarrow> (A': Subset A) \<Rightarrow> (x \<in> A') \<rightarrow> B x"
+  unfolding restriction_def
+  by discharge_types (auto
+      intro!: generic_DepFunctionI
+      dest!: SubsetD
+      simp: function_like_def bin_inter_subset_right_absorb)
+
+lemma eval_restriction [simp]: "A \<subseteq> dom f \<Longrightarrow> a \<in> A \<Longrightarrow> (f \<restriction> A)`a = f`a"
+  unfolding restriction_def eval_def lambda_def by auto
 
 lemma restriction_dom: "dom (f \<restriction> A) = dom f \<inter> A"
-  unfolding restriction_def dom_def by (auto intro: equalityI)
+  unfolding restriction_def by (auto intro: equalityI)
 
-lemma restriction_function [intro]:
+lemma restriction_function:
   "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f \<restriction> A': (x \<in> A \<inter> A') \<rightarrow> B x"
-  unfolding restriction_def by unfold_types (auto simp: function_like_def)
+  unfolding restriction_def by auto
 
-lemma restriction_function_subset [intro]:
+lemma restriction_function_subset:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> B x; A' \<subseteq> A\<rbrakk> \<Longrightarrow> f \<restriction> A': (x \<in> A') \<rightarrow> B x"
-  by (rewrite at A' in "_ \<rightarrow> _" bin_inter_subset_right_absorb[symmetric]) auto
+  by (rewrite at A' in "_ \<rightarrow> _" bin_inter_subset_right_absorb[symmetric])
+     (auto intro: restriction_function)
 
 
 section \<open>Gluing\<close>

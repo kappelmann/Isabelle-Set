@@ -15,7 +15,7 @@ definition [typedef]:
 
 lemma OrdI:
   "mem_transitive X \<Longrightarrow> (\<And>x. x \<in> X \<Longrightarrow> mem_transitive x) \<Longrightarrow> X: Ord"
-  unfolding Ord_def by (auto simp: meaning_of_type) (*Low-level! Fix this.*)
+  by unfold_types auto
 
 text \<open>Basic properties of ordinals:\<close>
 
@@ -29,7 +29,7 @@ lemma Ord_mem_transitive' [elim]: "x: Ord \<Longrightarrow> y \<in> x \<Longrigh
   by unfold_types (fastforce simp: mem_transitive_def)
 
 lemma [derive]: "x: Ord \<Longrightarrow> y: Element x \<Longrightarrow> y: Subset x"
-  by (fold element_type_iff subset_type_iff) (fact Ord_mem_transitive')
+  by (intro SubsetI, drule ElementD) (fact Ord_mem_transitive')
 
 (*Adapted from a proof by Chad Brown*)
 lemma Ord_trichotomy_aux:
@@ -110,13 +110,13 @@ lemma succ_inject' [simp]:
 lemma succ_mem [simp]: "x \<in> succ x"
   unfolding succ_def by auto
 
-lemma [derive]: "x: element (succ x)"
+lemma [derive]: "x: Element (succ x)"
   by unfold_types auto
 
 lemma succ_memI [simp]: "x \<in> y \<Longrightarrow> x \<in> succ y"
   unfolding succ_def by auto
 
-lemma [derive]: "x: element y \<Longrightarrow> x: element (succ y)"
+lemma [derive]: "x: Element y \<Longrightarrow> x: Element (succ y)"
   by unfold_types auto
 
 lemma succ_mem_not_eq [simp]:
@@ -137,7 +137,7 @@ lemma succ_cases [elim]:
 lemma univ_succ_closed [intro]: "x \<in> univ X \<Longrightarrow> succ x \<in> univ X"
   unfolding succ_def by auto
 
-lemma [derive]: "x: element (univ X) \<Longrightarrow> succ x: element (univ X)"
+lemma [derive]: "x: Element (univ X) \<Longrightarrow> succ x: Element (univ X)"
   by unfold_types auto
 
 
@@ -145,8 +145,8 @@ section \<open>\<omega>, the smallest infinite ordinal\<close>
 
 definition "omega_op X = {{}} \<union> repl X succ"
 
-lemma omega_op_monop: "omega_op: monop V"
-  unfolding omega_op_def by (fast intro: monopI)
+lemma omega_op_monop: "omega_op: Monop V"
+  unfolding omega_op_def by (fast intro: MonopI)
 
 definition omega ("\<omega>")
   where "\<omega> = lfp V omega_op"
@@ -161,8 +161,8 @@ lemma empty_in_omega [simp]: "{} \<in> \<omega>"
 lemma succ_omega [intro]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst omega_unfold, auto)
 
-lemma [type]: "{}: element \<omega>" by unfold_types auto
-lemma [type]: "succ: element \<omega> \<Rightarrow> element \<omega>"
+lemma [type]: "{}: Element \<omega>" by unfold_types auto
+lemma [type]: "succ: Element \<omega> \<Rightarrow> Element \<omega>"
   by unfold_types auto
 
 lemma omega_cases_raw:
@@ -219,7 +219,7 @@ lemma omega_elem_mem_transitive: "n \<in> \<omega> \<Longrightarrow> mem_transit
 lemma omega_elem_mem_transitive': "\<lbrakk>n \<in> \<omega>; m \<in> n; k \<in> m\<rbrakk> \<Longrightarrow> k \<in> n"
   using omega_elem_mem_transitive unfolding mem_transitive_def by auto
 
-lemma [derive]: "n: element \<omega> \<Longrightarrow> mem_transitive n"
+lemma [derive]: "n: Element \<omega> \<Longrightarrow> mem_transitive n"
   by unfold_types (fact omega_elem_mem_transitive)
 
 lemma omega_elem_subset: "n \<in> \<omega> \<Longrightarrow> n \<subseteq> \<omega>"
@@ -228,7 +228,7 @@ lemma omega_elem_subset: "n \<in> \<omega> \<Longrightarrow> n \<subseteq> \<ome
 lemma omega_mem_transitive: "x \<in> \<omega> \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> \<omega>"
   using omega_elem_subset by auto
 
-lemma [derive]: "x: element \<omega> \<Longrightarrow> y: element x \<Longrightarrow> y: element \<omega>"
+lemma [derive]: "x: Element \<omega> \<Longrightarrow> y: Element x \<Longrightarrow> y: Element \<omega>"
   by unfold_types (fact omega_mem_transitive)
 
 lemma omega_succ_mem_monotoneE:
