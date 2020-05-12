@@ -84,15 +84,6 @@ lemma Add_add_type [derive]:
 definition add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "add P = (\<lambda>x y. P @@ add `x `y)"
 
-
-(* Figure out how to prove these two automatically *)
-lemma [derive]: "\<lbrakk>f: A \<rightarrow> B \<rightarrow>  C; a: Element A; b: Element B\<rbrakk> \<Longrightarrow> f`a`b: Element C"
-  apply (rule DepFunctionE', auto) sorry
-  (* f`a \<in> (\<Prod>x\<in>B. C) \<Longrightarrow> f`a: B \<rightarrow> C *)
-
-lemma "\<lbrakk>f: A \<rightarrow> B \<rightarrow> C \<rightarrow> D; a: Element A; b: Element B; c: Element C\<rbrakk> \<Longrightarrow> f`a`b`c: Element D"
-  apply discharge_types \<comment> \<open>same obstruction as above\<close> oops
-
 lemma add_type [type]:
   "add: Add A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
   unfolding add_def by discharge_types

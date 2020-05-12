@@ -31,7 +31,7 @@ lemma function_likeD1: \<comment> \<open>existence of image\<close>
   obtains y where "\<langle>a, y\<rangle> \<in> S"
   using assms unfolding function_like_def by auto
 
-lemma function_ilkeD2: \<comment> \<open>uniqueness of image\<close>
+lemma function_likeD2: \<comment> \<open>uniqueness of image\<close>
   "\<lbrakk>function_like A S; a \<in> A; \<langle>a, y\<rangle> \<in> S; \<langle>a, y'\<rangle> \<in> S\<rbrakk> \<Longrightarrow> y = y'"
   unfolding function_like_def by auto
 
@@ -40,7 +40,7 @@ lemma function_like_elem [elim]:
   unfolding eval_def
   by (auto simp: function_like_def dest!: ballD intro: theI')
 
-lemma function_like_eval [simp]:
+lemma function_like_eval:
   "\<lbrakk>function_like A S; a \<in> A; \<langle>a, y\<rangle> \<in> S\<rbrakk> \<Longrightarrow> S`a = y"
   unfolding function_like_def eval_def by auto
 
@@ -128,12 +128,17 @@ translations
   "(x \<in> A) \<rightarrow> B" \<rightleftharpoons> "CONST DepFunction A (\<lambda>x. B)"
   "A \<rightarrow> B" \<rightleftharpoons> "CONST Function A B"
 
-lemma piset_models_DepFunction:
-  "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x"
+soft_type_translation "f \<in> \<Prod>x\<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
   unfolding piset_def by unfold_types (auto simp: function_like_def)
 
-(*TODO: Soft type translation needs to be a bit more flexible/powerful...*)
-soft_type_translation "f \<in> \<Prod>x\<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
+corollary piset_iff_DepFunction: "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x" by auto
+
+(*Soft type translations now get all translations that unify; no longer
+  restricted to just one.*)
+ML \<open>Derivation.get_translations @{context} @{term "f \<in> \<Prod>x\<in> A. (B x)"}\<close>
+
+
+section \<open>Properties of generic functions\<close>
 
 lemma
   DepFunction_imp_function_like [derive]:
@@ -150,9 +155,6 @@ lemma DepFunction_imp_Fun [derive]:
 lemma DepFunction_imp_Function [derive]:
   "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f: A \<rightarrow> (\<Union>x\<in> A. B x)"
   by unfold_types auto
-
-
-section \<open>Properties of generic functions\<close>
 
 lemma generic_DepFunctionI:
   assumes "function_like A f" "f: BinRel"
@@ -366,12 +368,14 @@ lemma eval_type [type]:
   \<close>
   by discharge_types (rule ElementI, auto)
 
-thm derivation_rules
+lemma curry_type [derive]:
+  "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A\<rbrakk> \<Longrightarrow> f`a: (y \<in> B a) \<rightarrow> C a y"
+  by (auto iff: piset_iff_DepFunction[symmetric])
 
-lemma DepFunctionE':
-  "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> a: Element A \<Longrightarrow> f`a: Element (B a)" by auto
-
-thm derivation_rules
+lemma curry_type' [derive]:
+  "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A; b: Element (B a)\<rbrakk>
+    \<Longrightarrow> f`a`b: Element (C a b)"
+  by auto
 
 lemma id_function_type [type]: "(\<lambda>x\<in> A. x): A \<rightarrow> A" by discharge_types
 

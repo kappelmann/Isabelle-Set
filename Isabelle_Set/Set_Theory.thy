@@ -1242,7 +1242,7 @@ soft_type_translation
   "a \<in> A" \<rightleftharpoons> "a: Element A" by unfold_types
 
 soft_type_translation
-  "A \<subseteq> B" \<rightleftharpoons> "A: Subset B" by unfold_types auto  
+  "A \<subseteq> B" \<rightleftharpoons> "A: Subset B" by unfold_types auto
 
 soft_type_translation
   "\<forall>x \<in> A. P x" \<rightleftharpoons> "\<forall>x: Element A. P x"
