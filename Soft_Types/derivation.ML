@@ -344,7 +344,7 @@ val _ = Theory.setup (Attrib.setup \<^binding>\<open>type\<close>
 
 (*** Type derivation ***)
 
-val derive_depth = Attrib.setup_config_int \<^binding>\<open>type_derivation_depth\<close> (K 3)
+val derive_depth = Attrib.setup_config_int \<^binding>\<open>type_derivation_depth\<close> (K 2)
 
 (*
   Generate all possible type judgments for a given term that can be derived from
