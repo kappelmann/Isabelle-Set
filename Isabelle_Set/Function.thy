@@ -131,7 +131,7 @@ translations
 soft_type_translation "f \<in> \<Prod>x\<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
   unfolding piset_def by unfold_types (auto simp: function_like_def)
 
-corollary piset_iff_DepFunction: "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x" by auto
+corollary piset_iff_DepFunction [iff]: "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x" by auto
 
 (*Soft type translations now get all translations that unify; no longer
   restricted to just one.*)
@@ -370,7 +370,7 @@ lemma eval_type [type]:
 
 lemma curry_type [derive]:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A\<rbrakk> \<Longrightarrow> f`a: (y \<in> B a) \<rightarrow> C a y"
-  by (auto iff: piset_iff_DepFunction[symmetric])
+  by (auto simp only: piset_iff_DepFunction[symmetric])
 
 lemma curry_type' [derive]:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A; b: Element (B a)\<rbrakk>
