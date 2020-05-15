@@ -16,8 +16,8 @@ definition "int_rep = Sum \<nat> (\<nat> \<setminus> {0})"
 \<comment> \<open>Some type derivation rule setup\<close>
 lemma
   [type]: "succ: Element \<nat> \<Rightarrow> Element (\<nat> \<setminus> {0})" and
-  [type]: "inl: Element \<nat> \<Rightarrow> Element int_rep" and
-  [type]: "inr: Element (\<nat> \<setminus> {0}) \<Rightarrow> Element int_rep"
+  [type]: "inl : Element \<nat> \<Rightarrow> Element int_rep" and
+  [type]: "inr : Element (\<nat> \<setminus> {0}) \<Rightarrow> Element int_rep"
   unfolding int_rep_def by unfold_types auto
 
 interpretation Int: set_extension \<nat> int_rep inl

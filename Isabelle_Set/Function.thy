@@ -337,11 +337,6 @@ lemma split_DepFunctionI [intro]:
   shows "(\<lambda>\<langle>x, y\<rangle>\<in> X \<times> Y. b x y): (p \<in> X \<times> Y) \<rightarrow> B p"
   using assms by auto
 
-lemma DepFunctionE [elim]:
-  assumes "f: (x \<in> A) \<rightarrow> B x" and "a \<in> A"
-  shows "f`a \<in> B a"
-  using DepFunction_elem_proj2 DepFunction_elem assms by auto
-
 lemma DepFunction_cong:
   "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> f: (x \<in> A) \<rightarrow> B x \<longleftrightarrow> f: (x \<in> A') \<rightarrow> B' x"
   by unfold_types (simp cong: pairset_cong)
@@ -349,7 +344,7 @@ lemma DepFunction_cong:
 lemma lambda_type [type]:
   "lambda: (A: Set) \<Rightarrow> ((x: Element A) \<Rightarrow> Element (B x)) \<Rightarrow> (x \<in> A) \<rightarrow> B x"
   by unfold_types auto
-
+  
 lemma lambda_function_typeI' [derive]:
   assumes "f: (x: Element A) \<Rightarrow> Element (B x)"
   shows "(\<lambda>x\<in> A. f x): (x \<in> A) \<rightarrow> B x"
@@ -359,6 +354,13 @@ lemma lambda_function_typeI [backward_derive]:
   assumes "\<And>x. x: Element A \<Longrightarrow> f x: Element (B x)"
   shows "(\<lambda>x\<in> A. f x): (x \<in> A) \<rightarrow> B x"
   by (rule lambda_function_typeI') auto
+
+lemma DepFunctionE [elim]:
+  assumes "f: (x \<in> A) \<rightarrow> B x" and "a \<in> A"
+  shows "f`a \<in> B a"
+  using DepFunction_elem_proj2 DepFunction_elem assms by auto
+
+lemma id_type [type]: "(\<lambda>x \<in> A. x) : A \<rightarrow> A" by unfold_types auto
 
 lemma eval_type [type]:
   "eval: ((x \<in> A) \<rightarrow> B x) \<Rightarrow> (x: Element A) \<Rightarrow> Element (B x)"
@@ -526,7 +528,7 @@ lemma compose_functions:
   by auto
 
 lemma compose_lambdas:
-  "f: Element A \<Rightarrow> Element B \<Longrightarrow> (\<lambda>y\<in> B. g y) \<circ> (\<lambda>x\<in> A. f x) = \<lambda>x\<in> A. g (f x)"
+  "f : Element A \<Rightarrow> Element B \<Longrightarrow> (\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   by (auto simp: fun_comp_def)
 
 lemma compose_idr [simp]: "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f \<circ> (\<lambda>x\<in> A. x) = f"
@@ -539,7 +541,6 @@ lemma compose_assoc [simp]:
   assumes "f: A \<rightarrow> B" "g: B \<rightarrow> C"
   shows "h \<circ> g \<circ> f = (h \<circ> g) \<circ> f"
   unfolding fun_comp_def by auto
-
 
 section \<open>Restriction\<close>
 

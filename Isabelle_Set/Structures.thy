@@ -27,7 +27,7 @@ definition zero :: "set \<Rightarrow> set"
   where "zero Z = Z @@ zero"
 
 lemma zero_type [type]:
-  "zero: Zero A \<Rightarrow> Element A"
+  "zero : Zero A \<Rightarrow> Element A"
   unfolding zero_def by auto
 
 abbreviation zero_implicit :: "set"
@@ -53,7 +53,7 @@ definition one :: "set \<Rightarrow> set"
   where "one O = O @@ one"
 
 lemma one_type [type]:
-  "one: One A \<Rightarrow> Element A"
+  "one : One A \<Rightarrow> Element A"
   unfolding one_def by auto
 
 abbreviation one_implicit :: "set" ("1")
@@ -85,7 +85,7 @@ definition add :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "add P = (\<lambda>x y. P @@ add `x `y)"
 
 lemma add_type [type]:
-  "add: Add A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
+  "add : Add A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
   unfolding add_def by discharge_types
 
 abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -117,7 +117,7 @@ definition mul :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   where "mul T = (\<lambda>x y. T @@ mul `x `y)"
 
 lemma mul_type [type]:
-  "mul: Mul A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
+  "mul : Mul A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
   unfolding mul_def by discharge_types
 
 abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
@@ -146,7 +146,7 @@ lemma Inv_inv_type [derive]:
 definition "inv I x = I @@ inv `x"
 
 lemma inv_type [type]:
-  "inv: Inv A \<Rightarrow> Element A \<Rightarrow> Element A"
+  "inv : Inv A \<Rightarrow> Element A \<Rightarrow> Element A"
   unfolding inv_def by discharge_types
 
 abbreviation inv_implicit where "inv_implicit x \<equiv> inv \<implicit>I x"

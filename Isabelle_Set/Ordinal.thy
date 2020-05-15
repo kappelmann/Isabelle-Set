@@ -137,7 +137,7 @@ lemma succ_cases [elim]:
 lemma univ_succ_closed [intro]: "x \<in> univ X \<Longrightarrow> succ x \<in> univ X"
   unfolding succ_def by auto
 
-lemma [derive]: "x: Element (univ X) \<Longrightarrow> succ x: Element (univ X)"
+lemma [derive]: "x : Element (univ X) \<Longrightarrow> succ x : Element (univ X)"
   by unfold_types auto
 
 

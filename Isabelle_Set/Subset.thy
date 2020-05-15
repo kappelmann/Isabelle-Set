@@ -26,14 +26,14 @@ proof (intro allI impI)
   with * assms show "h W \<subseteq> h X" by auto
 qed
 
-lemma Monop_subset_closed: "h: Monop D \<Longrightarrow> h D \<subseteq> D"
+lemma monop_Subset_closed: "h : Monop D \<Longrightarrow> h D \<subseteq> D"
   unfolding monotone_def by unfold_types auto
 
 (* Elimination instead of destruction? *)
 lemma MonopE: "\<lbrakk>h: Monop D; X \<subseteq> D; W \<subseteq> X\<rbrakk> \<Longrightarrow> h W \<subseteq> h X"
   unfolding monotone_def by unfold_types
 
-lemma [derive]: "h: Monop D \<Longrightarrow> X: Subset D \<Longrightarrow> h X: Subset D"
+lemma [derive]: "h : Monop D \<Longrightarrow> X : Subset D \<Longrightarrow> h X : Subset D"
   by unfold_types
 
 lemma [derive]: "(\<lambda>L. L): Monop D"
@@ -108,7 +108,7 @@ lemma lfp_lowerbound: "h A \<subseteq> A \<Longrightarrow> A \<subseteq> D \<Lon
   unfolding lfp_def by auto
 
 lemma lfp_greatest: "(\<And>X. X \<subseteq> D \<Longrightarrow> h X \<subseteq> X \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
-  using Monop_subset_closed[OF h_type] unfolding lfp_def by auto
+  using monop_Subset_closed[OF h_type] unfolding lfp_def by auto
 
 lemma lfp_unfold: "lfp D h = h (lfp D h)"
 proof (rule extensionality)
@@ -147,8 +147,7 @@ lemma lfp_induct:
   assumes IH: "\<And>x. x \<in> h (collect (lfp D h) P) \<Longrightarrow> P x"
   shows "P a"
 proof -
-  have "P: Element D \<Rightarrow> Bool" by unfold_types
-
+  have "P : Element D \<Rightarrow> Bool" by unfold_types
   have "lfp D h \<subseteq> collect (lfp D h) P"
   proof (rule lfp_lowerbound)
     from IH

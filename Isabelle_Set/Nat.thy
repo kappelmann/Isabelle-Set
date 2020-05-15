@@ -393,7 +393,7 @@ lemma le_iff_in_range_zero: "n : Nat \<Longrightarrow> m \<le> n \<longleftright
 lemmas in_range_zero_iff_le = le_iff_in_range_zero[symmetric]
 
 lemma zero_in_range_zero [derive]: "n : Nat \<Longrightarrow> 0 : Element {0..n}"
-  unfolding range_def by unfold_types simp 
+  by unfold_types auto
 
 lemma
   [derive]: "n : Nat \<Longrightarrow> n : Element {0..n}" and

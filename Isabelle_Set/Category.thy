@@ -27,7 +27,7 @@ abbreviation comp ("comp\<^bsub>_, _, _, _\<^esub>")
 
 definition [typeclass]: "Category' U \<equiv>
   type (\<lambda>\<C>.
-    obj \<C>: non-empty \<sqdot> Subset U \<and>
+    obj \<C> : non-empty \<sqdot> Subset U \<and>
 
     \<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
 
@@ -54,7 +54,7 @@ text \<open>
 
 lemma Category'I:
   assumes
-    "obj \<C>: non-empty \<sqdot> Subset U"
+    "obj \<C> : non-empty \<sqdot> Subset U"
 
     "\<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
 
@@ -80,7 +80,7 @@ lemma Category'I:
 
 lemma Category'D:
   shows
-    "\<C>: Category' U \<Longrightarrow> obj \<C>: non-empty \<sqdot> Subset U"
+    "\<C> : Category' U \<Longrightarrow> obj \<C> : non-empty \<sqdot> Subset U"
   and
     "\<C>: Category' U \<Longrightarrow> \<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
   and
