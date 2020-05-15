@@ -1236,8 +1236,8 @@ lemma func_type_restrict_set_domain:
   by (insert assms, unfold_types, auto)
 
 lemma func_type_restrict_set_domain:
-  assumes "A \<subseteq> B" "f : (b : element B) \<Rightarrow> T b"
-  shows "f : (a : element A) \<Rightarrow> T a"
+  assumes "A \<subseteq> B" "f : (b : Element B) \<Rightarrow> T b"
+  shows "f : (a : Element A) \<Rightarrow> T a"
 using assms by unfold_types auto
 
 text \<open>Declare basic soft type translations.\<close>
