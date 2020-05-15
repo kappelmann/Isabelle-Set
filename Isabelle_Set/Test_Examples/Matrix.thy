@@ -96,7 +96,6 @@ definition "matrix_one Z O m n \<equiv>
 lemma matrix_one_type [type]:
   "matrix_one : Zero C \<Rightarrow> One C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
     Element (matrix C m n)"
-  using [[trace_type_derivation]]
   unfolding matrix_def matrix_one_def by discharge_types
 
 definition "matrix_One Z O m n \<equiv> object {
@@ -231,7 +230,6 @@ definition "matrix_Mul C A M l m n \<equiv> object {
 lemma matrix_Mul_type:
   assumes "A : Monoid C" "M : Mul C" "n : Nat"
   shows "matrix_Mul C A M n n n : Mul (matrix C n n)"
-  using [[trace_type_derivation]] [[type_derivation_depth=8]]
   unfolding matrix_Mul_def by (rule Mul_typeI) auto
 
 
