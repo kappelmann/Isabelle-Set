@@ -1219,17 +1219,19 @@ definition Element :: "set \<Rightarrow> set type"
 definition Subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
-lemma ElementI: "a \<in> A \<Longrightarrow> a: Element A"
-  by unfold_types
+lemma Element_iff: "a \<in> A \<longleftrightarrow> a: Element A" by unfold_types
 
-lemma ElementD: "a: Element A \<Longrightarrow> a \<in> A"
-  by unfold_types
+corollary
+  ElementI: "a \<in> A \<Longrightarrow> a: Element A" and
+  ElementD: "a: Element A \<Longrightarrow> a \<in> A"
+  by (auto iff: Element_iff)
 
-lemma SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B"
-  by unfold_types auto
+lemma Subset_iff: "A \<subseteq> B \<longleftrightarrow> A: Subset B" by unfold_types auto
 
-lemma SubsetD: "A: Subset B \<Longrightarrow> A \<subseteq> B"
-  by unfold_types auto
+corollary
+  SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B" and
+  SubsetD: "A: Subset B \<Longrightarrow> A \<subseteq> B"
+  by (auto iff: Subset_iff)
 
 lemma subset_self [derive]: "A: Subset A"
   by unfold_types auto

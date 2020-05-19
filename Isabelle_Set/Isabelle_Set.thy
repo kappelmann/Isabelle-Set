@@ -2,7 +2,7 @@ theory Isabelle_Set
 imports
   Set_Theory
   Ordered_Pairs
-  Relation
+  BinRel
   Function
   Sum
   Subset

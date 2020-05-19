@@ -27,7 +27,7 @@ unbundle
 
 lemmas
   nat_unfold = omega_unfold[folded nat_def nat_zero_def] and
-  zero_nat [simp] = empty_in_omega[folded nat_def nat_zero_def] and
+  nat_zero_nat [simp] = empty_in_omega[folded nat_def nat_zero_def] and
   succ_nat [intro] = succ_omega[folded nat_def] and
   nat_cases = omega_cases[folded nat_def nat_zero_def] and
   nat_induct [case_names 0 induct, induct set: nat] =
@@ -46,14 +46,14 @@ lemmas nat_one_ne_zero [simp] = nat_zero_ne_one[symmetric]
 
 section \<open>\<nat> as a type\<close>
 
-abbreviation "Nat \<equiv> element \<nat>"
+abbreviation "Nat \<equiv> Element \<nat>"
 
 lemmas Nat_induct = nat_induct
-  [ simplified element_type_iff,
+  [ simplified Element_iff,
     case_names base induct,
     induct pred: Nat ]
 
-lemmas Nat_cases = nat_cases[simplified element_type_iff]
+lemmas Nat_cases = nat_cases[simplified Element_iff]
 
 lemma Nat_Ord [derive]: "x: Nat \<Longrightarrow> x: Ord"
   by (induct x rule: Nat_induct) (auto intro: succ_Ord simp: nat_zero_def)
@@ -82,7 +82,7 @@ lemma pred_zero [simp]: "pred 0 = 0"
 lemma pred_succ [simp]: "n: Nat \<Longrightarrow> pred (succ n) = n"
   unfolding pred_def by auto
 
-lemma succ_pred: "\<lbrakk>n: Nat; n \<noteq> 0\<rbrakk> \<Longrightarrow> succ (pred n) = n"
+lemma succ_pred [simp]: "\<lbrakk>n: Nat; n \<noteq> 0\<rbrakk> \<Longrightarrow> succ (pred n) = n"
   unfolding pred_def
   by (simp, rule sym, rule btheI2) (auto intro: nat_elems)
 
@@ -130,16 +130,13 @@ lemma nat_lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
 lemma le_succ [simp]: "n \<le> succ n"
   unfolding le_def by auto
 
-lemma succ_le_monotone:
-  "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+lemma succ_le_monotone: "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
-lemma succ_le_monotoneE:
-  "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
+lemma succ_le_monotoneE: "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
   unfolding le_def using succ_lt_monotoneE by auto
 
-lemma succ_lt_le_monotone:
-  "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
+lemma succ_lt_le_monotone: "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
 lemma lt_0 [simp]: "n: Nat \<Longrightarrow> 0 < succ n"
@@ -154,8 +151,13 @@ corollary [simp]: "\<not> n < 0" by auto
 lemma nat_gt_zero_imp_ne_zero: "0 < n \<Longrightarrow> n \<noteq> 0"
   by auto
 
-lemma nat_ne_zero_imp_gt_zero: assumes "n: Nat" and "n \<noteq> 0" shows "0 < n"
+lemma nat_ne_zero_imp_gt_zero:
+  assumes "n: Nat" and "n \<noteq> 0" shows "0 < n"
   by (rule lt_trichotomyE[of 0 n]) (auto simp: assms)
+
+corollary nat_gt_zero_iff_ne_zero [iff]:
+  "n: Nat \<Longrightarrow> 0 < n \<longleftrightarrow> n \<noteq> 0"
+  using nat_gt_zero_imp_ne_zero nat_ne_zero_imp_gt_zero ..
 
 lemma
   not_succ_lt [simp]: "\<not> succ n < n" and
@@ -176,6 +178,16 @@ lemma le_cases: assumes "n: Nat" and "m \<le> n"
 lemma lt_asym: "\<lbrakk>m < n; n < m\<rbrakk> \<Longrightarrow> P"
   unfolding lt_def using mem_asym by blast
 
+lemma le_iff_not_lt:
+  assumes "m: Nat" "n: Nat"
+  shows "m \<le> n \<longleftrightarrow> \<not> n < m"
+  unfolding le_def using assms lt_trichotomy lt_asym by auto
+
+corollary not_lt_imp_iff:
+  assumes "m: Nat" "n: Nat"
+  shows "\<not> n < m \<Longrightarrow> m \<le> n"
+  using le_iff_not_lt by auto
+
 lemma lt_trans:
   "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k < n"
   unfolding lt_def nat_def
@@ -190,9 +202,13 @@ lemma
   lt_lt_le: "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
   unfolding le_def by (auto intro: lt_trans)
 
-lemma succ_lt: "\<lbrakk>m: Nat; n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
+lemma succ_lt: "\<lbrakk>n: Nat; succ m < n\<rbrakk> \<Longrightarrow> m < n"
   unfolding succ_def lt_def nat_def
   by unfold_types (auto dest: omega_elem_Ord Ord_mem_transitive')
+
+lemma succ_le:
+  assumes "n: Nat" shows "succ m \<le> n \<Longrightarrow> m < n"
+  using assms by (elim le_cases) (assumption, auto intro: succ_lt)
 
 lemma succ_zero_lt:
   "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> succ m < n \<Longrightarrow> 0 < n"
@@ -239,7 +255,7 @@ lemma uptoI: "n: Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<in> {0, .
 lemma uptoE1: "m \<in> {0, ..., n} \<Longrightarrow> m: Nat"
   unfolding upto_def by auto
 
-lemmas [derive] = uptoE1[simplified element_type_iff]
+lemmas [derive] = uptoE1[simplified Element_iff]
 
 lemma uptoE2: "m \<in> {0, ..., n} \<Longrightarrow> m \<le> n"
   unfolding upto_def by auto
@@ -249,14 +265,14 @@ lemma le_iff_upto: "n: Nat \<Longrightarrow> m \<le> n = (m \<in> {0, ..., n})"
 
 lemmas upto_iff_le = le_iff_upto[symmetric]
 
-lemma [derive]: "n: Nat \<Longrightarrow> 0: element {0, ..., n}"
+lemma [derive]: "n: Nat \<Longrightarrow> 0: Element {0, ..., n}"
   by
     (simp add: upto_eq_succ nat_def nat_zero_def, unfold_types)
     (auto intro: omega_empty_in_succ)
 
 lemma
-  [derive]: "n: Nat \<Longrightarrow> n: element {0, ..., n}" and
-  [derive]: "n: Nat \<Longrightarrow> m: element n \<Longrightarrow> m: element {0, ..., n}"
+  [derive]: "n: Nat \<Longrightarrow> n: Element {0, ..., n}" and
+  [derive]: "n: Nat \<Longrightarrow> m: Element n \<Longrightarrow> m: Element {0, ..., n}"
   by unfold_types (auto simp: upto_eq_succ)
 
 lemma upto_subset_upto [intro!]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> {0, ..., m} \<subseteq> {0, ..., n}"
@@ -294,9 +310,9 @@ qed
 
 lemma cons_upto_FunctionI [intro]:
   assumes "n: Nat"
-      and "f \<in> {0, ..., n} \<rightarrow> X"
+      and "f: {0, ..., n} \<rightarrow> X"
       and "x \<in> X"
-  shows "cons \<langle>succ n, x\<rangle> f \<in> {0, ..., succ n} \<rightarrow> X"
+  shows "cons \<langle>succ n, x\<rangle> f: {0, ..., succ n} \<rightarrow> X"
   by
     (simp only: upto_eq_succ, subst (2) succ_def)
     (auto intro: assms cons_FunctionI' simp: succ_eq_upto)
@@ -308,11 +324,11 @@ text \<open>Recursion on Nat. Axiomatized, for now.\<close>
 
 axiomatization natrec :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set\<close> where
   natrec_0 [simp]: "natrec x\<^sub>0 f 0 = x\<^sub>0" and
-  natrec_succ [simp]: "natrec x\<^sub>0 f (succ n) = f (natrec x\<^sub>0 f n)"
+  natrec_succ [simp]: "n: Nat \<Longrightarrow> natrec x\<^sub>0 f (succ n) = f (natrec x\<^sub>0 f n)"
 
 lemma natrec_type [type]:
   "natrec: X \<Rightarrow> (X \<Rightarrow> X) \<Rightarrow> Nat \<Rightarrow> X"
-proof (intro typeI)
+proof discharge_types
   fix x f n
   show "n: Nat \<Longrightarrow> x: X \<Longrightarrow> f: X \<Rightarrow> X \<Longrightarrow> natrec x f n: X"
   by (induct n rule: Nat_induct) auto
@@ -321,12 +337,9 @@ qed
 
 section \<open>Arithmetic\<close>
 
-named_theorems arith
-
 subsection \<open>Addition\<close>
 
-\<comment> \<open>Note Kevin: TODO: recursion should be on the first parameter, not the second\<close>
-definition [arith]: "nat_add m n = natrec m succ n"
+definition "nat_add m n = natrec n succ m"
 
 lemma nat_add_type [type]: "nat_add: Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_add_def by auto
@@ -338,65 +351,86 @@ unbundle
   no_notation_add_implicit
   notation_nat_add
 
-lemma nat_zero_add [simp]: "m: Nat \<Longrightarrow> 0 + m = m"
+lemma nat_add_zero [simp]: "m: Nat \<Longrightarrow> m + 0 = m"
   unfolding nat_add_def by (induction m rule: Nat_induct) auto
 
-lemma nat_add_zero [simp]: "m + 0 = m"
+lemma nat_zero_add [simp]: "0 + m = m"
   unfolding nat_add_def by simp
 
-lemma nat_add_assoc: "k: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n + k = m + (n + k)"
-  unfolding nat_add_def by (induction k rule: Nat_induct) auto
+(*Next three rules declared [simp] to reduce sums to some kind of normal form*)
+lemma nat_add_assoc [simp]:
+  "\<lbrakk>m: Nat; n: Nat; k: Nat\<rbrakk> \<Longrightarrow> m + (n + k) = m + n + k"
+  unfolding nat_add_def by (induction m rule: Nat_induct) auto
 
-lemma nat_add_succ_eq_succ_add [simp]: "m + succ n = succ (m + n)"
+lemma nat_succ_add [simp]: "m: Nat \<Longrightarrow> succ m + n = succ (m + n)"
   unfolding nat_add_def by simp
 
-lemma nat_succ_add: assumes "m: Nat" "n: Nat"
-  shows "succ n + m = succ (n + m)"
-  using assms by (induction m rule: Nat_induct) auto
+lemma nat_add_succ [simp]: "m: Nat \<Longrightarrow> m + succ n = succ (m + n)"
+  by (induction m rule: Nat_induct) auto
 
-lemma nat_add_comm: "n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> m + n = n + m"
-  by (induction n arbitrary: m rule: Nat_induct) (auto simp: nat_succ_add)
+corollary nat_succ_add_eq_add_succ: "m: Nat \<Longrightarrow> succ m + n = m + succ n"
+  using nat_succ_add nat_add_succ by simp
 
-lemma nat_add_one_eq_succ: "n + 1 = succ n"
-  unfolding nat_one_def by (simp add: arith)
+lemma nat_add_comm: "m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m + n = n + m"
+  by (induction m rule: Nat_induct) auto
 
-lemma nat_one_add_eq_succ: "n: Nat \<Longrightarrow> 1 + n = succ n"
-  using nat_add_comm[of 1 n] nat_add_one_eq_succ by simp
+lemma nat_one_add_eq_succ: "1 + n = succ n"
+  unfolding nat_one_def by (simp add: nat_add_def)
+
+lemma nat_add_one_eq_succ: "n: Nat \<Longrightarrow> n + 1 = succ n"
+  using nat_add_comm nat_one_add_eq_succ by simp
 
 lemma nat_add_nonzero_left [simp]:
-  assumes
-    "m: Nat" "n: Nat" "m \<noteq> 0"
+  assumes "m: Nat" "m \<noteq> 0"
   shows "m + n \<noteq> 0"
-  unfolding nat_add_def
-  by (insert assms(2), induction n rule: Nat_induct) auto
+  unfolding nat_add_def using assms by induction auto
 
 lemma nat_add_nonzero_right [simp]:
-  assumes
-    "m: Nat" "n: Nat" "n \<noteq> 0"
+  assumes "m: Nat" "n \<noteq> 0"
   shows "m + n \<noteq> 0"
-  using nat_add_nonzero_left assms by (subst nat_add_comm)
+  unfolding nat_add_def using assms by induction auto
 
 lemma nat_lt_add:
-  assumes "l: Nat" "m: Nat" "n: Nat"
-      and "n < m"
-  shows "n < m + l"
-using assms
+  assumes "m: Nat" "n: Nat" "l: Nat"
+      and "m < n"
+  shows "m < n + l"
+using \<open>l: Nat\<close>
 proof (induction l rule: Nat_induct)
   case (induct l)
-  then have "n < m + l" by simp
-  then have "n < succ (m + l)" using lt_trans by simp
-  then show "n < m + succ l" using nat_add_succ_eq_succ_add by simp
-\<comment> \<open>  TODO: Transitivity rules have typing assumptions. Proof should more
+  then have "m < n + l" by simp
+  then have "m < succ (n + l)" using lt_trans by simp
+  then show "m < n + succ l" using nat_add_succ by simp
+\<comment> \<open>TODO: Transitivity rules have typing assumptions. Proof should more
   look like this:
   then have "n < m + l" by simp
   also have "... < succ (m + l)" by simp
   also have "... = m + succ l" using nat_add_succ_eq_succ_add by auto
   finally show ?case by auto\<close>
 qed simp
-  
+
+(*Next two rules declared [simp] to simplify to normal form*)
+lemma nat_pred_add [simp]: "\<lbrakk>m: Nat; n: Nat; 0 < m\<rbrakk> \<Longrightarrow> pred m + n = pred (m + n)"
+  by (induction m rule: Nat_induct) auto
+
+lemma nat_add_pred [simp]: "\<lbrakk>m: Nat; n: Nat; 0 < n\<rbrakk> \<Longrightarrow> m + pred n = pred (m + n)"
+  using nat_pred_add by (simp add: nat_add_comm)
+
+lemma nat_succ_add_pred [simp]:
+  "\<lbrakk>m: Nat; n: Nat; 0 < n\<rbrakk> \<Longrightarrow> succ m + pred n = m + n"
+  by (induction m rule: Nat_induct) auto
+
+lemma nat_pred_add_succ [simp]:
+  "\<lbrakk>m: Nat; n: Nat; 0 < m\<rbrakk> \<Longrightarrow> pred m + succ n = m + n"
+  using nat_succ_add_pred by (simp add: nat_add_comm)
+
+lemma nat_succ_add_succ:
+  assumes "m: Nat" "n: Nat"
+  shows "succ m + succ n = succ (succ (m + n))"
+  by simp
+
 subsection \<open>Subtraction (truncated)\<close>
 
-definition [arith]: "nat_sub m n = natrec m pred n"
+definition "nat_sub m n = natrec m pred n"
 
 lemma nat_sub_type [type]: "nat_sub: Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_sub_def by auto
@@ -409,31 +443,124 @@ unbundle notation_nat_sub
 lemma nat_sub_zero [simp]: "m - 0 = m"
   unfolding nat_sub_def by auto
 
-lemma nat_sub_succ_eq_pred_sub: "m - succ n = pred (m - n)"
+lemma nat_sub_succ: "n: Nat \<Longrightarrow> m - succ n = pred (m - n)"
   unfolding nat_sub_def by simp
 
-lemma nat_pred_sub: assumes "m: Nat" "n: Nat"
-  shows "pred n - m = pred (n - m)"
-  using assms
-  by (induction m rule: Nat_induct) (auto simp: nat_sub_succ_eq_pred_sub)
+lemma nat_zero_sub [simp]: "m: Nat \<Longrightarrow> 0 - m = 0"
+  by (induction m rule: Nat_induct) (auto simp: nat_sub_succ)
 
-lemma nat_succ_sub [simp]:
+lemma nat_pred_sub: "m: Nat \<Longrightarrow> pred n - m = pred (n - m)"
+  by (induction m rule: Nat_induct) (auto simp: nat_sub_succ)
+
+lemma nat_succ_sub_succ [simp]:
   "n: Nat \<Longrightarrow> m: Nat \<Longrightarrow> succ m - succ n = m - n"
-  by (induction n rule: Nat_induct) (simp_all add: arith)
+  by (induction n rule: Nat_induct) (simp_all add: nat_sub_def)
 
-lemma nat_zero_lt_sub [simp]:
-  assumes "m: Nat" "n: Nat" and "m < n" shows "0 < n - m"
+lemma nat_lt_imp_zero_lt_sub [simp]:
+  assumes "m: Nat" "n: Nat"
+      and "m < n"
+  shows "0 < n - m"
 using assms
 proof (induction m arbitrary: n rule: Nat_induct)
   case (induct m)
   with nat_succ_lt_imp_lt_pred have "m < pred n" by simp
   then have "0 < pred n - m" using induct.IH by simp
-  then show ?case using nat_pred_sub nat_sub_succ_eq_pred_sub by simp
+  then show ?case using nat_pred_sub nat_sub_succ by simp
 qed simp
+
+corollary nat_lt_imp_sub_ne_zero [simp]:
+  assumes "m: Nat" "n: Nat"
+      and "m < n"
+  shows "n - m \<noteq> 0"
+proof -
+  from assms have "0 < n - m" by (rule nat_lt_imp_zero_lt_sub)
+  thus ?thesis by auto
+qed
+
+lemma nat_succ_sub:
+  assumes "m: Nat" "n: Nat" "n < m"
+  shows "succ m - n = succ (m - n)"
+using \<open>n: Nat\<close> \<open>n < m\<close> proof induction
+  case (induct n)
+  show "succ m - succ n = succ (m - succ n)"
+    by simp (simp add: nat_sub_succ succ_lt)
+qed simp
+
+lemma nat_sub_pred:
+  assumes "m: Nat" "n: Nat"
+  shows "\<lbrakk>0 < n; n \<le> m\<rbrakk> \<Longrightarrow> m - pred n = succ (m - n)"
+using assms(2) proof (induction, clarsimp)
+  fix n assume n: "n: Nat" and "0 < succ n" and "succ n \<le> m"
+  then have "n < m" by (simp add: succ_le)
+  then have "0 < m - n" using n assms(1) by (intro nat_lt_imp_zero_lt_sub)
+  with \<open>0 < succ n\<close> show "m - pred (succ n) = succ (m - succ n)"
+    by (auto simp: nat_sub_succ)
+qed
+
+lemma nat_zero_lt_sub_imp_lt:
+  assumes "m: Nat" "n: Nat"
+      and "0 < m - n"
+  shows "n < m"
+using \<open>n: Nat\<close> \<open>0 < m - n\<close> \<open>m: Nat\<close> proof (induction arbitrary: m)
+  case base thus "0 < m" by auto
+  next case (induct n)
+    from \<open>0 < m - succ n\<close>
+    have "0 < pred m - n" and "0 < m"
+      using nat_pred_sub nat_sub_succ by auto
+    hence "n < pred m" by (auto intro: induct.IH)
+    hence "succ n < succ (pred m)" by auto
+    thus "succ n < m" using \<open>0 < m\<close> by auto
+qed
+
+corollary nat_lt_iff_zero_lt_sub:
+  "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> m < n \<longleftrightarrow> 0 < n - m"
+  using nat_zero_lt_sub_imp_lt nat_lt_imp_zero_lt_sub by blast
+
+lemma nat_sub_dist_add:
+  assumes "m: Nat" "n: Nat" "k: Nat"
+  shows "m - (n + k) = m - n - k"
+using assms(3) apply (induction, clarsimp)
+using assms(2) apply (induction, clarsimp)
+using assms(1)
+proof (induction, simp add: [[type_derivation_depth=3]])
+  fix m n k assume asm: "m: Nat" "n: Nat" "k: Nat" and
+    "succ m - (succ n + k) = succ m - succ n - k"
+  then have "m - (n + k) = m - n -k"
+    using nat_succ_add nat_succ_sub_succ by simp
+  with asm show "succ m - (succ n + succ k) = succ m - succ n - succ k"
+    using nat_succ_add_succ nat_succ_sub_succ nat_sub_succ by simp
+qed
+
+lemma nat_sub_twice_comm:
+  assumes "m: Nat" "n: Nat" "k: Nat"
+  shows "m - n - k = m - k - n"
+  using assms by (simp add: nat_sub_dist_add[symmetric] nat_add_comm)
+
+lemma nat_add_sub_assoc:
+  "\<lbrakk>m: Nat; n: Nat; k: Nat; k \<le> n\<rbrakk> \<Longrightarrow> m + n - k = m + (n - k)"
+proof (induction m rule: Nat_induct, clarsimp)
+  case (induct m)
+  show "\<lbrakk>n: Nat; k: Nat; k \<le> n\<rbrakk> \<Longrightarrow> succ m + n - k = succ m + (n - k)"
+  proof (induction n arbitrary: k rule: Nat_induct, clarsimp)
+    case base
+    have *: "k = 0" by auto
+    show "succ m - k = succ m" by (simp add: *)
+  next
+    case (induct n)
+    note IHn = induct.IH
+    show "\<lbrakk>k: Nat; k \<le> succ n\<rbrakk> \<Longrightarrow> succ m + succ n - k = succ m + (succ n - k)"
+    proof (induction k rule: Nat_induct, clarsimp)
+      case (induct k)
+      from \<open>succ k \<le> succ n\<close> succ_le_monotoneE have "k \<le> n" by simp
+      show "succ m + succ n - succ k = succ m + (succ n - succ k)"
+        using IHn by (simp add: nat_succ_add_succ)
+    qed
+  qed
+qed
 
 subsection \<open>Multiplication\<close>
 
-definition [arith]: "nat_mul m n = natrec 0 (nat_add n) m"
+definition "nat_mul m n = natrec 0 (nat_add n) m"
 
 lemma nat_mul_type [type]: "nat_mul: Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_mul_def by auto
@@ -444,23 +571,25 @@ bundle no_notation_nat_mul begin no_notation nat_mul (infixl "\<cdot>" 65) end
 unbundle no_notation_mul_implicit
 unbundle notation_nat_mul
 
-lemma nat_succ_mul: "succ m \<cdot> n = n + (m \<cdot> n)"
-  unfolding nat_mul_def by simp
-
 lemma nat_zero_mul [simp]: "0 \<cdot> n = 0"
   unfolding nat_mul_def by simp
 
-lemma nat_mul_zero [simp]: assumes "n: Nat" shows "n \<cdot> 0 = 0"
-  using assms unfolding nat_mul_def by (induction n rule: Nat_induct) auto
+lemma nat_mul_zero [simp]: "n: Nat \<Longrightarrow> n \<cdot> 0 = 0"
+  by (induction n rule: Nat_induct) (auto simp: nat_mul_def)
 
-lemma nat_one_mul [simp]: "1 \<cdot> n = n"
-  unfolding nat_mul_def nat_one_def by simp
+lemma nat_one_mul [simp]: "n: Nat \<Longrightarrow> 1 \<cdot> n = n"
+  unfolding nat_mul_def nat_one_def by auto
 
-lemma nat_mul_one [simp]: assumes "n: Nat" shows "n \<cdot> 1 = n"
-  using assms unfolding nat_mul_def nat_one_def
-  by (induction n rule: Nat_induct) (auto simp: nat_succ_add)
+lemma nat_mul_one [simp]: "n: Nat \<Longrightarrow> n \<cdot> 1 = n"
+  by (induction n rule: Nat_induct)
+     (auto simp: nat_succ_add nat_mul_def nat_one_def)
 
-lemma nat_mul_add: assumes "l: Nat" "m: Nat" "n: Nat"
+lemma nat_succ_mul: "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> succ m \<cdot> n = n + (m \<cdot> n)"
+  by (induction m rule: Nat_induct)
+     (simp add: nat_one_def[symmetric], simp add: nat_mul_def)
+
+lemma nat_mul_dist_add_left:
+  assumes "l: Nat" "m: Nat" "n: Nat"
   shows "l \<cdot> (m + n) = (l \<cdot> m) + (l \<cdot> n)"
 using assms
 proof (induction l arbitrary: n m rule: Nat_induct)
@@ -480,19 +609,22 @@ lemma nat_mul_comm: "m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> m \<cdot>
 proof (induction m arbitrary: n rule: Nat_induct)
   case (induct m)
   with nat_succ_mul have "succ m \<cdot> n = n + (n \<cdot> m)" by simp
-  then show ?case by
-    (auto simp: nat_add_one_eq_succ[symmetric] nat_mul_add nat_add_comm)
+  then show ?case
+    by (auto simp: nat_add_one_eq_succ[symmetric] nat_mul_dist_add_left nat_add_comm)
 qed simp
 
-lemma nat_add_mul: assumes "l: Nat" "m: Nat" "n: Nat"
+lemma nat_mul_dist_add_right:
+  assumes "l: Nat" "m: Nat" "n: Nat"
   shows "(l + m) \<cdot> n = (l \<cdot> n) + (m \<cdot> n)"
-  by (simp only: nat_mul_comm nat_mul_add)
+  by (simp only: nat_mul_comm nat_mul_dist_add_left)
 
-lemma nat_mul_assoc: "l: Nat \<Longrightarrow> m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> l \<cdot> m \<cdot> n = l \<cdot> (m \<cdot> n)"
+lemma nat_mul_assoc:
+  "l: Nat \<Longrightarrow> m: Nat \<Longrightarrow> n: Nat \<Longrightarrow> l \<cdot> m \<cdot> n = l \<cdot> (m \<cdot> n)"
   by (induction l arbitrary: n m rule: Nat_induct)
-  (auto simp: nat_succ_mul nat_add_mul)
+     (auto simp: nat_succ_mul nat_mul_dist_add_right)
 
-lemma nat_zero_lt_mul [intro]: assumes "m: Nat" "n: Nat" and "0 < m" "0 < n"
+lemma nat_zero_lt_mul [intro]:
+  assumes "m: Nat" "n: Nat" and "0 < m" "0 < n"
   shows "0 < m \<cdot> n"
 using assms
 proof (induction m rule: Nat_induct)
@@ -501,7 +633,8 @@ proof (induction m rule: Nat_induct)
   with nat_succ_mul show ?case by simp
 qed simp
 
-lemma "nat_mul_eq_zero": assumes "m: Nat" "n: Nat" and "m \<cdot> n = 0"
+lemma "nat_mul_eq_zero":
+  assumes "m: Nat" "n: Nat" and "m \<cdot> n = 0"
   shows "m = 0 \<or> n = 0"
 proof (rule ccontr)
   presume "m \<noteq> 0" and "n \<noteq> 0"
@@ -511,13 +644,29 @@ proof (rule ccontr)
   then show "False" by simp
 qed auto
 
-lemma nat_mul_eq_zeroE: assumes "m: Nat" "n: Nat" "m \<cdot> n = 0"
+lemma nat_mul_eq_zeroE:
+  assumes "m: Nat" "n: Nat" "m \<cdot> n = 0"
   obtains (left_zero) "m = 0" | (right_zero) "n = 0"
   using assms nat_mul_eq_zero by blast
 
-lemma nat_mul_ne_zero: assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 0"
+lemma nat_mul_ne_zero:
+  assumes "m: Nat" "n: Nat" and "m \<noteq> 0" "n \<noteq> 0"
   shows "m \<cdot> n \<noteq> 0"
   using nat_ne_zero_imp_gt_zero nat_mul_eq_zeroE[of m n] assms by simp
+
+subsection \<open>Inequalities\<close>
+
+thm nat_lt_iff_zero_lt_sub
+
+lemma
+  assumes "a: Nat" "b: Nat" "c: Nat"
+  shows "a + b < c \<longleftrightarrow> a < c - b"
+using \<open>a: Nat\<close> proof induction
+  case base
+    show "0 + b < c \<longleftrightarrow> 0 < c - b"
+    by (auto dest: nat_ne_zero_imp_gt_zero intro: nat_zero_lt_sub_imp_lt)
+  next case (induct a)
+oops
 
 
 section \<open>Algebraic structures\<close>
@@ -555,13 +704,12 @@ proof (rule Mul_MonoidI)
     by (rule Mul_typeI) (unfold_types, auto simp: Nat_mul_monoid_def)
 next
   fix x assume "x \<in> \<nat>"
-  show "mul Nat_mul_monoid (one Nat_mul_monoid) x = x" and
-    "mul Nat_mul_monoid x (one Nat_mul_monoid) = x"
-    unfolding Nat_mul_monoid_def mul_def one_def by auto
+  show "mul (\<nat>, \<cdot>) (one (\<nat>, \<cdot>)) x = x"
+   and "mul (\<nat>, \<cdot>) x (one (\<nat>, \<cdot>)) = x"
+  unfolding Nat_mul_monoid_def mul_def one_def by auto
 next
   fix x y z assume "x \<in> \<nat>" "y \<in> \<nat>" "z \<in> \<nat>"
-  show "mul Nat_mul_monoid (mul Nat_mul_monoid x y) z =
-    mul Nat_mul_monoid x (mul Nat_mul_monoid y z)"
+  show "mul (\<nat>, \<cdot>) (mul (\<nat>, \<cdot>) x y) z = mul (\<nat>, \<cdot>) x (mul (\<nat>, \<cdot>) y z)"
     unfolding Nat_mul_monoid_def mul_def one_def
     using nat_mul_assoc by auto
 qed

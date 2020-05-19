@@ -130,7 +130,7 @@ bundle no_notation_mul_implicit
   begin no_notation mul_implicit  (infixl "\<cdot>" 65) end
 
 
-subsection \<open>Structures with inverses\<close>
+subsection \<open>Structures with additive inverses\<close>
 
 definition [typeclass]:
   "Inv A \<equiv> type (\<lambda>I. I @@ inv: A \<rightarrow> A)"

@@ -41,11 +41,12 @@ lemma SumE [elim, case_names inl inr]:
         | b where "b \<in> B" "x = inr b"
   using assms unfolding Sum_def by blast
 
-lemma SumE_typed [case_names inl inr]:
+\<comment> \<open>Do we need this?\<close>
+(* lemma SumE_typed [case_names inl inr]:
   assumes "x: Element (Sum A B)"
   obtains a where "a: Element A" "x = inl a"
         | b where "b: Element B" "x = inr b"
-  using assms by unfold_types blast
+  using assms by (auto iff: Element_iff[symmetric]) *)
 
 lemma Sum_case_type [type]:
   "Sum_case: (Element A \<Rightarrow> X) \<Rightarrow> (Element B \<Rightarrow> X) \<Rightarrow> Element (Sum A B) \<Rightarrow> X"

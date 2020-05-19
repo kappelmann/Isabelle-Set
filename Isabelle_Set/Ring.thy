@@ -5,17 +5,20 @@ imports Monoid
 
 begin
 
-definition [typeclass]: "Ring A = Comm_Group A \<bar> Mul_Monoid A \<bar>
-  type (\<lambda>R.
-    (\<forall>x y z \<in> A. mul R x (add R y z) = add R (mul R x y) (mul R x z)) \<and>
-    (\<forall>x y z \<in> A. mul R (add R x y) z = add R (mul R x z) (mul R y z))
-  )"
+definition [typeclass]: "Ring A
+  = Comm_Group A
+  \<bar> Mul_Monoid A
+  \<bar> type (\<lambda>R.
+      (\<forall>x y z \<in> A. mul R x (add R y z) = add R (mul R x y) (mul R x z)) \<and>
+      (\<forall>x y z \<in> A. mul R (add R x y) z = add R (mul R x z) (mul R y z)))"
 
 lemma RingI:
   assumes "R: Comm_Group A"
   and "R: Mul_Monoid A"
-  and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> mul R x (add R y z) = add R (mul R x y) (mul R x z)"
-  and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow> mul R (add R x y) z = add R (mul R x z) (mul R y z)"
+  and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow>
+    mul R x (add R y z) = add R (mul R x y) (mul R x z)"
+  and "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk> \<Longrightarrow>
+    mul R (add R x y) z = add R (mul R x z) (mul R y z)"
   shows "R: Ring A"
   using assms unfolding Ring_def by (auto intro: has_typeI)
 
@@ -32,5 +35,6 @@ lemma
   subgoal by (drule Int_typeD2, drule has_typeD) blast
   subgoal by (drule Int_typeD2, drule has_typeD) blast
   done
+
 
 end

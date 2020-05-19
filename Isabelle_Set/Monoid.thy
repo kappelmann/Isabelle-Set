@@ -17,14 +17,15 @@ text \<open>
   The monoid typeclass is defined using the standard soft type infrastructure.
 \<close>
 
-definition [typeclass]: "Monoid A = Zero A \<bar> Add A \<bar>
-  type (\<lambda>M.
-    (\<forall>x\<in> A.
-      add M (zero M) x = x \<and>
-      add M x (zero M) = x) \<and>
-    (\<forall>x y z \<in> A.
-      add M (add M x y) z = add M x (add M y z))
-  )"
+definition [typeclass]: "Monoid A
+  = Zero A
+  \<bar> Add A
+  \<bar> type (\<lambda>M.
+      (\<forall>x\<in> A.
+        add M (zero M) x = x \<and>
+        add M x (zero M) = x) \<and>
+      (\<forall>x y z \<in> A.
+        add M (add M x y) z = add M x (add M y z)))"
 
 text \<open>It would be really nice if this worked:\<close>
 
@@ -45,7 +46,7 @@ declare [[auto_elaborate=false]]
 
 text \<open>Instead we have to do this for now:\<close>
 
-lemma MonoidI:
+lemma MonoidI [type_intro]:
   assumes "M: Zero A"
           "M: Add A"
           "\<And>x. x \<in> A \<Longrightarrow> add M (zero M) x = x"
@@ -53,7 +54,8 @@ lemma MonoidI:
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
             \<Longrightarrow> add M (add M x y) z = add M x (add M y z)"
   shows "M: Monoid A"
-  unfolding Monoid_def by unfold_types (auto intro: assms)
+  unfolding Monoid_def
+  by discharge_types (unfold_types, auto intro: assms)
 
 text \<open>
   The above theorem as well as the next ones should also be automatically
@@ -92,7 +94,7 @@ definition "Zero_Pair Z1 Z2 = object {\<langle>@zero, \<langle>zero Z1, zero Z2\
 
 (*These should be automatically generated*)
 lemma Zero_Pair_fields [simp]: "object_fields (Zero_Pair Z1 Z2) = {@zero}"
-  unfolding Zero_Pair_def by auto
+  unfolding Zero_Pair_def by simp
 
 lemma Zero_Pair_zero [simp]: "(Zero_Pair Z1 Z2) @@ zero = \<langle>zero Z1, zero Z2\<rangle>"
   unfolding Zero_Pair_def by simp
@@ -102,7 +104,7 @@ definition "Add_Pair A B P1 P2 = object {
 
 (*Should be automatically generated*)
 lemma Add_Pair_fields [simp]: "object_fields (Add_Pair A B P1 P2) = {@add}"
-  unfolding Add_Pair_def by auto
+  unfolding Add_Pair_def by simp
 
 lemma Add_Pair_add [simp]:
   "(Add_Pair A B P1 P2) @@ add =
@@ -110,8 +112,8 @@ lemma Add_Pair_add [simp]:
   unfolding Add_Pair_def by simp
 
 text \<open>
-  Monoid direct sum is the composition of the respective zero and pair instances.
-  Eventually we'd want a composition keyword [+] of some kind, so e.g.
+  Monoid direct sum is the structure composition of the respective zero and pair
+  instances. Eventually we'd want a composition keyword [+] of some kind, so e.g.
     \<open>Monoid_Sum A B M1 M2 = Zero_Pair M1 M2 [+] Add_Pair A B M1 M2\<close>
   should generate the following definition, which we write manually for now.
 \<close>
@@ -125,13 +127,11 @@ lemma Monoid_Sum_fields [simp]:
   unfolding Monoid_Sum_def by simp
 
 lemma [simp]:
-  shows
-    Monoid_Sum_zero:
-      "(Monoid_Sum A B M1 M2) @@ zero = \<langle>zero M1, zero M2\<rangle>"
-  and
-    Monoid_Sum_add:
-      "(Monoid_Sum A B M1 M2) @@ add =
-        \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add M1 a1 a2, add M2 b1 b2\<rangle>"
+  shows Monoid_Sum_zero:
+    "(Monoid_Sum A B M1 M2) @@ zero = \<langle>zero M1, zero M2\<rangle>"
+  and Monoid_Sum_add:
+    "(Monoid_Sum A B M1 M2) @@ add =
+      \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add M1 a1 a2, add M2 b1 b2\<rangle>"
   unfolding Monoid_Sum_def by auto
 
 text \<open>
@@ -141,17 +141,15 @@ text \<open>
 
 lemma Zero_Pair_type [type]:
   "Zero_Pair: Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
-  unfolding Zero_Pair_def
-  by unfold_types (auto simp: zero_def)
+  by discharge_types (rule Zero_typeI, auto)
 
 lemma Add_Pair_type [type]:
-  "Add_Pair: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
-  unfolding Add_Pair_def add_def
-  (* by unfold_types fastforce *)
+  "Add_Pair: (A: Set) \<Rightarrow> (B: Set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
+  by discharge_types (rule Add_typeI, fastforce)
 
 lemma Monoid_Sum_type [type]:
-  "Monoid_Sum: (A: set) \<Rightarrow> (B: set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
-proof (intro typeI)
+  "Monoid_Sum: (A: Set) \<Rightarrow> (B: Set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
+proof (discharge_types, intro MonoidI)
   fix A B M1 M2 assume assms1: "M1: Monoid A" "M2: Monoid B"
 
   show "Monoid_Sum A B M1 M2: Zero (A \<times> B)"
@@ -171,7 +169,7 @@ proof (intro typeI)
   fix y z assume assmsyz: "y \<in> A \<times> B" "z \<in> A \<times> B"
 
   show "add (Monoid_Sum A B M1 M2) (add (Monoid_Sum A B M1 M2) x y) z =
-        add (Monoid_Sum A B M1 M2) x (add (Monoid_Sum A B M1 M2) y z)"
+    add (Monoid_Sum A B M1 M2) x (add (Monoid_Sum A B M1 M2) y z)"
     unfolding add_def using assms1 assmx assmsyz add_assoc by force
 qed
 
@@ -209,24 +207,23 @@ end
 
 subsection \<open>Extension to groups\<close>
 
-definition [typeclass]: "Group A = Monoid A \<bar> Inv A \<bar>
-  type (\<lambda>G.
+definition [typeclass]: "Group A
+  = Monoid A
+  \<bar> Inv A
+  \<bar> type (\<lambda>G.
     (\<forall>x\<in> A. add G x (inv G x) = zero G) \<and>
-    (\<forall>x\<in> A. add G (inv G x) x = zero G)
-  )"
+    (\<forall>x\<in> A. add G (inv G x) x = zero G))"
 
-lemma GroupI:
+lemma GroupI [type_intro]:
   assumes "G: Monoid A"
-      and (* "\<And>x. x \<in> A \<Longrightarrow> inv G x \<in> A" *) "G: Inv A" (*use this for now*)
+      and "G: Inv A"
+        \<comment> \<open>the standard "\<And>x. x \<in> A \<Longrightarrow> inv G x \<in> A" doesn't work because this
+            doesn't guarantee that inv G x is a function.\<close>
       and "\<And>x. x \<in> A \<Longrightarrow> add G x (inv G x) = zero G"
       and "\<And>x. x \<in> A \<Longrightarrow> add G (inv G x) x = zero G"
   shows "G: Group A"
-unfolding Group_def
-apply (intro Int_typeI)
-apply fact
-apply (intro Inv_typeI)
-apply unfold_types using assms(2) unfolding inv_def
-oops
+  unfolding Group_def
+  by discharge_types (unfold_types, auto intro: assms)
 
 lemma Group_Monoid [derive]:  "G: Group A \<Longrightarrow> G: Monoid A"
   unfolding Group_def by (drule Int_typeD1)+
@@ -234,15 +231,18 @@ lemma Group_Monoid [derive]:  "G: Group A \<Longrightarrow> G: Monoid A"
 definition [typeclass]: "Comm_Group A \<equiv> Group A \<bar>
   type (\<lambda>G. \<forall> a b \<in> A. add G a b = add G b a)"
 
-lemma Comm_GroupI:
+lemma Comm_GroupI [type_intro]:
   assumes "G: Group A"
           "\<And>x y. \<lbrakk>x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
   shows "G: Comm_Group A"
-  using assms unfolding Comm_Group_def by unfold_types blast
+  unfolding Comm_Group_def
+  by discharge_types (unfold_types, auto intro: assms)
 
 lemma
-  shows Comm_Group_Group [derive]: "G: Comm_Group A \<Longrightarrow> G: Group A"
-  and add_comm: "\<And>x y. \<lbrakk>G: Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
+  shows Comm_Group_Group [derive]:
+    "G: Comm_Group A \<Longrightarrow> G: Group A"
+  and add_comm:
+    "\<And>x y. \<lbrakk>G: Comm_Group A; x \<in> A; y \<in> A\<rbrakk> \<Longrightarrow> add G x y = add G y x"
   unfolding Comm_Group_def
   subgoal by (drule Int_typeD1)
   subgoal by (drule Int_typeD2, drule has_typeD) blast
@@ -256,15 +256,16 @@ text \<open>
   automatically generated in the future, or be put in a unified framework.
 \<close>
 
-definition [typeclass]: "Mul_Monoid A = One A \<bar> Mul A \<bar>
-  type (\<lambda>M.
-    (\<forall>x\<in> A.
-      mul M (one M) x = x \<and>
-      mul M x (one M) = x) \<and>
-      (\<forall>x y z \<in> A. mul M (mul M x y) z = mul M x (mul M y z))
-  )"
+definition [typeclass]: "Mul_Monoid A
+  = One A
+  \<bar> Mul A
+  \<bar> type (\<lambda>M.
+      (\<forall>x\<in> A.
+        mul M (one M) x = x \<and>
+        mul M x (one M) = x) \<and>
+        (\<forall>x y z \<in> A. mul M (mul M x y) z = mul M x (mul M y z)))"
 
-lemma Mul_MonoidI:
+lemma Mul_MonoidI [type_intro]:
   assumes "M: One A"
           "M: Mul A"
           "\<And>x. x \<in> A \<Longrightarrow> mul M (one M) x = x"
@@ -272,7 +273,8 @@ lemma Mul_MonoidI:
           "\<And>x y z. \<lbrakk>x \<in> A; y \<in> A; z \<in> A\<rbrakk>
             \<Longrightarrow> mul M (mul M x y) z = mul M x (mul M y z)"
   shows "M: Mul_Monoid A"
-  unfolding Mul_Monoid_def by unfold_types (auto intro: assms)
+  unfolding Mul_Monoid_def
+  by discharge_types (unfold_types, auto intro: assms)
 
 lemma
   shows
@@ -290,5 +292,6 @@ lemma
   subgoal by (drule Int_typeD2, drule has_typeD) auto
   subgoal by (drule Int_typeD2, drule has_typeD) auto
   done
+
 
 end
