@@ -83,9 +83,9 @@ lemma int_rep_add_assoc:
     rule SumE[OF assms(1)[unfolded int_rep_def]];
     rule SumE[OF assms(2)[unfolded int_rep_def]];
     rule SumE[OF assms(3)[unfolded int_rep_def]])
+  unfolding int_rep_add_def
   apply (auto simp:
-    int_rep_add_def nat_add_sub_assoc nat_sub_dist_add
-    nat_sub_twice_comm dest!: not_lt_imp_iff)
+    nat_sub_dist_add nat_sub_twice_comm)
 oops
 
 lemma int_rep_one_mul:
@@ -261,7 +261,11 @@ definition Int_mul_monoid ("'(\<int>, \<cdot>')") where
 
 lemma "(\<int>, \<cdot>): Mul_Monoid \<int>"
 proof (intro Mul_MonoidI)
-  show "(\<int>, \<cdot>): One \<int>" and "(\<int>, \<cdot>): Mul \<int>" sorry
+  show "(\<int>, \<cdot>): One \<int>"
+    unfolding Int_mul_monoid_def by (intro One_typeI) simp
+next
+  show "(\<int>, \<cdot>) : Mul \<int>"
+    unfolding Int_mul_monoid_def by (intro Mul_typeI) simp
 next
   fix x assume "x \<in> \<int>"
   show "mul Int_mul_monoid (one Int_mul_monoid) x = x" and

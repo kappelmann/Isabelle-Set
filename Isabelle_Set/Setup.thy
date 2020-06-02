@@ -44,5 +44,7 @@ lemma ex1_iff:
   "(\<exists>!x. P x) \<longleftrightarrow> (\<exists>x. P x) \<and> (\<forall>x x'. P x \<and> P x' \<longrightarrow> x = x')"
   by blast
 
+lemma noncontr: "\<lbrakk>P; \<not>P\<rbrakk> \<Longrightarrow> False" by auto
+
 
 end

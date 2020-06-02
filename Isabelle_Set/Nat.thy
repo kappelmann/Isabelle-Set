@@ -48,12 +48,14 @@ section \<open>\<nat> as a type\<close>
 
 abbreviation "Nat \<equiv> Element \<nat>"
 
-lemmas Nat_induct = nat_induct
-  [ simplified Element_iff,
-    case_names base induct,
-    induct pred: Nat ]
+lemmas Nat_induct = nat_induct[
+  simplified Element_iff,
+  case_names base induct,
+  induct pred: Nat]
 
-lemmas Nat_cases = nat_cases[simplified Element_iff]
+lemmas Nat_cases = nat_cases[
+  simplified Element_iff,
+  case_names typecheck zero succ]
 
 lemma Nat_Ord [derive]: "x: Nat \<Longrightarrow> x: Ord"
   by (induct x rule: Nat_induct) (auto intro: succ_Ord simp: nat_zero_def)
@@ -139,7 +141,7 @@ lemma succ_le_monotoneE: "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longri
 lemma succ_lt_le_monotone: "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
-lemma lt_0 [simp]: "n: Nat \<Longrightarrow> 0 < succ n"
+lemma nat_zero_lt_succ [simp]: "n: Nat \<Longrightarrow> 0 < succ n"
   unfolding lt_def nat_def nat_zero_def
   by unfold_types (fact omega_empty_in_succ)
 
@@ -159,6 +161,9 @@ corollary nat_gt_zero_iff_ne_zero [iff]:
   "n: Nat \<Longrightarrow> 0 < n \<longleftrightarrow> n \<noteq> 0"
   using nat_gt_zero_imp_ne_zero nat_ne_zero_imp_gt_zero ..
 
+lemma nat_zero_le [simp]: "n: Nat \<Longrightarrow> 0 \<le> n"
+  by (induction rule: Nat_induct) (auto intro: nat_lt_imp_le)
+
 lemma
   not_succ_lt [simp]: "\<not> succ n < n" and
   not_lt_self [simp]: "\<not> n < n"
@@ -171,8 +176,9 @@ lemma nat_lt_imp_Nat [elim]: "n: Nat \<Longrightarrow> m < n \<Longrightarrow> m
   unfolding nat_def lt_def by unfold_types (fact omega_mem_transitive)
 
 (*Case splits*)
-lemma le_cases: assumes "n: Nat" and "m \<le> n"
-  obtains (eq) "m = n" | (lt) "m < n"
+lemma le_cases [case_names eq lt]:
+  assumes "m \<le> n" and "n: Nat"
+  obtains "m = n" | "m < n"
   using assms unfolding le_def by auto
 
 lemma lt_asym: "\<lbrakk>m < n; n < m\<rbrakk> \<Longrightarrow> P"
@@ -183,9 +189,10 @@ lemma le_iff_not_lt:
   shows "m \<le> n \<longleftrightarrow> \<not> n < m"
   unfolding le_def using assms lt_trichotomy lt_asym by auto
 
-corollary not_lt_imp_iff:
-  assumes "m: Nat" "n: Nat"
-  shows "\<not> n < m \<Longrightarrow> m \<le> n"
+corollary not_lt_imp_le:
+  assumes "\<not> n < m"
+      and "m: Nat" "n: Nat"
+  shows "m \<le> n"
   using le_iff_not_lt by auto
 
 lemma lt_trans:
@@ -230,6 +237,12 @@ proof -
     using succ_lt_monotoneE by (auto simp only: * pred_succ)
 qed
 
+lemma pred_lt_monotoneE:
+  assumes "m: Nat" "n: Nat"
+  shows "pred m < pred n \<Longrightarrow> m < n"
+  using \<open>m: Nat\<close> apply (induction, clarsimp)
+  using \<open>n: Nat\<close> by induction auto
+
 lemma nat_succ_lt_imp_lt_pred:
   assumes "m: Nat" "n: Nat" "succ n < m"
   shows "n < pred m"
@@ -237,6 +250,10 @@ proof (rule succ_lt_monotoneE)
   have "m \<noteq> 0" using assms by auto
   with succ_pred show "succ n < succ (pred m)" by auto
 qed discharge_types
+
+lemma nat_lt_pred_imp_succ_lt:
+  "\<lbrakk>m: Nat; n: Nat; n < pred m\<rbrakk> \<Longrightarrow> succ n < m"
+  by (auto intro: pred_lt_monotoneE)
 
 
 section \<open>Ranges\<close>
@@ -654,19 +671,142 @@ lemma nat_mul_ne_zero:
   shows "m \<cdot> n \<noteq> 0"
   using nat_ne_zero_imp_gt_zero nat_mul_eq_zeroE[of m n] assms by simp
 
-subsection \<open>Inequalities\<close>
+subsection \<open>More inequalities\<close>
 
-thm nat_lt_iff_zero_lt_sub
+lemma nat_lt_add_left [intro]:
+  "\<lbrakk>a: Nat; b: Nat; 0 < b\<rbrakk> \<Longrightarrow> a < b + a"
+  by (induction a rule: Nat_induct) auto
+
+lemma nat_lt_add_right [intro]:
+  "\<lbrakk>a: Nat; b: Nat; 0 < b\<rbrakk> \<Longrightarrow> a < a + b"
+  by (induction a rule: Nat_induct) auto
+
+lemma nat_le_add_left [intro]:
+  "\<lbrakk>a: Nat; b: Nat\<rbrakk> \<Longrightarrow> a \<le> b + a"
+  by (induction a rule: Nat_induct) (auto intro: succ_le_monotone)
+
+lemma nat_le_add_right [intro]:
+  "\<lbrakk>a: Nat; b: Nat\<rbrakk> \<Longrightarrow> a \<le> a + b"
+  by (induction a rule: Nat_induct) (auto intro: succ_le_monotone)
 
 lemma
+  nat_succ_lt_succ_add_left:
+    "\<lbrakk>a: Nat; b: Nat; 0 < b\<rbrakk> \<Longrightarrow> succ a < succ (b + a)"
+and
+  nat_succ_lt_succ_add_right:
+    "\<lbrakk>a: Nat; b: Nat; 0 < b\<rbrakk> \<Longrightarrow> succ a < succ (a + b)"
+and
+  nat_succ_le_succ_add_left:
+    "\<lbrakk>a: Nat; b: Nat\<rbrakk> \<Longrightarrow> succ a \<le> succ (b + a)"
+and
+  nat_succ_le_succ_add_right:
+    "\<lbrakk>a: Nat; b: Nat\<rbrakk> \<Longrightarrow> succ a \<le> succ (a + b)"
+by (auto simp add:
+  succ_le_monotone nat_le_add_left nat_le_add_right
+  nat_lt_add_left nat_lt_add_right)
+
+lemma nat_add_lt_imp_left_lt:
+  "\<lbrakk>a + b < c; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> a < c"
+proof (cases b rule: Nat_cases)
+  case (succ b')
+  assume "a + b < c" "a: Nat" "b: Nat" "c: Nat"
+  moreover note \<open>b = succ b'\<close>
+  ultimately have "a + succ b' < c" by simp
+  moreover have "a < a + succ b'" by (rule nat_lt_add_right) auto
+  ultimately show "a < c" using lt_trans by auto
+qed simp_all
+
+lemma nat_add_lt_imp_right_lt:
+  "\<lbrakk>a + b < c; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> b < c"
+proof (cases a rule: Nat_cases)
+  case (succ a')
+  assume "a + b < c" "b: Nat" "c: Nat"
+  moreover note \<open>a = succ a'\<close>
+  ultimately have "succ a' + b < c" by simp
+  moreover have "b < succ a' + b"
+    using nat_lt_add_left[of b "succ a'"] by auto
+  ultimately show "b < c" using lt_trans by auto
+qed simp_all
+
+lemma nat_add_le_imp_left_le:
+  "\<lbrakk>a + b \<le> c; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> a \<le> c"
+proof (cases b rule: Nat_cases)
+  case (succ b')
+  assume "a + b \<le> c" "a: Nat" "b: Nat" "c: Nat"
+  moreover note \<open>b = succ b'\<close>
+  ultimately have "a + succ b' \<le> c" by simp
+  moreover have "a \<le> a + succ b'" by (rule nat_le_add_right) auto
+  ultimately show "a \<le> c" using le_trans by auto
+qed simp_all
+
+lemma nat_add_le_imp_right_le:
+  "\<lbrakk>a + b \<le> c; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> b \<le> c"
+proof (cases a rule: Nat_cases)
+  case (succ a')
+  assume "a + b \<le> c" "b: Nat" "c: Nat"
+  moreover note \<open>a = succ a'\<close>
+  ultimately have "succ a' + b \<le> c" by simp
+  moreover have "b \<le> succ a' + b"
+    using nat_le_add_left[of b "succ a'"] by auto
+  ultimately show "b \<le> c" using le_trans by simp
+qed simp_all
+    
+lemma nat_add_lt_imp_lt_sub:
+  assumes "a + b < c"
+      and "a: Nat" "b: Nat" "c: Nat"
+  shows "a < c - b"
+using \<open>b: Nat\<close> \<open>c: Nat\<close> \<open>a + b < c\<close> proof (induction b arbitrary: c)
+  case (induct b)
+  from induct.prems have "a + b < pred c"
+    by (auto intro: nat_succ_lt_imp_lt_pred)
+  thus "a < c - succ b"
+    using induct.IH by (simp add: nat_sub_succ nat_pred_sub[symmetric])
+qed simp
+
+lemma nat_lt_sub_imp_add_lt:
+  assumes "a < c - b"
+      and "a: Nat" "b: Nat" "c: Nat"
+  shows "a + b < c"
+using \<open>b: Nat\<close> \<open>c: Nat\<close> \<open>a < c - b\<close> proof (induction b arbitrary: c)
+  case (induct b)
+  then have "a + b < pred c" by (simp add: nat_sub_succ nat_pred_sub)
+  thus "a + succ b < c" by (auto intro: nat_lt_pred_imp_succ_lt)
+qed simp
+
+corollary nat_add_lt_iff_lt_sub:
   assumes "a: Nat" "b: Nat" "c: Nat"
   shows "a + b < c \<longleftrightarrow> a < c - b"
-using \<open>a: Nat\<close> proof induction
-  case base
-    show "0 + b < c \<longleftrightarrow> 0 < c - b"
-    by (auto dest: nat_ne_zero_imp_gt_zero intro: nat_zero_lt_sub_imp_lt)
-  next case (induct a)
-oops
+  by (auto intro: nat_add_lt_imp_lt_sub nat_lt_sub_imp_add_lt)
+
+lemma nat_lt_imp_lt_add_left:
+  assumes "c < b"
+      and "a: Nat" "b: Nat" "c: Nat"
+  shows "c < a + b"
+proof (cases a rule: Nat_cases)
+  case (succ n)
+  have "b \<le> n + b" by auto
+  hence "b < succ n + b" using le_lt_lt by auto
+  thus ?thesis using \<open>a = succ n\<close> \<open>c < b\<close> lt_trans by auto
+qed auto
+
+corollary nat_lt_imp_lt_add_right:
+  "\<lbrakk>c < b; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> c < b + a"
+  by (subst nat_add_comm) (auto intro: nat_lt_imp_lt_add_left)
+
+lemma nat_le_imp_le_add_left:
+  assumes "c \<le> b"
+      and "a: Nat" "b: Nat" "c: Nat"
+  shows "c \<le> a + b"
+proof (cases a rule: Nat_cases)
+  case (succ n)
+  have "b \<le> n + b" by auto
+  hence "b \<le> succ n + b" using le_trans by auto
+  thus ?thesis using \<open>a = succ n\<close> \<open>c \<le> b\<close> le_trans by auto
+qed auto
+
+corollary nat_le_imp_le_add_right:
+  "\<lbrakk>c \<le> b; a: Nat; b: Nat; c: Nat\<rbrakk> \<Longrightarrow> c \<le> b + a"
+  by (subst nat_add_comm) (auto intro: nat_le_imp_le_add_left)
 
 
 section \<open>Algebraic structures\<close>
