@@ -16,7 +16,7 @@ imports
   Set_Extension
   Nat
   Integer
-  Category
+  (* Category *)
 
 begin
 

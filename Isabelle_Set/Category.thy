@@ -27,9 +27,9 @@ abbreviation comp ("comp\<^bsub>_, _, _, _\<^esub>")
 
 definition [typeclass]: "Category' U \<equiv>
   type (\<lambda>\<C>.
-    obj \<C>: non-empty \<sqdot> subset U \<and>
+    obj \<C>: non-empty \<sqdot> Subset U \<and>
 
-    \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
+    \<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U \<and>
 
     \<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C) \<and>
 
@@ -54,9 +54,9 @@ text \<open>
 
 lemma Category'I:
   assumes
-    "obj \<C>: non-empty \<sqdot> subset U"
+    "obj \<C>: non-empty \<sqdot> Subset U"
 
-    "\<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
+    "\<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
 
     "\<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C)"
 
@@ -75,13 +75,14 @@ lemma Category'I:
             comp\<^bsub>\<C>,A,C,D\<^esub> h (comp\<^bsub>\<C>,A,B,C\<^esub> g f)"
   shows
     "\<C>: Category' U"
-  unfolding Category'_def by (fast intro: has_typeI assms)
+  unfolding Category'_def
+  by (intro has_typeI, (rule, rule assms)+) (fast intro: assms)+
 
 lemma Category'D:
   shows
-    "\<C>: Category' U \<Longrightarrow> obj \<C>: non-empty \<sqdot> subset U"
+    "\<C>: Category' U \<Longrightarrow> obj \<C>: non-empty \<sqdot> Subset U"
   and
-    "\<C>: Category' U \<Longrightarrow> \<C> @@ hom \<in> obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
+    "\<C>: Category' U \<Longrightarrow> \<C> @@ hom: obj \<C> \<rightarrow> obj \<C> \<rightarrow> U"
   and
     "\<C>: Category' U \<Longrightarrow>
       \<C> @@ comp \<in> \<Prod>A B C\<in> obj \<C>. (hom\<^bsub>\<C>\<^esub> B C \<rightarrow> hom\<^bsub>\<C>\<^esub> A B \<rightarrow> hom\<^bsub>\<C>\<^esub> A C)"
@@ -104,23 +105,23 @@ lemmas CategoryD = Category'D[where ?U=V, folded Category_def]
 section \<open>Typing rules\<close>
 
 lemma [type]:
-  "obj: Category' U \<Rightarrow> non-empty \<sqdot> subset U"
-  by (rule typeI) (fact Category'D(1))
+  "obj: Category' U \<Rightarrow> non-empty \<sqdot> Subset U"
+  by (rule type_intro) (fact Category'D(1))
 
 lemma [type]:
-  "hom: (\<C>: Category' U) \<Rightarrow> element (obj \<C>) \<Rightarrow> element (obj \<C>) \<Rightarrow> element U"
-  by (rule typeI) (auto dest: Category'D(2))
+  "hom: (\<C>: Category' U) \<Rightarrow> Element (obj \<C>) \<Rightarrow> Element (obj \<C>) \<Rightarrow> Element U"
+  by (rule type_intro) (auto dest: Category'D(2))
 
 lemma [type]:
   "comp: (\<C>: Category' U) \<Rightarrow>
-    (A: element (obj \<C>)) \<Rightarrow> (B: element (obj \<C>)) \<Rightarrow> (C: element (obj \<C>)) \<Rightarrow>
-    element (hom\<^bsub>\<C>\<^esub> B C) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A B) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A C)"
-  by (rule typeI, drule Category'D(3), unfold_types) (rule FunctionE)+
+    (A: Element (obj \<C>)) \<Rightarrow> (B: Element (obj \<C>)) \<Rightarrow> (C: Element (obj \<C>)) \<Rightarrow>
+    Element (hom\<^bsub>\<C>\<^esub> B C) \<Rightarrow> Element (hom\<^bsub>\<C>\<^esub> A B) \<Rightarrow> Element (hom\<^bsub>\<C>\<^esub> A C)"
+  by (rule type_intro, drule Category'D(3), unfold_types) (rule FunctionE)+
   (*Don't want to have to write "rule FunctionE" all the time!*)
 
 lemma [type]:
-  "id: (\<C>: Category' U) \<Rightarrow> (A: element (obj \<C>)) \<Rightarrow> element (hom\<^bsub>\<C>\<^esub> A A)"
-  by (rule typeI, drule Category'D(4)) discharge_types
+  "id: (\<C>: Category' U) \<Rightarrow> (A: Element (obj \<C>)) \<Rightarrow> Element (hom\<^bsub>\<C>\<^esub> A A)"
+  by (rule type_intro, drule Category'D(4)) discharge_types
 
 
 section \<open>The category of sets\<close>
@@ -148,7 +149,7 @@ lemma [simp]:
 
 \<comment> \<open>TODO Kevin: How come id_type needs to be inserted here?\<close>
 lemma Set_cat_type [type]: "\<S>et: Category"
-  by (rule typeI, insert id_type, unfold_types) auto
+  by (rule type_intro, insert id_type, unfold_types) auto
 
 
 section \<open>Functors and natural transformations\<close>
@@ -228,7 +229,7 @@ lemma Product_Cat_type [derive]:
     "\<D>: Category' (univ U)"
   shows
     "Product_Cat \<C> \<D>: Category' (univ U)"
-proof (rule typeI, simp_all only: Product_Cat_fields)
+proof (rule type_intro, simp_all only: Product_Cat_fields)
   show
     "Product_Cat_obj \<C> \<D>: non-empty \<sqdot> subset (univ U)"
     using Category'D(1)[OF assms(1)] Category'D(1)[OF assms(2)]
