@@ -32,7 +32,8 @@ lemmas
   nat_cases = omega_cases[folded nat_def nat_zero_def] and
   nat_induct [case_names 0 induct, induct set: nat] =
     omega_induct[folded nat_def nat_zero_def] and
-  nat_elems = omega_elems[folded nat_def nat_zero_def] and
+  nat_obtain_succ_if_ne_zero = omega_obtain_succ_if_ne_zero[folded nat_def nat_zero_def] and
+  nat_succ_if_ne_zeroE = omega_succ_if_ne_zeroE[folded nat_def nat_zero_def] and
   succ_not_empty [simp] = Ordinal.succ_not_empty[folded nat_zero_def] and
   empty_not_succ [simp] = Ordinal.empty_not_succ[folded nat_zero_def]
 
@@ -72,8 +73,8 @@ section \<open>Truncated predecessor function\<close>
 
 definition "pred n = (if n = 0 then 0 else (THE m \<in> \<nat>. n = succ m))"
 
-lemma pred_type [type]: "pred: Nat \<Rightarrow> Nat"
-  unfolding pred_def by unfold_types (auto intro: btheI1 nat_elems)
+lemma pred_type [type]: "pred : Nat \<Rightarrow> Nat"
+  unfolding pred_def by unfold_types (auto intro: btheI1 elim: nat_succ_if_ne_zeroE)
 
 lemma pred_nonzero: "\<lbrakk>n: Nat; n \<noteq> 0\<rbrakk> \<Longrightarrow> pred n = (THE m \<in> \<nat>. n = succ m)"
   unfolding pred_def by auto
@@ -86,7 +87,7 @@ lemma pred_succ [simp]: "n: Nat \<Longrightarrow> pred (succ n) = n"
 
 lemma succ_pred [simp]: "\<lbrakk>n: Nat; n \<noteq> 0\<rbrakk> \<Longrightarrow> succ (pred n) = n"
   unfolding pred_def
-  by (simp, rule sym, rule btheI2) (auto intro: nat_elems)
+  by (simp, rule sym, rule btheI2) (auto intro: nat_obtain_succ_if_ne_zero)
 
 
 section \<open>The \<open><\<close> and \<open>\<le>\<close> orders on Nat\<close>
@@ -101,16 +102,17 @@ lemma succ_lt_monotone [intro]:
   "n: Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
   unfolding lt_def nat_def by auto
 
-lemma succ_lt_monotoneE:
+lemma lt_if_succ_lt_succ:
   "\<lbrakk>n: Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"
   unfolding lt_def nat_def by (auto intro: omega_succ_mem_monotoneE)
 
-lemma lt_succ_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> m < succ n"
-  unfolding lt_def by simp
+lemma lt_if_succ_lt: "n : Nat \<Longrightarrow> succ m < n \<Longrightarrow> m < n"
+  unfolding lt_def nat_def by (auto intro: omega_succ_mem_monotoneE)
 
 lemma lt_trichotomy:
-  "\<lbrakk>m: Nat; n: Nat\<rbrakk> \<Longrightarrow> m < n \<or> m = n \<or> n < m"
-  unfolding lt_def using Ord_trichotomy by auto
+  assumes "m: Nat" "n: Nat"
+  obtains (lt) "m < n" | (eq) "m = n" | (gt) "n < m"
+  using Ord_trichotomy[of m n thesis] unfolding lt_def by auto
   \<comment>\<open>Good *EXAMPLE* of type derivation helpfulness!\<close>
 
 lemma lt_trichotomyE:
@@ -123,11 +125,17 @@ lemma lt_trichotomyE:
 
 definition le (infix "\<le>" 60) where "m \<le> n = (m < n \<or> m = n)"
 
+lemma leE: assumes "m \<le> n" obtains (lt) "m < n" | (eq) "m = n"
+  using assms unfolding le_def by auto
+
 lemma le_self [simp]: "n \<le> n"
   unfolding le_def by simp
 
-lemma nat_lt_imp_le: "m < n \<Longrightarrow> m \<le> n"
+lemma le_if_lt: "m < n \<Longrightarrow> m \<le> n"
   unfolding le_def ..
+
+lemma le_if_not_lt: assumes "m : Nat" "n : Nat" "\<not> m < n" shows "n \<le> m"
+  by (rule lt_trichotomyE[of "m" "n"]) (auto simp: assms dest: le_if_lt)
 
 lemma le_succ [simp]: "n \<le> succ n"
   unfolding le_def by auto
@@ -135,12 +143,16 @@ lemma le_succ [simp]: "n \<le> succ n"
 lemma not_le_zero [simp]: "\<not> succ n \<le> 0"
   unfolding succ_def le_def nat_zero_def lt_def by auto
 
-lemma succ_le_monotone:
+lemma succ_le_monotone [intro]:
   "\<lbrakk>n: Nat; m \<le> n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
 
-lemma succ_le_monotoneE: "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
-  unfolding le_def using succ_lt_monotoneE by auto
+lemma le_if_succ_le_succ:
+  "\<lbrakk>n: Nat; succ m \<le> succ n\<rbrakk> \<Longrightarrow> m \<le> n"
+  unfolding le_def using lt_if_succ_lt_succ by auto
+
+lemma le_if_succ_le: "n : Nat \<Longrightarrow> succ m \<le> n \<Longrightarrow> m \<le> n"
+  unfolding le_def using lt_if_succ_lt by auto
 
 lemma succ_lt_le_monotone: "\<lbrakk>n: Nat; m < n\<rbrakk> \<Longrightarrow> succ m \<le> succ n"
   unfolding le_def using succ_lt_monotone by auto
@@ -168,7 +180,7 @@ corollary nat_gt_zero_iff_ne_zero [iff]:
   using zero_lt_if_ne_zero by auto
 
 lemma nat_zero_le [simp]: "n: Nat \<Longrightarrow> 0 \<le> n"
-  by (induction rule: Nat_induct) (auto intro: nat_lt_imp_le)
+  by (induction rule: Nat_induct) (auto intro: le_if_lt)
 
 lemma
   not_succ_lt [simp]: "\<not> succ n < n" and
@@ -187,7 +199,7 @@ lemma le_cases [case_names eq lt]:
   obtains "m = n" | "m < n"
   using assms unfolding le_def by auto
 
-lemma lt_asym: "\<lbrakk>m < n; n < m\<rbrakk> \<Longrightarrow> P"
+lemma lt_asym: "m < n \<Longrightarrow> \<not>n < m"
   unfolding lt_def using mem_asym by blast
 
 lemma le_iff_not_lt:
@@ -215,6 +227,12 @@ lemma
   lt_lt_le: "n: Nat \<Longrightarrow> k < m \<Longrightarrow> m < n \<Longrightarrow> k \<le> n"
   unfolding le_def by (auto intro: lt_trans)
 
+lemma not_lt_if_le: assumes "m : Nat" "n : Nat" "m \<le> n" shows "\<not> n < m"
+  by (insert assms, frule lt_trichotomyE[of m n]) (auto dest: le_lt_lt)
+
+lemma not_le_if_lt: assumes "m : Nat" "n : Nat" "m < n" shows "\<not> n \<le> m"
+  by (insert assms, frule lt_trichotomyE[of m n]) (auto dest: le_lt_lt)
+
 lemma le_induct:
   assumes "m: Nat"
       and "n: Nat"
@@ -238,7 +256,7 @@ proof (cases n rule: Nat_cases, fact)
       hyp: "\<And>k. k : Nat \<Longrightarrow> n = succ k \<Longrightarrow> l \<le> n \<Longrightarrow> P l" and
       conds: "k: Nat" "n = succ k"
     then have "l < n" by (auto intro: lt_succ lt_le_lt)
-    then moreover have "l \<le> n" by (rule nat_lt_imp_le)
+    then moreover have "l \<le> n" by (rule le_if_lt)
     ultimately show "P (succ l)" using conds hyp assms(5) by auto
   qed
   }
@@ -273,11 +291,11 @@ proof -
     using assms by auto
   then obtain k k' where "k \<in> \<nat>" "k'\<in> \<nat>" and
     *: "m = succ k" "n = succ k'"
-  using nat_elems[of m] nat_elems[of n] by blast
+  using nat_obtain_succ_if_ne_zero[of m] nat_obtain_succ_if_ne_zero[of n] by blast
   then have "succ k < succ k'"
     using assms by simp
   thus ?thesis
-    using succ_lt_monotoneE by (auto simp only: * pred_succ)
+    using lt_if_succ_lt_succ by (auto simp only: * pred_succ)
 qed
 
 lemma pred_lt_monotoneE:
@@ -289,7 +307,7 @@ lemma pred_lt_monotoneE:
 lemma lt_pred_if_succ_lt:
   assumes "m: Nat" "n: Nat" "succ n < m"
   shows "n < pred m"
-proof (rule succ_lt_monotoneE)
+proof (rule lt_if_succ_lt_succ)
   have "m \<noteq> 0" using assms by auto
   with succ_pred show "succ n < succ (pred m)" by auto
 qed discharge_types
@@ -323,7 +341,7 @@ proof (rule le_induct[of m n])
 next
   fix l
   assume "n : Nat" "m \<le> n" "l < n" "l \<le> succ n"
-  with nat_lt_imp_le have "l \<le> n" by simp
+  with le_if_lt have "l \<le> n" by simp
   then show "succ l \<le> succ n" using succ_le_monotone by auto
 qed auto
 
@@ -347,7 +365,7 @@ lemma pred_lt_if_le_if_ne_zero:
   assumes "m : Nat" "n : Nat"
   and "m \<noteq> 0" "m \<le> n"
   shows "pred m < n"
-  using assms succ_pred succ_lt_monotoneE[where ?m="pred m"]
+  using assms succ_pred lt_if_succ_lt_succ[where ?m="pred m"]
   by (cases n rule: Nat_cases) (auto dest: lt_succ_if_le)
 
 lemma pred_lt_if_le_if_zero_lt:
@@ -683,7 +701,7 @@ proof (induction m rule: Nat_induct, clarsimp)
     show "\<lbrakk>k: Nat; k \<le> succ n\<rbrakk> \<Longrightarrow> succ m + succ n - k = succ m + (succ n - k)"
     proof (induction k rule: Nat_induct, clarsimp)
       case (induct k)
-      from \<open>succ k \<le> succ n\<close> succ_le_monotoneE have "k \<le> n" by simp
+      from \<open>succ k \<le> succ n\<close> le_if_succ_le_succ have "k \<le> n" by simp
       show "succ m + succ n - succ k = succ m + (succ n - succ k)"
         using IHn by (simp add: nat_succ_add_succ)
     qed

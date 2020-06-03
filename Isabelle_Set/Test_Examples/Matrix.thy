@@ -14,13 +14,23 @@ this is set up in a good way.*)
 definition range_excl_right ("{_..<_}") where
   "{l..<u} \<equiv> {i \<in> \<nat> | l \<le> i \<and> i < u}"
 
+lemma
+  assumes "n \<in> {l..<u}"
+  shows nat_if_in_range_excl_right: "n \<in> \<nat>"
+    and lt_if_in_range_excl_right: "n < u"
+    and ge_if_in_range_excl_right: "l \<le> n"
+  using assms unfolding range_excl_right_def by auto
+
+(*Note Kevin: should this be intro? should this be backward_derive? what should
+it be? If it's intro, it will not be picked when we, for example, want to beta
+reduce M `i `j with "M" a matrix. *)
 lemma in_range_excl_rightI [intro]:
   assumes "n : Nat" "l \<le> n" "n < u"
   shows "n \<in> {l..<u}"
   unfolding range_excl_right_def by auto
 
 lemma range_excl_right_succ_eq_range [simp]:
-  assumes "l : Nat" "u : Nat"
+  assumes "u : Nat"
   shows "{l..<succ u} = {l..u}"
   unfolding range_excl_right_def range_def
   by (rule equalityI) (auto intro: le_if_lt_succ lt_succ_if_le)
@@ -28,14 +38,13 @@ lemma range_excl_right_succ_eq_range [simp]:
 (* Note Kevin: Those feel really awkward as typing rules. The statement as a set
 theoretic result seems more intuitive. Is this a job for automatic set to
 type-theoretic result translation? *)
-
 lemma in_range_imp_succ_in_range [derive]:
-  assumes "l : Nat" "u : Nat" "n : Element {l..u}"
+  assumes "u : Nat" "n : Element {l..u}"
   shows "succ n : Element {succ l..succ u}"
   using assms unfolding range_def by unfold_types (auto intro: succ_le_monotone)
 
 lemma in_range_excl_right_imp_succ_in_range [derive]:
-  assumes "l : Nat" "u : Nat" "n : Element {l..<u}"
+  assumes "u : Nat" "n : Element {l..<u}"
   shows "succ n : Element {succ l..u}"
   using assms unfolding range_excl_right_def range_def
   by unfold_types (auto intro: succ_le_monotone succ_le_if_lt)
@@ -55,9 +64,9 @@ lemma in_range_succ_imp_pred_in_range_excl_right [derive]:
   by unfold_types (auto intro: pred_lt_if_le_if_ne_zero)
 
 lemma range_subseteq_succ_right:
-  assumes "l : Nat" "u : Nat"
+  assumes "u : Nat"
   shows "{l..u} \<subseteq> {l..succ u}"
-  using lt_succ_if_le nat_lt_imp_le
+  using lt_succ_if_le le_if_lt
   unfolding range_def by unfold_types auto
 
 
@@ -65,6 +74,16 @@ section \<open>Matrices\<close>
 
 definition "matrix C m n \<equiv> {0..<m} \<rightarrow> {0..<n} \<rightarrow> C"
 
+(* Note Kevin: should this be tagged? *)
+lemma matrix_apply [intro]:
+  assumes "M \<in> matrix C m n" "i : Nat" "j : Nat"
+  and i_lt_m: "i < m"
+  and j_lt_n: "j < n"
+  shows "M `i `j \<in> C"
+proof -
+  have "i \<in> {0..<m}" and "j \<in> {0..<n}" by auto
+  then show ?thesis using assms unfolding matrix_def by auto
+qed
 
 subsection \<open>Zero\<close>
 
@@ -74,6 +93,27 @@ definition "matrix_zero Z m n \<equiv>
 lemma matrix_zero_type [type]:
   "matrix_zero : Zero C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Element (matrix C m n)"
   unfolding matrix_def matrix_zero_def by discharge_types
+
+lemma matrix_zero_eq_zero [simp]:
+  assumes "i : Nat" "j : Nat"
+  and i_lt_m: "i < m"
+  and j_lt_n: "j < n"
+  shows "(matrix_zero Z m n) `i `j = zero Z"
+proof -
+(*
+Note Kevin: The simplifier tries to apply beta. We need to discharge i \<in> {0..<m}.
+This goal gets transformed to i : Element {0..<m}.
+Now, the type-derivator cannot solve this as there's no good rule for this type.
+We might think about tagging {@thm in_range_excl_rightI} with "backward_derive".
+But then the type derivator gets called with 0 \<le> i as a goal, which is no good.
+
+Maybe there's a good way to incorporate auto/simp calls for non-type
+premises in typing rules without making everything blow up.
+*)
+  have "i \<in> {0..<m}" and "j \<in> {0..<n}" by auto
+  then show ?thesis unfolding matrix_zero_def by auto
+qed
+
 
 definition "matrix_Zero Z m n \<equiv> object {
   \<langle>@zero, matrix_zero Z m n\<rangle>
@@ -86,12 +126,34 @@ lemma matrix_Zero_type: assumes "Z : Zero C" "m : Nat" "n : Nat"
 
 subsection \<open>One\<close>
 
-(*Note Kevin: TODO: why is not just auto working?*)
+(*Note Kevin: TODO: why is not just auto working? This also should be moved.*)
 lemma if_type [type]: "If : bool \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
  by (rule typeI) auto
 
 definition "matrix_one Z O m n \<equiv>
   \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. if i = j then one O else zero Z"
+
+lemma matrix_one_eq_one [simp]:
+  assumes "i : Nat"
+  and i_lt_m: "i < m"
+  and i_lt_n: "i < n"
+  shows "(matrix_one Z O m n) `i `i = one O"
+proof -
+  have "i \<in> {0..<m}" and "i \<in> {0..<n}" by auto
+  then show ?thesis unfolding matrix_one_def by auto
+qed
+
+lemma matrix_one_eq_zero [simp]:
+  assumes "i : Nat" "j : Nat"
+  and i_lt_m: "i < m"
+  and j_lt_n: "j < n"
+  and i_neq_j: "i \<noteq> j"
+  shows "(matrix_one Z O m n) `i `j = zero Z"
+proof -
+  have "i \<in> {0..<m}" and "j \<in> {0..<n}" by auto
+  with i_neq_j show ?thesis unfolding matrix_one_def by auto
+qed
+
 
 lemma matrix_one_type [type]:
   "matrix_one : Zero C \<Rightarrow> One C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
@@ -116,8 +178,18 @@ lemma matrix_add_type [type]: "matrix_add : Add C \<Rightarrow> (m : Nat) \<Righ
   Element (matrix C m n) \<Rightarrow> Element (matrix C m n) \<Rightarrow> Element (matrix C m n)"
   unfolding matrix_def matrix_add_def by discharge_types
 
-\<comment> \<open>Note Kevin: or one could do the following:\<close>
-\<comment> \<open>declare [[coercion_enabled]] [[coercion "apply"]]
+lemma matrix_add_eq_add [simp]:
+  assumes "i : Nat" "j : Nat"
+  and i_lt_m: "i < m"
+  and j_lt_n: "j < n"
+  shows "(matrix_add A m n M N) `i `j = add A (M `i `j) (N `i `j)"
+proof -
+  have "i \<in> {0..<m}" and "j \<in> {0..<n}" by auto
+  then show ?thesis unfolding matrix_add_def by auto
+qed
+
+(*Note Kevin: or one could do the following:*)
+(*declare [[coercion_enabled]] [[coercion "apply"]]
 
 definition "matrix_add a m n (M :: set) (N :: set) \<equiv>
   \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. add a (M i j) (N i j)"
@@ -127,7 +199,7 @@ declare [[coercion "element"]]
 lemma matrix_add_type [type]: "matrix_add : Add A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
   matrix A m n \<Rightarrow> matrix A m n \<Rightarrow> matrix A m n"
   unfolding matrix_def matrix_add_def by discharge_types
-\<close>
+*)
 
 definition "matrix_Add C A m n \<equiv> object {
   \<langle>@add, \<lambda>M N \<in> matrix C m n. matrix_add A m n M N\<rangle>
@@ -140,14 +212,16 @@ lemma matrix_Add_type : assumes "A : Add C" "m : Nat" "n : Nat"
 
 subsection \<open>Additive Monoid\<close>
 
-lemma assumes "M : Monoid C" "N : Element (matrix C m n)"
+lemma
+  assumes "M : Monoid C" "N : Element (matrix C m n)"
   shows matrix_add_zero: "matrix_add M m n N (matrix_zero M m n) = N"
-  and matrix_zero_add: "matrix_add M m n (matrix_zero M m n) N = N"
+    and matrix_zero_add: "matrix_add M m n (matrix_zero M m n) N = N"
   unfolding matrix_add_def matrix_zero_def
   using assms by (auto intro!: lambda_ext simp: matrix_def)
 
-lemma matrix_add_assoc: assumes "M : Monoid C" "N : Element (matrix C m n)"
-  "O : Element (matrix C m n)" "P : Element (matrix C m n)"
+lemma matrix_add_assoc:
+  assumes "M : Monoid C" "N : Element (matrix C m n)"
+    "O : Element (matrix C m n)" "P : Element (matrix C m n)"
   shows "matrix_add M m n (matrix_add M m n N O) P =
     matrix_add M m n N (matrix_add M m n O P)"
   unfolding matrix_add_def
@@ -235,10 +309,93 @@ lemma matrix_Mul_type:
 
 subsection \<open>Multiplicative Monoid\<close>
 
+(*Note: This could be generalised to non-square matrices, but we do not need
+that for now. *)
 lemma
-  assumes "A : Monoid C" "M : Mul_Monoid C" "N : Element (matrix C n n)"
+  assumes "A : Monoid C" "M : Mul_Monoid C" "n : Nat" "N : Element (matrix C n n)"
+  and mul_zero: "\<And> c. c \<in> C \<Longrightarrow> mul M c (zero A) = zero A"
+  and mul_one: "\<And> c. c \<in> C \<Longrightarrow> mul M c (one M) = c"
   shows matrix_mul_one: "matrix_mul A M n n n N (matrix_one A M n n) = N"
-  oops
+unfolding matrix_mul_def
+proof (intro lambda_ext)
+  fix i j
+  assume i_dom: "i \<in> {0..<n}" and j_dom: "j \<in> {0..<n}"
+  note nat_if_in_range_excl_right [dest] and lt_if_in_range_excl_right [dest] 
+    and  ge_if_in_range_excl_right [dest]
+  let ?f = "\<lambda>k acc. add A acc (mul M (N `i `(pred k)) (matrix_one A M n n `(pred k) `j))"
+  {
+    fix m assume lassms: "m : Nat" "m < n"
+    with i_dom have "N `i `m \<in> C" by (intro matrix_apply) auto
+    with lassms have "natrec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)"
+    proof (induction m rule: Nat_induct)
+      case base
+      then show ?case
+      proof (cases "0 < j")
+        case True
+        with j_dom have "matrix_one A M n n `0 `j = zero A"
+          by (intro matrix_one_eq_zero) auto
+        with mul_zero show ?thesis using mul_zero True by auto
+      next
+        case False
+        with j_dom have "j = 0" by (auto elim: leE)
+        moreover with j_dom have "matrix_one A M n n `0 `0 = one M"
+          by (intro matrix_one_eq_one) auto
+        ultimately show ?thesis using mul_one by auto
+      qed
+    next
+      case (induct m)
+      then have "m < n" by (auto intro: lt_if_succ_lt)
+      with i_dom have "N `i `m \<in> C" by (intro matrix_apply) auto
+      with induct.IH have IH: "natrec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)"
+        by auto
+      show ?case
+      proof (cases "succ m < j")
+        case True
+        (* Note Kevin: BAD *)
+        from j_dom have "j : Nat" by auto
+        then have "m < j" using lt_if_succ_lt[OF _ \<open>succ m < j\<close>] by blast
+        moreover with True j_dom have "matrix_one A M n n `(succ m) `j = zero A"
+          by (intro matrix_one_eq_zero) auto
+        ultimately show ?thesis using IH mul_zero True by auto
+      next
+        case False (* Note Kevin: how can I avoid this insert? *)
+        from j_dom have "j : Nat" "m : Nat" by auto
+        then have f: "m < j \<and> j < succ m \<Longrightarrow> False" using
+          succ_le_if_lt[of m j] not_le_if_lt[of j "succ m"] by auto
+        have "j \<le> succ m" by (rule le_if_not_lt, insert j_dom) auto
+        then show ?thesis
+        proof (cases rule: leE)
+          case lt
+          from i_dom j_dom have "N `i `j \<in> C" by (intro matrix_apply) auto
+          from lt j_dom have "matrix_one A M n n `(succ m) `j = zero A"
+            by (intro matrix_one_eq_zero) auto
+          with f lt IH mul_zero show ?thesis using lt_asym by auto
+        next
+          case eq
+          with IH mul_one show ?thesis by auto
+        qed
+      qed
+    qed
+  } note rec = this
+  moreover from \<open>i \<in> {0..<n}\<close> have "i < n" "i \<in> \<nat>" by auto
+  (* cases n=0 needed *)
+  ultimately show "natrec' n (zero A) ?f = N `i `j"
+  proof (cases "n = 0")
+    case True                                                     
+    with \<open>i < n\<close> show ?thesis by auto
+  next
+    case False
+    obtain m where n_eq_succ_m: "n = succ m" by (rule nat_succ_if_ne_zeroE[of n]) auto
+    then have "m : Nat" "m < n" using \<open>n : Nat\<close> by auto
+    then have lem: "natrec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)" by
+      (fact rec)
+    have "j \<le> pred (succ m)" by (rule le_pred_if_lt) (insert j_dom n_eq_succ_m[symmetric], auto)
+    then have "j \<le> m" by simp
+    moreover from j_dom have "j : Nat" by auto
+    ultimately have "\<not> m < j" using le_lt_lt[of j j m] by (auto intro: not_lt_if_le)
+    then show ?thesis using n_eq_succ_m lem by auto
+  qed
+qed (insert assms, auto simp: matrix_def)
 
 end
 

@@ -53,8 +53,10 @@ proof (induction X Y rule: mem_double_induct)
   qed
 qed
 
-lemma Ord_trichotomy: "\<lbrakk>X: Ord; Y: Ord\<rbrakk> \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
-  using Ord_trichotomy_aux by auto
+lemma Ord_trichotomy:
+  assumes "X : Ord" "Y : Ord"
+  obtains (lt) "X \<in> Y" | (eq) "X = Y" | (gt) "Y \<in> X"
+  using assms Ord_trichotomy_aux by auto
 
 lemma emptyset_Ord [type]: "{}: Ord"
   by unfold_types auto
@@ -195,9 +197,15 @@ lemma omega_succ_mem_monotone [intro]:
   by (induction n rule: omega_induct) (auto simp: succ_def)
 
 (*Characterizes the elements of \<omega> as {} or succ n for some n \<in> \<omega>*)
-lemma omega_elems [rule_format]:
-  "n \<in> \<omega> \<Longrightarrow> n \<noteq> {} \<longrightarrow> (\<exists>!m\<in> \<omega>. n = succ m)"
+lemma omega_obtain_succ_if_ne_zero:
+  "n \<in> \<omega> \<Longrightarrow> n \<noteq> {} \<Longrightarrow> (\<exists>!m\<in> \<omega>. n = succ m)"
   by (erule omega_cases) auto
+
+(*Characterizes the elements of \<omega> as {} or succ n for some n \<in> \<omega>*)
+lemma omega_succ_if_ne_zeroE:
+  assumes "n \<in> \<omega>" "n \<noteq> {}"
+  obtains m where "m \<in> \<omega>" "n = succ m"
+  by (rule omega_cases) (auto simp: \<open>n \<noteq> {}\<close>)
 
 lemma omega_Ord: "\<omega>: Ord"
 proof (rule OrdI, unfold mem_transitive_def; rule allI, rule impI)
@@ -240,6 +248,5 @@ proof -
   hence "m \<in> n \<union> {n}" unfolding succ_def by auto
   then show "m \<in> n" using assms by auto
 qed
-
 
 end
