@@ -358,11 +358,11 @@ proof (intro lambda_ext)
           by (intro matrix_one_eq_zero) auto
         ultimately show ?thesis using IH mul_zero True by auto
       next
-        case False (* Note Kevin: how can I avoid this insert? *)
+        case False
         from j_dom have "j : Nat" "m : Nat" by auto
         then have f: "m < j \<and> j < succ m \<Longrightarrow> False" using
           succ_le_if_lt[of m j] not_le_if_lt[of j "succ m"] by auto
-        have "j \<le> succ m" by (rule le_if_not_lt, insert j_dom) auto
+        have "j \<le> succ m" by (rule le_if_not_lt) simp
         then show ?thesis
         proof (cases rule: leE)
           case lt
@@ -398,5 +398,3 @@ proof (intro lambda_ext)
 qed (insert assms, auto simp: matrix_def)
 
 end
-
-
