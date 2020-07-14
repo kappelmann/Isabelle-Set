@@ -1,12 +1,10 @@
-chapter \<open>Setup\<close>
+section \<open>Setup for Higher-Order Tarski-Grothendieck Set Theory.\<close>
 
 theory Setup
-imports "../Soft_Types/Soft_Types_HOL" Rewrite
-
+imports "HOL.HOL"
 begin
 
-
-section \<open>Combinators\<close>
+subsection \<open>Utility\<close>
 
 abbreviation (input) "K x \<equiv> \<lambda>_. x"
 abbreviation (input) "app2 f x \<equiv> f x x"

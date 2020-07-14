@@ -1,0 +1,27 @@
+chapter "Higher-Order Tarski-Grothendieck (HOTG)."
+
+session HOTG = "HOL" +
+  description
+    \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
+  options
+    [timeout = 180]
+  theories
+    Axioms
+    Basic
+    Bounded_Quantifiers
+    Comprehension
+    Empty_Set
+    Equality
+    Finite_Sets
+    Foundation
+    Mem_Transitive
+    Powerset
+    Replacement
+    Replacement_Predicates
+    Set_Difference
+    Subset
+    Union_Intersection
+    Universes
+    Unordered_Pairs
+  document_files
+    "root.bib"
