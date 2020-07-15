@@ -1,8 +1,7 @@
-section \<open>Ordered pairs and \<Sigma>-type\<close>
+section \<open>Ordered Pairs (\<Sigma>-types)\<close>
 
 theory Ordered_Pairs
-imports Set_Theory
-
+imports Foundation
 begin
 
 definition opair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
@@ -22,8 +21,7 @@ translations
 
 lemma opair_eq_iff [simp]: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<longleftrightarrow> a = c \<and> b = d"
   unfolding opair_def
-  by (subst singleton_dup[of a], subst singleton_dup[of c])
-    (auto simp: pair_eq_iff)
+  by (subst singleton_eq_pair[of a], subst singleton_eq_pair[of c]) (auto simp: pair_eq_iff)
 
 lemmas opair_inject = opair_eq_iff [THEN iffD1, THEN conjE, elim!]
 lemmas opair_inject1 = opair_eq_iff [THEN iffD1, THEN conjunct1]
@@ -41,7 +39,7 @@ lemma opair_ne_fst: "\<langle>a, b\<rangle> = a \<Longrightarrow> P"
 
 lemma opair_ne_snd: "\<langle>a, b\<rangle> = b \<Longrightarrow> P"
 unfolding opair_def
-proof (subst (asm) singleton_dup[of a])
+proof (subst (asm) singleton_eq_pair[of a])
   assume *: "{{a, a}, {a, b}} = b"
   have "{a, b} \<in> {{a, a}, {a, b}}" by auto
   hence "{a, b} \<in> b" by (simp add: *)
@@ -73,50 +71,50 @@ definition pairset :: \<open>set \<Rightarrow> (set \<Rightarrow> set) \<Rightar
 syntax
   "_pairset" :: \<open>[pttrn, set, set \<Rightarrow> set] \<Rightarrow> set\<close> ("\<Sum>_\<in> _./ _" [0, 0, 100])
 translations
-  "\<Sum>x\<in> A. B" \<rightleftharpoons> "CONST pairset A (\<lambda>x. B)"
+  "\<Sum>x \<in> A. B" \<rightleftharpoons> "CONST pairset A (\<lambda>x. B)"
 
 abbreviation prodset :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close> (infixr "\<times>" 80)
   where "A \<times> B \<equiv> \<Sum>_\<in> A. B"
 
-lemma pairset_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
+lemma pairset_iff [simp]: "\<langle>a, b\<rangle> \<in> \<Sum>x \<in> A. (B x) \<longleftrightarrow> a \<in> A \<and> b \<in> B a"
   by (auto simp: pairset_def)
 
-lemma pairsetI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x)"
+lemma pairsetI [intro!]: "\<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> \<langle>a, b\<rangle> \<in> \<Sum>x \<in> A. (B x)"
   by simp
 
-lemma pairsetI2 [elim]: "\<lbrakk>p = \<langle>a, b\<rangle>; a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> p \<in> \<Sum>x\<in> A. (B x)"
+lemma pairsetI2 [elim]: "\<lbrakk>p = \<langle>a, b\<rangle>; a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> p \<in> \<Sum>x \<in> A. (B x)"
   by simp
 
 lemmas pairsetD1 = pairset_iff [THEN iffD1, THEN conjunct1]
 lemmas pairsetD2 = pairset_iff [THEN iffD1, THEN conjunct2]
 
 lemma pairsetE [elim!]:
-  "\<lbrakk>c \<in> \<Sum>x\<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x; c = \<langle>x, y\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  "\<lbrakk>c \<in> \<Sum>x \<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x; c = \<langle>x, y\<rangle>\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (unfold pairset_def, blast)
 
 lemma pairsetE2 [elim!]:
-  "\<lbrakk>\<langle>a, b\<rangle> \<in> \<Sum>x\<in> A. (B x); \<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  "\<lbrakk>\<langle>a, b\<rangle> \<in> \<Sum>x \<in> A. (B x); \<lbrakk>a \<in> A; b \<in> B a\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (unfold pairset_def, blast)
 
 lemma pairset_cong:
-  "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Sum>x\<in> A. (B x) = \<Sum>x\<in> A'. (B' x)"
+  "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> \<Sum>x \<in> A. (B x) = \<Sum>x \<in> A'. (B' x)"
   by (simp add: pairset_def)
 
-lemma pairset_fst: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> fst p \<in> A"
+lemma pairset_fst: "p \<in> \<Sum>x \<in> A. (B x) \<Longrightarrow> fst p \<in> A"
   by auto
 
-lemma pairset_snd: "p \<in> \<Sum>x\<in> A. (B x) \<Longrightarrow> snd p \<in> B (fst p)"
+lemma pairset_snd: "p \<in> \<Sum>x \<in> A. (B x) \<Longrightarrow> snd p \<in> B (fst p)"
   by auto
 
-lemma pairset_elem [simp]: "p \<in> \<Sum>x\<in> P. (B x) \<Longrightarrow> p = \<langle>fst p, snd p\<rangle>"
+lemma pairset_elem [simp]: "p \<in> \<Sum>x \<in> P. (B x) \<Longrightarrow> p = \<langle>fst p, snd p\<rangle>"
   by auto
 
 lemma pairset_subset_elem [simp]:
-  "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x\<in> A. (B x)\<rbrakk> \<Longrightarrow> p = \<langle>fst p, snd p\<rangle>"
+  "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> p = \<langle>fst p, snd p\<rangle>"
   by auto
 
 lemma pairset_subset_elemE:
-  "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x\<in> A. (B x); \<And>a b. \<lbrakk>a \<in> A; b \<in> B a; p = \<langle>a, b\<rangle>\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
+  "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x \<in> A. (B x); \<And>a b. \<lbrakk>a \<in> A; b \<in> B a; p = \<langle>a, b\<rangle>\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   by auto
 
 lemma pairset_empty_index [simp]: "\<Sum>x\<in> {}. (B x) = {}"
@@ -161,7 +159,7 @@ lemma split [simp]: "split f \<langle>a, b\<rangle> \<equiv> f a b"
   by (simp add: split_def)
 
 lemma split_type:
-  "\<lbrakk>p \<in> \<Sum>x\<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x\<rbrakk> \<Longrightarrow> c x y \<in> C \<langle>x,y\<rangle>\<rbrakk> \<Longrightarrow> split c p \<in> C p"
+  "\<lbrakk>p \<in> \<Sum>x \<in> A. (B x); \<And>x y. \<lbrakk>x \<in> A; y \<in> B x\<rbrakk> \<Longrightarrow> c x y \<in> C \<langle>x,y\<rangle>\<rbrakk> \<Longrightarrow> split c p \<in> C p"
   by (erule pairsetE) auto
 
 lemma expand_split:
@@ -172,7 +170,7 @@ lemma splitI: "R a b \<Longrightarrow> split R \<langle>a,b\<rangle>"
   by (simp add: split_def)
 
 lemma splitE:
-  "\<lbrakk>split R z; z \<in> \<Sum>x\<in> A. (B x); \<And>x y. \<lbrakk>z = \<langle>x, y\<rangle>; R x y\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  "\<lbrakk>split R z; z \<in> \<Sum>x \<in> A. (B x); \<And>x y. \<lbrakk>z = \<langle>x, y\<rangle>; R x y\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (auto simp add: split_def)
 
 lemma splitD: "split R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
@@ -181,11 +179,11 @@ lemma splitD: "split R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
 text \<open>Splitting quantifiers:\<close>
 
 lemma split_paired_bex_pair [simp]:
-  "(\<exists>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<exists>x \<in> A. \<exists>y \<in> B x. P \<langle>x, y\<rangle>)"
+  "(\<exists>z \<in> \<Sum>x \<in> A. (B x). P z) \<longleftrightarrow> (\<exists>x \<in> A. \<exists>y \<in> B x. P \<langle>x, y\<rangle>)"
   by blast
 
 lemma split_paired_ball_pair [simp]:
-  "(\<forall>z \<in> \<Sum>x\<in> A. (B x). P z) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B x. P \<langle>x,y\<rangle>)"
+  "(\<forall>z \<in> \<Sum>x \<in> A. (B x). P z) \<longleftrightarrow> (\<forall>x \<in> A. \<forall>y \<in> B x. P \<langle>x,y\<rangle>)"
   by blast
 
 

@@ -26,9 +26,6 @@ no_notation (ASCII)
 
 no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 
-no_notation Pure.eq (infix "\<equiv>" 2)
-notation Pure.eq ("(1_ \<equiv>/ _)" [3, 3] 2) \<comment>\<open>Just some prettier formatting\<close>
-
 
 section \<open>Additional logical rules\<close>
 

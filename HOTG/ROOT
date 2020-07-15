@@ -15,6 +15,7 @@ session HOTG = "HOL" +
     Finite_Sets
     Foundation
     Mem_Transitive
+    Ordered_Pairs
     Powerset
     Replacement
     Replacement_Predicates

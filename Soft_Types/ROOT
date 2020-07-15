@@ -1,0 +1,11 @@
+chapter "Soft Types for HOL"
+
+session Soft_Types = "HOL" +
+  description
+    \<open>Soft-Types on top of Isabelle/HOL\<close>
+  options
+    [timeout = 180]
+  sessions
+    "HOL-Eisbach"
+  theories
+    "Soft_Types_HOL"
