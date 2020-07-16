@@ -21,6 +21,7 @@ session HOTG = "HOL" +
     Replacement_Predicates
     Set_Difference
     Subset
+    Sum
     Union_Intersection
     Universes
     Unordered_Pairs

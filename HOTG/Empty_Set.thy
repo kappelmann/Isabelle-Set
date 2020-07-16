@@ -7,7 +7,7 @@ begin
 lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
   by auto
 
-lemma empty_subsetI [simp]: "{} \<subseteq> A"
+lemma empty_subsetI [simp, intro]: "{} \<subseteq> A"
   by auto
 
 lemma equals_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> False\<rbrakk> \<Longrightarrow> A = {}"

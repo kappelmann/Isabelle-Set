@@ -18,7 +18,7 @@ definition cons :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
 lemma cons_elems [iff]: "y \<in> cons x A \<longleftrightarrow> y = x \<or> y \<in> A"
   by (auto 5 0 simp: cons_def upair_def)
 
-lemma consI1 [simp]: "a \<in> cons a A"
+lemma consI1 [simp, intro]: "a \<in> cons a A"
   by simp
 
 lemma consI2: "a \<in> A \<Longrightarrow> a \<in> cons b A"

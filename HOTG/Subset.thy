@@ -25,7 +25,7 @@ lemma contra_subsetE: "\<lbrakk>A \<subseteq> B; a \<notin> B\<rbrakk> \<Longrig
 lemma rev_contra_subsetE: "\<lbrakk>a \<notin> B; A \<subseteq> B\<rbrakk> \<Longrightarrow> a \<notin> A"
   by auto
 
-lemma subset_refl [simp]: "A \<subseteq> A"
+lemma subset_refl [simp, intro]: "A \<subseteq> A"
   by blast
 
 lemma subset_trans [trans]: "\<lbrakk>A \<subseteq> B; B \<subseteq> C\<rbrakk> \<Longrightarrow> A \<subseteq> C"

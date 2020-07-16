@@ -1,10 +1,6 @@
 theory Isabelle_Set
 imports
-  Set_Theory
-  Ordered_Pairs
-  BinRel
   Function
-  Sum
   Subset
   Monops
   Ordinal

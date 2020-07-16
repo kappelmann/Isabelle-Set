@@ -37,11 +37,11 @@ proof (rule ccontr)
 qed
 
 lemma mem_asymE:
-  assumes "a \<in> b" and b_in_a_of_not_P: "\<not>P \<Longrightarrow> b \<in> a"
+  assumes "a \<in> b" and b_in_a_if_not_P: "\<not>P \<Longrightarrow> b \<in> a"
   shows "P"
 proof (rule ccontr)                                               
   assume not_P: "\<not>P"
-  then have "b \<in> a" by (fact b_in_a_of_not_P)
+  then have "b \<in> a" by (fact b_in_a_if_not_P)
   consider (empty) "{a, b} = {}" | (not_empty) "\<exists> c \<in> {a, b}. \<forall>d \<in> c. d \<notin> {a, b}"
     using foundation2[of "{a, b}"] by simp
   then show "False" using not_P assms by cases blast+
