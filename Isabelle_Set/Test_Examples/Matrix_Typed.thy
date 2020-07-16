@@ -6,28 +6,28 @@ imports "../Isabelle_Set"
 begin
 
 \<comment> \<open>I want the following -- is this safe?\<close>
-\<comment> \<open>declare [[coercion_enabled]] [[coercion element]] [[coercion "apply"]]\<close>
+\<comment> \<open>declare [[coercion_enabled]] [[coercion Element]] [[coercion "apply"]]\<close>
 
 definition upto ("{0..< _}") where "{0..< n} = {i \<in> \<nat> | i < n}"
 
 \<comment> \<open>Note Kevin: Having both, HOL and set functions is pain.\<close>
 definition [typedef]:
-  "Matrix A m n \<equiv> element {0..<m} \<Rightarrow> element {0..<n} \<Rightarrow> element A"
+  "Matrix A m n \<equiv> Element {0..<m} \<Rightarrow> Element {0..<n} \<Rightarrow> Element A"
 
 definition "matrix A m n \<equiv> {0..<m} \<rightarrow> {0..<n} \<rightarrow> A"
 
 definition "Matrix_to_matrix m n M \<equiv> \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. M i j"
 
 lemma Matrix_to_matrix_type [type]:
-  "Matrix_to_matrix: (m: Nat) \<Rightarrow> (n: Nat) \<Rightarrow> Matrix A m n \<Rightarrow>
-    element (matrix A m n)"
+  "Matrix_to_matrix : (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n \<Rightarrow>
+    Element (matrix A m n)"
   unfolding matrix_def Matrix_def Matrix_to_matrix_def
   by discharge_types
 
 definition "matrix_to_Matrix M \<equiv> \<lambda>i j. M `i `j"
 
 lemma matrix_to_Matrix_type [type]:
-  "matrix_to_Matrix: element (matrix A m n) \<Rightarrow> Matrix A m n"
+  "matrix_to_Matrix : Element (matrix A m n) \<Rightarrow> Matrix A m n"
   unfolding matrix_to_Matrix_def Matrix_def matrix_def by discharge_types
 
 
@@ -54,7 +54,7 @@ lemma assumes "A: Add C" "m: Nat" "n: Nat"
 
 lemma Matrix_add_assoc: assumes "M : Monoid A" "N : Matrix A m n"
   "O : Matrix A m n" "P : Matrix A m n"
-  "i : element {0..<m}" "j : element {0..<n}"
+  "i : Element {0..<m}" "j : Element {0..<n}"
   shows "Matrix_add M (Matrix_add M N O) P i j =
     Matrix_add M N (Matrix_add M O P) i j"
   unfolding Matrix_add_def
@@ -63,8 +63,8 @@ lemma Matrix_add_assoc: assumes "M : Monoid A" "N : Matrix A m n"
 definition "matrix_add A m n M N \<equiv> Matrix_to_matrix m n
   (Matrix_add A (matrix_to_Matrix M) (matrix_to_Matrix N))"
 
-lemma matrix_add_assoc: assumes "M : Monoid A" "N : element (matrix A m n)"
-  "O : element (matrix A m n)" "P : element (matrix A m n)"
+lemma matrix_add_assoc: assumes "M : Monoid A" "N : Element (matrix A m n)"
+  "O : Element (matrix A m n)" "P : Element (matrix A m n)"
   shows "matrix_add M m n (matrix_add M m n N O) P =
     matrix_add M m n N (matrix_add M m n O P)"
   oops

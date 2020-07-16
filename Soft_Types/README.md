@@ -67,9 +67,9 @@ File | Content
 -----|--------
 `Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL): Types as predicates, Function types, intersections, adjectives. Tool setup
 `Soft_Types/*.ML` | Infrastructure for soft types: Elaboration, Unification, Context data, etc.
-`HOTG/Axioms.thy` | Axiomatization of set theory
-`HOTG/*.thy` | Basics of Set Theory
-`Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts with soft types
+`Isabelle_Set/Set_Theory_Axioms.thy` | Axiomatization of set theory
+`Isabelle_Set/Set_Theory.thy` | Basics of Set Theory
+`Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts
 `Isabelle_Set/Structure.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
 `Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ ⊇ ℕ
