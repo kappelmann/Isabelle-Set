@@ -11,7 +11,7 @@ session Isabelle_Set = "HOL" +
   directories
     "Test_Examples"
   theories
-    "Sets"
+    "Isabelle_Set"
 
     (* Other library theories *)
     (* "Isabelle_Set/Category" *)

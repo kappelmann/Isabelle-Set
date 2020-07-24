@@ -1,12 +1,10 @@
-chapter \<open>Binary relations\<close>
+section \<open>Binary Relations\<close>
 
 theory BinRel
-imports Ordered_Pairs
-
+imports Sets                    
 begin
 
-
-section \<open>Generic notion of a binary relation\<close>
+section \<open>Basic Setup\<close>
 
 text \<open>No specific domain and range information; compare section below.\<close>
 
@@ -19,8 +17,7 @@ lemma BinRelI [intro]:
 
 lemma BinRelI' [intro]:
   "(\<And>u. u \<in> R \<Longrightarrow> \<exists>x y. u = \<langle>x, y\<rangle>) \<Longrightarrow> R: BinRel"
-  apply (rule BinRelI)
-  using fst_def snd_def by fastforce
+  using fst_def snd_def by (intro BinRelI) fastforce
 
 lemma subset_prodset_imp_BinRel [intro]:
   "R \<subseteq> A \<times> B \<Longrightarrow> R: BinRel"
@@ -51,7 +48,7 @@ proof -
   thus ?thesis ..
 qed
 
-lemma dom_iff [iff]:
+lemma dom_iff:
   "R: BinRel \<Longrightarrow> x \<in> dom R \<longleftrightarrow> (\<exists>y. \<langle>x, y\<rangle> \<in> R)"
   by auto
 
@@ -83,7 +80,7 @@ proof -
   thus ?thesis ..
 qed
 
-lemma BinRel_imp_subset_prodset [elim]:
+lemma subset_prodset_if_BinRel [elim]:
   assumes "R: BinRel"
   shows "R \<subseteq> dom R \<times> rng R"
 proof
@@ -145,17 +142,17 @@ lemma RelationI [derive]:
 
 lemma Relation_imp_BinRel [derive]:
   "R: Relation A B \<Longrightarrow> R: BinRel"
-  unfolding Relation_def by auto
+  unfolding Relation_def by (intro BinRelI) (unfold_types, auto)
 
 (*Note the issue with standard typechecking blindly using soft type rules:
   loops occur if the following is declared [derive].*)
 lemma BinRel_imp_Relation:
   "R: BinRel \<Longrightarrow> R: Relation (dom R) (rng R)"
-  by (intro RelationI SubsetI BinRel_imp_subset_prodset)
+  by (intro RelationI SubsetI subset_prodset_if_BinRel)
 
 lemma dom_type [type]:
   "dom: Relation A B \<Rightarrow> Subset A"
-  by unfold_types auto
+  unfolding dom_def by unfold_types auto
 
 lemma rng_type [type]:
   "rng: Relation A B \<Rightarrow> Subset B"
@@ -213,7 +210,7 @@ lemma converse_type [type]: "converse: Relation A B \<Rightarrow> Relation B A"
   by unfold_types auto
 
 lemma converse_involution: "R: Relation A B \<Longrightarrow> converse (converse R) = R"
-  unfolding converse_def by unfold_types (rule extensionality, auto)
+  unfolding converse_def by (rule extensionality) (unfold_types, auto intro: pairset_elem)   
 
 
 section \<open>Diagonal of a set\<close>

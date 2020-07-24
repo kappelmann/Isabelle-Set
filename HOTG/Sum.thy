@@ -4,7 +4,6 @@ text \<open>Aka binary disjoint union/coproduct.\<close>
 
 theory Sum          
 imports Ordered_Pairs
-
 begin
 
 definition "inl a = \<langle>{}, a\<rangle>"

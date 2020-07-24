@@ -41,13 +41,14 @@ type-theoretic result translation? *)
 lemma in_range_imp_succ_in_range [derive]:
   assumes "u : Nat" "n : Element {l..u}"
   shows "succ n : Element {succ l..succ u}"
-  using assms unfolding range_def by unfold_types (auto intro: succ_le_monotone)
+  (* for some reason, unfold_types loops *)
+  using assms unfolding range_def Element_def meaning_of_type by auto
 
 lemma in_range_excl_right_imp_succ_in_range [derive]:
   assumes "u : Nat" "n : Element {l..<u}"
   shows "succ n : Element {succ l..u}"
-  using assms unfolding range_excl_right_def range_def
-  by unfold_types (auto intro: succ_le_monotone succ_le_if_lt)
+  using assms unfolding range_excl_right_def range_def Element_def meaning_of_type
+  by (auto intro: succ_le_if_lt)
 
 (*Note Kevin: not needed for now but maybe a good test for set and type
 conversion *)
@@ -60,19 +61,19 @@ conversion *)
 lemma in_range_succ_imp_pred_in_range_excl_right [derive]:
   assumes "l : Nat" "u : Nat" "n : Element {succ l..u}"
   shows "pred n : Element {l..<u}"
-  using assms unfolding range_def range_excl_right_def
-  by unfold_types (auto intro: pred_lt_if_le_if_ne_zero)
+  using assms unfolding range_def range_excl_right_def Element_def meaning_of_type
+  by (auto intro: pred_lt_if_le_if_ne_zero)
 
 lemma range_subseteq_succ_right:
   assumes "u : Nat"
   shows "{l..u} \<subseteq> {l..succ u}"
   using lt_succ_if_le le_if_lt
-  unfolding range_def by unfold_types auto
+  unfolding range_def by auto
 
 
 section \<open>Matrices\<close>
 
-definition "matrix C m n \<equiv> {0..<m} \<rightarrow> {0..<n} \<rightarrow> C"
+definition "matrix C m n \<equiv> \<Prod>_ \<in> {0..<m}. \<Prod>_ \<in> {0..<n}. C"
 
 (* Note Kevin: should this be tagged? *)
 lemma matrix_apply [intro]:
@@ -86,13 +87,13 @@ proof -
 qed
 
 subsection \<open>Zero\<close>
-
+                                                       
 definition "matrix_zero Z m n \<equiv>
   \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. zero Z"
 
 lemma matrix_zero_type [type]:
   "matrix_zero : Zero C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Element (matrix C m n)"
-  unfolding matrix_def matrix_zero_def by discharge_types
+  unfolding matrix_def matrix_zero_def by (intro type_intro)+ (auto simp: Element_iff)
 
 lemma matrix_zero_eq_zero [simp]:
   assumes "i : Nat" "j : Nat"
@@ -128,7 +129,7 @@ subsection \<open>One\<close>
 
 (*Note Kevin: TODO: why is not just auto working? This also should be moved.*)
 lemma if_type [type]: "If : bool \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
- by (rule typeI) auto
+ by (rule type_intro) auto
 
 definition "matrix_one Z O m n \<equiv>
   \<lambda>i \<in> {0..<m}. \<lambda>j \<in> {0..<n}. if i = j then one O else zero Z"
@@ -158,7 +159,7 @@ qed
 lemma matrix_one_type [type]:
   "matrix_one : Zero C \<Rightarrow> One C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
     Element (matrix C m n)"
-  unfolding matrix_def matrix_one_def by discharge_types
+  unfolding matrix_def matrix_one_def by (intro type_intro)+ (auto simp: Element_iff)
 
 definition "matrix_One Z O m n \<equiv> object {
   \<langle>@one, matrix_one Z O m n\<rangle>
@@ -176,7 +177,7 @@ definition "matrix_add A m n M N \<equiv>
 
 lemma matrix_add_type [type]: "matrix_add : Add C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
   Element (matrix C m n) \<Rightarrow> Element (matrix C m n) \<Rightarrow> Element (matrix C m n)"
-  unfolding matrix_def matrix_add_def by discharge_types
+  unfolding matrix_def matrix_add_def by (intro type_intro)+ (auto simp: Element_iff)
 
 lemma matrix_add_eq_add [simp]:
   assumes "i : Nat" "j : Nat"
@@ -207,7 +208,8 @@ definition "matrix_Add C A m n \<equiv> object {
 
 lemma matrix_Add_type : assumes "A : Add C" "m : Nat" "n : Nat"
   shows "matrix_Add C A m n : Add (matrix C m n)"
-  unfolding matrix_Add_def by (rule Add_typeI) auto
+  (* TODO Kevin: why is this selector not simplified? *)
+  unfolding matrix_Add_def by (intro Add_typeI) (auto simp: mem_piset_iff_DepFunction)
 
 
 subsection \<open>Additive Monoid\<close>
@@ -257,7 +259,7 @@ definition "matrix_mul A M l m n N O \<equiv> \<lambda>i \<in> {0..<l}. \<lambda
 considered to be clean.*)
 lemma natrec'_dep_type [type]: "natrec' : (n : Nat) \<Rightarrow> Element A \<Rightarrow>
   (Element {1..n} \<Rightarrow> Element A \<Rightarrow> Element A) \<Rightarrow> Element A"
-proof (rule typeI)+
+proof (rule type_intro)+
   fix n x\<^sub>0 f
   assume  "n : Nat" "x\<^sub>0 : Element A"
     "f : Element {1..n} \<Rightarrow> Element A \<Rightarrow> Element A"
@@ -279,11 +281,11 @@ lemma matrix_mul_type [type]: "matrix_mul : Monoid C \<Rightarrow> Mul C \<Right
   (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Element (matrix C l m) \<Rightarrow> Element (matrix C m n) \<Rightarrow>
   Element (matrix C l n)"
 unfolding matrix_def
-proof (rule typeI)+
+proof (intro type_intro, simp only: Element_mem_piset_iff_DepFunction)+
   fix AddM M l m n N O
   assume "AddM : Monoid C" "M : Mul C" "l : Nat" "m : Nat" "n : Nat"
-    "N : Element ({0..<l} \<rightarrow> {0..<m} \<rightarrow> C)"
-    "O : Element ({0..<m} \<rightarrow> {0..<n} \<rightarrow> C)"
+    "N : {0..<l} \<rightarrow> {0..<m} \<rightarrow> C"
+    "O : {0..<m} \<rightarrow> {0..<n} \<rightarrow> C"
   {
     fix i j
     assume "i : Element {0..<l}" "j : Element {0..<n}"
@@ -293,8 +295,11 @@ proof (rule typeI)+
       : Element {1..m} \<Rightarrow> Element C \<Rightarrow> Element C"
       using [[type_derivation_depth=5]] unfolding nat_one_def by discharge_types
   }
-  then show "matrix_mul AddM M l m n N O : Element ({0..<l} \<rightarrow> {0..<n} \<rightarrow> C)"
-    unfolding matrix_mul_def nat_one_def by discharge_types
+  then show "matrix_mul AddM M l m n N O : {0..<l} \<rightarrow> {0..<n} \<rightarrow> C"
+  using [[type_derivation_depth=3]]
+  unfolding matrix_mul_def nat_one_def by
+    (* TODO Kevin: why is this not working? "goal: no subgoals" *)
+    (intro lambda_function_typeI, simp only: Element_mem_piset_iff_DepFunction)+ (auto)
 qed
 
 definition "matrix_Mul C A M l m n \<equiv> object {
@@ -304,7 +309,8 @@ definition "matrix_Mul C A M l m n \<equiv> object {
 lemma matrix_Mul_type:
   assumes "A : Monoid C" "M : Mul C" "n : Nat"
   shows "matrix_Mul C A M n n n : Mul (matrix C n n)"
-  unfolding matrix_Mul_def by (rule Mul_typeI) auto
+  using [[trace_type_derivation=true]]
+  unfolding matrix_Mul_def by (rule Mul_typeI) (auto simp: mem_piset_iff_DepFunction)
 
 
 subsection \<open>Multiplicative Monoid\<close>
@@ -378,7 +384,7 @@ proof (intro lambda_ext)
     qed
   } note rec = this
   moreover from \<open>i \<in> {0..<n}\<close> have "i < n" "i \<in> \<nat>" by auto
-  (* cases n=0 needed *)
+  (* case n=0 needed *)
   ultimately show "natrec' n (zero A) ?f = N `i `j"
   proof (cases "n = 0")
     case True                                                     

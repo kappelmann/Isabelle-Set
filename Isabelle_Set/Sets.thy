@@ -6,9 +6,7 @@ imports
   HOTG.Universes
 begin
 
-section \<open>Soft types\<close>
-
-subsection \<open>Sets, elements and subsets\<close>
+subsection \<open>Sets, Elements, and Subsets\<close>
 
 abbreviation Set :: "set type"
   where "Set \<equiv> Any"
@@ -22,17 +20,32 @@ definition Element :: "set \<Rightarrow> set type"
 definition Subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
-lemma element_type_iff: "a \<in> A \<longleftrightarrow> a : Element A" by unfold_types
-lemma subset_type_iff: "A \<subseteq> B \<longleftrightarrow> A : Subset B" by unfold_types auto
+lemma Element_iff: "a \<in> A \<longleftrightarrow> a: Element A" by unfold_types
 
-lemma subset_self [derive]: "A : Subset A"
+corollary
+  ElementI: "a \<in> A \<Longrightarrow> a: Element A" and
+  ElementD: "a: Element A \<Longrightarrow> a \<in> A"
+  by (auto iff: Element_iff)
+
+lemma Subset_iff: "A \<subseteq> B \<longleftrightarrow> A: Subset B" by unfold_types auto
+
+corollary
+  SubsetI: "A \<subseteq> B \<Longrightarrow> A: Subset B" and
+  SubsetD: "A: Subset B \<Longrightarrow> A \<subseteq> B"
+  by (auto iff: Subset_iff)
+
+lemma subset_self [derive]: "A: Subset A"
   by unfold_types auto
 
 lemma func_type_restrict_set_domain:
   assumes "A \<subseteq> B" "f : (b : Element B) \<Rightarrow> T b"
   shows "f : (a : Element A) \<Rightarrow> T a"
-using assms by unfold_types auto
-
+proof (intro type_intro)
+  fix a assume "a : Element A"
+  with \<open>A \<subseteq> B\<close> have "a : Element B" by (auto simp: Element_iff)
+  then show "f a : T a" by discharge_types
+qed
+  
 text \<open>Declare basic soft type translations.\<close>
 
 (*
@@ -53,20 +66,21 @@ soft_type_translation
   "\<exists>x \<in> A. P x" \<rightleftharpoons> "\<exists>x : Element A. P x"
   by unfold_types auto
 
-subsection \<open>Collections of sets\<close>
+(* Note Kevin: Think about removing collections all together? *)
+subsection \<open>Collections\<close>
 
 definition Collection :: "set type \<Rightarrow> set type"
   where [typeclass]: "Collection T \<equiv> type (\<lambda>x. \<forall>y \<in> x. y : T)"
 
-lemma collection_element_imp_subset [derive]:
+lemma Subset_if_Collecten_Element [derive]:
   "A : Collection (Element B) \<Longrightarrow> A : Subset B"
   by unfold_types blast
 
-lemma subset_imp_collection_element [derive]:
+lemma collection_element_if_Subset [derive]:
   "A : Subset B \<Longrightarrow> A : Collection (Element B)"
   by unfold_types blast
 
-subsection \<open>Basic constant types\<close>
+subsection \<open>Basic Constant Types\<close>
 
 text \<open>
 The following typing rules are less general than what could be proved, since the
@@ -93,8 +107,9 @@ lemma
   [type]: "collect : Subset A \<Rightarrow> (Element A \<Rightarrow> Bool) \<Rightarrow> Subset A"
 
   by unfold_types auto
+  
 
-subsection \<open>Set theory and Pi types\<close>
+subsection \<open>Pi types\<close>
 
 lemma set_Pi_typeI [dest]: "\<forall>x. x \<in> A \<longrightarrow> f x \<in> B \<Longrightarrow> f: Element A \<Rightarrow> Element B"
   by unfold_types
@@ -104,12 +119,7 @@ lemma set_Pi_typeI' [dest]: "\<forall>x \<in> A. f x \<in> B \<Longrightarrow> f
 
 lemma univ_nonempty [simp, intro]: "non-empty (univ X)"
   unfolding non_def empty_def by auto
-                                              
-lemma [derive]:
-  "\<lbrakk>A : Element (univ U); B : Element (univ U)\<rbrakk> \<Longrightarrow> (A \<times> B) : Element (univ U)"
-  "\<lbrakk>A : Subset (univ U); B : Subset (univ U)\<rbrakk> \<Longrightarrow> A \<times> B : Subset (univ U)"
-  by unfold_types auto
-
+              
 
 subsection \<open>Ordered Pairs\<close>
 
@@ -140,14 +150,19 @@ lemma fst_dep_type:
 lemma snd_dep_type:
   "snd : (p : Element (\<Sum>x \<in> A. (B x))) \<Rightarrow> Element (B (fst p))"
   by unfold_types auto
-
-text \<open>Sum type\<close>
   
-lemma sumE_typed [case_names inl inr]:
+lemma [derive]:
+  "\<lbrakk>A : Element (univ U); B : Element (univ U)\<rbrakk> \<Longrightarrow> A \<times> B : Element (univ U)"
+  "\<lbrakk>A : Subset (univ U); B : Subset (univ U)\<rbrakk> \<Longrightarrow> A \<times> B : Subset (univ U)"
+  by unfold_types auto
+
+subsection \<open>Sum type\<close>
+
+lemma sumE_typed:
   assumes "x : Element (sum A B)"
-  obtains a where "a : Element A" "x = inl a"
-        | b where "b : Element B" "x = inr b"
-  using assms by unfold_types blast
+  obtains (inl) a where "a : Element A" "x = inl a"
+        | (inr) b where "b : Element B" "x = inr b"
+  using assms by (auto simp: Element_iff[symmetric])
 
 lemma sum_case_type [type]:
   "sum_case : (Element A \<Rightarrow> X) \<Rightarrow> (Element B \<Rightarrow> X) \<Rightarrow> Element (sum A B) \<Rightarrow> X"
@@ -159,5 +174,5 @@ lemma inl_type [type]: "inl : Element A \<Rightarrow> Element (sum A B)"
 lemma inr_type [type]: "inr : Element B \<Rightarrow> Element (sum A B)"
   unfolding inr_def sum_def by unfold_types blast
 
-  
+
 end

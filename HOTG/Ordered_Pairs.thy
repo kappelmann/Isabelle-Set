@@ -199,41 +199,5 @@ lemma uncurryE:
 lemma uncurryD: "uncurry R \<langle>a, b\<rangle> \<Longrightarrow> R a b"
   by (simp add: uncurry_def)
 
-lemma [derive]:
-  "\<lbrakk>A: Element (univ U); B: Element (univ U)\<rbrakk> \<Longrightarrow> A \<times> B: Element (univ U)"
-  "\<lbrakk>A: Subset (univ U); B: Subset (univ U)\<rbrakk> \<Longrightarrow> A \<times> B: Subset (univ U)"
-  by unfold_types auto
-
-
-subsection \<open>Soft types\<close>
-
-lemma
-  prod_type [type]: "(\<times>): Subset A \<Rightarrow> Subset B \<Rightarrow> Subset (A \<times> B)" and
-  opair_type [type]: "opair: Element A \<Rightarrow> Element B \<Rightarrow> Element (A \<times> B)" and
-  fst_type [type]: "fst: Element (A \<times> B) \<Rightarrow> Element A" and
-  snd_type [type]: "snd: Element (A \<times> B) \<Rightarrow> Element B"
-  by unfold_types auto
-
-lemma setprod_nonempty [derive]:
-  "non-empty A \<Longrightarrow> non-empty B \<Longrightarrow> non-empty (A \<times> B)"
-  unfolding non_def empty_def by auto
-
-text \<open>
-The following are more general but also makes elaboration more complex, so we
-don't declare them by default for now.
-\<close>
-
-lemma opair_dep_type:
-  "opair: (x: Element A) \<Rightarrow> Element (B x) \<Rightarrow> Element (\<Sum>x\<in> A. (B x))"
-  by unfold_types auto
-
-lemma fst_dep_type:
-  "fst: Element (\<Sum>x\<in> A. (B x)) \<Rightarrow> Element A"
-  by unfold_types auto
-
-lemma snd_dep_type:
-  "snd: (p: Element (\<Sum>x\<in> A. (B x))) \<Rightarrow> Element (B (fst p))"
-  by unfold_types auto
-
 
 end

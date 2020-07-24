@@ -390,8 +390,8 @@ lemma succ_eq_range_zero: assumes "n : Nat" shows "succ n = {0..n}"
 proof -
   have "{0..n} = {i \<in> \<nat> | i \<le> n}" unfolding range_def by simp
   then show ?thesis using assms
-    unfolding succ_def range_def le_def lt_def nat_def Element_def meaning_of_type
-    by (intro equalityI) (auto intro: omega_mem_transitive)
+    unfolding succ_def range_def le_def lt_def nat_def
+    by (intro equalityI) (auto dest: ElementD intro: omega_mem_transitive)
 qed
 
 lemmas range_zero_eq_succ = succ_eq_range_zero[symmetric]

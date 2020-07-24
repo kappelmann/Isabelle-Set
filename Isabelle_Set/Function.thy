@@ -1,8 +1,10 @@
 chapter \<open>Functions\<close>
 
 theory Function
-imports BinRel
-
+imports
+  BinRel
+  Rewrite
+  HOTG.Set_Difference
 begin
 
 
@@ -37,7 +39,7 @@ lemma function_likeD2: \<comment> \<open>uniqueness of image\<close>
 
 lemma function_like_elem [elim]:
   "\<lbrakk>function_like A S; a \<in> A\<rbrakk> \<Longrightarrow> \<langle>a, S`a\<rangle> \<in> S"
-  unfolding eval_def
+  unfolding eval_def                        
   by (auto simp: function_like_def dest!: ballD intro: theI')
 
 lemma function_like_eval:
@@ -98,14 +100,14 @@ lemma Fun_elemE':
 
 section \<open>Function space\<close>
 
-definition [typedef]: "DepFunction A B \<equiv> function_like A \<sqdot> Subset (\<Sum>x\<in> A. (B x))"
+definition [typedef]: "DepFunction A B \<equiv> function_like A \<sqdot> Subset (\<Sum>x \<in> A. (B x))"
 
 abbreviation "Function A B \<equiv> DepFunction A (\<lambda>_. B)"
 
 text \<open>Set model of \<^term>\<open>DepFunction\<close>:\<close>
 
 definition
-  "piset A B \<equiv> {f \<in> powerset (\<Sum>x \<in> A. (B x)) | \<forall>x \<in> A. \<exists>!y. \<langle>x, y\<rangle> \<in> f}"
+  "piset A B \<equiv> {f \<in> powerset (\<Sum>x \<in> A. (B x)) | function_like A f}"
 
 syntax
   "_piset"  :: \<open>[pttrns, set, set] \<Rightarrow> set type\<close> ("(2\<Prod>_\<in> _./ _)" [0, 0, 100])
@@ -127,11 +129,15 @@ translations
   "\<Prod>x\<in> A. (B \<rightarrow> C)" \<rightharpoonup> "\<Prod>x\<in> A. \<Prod>_\<in> B. C"
   "(x \<in> A) \<rightarrow> B" \<rightleftharpoons> "CONST DepFunction A (\<lambda>x. B)"
   "A \<rightarrow> B" \<rightleftharpoons> "CONST Function A B"
-
-soft_type_translation "f \<in> \<Prod>x\<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
+                                          
+soft_type_translation "f \<in> \<Prod>x \<in> A. (B x)" \<rightleftharpoons> "f: (x \<in> A) \<rightarrow> B x"
   unfolding piset_def by unfold_types (auto simp: function_like_def)
 
-corollary piset_iff_DepFunction [iff]: "f \<in> \<Prod>x\<in> A. (B x) \<longleftrightarrow> f: (x \<in> A) \<rightarrow> B x" by auto
+corollary mem_piset_iff_DepFunction: "f \<in> \<Prod>x \<in> A. (B x) \<longleftrightarrow> f : (x \<in> A) \<rightarrow> B x" by auto
+
+corollary Element_mem_piset_iff_DepFunction [simp]:
+  "f : Element (\<Prod>x \<in> A. (B x)) \<longleftrightarrow> f : (x \<in> A) \<rightarrow> B x"
+  by (auto dest: ElementD intro: ElementI simp: mem_piset_iff_DepFunction)
 
 (*Soft type translations now get all translations that unify; no longer
   restricted to just one.*)
@@ -146,12 +152,17 @@ lemma
   DepFunction_imp_Subset [derive]:
     "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f: Subset (\<Sum>x\<in> A. (B x))"
   by unfold_types
+  
 
+lemma dom_eq_if_DepFunction [simp]:
+  "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> dom f = A"
+  by unfold_types (force intro: equalityI simp: dom_def function_like_def)
+  
 lemma DepFunction_imp_Fun [derive]:
-  "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f: Fun"
-  apply unfold_types
-  unfolding function_like_def by auto force
-
+  assumes f_type: "f : (x \<in> A) \<rightarrow> B x"
+  shows "f : Fun"
+  by (insert assms dom_eq_if_DepFunction[OF f_type], unfold_types, unfold function_like_def) auto
+  
 lemma DepFunction_imp_Function [derive]:
   "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f: A \<rightarrow> (\<Union>x\<in> A. B x)"
   by unfold_types auto
@@ -182,7 +193,7 @@ lemma DepFunction_elem_proj1 [elim]:
 
 (*EXAMPLE
   for type derivation improvement: integration with elim-resolution*)
-lemma example_Depfunction_elem_fst [elim]:
+lemma example_Depfunction_elem_fst [elim]:                                 
   "\<lbrakk>f: (x \<in> A) \<rightarrow> B x; p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
   apply (rule DepFunction_elem_proj1)
   apply (auto dest: DepFunction_imp_Fun)
@@ -208,34 +219,43 @@ lemma DepFunction_as_relation:
 lemma Function_as_relation:
   "f: A \<rightarrow> B \<Longrightarrow> f \<subseteq> A \<times> B"
   by unfold_types auto
-
-lemma DepFunction_dom [simp]:
-  "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> dom f = A"
-  by unfold_types (force intro: equalityI simp: dom_def function_like_def)
+  
+lemma eq_opair_if_mem_if_DepFunction:
+  assumes f_type: "f : (x \<in> A) \<rightarrow> B x"  
+  and "p \<in> f"
+  shows "p = \<langle>fst p, f`(fst p)\<rangle>"
+  by (auto intro: pairset_subset_elem[OF \<open>p \<in> f\<close> DepFunction_as_relation[OF f_type]])
 
 lemma DepFunction_graph [simp]:
-  assumes "f: (x \<in> A) \<rightarrow> B x"
-  shows "{\<langle>x, f`x\<rangle> | x \<in> A} = f"
-  apply (rule equalityI) using assms by auto
+  assumes f_type: "f: (x \<in> A) \<rightarrow> B x"
+  shows "{\<langle>x, f`x\<rangle> | x \<in> A} = f" (is "?lhs=?rhs")
+proof (rule equalityI)
+  fix x assume "x \<in> f"
+  show "x \<in> ?lhs"
+  proof (rule RepFun_eqI)
+    from eq_opair_if_mem_if_DepFunction[OF f_type \<open>x \<in> f\<close>]
+    show "x = \<langle>fst x, f `(fst x)\<rangle>" by auto
+  next
+    from \<open>x \<in> f\<close> f_type show "fst x \<in> A" by auto
+  qed
+qed (insert f_type, auto)
 
 lemma DepFunction_empty_iff [iff]: "f: (x \<in> {}) \<rightarrow> (B x) \<longleftrightarrow> f = {}"
   by unfold_types auto
 
 lemma DepFunction_subsetI:
-  assumes
-    "f: (x \<in> A) \<rightarrow> B x"
-    "g: (x \<in> A') \<rightarrow> B' x"
-    "A \<subseteq> A'"
-    "\<And>x. x \<in> A \<Longrightarrow> f`x = g`x"
+  assumes f_type: "f: (x \<in> A) \<rightarrow> B x"
+  and "g: (x \<in> A') \<rightarrow> B' x"
+  and "A \<subseteq> A'"
+  and "\<And>x. x \<in> A \<Longrightarrow> f`x = g`x"
   shows "f \<subseteq> g"
 proof (rule subsetI)
   fix p assume "p \<in> f"
-  hence 1:"p = \<langle>fst p, f`(fst p)\<rangle>" by auto
-  hence "fst p \<in> A" using assms(1) by auto
-  hence 2: "f`(fst p) = g`(fst p)" using assms(4) by blast
-
+  with eq_opair_if_mem_if_DepFunction[OF f_type] have 1:"p = \<langle>fst p, f`(fst p)\<rangle>" by auto                                  
+  then have "fst p \<in> A" using assms(1) by auto
+  then have 2: "f`(fst p) = g`(fst p)" using assms(4) by blast
   have "fst p \<in> A'" using assms(3) by auto
-  hence "\<langle>fst p, g`(fst p)\<rangle> \<in> g" using assms(2) by fast
+  then have "\<langle>fst p, g`(fst p)\<rangle> \<in> g" using assms(2) by fast
   then show "p \<in> g" by (rewrite 1, rewrite 2)
 qed
 
@@ -284,18 +304,18 @@ definition lambda :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> se
   where "lambda A b \<equiv> {\<langle>x, b x\<rangle> | x \<in> A}"
 
 syntax
-  "_lam"  :: "[pttrns, set, set] \<Rightarrow> set" ("(2\<lambda>_\<in> _./ _)" 60)
+  "_lam"  :: "[pttrns, set, set] \<Rightarrow> set" ("(2\<lambda>_ \<in> _./ _)" 60)
   "_lam2" :: \<open>[pttrns, set, set] \<Rightarrow> set\<close>
 translations
-  "\<lambda>x xs\<in> A. b" \<rightharpoonup> "CONST lambda A (\<lambda>x. _lam2 xs A b)"
-  "_lam2 x A b" \<rightharpoonup> "\<lambda>x\<in> A. b"
-  "\<lambda>x\<in> A. b" \<rightleftharpoons> "CONST lambda A (\<lambda>x. b)"
+  "\<lambda>x xs \<in> A. b" \<rightharpoonup> "CONST lambda A (\<lambda>x. _lam2 xs A b)"
+  "_lam2 x A b" \<rightharpoonup> "\<lambda>x \<in> A. b"
+  "\<lambda>x \<in> A. b" \<rightleftharpoons> "CONST lambda A (\<lambda>x. b)"
 
 lemma lambda_cong [cong]:
-  "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> b x = b' x\<rbrakk> \<Longrightarrow> (\<lambda>x\<in> A. b x) = \<lambda>x\<in> A'. b' x"
+  "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> b x = b' x\<rbrakk> \<Longrightarrow> (\<lambda>x \<in> A. b x) = \<lambda>x \<in> A'. b' x"
   by (simp only: lambda_def cong add: repl_cong)
 
-lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x\<in> A. b x)`a = b a"
+lemma beta [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. b x)`a = b a"
   by (auto simp: lambda_def eval_def)
 
 lemma beta_split [simp]:
@@ -370,15 +390,15 @@ lemma eval_type [type]:
   \<close>
   by discharge_types (rule ElementI, auto)
 
-lemma curry_type [derive]:
+lemma partial_eval_type [derive]:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A\<rbrakk> \<Longrightarrow> f`a: (y \<in> B a) \<rightarrow> C a y"
-  by (auto simp only: piset_iff_DepFunction[symmetric])
-
-lemma curry_type' [derive]:
+  by (simp only: mem_piset_iff_DepFunction[symmetric])
+  
+lemma eval_eval_type' [derive]:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> (y \<in> B x) \<rightarrow> C x y; a: Element A; b: Element (B a)\<rbrakk>
     \<Longrightarrow> f`a`b: Element (C a b)"
   by auto
-
+  
 lemma id_function_type [type]: "(\<lambda>x\<in> A. x): A \<rightarrow> A" by discharge_types
 
 lemma funext:
@@ -425,7 +445,7 @@ corollary function_enlarge_range:
 proof -
   from assms(1) have "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x" by auto
   with assms(2) have "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> C x" by auto
-  hence "(\<lambda>x\<in> A. f`x): (x\<in> A) \<rightarrow> C x" by auto
+  then have "(\<lambda>x\<in> A. f`x): (x\<in> A) \<rightarrow> C x" by auto
   thus ?thesis using assms(1) eta by auto
 qed
 
@@ -507,7 +527,7 @@ lemma function_lambdaE:
 text \<open>Extend a function's domain by mapping new elements to the empty set.\<close>
 
 definition triv_ext :: "set \<Rightarrow> set \<Rightarrow> set"
-  where "triv_ext A f \<equiv> f \<union> (\<lambda>x\<in> (A \<setminus> dom f). {})"
+  where "triv_ext A f \<equiv> f \<union> (\<lambda>x \<in> (A \<setminus> dom f). {})"
 
 lemma triv_ext_dom [simp]: "dom (triv_ext A f) = dom f \<union> A"
   unfolding triv_ext_def by (auto simp: bin_union_dom diff_partition')
@@ -563,12 +583,12 @@ lemma restriction_dom: "dom (f \<restriction> A) = dom f \<inter> A"
 
 lemma restriction_function:
   "f: (x \<in> A) \<rightarrow> B x \<Longrightarrow> f \<restriction> A': (x \<in> A \<inter> A') \<rightarrow> B x"
-  unfolding restriction_def by auto
+  unfolding restriction_def by (subst bin_inter_commute, auto)
 
 lemma restriction_function_subset:
   "\<lbrakk>f: (x \<in> A) \<rightarrow> B x; A' \<subseteq> A\<rbrakk> \<Longrightarrow> f \<restriction> A': (x \<in> A') \<rightarrow> B x"
-  by (rewrite at A' in "_ \<rightarrow> _" bin_inter_subset_right_absorb[symmetric])
-     (auto intro: restriction_function)
+  by (rewrite at A' in "_ \<rightarrow> _" bin_inter_subset_left_absorb[of A' A, symmetric])
+    (auto intro: restriction_function)
 
 
 section \<open>Gluing\<close>
@@ -580,8 +600,7 @@ lemma glueI:
       and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f; x \<in> dom g\<rbrakk> \<Longrightarrow> f`x = g`x"
   shows "glue X: (x \<in> (\<Union>f\<in> X. dom f)) \<rightarrow> B x"
 proof (rule generic_DepFunctionI)
-  show "function_like (\<Union>f\<in> X. dom f) (glue X)"
-  unfolding glue_def function_like_def
+  show "function_like (\<Union>f\<in> X. dom f) (glue X)" unfolding glue_def function_like_def
   proof (clarify, rule ex1I, fast dest: assms(1))
     fix f a y assume asm:
       "f \<in> X" "a \<in> dom f" and "\<langle>a, y\<rangle> \<in> \<Union>X"
@@ -595,19 +614,26 @@ proof (rule generic_DepFunctionI)
       using assms(2) \<open>f \<in> X\<close> \<open>g \<in> X\<close> \<open>a \<in> dom f\<close> \<open>a \<in> dom g\<close> by fast
     finally show "y = f`a" .
   qed
-  show "glue X: BinRel"
-    by (rule BinRelI) (auto simp: glue_def dest: assms(1))
-  show "dom (glue X) = (\<Union>f\<in> X. dom f)"
+next
+  {
+    fix p f assume "p \<in> f" "f \<in> X"
+    with assms(1) have "f : Fun" using DepFunction_imp_Fun by auto
+    with Fun_elem_rewrite have "p = \<langle>fst p, snd p\<rangle>" by auto
+  }
+  then show "glue X: BinRel" unfolding glue_def by (intro BinRelI) auto
+next
+  show "dom (glue X) = (\<Union>f\<in> X. dom f)"                  
     using assms by (auto intro: equalityI simp: glue_def dom_def)
+next
   show "\<And>f. f \<in> glue X \<Longrightarrow> snd f \<in> B (fst f)"
     by (auto simp: glue_def intro: DepFunction_elem_snd assms(1))
 qed
 
 lemma eval_glue:
   assumes "\<And>f. f \<in> X \<Longrightarrow> f: (x \<in> dom f) \<rightarrow> B x"
-      and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f; x \<in> dom g\<rbrakk> \<Longrightarrow> f`x = g`x"
-      and "f \<in> X"
-      and "a \<in> dom f"
+  and "\<And>f g x. \<lbrakk>f \<in> X; g \<in> X; x \<in> dom f; x \<in> dom g\<rbrakk> \<Longrightarrow> f`x = g`x"
+  and "f \<in> X"
+  and "a \<in> dom f"
   shows "(glue X)`a = f`a"
 proof (rule Fun_comp)
   show "glue X: Fun" by (rule DepFunction_imp_Fun) (auto intro: glueI assms)

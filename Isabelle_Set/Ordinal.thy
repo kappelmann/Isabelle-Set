@@ -1,8 +1,7 @@
 chapter \<open>Ordinals\<close>
 
 theory Ordinal
-imports Subset
-
+imports Monotone
 begin
 
 text \<open>

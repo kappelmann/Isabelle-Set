@@ -1,7 +1,7 @@
 chapter \<open>Integers\<close>
 
 theory Integer
-  imports Nat Sum Set_Extension
+  imports Nat HOTG.Sum Set_Extension
 begin
 
 section \<open>Carrier of \<int>\<close>
@@ -11,7 +11,7 @@ text \<open>
   By using the set extension principle, we ensure that \<open>\<nat> \<subseteq> \<int>\<close>.
 \<close>
 
-definition "int_rep = Sum \<nat> (\<nat> \<setminus> {0})"
+definition "int_rep = sum \<nat> (\<nat> \<setminus> {0})"
 
 \<comment> \<open>Some type derivation rule setup\<close>
 lemma
@@ -39,28 +39,28 @@ section \<open>Basic arithmetic\<close>
 
 subsection \<open>Raw definitions on the underlying representation\<close>
 
-definition "int_rep_add x y \<equiv> Sum_case
-  (\<lambda>m. Sum_case
+definition "int_rep_add x y \<equiv> sum_case
+  (\<lambda>m. sum_case
     (\<lambda>n. inl (m + n))
     (\<lambda>n. if m < n then inr (n - m) else inl (m - n))
     y)
-  (\<lambda>m. Sum_case
+  (\<lambda>m. sum_case
     (\<lambda>n. if n < m then inr (m - n) else inl (n - m))
     (\<lambda>n. inr (m + n))
     y)
   x"
 
 definition "int_rep_neg =
-  Sum_case (\<lambda>n. if n = 0 then inl n else inr n) (\<lambda>n. inl n)"
+  sum_case (\<lambda>n. if n = 0 then inl n else inr n) (\<lambda>n. inl n)"
 
 definition "int_rep_sub x y = int_rep_add x (int_rep_neg y)"
 
-definition "int_rep_mul x y \<equiv> Sum_case
-  (\<lambda>m. Sum_case
+definition "int_rep_mul x y \<equiv> sum_case
+  (\<lambda>m. sum_case
     (\<lambda>n. inl (m \<cdot> n))
     (\<lambda>n. if m = 0 then inl 0 else inr (m \<cdot> n))
     y)
-  (\<lambda>m. Sum_case
+  (\<lambda>m. sum_case
     (\<lambda>n. if n = 0 then inl 0 else inr (m \<cdot> n))
     (\<lambda>n. inl (m \<cdot> n))
     y)
@@ -69,20 +69,20 @@ definition "int_rep_mul x y \<equiv> Sum_case
 lemma int_rep_zero_add:
   "n \<in> int_rep \<Longrightarrow> int_rep_add (inl 0) n = n"
   unfolding int_rep_def int_rep_add_def
-  by (elim SumE) (auto intro: zero_lt_if_ne_zero)
+  by (elim sumE) (auto intro: zero_lt_if_ne_zero)
 
 lemma int_rep_add_zero:
   "n \<in> int_rep \<Longrightarrow> int_rep_add n (inl 0) = n"
   unfolding int_rep_def int_rep_add_def
-  by (elim SumE) (auto intro: zero_lt_if_ne_zero)
+  by (elim sumE) (auto intro: zero_lt_if_ne_zero)
 
 lemma int_rep_add_assoc:
   assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> int_rep"
   shows "int_rep_add (int_rep_add x y) z = int_rep_add x (int_rep_add y z)"
   apply (
-    rule SumE[OF assms(1)[unfolded int_rep_def]];
-    rule SumE[OF assms(2)[unfolded int_rep_def]];
-    rule SumE[OF assms(3)[unfolded int_rep_def]])
+    rule sumE[OF assms(1)[unfolded int_rep_def]];
+    rule sumE[OF assms(2)[unfolded int_rep_def]];
+    rule sumE[OF assms(3)[unfolded int_rep_def]])
   unfolding int_rep_add_def
   apply (auto simp:
     nat_sub_dist_add nat_sub_twice_comm)
@@ -90,26 +90,26 @@ oops
 
 lemma int_rep_one_mul:
   "x \<in> int_rep \<Longrightarrow> int_rep_mul (inl 1) x = x"
-  unfolding int_rep_def int_rep_mul_def by (elim SumE) auto
+  unfolding int_rep_def int_rep_mul_def by (elim sumE) auto
 
 lemma int_rep_mul_one:
   "x \<in> int_rep \<Longrightarrow> int_rep_mul x (inl 1) = x"
   unfolding int_rep_def int_rep_mul_def
-  by (rule SumE) auto
+  by (rule sumE) auto
 
 lemma int_rep_mul_assoc:
   assumes "x \<in> int_rep" "y \<in> int_rep" "z \<in> int_rep"
   shows "int_rep_mul (int_rep_mul x y) z = int_rep_mul x (int_rep_mul y z)"
   unfolding int_rep_def int_rep_mul_def by (
-    rule SumE[OF assms(1)[unfolded int_rep_def]];
-    rule SumE[OF assms(2)[unfolded int_rep_def]];
-    rule SumE[OF assms(3)[unfolded int_rep_def]])
+    rule sumE[OF assms(1)[unfolded int_rep_def]];
+    rule sumE[OF assms(2)[unfolded int_rep_def]];
+    rule sumE[OF assms(3)[unfolded int_rep_def]])
     (auto simp: nat_mul_assoc nat_mul_ne_zero)
 
 lemma int_rep_add_type [type]:
   "int_rep_add: Element int_rep \<Rightarrow> Element int_rep \<Rightarrow> Element int_rep"
   unfolding int_rep_def int_rep_add_def
-  by (unfold_types, erule SumE; erule SumE) auto
+  by (unfold_types, erule sumE; erule sumE) auto
   \<comment> \<open>
   Note Kevin: I do not think unfolding everything for the above functions is a
   good idea. I think we want to get the type system up to a point where this is
@@ -131,7 +131,7 @@ lemma int_rep_sub_type [type]:
 lemma int_rep_mul_type [type]:
   "int_rep_mul: Element int_rep \<Rightarrow> Element int_rep \<Rightarrow> Element int_rep"
   unfolding int_rep_def int_rep_mul_def
-  by (unfold_types, erule SumE; erule SumE) (auto simp: nat_mul_ne_zero)
+  by (unfold_types, erule sumE; erule sumE) (auto simp: nat_mul_ne_zero)
 
 subsection \<open>Arithmetic operations lifted to Int\<close>
 

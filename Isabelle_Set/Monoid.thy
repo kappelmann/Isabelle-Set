@@ -108,7 +108,7 @@ lemma Add_Pair_fields [simp]: "object_fields (Add_Pair A B P1 P2) = {@add}"
 
 lemma Add_Pair_add [simp]:
   "(Add_Pair A B P1 P2) @@ add =
-    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle>\<in> A \<times> B. \<langle>add P1 a1 a2, add P2 b1 b2\<rangle>"
+    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add P1 a1 a2, add P2 b1 b2\<rangle>"
   unfolding Add_Pair_def by simp
 
 text \<open>
@@ -143,9 +143,10 @@ lemma Zero_Pair_type [type]:
   "Zero_Pair: Zero A \<Rightarrow> Zero B \<Rightarrow> Zero (A \<times> B)"
   by discharge_types (rule Zero_typeI, auto)
 
+  
 lemma Add_Pair_type [type]:
   "Add_Pair: (A: Set) \<Rightarrow> (B: Set) \<Rightarrow> Add A \<Rightarrow> Add B \<Rightarrow> Add (A \<times> B)"
-  by discharge_types (rule Add_typeI, fastforce)
+  by (intro type_intro)+ (intro Add_typeI, auto simp: mem_piset_iff_DepFunction intro!: uncurry_type)
 
 lemma Monoid_Sum_type [type]:
   "Monoid_Sum: (A: Set) \<Rightarrow> (B: Set) \<Rightarrow> Monoid A \<Rightarrow> Monoid B \<Rightarrow> Monoid (A \<times> B)"
@@ -156,7 +157,7 @@ proof (discharge_types, intro MonoidI)
     using assms1 by (intro Zero_typeI) (auto dest!: Monoid_Zero)
 
   show "Monoid_Sum A B M1 M2: Add (A \<times> B)"
-    by (intro Add_typeI, simp add: Monoid_Sum_def) (unfold_types, force)
+    by (intro Add_typeI) (auto simp: mem_piset_iff_DepFunction intro!: uncurry_type)
 
   fix x assume assmx: "x \<in> A \<times> B"
 

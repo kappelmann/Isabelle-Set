@@ -6,8 +6,7 @@ text \<open>
 \<close>
 
 theory String
-imports Ordered_Pairs Ordinal
-
+imports Ordinal
 begin
 
 subsection \<open>Characters\<close>
@@ -183,12 +182,12 @@ fun string_ne_tac ctxt =
           THEN HEADGOAL (resolve0_tac @{thms empty_not_succ succ_not_empty}))
 
         val first_char_ne_tac =
-          TRY o dresolve0_tac @{thms opair_inject1} THEN' char_ne_tac
+          TRY o dresolve0_tac @{thms eq_if_opair_eq_left} THEN' char_ne_tac
       in
         REPEAT (CHANGED
           ((char_ne_word_tac
           ORELSE' first_char_ne_tac
-          ORELSE' dresolve0_tac @{thms opair_inject2}) i))
+          ORELSE' dresolve0_tac @{thms eq_if_opair_eq_right}) i))
       end
   in
     resolve_tac ctxt @{thms notI}
@@ -199,22 +198,25 @@ fun string_ne_tac ctxt =
 val string_simp_solver = map_theory_simpset
   (fn ctxt => ctxt addSolver (mk_solver "distinguish strings" string_ne_tac))
 \<close>
-
+               
 setup \<open>string_simp_solver\<close>
-
+                
 method_setup string_neq =
   \<open>Scan.succeed (fn ctxt => SIMPLE_METHOD' (
     (TRY o eresolve_tac ctxt @{thms neqE})
     THEN' string_ne_tac ctxt))\<close>
 
 (* Example *)
-lemma
-  "@Alex \<noteq> @Josh" and
-  "@abcd \<noteq> @asdf" and
-  "@abcd \<noteq> @asdf" and
-  "@abcdefg \<noteq> @asdfghj" and
-  "@a10 \<noteq> @b_"
-  by auto
+notepad
+begin
+  have 
+    "@Alex \<noteq> @Josh" and
+    "@abcd \<noteq> @asdf" and
+    "@abcd \<noteq> @asdf" and
+    "@abcdefg \<noteq> @asdfghj" and
+    "@a10 \<noteq> @b_"
+    by auto
+end
 
 
 end

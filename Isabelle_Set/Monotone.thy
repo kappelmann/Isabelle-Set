@@ -1,11 +1,10 @@
 section \<open>Least fixed points and the Knaster-Tarski theorem for \<open>\<subseteq>\<close>\<close>
 
-theory Subset
-imports Set_Theory
-
+theory Monotone
+imports Sets
 begin
 
-subsection \<open>Monotone operators\<close>
+subsection \<open>Monotone Operators\<close>
 
 definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
   where "monotone D h \<equiv> (\<forall>W X. W \<subseteq> X \<longrightarrow> X \<subseteq> D \<longrightarrow> h W \<subseteq> h X)"
