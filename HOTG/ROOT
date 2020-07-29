@@ -4,7 +4,7 @@ session HOTG = "HOL" +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
-    [timeout = 180]
+    [timeout = 30]
   theories
     Axioms
     Basic

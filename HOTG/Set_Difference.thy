@@ -22,13 +22,13 @@ lemma diffD2: "a \<in> A \<setminus> B \<Longrightarrow> a \<notin> B"
 lemma diffE [elim!]: "\<lbrakk>a \<in> A \<setminus> B; \<lbrakk>a \<in> A; a \<notin> B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by simp
 
-lemma diff_subset: "A \<setminus> B \<subseteq> A"
+lemma diff_subset [simp, intro]: "A \<setminus> B \<subseteq> A"
   by blast
 
 lemma diff_contains: "C \<subseteq> A \<Longrightarrow> C \<inter> B = {} \<Longrightarrow> C \<subseteq> A \<setminus> B"
   by blast
 
-lemma diff_cancel: "A \<setminus> A = {}"
+lemma diff_cancel [simp]: "A \<setminus> A = {}"
   by blast
 
 lemma diff_triv: "A \<inter> B = {} \<Longrightarrow> A \<setminus> B = A"
@@ -73,6 +73,12 @@ lemma diff_bin_inter: "A \<setminus> (B \<inter> C) = (A \<setminus> B) \<union>
 
 lemma bin_union_diff: "(A \<union> B) \<setminus> C = (A \<setminus> C) \<union> (B \<setminus> C)"
   by (rule extensionality) auto
+  
+lemma bin_union_diff_eq_diff_right: "(A \<union> B) \<setminus> B = A \<setminus> B"
+  using bin_union_diff by auto
+  
+lemma bin_union_diff_eq_diff_left: "(B \<union> A) \<setminus> B = A \<setminus> B"
+  using bin_union_diff by auto
 
 lemma bin_inter_diff: "(A \<inter> B) \<setminus> C = A \<inter> (B \<setminus> C)"
   by (rule extensionality) auto

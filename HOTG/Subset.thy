@@ -7,11 +7,8 @@ begin
 lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   by (simp add: subset_def)
 
-lemma subsetE [elim, trans]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
+lemma subsetD [elim, trans]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
   by (unfold subset_def) auto
-
-lemma subsetD: "A \<subseteq> B \<Longrightarrow> a \<in> A \<longrightarrow> a \<in> B"
-  by auto
 
 lemma subsetCE [elim]: "\<lbrakk>A \<subseteq> B; a \<notin> A \<Longrightarrow> P; a \<in> B \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   by (simp add: subset_def, blast)

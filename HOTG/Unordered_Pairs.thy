@@ -51,5 +51,7 @@ lemma cons_commute: "cons x (cons y A) = cons y (cons x A)"
 lemma cons_repeat: "cons x (cons x A) = cons x A"
   by (rule extensionality) auto
 
+subsubsection \<open>Subsets\<close>
+lemma cons_subset_iff_mem_subset: "cons x A \<subseteq> B \<longleftrightarrow> x \<in> B \<and> A \<subseteq> B" by auto
 
 end

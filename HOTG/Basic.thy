@@ -16,7 +16,7 @@ unbundle hotg_not_mem_syntax
 
 text \<open>The following are easier to work with variants of the axioms.\<close>
 
-lemma emptyset [simp]: "x \<notin> {}" using emptyset by blast
+lemma not_mem_emptyset [simp]: "x \<notin> {}" using emptyset by blast
 
 lemma extensionality: "\<lbrakk>X \<subseteq> Y; Y \<subseteq> X\<rbrakk> \<Longrightarrow> X = Y"
   by (fact Axioms.extensionality[rule_format])

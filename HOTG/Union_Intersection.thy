@@ -232,6 +232,10 @@ lemma singleton_bin_union_eq_cons: "{x} \<union> A = cons x A"
 
 lemma bin_union_singleton_eq_cons': "A \<union> {x} = cons x A"
   using singleton_bin_union_eq_cons by (subst bin_union_commute)
+  
+lemma mem_bin_union_singleton_left: "a \<in> {a} \<union> B" by auto
+
+lemma mem_bin_union_singleton_right: "b \<in> A \<union> {b}" by auto
 
 lemma bin_union_subset_iff: "A \<union> B \<subseteq> C \<longleftrightarrow> A \<subseteq> C \<and> B \<subseteq> C"
   by blast
@@ -263,6 +267,10 @@ lemma bin_union_subset_absorb1: "A \<subseteq> B \<Longrightarrow> A \<union> B 
 
 lemma bin_union_subset_absorb2: "B \<subseteq> A \<Longrightarrow> A \<union> B = A"
   by (rule extensionality) auto
+  
+lemma bin_union_mono_right: "B \<subseteq> C \<Longrightarrow> A \<union> B \<subseteq> A \<union> C" by auto
+
+lemma bin_union_mono_left: "A \<subseteq> B \<Longrightarrow> A \<union> C \<subseteq> B \<union> C" by auto
 
 lemma bin_union_bin_inter_distrib: "(A \<inter> B) \<union> C  =  (A \<union> C) \<inter> (B \<union> C)"
   by (rule extensionality) auto
@@ -293,6 +301,12 @@ lemma bin_inter_empty_iff [iff]: "(\<forall>a \<in> A. a \<notin> B) \<longleftr
 
 lemma bin_inter_commute: "A \<inter> B = B \<inter> A"
   by (rule extensionality) auto
+  
+lemma empty_bin_inter_eq_empty [simp]: "{} \<inter> B = {}"
+  by auto
+
+lemma bin_inter_empty_eq_empty [simp]: "A \<inter> {} = {}"
+  by auto
 
 lemma bin_inter_subset_iff [simp]: "C \<subseteq> A \<inter> B \<longleftrightarrow> C \<subseteq> A \<and> C \<subseteq> B"
   by blast

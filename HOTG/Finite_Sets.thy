@@ -33,6 +33,8 @@ corollary powerset_singleton_elems [iff]: "x \<in> powerset {a} \<longleftrighta
 
 corollary subset_singleton_iff [iff]: "x \<subseteq> {a} \<longleftrightarrow> x = {} \<or> x = {a}"
   using powerset_singleton_elems by auto
+  
+lemma singleton_subset_iff_mem [simp]: "{a} \<subseteq> B \<longleftrightarrow> a \<in> B" by auto
 
 lemma mem_pair_iff: "x \<in> {a, b} \<longleftrightarrow> x = a \<or> x = b"
   by auto

@@ -1,0 +1,10 @@
+chapter "Auto2 Setup For Higher-Order Tarski-Grothendieck (HOTG)"
+
+session Auto2_HOTG = HOTG +
+  description \<open>Instantiation of Auto2 for HOTG.\<close>
+  options
+    [timeout = 30]
+  directories
+    Proof_Steps
+  theories
+    "Auto2_HOTG_Main"

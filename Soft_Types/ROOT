@@ -4,7 +4,7 @@ session Soft_Types = "HOL" +
   description
     \<open>Soft-Types on top of Isabelle/HOL\<close>
   options
-    [timeout = 180]
+    [timeout = 20]
   sessions
     "HOL-Eisbach"
   theories
