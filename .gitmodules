@@ -1,0 +1,3 @@
+[submodule "auto2"]
+  path = auto2
+  url = https://github.com/bzhan/auto2
