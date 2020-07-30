@@ -80,6 +80,6 @@ The project is mainly developed by [Alex Krauss](https://www21.in.tum.de/~krauss
 [Josh Chen](https://joshchen.io/), and [Kevin Kappelmann](https://www21.in.tum.de/~kappelmk/).
 
 At the moment, Josh and Kevin are actively working on this project.
-You can contact us on the [Isabelle Zulip](https://isabelle.zulipchat.com/) or by <a href="mailto:josh@joshchen.io; kevin.kappelmann@tum.de">e-mail</a>.
+You can contact us on the [Isabelle Zulip](https://isabelle.zulipchat.com/) or by [e-mail](mailto:josh@joshchen.io; kevin.kappelmann@tum.de).
 We are always happy to discuss and exchange ideas!
 
