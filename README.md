@@ -33,7 +33,7 @@ cd isabelle_set
 git submodule sync
 git submodule update --init
 ```
-If you are using git via https, replace the first command with `git clone https://kappelmann@bitbucket.org/cezaryka/tyset.git` 
+If you are using git via https, replace the first command with `git clone https://bitbucket.org/cezaryka/tyset.git` 
 
 * Build the supporting Isabelle heap images
 ```
