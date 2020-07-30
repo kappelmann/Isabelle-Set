@@ -1,79 +1,71 @@
-# Typed Set Theory
+Note: This project is under active development. Changes happen rapidly and without backwards compatibility.
 
-A formalization of set theory in Isabelle, with support for soft-types.
+# Isabelle/Set [![CircleCI](https://circleci.com/bb/cezaryka/tyset.svg?style=svg&circle-token=2fc0576de43f1f1852e8500afc862e43da2ee1e5)](https://circleci.com/bb/cezaryka/tyset)
 
-Build: [![CircleCI](https://circleci.com/bb/cezaryka/tyset.svg?style=svg&circle-token=2fc0576de43f1f1852e8500afc862e43da2ee1e5)](https://circleci.com/bb/cezaryka/tyset)
+Isabelle/Set is a mathematical environment that aims to combine the flexibility of set theory and expressiveness of type theory.
+As a mathematical foundation, it is based on higher-order Tarski-Grothendieck set theory.
+On top of this, it builds an optional layer of soft types in the object logic.
 
-Goals:
+A soft type can simply be thought as a predicate verifying certain properties about the mathematical entity in question.
+These predicates can be arbitrarily complex, allowing simple assertions such as an entity being a member of a certain set (e.g. "n : Nat")
+all the way to dependently typed assertions such as "zero\_vector : (n : Nat) -> Vector n".
 
-* Provide type-based automation for specifications and proofs...
-* ... based on an untyped formalism.
-* Provide a Mizar compatibility layer, to match Mizar's style of working.
-* Eventually be able to check the Mizar Mathematical Library.
-
-## Structure and Dependencies
-
-Directory `Isabelle/Mizar` contains the Isabelle/Mizar material, which mostly focuses on mimicking Mizar's style of working.
-It allows the porting of some articles of the Mizar Mathematical Library (in Directory `MML`).
-
-However, Mizar does not really abstract from the underlying set theory, which severely hinders automation, as it unfolds too many concepts.
-Therefore, we attempt to provide a clean start in session/directory `Isabelle_Set`.
-It contains a new development of Higher-Order Tarski Grothendieck Set Theory embedded in HOL.
-
- `Isabelle_Set` is used by `Isabelle/Mizar` for its notion of soft type. Ultimately, these developments should converge.
-
+Soft types are not unique: an entity can belong to many different soft types.
+As an example, both "1 : Nat" and "1 : Int" are valid soft type assertions.
+This is in contrast to conventional type-theoretical environments where each term belongs to a unique, unalterable type.
+Those systems have to insert explicit casts to transform terms from one type to another.
 
 ## How to build / run
 
 This code currently depends on [the Isabelle repository](https://isabelle.in.tum.de/repos/isabelle),
-which contains ongoing changes after the Isabelle2019 release. The file ISABELLE_VERSION specifies the exact revision, which
+which contains ongoing changes after the Isabelle2020 release.
+The file ISABELLE_VERSION specifies the exact revision, which
 will also be used in the automated builds.
 
-* Clone and build the Isabelle version, e.g.,
+* Clone and prepare the Isabelle development version.
+Instructions can be found in the [README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY).
+
+* Clone and navigate into this repository and setup the dependencies (git submodules).
 
 ```
-hg clone https://isabelle.in.tum.de/repos/isabelle isabelle-soft-types
-cd isabelle-soft-types
-hg up <REVISION>
+git clone git@bitbucket.org:cezaryka/tyset.git isabelle_set
+cd isabelle_set
+git submodule sync
+git submodule update --init
 ```
+If you are using git via https, replace the first command with `git clone https://kappelmann@bitbucket.org/cezaryka/tyset.git` 
 
-* Follow the instructions in
-[README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY) to make prepare Isabelle.
-
-* In this repo:
-
+* Build the supporting Isabelle heap images
 ```
-# Build supporting image
-/path/to/isabelle-soft-types/bin/isabelle build -vbRD .
+/path/to/isabelle/bin/isabelle build -vbRD .
 ```
+* Build this development
 ```
-# Build this development
-/path/to/isabelle-soft-types/bin/isabelle build -vD .
+/path/to/isabelle/bin/isabelle build -vD .
 ```
-
-## Automated builds
-
-Automated builds can be found on CircleCI (https://circleci.com/bb/cezaryka/tyset).
-There you can also configure email notifications for failed builds.
-
 
 ## Entry points
 
-The whole development is still in a very experimental state. There are currently no examples that demonstrate all features in integration. The basic set theory can be used for formalizing concepts as usual, but the type system is not integrated yet.
-
+The whole development is still in a very experimental state.
 Here are some good entry points for reading the sources:
 
 File | Content 
 -----|--------
-`Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL): Types as predicates, Function types, intersections, adjectives. Tool setup
-`Soft_Types/*.ML` | Infrastructure for soft types: Elaboration, Unification, Context data, etc.
-`HOTG/Axioms.thy` | Axiomatization of set theory
-`HOTG/*.thy` | Basics of Set Theory
+`HOTG/Axioms` | Axiomatisation of Tarski-Grothendieck set theory embedded in higher-order logic (HOTG).
+`HOTG/*` | Basic set-theoretic results using HOTG.
+`auto2_HOTG/*` | Setup of the [auto2](https://github.com/bzhan/auto2) prover for HOTG.
+`Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL), types as predicates, function types, intersection types, etc.
+`Soft_Types/*.ML` | Infrastructure for soft types: elaboration, unification, context data, etc.
 `Isabelle_Set/{Pair,Relation,Function,Fixed_Points}.thy` | Further set-theoretic concepts with soft types
-`Isabelle_Set/Structure.thy` | Basic syntax for structures
+`Isabelle_Set/Structures.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
 `Isabelle_Set/Integer.thy` | Application of the extension principle to define ℤ ⊇ ℕ
 `Isabelle_Set/Test_examples/Typing_Examples.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Isabelle_Set/Test_examples/Implicit_Args.thy` | Demonstrates automatic insertion of implicit arguments
 `Isabelle_Set/Test_examples/Implicit_Assumptions.thy` | Demonstrates automatic generation of typing assumptions in the proof context.
+`Mizar/*` | [Previous efforts](https://link.springer.com/content/pdf/10.1007/s10817-018-9479-z.pdf) in mimicking Mizar's style of working in Isabelle/HOL.
 
+## Automated builds
+
+Automated builds can be found on [CircleCI](https://circleci.com/bb/cezaryka/tyset).
+There you can also configure email notifications for failed builds.
