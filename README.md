@@ -1,4 +1,4 @@
-Note: This project is under active development. Changes happen rapidly and without backwards compatibility.
+**Note:** This project is under active development 🚧 Changes happen rapidly and without backwards compatibility.
 
 # Isabelle/Set [![CircleCI](https://circleci.com/bb/cezaryka/tyset.svg?style=svg&circle-token=2fc0576de43f1f1852e8500afc862e43da2ee1e5)](https://circleci.com/bb/cezaryka/tyset)
 
@@ -44,6 +44,10 @@ If you are using git via https, replace the first command with `git clone https:
 /path/to/isabelle/bin/isabelle build -vD .
 ```
 
+## Style Guide
+
+As a continuous effort, we make use of and iterate on the recently developed [Isabelle Community Conventions](https://isabelle.systems/conventions/)
+
 ## Entry points
 
 The whole development is still in a very experimental state.
@@ -63,9 +67,19 @@ File | Content
 `Isabelle_Set/Test_examples/Typing_Examples.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Isabelle_Set/Test_examples/Implicit_Args.thy` | Demonstrates automatic insertion of implicit arguments
 `Isabelle_Set/Test_examples/Implicit_Assumptions.thy` | Demonstrates automatic generation of typing assumptions in the proof context.
-`Mizar/*` | [Previous efforts](https://link.springer.com/content/pdf/10.1007/s10817-018-9479-z.pdf) in mimicking Mizar's style of working in Isabelle/HOL.
+`Mizar/*` | [Previous efforts](https://link.springer.com/content/pdf/10.1007/s10817-018-9479-z.pdf) in mimicking Mizar's style of working in Isabelle/HOL by Kaliszyk and Pak.
 
 ## Automated builds
 
 Automated builds can be found on [CircleCI](https://circleci.com/bb/cezaryka/tyset).
 There you can also configure email notifications for failed builds.
+
+## Contact
+
+The project is mainly developed by [Alex Krauss](https://www21.in.tum.de/~krauss/),
+[Josh Chen](https://joshchen.io/), and [Kevin Kappelmann](https://www21.in.tum.de/~kappelmk/).
+
+At the moment, Josh and Kevin are actively working on this project.
+You can contact us on the [Isabelle Zulip](https://isabelle.zulipchat.com/) or by <a href="mailto:josh@joshchen.io; kevin.kappelmann@tum.de">e-mail</a>.
+We are always happy to discuss and exchange ideas!
+
