@@ -299,7 +299,7 @@ proof (intro type_intro, simp only: Element_mem_piset_iff_DepFunction)+
   using [[type_derivation_depth=3]]
   unfolding matrix_mul_def nat_one_def by
     (* TODO Kevin: why is this not working? "goal: no subgoals" *)
-    (intro lambda_function_typeI, simp only: Element_mem_piset_iff_DepFunction)+ (auto)
+    (intro lambda_function_typeI, simp only: Element_mem_piset_iff_DepFunction)+
 qed
 
 definition "matrix_Mul C A M l m n \<equiv> object {

@@ -16,7 +16,7 @@ if [ ! -d "$HOME/Isabelle" ]; then
   tar -xz --strip-components=1 -f isabelle.tar.gz;
   ~/Isabelle/bin/isabelle components -I;
   ~/Isabelle/bin/isabelle components -a;
-  # Do not eat too much memory, to avoid being killed.
+  # Do not eat too much memory to avoid being killed.
   echo 'ML_OPTIONS="--maxheap 2000"' >> ~/.isabelle/etc/settings;
   cat ~/.isabelle/etc/settings;
 fi

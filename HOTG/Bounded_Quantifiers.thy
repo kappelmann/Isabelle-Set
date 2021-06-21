@@ -133,17 +133,19 @@ lemma
   btheI2: "\<exists>!x \<in> A. P x \<Longrightarrow> P (THE x \<in> A. P x)"
   by (auto dest!: btheI)
 
+ML \<open>               
+  structure A = Quantifier1;
+\<close>
+
 simproc_setup defined_bex ("\<exists>x \<in> A. P x \<and> Q x") =
-  \<open>fn _ => Quantifier1.rearrange_bex
+  \<open>fn _ => Quantifier1.rearrange_Bex
     (fn ctxt =>
-      unfold_tac ctxt @{thms bex_def} THEN
-      Quantifier1.prove_one_point_ex_tac ctxt)\<close>
+      unfold_tac ctxt @{thms bex_def})\<close>
 
 simproc_setup defined_ball ("\<forall>x \<in> A. P x \<longrightarrow> Q x") =
-  \<open>fn _ => Quantifier1.rearrange_ball
+  \<open>fn _ => Quantifier1.rearrange_Ball
     (fn ctxt =>
-      unfold_tac ctxt @{thms ball_def} THEN
-      Quantifier1.prove_one_point_all_tac ctxt)\<close>
+      unfold_tac ctxt @{thms ball_def})\<close>
 
 
 section \<open>Subsets\<close>

@@ -33,7 +33,7 @@ fn lthy =>
     val transforms = chars |> map (fn (char, tm) =>
       let
         val name = "char'" ^ char ^ "'"
-        val mx = "'''" ^ char ^ "'"
+        val mx = "'''" ^ char ^ "''"
       in
         snd o Local_Theory.define (
           (Binding.qualified_name name, Mixfix.mixfix mx),
