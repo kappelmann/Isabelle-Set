@@ -1,0 +1,30 @@
+name: Build Isabelle/Set
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Cache Isabelle dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.isabelle
+            ~/Isabelle
+          key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('.circleci/prepare_isabelle.sh') }}
+          restore-keys: v1-Isabelle-
+
+      - name: Prepare Isabelle
+        run: $GITHUB_WORKSPACE/.github/workflows/prepare_isabelle.sh
+        shell: bash
+
+      - name: Build base image
+        run: ~/Isabelle/bin/isabelle build -vbRD .
+
+      - name: Build theories
+        run: ~/Isabelle/bin/isabelle build -vD .

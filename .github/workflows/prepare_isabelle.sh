@@ -7,17 +7,18 @@
 set -x
 set -e
 
-ISABELLE_VERSION=$(cat ~/project/ISABELLE_VERSION)
+ISABELLE_VERSION=$(cat $GITHUB_WORKSPACE/ISABELLE_VERSION)
+
 if [ ! -d "$HOME/Isabelle" ]; then
 
   mkdir ~/Isabelle;
   cd ~/Isabelle;
   curl -v https://isabelle.in.tum.de/repos/isabelle/archive/$ISABELLE_VERSION.tar.gz -o isabelle.tar.gz
   tar -xz --strip-components=1 -f isabelle.tar.gz;
-  ~/Isabelle/bin/isabelle components -I;
-  ~/Isabelle/bin/isabelle components -a;
-  # Do not eat too much memory to avoid being killed.
-  echo 'ML_OPTIONS="--maxheap 2000"' >> ~/.isabelle/etc/settings;
-  cat ~/.isabelle/etc/settings;
+  ~/Isabelle/Admin/init;
+  # (not needed at the moment) Do not eat too much memory to avoid being killed.
+	# echo 'ML_OPTIONS="--maxheap 5000"' >> ~/.isabelle/etc/settings;
+  # cat ~/.isabelle/etc/settings;
+
 fi
 
