@@ -3,7 +3,7 @@
 section \<open>Set Proof Steps\<close>
 theory Proof_Steps_Sets
 imports
-  "../Auto2_HOTG"
+  Auto2_HOTG
   HOTG.Set_Difference
 begin
 paragraph \<open>Summary\<close>
@@ -30,23 +30,22 @@ setup \<open>fold ACUtil.add_ac_data [
 
 subsubsection \<open>Collection and bounded quantification\<close>
 
-setup \<open>add_rewrite_rule @{thm Comprehension.collect_iff}\<close>
+setup \<open>add_rewrite_rule @{thm Comprehension.mem_collect_iff}\<close>
 lemma ball_singleton [rewrite]: "(\<forall>x \<in> {x}. P x) = P x" by auto
 
 subsubsection \<open>Membership\<close>
 
-setup \<open>add_rewrite_rule @{thm Finite_Sets.singleton_mem_iff}\<close> 
+setup \<open>add_rewrite_rule @{thm Finite_Sets.singleton_mem_iff_eq}\<close>
 setup \<open>add_resolve_prfstep @{thm Basic.not_mem_emptyset}\<close>
 lemma ne_if_not_mem_if_mem [forward]: "x \<in> s \<Longrightarrow> y \<notin> s \<Longrightarrow> x \<noteq> y" by auto
-setup \<open>add_backward_prfstep @{thm Empty_Set.not_empty_Ex}\<close>
-(*lemma non_univ_exist_compl [backward]: "U \<noteq> UNIV \<Longrightarrow> \<exists>x. x \<notin> U" by blast*)
-setup \<open>add_resolve_prfstep @{thm Axioms.univ_elem}\<close>
+setup \<open>add_backward_prfstep @{thm Empty_Set.ex_mem_if_not_empty}\<close>
+setup \<open>add_resolve_prfstep @{thm Axioms.mem_univ}\<close>
 
 subsubsection \<open>Insert\<close>
 
-setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.cons_elems})
+setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.mem_cons_iff})
   [with_cond "?A \<noteq> {}"]\<close>
-setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.cons_elems})
+setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.mem_cons_iff})
   [with_score 500, with_cond "?A \<noteq> {}"]\<close>
 
 setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.cons_subset_iff_mem_subset})
@@ -54,9 +53,9 @@ setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.co
 setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.cons_subset_iff_mem_subset})
   [with_score 500, with_cond "?A \<noteq> {}"]\<close>
 
-subsubsection \<open>Extensionality\<close>                             
+subsubsection \<open>Extensionality\<close>
 
-lemma set_eq_if_mem_iff [forward]: "\<forall>a. a \<in> S \<longleftrightarrow> a \<in> T \<Longrightarrow> S = T" using equalityI' by simp
+lemma set_eq_if_mem_iff [forward]: "\<forall>a. a \<in> S \<longleftrightarrow> a \<in> T \<Longrightarrow> S = T" using eqI' by simp
 setup \<open>add_backward_prfstep_cond @{thm set_eq_if_mem_iff}
   [with_score 500, with_filt (order_filter "S" "T")]\<close>
 
@@ -64,26 +63,26 @@ setup \<open>add_backward_prfstep_cond @{thm set_eq_if_mem_iff}
 
 subsubsection \<open>Union\<close>
 
-setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Union_Intersection.bin_union_iff})
+setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Union_Intersection.mem_bin_union_iff})
   [with_score 500]\<close>
-setup \<open>add_backward_prfstep (equiv_backward_th @{thm Union_Intersection.bin_union_iff})\<close>
+setup \<open>add_backward_prfstep (equiv_backward_th @{thm Union_Intersection.mem_bin_union_iff})\<close>
 
 lemma bin_unionD1 [forward]: "c \<in> A \<union> B \<Longrightarrow> c \<notin> A \<Longrightarrow> c \<in> B" by auto
 lemma bin_unionD2 [forward]: "c \<in> A \<union> B \<Longrightarrow> c \<notin> B \<Longrightarrow> c \<in> A" by auto
 lemma bin_union_singleD1 [forward]: "c \<in> {a} \<union> B \<Longrightarrow> c \<noteq> a \<Longrightarrow> c \<in> B" by auto
 lemma bin_union_singleD2 [forward]: "c \<in> A \<union> {b} \<Longrightarrow> c \<noteq> b \<Longrightarrow> c \<in> A" by auto
-setup \<open>add_forward_prfstep_cond @{thm Union_Intersection.bin_unionI1} [with_term "?A \<union> ?B"]\<close>
-setup \<open>add_forward_prfstep_cond @{thm Union_Intersection.bin_unionI2} [with_term "?A \<union> ?B"]\<close>
-setup \<open>add_forward_prfstep_cond @{thm mem_bin_union_singleton_left} [with_term "{?a} \<union> ?B"]\<close>
-setup \<open>add_forward_prfstep_cond @{thm mem_bin_union_singleton_right} [with_term "?A \<union> {?b}"]\<close>
-  
-setup \<open>add_rewrite_rule @{thm Union_Intersection.bin_union_singleton_absorb}\<close>
-setup \<open>add_backward_prfstep @{thm Union_Intersection.bin_union_singleton_absorb}\<close>
+setup \<open>add_forward_prfstep_cond @{thm mem_bin_union_if_mem_left} [with_term "?A \<union> ?B"]\<close>
+setup \<open>add_forward_prfstep_cond @{thm mem_bin_union_if_mem_right} [with_term "?A \<union> ?B"]\<close>
+setup \<open>add_forward_prfstep_cond @{thm mem_singleton_bin_union} [with_term "{?a} \<union> ?B"]\<close>
+setup \<open>add_forward_prfstep_cond @{thm mem_bin_union_singleton} [with_term "?A \<union> {?b}"]\<close>
+
+setup \<open>add_rewrite_rule @{thm singleton_bin_union_absorb}\<close>
+setup \<open>add_backward_prfstep @{thm singleton_bin_union_absorb}\<close>
 
 subsubsection \<open>Intersection\<close>
 
-setup \<open>add_forward_prfstep (equiv_forward_th @{thm Union_Intersection.bin_inter_iff})\<close>
-setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Union_Intersection.bin_inter_iff})
+setup \<open>add_forward_prfstep (equiv_forward_th @{thm mem_bin_inter_iff})\<close>
+setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm mem_bin_inter_iff})
   [with_score 500]\<close>
 
 setup \<open>add_rewrite_rule @{thm Union_Intersection.empty_bin_inter_eq_empty}\<close>
@@ -99,38 +98,38 @@ subsubsection \<open>subset\<close>
 setup \<open>add_forward_prfstep @{thm subsetI}\<close>
 setup \<open>add_backward_prfstep_cond @{thm subsetI} [with_score 500]\<close>
 
-setup \<open>add_resolve_prfstep @{thm empty_subsetI}\<close>
-setup \<open>add_forward_prfstep @{thm subsetD}\<close>
+setup \<open>add_resolve_prfstep @{thm empty_subset}\<close>
+setup \<open>add_forward_prfstep @{thm mem_if_subset_if_mem}\<close>
 setup \<open>add_rewrite_rule @{thm singleton_subset_iff_mem}\<close>
 setup \<open>add_resolve_prfstep @{thm subset_refl}\<close>
-setup \<open>add_resolve_prfstep @{thm Union_Intersection.bin_union_upper1}\<close>
-setup \<open>add_resolve_prfstep @{thm Union_Intersection.bin_union_upper2}\<close>     
+setup \<open>add_resolve_prfstep @{thm subset_bin_union_left}\<close>
+setup \<open>add_resolve_prfstep @{thm subset_bin_union_right}\<close>
 lemma subset_subset_if_bin_union_subset [forward]: "A \<union> B \<subseteq> C \<Longrightarrow> A \<subseteq> C \<and> B \<subseteq> C" by auto
-setup \<open>add_backward1_prfstep @{thm Union_Intersection.bin_union_least}\<close>
-setup \<open>add_backward2_prfstep @{thm Union_Intersection.bin_union_least}\<close>
-setup \<open>add_backward_prfstep @{thm Union_Intersection.bin_union_mono_left}\<close>
-setup \<open>add_backward_prfstep @{thm Union_Intersection.bin_union_mono_right}\<close>
+setup \<open>add_backward1_prfstep @{thm bin_union_subset_if_subset_if_subset}\<close>
+setup \<open>add_backward2_prfstep @{thm bin_union_subset_if_subset_if_subset}\<close>
+setup \<open>add_backward_prfstep @{thm bin_union_subset_bin_union_if_subset}\<close>
+setup \<open>add_backward_prfstep @{thm bin_union_subset_bin_union_if_subset'}\<close>
 
 subsubsection \<open>Diff\<close>
 
-setup \<open>add_forward_prfstep (equiv_forward_th @{thm Set_Difference.diff_iff})\<close>
-setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Set_Difference.diff_iff})
+setup \<open>add_forward_prfstep (equiv_forward_th @{thm mem_diff_iff})\<close>
+setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm mem_diff_iff})
   [with_score 500]\<close>
-setup \<open>add_rewrite_rule @{thm Set_Difference.diff_iff}\<close>
+setup \<open>add_rewrite_rule @{thm mem_diff_iff}\<close>
 
-setup \<open>add_rewrite_rule @{thm Set_Difference.diff_empty}\<close>
+setup \<open>add_rewrite_rule @{thm diff_empty_eq}\<close>
 setup \<open>add_rewrite_rule @{thm Set_Difference.bin_union_diff_eq_diff_left}\<close>
 setup \<open>add_rewrite_rule @{thm Set_Difference.bin_union_diff_eq_diff_right}\<close>
 lemma singleton_bin_union_diff_eq_if_ne [rewrite]: "a \<noteq> c \<Longrightarrow> {a} \<union> (B \<setminus> {c}) = {a} \<union> B \<setminus> {c}"
-  by (rule extensionality) auto
+  by (rule eq_if_subset_if_subset) auto
 setup \<open>add_forward_prfstep_cond @{thm Set_Difference.diff_subset} [with_term "?A \<setminus> ?B"]\<close>
 lemma singleton_bin_union_diff_singleton_eq_if_not_mem [rewrite]:
   "x \<notin> B \<Longrightarrow> ({x} \<union> B) \<setminus> {x} = B"
-  by (rule extensionality) auto
+  by (rule eq_if_subset_if_subset) auto
 lemma bin_union_singleton_diff_singleton_eq_if_not_mem [rewrite]:
   "x \<notin> B \<Longrightarrow> (B \<union> {x}) \<setminus> {x} = B"
-  by (rule extensionality) auto
-(*lemma subset_sub1 [backward]: "x \<in> A \<Longrightarrow> A \<setminus> {x} \<subset> A" by auto*)
+  by (rule eq_if_subset_if_subset) auto
+(* lemma subset_sub1 [backward]: "x \<in> A \<Longrightarrow> A \<setminus> {x} \<subset> A" by auto *)
 lemma ne_if_mem_diff_singleton [forward]: "x \<in> S \<setminus> {y} \<Longrightarrow> x \<noteq> y" by simp
 lemma member_notin_contra: "x \<in> S \<Longrightarrow> x \<noteq> y \<Longrightarrow> x \<in> S \<setminus> {y}" by simp
 setup \<open>add_forward_prfstep_cond @{thm member_notin_contra} [with_term "?S \<setminus> {?y}"]\<close>

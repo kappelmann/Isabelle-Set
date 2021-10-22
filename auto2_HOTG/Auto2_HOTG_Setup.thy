@@ -33,8 +33,8 @@ lemma swap_ex_conj: "(P \<and> (\<exists>x. Q x)) \<longleftrightarrow> (\<exist
 lemma swap_all_disj: "(P \<or> (\<forall>x. Q x)) \<longleftrightarrow> (\<forall>x. P \<or> Q x)" by auto
 
 text \<open>Use these instead of original versions to keep names in abstractions.\<close>
-lemma bex_def': "(\<exists>x\<in>S. P x) \<longleftrightarrow> (\<exists>x. x \<in> S \<and> P x)" by auto
-lemma ball_def': "(\<forall>x\<in>S. P x) \<longleftrightarrow> (\<forall>x. x \<in> S \<longrightarrow> P x)" by auto
+lemma bex_def': "(\<exists>x \<in> S. P x) \<longleftrightarrow> (\<exists>x. x \<in> S \<and> P x)" by auto
+lemma ball_def': "(\<forall>x \<in> S. P x) \<longleftrightarrow> (\<forall>x. x \<in> S \<longrightarrow> P x)" by auto
 
 text \<open>Taking conjunction of assumptions.\<close>
 lemma atomize_conjL: "(A \<Longrightarrow> B \<Longrightarrow> PROP C) \<equiv> (A \<and> B \<Longrightarrow> PROP C)" by (rule equal_intr_rule) auto

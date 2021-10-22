@@ -1,7 +1,7 @@
 (*
 Creator: Bohua Zhan
 Contributor: Kevin Kappelmann
-  
+
 Setup of auto2 for HOTG. Based on the setup of auto2 for Isabelle/HOL
 (https://github.com/bzhan/auto2/blob/master/HOL/auto2_hol.ML).
 *)
@@ -92,7 +92,7 @@ val inv_back_th = @{thm inv_backward}
 val sym_th = @{thm sym}
 val exE_th' = @{thm exE'}
 val eq_True_th = @{thm HOL.eqTrueI}
-val eq_True_inv_th = @{thm HOL.eqTrueE}                     
+val eq_True_inv_th = @{thm HOL.eqTrueE}
 val disj_True1_th = @{thm HOL.simp_thms(30)}
 val disj_True2_th = @{thm HOL.simp_thms(29)}
 val ex_vardef_th = @{thm HOL.simp_thms(37)}
@@ -123,7 +123,7 @@ val disj_commute_th = @{thm disj_commute}
 
 val Mem_name = "Axioms.mem"
 val Ball_name = "Bounded_Quantifiers.ball"
-val Bex_name = "Bounded_Quantifiers.bex"                   
+val Bex_name = "Bounded_Quantifiers.bex"
 val Bex_def_th = @{thm bex_def'}
 val Ball_def_th = @{thm ball_def'}
 

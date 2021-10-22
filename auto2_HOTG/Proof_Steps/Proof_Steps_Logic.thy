@@ -2,7 +2,7 @@
 \<^marker>\<open>contributor "Kevin Kappelmann"\<close>
 section \<open>Logic Proof Steps\<close>
 theory Proof_Steps_Logic
-imports "../Auto2_HOTG"
+imports Auto2_HOTG
 begin
 paragraph \<open>Summary\<close>
 text \<open>Setup for proof steps related to logic. Adapted from

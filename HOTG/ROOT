@@ -10,18 +10,18 @@ session HOTG = "HOL" +
     Basic
     Bounded_Quantifiers
     Comprehension
+    Coproduct
     Empty_Set
     Equality
     Finite_Sets
     Foundation
-    Mem_Transitive
-    Ordered_Pairs
+    Mem_Trans
+    Pairs
     Powerset
     Replacement
     Replacement_Predicates
     Set_Difference
     Subset
-    Sum
     Union_Intersection
     Universes
     Unordered_Pairs

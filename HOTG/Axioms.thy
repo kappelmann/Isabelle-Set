@@ -38,7 +38,7 @@ bundle hotg_emptyset_braces_syntax begin notation emptyset ("{}") end
 bundle no_hotg_emptyset_braces_syntax begin no_notation emptyset ("{}") end
 
 bundle hotg_emptyset_syntax
-begin 
+begin
   unbundle hotg_emptyset_zero_syntax hotg_emptyset_braces_syntax
 end
 bundle no_hotg_emptyset_syntax
@@ -51,16 +51,21 @@ bundle no_hotg_union_syntax begin no_notation union ("\<Union>_" [90] 90) end
 
 unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax
 
+abbreviation "not_mem x y \<equiv> \<not> x \<in> y"
+
+bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end
+bundle no_hotg_not_mem_syntax begin no_notation not_mem (infixl "\<notin>" 50) end
+
+unbundle hotg_not_mem_syntax
+
+
 text \<open>Based on the membership relation, we can define the subset relation.\<close>
 definition subset :: \<open>set \<Rightarrow> set \<Rightarrow> bool\<close>
-  where "subset A B \<equiv> (\<forall>x. x \<in> A \<longrightarrow> x \<in> B)"
+  where "subset A B \<equiv> \<forall>x. x \<in> A \<longrightarrow> x \<in> B"
 
 text \<open>Again, we define some notation.\<close>
 bundle hotg_subset_syntax begin notation subset (infixl "\<subseteq>" 50) end
 bundle no_hotg_subset_syntax begin no_notation subset (infixl "\<subseteq>" 50) end
-(* Note Kevin: I do not think we want to hide it, especially if one decides to use this theory along
-another theory dealing with sets. *)
-(*hide_const (open) subset \<comment> \<open>We hide the subset constant as it Will usually be referred to via infix.\<close>*)
 
 unbundle hotg_subset_syntax
 
@@ -72,36 +77,47 @@ where
   powerset: "\<forall>A x. x \<in> powerset A \<longleftrightarrow> x \<subseteq> A"
 
 text \<open>Lastly, we want to axiomatise the existence of Grothendieck universes. This can be done in
-different ways. Here, we again, we follow the approach from @{cite "brown_et_al:LIPIcs:2019:11064"}.\<close>
+different ways. We again follow the approach from @{cite "brown_et_al:LIPIcs:2019:11064"}.\<close>
 
-definition mem_transitive :: \<open>set \<Rightarrow> bool\<close>
-  where "mem_transitive X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
+definition mem_trans :: \<open>set \<Rightarrow> bool\<close>
+  where "mem_trans X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
 
 definition ZF_closed :: \<open>set \<Rightarrow> bool\<close>
   where "ZF_closed U \<equiv> (
-      (\<forall>X. X \<in> U \<longrightarrow> \<Union>X \<in> U) \<and>
-      (\<forall>X. X \<in> U \<longrightarrow> powerset X \<in> U) \<and>
-      (\<forall>X F. X \<in> U \<longrightarrow> (\<forall>x. x \<in> X \<longrightarrow> F x \<in> U) \<longrightarrow> repl X F \<in> U))"
+    (\<forall>X. X \<in> U \<longrightarrow> \<Union>X \<in> U) \<and>
+    (\<forall>X. X \<in> U \<longrightarrow> powerset X \<in> U) \<and>
+    (\<forall>X F. X \<in> U \<longrightarrow> (\<forall>x. x \<in> X \<longrightarrow> F x \<in> U) \<longrightarrow> repl X F \<in> U)
+  )"
 
-text \<open>Remark: @{const ZF_closed} is a second-order statement.\<close>
+text \<open>Note that @{const ZF_closed} is a second-order statement.\<close>
 
 text \<open>\<open>univ X\<close> is the smallest Grothendieck universe containing X.\<close>
 axiomatization
   univ :: \<open>set \<Rightarrow> set\<close>
 where
-  univ_elem: "X \<in> univ X" and
-  univ_trans: "mem_transitive (univ X)" and
-  univ_ZF_closed: "ZF_closed (univ X)" and
-  univ_min: "\<lbrakk>X \<in> U; mem_transitive U; ZF_closed U\<rbrakk> \<Longrightarrow> univ X \<subseteq> U"
+  mem_univ [simp, intro!]: "X \<in> univ X" and
+  mem_trans_univ [simp, intro!]: "mem_trans (univ X)" and
+  ZF_closed_univ [simp, intro!]: "ZF_closed (univ X)" and
+  univ_min: "\<lbrakk>X \<in> U; mem_trans U; ZF_closed U\<rbrakk> \<Longrightarrow> univ X \<subseteq> U"
 
 (* Bundles to switch basic hotg notations on and off *)
-bundle hotg_syntax
+bundle hotg_basic_syntax
 begin
-  unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax hotg_subset_syntax
+  unbundle
+    hotg_mem_syntax
+    hotg_not_mem_syntax
+    hotg_emptyset_syntax
+    hotg_union_syntax
+    hotg_subset_syntax
 end
-bundle no_hotg_syntax
-begin 
-  unbundle no_hotg_mem_syntax no_hotg_emptyset_syntax no_hotg_union_syntax no_hotg_subset_syntax
+bundle no_hotg_basic_syntax
+begin
+  unbundle
+    no_hotg_mem_syntax
+    no_hotg_not_mem_syntax
+    no_hotg_emptyset_syntax
+    no_hotg_union_syntax
+    no_hotg_subset_syntax
 end
 
 end

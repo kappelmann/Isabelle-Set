@@ -7,32 +7,32 @@ begin
 lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
   by auto
 
-lemma empty_subsetI [simp, intro]: "{} \<subseteq> A"
+lemma empty_subset [simp, intro!]: "{} \<subseteq> A"
   by auto
 
-lemma equals_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> False\<rbrakk> \<Longrightarrow> A = {}"
-  by (rule extensionality) auto
+lemma eq_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> False\<rbrakk> \<Longrightarrow> A = {}"
+  by (rule eq_if_subset_if_subset) auto
 
-lemma equals_emptyD [dest]: "A = {} \<Longrightarrow> a \<notin> A"
+lemma not_mem_if_empty [dest]: "A = {} \<Longrightarrow> a \<notin> A"
   by auto
 
-lemma not_emptyI: "a \<in> A \<Longrightarrow> A \<noteq> {}"
+lemma not_empty_if_mem: "a \<in> A \<Longrightarrow> A \<noteq> {}"
   by auto
 
-lemma not_empty_Ex: "A \<noteq> {} \<Longrightarrow> \<exists>x. x \<in> A"
+lemma ex_mem_if_not_empty: "A \<noteq> {} \<Longrightarrow> \<exists>x. x \<in> A"
   by auto
 
-lemma not_emptyE:
+lemma mem_if_not_emptyE:
   assumes "A \<noteq> {}"
   obtains x where "x \<in> A"
-  using not_empty_Ex[OF assms]
-  by auto
+  using ex_mem_if_not_empty[OF assms]
+  by blast
 
-lemma subset_empty_iff_eq_empty [simp]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
-  by auto
+lemma subset_empty_iff_eq_empty [iff]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
+  unfolding subset_def by blast
 
-lemma mem_transitive_empty [intro]: "mem_transitive {}"
-  unfolding mem_transitive_def by auto
+lemma mem_trans_empty [simp, intro!]: "mem_trans {}"
+  unfolding mem_trans_def by blast
 
 
 end

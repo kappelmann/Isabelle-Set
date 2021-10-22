@@ -30,8 +30,8 @@ predicates that modify soft types.
 typedecl 'a type
 
 axiomatization
-  type     :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type\<close> and
-  adj      :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and
+  type :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type\<close> and
+  adj :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and
   has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close> (infix ":" 45)
 where
   meaning_of_type: "x : type P \<equiv> P x" and
@@ -224,7 +224,7 @@ method_setup discharge_types =
       REPEAT1 (CHANGED (ALLGOALS (TRY o (
         Derivation.full_discharge_types_tac [] add_tms ctxt))))))\<close>
 
-ML \<open> 
+ML \<open>
 val soft_type_simp_solver =
   let
     fun solver ctxt i =
