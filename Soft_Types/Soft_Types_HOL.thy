@@ -1,16 +1,13 @@
 chapter \<open>Soft types for HOL\<close>
 
-text \<open>
-This theory introduces a generic notion of soft types based on HOL predicates.
-It contains the basic definitions and technical tool setup.
-\<close>
+text \<open>This theory introduces a generic notion of soft types based on HOL
+predicates. It contains the basic definitions and technical tool setup.\<close>
 
 theory Soft_Types_HOL
   imports
     HOL.HOL
     Implicit_Arguments
     "HOL-Eisbach.Eisbach"
-    "HOL-Eisbach.Eisbach_Tools"
   keywords
     "opaque" :: thy_decl and
     "soft_type_translation" :: thy_goal_stmt and
@@ -19,13 +16,9 @@ begin
 
 declare [[eta_contract=false]]
 
-
 section \<open>Basic type judgments\<close>
 
-text \<open>
-Soft types are "just" predicates wrapped up in a constructor. Adjectives are
-predicates that modify soft types.
-\<close>
+text \<open>Soft types are "just" predicates wrapped up in a constructor.\<close>
 
 typedecl 'a type
 
@@ -34,18 +27,19 @@ axiomatization
   adj :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and
   has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close> (infix ":" 45)
 where
-  meaning_of_type: "x : type P \<equiv> P x" and
-  meaning_of_adj: "x : P \<sqdot> T \<equiv> P x \<and> x : T"
+  meaning_of_adj: "x : P \<sqdot> T \<equiv> P x \<and> x : T" and
+  meaning_of_type: "x : type P \<equiv> P x"
 
 lemma has_typeI: "P x \<Longrightarrow> x : type P"
-  unfolding meaning_of_type by auto
+  unfolding meaning_of_type by assumption
 
 lemma has_typeD: "x : type P \<Longrightarrow> P x"
-  unfolding meaning_of_type by auto
+  unfolding meaning_of_type by assumption
 
 lemma has_typeE:
-  "\<lbrakk>x: type P; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  unfolding meaning_of_type by auto
+  assumes "x : type P"
+  obtains "P x"
+  using assms unfolding meaning_of_type by auto
 
 lemma has_adjI: "\<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> x : P \<sqdot> T"
   unfolding meaning_of_adj by auto
@@ -60,35 +54,93 @@ lemma has_adjE:
   unfolding meaning_of_adj by auto
 
 
-section \<open>Bounded quantifiers\<close>
+section \<open>Type-Bounded quantifiers\<close>
 
-definition sball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
-  where "sball A P \<equiv> (\<forall>x. x : A \<longrightarrow> P x)"
+definition tball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
+  where "tball A P \<equiv> (\<forall>x. x : A \<longrightarrow> P x)"
 
-definition sbex :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
-  where "sbex A P \<equiv> (\<exists>x. x : A \<and> P x)"
+definition tbex :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
+  where "tbex A P \<equiv> (\<exists>x. x : A \<and> P x)"
 
 syntax
-  "_sball" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
-  "_sbex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
+  "_tball" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
+  "_tbex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
 translations
-  "\<forall>x : A. P" \<rightleftharpoons> "CONST sball A (\<lambda>x. P)"
-  "\<exists>x : A. P" \<rightleftharpoons> "CONST sbex A (\<lambda>x. P)"
+  "\<forall>x : A. P" \<rightleftharpoons> "CONST tball A (\<lambda>x. P)"
+  "\<exists>x : A. P" \<rightleftharpoons> "CONST tbex A (\<lambda>x. P)"
 
-lemma sballI [intro]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
-  unfolding sball_def by auto
+text\<open>Setup of one point rules.\<close>
 
-lemma sballE [elim]: "\<lbrakk>\<forall>x : A. P x; \<And>x. (x : A \<Longrightarrow> P x) \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-  unfolding sball_def by auto
+simproc_setup defined_bex ("\<exists>x : A. P x \<and> Q x") =
+  \<open>fn _ => Quantifier1.rearrange_Bex
+    (fn ctxt => unfold_tac ctxt @{thms tbex_def})\<close>
 
-lemma sballE' [elim]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
-  unfolding sball_def by auto
+simproc_setup defined_ball ("\<forall>x : A. P x \<longrightarrow> Q x") =
+  \<open>fn _ => Quantifier1.rearrange_Ball
+    (fn ctxt => unfold_tac ctxt @{thms tball_def})\<close>
 
-lemma sbexI [intro]: "\<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> \<exists>x : A. P x"
-  unfolding sbex_def by auto
+lemma tballI [intro!]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
+  unfolding tball_def by auto
 
-lemma sbexE [elim]: "\<lbrakk>\<exists>x : A. P x; \<And>x. \<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-  unfolding sbex_def by auto
+lemma tballE [elim!]:
+  assumes "\<forall>x : A. P x"
+  obtains "\<And>x. (x : A \<Longrightarrow> P x)"
+  using assms unfolding tball_def by auto
+
+lemma tballD [elim]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
+  unfolding tball_def by auto
+
+lemma tball_iff_ex_has_type [simp]: "(\<forall>x : A. P) \<longleftrightarrow> ((\<exists>x. x : A) \<longrightarrow> P)"
+  by (simp add: tball_def)
+
+lemma tball_cong [cong]:
+  "\<lbrakk>A = A'; \<And>x. x : A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<forall>x : A. P x) \<longleftrightarrow> (\<forall>x : A'. P' x)"
+  by (simp add: tball_def)
+
+lemma tball_or_iff_tball_or [simp]: "(\<forall>x : A. P x \<or> Q) \<longleftrightarrow> ((\<forall>x : A. P x) \<or> Q)"
+  by auto
+
+lemma tball_or_iff_or_tball [simp]: "(\<forall>x : A. P \<or> Q x) \<longleftrightarrow> (P \<or> (\<forall>x : A. Q x))"
+  by auto
+
+lemma tball_imp_iff_imp_tball [simp]: "(\<forall>x : A. P \<longrightarrow> Q x) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x : A. Q x))"
+  by auto
+
+lemma atomize_tball: "(\<And>x. x : A \<Longrightarrow> P x) \<equiv> Trueprop (\<forall>x : A. P x)"
+  by (simp only: tball_def atomize_all atomize_imp)
+
+declare atomize_tball[symmetric, rulify]
+declare atomize_tball[symmetric, defn]
+
+lemma tbexI [intro]: "\<lbrakk>x : A; P x\<rbrakk> \<Longrightarrow> \<exists>x : A. P x"
+  unfolding tbex_def by auto
+
+lemma tbexE [elim!]:
+  assumes "\<exists>x : A. P x"
+  obtains x where "x : A" and "P x"
+  using assms unfolding tbex_def by auto
+
+lemma tbex_iff_ex_and [simp]: "(\<exists>x : A. P) \<longleftrightarrow> ((\<exists>x. x : A) \<and> P)"
+  unfolding tbex_def by simp
+
+lemma tbex_cong [cong]:
+  "\<lbrakk>A = A'; \<And>x. x : A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>x : A. P x) \<longleftrightarrow> (\<exists>x : A'. P' x)"
+  unfolding tbex_def by (simp cong: conj_cong)
+
+lemma tbex_and_iff_tbex_and [simp]: "(\<exists>x : A. P x \<and> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<and> Q)"
+  by auto
+
+lemma tbex_and_iff_or_tbex [simp]: "(\<exists>x : A. P \<and> Q x) \<longleftrightarrow> (P \<and> (\<exists>x : A. Q x))"
+  by auto
+
+lemma tball_imp_iff_tbex_imp [simp]: "(\<forall>x : A. P x \<longrightarrow> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<longrightarrow> Q)"
+  by auto
+
+lemma not_tball_iff_tbex_not [simp]: "(\<not>(\<forall>x : A. P x)) \<longleftrightarrow> (\<exists>x : A. \<not>P x)"
+  by auto
+
+lemma not_tbex_iff_tball_not [simp]: "(\<not>(\<exists>x : A. P x)) \<longleftrightarrow> (\<forall>x : A. \<not>P x)"
+  by auto
 
 
 section \<open>Low-level soft type methods\<close>
@@ -104,33 +156,43 @@ named_theorems type_intro \<comment>\<open>soft type introduction rules\<close>
 
 method unfold_types =
   (rule type_intro
-  |simp_all only: typedef meaning_of_type meaning_of_adj sball_def sbex_def)+
+  |simp_all only: typedef meaning_of_type meaning_of_adj tball_def tbex_def)+
 
 
-section \<open>Pi types\<close>
+section \<open>Dependent Function/Pi-Types (\<Pi>-Types)\<close>
 
 text \<open>Dependent function soft type for HOL lambda terms.\<close>
 
-definition Pi_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
-  where [typedef]: "Pi_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
+definition Dep_fun_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<Rightarrow> ('a \<Rightarrow> 'b) type"
+  where [typedef]: "Dep_fun_type A B \<equiv> type (\<lambda>f. \<forall>x : A. f x : B x)"
 
-abbreviation "Nondep_Pi_type A B \<equiv> Pi_type A (\<lambda>_. B)"
+abbreviation "Fun_type A B \<equiv> Dep_fun_type A (\<lambda>_. B)"
 
 syntax
   "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
-  "(x y : A) \<Rightarrow> B" \<rightharpoonup> "(x : A)(y: A) \<Rightarrow> B"
-  "(x: A) args \<Rightarrow> B" \<rightleftharpoons> "(x : A) \<Rightarrow> args \<Rightarrow> B"
-  "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Pi_type A (\<lambda>x. B)"
-  "A \<Rightarrow> B" \<rightleftharpoons> "CONST Nondep_Pi_type A B"
+  "(x y : A) \<Rightarrow> B" \<rightharpoonup> "(x : A)(y : A) \<Rightarrow> B"
+  "(x : A) args \<Rightarrow> B" \<rightleftharpoons> "(x : A) \<Rightarrow> args \<Rightarrow> B"
+  "(x : A) \<Rightarrow> B" \<rightleftharpoons> "CONST Dep_fun_type A (\<lambda>x. B)"
+  "A \<Rightarrow> B" \<rightleftharpoons> "CONST Fun_type A B"
 
-lemma Pi_typeI [type_intro]:
+lemma Dep_fun_typeI [type_intro]:
   "(\<And>x. x : A \<Longrightarrow> f x : B x) \<Longrightarrow> f : (x : A) \<Rightarrow> B x"
-  unfolding Pi_type_def meaning_of_type by auto
+  unfolding Dep_fun_type_def meaning_of_type by auto
 
-lemma Pi_typeE:
+lemma Dep_fun_typeE:
   "\<lbrakk>f : (x : A) \<Rightarrow> B x; x : A\<rbrakk> \<Longrightarrow> f x : B x"
-  unfolding Pi_type_def meaning_of_type by auto
+  unfolding Dep_fun_type_def meaning_of_type by auto
+
+lemma Dep_fun_contravariant_dom:
+  "\<lbrakk>f : (x : A) \<Rightarrow> B x; \<And> x. x : A' \<Longrightarrow> x : A\<rbrakk> \<Longrightarrow> f : (x : A') \<Rightarrow> B x"
+  unfolding Dep_fun_type_def meaning_of_type by auto
+
+lemma Dep_fun_covariant_codom:
+  assumes "f : (x : A) \<Rightarrow> B x"
+  and "\<And>x. x : A \<Longrightarrow> f x : B x \<Longrightarrow> f x : B' x"
+  shows "f : (x : A) \<Rightarrow> B' x"
+  using assms unfolding Dep_fun_type_def meaning_of_type by auto
 
 
 section \<open>Intersection types\<close>
@@ -142,8 +204,14 @@ lemma
   Int_typeI [type_intro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
   Int_typeD1: "x : A \<bar> B \<Longrightarrow> x : A" and
   Int_typeD2: "x : A \<bar> B \<Longrightarrow> x : B" and
-  Int_typeE: "\<lbrakk>x: A \<bar> B; \<lbrakk>x: A; x : B\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  Int_type_covariant_left: "x : A \<bar> B \<Longrightarrow> (x : A \<Longrightarrow> x : A') \<Longrightarrow> x : A' \<bar> B" and
+  Int_type_covariant_right: "x : A \<bar> B \<Longrightarrow> (x : B \<Longrightarrow> x : B') \<Longrightarrow> x : A \<bar> B'"
   unfolding Int_type_def by unfold_types
+
+lemma Int_typeE:
+  assumes "x : A \<bar> B"
+  obtains "x : A" "x : B"
+  using assms unfolding Int_type_def by unfold_types
 
 
 section \<open>The Any type\<close>
@@ -158,6 +226,12 @@ lemma Any_typeI [type_intro]: "x : Any"
 
 abbreviation Bool_type :: "bool type" ("Bool")
   where "Bool \<equiv> Any"
+
+lemma tball_Any_iff_ball [simp]: "(\<forall>x : Any. P x) \<longleftrightarrow> (\<forall>x. P x)"
+  by (auto intro: Any_typeI)
+
+lemma tbex_Any_iff_ex [simp]: "(\<exists>x : Any. P x) \<longleftrightarrow> (\<exists>x. P x)"
+  by (auto intro: Any_typeI)
 
 
 section \<open>Type annotations\<close>
@@ -208,8 +282,8 @@ declare with_type_def [type_simp]
 
 \<comment> \<open>Declarations for the derivator; currently slightly ad hoc.\<close>
 declare Any_typeI [type]
-declare Pi_typeI [backward_derive]
-declare Pi_typeE [derive]
+declare Dep_fun_typeI [backward_derive]
+declare Dep_fun_typeE [derive]
 
 subsection \<open>Type derivation\<close>
 
@@ -246,15 +320,19 @@ setup \<open>soft_type_simp_solver\<close>
 section \<open>Basic declarations\<close>
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> Bool"
-  by unfold_types
+  by discharge_types
 
 lemma imp_type [type]: "(\<longrightarrow>) : Bool \<Rightarrow> Bool \<Rightarrow> Bool"
-  by unfold_types
+  by discharge_types
 
-text \<open>The "non-" modifier gives the negation of a predicate.\<close>
+lemma const_fun_type [derive]: "c : C \<Longrightarrow> (\<lambda>a. c) : A \<Rightarrow> C"
+  by discharge_types
 
-definition non :: "('a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool" ("non-_" [1000])
-  where "non-P \<equiv> \<lambda>x. \<not> P x"
+lemma id_type [type]: "(\<lambda>x. x) : A \<Rightarrow> A"
+  by discharge_types
+
+lemma if_type [type]: "If : bool \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
+  by unfold_types auto
 
 
 end

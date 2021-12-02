@@ -1,13 +1,10 @@
 section \<open>Implicit Arguments\<close>
-
 theory Implicit_Arguments
   imports Pure
 begin
 
-text \<open>
-Two uninterpreted constants that can inject identifiers into the pre-term syntax
-without introducing a variable.
-\<close>
+text \<open>Two uninterpreted constants that can inject identifiers into the pre-term
+syntax without introducing a variable.\<close>
 
 consts
   implicit_arg :: "(prop\<Rightarrow>prop) \<Rightarrow> 'a::{}"

@@ -38,7 +38,7 @@ fun warn ctxt msg = if Config.get ctxt debug then warning msg else ()
   Backderivation rules are applied backwards, yielding new proof obligations,
   and in theory may require all the power of general proof methods to derive
   their conclusions. Derivation rules whose premises are not simple type or
-  adjective judgments, e.g the introduction rule for the Pi_type, are usually
+  adjective judgments, e.g the introduction rule for the Dep_fun_type, are usually
   backward rules.
 
   Josh: Backderivation rules should be declared sparingly and with caution;
@@ -244,8 +244,8 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
 *)
 fun Pi_derivation_rule thm =
   case Soft_Type.type_of_typing (Thm.concl_of thm) of
-    Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ _ =>
-      Pi_derivation_rule (thm RS @{thm Pi_typeE})
+    Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ _ =>
+      Pi_derivation_rule (thm RS @{thm Dep_fun_typeE})
   | _ => thm
 
 (*
@@ -262,7 +262,7 @@ fun Pi_derivation_rule thm =
 
 (*Register derivation rules that should be applied backwards*)
 val backderivation_rule_parser: attribute context_parser =
-  let 
+  let
     fun register_bderived_type thm =
       let val concl = Thm.concl_of thm
       in
@@ -306,7 +306,7 @@ val _ =
   via `[type implicit: n]`.
 *)
 fun extract_param_names 0 _ = []
-  | extract_param_names i (Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs (n, _, b)) =
+  | extract_param_names i (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ Abs (n, _, b)) =
       n :: extract_param_names (i - 1) b
   | extract_param_names i _ = replicate i ""
 
@@ -457,16 +457,16 @@ fun raw_discharge_core ctxt goal prems add_facts add_tms =
           else context)
           |> add_translations
         end
-  
+
       val ctxt' =
         ctxt
         |> Context.proof_map (fold add_to_context
           (map (Soft_Type.eta_norm ctxt) (add_facts @ facts @ prems)))
-  
+
       fun typable_subterms tm =
         let
           val is_opaque = Item_Net.member (get_opaque_terms ctxt)
-  
+
           val res =
             if Term.is_open tm orelse is_opaque tm
             then [] else [tm]

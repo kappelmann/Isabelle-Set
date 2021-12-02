@@ -4,14 +4,12 @@ theory Empty_Set
 imports Subset
 begin
 
-lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P"
-  by auto
+lemma emptyE [elim]: "x \<in> {} \<Longrightarrow> P" by auto
 
-lemma empty_subset [simp, intro!]: "{} \<subseteq> A"
-  by auto
+lemma empty_subset [simp, intro!]: "{} \<subseteq> A" by auto
 
 lemma eq_emptyI [intro]: "\<lbrakk>\<And>y. y \<in> A \<Longrightarrow> False\<rbrakk> \<Longrightarrow> A = {}"
-  by (rule eq_if_subset_if_subset) auto
+  by auto
 
 lemma not_mem_if_empty [dest]: "A = {} \<Longrightarrow> a \<notin> A"
   by auto
@@ -29,7 +27,7 @@ lemma mem_if_not_emptyE:
   by blast
 
 lemma subset_empty_iff_eq_empty [iff]: "A \<subseteq> {} \<longleftrightarrow> A = {}"
-  unfolding subset_def by blast
+  by blast
 
 lemma mem_trans_empty [simp, intro!]: "mem_trans {}"
   unfolding mem_trans_def by blast

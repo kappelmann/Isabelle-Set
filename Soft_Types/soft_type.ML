@@ -22,8 +22,8 @@ val typeT: typ -> typ
 (* Function types *)
 val is_Pi: term -> bool
 val Pi_const: typ -> typ -> term
-val dest_Pi_type: term -> string * term * term
-val dest_Pi_type_full: term -> term list * term
+val dest_Dep_fun_type: term -> string * term * term
+val dest_Dep_fun_type_full: term -> term list * term
 
 (* Typing judgments *)
 val is_typing: term -> bool
@@ -111,24 +111,24 @@ fun varify t =
 fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
 
 fun is_Pi st = case Term.head_of st of
-    Const (\<^const_name>\<open>Pi_type\<close>, _) => true
+    Const (\<^const_name>\<open>Dep_fun_type\<close>, _) => true
   | _ => false
 
-fun Pi_const Ta Tb = 
-  Const (\<^const_name>\<open>Pi_type\<close>, typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb))
+fun Pi_const Ta Tb =
+  Const (\<^const_name>\<open>Dep_fun_type\<close>, typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb))
 
-fun dest_Pi_type (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
-  | dest_Pi_type t = raise TERM ("dest_Pi_type", [t])
+fun dest_Dep_fun_type (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
+  | dest_Dep_fun_type t = raise TERM ("dest_Dep_fun_type", [t])
 
 (*Return list of argument soft types and result soft type*)
-fun dest_Pi_type_full t =
+fun dest_Dep_fun_type_full t =
   let
-    fun dest (Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
+    fun dest (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
       | dest t = [t]
   in
     (case t of
-      Const (\<^const_name>\<open>Pi_type\<close>, _) $ A $ Abs (_, _, B) => A :: dest B
-    | _ => raise TERM ("dest_Pi_type_full", [t]))
+      Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (_, _, B) => A :: dest B
+    | _ => raise TERM ("dest_Dep_fun_type_full", [t]))
     |> split_last
   end
 
@@ -184,7 +184,7 @@ fun mk_Any_fun T =
   in
     (Any bodyT, bodyT)
     |> fold_rev
-        (fn (n, S) => fn (t, T) => 
+        (fn (n, S) => fn (t, T) =>
           (Pi_const S T $ Var ((n, 0), typeT S) $ Abs ("uu_", S, t), S --> T))
         (names ~~ binderTs)
     |> fst
@@ -194,7 +194,7 @@ fun with_type_const T = Const (\<^const_name>\<open>with_type\<close>, T --> typ
 
 fun annotate soft_type t = with_type_const (fastype_of t) $ t $ soft_type
 
-fun extract_annotations t = 
+fun extract_annotations t =
   let
     fun extract t = case t of
           Const (\<^const_name>\<open>with_type\<close>, _) $ u $ A => cons (u, A) o extract u

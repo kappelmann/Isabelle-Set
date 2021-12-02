@@ -99,7 +99,7 @@ setup \<open>add_forward_prfstep @{thm subsetI}\<close>
 setup \<open>add_backward_prfstep_cond @{thm subsetI} [with_score 500]\<close>
 
 setup \<open>add_resolve_prfstep @{thm empty_subset}\<close>
-setup \<open>add_forward_prfstep @{thm mem_if_subset_if_mem}\<close>
+setup \<open>add_forward_prfstep @{thm mem_if_mem_if_subset}\<close>
 setup \<open>add_rewrite_rule @{thm singleton_subset_iff_mem}\<close>
 setup \<open>add_resolve_prfstep @{thm subset_refl}\<close>
 setup \<open>add_resolve_prfstep @{thm subset_bin_union_left}\<close>
@@ -121,14 +121,14 @@ setup \<open>add_rewrite_rule @{thm diff_empty_eq}\<close>
 setup \<open>add_rewrite_rule @{thm Set_Difference.bin_union_diff_eq_diff_left}\<close>
 setup \<open>add_rewrite_rule @{thm Set_Difference.bin_union_diff_eq_diff_right}\<close>
 lemma singleton_bin_union_diff_eq_if_ne [rewrite]: "a \<noteq> c \<Longrightarrow> {a} \<union> (B \<setminus> {c}) = {a} \<union> B \<setminus> {c}"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 setup \<open>add_forward_prfstep_cond @{thm Set_Difference.diff_subset} [with_term "?A \<setminus> ?B"]\<close>
 lemma singleton_bin_union_diff_singleton_eq_if_not_mem [rewrite]:
   "x \<notin> B \<Longrightarrow> ({x} \<union> B) \<setminus> {x} = B"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 lemma bin_union_singleton_diff_singleton_eq_if_not_mem [rewrite]:
   "x \<notin> B \<Longrightarrow> (B \<union> {x}) \<setminus> {x} = B"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 (* lemma subset_sub1 [backward]: "x \<in> A \<Longrightarrow> A \<setminus> {x} \<subset> A" by auto *)
 lemma ne_if_mem_diff_singleton [forward]: "x \<in> S \<setminus> {y} \<Longrightarrow> x \<noteq> y" by simp
 lemma member_notin_contra: "x \<in> S \<Longrightarrow> x \<noteq> y \<Longrightarrow> x \<in> S \<setminus> {y}" by simp

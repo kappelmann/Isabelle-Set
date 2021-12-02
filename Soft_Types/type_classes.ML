@@ -43,7 +43,7 @@ val _ =
 
 (* Tracing *)
 
-fun pr_subst ctxt (Envir.Envir {tenv, ...}) = 
+fun pr_subst ctxt (Envir.Envir {tenv, ...}) =
   let val pr_term = Syntax.string_of_term ctxt in
     Vartab.dest tenv
     |> map (fn (ixn, t) => pr_term (Var (ixn, dummyT)) ^ " ~> " ^ pr_term (snd t))
@@ -57,7 +57,7 @@ fun apply_instance_rule ctxt (rule: thm) (state as (goals: term list, env, subst
   let
     val rule' = Thm.incr_indexes (maxidx_of_state state + 1) rule
     val head_goal = hd goals
-    val _ = Output.tracing ("Attempt Rule " ^ Syntax.string_of_term ctxt 
+    val _ = Output.tracing ("Attempt Rule " ^ Syntax.string_of_term ctxt
       (Thm.prop_of rule') ^ " on: " ^ Syntax.string_of_term ctxt head_goal)
     val concl = HOLogic.dest_Trueprop (Thm.concl_of rule')
     val subst' = Pattern.unify (Context.Proof ctxt) (concl, head_goal) subst
@@ -71,10 +71,10 @@ fun apply_instance_rule ctxt (rule: thm) (state as (goals: term list, env, subst
   handle Pattern.Unif => (Output.tracing "No unifier found"; NONE)
 
 fun assume_class ctxt goal env subst =
-  let val (var, cls_type) = Soft_Type.dest_typing goal 
+  let val (var, cls_type) = Soft_Type.dest_typing goal
   val _ = Output.tracing ("Looking for entry for " ^ Syntax.string_of_term ctxt goal)
   val is_side_condition = not (is_Var var)
-  in 
+  in
     if is_side_condition
     then
       (*Side conditions must be part of the environment already. Then they are discharged.*)
@@ -85,7 +85,7 @@ fun assume_class ctxt goal env subst =
       (*If we already have an assumption for the same class, it will be reused (via variable
         renaming).*)
       case find_first (fn assm => snd (Soft_Type.dest_typing assm) aconv cls_type) env of
-          SOME assm => 
+          SOME assm =>
             let
               val _ = Soft_Type.tracing ctxt ("Found assumption: " ^ Syntax.string_of_term ctxt assm)
               val assm_var = fst (Soft_Type.dest_typing assm)
@@ -96,7 +96,7 @@ fun assume_class ctxt goal env subst =
             end
       (*If no assumption was found, just add it to the environment*)
     | NONE => (goal :: env, subst)
-  end        
+  end
 
 
 (* Checks if the goal is about a type variable and resolves it from
@@ -106,7 +106,7 @@ fun resolve_type_variable ctxt (goals, env, subst) =
     val head_goal = hd goals
     val _ = Soft_Type.tracing ctxt ("Attempt TypeVar: " ^ Syntax.string_of_term ctxt head_goal)
     val (_, cls_type) = Soft_Type.dest_typing head_goal
- 
+
     val (head, args) = strip_comb cls_type
     val is_composite = is_class_type ctxt head andalso exists (not o is_Free) args
   in
@@ -169,8 +169,7 @@ fun refine_classes ctxt terms variable_types =
     val dict_vars =
       variable_types
       |> map_filter (fn (v, t) =>
-let val _ = (@{print} "hi";@{print} t) in
-           if Term.is_Var v andalso is_class_type ctxt t then SOME (dest_Var v) else NONE end)
+        if Term.is_Var v andalso is_class_type ctxt t then SOME (dest_Var v) else NONE)
     val (env, ctxt', export) = partial_import ctxt dict_vars (map Soft_Type.mk_typing variable_types)
 
     fun is_goal t = Term.is_Var (fst (Soft_Type.dest_typing t))
@@ -187,7 +186,7 @@ let val _ = (@{print} "hi";@{print} t) in
 
 
     val ets = map (Envir.norm_term subst) terms
-    val _ = Output.tracing ("Env: " ^ cat_lines (map (Syntax.string_of_term ctxt') env))     
+    val _ = Output.tracing ("Env: " ^ cat_lines (map (Syntax.string_of_term ctxt') env))
     val _ = Output.tracing ("Terms: " ^ cat_lines (map (Syntax.string_of_term ctxt') ets))
 
     val env = map export env

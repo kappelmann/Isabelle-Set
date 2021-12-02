@@ -48,12 +48,12 @@ struct
 
   fun get_const_type (Elaboration_State {const_types, ...}) (c : term) =
     const_types c;
-  
+
   fun get_var_type (Elaboration_State {const_types, var_types, up}) (v : term) =
     case const_types v of
       SOME sty => SOME sty
     | NONE => Termtab.lookup var_types v |> Option.map (Unification.instantiate up);
-  
+
   fun map_var_types f (Elaboration_State {const_types, var_types, up}) =
     Elaboration_State {const_types=const_types, var_types=f var_types, up = up}
 
@@ -64,7 +64,7 @@ struct
     if lhs aconv rhs (* Skip trivial constraints *)
     then E
     else map_up (Unification.add_equation ctxt c) E
-  
+
   fun fresh_idx (E as Elaboration_State {up, ...}) =
     let val (i, up') = Unification.fresh_idx up
     in (i, map_up (K up') E) end
@@ -77,7 +77,7 @@ struct
       val var_type = map #3 Gamma ---> Soft_Type.typeT T
       val (i, E') = fresh_idx E
     in
-      (Term.list_comb (Var (("UU", i), var_type), 
+      (Term.list_comb (Var (("UU", i), var_type),
         map Bound ((length Gamma) -1 downto 0)),
       E')
     end
@@ -95,7 +95,7 @@ struct
     (t : term)
     (E : elaboration_state)                (* Types of frees and vars, constraints *)
     : (term * elaboration_state) =
-    case t of 
+    case t of
      (* special case: explicit type annotation *)
      Const (\<^const_name>\<open>with_type\<close>, _) $ s $ A =>
        let
@@ -104,7 +104,7 @@ struct
        in
          (st, add_constraint ctxt new_constraint E1)
        end
-    | Const (_, T) => 
+    | Const (_, T) =>
         let
           (* If constant type cannot be found, invent a generic type *)
           val st = (case get_const_type E t of SOME st => st | NONE => Soft_Type.mk_Any_fun T)
@@ -121,12 +121,12 @@ struct
         in
           (const_type, E1)
         end
-    | s $ u => 
+    | s $ u =>
         let
-          val (fun_type, E1) = 
+          val (fun_type, E1) =
             collect_constraints' ctxt Gamma s E
             |> ensure_function ctxt Gamma s
-          val (_, A, B) = Soft_Type.dest_Pi_type fun_type
+          val (_, A, B) = Soft_Type.dest_Dep_fun_type fun_type
           val (u_st, E2) = collect_constraints' ctxt Gamma u E1
           val new_constraint = (Gamma, (u_st, A), ())
           val application_type = Term.subst_bound (u, B)
@@ -134,8 +134,8 @@ struct
           (application_type, add_constraint ctxt new_constraint E2)
         end
     | Bound i => (#2 (nth Gamma i), E)
-    | Abs (x, T, body) => 
-        let 
+    | Abs (x, T, body) =>
+        let
           (* Invent variable for the domain *)
           val (stvar, E2) = fresh_variable T Gamma E
 
@@ -159,8 +159,8 @@ struct
 
    and ensure_function ctxt Gamma f (st, E) =
      case st of
-         Const (\<^const_name>\<open>Pi_type\<close>, _) $ _ $ Abs _ => (st, E)
-       | _ => 
+         Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ Abs _ => (st, E)
+       | _ =>
          let
            val fT = Term.fastype_of1 (map #3 Gamma, f)
            val domainT = domain_type fT
@@ -172,10 +172,10 @@ struct
            val E3 = add_constraint ctxt (Gamma, (st, fun_st), ()) E2
          in
            (fun_st, E3)
-         end  
+         end
 
    and collect_constraints' ctxt Gamma t E =
-     let 
+     let
        fun inst t = Term.subst_bounds (map (fn (x, _, T) => Free (x, T)) Gamma, t)
        fun pr_term t = Syntax.string_of_term ctxt (inst t)
        fun instantiate (st, E as Elaboration_State {up, ...}) =
@@ -221,9 +221,9 @@ datatype elaboration_result =
   }
 
 
-fun infer_type ctxt ts = 
+fun infer_type ctxt ts =
   let
-    val const_types = 
+    val const_types =
       Option.map (#2 o Soft_Type.dest_typing o Thm.prop_of) o Soft_Type_Context.get_current_type ctxt
 
     val maxidx = fold Term.maxidx_term ts ~1
@@ -249,7 +249,7 @@ fun infer_type ctxt ts =
       elaborated_terms = elaborated_terms,
       variable_types = types_for_vars
     }
-  end 
+  end
 
 
 fun trace_infer_result ctxt (Elaboration_Result {elaborated_terms, variable_types }) =
@@ -281,7 +281,7 @@ fun annotate_terms env ts =
            (Const (\<^const_name>\<open>with_type\<close>, T) $ u' $ A, env')
          end
       | Const _ => (t, env)
-      | s $ u => 
+      | s $ u =>
           let
             val (s', env') = annot s env
             val (u', env'') = annot u env'

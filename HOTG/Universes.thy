@@ -11,7 +11,7 @@ lemma
   and "X \<in> U"
   shows ZF_closed_union [elim!]: "\<Union>X \<in> U"
   and ZF_closed_powerset [elim!]: "powerset X \<in> U"
-  and ZF_closed_powerset_repl:
+  and ZF_closed_repl:
     "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> {f x | x \<in> X} \<in> U"
   using assms by (auto simp: ZF_closed_def)
 
@@ -22,24 +22,24 @@ lemma
   and univ_closed_repl [intro]:
     "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> univ X) \<Longrightarrow> {f x | x \<in> A} \<in> univ X"
   using ZF_closed_univ[of X]
-  by (auto simp only: assms ZF_closed_powerset_repl)
+  by (auto simp only: assms ZF_closed_repl)
 
 text \<open>Variations on transitivity:\<close>
 
 lemma mem_univ_trans: "A \<in> univ X \<Longrightarrow> x \<in> A \<Longrightarrow> x \<in> univ X"
-  using mem_trans_univ unfolding mem_trans_def subset_def by auto
+  using mem_trans_univ unfolding mem_trans_def by auto
 
 lemma mem_univ_trans': "x \<in> X \<Longrightarrow> x \<in> univ X"
   by (rule mem_univ_trans) auto
 
 lemma subset_univ_if_mem: "A \<in> univ X \<Longrightarrow> A \<subseteq> univ X"
-  unfolding subset_def using mem_univ_trans by auto
+  using mem_univ_trans by auto
 
 lemma empty_mem_univ [simp, intro!]: "{} \<in> univ X"
 proof -
   have "X \<in> univ X" by (fact mem_univ)
   then have "powerset X \<subseteq> univ X" by (intro subset_univ_if_mem) blast
-  then show "{} \<in> univ X" unfolding subset_def by auto
+  then show "{} \<in> univ X" by auto
 qed
 
 lemma subset_univ [simp, intro!]: "A \<subseteq> univ A"
@@ -65,7 +65,7 @@ lemma univ_closed_singleton [intro!]: "x \<in> univ U \<Longrightarrow> {x} \<in
   by auto
 
 lemma bin_union_univ_eq_univ_if_mem: "A \<in> univ U \<Longrightarrow> A \<union> univ U = univ U"
-  by (rule eq_if_subset_if_subset) (auto intro: mem_univ_trans)
+  by (rule subset_antisym) (auto intro: mem_univ_trans)
 
 lemma univ_closed_dep_pairs [intro]:
   assumes A_mem_univ: "A \<in> univ U"
@@ -86,17 +86,16 @@ qed
 
 lemma subset_univ_if_subset_univ_pairs:
   "X \<subseteq> univ A \<times> univ A \<Longrightarrow> X \<subseteq> univ A"
-  unfolding subset_def by auto
+  by auto
 
 lemma univ_closed_pairs [intro!]:
   "X \<subseteq> univ A \<Longrightarrow> Y \<subseteq> univ A \<Longrightarrow> X \<times> Y \<subseteq> univ A"
-  unfolding subset_def by auto
+  by auto
 
 lemma univ_closed_inl [intro!]: "x \<in> univ A \<Longrightarrow> inl x \<in> univ A"
   unfolding inl_def by auto
 
 lemma univ_closed_inr [intro!]: "x \<in> univ A \<Longrightarrow> inr x \<in> univ A"
   unfolding inr_def by auto
-
 
 end

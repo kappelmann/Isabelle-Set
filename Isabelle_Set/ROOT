@@ -3,43 +3,37 @@ chapter "Higher-Order Tarski-Grothendieck (HOTG) Set Theory with Soft Types"
 session Isabelle_Set = "HOL" +
   description
     \<open>Isabelle/Set - A softly-typed Tarski-Grothendieck set theory environment embedded in HOL.\<close>
-(* TODO: Build is terribly slow at the moment. Proofs should be reworked when re-considering
-   the type system *)
-(*  options
-    [timeout = 180]*)
+  options [timeout = 180]
   sessions
     HOTG
     Auto2_HOTG
     Soft_Types
   directories
-    "Test_Examples"
+    "Fixpoints"
+    "Integers"
+    "Integers/Rep"
+    "Matrices"
+    "Nat"
   theories
-    "Isabelle_Set"
+    Fixpoints
+    Integers
+    Matrices
+    Nat
+    Bin_Rels
+    Functions
+    Monoids
+    Objects
+    Ordinals
+    Rings
+    Set_Extension
+    Sets
+    Strings
+    Structures
 
-    (* Other library theories *)
-    (* "Isabelle_Set/Category" *)
-
-    (* Examples and compatibility layers *)
-    (* "Isabelle_Set/Test_Examples/Tarski_A"
-    "Test_Examples/Typing_Examples"
-    "Test_Examples/Implicit_Args"
-    "Test_Examples/Implicit_Assumptions"
-    "Test_Examples/Discharge_Types"
-    "Test_Examples/MyList"
-    "Test_Examples/Simp_Test"
-    "Test_Examples/Matrix"
-    "Test_Examples/Derivation_Test"
-    "Test_Examples/Cicm2019_Demo" *)
-
-(*session Auto2_Isabelle_Set = "Isabelle_Set" +
-  description \<open>Instantiation of Auto2 for Isabelle/Set.\<close>
+session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
+  options [timeout = 20]
   theories
-*)(*
-
-session Auto2_Set in "auto2/Set" = "HOL" +
-  description
-    \<open>Auto2 for Isabelle/Set\<close>
-  options
-    [timeout = 180]
-  theories
-    "Auto2_Set"*)
+    Elaboration_Tests
+    Function_Tests
+    Lists
+    Type_Check_Tests

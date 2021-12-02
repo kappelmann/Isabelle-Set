@@ -9,3 +9,13 @@ session Soft_Types = "HOL" +
     "HOL-Eisbach"
   theories
     "Soft_Types_HOL"
+
+session Soft_Types_Tests in "Tests" = "Soft_Types" +
+  options
+    [timeout = 20]
+  theories
+    (*Elaboration_Tests*)
+    (*Implicit_Arguments_Tests*)
+    (*Isar_Integration_Tests*)
+    Simp_Tests
+    (*Type_Check_Tests*)

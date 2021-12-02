@@ -30,8 +30,7 @@ proof (rule ccontr)
   assume "{} \<notin> X"
   with \<open>A \<in> X\<close> have "A \<noteq> {}" by auto
   then obtain a where "a \<in> A" by auto
-  with mem_transE[OF \<open>mem_trans X\<close> \<open>A \<in> X\<close>] have "a \<in> X"
-    using subset_def by auto
+  with mem_transE[OF \<open>mem_trans X\<close> \<open>A \<in> X\<close>] have "a \<in> X" by auto
   with X_foundation \<open>a \<in> A\<close> show False by auto
 qed
 
@@ -47,6 +46,10 @@ qed auto
 
 lemma mem_irrefl [simp, intro!]: "a \<notin> a"
   using mem_asym by blast
+
+lemma bin_union_singleton_self_ne_self [simp, intro!]: "A \<union> {A} \<noteq> A" by auto
+
+lemma bin_inter_singleton_self_eq_empty [simp, intro!]: "A \<inter> {A} = {}" by auto
 
 lemma ne_if_mem: "a \<in> A \<Longrightarrow> a \<noteq> A"
   using mem_irrefl by blast
@@ -68,7 +71,7 @@ proof
   with \<open>Y \<inter> ?X = {}\<close> show False by blast
 qed
 
-lemma mem_double_induction:
+lemma mem_double_induct:
   assumes "\<And>X Y. \<lbrakk>\<And>x. x \<in> X \<Longrightarrow> P x Y; \<And>y. y \<in> Y \<Longrightarrow> P X y\<rbrakk> \<Longrightarrow> P X Y"
   shows "P X Y"
 proof (induction X arbitrary: Y rule: mem_induction)

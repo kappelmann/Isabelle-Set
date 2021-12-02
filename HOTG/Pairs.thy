@@ -27,16 +27,16 @@ lemma eq_if_pair_eq_left: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<Lon
 
 lemma eq_if_pair_eq_right: "\<langle>a, b\<rangle> = \<langle>c, d\<rangle> \<Longrightarrow> b = d" by simp
 
-lemma fst_pair_eq [simp, intro!]: "fst \<langle>a,b\<rangle> = a"
+lemma fst_pair_eq [simp, intro!]: "fst \<langle>a, b\<rangle> = a"
   by (simp add: fst_def)
 
-lemma snd_pair_eq [simp, intro!]: "snd \<langle>a,b\<rangle> = b"
+lemma snd_pair_eq [simp, intro!]: "snd \<langle>a, b\<rangle> = b"
   by (simp add: snd_def)
 
 lemma pair_ne_empty [simp, intro!]: "\<langle>a, b\<rangle> \<noteq> {}"
   unfolding pair_def by blast
 
-lemma fst_snd_eq_pair_if_eq_pair [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
+lemma fst_snd_eq_if_eq_pair [simp]: "p = \<langle>a, b\<rangle> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by simp
 
 lemma pair_ne_fst [simp, intro!]: "\<langle>a, b\<rangle> \<noteq> a"
@@ -100,19 +100,19 @@ lemma fst_snd_eq_pair_if_mem_dep_pairs [simp]:
 
 lemma fst_snd_eq_pair_if_subset_dep_pairs_if_mem:
   "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
-  unfolding subset_def by auto
+  by auto
 
 lemma mem_subset_dep_pairsE:
   assumes "p \<in> R"
   and "R \<subseteq> \<Sum>x \<in> A. (B x)"
   obtains a b where "a \<in> A" "b \<in> B a" "p = \<langle>a, b\<rangle>"
-  using mem_if_subset_if_mem[OF assms(2, 1)] by (rule mem_dep_pairsE)
+  using mem_if_mem_if_subset[OF assms(2, 1)] by (rule mem_dep_pairsE)
 
 lemma dep_pairs_empty_dom_eq_empty [simp, intro!]: "\<Sum>x \<in> {}. (B x) = {}"
-  by (rule eq_if_subset_if_subset) auto
+  by auto
 
 lemma dep_pairs_empty_eq_empty [simp, intro!]: "\<Sum>x \<in> A. {} = {}"
-  by (rule eq_if_subset_if_subset) auto
+  by auto
 
 lemma pais_empty_iff [iff]: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
   by (auto intro!: eqI)
@@ -137,20 +137,36 @@ lemma ball_dep_pairs_iff_ball_ball [iff]:
 
 subsection \<open>Monotonicity\<close>
 
-lemma subset_prod_if_subset_if_subset: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
-  unfolding subset_def by auto
+lemma dep_pairs_subset_dep_pairsI:
+  assumes "A \<subseteq> A'"
+  and "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
+  shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A'. B' x)"
+  using assms by auto
 
-lemma subset_prod_if_subset_left: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B"
-  by (rule subset_prod_if_subset_if_subset) auto
+lemma dep_pairs_subset_dep_pairsI':
+  assumes "A \<subseteq> A'"
+  shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. B x)"
+  using assms by (intro dep_pairs_subset_dep_pairsI) auto
 
-lemma subset_prod_if_subset_rght: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'"
-  by (rule subset_prod_if_subset_if_subset) auto
+lemma dep_pairs_subset_dep_pairsI'':
+  assumes "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
+  shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. B' x)"
+  using assms by (intro dep_pairs_subset_dep_pairsI) auto
+
+lemma subset_pairs_subsetI: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
+  by (rule dep_pairs_subset_dep_pairsI) auto
+
+lemma subset_pairs_subset_if_subset_right: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'"
+  by (rule subset_pairs_subsetI) auto
+
+lemma subset_pairs_subset_if_subset_left: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B"
+  by (rule subset_pairs_subsetI) auto
 
 
 subsection \<open>Functions on Dependent Pairs\<close>
 
 definition uncurry :: "(set \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" \<comment>\<open>for pattern-matching\<close>
-  where "uncurry f \<equiv> \<lambda>p. f (fst p) (snd p)"
+  where "uncurry f p \<equiv> f (fst p) (snd p)"
 
 (*Larry: Patterns—extends pre-defined type "pttrn" used in abstractions*)
 (*TODO: localise*)

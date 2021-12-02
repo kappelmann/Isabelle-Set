@@ -13,8 +13,8 @@ syntax
   "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ ./ _ \<in> _})")
   "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
 translations
-  "{y | x \<in> A}" \<rightleftharpoons> "CONST repl A (\<lambda>x. y)"
   "{y . x \<in> A}" \<rightharpoonup> "CONST repl A (\<lambda>x. y)"
+  "{y | x \<in> A}" \<rightleftharpoons> "CONST repl A (\<lambda>x. y)"
 
 lemma app_mem_repl_if_mem [intro]: "a \<in> A \<Longrightarrow> f a \<in> {f x | x \<in> A}"
   by (unfold mem_repl_iff_mem_eq) auto
@@ -34,19 +34,28 @@ lemma replE [elim!]:
 
 lemma repl_cong [cong]:
   "\<lbrakk>A = B; \<And>x. x \<in> B \<Longrightarrow> f x = g x\<rbrakk> \<Longrightarrow> {f x | x \<in> A} = {g x | x \<in> B}"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 
 lemma repl_repl_eq_repl [simp]: "{g b | b \<in> {f a | a \<in> A}} = {g (f a) | a \<in> A}"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 
 lemma repl_eq_dom [simp]: "{x | x \<in> A} = A"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 
 lemma repl_eq_empty [simp]: "{f x | x \<in> {}} = {}"
-  by (rule eq_if_subset_if_subset) auto
+  by (rule subset_antisym) auto
 
 lemma repl_eq_empty_iff [iff]: "{f x | x \<in> A} = {} \<longleftrightarrow> A = {}"
   by (auto dest: eqD intro!: eqI')
 
+lemma repl_subset_repl_if_subset_dom [intro!]:
+  "A \<subseteq> B \<Longrightarrow> {g y | y \<in> A} \<subseteq> {g y | y \<in> B}"
+  by auto
+
+lemma ball_repl_iff_ball [simp]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<forall>x \<in> A. P (f x))"
+  by auto
+
+lemma bex_repl_iff_bex [simp]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
+  by auto
 
 end

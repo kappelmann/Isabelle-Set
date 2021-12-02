@@ -51,7 +51,7 @@ bundle no_hotg_union_syntax begin no_notation union ("\<Union>_" [90] 90) end
 
 unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax
 
-abbreviation "not_mem x y \<equiv> \<not> x \<in> y"
+abbreviation "not_mem x y \<equiv> \<not>(x \<in> y)"
 
 bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end
 bundle no_hotg_not_mem_syntax begin no_notation not_mem (infixl "\<notin>" 50) end
