@@ -3,7 +3,7 @@ chapter "Higher-Order Tarski-Grothendieck (HOTG) Set Theory with Soft Types"
 session Isabelle_Set = "HOL" +
   description
     \<open>Isabelle/Set - A softly-typed Tarski-Grothendieck set theory environment embedded in HOL.\<close>
-  options [timeout = 180]
+  options [timeout = 360]
   sessions
     HOTG
     Auto2_HOTG
