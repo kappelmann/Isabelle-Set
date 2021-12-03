@@ -4,6 +4,8 @@ session Auto2_HOTG = HOTG +
   description \<open>Instantiation of Auto2 for HOTG.\<close>
   options
     [timeout = 20]
+  sessions
+    Auto2_HOL
   directories
     Proof_Steps
   theories

@@ -17,4 +17,5 @@
 *.vrb
 *.vtc
 *.cut
+*.code-workspace
 \#*.thy\#

@@ -2,11 +2,10 @@
 Creator: Bohua Zhan
 Contributor: Kevin Kappelmann
 
-Setup of auto2 for HOTG. Based on the setup of auto2 for Isabelle/HOL
-(https://github.com/bzhan/auto2/blob/master/HOL/auto2_hol.ML).
+Setup of auto2 for HOTG. Based on the setup of auto2 for Isabelle/HOL.
 *)
 
-structure UtilBase : UTIL_BASE =
+structure Auto2_HOTG_UtilBase : UTIL_BASE =
 struct
 
 (* Types *)
@@ -129,5 +128,4 @@ val Ball_def_th = @{thm ball_def'}
 
 end  (* structure Base *)
 
-structure Basic_UtilBase: BASIC_UTIL_BASE = UtilBase
-open Basic_UtilBase
+structure Auto2_HOTG_Basic_UtilBase : BASIC_UTIL_BASE = Auto2_HOTG_UtilBase

@@ -5,7 +5,7 @@ theory Auto2_HOTG_Setup
 begin
 paragraph \<open>Summary\<close>
 text \<open>Extra theorems in logic used by auto2. Adapted from
-\<^url>\<open>https://github.com/bzhan/auto2/blob/master/HOL/HOL_Base.thy\<close>.\<close>
+\<open>Auto2_HOL/HOL/HOL_Base.thy\<close>.\<close>
 
 lemma to_contra_form: "Trueprop A \<equiv> (\<not>A \<Longrightarrow> False)" by (rule equal_intr_rule) auto
 lemma to_contra_form': "Trueprop (\<not>A) \<equiv> (A \<Longrightarrow> False)" by (rule equal_intr_rule) auto

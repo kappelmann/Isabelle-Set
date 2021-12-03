@@ -17,32 +17,35 @@ Those systems have to insert explicit casts to transform terms from one type to 
 
 ## How to Build / Run
 
-This code currently depends on [the Isabelle repository](https://isabelle.in.tum.de/repos/isabelle).
-The file `ISABELLE_VERSION` specifies the exact revision, which will also be used
-in the automated builds.
+This code depends on:
+1. The [Isabelle repository](https://isabelle.in.tum.de/repos/isabelle):
+   The file `ISABELLE_VERSION` specifies the exact mecurial revision,
+   which will also be used in the automated builds.
+2  The [AFP mirror repository](https://github.com/isabelle-prover/mirror-afp-devel/):
+   The file `AFP_VERSION` specifies the exact git revision,
+   which will also be used in the automated builds.
 
-* Clone and prepare the Isabelle development version.
-  Instructions can be found in the
-  [README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY).
-
-* Clone and navigate into this repository and setup the dependencies (git submodules):
+Instructions:
+1. Clone and prepare the correct Isabelle development version.
+   Instructions can be found in the
+   [README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY).
+2. Clone and add the correct AFP version.
+   Instructions can be found on the
+   [AFP-website](https://www.isa-afp.org/using.html).
+3. Clone and navigate into this repository:
   ```bash
   git clone git@github.com:kappelmann/Isabelle-Set.git
   cd Isabelle_Set
-  git submodule sync
-  git submodule update --init
   ```
   If you are using git via https, replace the first command with
   `git clone https://github.com/kappelmann/Isabelle-Set.git`
-
-* Build the supporting Isabelle heap images:
+4. Build the supporting Isabelle heap images:
   ```bash
-  /path/to/isabelle/bin/isabelle build -vbRD .
+  /<path_to_isabelle>/bin/isabelle build -vbRD .
   ```
-
-* Build this development:
+5. Build this development:
   ```
-  /path/to/isabelle/bin/isabelle build -vD .
+  /<path_to_isabelle>/bin/isabelle build -vD .
   ```
 
 ## Style Guide
@@ -59,7 +62,7 @@ File | Content
 -----|--------
 `HOTG/Axioms` | Axiomatisation of Tarski-Grothendieck set theory embedded in higher-order logic (HOTG).
 `HOTG/*` | Basic set-theoretic results using HOTG.
-`auto2_HOTG/*` | Experimental setup of the [auto2](https://github.com/bzhan/auto2) prover for HOTG.
+`auto2_HOTG/*` | Experimental setup of the [auto2](https://www.isa-afp.org/entries/Auto2_HOL.html) prover for HOTG.
 `Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL), types as predicates, function types, intersection types, etc.
 `Soft_Types/*.ML` | Infrastructure for soft types: elaboration, unification, context data, etc.
 `Soft_Types/Tests/Elaboration_Tests.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.

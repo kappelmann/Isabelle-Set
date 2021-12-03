@@ -7,8 +7,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
 
       - name: Cache Isabelle dependencies
         uses: actions/cache@v2
@@ -16,7 +14,8 @@ jobs:
           path: |
             ~/.isabelle
             ~/Isabelle
-          key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('.circleci/prepare_isabelle.sh') }}
+            ~/AFP/thys
+          key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('AFP_VERSION') }}-${{ hashFiles('.circleci/prepare_isabelle.sh') }}
           restore-keys: v1-Isabelle-
 
       - name: Prepare Isabelle

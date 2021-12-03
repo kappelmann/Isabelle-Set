@@ -7,8 +7,7 @@ imports
   HOTG.Set_Difference
 begin
 paragraph \<open>Summary\<close>
-text \<open>Setup for proof steps related to sets. Adapted from
-\<^url>\<open>https://github.com/bzhan/auto2/blob/master/HOL/Set_Thms.thy\<close>.\<close>
+text \<open>Setup for proof steps related to sets. Adapted from \<open>Auto2/HOL/Set_Thms.thy\<close>.\<close>
 
 subsection \<open>Set\<close>
 
@@ -16,17 +15,17 @@ subsection \<open>Set\<close>
 
 setup \<open>add_backward_prfstep @{thm injI}\<close>*)
 
-(*subsubsection \<open>AC property of intersection and union\<close>
+subsubsection \<open>AC property of intersection and union\<close>
 
-setup \<open>fold ACUtil.add_ac_data [
-  {cfhead = @{cterm inf}, unit = SOME @{cterm inf},
-   assoc_th = @{thm inf_assoc}, comm_th = @{thm inf_commute},
-   unitl_th = @{thm inf_top_left}, unitr_th = @{thm inf_top_right}},
+setup \<open>fold Auto2_HOTG_Extra_Setup.ACUtil.add_ac_data [
+  {cfhead = @{cterm bin_inter}, unit = NONE,
+    assoc_th = @{thm bin_inter_assoc}, comm_th = @{thm bin_inter_comm},
+    unitl_th = Auto2_HOTG_UtilBase.true_th, unitr_th = Auto2_HOTG_UtilBase.true_th},
 
-  {cfhead = @{cterm sup}, unit = SOME @{cterm bot},
-   assoc_th = @{thm sup_assoc}, comm_th = @{thm sup_commute},
-   unitl_th = @{thm sup_bot_left}, unitr_th = @{thm sup_bot_right}}]
-\<close>*)
+  {cfhead = @{cterm bin_union}, unit = SOME @{cterm emptyset},
+   assoc_th = @{thm bin_union_assoc}, comm_th = @{thm bin_union_comm},
+   unitl_th = @{thm empty_bin_union_eq}, unitr_th = @{thm bin_union_empty_eq}}]
+\<close>
 
 subsubsection \<open>Collection and bounded quantification\<close>
 
@@ -93,7 +92,7 @@ lemma not_mem_if_mem_if_bin_inter_eq_empty [forward, backward2]:
   by auto
 lemma singleton_bin_inter_eq_empty_iff [rewrite]: "{x} \<inter> B = {} \<longleftrightarrow> x \<notin> B" by auto
 
-subsubsection \<open>subset\<close>
+subsubsection \<open>Subset\<close>
 
 setup \<open>add_forward_prfstep @{thm subsetI}\<close>
 setup \<open>add_backward_prfstep_cond @{thm subsetI} [with_score 500]\<close>
