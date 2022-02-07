@@ -1,6 +1,9 @@
 subsection \<open>Monotone Operators\<close>
 theory Monotone_Operators
-imports Fixpoints_Base
+  imports
+    Fixpoints_Base
+    HOTG.Universes
+    Sets
 begin
 
 definition monotone :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
@@ -77,6 +80,7 @@ lemma replacement_MonopI:
 proof (rule MonopI)
   fix X assume "X \<subseteq> D"
   with assms show "{g y | y \<in> f X} \<subseteq> D"
+    (*TODO unfold_type directly loops*)
     by (unfold Element_def) (unfold_types, auto)
 next
   show "monotone D ?h"
@@ -90,9 +94,19 @@ qed
 
 lemma pairs_MonopI [derive]:
   assumes "A : Monop (univ X)" "B : Monop (univ X)"
-  shows "(\<lambda>x. A x \<times> B x) : Monop (univ X)"
-  using assms
-  by (intro MonopI) (auto dest: Monop_app_subset_app_if_subset)
+  shows "(\<lambda>x. A x \<times> B x) : Monop (univ X)" (is "?h : Monop ?D")
+proof (rule MonopI)
+  fix X assume "X \<subseteq> ?D"
+  with subset_univ_if_subset_univ_pairs show "A X \<times> B X \<subseteq> ?D" by auto
+next
+  show "monotone ?D ?h"
+  proof (rule monotoneI)
+    fix W X assume "W \<subseteq> X" "X \<subseteq> ?D"
+    have "A W \<subseteq> A X" by (rule Monop_app_subset_app_if_subset) auto
+    moreover have "B W \<subseteq> B X" by (rule Monop_app_subset_app_if_subset) auto
+    ultimately show "A W \<times> B W \<subseteq> A X \<times> B X" by auto
+  qed
+qed
 
 
 end

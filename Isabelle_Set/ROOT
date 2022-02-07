@@ -10,17 +10,17 @@ session Isabelle_Set = "HOL" +
     Soft_Types
   directories
     "Fixpoints"
+    "Functions"
     "Integers"
     "Integers/Rep"
     "Matrices"
     "Nat"
   theories
     Fixpoints
+    TFunctions
     Integers
     Matrices
     Nat
-    Bin_Rels
-    Functions
     Monoids
     Objects
     Ordinals
@@ -29,6 +29,9 @@ session Isabelle_Set = "HOL" +
     Sets
     Strings
     Structures
+    TBinary_Relations
+    TCoproduct
+    TPairs
 
 session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
   options [timeout = 20]

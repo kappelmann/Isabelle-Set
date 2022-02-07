@@ -1,6 +1,6 @@
 subsubsection \<open>Subtraction (truncated)\<close>
 theory Nat_Sub
-imports Nat_Add
+  imports Nat_Add
 begin
 
 definition "nat_sub m n \<equiv> nat_rec n m pred"

@@ -1,6 +1,8 @@
 section \<open>Examples for the automatic type derivation procedure.\<close>
 theory Type_Check_Tests
-  imports "Isabelle_Set.Sets"
+  imports
+    "HOTG.Universes"
+    "Isabelle_Set.Sets"
 begin
 
 text \<open>Proving that something is in some universe does not work because the

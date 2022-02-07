@@ -1,7 +1,8 @@
 section \<open>Universes\<close>
-
 theory Universes
-imports Coproduct
+  imports
+    Coproduct
+    Functions
 begin
 
 abbreviation V :: set where "V \<equiv> univ {}"
@@ -50,13 +51,17 @@ lemma univ_closed_upair [intro!]:
   unfolding upair_def
   by (intro univ_closed_repl, intro univ_closed_powerset) auto
 
-lemma univ_closed_cons [intro!]:
-  "x \<in> univ X \<Longrightarrow> A \<in> univ X \<Longrightarrow> cons x A \<in> univ X"
-  unfolding cons_def using univ_closed_upair by auto
+lemma univ_closed_insert [intro!]:
+  "x \<in> univ X \<Longrightarrow> A \<in> univ X \<Longrightarrow> insert x A \<in> univ X"
+  unfolding insert_def using univ_closed_upair by blast
 
 lemma univ_closed_pair [intro!]:
   "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> \<langle>x, y\<rangle> \<in> univ X"
   unfolding pair_def by auto
+
+lemma univ_closed_extend [intro!]:
+  "x \<in> univ X \<Longrightarrow> y \<in> univ X \<Longrightarrow> A \<in> univ X \<Longrightarrow> extend x y A \<in> univ X"
+  by (subst insert_pair_eq_extend[symmetric]) auto
 
 lemma univ_closed_bin_union [intro!]: "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> x \<union> y \<in> univ X"
   unfolding bin_union_def by auto
@@ -67,22 +72,13 @@ lemma univ_closed_singleton [intro!]: "x \<in> univ U \<Longrightarrow> {x} \<in
 lemma bin_union_univ_eq_univ_if_mem: "A \<in> univ U \<Longrightarrow> A \<union> univ U = univ U"
   by (rule subset_antisym) (auto intro: mem_univ_trans)
 
-lemma univ_closed_dep_pairs [intro]:
+lemma univ_closed_dep_pairs [intro!]:
   assumes A_mem_univ: "A \<in> univ U"
   and univ_B_closed: "\<And>x. x \<in> A \<Longrightarrow> B x \<in> univ U"
   shows "\<Sum>x \<in> A. (B x) \<in> univ U"
-proof -
-  {
-    fix x y
-    assume "x \<in> A" "y \<in> B x"
-    with univ_B_closed have "B x \<in> univ U" by simp
-    with A_mem_univ \<open>x \<in> A\<close> \<open>y \<in> B x\<close> have "x \<in> univ U" and "y \<in> univ U"
-      using mem_univ_trans by auto
-  }
-  then show ?thesis unfolding dep_pairs_def using assms
-    by (intro univ_closed_union univ_closed_repl univ_closed_singleton
-      univ_closed_pair)
-qed
+  unfolding dep_pairs_def
+  using assms
+    by (intro univ_closed_union ZF_closed_repl) (auto intro: mem_univ_trans)
 
 lemma subset_univ_if_subset_univ_pairs:
   "X \<subseteq> univ A \<times> univ A \<Longrightarrow> X \<subseteq> univ A"
@@ -92,10 +88,22 @@ lemma univ_closed_pairs [intro!]:
   "X \<subseteq> univ A \<Longrightarrow> Y \<subseteq> univ A \<Longrightarrow> X \<times> Y \<subseteq> univ A"
   by auto
 
+lemma univ_closed_dep_functions [intro!]:
+  assumes "A \<in> univ U"
+  and "\<And>x. x \<in> A \<Longrightarrow> B x \<in> univ U"
+  shows "((x \<in> A) \<rightarrow> (B x)) \<in> univ U"
+proof -
+  let ?P = "powerset \<Sum>x \<in> A. (B x)"
+  have "((x \<in> A) \<rightarrow> (B x)) \<subseteq> ?P" by auto
+  moreover have "?P \<in> univ U" using assms by auto
+  ultimately show ?thesis by (auto intro: mem_univ_trans)
+qed
+
 lemma univ_closed_inl [intro!]: "x \<in> univ A \<Longrightarrow> inl x \<in> univ A"
   unfolding inl_def by auto
 
 lemma univ_closed_inr [intro!]: "x \<in> univ A \<Longrightarrow> inr x \<in> univ A"
-  unfolding inr_def by auto
+ unfolding inr_def by auto
+
 
 end

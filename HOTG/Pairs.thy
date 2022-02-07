@@ -1,7 +1,6 @@
 section \<open>Pairs (\<Sigma>-types)\<close>
-
 theory Pairs
-imports Foundation
+  imports Foundation
 begin
 
 definition pair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
@@ -15,7 +14,7 @@ definition snd :: \<open>set \<Rightarrow> set\<close>
 
 (*TODO: localise*)
 syntax
-  "_tuple" :: \<open>args \<Rightarrow> set\<close> ("\<langle>(_)\<rangle>")
+  "_tuple" :: \<open>args \<Rightarrow> set\<close> ("\<langle>_\<rangle>")
 translations
   "\<langle>x, y, z\<rangle>" \<rightleftharpoons> "\<langle>x, \<langle>y, z\<rangle>\<rangle>"
   "\<langle>x, y\<rangle>" \<rightleftharpoons> "CONST pair x y"
@@ -98,23 +97,13 @@ lemma fst_snd_eq_pair_if_mem_dep_pairs [simp]:
   "p \<in> \<Sum>x \<in> P. (B x) \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
 
-lemma fst_snd_eq_pair_if_subset_dep_pairs_if_mem:
-  "\<lbrakk>p \<in> R; R \<subseteq> \<Sum>x \<in> A. (B x)\<rbrakk> \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
-  by auto
-
-lemma mem_subset_dep_pairsE:
-  assumes "p \<in> R"
-  and "R \<subseteq> \<Sum>x \<in> A. (B x)"
-  obtains a b where "a \<in> A" "b \<in> B a" "p = \<langle>a, b\<rangle>"
-  using mem_if_mem_if_subset[OF assms(2, 1)] by (rule mem_dep_pairsE)
-
 lemma dep_pairs_empty_dom_eq_empty [simp, intro!]: "\<Sum>x \<in> {}. (B x) = {}"
   by auto
 
 lemma dep_pairs_empty_eq_empty [simp, intro!]: "\<Sum>x \<in> A. {} = {}"
   by auto
 
-lemma pais_empty_iff [iff]: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
+lemma pairs_empty_iff [iff]: "A \<times> B = {} \<longleftrightarrow> A = {} \<or> B = {}"
   by (auto intro!: eqI)
 
 lemma pairs_singleton_eq [simp, intro!]: "{a} \<times> {b} = {\<langle>a, b\<rangle>}"
@@ -137,49 +126,49 @@ lemma ball_dep_pairs_iff_ball_ball [iff]:
 
 subsection \<open>Monotonicity\<close>
 
-lemma dep_pairs_subset_dep_pairsI:
+lemma dep_pairs_covariant:
   assumes "A \<subseteq> A'"
   and "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
   shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A'. B' x)"
   using assms by auto
 
-lemma dep_pairs_subset_dep_pairsI':
+lemma dep_pairs_covariant_dom:
   assumes "A \<subseteq> A'"
   shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. B x)"
-  using assms by (intro dep_pairs_subset_dep_pairsI) auto
+  using assms by (intro dep_pairs_covariant) auto
 
-lemma dep_pairs_subset_dep_pairsI'':
+lemma dep_pairs_covariant_rng:
   assumes "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
-  shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. B' x)"
-  using assms by (intro dep_pairs_subset_dep_pairsI) auto
+  shows "(\<Sum>x \<in> A. (B x)) \<subseteq> (\<Sum>x \<in> A. (B' x))"
+  using assms by (intro dep_pairs_covariant) auto
 
 lemma subset_pairs_subsetI: "A \<subseteq> A' \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B'"
-  by (rule dep_pairs_subset_dep_pairsI) auto
-
-lemma subset_pairs_subset_if_subset_right: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'"
-  by (rule subset_pairs_subsetI) auto
+  by (rule dep_pairs_covariant) auto
 
 lemma subset_pairs_subset_if_subset_left: "A \<subseteq> A' \<Longrightarrow> A \<times> B \<subseteq> A' \<times> B"
+  by (rule subset_pairs_subsetI) auto
+
+lemma subset_pairs_subset_if_subset_right: "B \<subseteq> B' \<Longrightarrow> A \<times> B \<subseteq> A \<times> B'"
   by (rule subset_pairs_subsetI) auto
 
 
 subsection \<open>Functions on Dependent Pairs\<close>
 
-definition uncurry :: "(set \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" \<comment>\<open>for pattern-matching\<close>
-  where "uncurry f p \<equiv> f (fst p) (snd p)"
+definition "uncurry f p \<equiv> f (fst p) (snd p)"
 
-(*Larry: Patterns—extends pre-defined type "pttrn" used in abstractions*)
 (*TODO: localise*)
-nonterminal patterns
 syntax
-  "_pattern"  :: "patterns => pttrn" ("\<langle>_\<rangle>")
-  ""          :: "pttrn => patterns" ("_")
-  "_patterns" :: "[pttrn, patterns] => patterns" ("_,/ _")
+  "_uncurry_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
 translations
   "\<lambda>\<langle>x, y, zs\<rangle>. b" \<rightleftharpoons> "CONST uncurry (\<lambda>x \<langle>y, zs\<rangle>. b)"
   "\<lambda>\<langle>x, y\<rangle>. b" \<rightleftharpoons> "CONST uncurry (\<lambda>x y. b)"
 
 lemma uncurry [simp, intro!]: "uncurry f \<langle>a, b\<rangle> = f a b"
   unfolding uncurry_def by simp
+
+definition "swap p = \<langle>snd p, fst p\<rangle>"
+
+lemma swap_pair_eq [simp]: "swap \<langle>x, y\<rangle> = \<langle>y, x\<rangle>" unfolding swap_def by simp
+
 
 end

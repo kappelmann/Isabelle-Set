@@ -1,15 +1,14 @@
 section \<open>Finite Sets\<close>
-
 theory Finite_Sets
-imports Unordered_Pairs
+  imports Unordered_Pairs
 begin
 
 (*TODO: localise*)
 syntax
   "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
 translations
-  "{x, xs}" \<rightleftharpoons> "CONST cons x {xs}"
-  "{x}" \<rightleftharpoons> "CONST cons x {}"
+  "{x, xs}" \<rightleftharpoons> "CONST insert x {xs}"
+  "{x}" \<rightleftharpoons> "CONST insert x {}"
 
 lemma singleton_eq_iff_eq [iff]: "{a} = {b} \<longleftrightarrow> a = b"
   by (auto dest: eqD)
@@ -41,24 +40,23 @@ lemma upair_eq_iff: "{a, b} = {c, d} \<longleftrightarrow> (a = c \<and> b = d) 
   by (auto intro: eqI dest: eqD)
 
 lemma upair_eq_singleton_iff [iff]: "{a, b} = {c} \<longleftrightarrow> a = c \<and> b = c"
-  by (subst cons_cons_eq_cons[of c, symmetric]) (auto simp only: upair_eq_iff)
+  by (subst insert_insert_eq_insert[of c, symmetric]) (auto simp only: upair_eq_iff)
 
 lemma singleton_eq_upair_iff [iff]: "{a} = {b, c} \<longleftrightarrow> b = a \<and> c = a"
   using upair_eq_singleton_iff by (auto dest: sym[of "{a}"])
 
 text \<open>\<^term>\<open>upair x y\<close> and \<^term>\<open>{x, y}\<close> are equal, and thus interchangeable in developments.\<close>
-lemma upair_eq_cons_singleton: "upair x y = {x, y}"
+lemma upair_eq_insert_singleton [simp]: "upair x y = {x, y}"
   unfolding upair_def by (rule eqI) auto
 
-lemma cons_singleton_eq_upair: "{x, y} = upair x y"
-  by (fact upair_eq_cons_singleton[symmetric])
 
 subsection \<open>Replacement\<close>
 
 lemma repl_singleton_eq [simp]: "{f x | x \<in> {a}} = {f a}"
   by (rule eqI) auto
 
-lemma repl_cons_eq: "{f x | x \<in> cons x A} = cons (f x) {f x | x \<in> A}"
+lemma repl_insert_eq: "{f x | x \<in> insert x A} = insert (f x) {f x | x \<in> A}"
   by (rule eqI) auto
+
 
 end

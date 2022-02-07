@@ -1,13 +1,14 @@
 section \<open>Integers\<close>
 theory Integers
-imports
-  Integers_Rep
+  imports
+    Integers_Rep
+    Set_Extension
 begin
 
 subsection \<open>The Integers as a Subset of the Naturals\<close>
 
-interpretation Int : set_extension \<nat> int_rep int_rep_nonneg
-  by unfold_locales auto
+interpretation Int : set_extension \<nat> int_rep Int_Rep_nonneg
+  by unfold_locales (auto intro: ElementI)
 
 abbreviation "int \<equiv> Int.abs_image"
 
@@ -26,19 +27,22 @@ corollary Int_if_Nat [derive]: "n : Nat \<Longrightarrow> n : Int"
 
 subsection \<open>Arithmetic operations lifted to Int\<close>
 
-text \<open>We lift constants/functions from @{term "int_rep"} to @{term "\<int>"}
+text \<open>We lift constants/functions from @{term "Int_Rep"} to @{term "\<int>"}
 manually. This should be automated in the future using some technique similar
 to lifting in Isabelle/HOL.\<close>
 
-definition "int_nonneg n \<equiv> Int.Abs (int_rep_nonneg n)"
-definition "int_neg n \<equiv> Int.Abs (int_rep_neg n)"
-definition "int_succ i \<equiv> Int.Abs (int_rep_succ (Int.Rep i))"
-definition "int_pred i \<equiv> Int.Abs (int_rep_pred (Int.Rep i))"
-definition "int_inv i \<equiv> Int.Abs (int_rep_inv (Int.Rep i))"
-definition "int_add i j \<equiv> Int.Abs (int_rep_add (Int.Rep i) (Int.Rep j))"
-definition "int_sub i j \<equiv> Int.Abs (int_rep_sub (Int.Rep i) (Int.Rep j))"
-definition "int_mul i j \<equiv> Int.Abs (int_rep_mul (Int.Rep i) (Int.Rep j))"
+definition "int_nonneg n \<equiv> Int.Abs (Int_Rep_nonneg n)"
+definition "int_neg n \<equiv> Int.Abs (Int_Rep_neg n)"
+definition "int_succ i \<equiv> Int.Abs (Int_Rep_succ (Int.Rep i))"
+definition "int_pred i \<equiv> Int.Abs (Int_Rep_pred (Int.Rep i))"
+definition "int_inv i \<equiv> Int.Abs (Int_Rep_inv (Int.Rep i))"
+definition "int_add i j \<equiv> Int.Abs (Int_Rep_add (Int.Rep i) (Int.Rep j))"
+definition "int_sub i j \<equiv> Int.Abs (Int_Rep_sub (Int.Rep i) (Int.Rep j))"
+definition "int_mul i j \<equiv> Int.Abs (Int_Rep_mul (Int.Rep i) (Int.Rep j))"
 
+(*TODO: automatic translation between @{term "Nat \<Coprod> Element (\<nat> \<setminus> {0})"}
+and @{term "Element (\<nat> \<Coprod> \<nat> \<setminus> {0})"} not working at the moment;
+maybe we want to introduce extensionality for types?*)
 lemma
   shows int_nonneg_type [type]: "int_nonneg : Nat \<Rightarrow> Int"
   and int_neg_type [type]: "int_neg : Element (\<nat> \<setminus> {0}) \<Rightarrow> Int"
@@ -50,9 +54,9 @@ lemma
   and int_mul_type [type]: "int_mul : Int \<Rightarrow> Int \<Rightarrow> Int"
   unfolding int_nonneg_def int_neg_def int_succ_def int_pred_def int_inv_def
     int_add_def int_sub_def int_mul_def
-  (*TODO: should not need an increase*)
-  using [[type_derivation_depth=3]]
-  by discharge_types
+oops
+  (* using [[type_derivation_depth=3]] *)
+  (* by auto *)
 
 text \<open>We need a notation package that also does inference to determine if a
 number is a Nat, Int, etc. Typeclass integration here already?\<close>
@@ -83,8 +87,8 @@ experiment begin
 named_theorems arith
 lemmas [arith] =
   int_nonneg_def int_neg_def int_add_def int_sub_def int_mul_def
-  int_rep_zero_def[symmetric] int_rep_one_def[symmetric]
-  int_rep_nonneg_succ_add_eq
+  Int_Rep_zero_def[symmetric] Int_Rep_one_def[symmetric]
+  Int_Rep_nonneg_succ_add_eq
 
 text \<open>At some point we want to just be able to write \<open>succ n\<close> below, and
 automatically infer that it has to have soft type \<open>Int\<close>.\<close>
@@ -107,7 +111,7 @@ text \<open>Additive group structure\<close>
 definition "int_Group \<equiv> object {
     \<langle>@zero, 0\<rangle>,
     \<langle>@add, \<lambda>i j \<in> \<int>. int_add i j\<rangle>,
-    \<langle>@inv, \<lambda>i \<in> \<int>. int_rep_inv i\<rangle>
+    \<langle>@inv, \<lambda>i \<in> \<int>. Int_Rep_inv i\<rangle>
   }"
 
 bundle isa_set_int_Group_syntax
@@ -121,18 +125,18 @@ unbundle isa_set_int_Group_syntax
 lemma [simp]:
   "(\<int>, +) @@ zero = 0"
   "(\<int>, +) @@ add = \<lambda>i j \<in> \<int>. int_add i j"
-  "(\<int>, +) @@ inv = \<lambda>i \<in> \<int>. int_rep_inv i"
+  "(\<int>, +) @@ inv = \<lambda>i \<in> \<int>. Int_Rep_inv i"
   unfolding int_Group_def by simp_all
 
-lemma "(\<int>, +) : Group \<int>"
+lemma "(\<int>, +) : Group Int"
 (* proof (rule GroupI, rule MonoidI)
-  show "(\<int>, +) : Zero \<int>" by (rule ZeroI) simp
-  show "(\<int>, +) : Add \<int>"
+  show "(\<int>, +) : Zero Int" by (rule ZeroI) simp
+  show "(\<int>, +) : Add Int"
   (*TODO: object selector simplifier not working properly*)
   (* unfolding nat_Monoid_def by (rule AddI) simp *)
   proof (rule AddI)
     have select_add_eq: "(\<int>, +)@@add = \<lambda>i j \<in> \<int>. int_add i j" by simp
-    show "(\<int>, +)@@add : \<int> \<rightarrow> \<int> \<rightarrow> \<int>" by (subst select_add_eq) discharge_types
+    show "(\<int>, +)@@add : Int \<rightarrow> Int \<rightarrow> Int" by (subst select_add_eq) discharge_types
   qed
 (*TODO: needs transferred theorems from representation type*)
 qed (unfold add_def zero_def inv_def, auto) *)
@@ -156,9 +160,10 @@ unbundle isa_set_int_Mul_Monoid_syntax
 lemma int_mul_assoc:
   assumes "i : Int" "j : Int" "k : Int"
   shows "i * j * k = i * (j * k)"
-  using assms int_rep_mul_assoc unfolding int_mul_def by simp
+  (* using assms Int_Rep_mul_assoc unfolding int_mul_def by simp *)
+oops
 
-lemma "(\<int>, *) : Mul_Monoid \<int>"
+lemma "(\<int>, *) : Mul_Monoid Int"
 \<comment> \<open>
 proof (intro Mul_MonoidI)
   show "(\<int>, *) : One \<int>"
@@ -178,5 +183,6 @@ next
     (* using int_mul_assoc unfolding int_Mul_Monoid_def mul_def by simp *)
 qed\<close>
 oops
+
 
 end

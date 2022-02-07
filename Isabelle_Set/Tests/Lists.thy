@@ -2,7 +2,7 @@ section \<open>Lists\<close>
 theory Lists
 imports
   Isabelle_Set.Least_Fixpoint
-  Isabelle_Set.Functions
+  Isabelle_Set.TFunctions
 begin
 text \<open>This theory aims to replicate the example from "Programming and Proving in
 Isabelle/HOL". Compared to HOL, many conveniences are missing, but the reasoning
@@ -44,7 +44,7 @@ lemma list_op_Monop [type]: "list_op : (A : Set) \<Rightarrow> Monop (univ A)"
   apply unfold_types
   apply (drule subset_if_mem_powerset)
   apply (drule subset_pairs_subsetI[OF subset_univ])
-  apply (drule mem_if_mem_if_subset[of "A \<times> _" "univ A \<times> univ A" for A])
+  apply (drule mem_if_mem_if_subset[of "A \<times> _" "univ A \<times> univ A" for A :: "set"])
   apply simp
   apply discharge_types
   done

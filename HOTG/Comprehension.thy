@@ -1,7 +1,6 @@
 section \<open>Restricted Comprehension\<close>
-
 theory Comprehension
-imports Finite_Sets
+  imports Finite_Sets
 begin
 
 definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close>
@@ -9,15 +8,13 @@ definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Righta
 
 (*TODO: localise*)
 syntax
-  "_collect." :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ ./ _})")
-  "_collect|" :: \<open>pttrn \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
+  "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
 translations
-  "{x \<in> A . P}" \<rightharpoonup> "CONST collect A (\<lambda>x. P)"
   "{x \<in> A | P}" \<rightleftharpoons> "CONST collect A (\<lambda>x. P)"
 
 (*TOOD: simp_proc to apply one point rules (see Provers/quantifier1.ML)*)
 
-lemma mem_collect_iff [iff]: "x \<in> {y \<in> A. P y} \<longleftrightarrow> x \<in> A \<and> P x"
+lemma mem_collect_iff [iff]: "x \<in> {y \<in> A | P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: collect_def)
 
 lemma mem_collectI [intro]: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x \<in> {y \<in> A | P y}"
@@ -36,8 +33,8 @@ lemma collect_cong [cong]:
 lemma collect_collect_eq [simp]: "collect (collect A P) Q = {x \<in> A | P x \<and> Q x}"
   by auto
 
-lemma collect_cons_eq:
-  "{x \<in> cons a B. P x} = (if P a then cons a {x \<in> B | P x} else {x \<in> B | P x})"
+lemma collect_insert_eq:
+  "{x \<in> insert a B | P x} = (if P a then insert a {x \<in> B | P x} else {x \<in> B | P x})"
   by auto
 
 lemma collect_subset_if_subset: "A \<subseteq> B \<Longrightarrow> {x \<in> A | P x} \<subseteq> {x \<in> B | P x}"

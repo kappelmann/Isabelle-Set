@@ -1,5 +1,5 @@
 theory Rewrite
-imports HOL.HOL
+  imports HOL.HOL
 begin
 
 consts rewrite_HOLE :: "'a::{}"  ("\<hole>")

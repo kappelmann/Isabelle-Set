@@ -1,6 +1,6 @@
 subsubsection \<open>Addition\<close>
 theory Nat_Add
-imports Nat_Rec
+  imports Nat_Rec
 begin
 
 definition "nat_add m n \<equiv> nat_rec m n succ"

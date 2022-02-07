@@ -42,14 +42,14 @@ setup \<open>add_resolve_prfstep @{thm Axioms.mem_univ}\<close>
 
 subsubsection \<open>Insert\<close>
 
-setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.mem_cons_iff})
+setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.mem_insert_iff})
   [with_cond "?A \<noteq> {}"]\<close>
-setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.mem_cons_iff})
+setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.mem_insert_iff})
   [with_score 500, with_cond "?A \<noteq> {}"]\<close>
 
-setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.cons_subset_iff_mem_subset})
+setup \<open>add_forward_prfstep_cond (equiv_forward_th @{thm Unordered_Pairs.insert_subset_iff_mem_subset})
   [with_cond "?A \<noteq> {}"]\<close>
-setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.cons_subset_iff_mem_subset})
+setup \<open>add_backward_prfstep_cond (equiv_backward_th @{thm Unordered_Pairs.insert_subset_iff_mem_subset})
   [with_score 500, with_cond "?A \<noteq> {}"]\<close>
 
 subsubsection \<open>Extensionality\<close>

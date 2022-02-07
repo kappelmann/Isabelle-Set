@@ -1,6 +1,6 @@
 section \<open>Set Difference\<close>
 theory Set_Difference
-imports Union_Intersection
+  imports Union_Intersection
 begin
 
 definition "diff A B \<equiv> {x \<in> A | x \<notin> B}"

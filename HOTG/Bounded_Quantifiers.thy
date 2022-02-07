@@ -19,7 +19,7 @@ syntax
   "_ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
   "_bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
   "_bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
-  "_bex1"  :: \<open>[pttrn, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
+  "_bex1"  :: \<open>[idt, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
 translations
   "\<forall>x xs \<in> A. P" \<rightharpoonup> "CONST ball A (\<lambda>x. _ball2 xs A P)"
   "_ball2 x A P" \<rightharpoonup> "\<forall>x \<in> A. P"

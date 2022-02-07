@@ -16,6 +16,32 @@ begin
 
 declare [[eta_contract=false]]
 
+text \<open>Remove conflicting HOL-specific syntax.\<close>
+
+bundle hol_ascii_syntax
+begin
+notation (ASCII)
+  Not ("~ _" [40] 40) and
+  conj (infixr "&" 35) and
+  disj (infixr "|" 30) and
+  implies (infixr "-->" 25) and
+  not_equal (infixl "~=" 50)
+syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
+end
+bundle no_hol_ascii_syntax
+begin
+no_notation (ASCII)
+  Not ("~ _" [40] 40) and
+  conj (infixr "&" 35) and
+  disj (infixr "|" 30) and
+  implies (infixr "-->" 25) and
+  not_equal (infixl "~=" 50)
+no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
+end
+
+unbundle no_hol_ascii_syntax
+
+
 section \<open>Basic type judgments\<close>
 
 text \<open>Soft types are "just" predicates wrapped up in a constructor.\<close>
@@ -24,11 +50,18 @@ typedecl 'a type
 
 axiomatization
   type :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type\<close> and
-  adj :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close> (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and
-  has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close> (infix ":" 45)
+  adj :: \<open>('a \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a type\<close>  and
+  has_type :: \<open>'a \<Rightarrow> 'a type \<Rightarrow> bool\<close>
 where
-  meaning_of_adj: "x : P \<sqdot> T \<equiv> P x \<and> x : T" and
-  meaning_of_type: "x : type P \<equiv> P x"
+  meaning_of_adj: "has_type x (adj P T) \<equiv> P x \<and> has_type x T" and
+  meaning_of_type: "has_type x (type P) \<equiv> P x"
+
+bundle soft_type_base_syntax
+begin notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and has_type (infix ":" 45) end
+bundle no_soft_type_base_syntax
+begin no_notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and has_type (infix ":" 45) end
+
+unbundle soft_type_base_syntax
 
 lemma has_typeI: "P x \<Longrightarrow> x : type P"
   unfolding meaning_of_type by assumption
@@ -62,12 +95,21 @@ definition tball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow>
 definition tbex :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
   where "tbex A P \<equiv> (\<exists>x. x : A \<and> P x)"
 
+(*TODO: localise*)
 syntax
-  "_tball" :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<forall>_ : _./ _)" 10)
-  "_tbex"  :: "[pttrn, 'a type, bool] \<Rightarrow> bool"  ("(3\<exists>_ : _./ _)" 10)
+  "_tball"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ : _./ _)" 10)
+  "_tball2" :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
+  "_tbex"   :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ : _./ _)" 10)
+  "_tbex2"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
 translations
+  "\<forall>x xs : A. P" \<rightharpoonup> "CONST tball A (\<lambda>x. _tball2 xs A P)"
+  "_tball2 x A P" \<rightharpoonup> "\<forall>x : A. P"
   "\<forall>x : A. P" \<rightleftharpoons> "CONST tball A (\<lambda>x. P)"
+
+  "\<exists>x xs : A. P" \<rightharpoonup> "CONST tbex A (\<lambda>x. _tbex2 xs A P)"
+  "_tbex2 x A P" \<rightharpoonup> "\<exists>x : A. P"
   "\<exists>x : A. P" \<rightleftharpoons> "CONST tbex A (\<lambda>x. P)"
+
 
 text\<open>Setup of one point rules.\<close>
 
@@ -168,8 +210,9 @@ definition Dep_fun_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<R
 
 abbreviation "Fun_type A B \<equiv> Dep_fun_type A (\<lambda>_. B)"
 
+(*TODO: bundle/localise notation*)
 syntax
-  "_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
+  "_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
 translations
   "(x y : A) \<Rightarrow> B" \<rightharpoonup> "(x : A)(y : A) \<Rightarrow> B"
   "(x : A) args \<Rightarrow> B" \<rightleftharpoons> "(x : A) \<Rightarrow> args \<Rightarrow> B"
@@ -185,7 +228,7 @@ lemma Dep_fun_typeE:
   unfolding Dep_fun_type_def meaning_of_type by auto
 
 lemma Dep_fun_contravariant_dom:
-  "\<lbrakk>f : (x : A) \<Rightarrow> B x; \<And> x. x : A' \<Longrightarrow> x : A\<rbrakk> \<Longrightarrow> f : (x : A') \<Rightarrow> B x"
+  "\<lbrakk>f : (x : A) \<Rightarrow> B x; \<And>x. x : A' \<Longrightarrow> x : A\<rbrakk> \<Longrightarrow> f : (x : A') \<Rightarrow> B x"
   unfolding Dep_fun_type_def meaning_of_type by auto
 
 lemma Dep_fun_covariant_codom:
@@ -195,24 +238,51 @@ lemma Dep_fun_covariant_codom:
   using assms unfolding Dep_fun_type_def meaning_of_type by auto
 
 
-section \<open>Intersection types\<close>
+section \<open>Intersection and Union Types\<close>
 
-definition Int_type :: "'a type \<Rightarrow> 'a type \<Rightarrow> 'a type" (infixl "\<bar>" 55)
-  where [typedef]: "A \<bar> B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
+definition [typedef]: "Int_type A B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
+
+bundle soft_type_Int_type_syntax
+begin notation Int_type (infixl "&" 55) end
+bundle no_soft_type_Int_type_syntax
+begin no_notation Int_type (infixl "&" 55) end
+
+unbundle soft_type_Int_type_syntax
 
 lemma
-  Int_typeI [type_intro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A \<bar> B" and
-  Int_typeD1: "x : A \<bar> B \<Longrightarrow> x : A" and
-  Int_typeD2: "x : A \<bar> B \<Longrightarrow> x : B" and
-  Int_type_covariant_left: "x : A \<bar> B \<Longrightarrow> (x : A \<Longrightarrow> x : A') \<Longrightarrow> x : A' \<bar> B" and
-  Int_type_covariant_right: "x : A \<bar> B \<Longrightarrow> (x : B \<Longrightarrow> x : B') \<Longrightarrow> x : A \<bar> B'"
-  unfolding Int_type_def by unfold_types
+  Int_typeI [type_intro]: "x : A \<Longrightarrow> x : B \<Longrightarrow> x : A & B" and
+  Int_typeD1: "x : A & B \<Longrightarrow> x : A" and
+  Int_typeD2: "x : A & B \<Longrightarrow> x : B" and
+  Int_type_covariant_left: "x : A & B \<Longrightarrow> (x : A \<Longrightarrow> x : A') \<Longrightarrow> x : A' & B" and
+  Int_type_covariant_right: "x : A & B \<Longrightarrow> (x : B \<Longrightarrow> x : B') \<Longrightarrow> x : A & B'"
+  by unfold_types
 
 lemma Int_typeE:
-  assumes "x : A \<bar> B"
+  assumes "x : A & B"
   obtains "x : A" "x : B"
   using assms unfolding Int_type_def by unfold_types
 
+definition [typedef]: "Union_type A B \<equiv> type (\<lambda>x. x : A \<or> x : B)"
+
+bundle soft_type_Union_type_syntax
+begin notation Union_type (infixl "\<bar>" 55) end
+bundle no_soft_type_Union_type_syntax
+begin no_notation Union_type (infixl "\<bar>" 55) end
+
+unbundle soft_type_Union_type_syntax
+
+lemma
+  Union_type_leftI: "x : A \<Longrightarrow> x : A \<bar> B" and
+  Union_type_rightI: "x : B \<Longrightarrow> x : A \<bar> B" and
+  Union_typeD: "x : A \<bar> B \<Longrightarrow> x : A \<or> x : B" and
+  Union_type_covariant_left: "x : A \<bar> B \<Longrightarrow> (x : A \<Longrightarrow> x : A') \<Longrightarrow> x : A' \<bar> B" and
+  Union_type_covariant_right: "x : A \<bar> B \<Longrightarrow> (x : B \<Longrightarrow> x : B') \<Longrightarrow> x : A \<bar> B'"
+  by unfold_types auto
+
+lemma Union_typeE:
+  assumes "x : A \<bar> B"
+  obtains (left) "x : A" | (right) "x : B"
+  using assms by (auto dest: Union_typeD)
 
 section \<open>The Any type\<close>
 
@@ -236,8 +306,15 @@ lemma tbex_Any_iff_ex [simp]: "(\<exists>x : Any. P x) \<longleftrightarrow> (\<
 
 section \<open>Type annotations\<close>
 
-definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a" (infixl ":>" 50)
+definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a"
   where "with_type x A \<equiv> x"
+
+bundle soft_type_with_type_syntax
+begin notation with_type (infixl ":>" 50) end
+bundle no_soft_type_with_type_syntax
+begin no_notation with_type (infixl ":>" 50) end
+
+unbundle soft_type_with_type_syntax
 
 text \<open>
 \<^term>\<open>x :> A\<close> annotates \<^term>\<open>x\<close> with type \<^term>\<open>A\<close>, and is used by automated
@@ -331,7 +408,7 @@ lemma const_fun_type [derive]: "c : C \<Longrightarrow> (\<lambda>a. c) : A \<Ri
 lemma id_type [type]: "(\<lambda>x. x) : A \<Rightarrow> A"
   by discharge_types
 
-lemma if_type [type]: "If : bool \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
+lemma if_type [type]: "If : Bool \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
   by unfold_types auto
 
 

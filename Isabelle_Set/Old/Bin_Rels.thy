@@ -133,11 +133,11 @@ lemma dom_collect_eq [simp, intro!]: "dom {\<langle>f x, g x\<rangle> | x \<in> 
 lemma rng_collect_eq [simp, intro!]: "rng {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
   unfolding rng_def by auto
 
-lemma dom_cons_eq [simp]: "dom (cons \<langle>x, y\<rangle> A) = cons x (dom A)"
-  unfolding dom_def by (auto simp add: repl_cons_eq)
+lemma dom_insert_eq [simp]: "dom (cons \<langle>x, y\<rangle> A) = cons x (dom A)"
+  unfolding dom_def by (auto simp add: repl_insert_eq)
 
-lemma rng_cons_eq [simp]: "rng (cons \<langle>x, y\<rangle> A) = cons y (rng A)"
-  unfolding rng_def by (auto simp add: repl_cons_eq)
+lemma rng_insert_eq [simp]: "rng (cons \<langle>x, y\<rangle> A) = cons y (rng A)"
+  unfolding rng_def by (auto simp add: repl_insert_eq)
 
 
 subsection \<open>Relations With Specified Domain and Range\<close>

@@ -1,9 +1,8 @@
 section \<open>Well-Foundedness of Sets\<close>
-
 theory Foundation
-imports
-  Union_Intersection
-  Mem_Trans
+  imports
+    Union_Intersection
+    Mem_Trans
 begin
 
 lemma foundation_if_not_empty: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter> X = {}"
@@ -83,11 +82,11 @@ proof (induction X arbitrary: Y rule: mem_induction)
   qed
 qed
 
-lemma cons_ne_self [simp, intro!]: "cons x A \<noteq> x"
+lemma insert_ne_self [simp, intro!]: "insert x A \<noteq> x"
   by (rule ne_if_mem[symmetric]) simp
 
-lemma self_ne_cons [simp, intro!]: "x \<noteq> cons x A"
-  by (fact cons_ne_self[symmetric])
+lemma self_ne_insert [simp, intro!]: "x \<noteq> insert x A"
+  by (fact insert_ne_self[symmetric])
 
 
 end

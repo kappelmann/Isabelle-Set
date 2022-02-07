@@ -1,6 +1,6 @@
 subsubsection \<open>Multiplication\<close>
 theory Nat_Mul
-imports Nat_Add
+  imports Nat_Add
 begin
 
 definition "nat_mul m n = nat_rec m 0 (nat_add n)"

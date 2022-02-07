@@ -34,19 +34,21 @@ ML \<open> Elaboration.elaborate_terms \<^context> [
   \<^term>\<open>\<lambda>x y. \<langle>x,y\<rangle>\<close>
 ]\<close>
 
-ML \<open>
+(*TODO: does not work*)
+(* ML \<open>
   [\<^term>\<open>\<langle>x,y\<rangle> = \<langle>y,x\<rangle>\<close>]
   |> Elaboration.assert_result \<^context>
-    [\<^term>\<open>\<langle>x :> Element B,y :> Element B\<rangle> = \<langle>y,x\<rangle>\<close>]
-\<close>
+    [\<^term>\<open>\<langle>x :> A, y :> A\<rangle> = \<langle>y,x\<rangle>\<close>]
+\<close> *)
 
 text \<open> Transitivity of a relation \<close>
 
-ML \<open>
-  [\<^term>\<open>\<forall>x y z. \<langle>x,y\<rangle> \<in> r \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r\<close>]
+(*TODO: does not work*)
+(* ML \<open>
+  [\<^term>\<open>\<forall>x y z. \<langle>x, y\<rangle> \<in> r \<longrightarrow> \<langle>y, z\<rangle> \<in> r \<longrightarrow> \<langle>x, z\<rangle> \<in> r\<close>]
   |> Elaboration.assert_result \<^context>
-    [\<^term>\<open>\<forall>x y z. \<langle>x,y\<rangle> \<in> (r :> Subset (B \<times> B)) \<longrightarrow> \<langle>y,z\<rangle> \<in> r \<longrightarrow> \<langle>x,z\<rangle> \<in> r\<close>]
-\<close>
+    [\<^term>\<open>\<forall>x y z. \<langle>x, y\<rangle> \<in> (r :> Subset (A \<times> A)) \<longrightarrow> \<langle>y, z\<rangle> \<in> r \<longrightarrow> \<langle>x, z\<rangle> \<in> r\<close>]
+\<close> *)
 
 
 end

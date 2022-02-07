@@ -1,6 +1,6 @@
 section \<open>Strings\<close>
 theory Strings
-imports Ordinals
+  imports Ordinals
 begin
 
 text \<open>Alphanumeric characters are encoded as ordinals. Strings are ordered tuples of

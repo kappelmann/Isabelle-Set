@@ -1,116 +1,131 @@
 text \<open>Successor, Predecessor, and Inverse\<close>
 theory Integers_Rep_Succ_Pred_Inv
-imports Integers_Rep_Base
+  imports Integers_Rep_Base
 begin
 
-definition "int_rep_succ \<equiv> int_rep_rec (\<lambda>n. int_rep_nonneg (succ n))
-  (\<lambda>n. (if n = 1 then int_rep_nonneg else int_rep_neg) (pred n))"
+definition "Int_Rep_succ \<equiv> Int_Rep_rec (\<lambda>n. Int_Rep_nonneg (succ n))
+  (\<lambda>n. (if n = 1 then Int_Rep_nonneg else Int_Rep_neg) (pred n))"
 
-lemma int_rep_succ_nonneg_eq [simp]:
-  "int_rep_succ (int_rep_nonneg n) = int_rep_nonneg (succ n)"
-  unfolding int_rep_succ_def by simp
+lemma Int_Rep_succ_nonneg_eq [simp]:
+  "Int_Rep_succ (Int_Rep_nonneg n) = Int_Rep_nonneg (succ n)"
+  unfolding Int_Rep_succ_def by simp
 
-lemma int_rep_succ_neg_one_eq [simp]:
-  "int_rep_succ (int_rep_neg 1) = int_rep_zero"
-  unfolding int_rep_succ_def nat_one_def int_rep_zero_def by simp
+lemma Int_Rep_succ_neg_one_eq [simp]:
+  "Int_Rep_succ (Int_Rep_neg 1) = Int_Rep_zero"
+  unfolding Int_Rep_succ_def nat_one_def Int_Rep_zero_def by simp
 
-lemma int_rep_succ_neg_eq [simp]:
-  "n \<noteq> 1 \<Longrightarrow> int_rep_succ (int_rep_neg n) = int_rep_neg (pred n)"
-  unfolding int_rep_succ_def by simp
+lemma Int_Rep_succ_neg_eq [simp]:
+  "n \<noteq> 1 \<Longrightarrow> Int_Rep_succ (Int_Rep_neg n) = Int_Rep_neg (pred n)"
+  unfolding Int_Rep_succ_def by simp
 
-lemma int_rep_succ_type [type]:
-  "int_rep_succ : Element int_rep \<Rightarrow> Element int_rep"
+lemma Int_Rep_succ_type [type]: "Int_Rep_succ : Int_Rep \<Rightarrow> Int_Rep"
 proof -
   {
     fix n assume "n \<in> \<nat>" "n \<noteq> 0" "n \<noteq> 1"
     then have "pred n \<in> \<nat> \<setminus> {0}" using Nat_pred_eq_zero_iff by auto
-    then have "int_rep_neg (pred n) \<in> int_rep" by discharge_types
+    then have "Int_Rep_neg (pred n) : Int_Rep" by discharge_types
   }
   note this[intro]
-  show ?thesis unfolding int_rep_succ_def
-    by (unfold_types, elim mem_int_repE) (auto simp: Nat_pred_eq_zero_iff)
+  show ?thesis
+    unfolding Int_Rep_succ_def by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
 qed
 
-definition "int_rep_pred \<equiv> int_rep_rec
-  (\<lambda>n. if n = 0 then int_rep_neg 1 else int_rep_nonneg (pred n))
-  (\<lambda>n. int_rep_neg (succ n))"
+definition "Int_Rep_pred \<equiv> Int_Rep_rec
+  (\<lambda>n. if n = 0 then Int_Rep_neg 1 else Int_Rep_nonneg (pred n))
+  (\<lambda>n. Int_Rep_neg (succ n))"
 
-lemma int_rep_pred_neg_eq [simp]:
-  "int_rep_pred (int_rep_neg n) = int_rep_neg (succ n)"
-  unfolding int_rep_pred_def by simp
+lemma Int_Rep_pred_neg_eq [simp]:
+  "Int_Rep_pred (Int_Rep_neg n) = Int_Rep_neg (succ n)"
+  unfolding Int_Rep_pred_def by simp
 
-lemma int_rep_pred_zero_eq_neg_one [simp]:
-  "int_rep_pred int_rep_zero = int_rep_neg 1"
-  unfolding int_rep_pred_def int_rep_zero_def by simp
+lemma Int_Rep_pred_zero_eq_neg_one [simp]:
+  "Int_Rep_pred Int_Rep_zero = Int_Rep_neg 1"
+  unfolding Int_Rep_pred_def Int_Rep_zero_def by simp
 
-lemma int_rep_pred_nonneg_eq [simp]:
-  "n \<noteq> 0 \<Longrightarrow> int_rep_pred (int_rep_nonneg n) = int_rep_nonneg (pred n)"
-  unfolding int_rep_pred_def by simp
+lemma Int_Rep_pred_nonneg_eq [simp]:
+  "n \<noteq> 0 \<Longrightarrow> Int_Rep_pred (Int_Rep_nonneg n) = Int_Rep_nonneg (pred n)"
+  unfolding Int_Rep_pred_def by simp
 
-lemma int_rep_pred_type [type]:
-  "int_rep_pred : Element int_rep \<Rightarrow> Element int_rep"
-  unfolding int_rep_pred_def nat_one_def
-  by (unfold_types, elim mem_int_repE) auto
+lemma Int_Rep_pred_type [type]:
+  "Int_Rep_pred : Int_Rep \<Rightarrow> Int_Rep"
+  unfolding Int_Rep_pred_def nat_one_def
+  by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
 
-lemma int_rep_pred_succ_eq [simp]:
-  assumes "x \<in> int_rep"
-  shows "int_rep_pred (int_rep_succ x) = x"
+lemma Int_Rep_pred_succ_eq [simp]:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_pred (Int_Rep_succ x) = x"
 using assms
-proof (cases x rule: mem_int_repE)
+proof (cases x rule: mem_Int_RepE)
   case (neg n)
   then show ?thesis by (cases "n = 1") auto
 qed simp
 
-lemma int_rep_succ_pred_eq [simp]:
-  assumes "x \<in> int_rep"
-  shows "int_rep_succ (int_rep_pred x) = x"
+lemma Int_Rep_succ_pred_eq [simp]:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_succ (Int_Rep_pred x) = x"
 using assms
-proof (cases x rule: mem_int_repE)
+proof (cases x rule: mem_Int_RepE)
   case (nonneg n)
-  then show ?thesis by (cases "n = 0") (auto simp: int_rep_zero_def[symmetric])
+  then show ?thesis by (cases "n = 0") (auto simp: Int_Rep_zero_def[symmetric])
 next
   case (neg n)
   then have "succ n \<noteq> 1" unfolding nat_one_def by auto
   with neg show ?thesis by auto
 qed
 
-definition "int_rep_inv \<equiv> int_rep_rec
-  (\<lambda>n. (if n = 0 then int_rep_nonneg else int_rep_neg) n)
-  int_rep_nonneg"
+definition "Int_Rep_inv \<equiv> Int_Rep_rec
+  (\<lambda>n. (if n = 0 then Int_Rep_nonneg else Int_Rep_neg) n)
+  Int_Rep_nonneg"
 
-lemma int_rep_inv_zero_eq [simp]: "int_rep_inv int_rep_zero = int_rep_zero"
-  unfolding int_rep_inv_def int_rep_zero_def by simp
+lemma
+  assumes "n : Nat"
+  shows "(if n = 0 then Int_Rep_nonneg n else Int_Rep_neg n) : Int_Rep"
+proof -
+  {
+    assume "n \<noteq> 0"
+    then have "n : Element (\<nat> \<setminus> {0})" by (auto intro: ElementI)
+  }
+  then show ?thesis by auto
+qed
 
-lemma int_rep_inv_nonneg_eq [simp]:
-  "n \<noteq> 0 \<Longrightarrow> int_rep_inv (int_rep_nonneg n) = int_rep_neg n"
-  unfolding int_rep_inv_def by simp
+lemma Int_Rep_inv_zero_eq [simp]: "Int_Rep_inv Int_Rep_zero = Int_Rep_zero"
+  unfolding Int_Rep_inv_def Int_Rep_zero_def by simp
 
-lemma int_rep_inv_neg_eq [simp]:
-  "int_rep_inv (int_rep_neg n) = int_rep_nonneg n"
-  unfolding int_rep_inv_def by simp
+lemma Int_Rep_inv_nonneg_eq [simp]:
+  "n \<noteq> 0 \<Longrightarrow> Int_Rep_inv (Int_Rep_nonneg n) = Int_Rep_neg n"
+  unfolding Int_Rep_inv_def by simp
 
-lemma int_rep_inv_type [type]: "int_rep_inv : Element int_rep \<Rightarrow> Element int_rep"
-  unfolding int_rep_inv_def by (unfold_types, elim mem_int_repE)
-  (*TODO: would be nice if this works*)
-  (* (insert int_rep_neg_type, auto) *)
-  (insert int_rep_neg_type, unfold_types, auto)
+lemma Int_Rep_inv_neg_eq [simp]:
+  "Int_Rep_inv (Int_Rep_neg n) = Int_Rep_nonneg n"
+  unfolding Int_Rep_inv_def by simp
 
-lemma int_rep_inv_inv_eq [simp]:
-  "x \<in> int_rep \<Longrightarrow> int_rep_inv (int_rep_inv x) = x"
-  by (erule mem_int_repE, erule mem_natE) (auto simp: int_rep_zero_def[symmetric])
+lemma Int_Rep_inv_type [type]: "Int_Rep_inv : Int_Rep \<Rightarrow> Int_Rep"
+proof -
+  {
+    fix n assume "n \<in> \<nat>" "n \<noteq> 0"
+    then have "n : Element (\<nat> \<setminus> {0})" by (auto intro: ElementI)
+  }
+  note this[dest]
+  show ?thesis
+    unfolding Int_Rep_inv_def by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
+qed
 
-lemma int_rep_pred_inv_eq_inv_succ:
-  assumes "x \<in> int_rep"
-  shows "int_rep_pred (int_rep_inv x) = int_rep_inv (int_rep_succ x)"
+lemma Int_Rep_inv_inv_eq [simp]:
+  "x : Int_Rep \<Longrightarrow> Int_Rep_inv (Int_Rep_inv x) = x"
+  by (erule mem_Int_RepE, erule mem_natE) (auto simp: Int_Rep_zero_def[symmetric])
+
+lemma Int_Rep_pred_inv_eq_inv_succ:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_pred (Int_Rep_inv x) = Int_Rep_inv (Int_Rep_succ x)"
 proof -
   {
     fix n assume "n \<in> \<nat>"
     then have
-      "int_rep_nonneg n = int_rep_inv (int_rep_succ (int_rep_neg (succ n)))"
+      "Int_Rep_nonneg n = Int_Rep_inv (Int_Rep_succ (Int_Rep_neg (succ n)))"
     proof (cases n rule: mem_natE)
       case zero
       then show ?thesis
-        by (simp add: nat_one_def[symmetric] int_rep_zero_def[symmetric])
+        by (simp add: nat_one_def[symmetric] Int_Rep_zero_def[symmetric])
     next
       case (succ n)
       have "succ (succ n) \<noteq> 1" unfolding nat_one_def by auto
@@ -119,24 +134,24 @@ proof -
   }
   note this[intro!]
   from assms show ?thesis
-    by (elim mem_int_repE)
-    (auto elim: mem_natE simp: int_rep_zero_def[symmetric] nat_one_def)
+    by (elim mem_Int_RepE)
+    (auto elim: mem_natE simp: Int_Rep_zero_def[symmetric] nat_one_def)
 qed
 
-corollary int_rep_inv_pred_inv_eq_succ [simp]:
-  assumes "x \<in> int_rep"
-  shows "int_rep_inv (int_rep_pred (int_rep_inv x)) = int_rep_succ x"
-  using int_rep_pred_inv_eq_inv_succ by simp
+corollary Int_Rep_inv_pred_inv_eq_succ [simp]:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_inv (Int_Rep_pred (Int_Rep_inv x)) = Int_Rep_succ x"
+  using Int_Rep_pred_inv_eq_inv_succ by simp
 
-corollary int_rep_succ_inv_eq_inv_pred:
-  assumes "x \<in> int_rep"
-  shows "int_rep_succ (int_rep_inv x) = int_rep_inv (int_rep_pred x)"
-  using int_rep_inv_pred_inv_eq_succ[of "int_rep_inv x"] by simp
+corollary Int_Rep_succ_inv_eq_inv_pred:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_succ (Int_Rep_inv x) = Int_Rep_inv (Int_Rep_pred x)"
+  using Int_Rep_inv_pred_inv_eq_succ[of "Int_Rep_inv x"] by simp
 
-corollary int_rep_inv_succ_inv_eq_pred [simp]:
-  assumes "x \<in> int_rep"
-  shows "int_rep_inv (int_rep_succ (int_rep_inv x)) = int_rep_pred x"
-  using int_rep_succ_inv_eq_inv_pred by simp
+corollary Int_Rep_inv_succ_inv_eq_pred [simp]:
+  assumes "x : Int_Rep"
+  shows "Int_Rep_inv (Int_Rep_succ (Int_Rep_inv x)) = Int_Rep_pred x"
+  using Int_Rep_succ_inv_eq_inv_pred by simp
 
 
 end

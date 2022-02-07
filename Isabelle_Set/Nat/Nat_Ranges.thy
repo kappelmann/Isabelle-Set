@@ -1,6 +1,6 @@
 section \<open>Natural number ranges\<close>
 theory Nat_Ranges
-imports Nat_Base
+  imports Nat_Base
 begin
 
 subsection \<open>Ranges\<close>

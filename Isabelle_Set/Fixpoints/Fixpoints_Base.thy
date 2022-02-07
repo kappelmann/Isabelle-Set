@@ -1,6 +1,6 @@
 subsection \<open>Basix Definitions\<close>
 theory Fixpoints_Base
-imports Sets
+  imports HOTG.Subset
 begin
 
 definition "prefixpoint X h \<equiv> h X \<subseteq> X"

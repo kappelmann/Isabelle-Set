@@ -1,41 +1,73 @@
 section \<open>Matrices\<close>
 theory Matrices
-imports Nat
+  imports
+    Nat
+    TFunctions
 begin
 
-definition "matrix C m n \<equiv> \<Prod>_ \<in> [0,\<dots>,m[. \<Prod>_ \<in> [0,\<dots>,n[. C"
+definition "matrices A m n \<equiv> ([0,\<dots>,m[ :: set) \<rightarrow> ([0,\<dots>,n[ :: set) \<rightarrow> A"
 
-lemma matrix_eval_memI:
-  assumes "M \<in> matrix C m n" "i : Nat" "j : Nat"
+definition [typedef]: "Matrix A m n \<equiv> Element [0,\<dots>,m[ \<rightarrow>c Element [0,\<dots>,n[ \<rightarrow>c A"
+
+lemma mem_matrices_iff_Matrix:
+  "M \<in> matrices A m n \<longleftrightarrow> M : Matrix (Element A) m n"
+  (is "?lhs \<longleftrightarrow> ?rhs")
+proof -
+  have
+    "?lhs \<longleftrightarrow> M : Element [0,\<dots>,m[ \<rightarrow>c Element (([0,\<dots>,n[ :: set) \<rightarrow> A)"
+    unfolding matrices_def by auto
+  also have "...  \<longleftrightarrow> ?rhs"
+  proof -
+    have "\<And>N. N : Element (([0,\<dots>,n[ :: set) \<rightarrow> A) \<longleftrightarrow> N : (Element [0,\<dots>,n[ \<rightarrow>c Element A)"
+      by (subst mem_iff_Element[symmetric]) auto
+    then show ?thesis
+      unfolding Matrix_def by (auto elim: CDep_Function_covariant_codom)
+  qed
+  finally show ?thesis .
+qed
+
+soft_type_translation
+  "M \<in> matrices A m n" \<rightleftharpoons> "M : Matrix (Element A) m n"
+  using mem_matrices_iff_Matrix by auto
+
+lemma Matrix_if_CDep_Function [derive]:
+  assumes "M : Element [0,\<dots>,m[ \<rightarrow>c Element [0,\<dots>,n[ \<rightarrow>c A"
+  shows "M : Matrix A m n"
+  using assms Dep_Function_covariant_codom unfolding Matrix_def by auto
+
+lemma eval_type [type]:
+  "eval : Matrix A m n \<Rightarrow> (x : Element [0,\<dots>,m[) \<Rightarrow> Element [0,\<dots>,n[ \<rightarrow>c A"
+  unfolding Matrix_def by discharge_types
+
+lemma Matrix_eval_typeI:
+  assumes "M : Matrix A m n" "i : Nat" "j : Nat"
   and i_lt_m: "i < m"
   and j_lt_n: "j < n"
-  shows "M `i `j \<in> C"
+  shows "M`i`j : A"
 proof -
-  have "i \<in> [0,\<dots>,m[" and "j \<in> [0,\<dots>,n[" by auto
-  then show ?thesis using assms unfolding matrix_def
-    (*TODO should not be needed*)
-    using [[type_derivation_depth=4]]
-    by (simp only: mem_dep_functions_iff_Dep_Function)
+  have "i \<in> [0,\<dots>,m[" "j \<in> [0,\<dots>,n[" by auto
+  then show ?thesis
+    using assms [[type_derivation_depth=4]] unfolding Matrix_def
+    by discharge_types
 qed
 
 subsection \<open>Zero\<close>
 
-definition "matrix_zero Z m n \<equiv>
-  \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. zero Z"
+definition "Matrix_zero Z m n \<equiv> \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. zero Z"
 
-lemma matrix_zero_type [type]:
-  "matrix_zero : Zero Z \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Element (matrix Z m n)"
-  unfolding matrix_def matrix_zero_def by discharge_types
+lemma Matrix_zero_type [type]:
+  "Matrix_zero : Zero A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n"
+  unfolding Matrix_zero_def by discharge_types
 
-lemma matrix_zero_eq_zero [simp]:
+lemma Matrix_zero_eq_zero [simp]:
   assumes "i : Nat" "j : Nat"
   and i_lt_m: "i < m"
   and j_lt_n: "j < n"
-  shows "(matrix_zero Z m n) `i `j = zero Z"
+  shows "(Matrix_zero Z m n)`i`j = zero Z"
 proof -
 (*
-Note Kevin: The simplifier tries to apply beta. We need to discharge i \<in> [0,\<dots>,m[.
-This goal gets transformed to i : Element [0,\<dots>,m[.
+Note Kevin: The simplifier tries to apply eval_lambda_eq. We need to discharge
+i \<in> [0,\<dots>,m[.  This goal gets transformed to i : Element [0,\<dots>,m[.
 Now, the type-derivator cannot solve this as there's no good rule for this type.
 We might think about tagging {@thm in_range_excl_rightI} with "backward_derive".
 But then the type derivator gets called with 0 \<le> i as a goal, which is no good.
@@ -44,171 +76,212 @@ Maybe there's a good way to incorporate auto/simp calls for non-type
 premises in typing rules without making everything blow up.
 *)
   have "i \<in> [0,\<dots>,m[" and "j \<in> [0,\<dots>,n[" by auto
-  then show ?thesis unfolding matrix_zero_def by auto
+  then show ?thesis unfolding Matrix_zero_def by auto
 qed
 
 
-definition "matrix_Zero Z m n \<equiv> object {
-  \<langle>@zero, matrix_zero Z m n\<rangle>
-}"
+definition "Matrix_Zero Z m n \<equiv> object {
+    \<langle>@zero, Matrix_zero Z m n\<rangle>
+  }"
 
-lemma matrix_Zero_type: assumes "Z : Zero C" "m : Nat" "n : Nat"
-  shows "matrix_Zero Z m n : Zero (matrix C m n)"
-  unfolding matrix_Zero_def by (rule ZeroI) auto
+lemma Matrix_Zero_type: assumes "Z : Zero A" "m : Nat" "n : Nat"
+  shows "Matrix_Zero Z m n : Zero (Matrix A m n)"
+  unfolding Matrix_Zero_def by (rule ZeroI) auto
 
 
 subsection \<open>One\<close>
 
-definition "matrix_one Z O m n \<equiv>
+definition "Matrix_one Z O m n \<equiv>
   \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. if i = j then one O else zero Z"
 
-lemma matrix_one_type [type]:
-  "matrix_one : Zero C \<Rightarrow> One C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
-    Element (matrix C m n)"
-  unfolding matrix_def matrix_one_def by discharge_types
+lemma Matrix_one_type [type]:
+  "Matrix_one : Zero A \<Rightarrow> One A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n"
+  unfolding Matrix_one_def by discharge_types
 
-lemma matrix_one_eq_one [simp]:
+lemma Matrix_one_eq_one [simp]:
   assumes "i : Nat"
   and i_lt_m: "i < m"
   and i_lt_n: "i < n"
-  shows "(matrix_one Z O m n) `i `i = one O"
+  shows "(Matrix_one Z O m n)`i`i = one O"
 proof -
   have "i \<in> [0,\<dots>,m[" and "i \<in> [0,\<dots>,n[" by auto
-  then show ?thesis unfolding matrix_one_def by auto
+  then show ?thesis unfolding Matrix_one_def by auto
 qed
 
-lemma matrix_one_eq_zero [simp]:
+lemma Matrix_one_eq_zero [simp]:
   assumes "i : Nat" "j : Nat"
   and i_lt_m: "i < m"
   and j_lt_n: "j < n"
   and i_ne_j: "i \<noteq> j"
-  shows "(matrix_one Z O m n) `i `j = zero Z"
+  shows "(Matrix_one Z O m n)`i`j = zero Z"
 proof -
   have "i \<in> [0,\<dots>,m[" and "j \<in> [0,\<dots>,n[" by auto
-  with i_ne_j show ?thesis unfolding matrix_one_def by auto
+  with i_ne_j show ?thesis unfolding Matrix_one_def by auto
 qed
 
-definition "matrix_One Z O m n \<equiv> object {
-  \<langle>@one, matrix_one Z O m n\<rangle>
-}"
+definition "Matrix_One Z O m n \<equiv> object {
+    \<langle>@one, Matrix_one Z O m n\<rangle>
+  }"
 
-lemma matrix_One_type: assumes "Z : Zero C" "O : One C" "m : Nat" "n : Nat"
-  shows "matrix_One Z O m n : One (matrix C m n)"
-  unfolding matrix_One_def by (rule OneI) auto
+lemma Matrix_One_type:
+  assumes "Z : Zero A" "O : One A" "m : Nat" "n : Nat"
+  shows "Matrix_One Z O m n : One (Matrix A m n)"
+  unfolding Matrix_One_def by (rule OneI) simp
 
 
 subsection \<open>Addition\<close>
 
-definition "matrix_add A m n M N \<equiv>
-  \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. add A (M `i `j) (N `i `j)"
+definition "Matrix_add A m n M N \<equiv>
+  \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. add A (M`i`j) (N`i`j)"
 
-lemma matrix_add_type [type]: "matrix_add : Add C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
-  Element (matrix C m n) \<Rightarrow> Element (matrix C m n) \<Rightarrow> Element (matrix C m n)"
-  using [[type_derivation_depth=5]]
-  unfolding matrix_def matrix_add_def by discharge_types
+lemma Matrix_add_type [type]:
+  "Matrix_add : Add C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix C m n \<Rightarrow> Matrix C m n
+    \<Rightarrow> Matrix C m n"
+  unfolding Matrix_add_def using [[type_derivation_depth=4]]
+  by discharge_types
 
-lemma matrix_add_eq_add [simp]:
+lemma Matrix_add_eq_add [simp]:
   assumes "i : Nat" "j : Nat"
   and i_lt_m: "i < m"
   and j_lt_n: "j < n"
-  shows "(matrix_add A m n M N) `i `j = add A (M `i `j) (N `i `j)"
+  shows "(Matrix_add A m n M N)`i`j = add A (M`i`j) (N`i`j)"
 proof -
   have "i \<in> [0,\<dots>,m[" and "j \<in> [0,\<dots>,n[" by auto
-  then show ?thesis unfolding matrix_add_def by auto
+  then show ?thesis unfolding Matrix_add_def by auto
 qed
 
 (*Note Kevin: or one could do the following:*)
 (* declare [[coercion_enabled]] [[coercion "eval"]]
 
-definition "matrix_add' a m n (M :: set) (N :: set) \<equiv>
+definition "Matrix_add' a m n (M :: set) (N :: set) \<equiv>
   \<lambda>i \<in> [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. add a (M i j) (N i j)"
 
 declare [[coercion "Element"]]
 
-lemma matrix_add'_type [type]: "matrix_add' : Add A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
-  matrix A m n \<Rightarrow> matrix A m n \<Rightarrow> matrix A m n"
+lemma Matrix_add'_type [type]: "Matrix_add' : Add A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow>
+  Matrix A m n \<Rightarrow> Matrix A m n \<Rightarrow> Matrix A m n"
   using [[type_derivation_depth=5]]
-  unfolding matrix_def matrix_add'_def by discharge_types *)
+  unfolding Matrix_def Matrix_add'_def by discharge_types *)
 
-definition "matrix_Add C A m n \<equiv> object {
-  \<langle>@add, \<lambda>M N \<in> matrix C m n. matrix_add A m n M N\<rangle>
-}"
+definition "Matrix_Add C A m n \<equiv> object {
+    \<langle>@add, \<lambda>M N \<in> matrices C m n. Matrix_add A m n M N\<rangle>
+  }"
 
-lemma matrix_Add_type : assumes "A : Add C" "m : Nat" "n : Nat"
-  shows "matrix_Add C A m n : Add (matrix C m n)"
+lemma Matrix_Add_type : assumes "A : Add (Element C)" "m : Nat" "n : Nat"
+  shows "Matrix_Add C A m n : Add (Matrix (Element C) m n)"
 proof -
+  have [derive]: "\<And>M. M : Element (matrices C m n) \<Longrightarrow> M : Matrix (Element C) m n"
+    by (drule ElementD) discharge_types
+  have 2 [derive]: "\<And>M. M : Matrix (Element C) m n \<Longrightarrow> M : Element (matrices C m n)"
+    by (rule ElementI) discharge_types
+  then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
+    Element (matrices C m n) \<rightarrow>c Element (matrices C m n) \<rightarrow>c
+      Matrix (Element C) m n"
+    by discharge_types
+  then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
+    Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow>c Matrix (Element C) m n"
+    by (elim Dep_Function_if_CDep_Function)
+  then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
+    Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
+    by (rule Dep_Function_covariant_codom, intro Dep_Function_if_CDep_Function)
+  then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
+    Matrix (Element C) m n \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
+    by (elim Dep_Function_contravariant_dom) discharge_types
+  then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
+    Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n"
+    by (elim Dep_Function_covariant_codom[OF Dep_Function_contravariant_dom])
+      simp_all
   (* TODO Kevin: why is this selector not simplified automatically? *)
   have sel_simp:
-    "(matrix_Add C A m n)@@add = \<lambda>M N \<in> matrix C m n. matrix_add A m n M N"
-    unfolding matrix_Add_def by simp
-  show ?thesis by (intro AddI, subst sel_simp) discharge_types
+    "(Matrix_Add C A m n)@@add = \<lambda>M N \<in> matrices C m n. Matrix_add A m n M N"
+    unfolding Matrix_Add_def by simp
+  show ?thesis by (intro AddI, subst sel_simp) fact
 qed
 
 
 subsection \<open>Additive Monoid\<close>
 
-(* TODO: slow proof *)
-lemma
-  assumes "M : Monoid C" "N : Element (matrix C m n)"
-  shows matrix_add_zero: "matrix_add M m n N (matrix_zero M m n) = N"
-    and matrix_zero_add: "matrix_add M m n (matrix_zero M m n) N = N"
-  using [[type_derivation_depth=4]] assms
-  unfolding matrix_add_def matrix_zero_def matrix_def
-  by (auto intro!: lambda_ext)
+lemma Matrix_add_zero:
+  assumes "M : Monoid (Element C)" "N : Matrix (Element C) m n"
+  shows "Matrix_add M m n N (Matrix_zero M m n) = N"
+  using assms using [[type_derivation_depth=4]]
+  unfolding Matrix_add_def Matrix_zero_def
+  apply (intro lambda_ext)
+  apply (subst mem_dep_functions_iff_CDep_Function)
+  apply (subst CDep_Function_covariant_codom)
+  apply (simp only: Matrix_def)
+  apply (rule ElementI)
+  apply (subst mem_dep_functions_iff_CDep_Function)
+  apply (auto simp only: eval_lambda_eq Monoid_add_zero_eq)
+  done
+
+lemma Matrix_zero_add:
+  assumes "M : Monoid (Element C)" "N : Matrix (Element C) m n"
+  shows "Matrix_add M m n (Matrix_zero M m n) N = N"
+  using assms using [[type_derivation_depth=4]]
+  unfolding Matrix_add_def Matrix_zero_def
+  apply (intro lambda_ext)
+  apply (subst mem_dep_functions_iff_CDep_Function)
+  apply (subst CDep_Function_covariant_codom)
+  apply (simp only: Matrix_def)
+  apply (rule ElementI)
+  apply (subst mem_dep_functions_iff_CDep_Function)
+  apply (auto simp only: eval_lambda_eq Monoid_zero_add_eq)
+  done
 
 (*FIXME*)
-lemma matrix_add_assoc:
-  assumes "M : Monoid C" "N : Element (matrix C m n)"
-    "O : Element (matrix C m n)" "P : Element (matrix C m n)"
-  shows "matrix_add M m n (matrix_add M m n N O) P =
-    matrix_add M m n N (matrix_add M m n O P)"
-using [[quick_and_dirty]]
-sorry
+lemma Matrix_add_assoc:
+  assumes "M : Monoid (Element C)" "N : Matrix (Element C) m n"
+    "O : Matrix (Element C) m n" "P : Matrix (Element C) m n"
+  shows "Matrix_add M m n (Matrix_add M m n N O) P =
+    Matrix_add M m n N (Matrix_add M m n O P)"
+  using [[quick_and_dirty]]
+  sorry
   (* using [[type_derivation_depth=4]] assms
-  unfolding matrix_add_def matrix_def
+  unfolding Matrix_add_def Matrix_def
   by (auto 0 0 intro!: lambda_ext simp: Nat_add_assoc) *)
 
-definition "matrix_Monoid C M m n \<equiv> object {
-  \<langle>@zero, matrix_zero M m n\<rangle>,
-  \<langle>@add, \<lambda>N O \<in> matrix C m n. matrix_add M m n N O\<rangle>
+definition "Matrix_Monoid C M m n \<equiv> object {
+  \<langle>@zero, Matrix_zero M m n\<rangle>,
+  \<langle>@add, \<lambda>N O \<in> matrices C m n. Matrix_add M m n N O\<rangle>
 }"
 
 (*TODO Kevin: Create object extension method so that one can re-use the proofs
-from matrix_Add_type and matrix_Zero_type instead of unfolding and
+from Matrix_Add_type and Matrix_Zero_type instead of unfolding and
 proving everything again (cf branch object_extend).*)
-lemma assumes "M : Monoid C" "m : Nat" "n : Nat"
-  shows "matrix_Monoid C M m n : Monoid (matrix C m n)"
-proof -
+lemma assumes "M : Monoid (Element C)" "m : Nat" "n : Nat"
+  shows "Matrix_Monoid C M m n : Monoid (Matrix (Element C) m n)"
+  using [[quick_and_dirty]]
+  sorry
+(* proof -
   have
-    sel_add: "(matrix_Monoid C M m n)@@add = \<lambda>N O \<in> matrix C m n. matrix_add M m n N O"
-    unfolding matrix_Monoid_def by simp
+    sel_add: "(Matrix_Monoid C M m n)@@add = \<lambda>N O \<in> matrices C m n. Matrix_add M m n N O"
+    unfolding Matrix_Monoid_def by simp
   show ?thesis
-    by (intro MonoidI ZeroI AddI; (subst sel_add)?)
-    (auto simp: matrix_Monoid_def matrix_add_zero matrix_zero_add
-    matrix_add_assoc add_def zero_def Element_dep_functions_iff_Dep_Function
-    intro!: Dep_fun_typeI)
-qed
-
+    (* by (intro MonoidI ZeroI AddI; (subst sel_add)?)
+    (auto simp: Matrix_Monoid_def Matrix_add_zero Matrix_zero_add
+    Matrix_add_assoc add_def zero_def mem_dep_functions_iff_CDep_Function
+    intro!: Dep_fun_typeI) *)
+  (* proof (rule MonoidI)
+    have "(Matrix_Monoid C M m n)@@add = (Matrix_Add C M m n)@@add"
+      unfolding Matrix_Monoid_def Matrix_Add_def by simp
+  qed *)
+qed *)
 
 subsection \<open>Multiplication\<close>
 
-unbundle no_isa_set_one_implicit_syntax
-unbundle isa_set_nat_zero_syntax
-
-text \<open>Multiplying an l \<times> 0 with a 0 \<times> n matrix returns the l \<times> n zero matrix.\<close>
-definition "matrix_mul A M l m n N O \<equiv> \<lambda>i \<in> [0,\<dots>,l[. \<lambda>j \<in> [0,\<dots>,n[. nat_rec'
-  m (zero A) (\<lambda>k acc. add A acc (mul M (N `i `(pred k)) (O `(pred k) `j)))"
+text \<open>Multiplying an l \<times> 0 with a 0 \<times> n Matrix returns the l \<times> n zero Matrix.\<close>
+definition "Matrix_mul A M l m n N O \<equiv> \<lambda>i \<in> [0,\<dots>,l[. \<lambda>j \<in> [0,\<dots>,n[. nat_rec'
+  m (zero A) (\<lambda>k acc. add A acc (mul M (N`i`(pred k)) (O `(pred k) `j)))"
 
 (*Note Kevin: TODO: type derivator is not able to handle this automatically
 yet*)
-lemma matrix_mul_type [type]: "matrix_mul : Monoid C \<Rightarrow> Mul C \<Rightarrow> (l : Nat) \<Rightarrow>
-  (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Element (matrix C l m) \<Rightarrow> Element (matrix C m n) \<Rightarrow>
-  Element (matrix C l n)"
-unfolding matrix_def
-proof (intro Dep_fun_typeI, simp only: Element_dep_functions_iff_Dep_Function)
+lemma Matrix_mul_type [type]: "Matrix_mul : Monoid C \<Rightarrow> Mul C \<Rightarrow> (l : Nat) \<Rightarrow>
+  (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix C l m \<Rightarrow> Matrix C m n \<Rightarrow> Matrix C l n"
+proof (intro Dep_fun_typeI)
   fix AddM M l m n N O
   assume "AddM : Monoid C" "M : Mul C" "l : Nat" "m : Nat" "n : Nat"
-    "N : [0,\<dots>,l[ \<rightarrow> [0,\<dots>,m[ \<rightarrow> C" "O : [0,\<dots>,m[ \<rightarrow> [0,\<dots>,n[ \<rightarrow> C"
+    "N : Matrix C l m" "O : Matrix C m n"
   {
     fix i j assume "i : Element [0,\<dots>,l[" "j : Element [0,\<dots>,n["
     have "pred : Element [1,\<dots>,m] \<Rightarrow> Element [0,\<dots>,m["
@@ -223,72 +296,92 @@ proof (intro Dep_fun_typeI, simp only: Element_dep_functions_iff_Dep_Function)
       qed
       then show "pred n \<in> [0,\<dots>,m[" by auto
     qed
-    have "(\<lambda>k acc. add AddM acc (mul M (N `i `(pred k)) (O `(pred k) `j)))
-      : Element [1,\<dots>,m] \<Rightarrow> Element C \<Rightarrow> Element C"
+    have "(\<lambda>k acc. add AddM acc (mul M (N`i`(pred k)) (O`(pred k)`j)))
+      : Element [1,\<dots>,m] \<Rightarrow> C \<Rightarrow> C"
       using [[type_derivation_depth=6]] by discharge_types
   }
-  then show "matrix_mul AddM M l m n N O : [0,\<dots>,l[ \<rightarrow> [0,\<dots>,n[ \<rightarrow> C"
-    using [[type_derivation_depth=3]]
-    unfolding matrix_mul_def by discharge_types
+  show "Matrix_mul AddM M l m n N O : Matrix C l n"
+    using [[type_derivation_depth=4]]
+    unfolding Matrix_mul_def by discharge_types
 qed
 
-definition "matrix_Mul C A M l m n \<equiv> object {
-  \<langle>@mul, \<lambda>N \<in> matrix C l m. (\<lambda>O \<in> matrix C m n. matrix_mul A M l m n N O)\<rangle>
-}"
+definition "Matrix_Mul C A M l m n \<equiv> object {
+    \<langle>@mul, \<lambda>N \<in> matrices C l m. (\<lambda>O \<in> matrices C m n. Matrix_mul A M l m n N O)\<rangle>
+  }"
 
-lemma matrix_Mul_type:
-  assumes "A : Monoid C" "M : Mul C" "n : Nat"
-  shows "matrix_Mul C A M n n n : Mul (matrix C n n)"
+lemma Matrix_Mul_type:
+  assumes "A : Monoid (Element C)" "M : Mul (Element C)" "n : Nat"
+  shows "Matrix_Mul C A M n n n : Mul (Matrix (Element C) n n)"
 proof -
+  have [derive]: "\<And>M. M : Element (matrices C n n) \<Longrightarrow> M : Matrix (Element C) n n"
+    by (drule ElementD) discharge_types
+  have 2 [derive]: "\<And>M. M : Matrix (Element C) n n \<Longrightarrow> M : Element (matrices C n n)"
+    by (rule ElementI) discharge_types
+  let ?f = "\<lambda>N \<in> matrices C n n. (\<lambda>O \<in> matrices C n n. Matrix_mul A M n n n N O)"
+  have "?f : Element (matrices C n n) \<rightarrow>c Element (matrices C n n) \<rightarrow>c
+      Matrix (Element C) n n"
+    by discharge_types
+  then have "?f : Element (matrices C n n) \<rightarrow> Element (matrices C n n) \<rightarrow>c
+    Matrix (Element C) n n"
+    by (elim Dep_Function_if_CDep_Function)
+  then have "?f : Element (matrices C n n) \<rightarrow> Element (matrices C n n) \<rightarrow>
+    Matrix (Element C) n n"
+    by (rule Dep_Function_covariant_codom, intro Dep_Function_if_CDep_Function)
+  then have "?f : Matrix (Element C) n n \<rightarrow> Element (matrices C n n) \<rightarrow>
+    Matrix (Element C) n n"
+    by (elim Dep_Function_contravariant_dom) discharge_types
+  then have "?f : Matrix (Element C) n n \<rightarrow> Matrix (Element C) n n \<rightarrow>
+    Matrix (Element C) n n"
+    by (elim Dep_Function_covariant_codom[OF Dep_Function_contravariant_dom])
+      simp_all
   (* TODO Kevin: why is this selector not simplified automatically? *)
-  have sel_simp: "(matrix_Mul C A M n n n)@@mul =
-    \<lambda>N \<in> matrix C n n. (\<lambda>O \<in> matrix C n n. matrix_mul A M n n n N O)"
-    unfolding matrix_Mul_def by simp
-  show ?thesis by (intro MulI, subst sel_simp) discharge_types
+  have sel_simp: "(Matrix_Mul C A M n n n)@@mul =
+    \<lambda>N \<in> matrices C n n. (\<lambda>O \<in> matrices C n n. Matrix_mul A M n n n N O)"
+    unfolding Matrix_Mul_def by simp
+  show ?thesis by (intro MulI, subst sel_simp) fact
 qed
-
 
 subsection \<open>Multiplicative Monoid\<close>
 
 (*Note: This could be generalised to non-square matrices, but we do not need
 that for now. *)
 lemma
-  assumes "A : Monoid C" "M : Mul_Monoid C" "n : Nat" "N : Element (matrix C n n)"
-  and mul_zero: "\<And>c. c \<in> C \<Longrightarrow> mul M c (zero A) = zero A"
-  and mul_one: "\<And>c. c \<in> C \<Longrightarrow> mul M c (one M) = c"
-  shows matrix_mul_one: "matrix_mul A M n n n N (matrix_one A M n n) = N"
+  assumes "A : Monoid C" "M : Mul_Monoid C" "n : Nat" "N : Matrix C n n"
+  and mul_zero: "\<And>c. c : C \<Longrightarrow> mul M c (zero A) = zero A"
+  and mul_one: "\<And>c. c : C \<Longrightarrow> mul M c (one M) = c"
+  shows Matrix_mul_one: "Matrix_mul A M n n n N (Matrix_one A M n n) = N"
 using mem_range_incl_exclE[elim]
 (*FIXME*) [[quick_and_dirty]]
-unfolding matrix_mul_def
+unfolding Matrix_mul_def
 proof (intro lambda_ext)
   fix i j assume i_mem: "i \<in> [0,\<dots>,n[" and j_mem: "j \<in> [0,\<dots>,n["
-  let ?f = "\<lambda>k acc. add A acc (mul M (N `i `(pred k)) (matrix_one A M n n `(pred k) `j))"
+  let ?f = "\<lambda>k acc. add A acc (mul M (N`i`(pred k)) (Matrix_one A M n n `(pred k) `j))"
   {
     fix m assume lassms: "m : Nat" "m < n"
-    with i_mem have "N `i `m \<in> C" by (intro matrix_eval_memI) auto
+    with i_mem have "N`i`m : C" by (intro Matrix_eval_typeI) auto
     with lassms have
-      "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)"
+      "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N`i`j)"
     proof (induction m rule: Nat_induct)
       case zero
       then show ?case
       proof (cases "0 < j")
         case True
-        with j_mem have "matrix_one A M n n `0 `j = zero A"
-          by (intro matrix_one_eq_zero) auto
+        with j_mem have "Matrix_one A M n n `0 `j = zero A"
+          by (intro Matrix_one_eq_zero) auto
         with mul_zero show ?thesis using mul_zero True by auto
       next
         case False
         with j_mem have "j = 0" by (auto elim: leE)
-        moreover with j_mem have "matrix_one A M n n `0 `0 = one M"
-          by (intro matrix_one_eq_one) auto
+        moreover with j_mem have "Matrix_one A M n n `0 `0 = one M"
+          by (intro Matrix_one_eq_one) auto
         ultimately show ?thesis using mul_one by auto
       qed
     next
       case (succ m)
       then have "m < n" by (auto intro: Nat_lt_if_succ_lt)
-      with i_mem have "N `i `m \<in> C" by (intro matrix_eval_memI) auto
+      with i_mem have "N`i`m : C" by (intro Matrix_eval_typeI) auto
       with succ.IH have
-        IH: "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)"
+        IH: "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N`i`j)"
         by auto
       show ?case
       proof (cases "succ m < j")
@@ -296,8 +389,8 @@ proof (intro lambda_ext)
         (* Note Kevin: this is BAD *)
         from j_mem have "j : Nat" by auto
         then have "m < j" using Nat_lt_if_succ_lt[OF _ \<open>succ m < j\<close>] by blast
-        moreover with True j_mem have "matrix_one A M n n `(succ m) `j = zero A"
-          by (intro matrix_one_eq_zero) auto
+        moreover with True j_mem have "Matrix_one A M n n `(succ m) `j = zero A"
+          by (intro Matrix_one_eq_zero) auto
         ultimately show ?thesis using IH mul_zero True by auto
       next
         case False
@@ -308,9 +401,9 @@ proof (intro lambda_ext)
         then show ?thesis
         proof (cases rule: leE)
           case lt
-          from i_mem j_mem have "N `i `j \<in> C" by (intro matrix_eval_memI) auto
-          from lt j_mem have "matrix_one A M n n `(succ m) `j = zero A"
-            by (intro matrix_one_eq_zero) auto
+          from i_mem j_mem have "N`i`j : C" by (intro Matrix_eval_typeI) auto
+          from lt j_mem have "Matrix_one A M n n `(succ m) `j = zero A"
+            by (intro Matrix_one_eq_zero) auto
           with f lt IH mul_zero show ?thesis using lt_asym by auto
         next
           case eq
@@ -321,7 +414,7 @@ proof (intro lambda_ext)
   } note rec = this
   moreover from \<open>i \<in> [0,\<dots>,n[\<close> have "i < n" "i \<in> \<nat>" by auto
   (* case n=0 needed *)
-  ultimately show "nat_rec' n (zero A) ?f = N `i `j"
+  ultimately show "nat_rec' n (zero A) ?f = N`i`j"
   proof (cases "n = 0")
     case True
     with \<open>i < n\<close> show ?thesis by auto
@@ -330,7 +423,7 @@ proof (intro lambda_ext)
     then obtain m where n_eq_succ_m: "n = succ m" by (auto intro: mem_natE[of n])
     then have "m : Nat" "m < n" using \<open>n : Nat\<close> sorry
     then have
-      lem: "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N `i `j)"
+      lem: "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N`i`j)"
       by (fact rec)
     have "j \<le> pred (succ m)"
       by (rule Nat_le_pred_if_lt) (insert j_mem n_eq_succ_m[symmetric], auto)
@@ -339,6 +432,7 @@ proof (intro lambda_ext)
     ultimately have "\<not> m < j" using Nat_lt_if_lt_if_le[of j j m] by auto
     then show ?thesis using n_eq_succ_m lem by auto
   qed
-qed (insert assms, auto simp: matrix_def Element_dep_functions_iff_Dep_Function)
+  (*remaining type assumptions as in Matrix_Add_type and Matrix_Mul_Type*)
+oops
 
 end

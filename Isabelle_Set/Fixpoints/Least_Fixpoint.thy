@@ -1,12 +1,12 @@
 subsection \<open>Least Fixpoints Computation\<close>
 theory Least_Fixpoint
-imports Monotone_Operators
+  imports Monotone_Operators
 begin
 
 subsubsection \<open>Knaster-Tarski Theorem\<close>
 
 definition lfp :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set"
-  where "lfp D h \<equiv> \<Inter>{X \<in> powerset D. prefixpoint X h}"
+  where "lfp D h \<equiv> \<Inter>{X \<in> powerset D | prefixpoint X h}"
 
 lemma lfp_cong [cong]:
   assumes D_eq: "D = D'"

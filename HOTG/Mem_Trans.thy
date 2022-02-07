@@ -1,7 +1,6 @@
 section \<open>Transitive Sets\<close>
-
 theory Mem_Trans
-imports Subset
+  imports Subset
 begin
 
 lemma mem_transI [intro]: "(\<And>x. x \<in> X \<Longrightarrow> x \<subseteq> X) \<Longrightarrow> mem_trans X"

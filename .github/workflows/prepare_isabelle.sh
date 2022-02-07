@@ -29,7 +29,7 @@ if [ ! -d "$HOME/AFP/thys" ]; then
 
   mkdir ~/AFP;
   cd ~/AFP;
-  curl -L https://github.com/kappelmann/mirror-afp-devel/archive/$AFP_VERSION.zip -o afp.zip
+  curl -L https://github.com/isabelle-prover/mirror-afp-devel/archive/$AFP_VERSION.zip -o afp.zip
   unzip -q afp.zip
   mv mirror-afp-devel-*/** .
   rm -rf mirror-afp-devel-*/ afp.zip

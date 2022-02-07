@@ -19,3 +19,5 @@
 *.cut
 *.code-workspace
 \#*.thy\#
+
+.history/

@@ -1,7 +1,6 @@
 section \<open>Basics for natural numbers\<close>
 theory Nat_Base
 imports
-  Functions
   Ordinals
 begin
 

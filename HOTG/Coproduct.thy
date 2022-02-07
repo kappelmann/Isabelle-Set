@@ -1,9 +1,7 @@
 section \<open>Coproduct (\<Coprod>-types)\<close>
-
 text \<open>Aka binary disjoint union.\<close>
-
 theory Coproduct
-imports Pairs
+  imports Pairs
 begin
 
 definition "inl a = \<langle>{}, a\<rangle>"
@@ -18,6 +16,11 @@ unbundle hotg_coprod_syntax
 lemma mem_coprod_iff [iff]:
   "x \<in> A \<Coprod> B \<longleftrightarrow> (\<exists>a \<in> A. x = inl a) \<or> (\<exists>b \<in> B. x = inr b)"
   unfolding coprod_def inl_def inr_def by auto
+
+lemma mem_coprodE:
+  assumes "x \<in> A \<Coprod> B"
+  obtains (inl) a where "a \<in> A" "x = inl a" | (inr) b where "b \<in> B" "x = inr b"
+  using assms by blast
 
 lemma
   inl_inj_iff [iff]: "inl x = inl y \<longleftrightarrow> x = y" and
@@ -38,11 +41,6 @@ lemma
   shows coprod_rec_inl_eq [simp]: "coprod_rec l r (inl a) = l a"
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto
-
-lemma mem_coprodE [elim]:
-  assumes "x \<in> A \<Coprod> B"
-  obtains (inl) a where "a \<in> A" "x = inl a" | (inr) b where "b \<in> B" "x = inr b"
-  using assms by blast
 
 
 end

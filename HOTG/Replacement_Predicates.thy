@@ -11,10 +11,8 @@ definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarr
 
 (*TODO: localise*)
 syntax
-  "_replace." :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ ./ _ \<in> _, _})")
-  "_replace|" :: \<open>[pttrn, pttrn, set, bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
 translations
-  "{y . x \<in> A, Q}" \<rightharpoonup> "CONST replace A (\<lambda>x y. Q)"
   "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST replace A (\<lambda>x y. Q)"
 
 lemma mem_replace_iff:
@@ -62,11 +60,11 @@ lemma replaceE:
 
 (*As above but without the (generally useless) third assumption*)
 lemma replaceE' [elim!]:
-  "\<lbrakk>b \<in> {y. x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
+  "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
   by (erule replaceE) blast
 
 lemma replace_cong [cong]:
-  "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> replace A P = replace B Q"
+  "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> {y | x \<in> A, P x y} = {y | x \<in> B, Q x y}"
   by (rule eqI') (simp add: mem_replace_iff)
 
 

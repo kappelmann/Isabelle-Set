@@ -1,6 +1,6 @@
 section\<open>Ordinals\<close>
 theory Ordinals
-imports Least_Fixpoint
+  imports Least_Fixpoint
 begin
 
 text \<open>The class of ordinal numbers is defined abstractly, as the \<in>-transitive sets
@@ -196,5 +196,6 @@ lemma succ_mem_succ_iff_mem_if_mem_omega [iff]:
   "n \<in> \<omega> \<Longrightarrow> succ m \<in> succ n \<longleftrightarrow> m \<in> n"
   using succ_mem_succ_if_mem_if_mem_omega mem_if_succ_mem_succ_if_mem_omega
   by blast
+
 
 end

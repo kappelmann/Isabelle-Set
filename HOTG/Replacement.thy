@@ -10,10 +10,8 @@ section \<open>Replacement\<close>
 
 (*TODO: localise*)
 syntax
-  "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ ./ _ \<in> _})")
   "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
 translations
-  "{y . x \<in> A}" \<rightharpoonup> "CONST repl A (\<lambda>x. y)"
   "{y | x \<in> A}" \<rightleftharpoons> "CONST repl A (\<lambda>x. y)"
 
 lemma app_mem_repl_if_mem [intro]: "a \<in> A \<Longrightarrow> f a \<in> {f x | x \<in> A}"
@@ -52,10 +50,10 @@ lemma repl_subset_repl_if_subset_dom [intro!]:
   "A \<subseteq> B \<Longrightarrow> {g y | y \<in> A} \<subseteq> {g y | y \<in> B}"
   by auto
 
-lemma ball_repl_iff_ball [simp]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<forall>x \<in> A. P (f x))"
+lemma ball_repl_iff_ball [iff]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<forall>x \<in> A. P (f x))"
   by auto
 
-lemma bex_repl_iff_bex [simp]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
+lemma bex_repl_iff_bex [iff]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
   by auto
 
 end

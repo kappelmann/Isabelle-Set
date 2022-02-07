@@ -5,9 +5,13 @@ session HOTG = "HOL" +
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
     [timeout = 30]
+  directories
+    Functions
   theories
+    Functions
     Axioms
     Basic
+    Binary_Relations
     Bounded_Quantifiers
     Comprehension
     Coproduct

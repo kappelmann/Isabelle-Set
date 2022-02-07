@@ -1,6 +1,6 @@
 section \<open>Matrices\<close>
 theory Matrices_Typed
-imports Isabelle_Set
+  imports Nat
 begin
 
 \<comment> \<open>I want the following -- is this safe?\<close>

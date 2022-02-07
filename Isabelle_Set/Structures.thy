@@ -1,6 +1,6 @@
 section \<open>Structures\<close>
 theory Structures
-imports Objects
+  imports Objects
 begin
 text \<open>Various basic structure definitions.\<close>
 
@@ -9,17 +9,17 @@ subsection \<open>"Zero" and "One" structures\<close>
 
 text \<open>Structures with distinguished elements.\<close>
 
-definition [typeclass]: "Zero A \<equiv> type (\<lambda>Z. Z @@ zero \<in> A)"
+definition [typeclass]: "Zero A \<equiv> type (\<lambda>Z. Z @@ zero : A)"
 
-lemma ZeroI: "Z @@ zero : Element A \<Longrightarrow> Z : Zero A"
+lemma ZeroI: "Z @@ zero : A \<Longrightarrow> Z : Zero A"
   unfolding Zero_def by unfold_types
 
-lemma Zero_zero_type [derive]: "Z : Zero A \<Longrightarrow> Z @@ zero : Element A"
+lemma Zero_zero_type [derive]: "Z : Zero A \<Longrightarrow> Z @@ zero : A"
   unfolding Zero_def by unfold_types
 
 definition "zero Z \<equiv> Z @@ zero"
 
-lemma zero_type [type]: "zero : Zero A \<Rightarrow> Element A"
+lemma zero_type [type]: "zero : Zero A \<Rightarrow> A"
   unfolding zero_def by auto
 
 abbreviation zero_implicit :: "set"
@@ -30,17 +30,17 @@ bundle no_isa_set_zero_implicit_syntax begin no_notation zero_implicit ("0") end
 
 unbundle isa_set_zero_implicit_syntax
 
-definition [typeclass]: "One A \<equiv> type (\<lambda>O. O @@ one \<in> A)"
+definition [typeclass]: "One A \<equiv> type (\<lambda>O. O @@ one : A)"
 
-lemma OneI: "O @@ one : Element A \<Longrightarrow> O : One A"
+lemma OneI: "O @@ one : A \<Longrightarrow> O : One A"
   unfolding One_def by unfold_types
 
-lemma One_one_type [derive]: "O : One A \<Longrightarrow> O @@ one : Element A"
+lemma One_one_type [derive]: "O : One A \<Longrightarrow> O @@ one : A"
   unfolding One_def by unfold_types
 
 definition "one O \<equiv> O @@ one"
 
-lemma one_type [type]: "one : One A \<Rightarrow> Element A"
+lemma one_type [type]: "one : One A \<Rightarrow> A"
   unfolding one_def by auto
 
 abbreviation one_implicit :: "set"
@@ -67,7 +67,7 @@ lemma Add_add_type [derive]: "P : Add A \<Longrightarrow> P @@ add : A \<rightar
 
 definition "add P x y \<equiv> (P @@ add)`x`y"
 
-lemma add_type [type]: "add : Add A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
+lemma add_type [type]: "add : Add A \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
   (*TODO: should not need an increase of the limit*)
   using [[type_derivation_depth=4]]
   unfolding add_def by discharge_types
@@ -97,7 +97,7 @@ lemma Mul_mul_type [derive]: "M : Mul A \<Longrightarrow> M @@ mul : A \<rightar
 
 definition "mul M x y \<equiv> (M @@ mul)`x`y"
 
-lemma mul_type [type]: "mul : Mul A \<Rightarrow> Element A \<Rightarrow> Element A \<Rightarrow> Element A"
+lemma mul_type [type]: "mul : Mul A \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
   (*TODO: should not need an increase of the limit*)
   using [[type_derivation_depth=4]]
   unfolding mul_def by discharge_types
@@ -125,7 +125,7 @@ lemma Inv_inv_type [derive]: "I : Inv A \<Longrightarrow> I @@ inv : A \<rightar
 
 definition "inv I x = (I @@ inv)`x"
 
-lemma inv_type [type]: "inv : Inv A \<Rightarrow> Element A \<Rightarrow> Element A"
+lemma inv_type [type]: "inv : Inv A \<Rightarrow> A \<Rightarrow> A"
   unfolding inv_def by discharge_types
 
 abbreviation inv_implicit where "inv_implicit x \<equiv> inv \<implicit>I x"

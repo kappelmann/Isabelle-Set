@@ -1,6 +1,8 @@
 section \<open>Set extensions\<close>
 theory Set_Extension
-imports Functions
+  imports
+    HOTG.Set_Difference
+    TFunctions
 begin
 
 text \<open>This theory defines a definitional principle for set extensions.
@@ -37,7 +39,7 @@ locale set_extension =
   fixes A B :: set and f :: "set \<Rightarrow> set"
   assumes
     f_type: "f : Element A \<Rightarrow> Element B" and
-    f_injective: "\<forall>x \<in> A. \<forall>y \<in> A. f x = f y \<longrightarrow> x = y"
+    f_injective: "\<forall>x y \<in> A. f x = f y \<longrightarrow> x = y"
 begin
 
 definition "abs_image \<equiv> A \<union> {\<langle>A, x\<rangle> | x \<in> (B \<setminus> {f a | a \<in> A})}"

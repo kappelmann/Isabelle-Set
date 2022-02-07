@@ -68,7 +68,7 @@ File | Content
 `Soft_Types/Tests/Elaboration_Tests.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Soft_Types/Tests/Implicit_Arguments_Tests.thy` | Demonstrates automatic insertion of implicit arguments
 `Soft_Types/Tests/Isar_Integration_tests.thy` | Demonstrates automatic generation of typing assumptions in proof contexts.
-`Isabelle_Set/{Sets,Bin_Rels,Function,Fixpoints}.thy` | Further set-theoretic concepts with soft types
+`Isabelle_Set/{Sets,Binary_Relations,Function,Fixpoints}.thy` | Further set-theoretic concepts with soft types
 `Isabelle_Set/Structures.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
 `Isabelle_Set/Integer.thy` | Application of the set extension principle to construct `ℤ ⊇ ℕ`

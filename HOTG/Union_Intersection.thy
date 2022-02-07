@@ -1,7 +1,7 @@
 section \<open>Union and Intersection\<close>
 
 theory Union_Intersection
-imports Comprehension
+  imports Comprehension
 begin
 
 definition "inter A \<equiv> {x \<in> \<Union>A | \<forall>y \<in> A. x \<in> y}"
@@ -72,8 +72,8 @@ subsection \<open>Indexed union and intersection:\<close>
 
 (*TODO: localise*)
 syntax
-  "_idx_union" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Union>_ \<in> _./ _)" [0, 0, 10] 10)
-  "_idx_inter" :: \<open>[pttrn, set, set] => set\<close> ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10] 10)
+  "_idx_union" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Union>_ \<in> _./ _)" [0, 0, 10] 10)
+  "_idx_inter" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10] 10)
 translations
   "\<Union>x \<in> A. B" \<rightleftharpoons> "\<Union>{B | x \<in> A}"
   "\<Inter>x \<in> A. B" \<rightleftharpoons> "\<Inter>{B | x \<in> A}"
@@ -162,11 +162,11 @@ lemma idx_union_flatten [simp]:
   "(\<Union>x \<in> (\<Union>y \<in> A. B y). C x) = (\<Union>y \<in> A. \<Union>x \<in> B y. C x)"
   by (rule subset_antisym) auto
 
-lemma idx_union_constant [simp]:
+lemma idx_union_const [simp]:
   "(\<Union>y \<in> A. c) = (if A = {} then {} else c)"
   by (rule subset_antisym) auto
 
-lemma idx_inter_constant [simp]:
+lemma idx_inter_const [simp]:
   "(\<Inter>y \<in> A. c) = (if A = {} then {} else c)"
   by (rule subset_antisym) auto
 
@@ -260,11 +260,11 @@ lemma bin_union_empty_eq [simp, intro!]: "A \<union> {} = A"
 lemma singleton_bin_union_absorb [simp]: "a \<in> A \<Longrightarrow> {a} \<union> A = A"
   by (rule eqI) auto
 
-lemma singleton_bin_union_eq_cons: "{x} \<union> A = cons x A"
+lemma singleton_bin_union_eq_insert: "{x} \<union> A = insert x A"
   by (rule subset_antisym) auto
 
-lemma bin_union_singleton_eq_cons: "A \<union> {x} = cons x A"
-  using singleton_bin_union_eq_cons by (subst bin_union_comm)
+lemma bin_union_singleton_eq_insert: "A \<union> {x} = insert x A"
+  using singleton_bin_union_eq_insert by (subst bin_union_comm)
 
 lemma mem_singleton_bin_union [simp, intro!]: "a \<in> {a} \<union> B" by auto
 
@@ -396,6 +396,8 @@ lemma bin_inter_bin_union_swap3:
 
 text\<open>Comprehension\<close>
 
+lemma collect_eq_bin_inter [simp]: "{a \<in> A | a \<in> A'} = A \<inter> A'" by auto
+
 lemma collect_bin_union_eq:
   "{x \<in> A \<union> B | P x} = {x \<in> A | P x} \<union> {x \<in> B | P x}"
   by (rule subset_antisym) auto
@@ -413,19 +415,19 @@ lemma collect_idx_union_eq_union_collect [simp]:
   by (rule subset_antisym) auto
 
 lemma bin_inter_collect_left_eq_collect:
-  "{x \<in> A. P x} \<inter> B = {x \<in> A \<inter> B. P x}"
+  "{x \<in> A | P x} \<inter> B = {x \<in> A \<inter> B | P x}"
   by (rule subset_antisym) auto
 
 lemma bin_inter_collect_right_eq_collect:
-  "A \<inter> {x \<in> B. P x} = {x \<in> A \<inter> B. P x}"
+  "A \<inter> {x \<in> B | P x} = {x \<in> A \<inter> B | P x}"
   by (rule subset_antisym) auto
 
 lemma collect_and_eq_inter_collect:
-  "{x \<in> A | P(x) \<and> Q(x)} = {x \<in> A | P x} \<inter> {x \<in> A | Q x}"
+  "{x \<in> A | P x \<and> Q x} = {x \<in> A | P x} \<inter> {x \<in> A | Q x}"
   by (rule subset_antisym) auto
 
 lemma collect_or_eq_union_collect:
-  "{x \<in> A | P(x) \<or> Q(x)} = {x \<in> A | P x} \<union> {x \<in> A | Q x}"
+  "{x \<in> A | P x \<or> Q x} = {x \<in> A | P x} \<union> {x \<in> A | Q x}"
   by (rule subset_antisym) auto
 
 lemma union_bin_union_eq_bin_union_union: "\<Union>(A \<union> B) = \<Union>A \<union> \<Union>B"
@@ -502,6 +504,5 @@ lemma idx_inter_bin_inter_eq_bin_inter_idx_inter:
 lemma idx_union_bin_inter_subset_bin_inter_idx_union:
   "(\<Union>z \<in> I \<inter> J. A z) \<subseteq> (\<Union>z \<in> I. A z) \<inter> (\<Union>z \<in> J. A z)"
   by blast
-
 
 end

@@ -1,7 +1,7 @@
 section \<open>Structure Objects\<close>
 theory Objects
 imports
-  Functions
+  TFunctions
   Strings
 begin
 
@@ -38,8 +38,16 @@ subsection \<open>Object fields\<close>
 
 definition "object_fields O = dom (THE graph. O = object graph)"
 
-lemma object_fields_object_eq [simp]:
-  "object_fields (object (cons \<langle>x, y\<rangle> A)) = cons x (dom A)"
+lemma object_insert_pair_eq_extend [simp]:
+  "object (insert \<langle>x, y\<rangle> O) = object (extend x y O)"
+  unfolding object_def using insert_pair_eq_extend by simp
+
+lemma object_fields_empty_eq [simp]:
+  "object_fields (object {}) = {}"
+  unfolding object_fields_def object_def by auto
+
+lemma object_fields_extend_eq [simp]:
+  "object_fields (object (extend x y A)) = insert x (object_fields (object A))"
   unfolding object_fields_def object_def by auto
 
 definition "object_selector O s \<equiv> (THE graph. O = object graph)`s"
@@ -52,18 +60,19 @@ bundle no_isa_set_object_selector_syntax
 unbundle isa_set_object_selector_syntax
 
 lemma
-  shows object_selector_cons_eq [simp]:
-    "x \<notin> dom A \<Longrightarrow> (object (cons \<langle>x, y\<rangle> A))@x = y"
-  and object_selector_cons_eq' [simp]:
-    "x \<noteq> y \<Longrightarrow> (object (cons \<langle>y, z\<rangle> A))@x = A`x"
-  unfolding object_def object_selector_def by auto
+  shows object_selector_extend_eq [simp]:
+    "x \<notin> object_fields (object A) \<Longrightarrow> (object (extend x y A))@x = y"
+  and object_selector_extend_eq' [simp]:
+    "x \<noteq> y \<Longrightarrow> (object (extend y z A))@x = (object A)@x"
+  unfolding object_def object_selector_def object_fields_def by auto
 
-ML \<open>
+(*TODO: solver has some bugs*)
+(* ML \<open>
 (*Solver for the condition "x \<notin> dom A" arising object selector simplifications*)
 
 fun selector_tac ctxt =
-  REPEAT o (EqSubst.eqsubst_tac ctxt [0] @{thms dom_cons_eq})
-  THEN' CHANGED_PROP o REPEAT_ALL_NEW (match_tac ctxt @{thms not_mem_cons_if_not_mem_if_ne})
+  REPEAT o (EqSubst.eqsubst_tac ctxt [0] @{thms dom_extend_eq})
+  THEN' CHANGED_PROP o REPEAT_ALL_NEW (match_tac ctxt @{thms not_mem_insert_if_not_mem_if_ne})
   THEN' REPEAT o SOLVED' (string_ne_tac ctxt)
   THEN' (EqSubst.eqsubst_tac ctxt [0] @{thms dom_empty_eq})
   THEN' resolve_tac ctxt @{thms emptyset}
@@ -71,8 +80,7 @@ fun selector_tac ctxt =
 val selector_subgoaler = map_theory_simpset (Simplifier.set_subgoaler
   (fn ctxt => selector_tac ctxt ORELSE' asm_simp_tac ctxt))
 \<close>
-
-setup \<open>selector_subgoaler\<close>
+setup \<open>selector_subgoaler\<close> *)
 
 
 end
