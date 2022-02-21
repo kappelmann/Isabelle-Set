@@ -64,10 +64,10 @@ lemma ex_conj_True: "\<exists>x. P x \<Longrightarrow> \<exists>x. P x \<and> Tr
 (* set-based versions of function properties *)
 
 definition injective_set :: "set type \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
-  where "injective_set A f \<equiv> (\<forall>x:A. \<forall> y : A. f x = f y \<longrightarrow> x = y)"
+  where "injective_set A f \<equiv> (\<forall>x y : A. f x = f y \<longrightarrow> x = y)"
 
 definition surjective_set :: "set type \<Rightarrow> set type \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
-  where "surjective_set A B f \<equiv> (\<forall>y:B. \<exists>x:A. f x = y)"
+  where "surjective_set A B f \<equiv> (\<forall>y : B. \<exists>x : A. f x = y)"
 
 definition bijective_set :: "set type \<Rightarrow> set type \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
   where "bijective_set A B f \<equiv> injective_set A f \<and> surjective_set A B f"

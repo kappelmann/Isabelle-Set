@@ -1,50 +1,52 @@
 theory Dep_Rel
-  imports HOL.HOL
+  imports
+    HOL.HOL
+    HOL.Transfer
 begin
 
-definition Rel_Fun' :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool"
+definition Rel_Fun' :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
+  ('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool"
   where "Rel_Fun' R S f g \<equiv> \<forall>x y. R x y \<longrightarrow> S x y (f x) (g y)"
 
 definition rel_adj :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
   where "rel_adj R p \<equiv> (\<lambda>a b. R a b \<and> p a b)"
 
-definition dep_rel_fun :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
+definition dep_rel_fun :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
+  (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
   where "dep_rel_fun R S \<equiv> (\<lambda>f g. \<forall>x y. R x y \<longrightarrow> S x y (f x) (g y))"
 
-definition no_dep_rel_fun :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
+definition no_dep_rel_fun ::
+  "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
   where "no_dep_rel_fun R S \<equiv> dep_rel_fun R (\<lambda>x y. S)"
 
 definition rel_weak :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
   where "rel_weak P R \<equiv> (\<lambda>a b. P \<longrightarrow> R a b)"
 
-definition dep_rel_weak_fun :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
+definition dep_rel_weak_fun ::
+  "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
   where "dep_rel_weak_fun P R S \<equiv> (\<lambda>f g. \<forall>x y. (P \<longrightarrow> R x y) \<longrightarrow> S x y (f x) (g y))"
 
-definition no_dep_rel_weak_fun :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
+definition no_dep_rel_weak_fun ::
+  "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
   where "no_dep_rel_weak_fun P R S \<equiv> dep_rel_weak_fun P R (\<lambda>x y. S)"
 
 lemmas no_dep_rel_weak_fun_unfold = no_dep_rel_weak_fun_def[unfolded dep_rel_weak_fun_def]
 
-syntax "_rel_adj" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
-  ("[_/ _/ \<Colon>/ _/| _]" [101, 101, 101, 101] 100)
-
-syntax "_no_dep_rel_fun" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  ("(_) \<Rrightarrow> (_)" [101, 100] 100)
-
-syntax "_dep_rel_fun" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  ("[_/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 100] 100)
-
-syntax "_dep_rel_adj_fun" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  ("[_/ _/ \<Colon>/ _/| _] \<Rrightarrow> (_)" [101, 101, 101, 101, 100] 100)
-
-syntax "_rel_weak" :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
-  ("[_ \<longrightarrow> _]" [101, 101] 100)
-
-syntax "_dep_rel_weak_fun" :: "bool \<Rightarrow> pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  ("[_ \<longrightarrow> _/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 101, 100] 100)
-
-syntax "_no_dep_rel_weak_fun" :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  ("[_ \<longrightarrow> _] \<Rrightarrow> (_)" [101, 101, 100] 100)
+syntax
+  "_rel_adj" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
+    ("[_/ _/ \<Colon>/ _/| _]" [101, 101, 101, 101] 100)
+  "_no_dep_rel_fun" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow>
+    ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("(_) \<Rrightarrow> (_)" [101, 100] 100)
+  "_dep_rel_fun" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
+    (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 100] 100)
+  "_dep_rel_adj_fun" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool)
+    \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_/ _/ \<Colon>/ _/| _] \<Rrightarrow> (_)" [101, 101, 101, 101, 100] 100)
+  "_rel_weak" :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
+    ("[_ \<longrightarrow> _]" [101, 101] 100)
+  "_dep_rel_weak_fun" :: "bool \<Rightarrow> pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool)
+    \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_ \<longrightarrow> _/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 101, 100] 100)
+  "_no_dep_rel_weak_fun" :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
+    (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_ \<longrightarrow> _] \<Rrightarrow> (_)" [101, 101, 100] 100)
 
 translations
   "[x y \<Colon> R | P]" \<rightleftharpoons> "CONST rel_adj R (\<lambda>x y. P)"
