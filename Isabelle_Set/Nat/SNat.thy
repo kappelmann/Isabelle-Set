@@ -1,5 +1,5 @@
 section \<open>Natural numbers\<close>
-theory Nat
+theory SNat
 imports
   Nat_Ranges
   Nat_Algebra

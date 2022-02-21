@@ -1,7 +1,7 @@
 section \<open>Matrices\<close>
 theory Matrices
   imports
-    Nat
+    SNat
     TFunctions
 begin
 

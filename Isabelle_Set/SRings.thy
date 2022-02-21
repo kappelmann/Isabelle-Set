@@ -1,6 +1,6 @@
 chapter \<open>Rings\<close>
 
-theory Rings
+theory SRings
 imports Monoids
 begin
 

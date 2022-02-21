@@ -2,7 +2,7 @@ subsection \<open>Representation of Integers\<close>
 theory Integers_Rep_Base
 imports
   HOTG.Set_Difference
-  Nat
+  SNat
   TCoproduct
 begin
 

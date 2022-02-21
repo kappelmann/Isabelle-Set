@@ -20,11 +20,11 @@ session Isabelle_Set = "HOL" +
     TFunctions
     Integers
     Matrices
-    Nat
+    SNat
     Monoids
     Objects
     Ordinals
-    Rings
+    SRings
     Set_Extension
     Sets
     Strings
@@ -40,3 +40,10 @@ session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
     Function_Tests
     Lists
     Type_Check_Tests
+
+session Transfer in "Transfer" = "Isabelle_Set" +
+   options
+    [timeout = 20]
+  theories
+    Transfer_Test
+
