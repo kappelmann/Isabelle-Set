@@ -13,6 +13,7 @@
 *.spl
 *.synctex
 *.synctex(busy)
+*.swp
 *.toc
 *.vrb
 *.vtc

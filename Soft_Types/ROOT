@@ -19,3 +19,11 @@ session Soft_Types_Tests in "Tests" = "Soft_Types" +
     (*Isar_Integration_Tests*)
     Simp_Tests
     (*Type_Check_Tests*)
+
+session ZF_Tests in "ZF_Tests" = "Soft_Types" +
+   options
+    [timeout = 20]
+  sessions
+    "ZF"
+  theories
+    (*ZF_Tests*)
