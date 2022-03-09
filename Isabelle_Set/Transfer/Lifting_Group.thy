@@ -107,11 +107,6 @@ proof ((rule ext)+, rule iffI)
 
     oops
 
-term "int_rep list_rep \<longrightarrow> int_abs list_rep \<longrightarrow> int_abs list_abs"
-term "(list_relator Eq_int_abs, Eq_list_rep )"
-term "Cons_rep 1_abs Nil_rep \<equiv> Cons_rep 1_abs' Nil_rep"
-term "Cons_rep 1_abs Nil_rep \<equiv> Cons_rep' 1_abs Nil_rep'"
-
 lemma lifting_comp_Eq_abs_T: "lifting Eq_rep Eq_abs T abs rep \<Longrightarrow> rel_comp' Eq_abs T = T"
   unfolding lifting_unfold rel_comp'_def
   by fast
@@ -495,23 +490,6 @@ next
     using 1 by auto
 qed
 
-term "T a b"
-term "T c b"
-
-term "Eq_rep a c"
-term "T c d"
-term "Eq_abs d b"
-term "\<rightarrow> T a d"
-
-term "T x y \<equiv> x `divides` y"
-term "T 2 6"
-term "T 3 6"
-term "T 3 9"
-
-term "T 2 9"
-
-term "Eq_rep x x \<Longrightarrow> T x (abs x)"
-
 lemma
   assumes
     "Eq_rep = rel_comp' (rel_inv T) T" (* 1. condition unchanged *)
@@ -673,20 +651,5 @@ next
     by blast
 qed
 
-term "T x y \<Longrightarrow> Eq_abs (Abs x) y"
-term "T x y \<Longrightarrow> Eq_rep x (Rep y)"
-
-term "Eq_abs y y \<Longrightarrow> T (Rep y) y"
-term "Eq_rep x x \<Longrightarrow> T x (Abs x)"
-term "T x y \<Longrightarrow> T x (Abs x)"
-
-term "Eq_abs x x \<Longrightarrow> Eq_abs (abs (rep x))  x"
-
-term "T a b \<Longrightarrow> T a (Abs a)"
-
-term "T a b \<Longrightarrow> R a (Rep b)"
-term "T a b \<Longrightarrow> (T \<circ> T^-1) a (Rep b)"
-term "T a b \<Longrightarrow> \<exists>c. T a c \<and> T (Rep b) c"
-term "T a b \<Longrightarrow> T a b \<and> T (Rep b) b"
 
 end
