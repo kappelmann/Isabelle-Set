@@ -112,60 +112,274 @@ term "(list_relator Eq_int_abs, Eq_list_rep )"
 term "Cons_rep 1_abs Nil_rep \<equiv> Cons_rep 1_abs' Nil_rep"
 term "Cons_rep 1_abs Nil_rep \<equiv> Cons_rep' 1_abs Nil_rep'"
 
+lemma lifting_comp_Eq_abs_T: "lifting Eq_rep Eq_abs T abs rep \<Longrightarrow> rel_comp' Eq_abs T = T"
+  unfolding lifting_unfold rel_comp'_def
+  by fast
+
+lemma lifting_comp_T_Eq_rep: "lifting Eq_rep Eq_abs T abs rep \<Longrightarrow> rel_comp' T Eq_rep = T"
+  unfolding lifting_unfold rel_comp'_def
+  by fast
 
 lemma comp_lifting':
   assumes "lifting Eq_rep1 Eq_abs1 T1 abs1 rep1"
       and "lifting Eq_rep2 Eq_abs2 T2 abs2 rep2"
+      and "rel_comp' Eq_abs1 Eq_rep2 = rel_comp' Eq_rep2 Eq_abs1"
     shows "lifting
-      (rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2))
+      (rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1))
       (rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)))
       (rel_comp' T2 T1) (comp abs2 abs1) (comp rep1 rep2)"
 proof (rule liftingI)
-  show "\<And>x y. rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x y \<Longrightarrow>
-           rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) y x"
-  proof -
-    fix x y
-    assume prem: "rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x y"
-    obtain v where v: "rel_comp' Eq_rep1 T2 x v" "rel_inv T2 v y"
-      using prem unfolding rel_comp'_def by blast
-    obtain w where w: "T2 x w" "Eq_rep1 w v"
-      using v(1) unfolding rel_comp'_def by blast
-    have 1: "Eq_rep1 v w"
-      using w(2) assms(1) unfolding lifting_unfold by metis
-    have 2: "T2 y v"
-      using v(2) unfolding rel_inv_def .
-    have 3: "(rel_inv T2) w x"
-      using w(1) unfolding rel_inv_def .
-    show "rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) y x"
-      using 2 1 3
-      unfolding rel_comp'_def rel_inv_def by blast
-  qed
+  fix x y
+  assume prem: "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x y"
+  obtain v where v: "rel_comp' Eq_rep2 T1 x v" "rel_inv T1 v y"
+    using prem unfolding rel_comp'_def by blast
+  obtain w where w: "T1 x w" "Eq_rep2 w v"
+    using v(1) unfolding rel_comp'_def by blast
+  have "rel_inv T1 w x"
+    unfolding rel_inv_def
+    using w(1) .
+  moreover have "Eq_rep2 v w"
+    using w(2) assms(2)[unfolded lifting_unfold]
+    by metis
+  moreover have "T1 y v"
+    using v(2)[unfolded rel_inv_def] .
+  ultimately show "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) y x"
+    unfolding rel_comp'_def rel_inv_def
+    by blast
 next
-  show "\<And>x y z.
-       rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x y \<Longrightarrow>
-       rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) y z \<Longrightarrow>
-       rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x z"
-  proof -
-    fix x y z
-    assume prems:
-      "rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x y"
-      "rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) y z"
-    obtain a where a: "rel_comp' Eq_rep1 T2 x a" "rel_inv T2 a y"
-      using prems(1) unfolding rel_comp'_def by blast
-    obtain b where b: "T2 x b" "Eq_rep1 b a"
-      using a(1) unfolding rel_comp'_def by blast
-    obtain c where c: "rel_comp' Eq_rep1 T2 y c" "rel_inv T2 c z"
-      using prems(2) unfolding rel_comp'_def by blast
-    obtain d where d: "T2 y d" "Eq_rep1 d c"
-      using c(1) unfolding rel_comp'_def by blast
-    have 1: "Eq_abs2 a d" using a(2) d(1)  assms(2) unfolding rel_inv_def lifting_unfold
-      by metis
-    show "rel_comp' (rel_inv T2) (rel_comp' Eq_rep1 T2) x z"
-      unfolding rel_comp'_def
-      (* using b a(2) d c(2)*)
-      using b 1 d(2) c(2)
-
-      oops
+  fix x y z
+  assume prems:
+    "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x y"
+    "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) y z"
+  obtain a where a: "rel_comp' Eq_rep2 T1 x a" "rel_inv T1 a y"
+    using prems(1) unfolding rel_comp'_def by blast
+  obtain b where b: "T1 x b" "Eq_rep2 b a"
+    using a(1) unfolding rel_comp'_def by blast
+  obtain c where c: "rel_comp' Eq_rep2 T1 y c" "rel_inv T1 c z"
+    using prems(2) unfolding rel_comp'_def by blast
+  obtain d where d: "T1 y d" "Eq_rep2 d c"
+    using c(1) unfolding rel_comp'_def by blast
+  have 1: "Eq_abs1 a d" using a(2) d(1) assms(1) unfolding rel_inv_def lifting_unfold
+    by metis
+  obtain e where e: "Eq_abs1 b e" "Eq_rep2 e d"
+    using b(2) 1 assms(3) unfolding rel_comp'_def
+    by metis
+  have 2: "T1 x e"
+    apply (subst lifting_comp_Eq_abs_T[OF assms(1), symmetric], rule rel_comp'I)
+    using b(1) e(1) .
+  have 3: "Eq_rep2 e c"
+    using e(2) d(2) assms(2) unfolding lifting_unfold
+    by metis
+  show "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x z"
+    unfolding rel_comp'_def
+    using b a(2) d c(2)
+    by blast
+next
+  fix x y
+  assume prem: "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) x y"
+  obtain v where v: "rel_comp' Eq_abs1 (rel_inv T2) x v" "T2 v y"
+    using prem unfolding rel_comp'_def by blast
+  obtain w where w: "(rel_inv T2) x w" "Eq_abs1 w v"
+    using v(1) unfolding rel_comp'_def by blast
+  have "rel_inv T2 y v"
+    unfolding rel_inv_def
+    using v(2) .
+  moreover have "Eq_abs1 v w"
+    using w(2) assms(1)
+    unfolding lifting_unfold
+    by metis
+  moreover have "T2 w x"
+    using w(1)[unfolded rel_inv_def] .
+  ultimately show "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) y x"
+    unfolding rel_comp'_def rel_inv_def by blast
+next
+  fix x y z
+  assume prems:
+    "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) x y"
+    "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) y z"
+  obtain a where a: "rel_comp' Eq_abs1 (rel_inv T2) x a" "T2 a y"
+    using prems(1) unfolding rel_comp'_def by blast
+  obtain b where b: "rel_inv T2 x b" "Eq_abs1 b a"
+    using a(1) unfolding rel_comp'_def by blast
+  obtain c where c: "rel_comp' Eq_abs1 (rel_inv T2) y c" "T2 c z"
+    using prems(2) unfolding rel_comp'_def by blast
+  obtain d where d: "rel_inv T2 y d" "Eq_abs1 d c"
+    using c(1) unfolding rel_comp'_def by blast
+  have 1: "Eq_rep2 a d" using a(2) d(1) assms(2) unfolding rel_inv_def lifting_unfold
+    by metis
+  obtain e where e: "Eq_rep2 b e" "Eq_abs1 e d"
+    using b(2) 1 assms(3) unfolding rel_comp'_def
+    by metis
+  have 2: "rel_inv T2 x e"
+    apply (subst rel_inv_def)
+    apply (subst lifting_comp_T_Eq_rep[OF assms(2), symmetric], rule rel_comp'I)
+    using e(1) b(1)[unfolded rel_inv_def] assms(2)[unfolded lifting_unfold]
+    by blast+
+  have 3: "Eq_abs1 e c"
+    using e(2) d(2) assms(1) unfolding lifting_unfold
+    by metis
+  show "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) x z"
+    unfolding rel_comp'_def
+    using 2 3 c(2)
+    by blast
+next
+  fix x y z
+  assume prems:
+    "rel_comp' T2 T1 x z"
+    "rel_comp' T2 T1 y z"
+  obtain v where v: "T1 x v" "T2 v z"
+    using prems(1)[unfolded rel_comp'_def]
+    by blast
+  obtain w where w: "T1 y w" "T2 w z"
+    using prems(2)[unfolded rel_comp'_def]
+    by blast
+  have "Eq_rep2 v w"
+    using v(2) w(2) assms(2)[unfolded lifting_unfold]
+    by metis
+  thus "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x y"
+    unfolding rel_comp'_def rel_inv_def
+    using v(1) w(1)
+    by blast
+next
+  fix x y z
+  assume prems:
+    "rel_comp' T2 T1 x y"
+    "rel_comp' T2 T1 x z"
+  obtain v where v: "T1 x v" "T2 v y"
+    using prems(1)[unfolded rel_comp'_def]
+    by blast
+  obtain w where w: "T1 x w" "T2 w z"
+    using prems(2)[unfolded rel_comp'_def]
+    by blast
+  have "Eq_abs1 v w"
+    using v(1) w(1) assms(1)[unfolded lifting_unfold]
+    by metis
+  thus "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) y z"
+    unfolding rel_comp'_def rel_inv_def
+    using v(2) w(2)
+    by blast
+next
+  fix x y z
+  assume prems:
+    "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x y"
+    "rel_comp' T2 T1 x z"
+  obtain a where a: "rel_comp' Eq_rep2 T1 x a" "T1 y a"
+    using prems(1)
+    unfolding rel_comp'_def rel_inv_def
+    by blast
+  obtain b where b: "T1 x b" "Eq_rep2 b a"
+    using a(1)
+    unfolding rel_comp'_def
+    by blast
+  obtain c where c: "T1 x c" "T2 c z"
+    using prems(2)[unfolded rel_comp'_def]
+    by blast
+  have "Eq_rep2 a b"
+    using b(2) assms(2)[unfolded lifting_unfold]
+    by metis
+  moreover have "Eq_abs1 b c"
+    using b(1) c(1) assms(1)[unfolded lifting_unfold]
+    by metis
+  ultimately obtain d where d: "Eq_abs1 a d" "Eq_rep2 d c"
+    using assms(3)[unfolded rel_comp'_def]
+    by metis
+  have "T1 y d"
+    using a(2) d(1) assms(1)[unfolded lifting_unfold]
+    by metis
+  moreover have "T2 d z"
+    using d(2) c(2) assms(2)[unfolded lifting_unfold]
+    by metis
+  ultimately show "rel_comp' T2 T1 y z"
+    unfolding rel_comp'_def
+    by blast
+next
+  fix x y z
+  assume prems:
+    "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) y z"
+    "rel_comp' T2 T1 x y"
+  obtain a where a: "rel_comp' Eq_abs1 (rel_inv T2) y a" "T2 a z"
+    using prems(1)
+    unfolding rel_comp'_def
+    by blast
+  obtain b where b: "T2 b y" "Eq_abs1 b a"
+    using a(1)
+    unfolding rel_comp'_def rel_inv_def
+    by blast
+  obtain c where c: "T1 x c" "T2 c y"
+    using prems(2)[unfolded rel_comp'_def]
+    by blast
+  have "Eq_rep2 c b"
+    using c(2) b(1) assms(2)[unfolded lifting_unfold]
+    by metis
+  then obtain d where d: "Eq_abs1 c d" "Eq_rep2 d a"
+    using b(2) assms(3)[unfolded rel_comp'_def]
+    by metis
+  have "T1 x d"
+    using c(1) d(1) assms(1)[unfolded lifting_unfold]
+    by metis
+  moreover have "T2 d z"
+    using d(2) a(2) assms(2)[unfolded lifting_unfold]
+    by metis
+  ultimately show "rel_comp' T2 T1 x z"
+    unfolding rel_comp'_def
+    by blast
+next
+  fix x
+  assume prem: "rel_comp' (rel_inv T1) (rel_comp' Eq_rep2 T1) x x"
+  obtain y where y: "rel_comp' Eq_rep2 T1 x y" "T1 x y"
+    using prem
+    unfolding rel_comp'_def rel_inv_def
+    by blast
+  obtain z where z: "Eq_rep2 z y"
+    using y(1)[unfolded rel_comp'_def]
+    by blast
+  from y(2) have 1: "T1 x (abs1 x)"
+    using assms(1)[unfolded lifting_unfold]
+    by metis
+  with y(2) have "Eq_abs1 (abs1 x) y"
+    using assms(1)[unfolded lifting_unfold]
+    by metis
+  moreover from z have "Eq_rep2 y z"
+    using assms(2)[unfolded lifting_unfold]
+    by metis
+  ultimately obtain a where "Eq_rep2 (abs1 x) a"
+    using assms(3)[unfolded lifting_unfold rel_comp'_def]
+    by metis
+  hence "T2 (abs1 x) (abs2 (abs1 x))"
+    using assms(2)[unfolded lifting_unfold]
+    by metis
+  with 1 show "rel_comp' T2 T1 x ((abs2 \<circ> abs1) x)"
+    unfolding rel_comp'_def comp_def
+    by blast
+next
+  fix y
+  assume prem: "rel_comp' T2 (rel_comp' Eq_abs1 (rel_inv T2)) y y"
+  obtain x where x: "rel_comp' Eq_abs1 (rel_inv T2) y x" "T2 x y"
+    using prem(1)
+    unfolding rel_comp'_def
+    by blast
+  obtain z where z: "Eq_abs1 z x"
+    using x(1)[unfolded rel_comp'_def rel_inv_def]
+    by blast
+  from x(2) have 1: "T2 (rep2 y) y"
+    using assms(2)[unfolded lifting_unfold]
+    by metis
+  with x(2) have "Eq_rep2 (rep2 y) x"
+    using assms(2)[unfolded lifting_unfold]
+    by metis
+  moreover from z have "Eq_abs1 x z"
+    using assms(1)[unfolded lifting_unfold]
+    by metis
+  ultimately obtain a where "Eq_abs1 (rep2 y) a"
+    using assms(3)[unfolded rel_comp'_def]
+    by metis
+  hence "T1 (rep1 (rep2 y)) (rep2 y)"
+    using assms(1)[unfolded lifting_unfold]
+    by metis
+  with 1 show "rel_comp' T2 T1 ((rep1 \<circ> rep2) y) y"
+    unfolding rel_comp'_def comp_def
+    by blast
+qed
 
 lemma comp_lifting:
   assumes "lifting Eq_rep1 Eq_int T1 abs1 rep1"
@@ -280,6 +494,23 @@ next
     unfolding rel_comp'_def
     using 1 by auto
 qed
+
+term "T a b"
+term "T c b"
+
+term "Eq_rep a c"
+term "T c d"
+term "Eq_abs d b"
+term "\<rightarrow> T a d"
+
+term "T x y \<equiv> x `divides` y"
+term "T 2 6"
+term "T 3 6"
+term "T 3 9"
+
+term "T 2 9"
+
+term "Eq_rep x x \<Longrightarrow> T x (abs x)"
 
 lemma
   assumes
