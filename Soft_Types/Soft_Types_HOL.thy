@@ -348,19 +348,6 @@ declare [[ML_debugger, ML_exception_debugger]]
 ML_file \<open>soft_type.ML\<close>
 ML_file \<open>soft_type_context.ML\<close>
 ML_file \<open>derivation.ML\<close>
-ML_file \<open>unification.ML\<close>
-ML_file \<open>type_classes.ML\<close>
-ML_file \<open>elaboration.ML\<close>
-ML_file \<open>isar_integration.ML\<close>
-
-setup \<open>Isar_Integration.setup\<close>
-
-declare with_type_def [type_simp]
-
-\<comment> \<open>Declarations for the derivator; currently slightly ad hoc.\<close>
-declare Any_typeI [type]
-declare Dep_fun_typeI [backward_derive]
-declare Dep_fun_typeE [derive]
 
 subsection \<open>Type derivation\<close>
 
@@ -393,8 +380,21 @@ val soft_type_simp_solver =
 
 setup \<open>soft_type_simp_solver\<close>
 
+ML_file \<open>unification.ML\<close>
+ML_file \<open>type_classes.ML\<close>
+ML_file \<open>elaboration.ML\<close>
+ML_file \<open>isar_integration.ML\<close>
+
+setup \<open>Isar_Integration.setup\<close>
+
+declare with_type_def [type_simp]
+
 
 section \<open>Basic declarations\<close>
+
+declare Any_typeI [type]
+declare Dep_fun_typeI [backward_derive]
+declare Dep_fun_typeE [derive]
 
 lemma eq_type [type]: "(=) : A \<Rightarrow> A \<Rightarrow> Bool"
   by discharge_types

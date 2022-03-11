@@ -64,12 +64,6 @@ ML \<open>
 \<close>
 
 ML \<open>
-  (fn _ => Elaboration.elaborate_terms \<^context> [
-       \<^term>\<open>%A x. cons A x xs = cons A x xs\<close> ])
-  |> should_throw (fn ERROR msg => starts_with "Equation is not a pattern" msg)
-\<close>
-
-ML \<open>
   [\<^term>\<open>append A (cons A x xs) ys = cons A x (append A xs ys)\<close>,
    \<^term>\<open>append A (nil A) ys = ys\<close>]
   |> Elaboration.assert_result \<^context>
@@ -100,6 +94,9 @@ experiment
   and vnil :: "set \<Rightarrow> set"
   and vcons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and vappend :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
+
+  and negint :: "set"
+  and vinitneg :: "set \<Rightarrow> set \<Rightarrow> set"
   assumes [type]: "vec: Set \<Rightarrow> Element nat \<Rightarrow> Set"
   and [type]: "vnil : (A : Set) \<Rightarrow> Element (vec A 0)"
   and [type]: "vcons: (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow>
@@ -110,12 +107,20 @@ experiment
   and [type]: "vappend: (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow> (m : Element nat) \<Rightarrow>
     Element (vec A n) \<Rightarrow> Element (vec A m) \<Rightarrow> Element (vec A (add n m))"
   and [type_simp]: "add (succ n) m = succ (add n m)"
+
+  and [type]: "vinitneg : (A : Set) \<Rightarrow> (x : Element negint) \<Rightarrow> Element (vec A x)"
 begin
 
 text \<open>The base set of the vector and the dimensions are completely inferred:\<close>
 
 ML \<open> Elaboration.elaborate_terms \<^context> [
   \<^term>\<open>vappend ? ? ? (vcons ? ? x xs) ys = vcons ? ? x (vappend ? ? ? xs ys)\<close>
+]\<close>
+
+(*Problem: does not keep type assertions for compound term, leading to ill-typed
+elaborations*)
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>vcons ? ? x (vinitneg ? ?)\<close>
 ]\<close>
 
 end

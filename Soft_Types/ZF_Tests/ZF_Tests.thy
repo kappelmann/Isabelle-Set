@@ -15,7 +15,8 @@ lemma [TC]: "x \<in> carrier(Nat_Add) \<Longrightarrow> x \<in> carrier(Int_Add)
 
 schematic_goal
   "x \<in> carrier(Nat_Add) \<Longrightarrow> y \<in> carrier(Int_Add) \<Longrightarrow> add(?A, x, y) \<in> carrier(?A)"
-  by typecheck (*greedy instantiation leads to unprovable goal*)
+  by typecheck (*greedy instantiation leads to unprovable goal; can be solved
+  by re-stating carrier lemma with subtyping judgements*)
   oops
 
 lemma "x \<in> carrier(Nat_Add) \<Longrightarrow> y \<in> carrier(Int_Add) \<Longrightarrow> add(Int_Add, x, y) \<in> carrier(Int_Add)"
