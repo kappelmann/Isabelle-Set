@@ -24,12 +24,13 @@ definition rel_comp ::
     where "rel_comp R S x y \<equiv> (\<exists>z. R x z \<and> S z y)"
 
 lemma rel_compI: "\<lbrakk>R x y; S y z\<rbrakk> \<Longrightarrow> (R \<circ>\<circ> S) x z"
-  unfolding rel_comp_def
-  by blast
+  unfolding rel_comp_def by blast
+
+lemma rel_compE: "\<lbrakk>(R \<circ>\<circ> S) x y; \<And>z. \<lbrakk>R x z; S z y\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  unfolding rel_comp_def by blast  
 
 lemma rel_comp_assoc: "R \<circ>\<circ> (S \<circ>\<circ> T) = (R \<circ>\<circ> S) \<circ>\<circ> T"
-  unfolding rel_comp_def
-  by blast
+  unfolding rel_comp_def by blast
 
 definition rel_inv :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'b \<Rightarrow> 'a \<Rightarrow> bool"
   where "rel_inv R x y \<equiv> R y x"
@@ -40,10 +41,16 @@ definition in_dom :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a 
 definition in_co_dom :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'b \<Rightarrow> bool"
   where "in_co_dom R y \<equiv> (\<exists>x. R x y)"
 
+lemma in_domI: "R x y \<Longrightarrow> in_dom R x"
+  unfolding in_dom_def by blast
+
+lemma in_co_domI: "R x y \<Longrightarrow> in_co_dom R y"
+  unfolding in_co_dom_def by blast
+
 lemma in_domE: "\<lbrakk>in_dom R x; \<And>y. R x y \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   unfolding in_dom_def by blast
 
-lemma in_co_domE: "\<lbrakk>\<And>x. R x y \<Longrightarrow> P; in_co_dom R y\<rbrakk> \<Longrightarrow> P"
+lemma in_co_domE: "\<lbrakk>in_co_dom R y; \<And>x. R x y \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
   unfolding in_co_dom_def by blast
 
 
@@ -132,6 +139,10 @@ proof -
     using rels by blast
 qed
 
+lemma z_property_subst: "z_property R \<Longrightarrow> R \<circ>\<circ> rel_inv R \<circ>\<circ> R \<equiv> R"
+  apply (rule eq_reflection)
+  unfolding z_property_def .
+
 definition Eq_rep :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool"
   where "Eq_rep T \<equiv> T \<circ>\<circ> rel_inv T"
 
@@ -161,13 +172,31 @@ qed
 definition Eq_abs :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'b \<Rightarrow> 'b \<Rightarrow> bool"
   where "Eq_abs T \<equiv> rel_inv T \<circ>\<circ> T"
 
-lemma Eq_rabsI: "\<lbrakk>T x y; T x z\<rbrakk> \<Longrightarrow> Eq_abs T y z"
+lemma Eq_absI: "\<lbrakk>T x y; T x z\<rbrakk> \<Longrightarrow> Eq_abs T y z"
   unfolding Eq_abs_def rel_comp_def rel_inv_def
   by blast
 
 lemma Eq_absE: "Eq_abs T y z \<Longrightarrow> (\<exists>x. T x y \<and> T x z)"
   unfolding Eq_abs_def rel_comp_def rel_inv_def
   by blast
+
+lemma Eq_absE': "\<lbrakk>Eq_abs T y z; \<And>x. \<lbrakk>T x y; T x z\<rbrakk> \<Longrightarrow> P\<rbrakk> \<Longrightarrow> P"
+  unfolding Eq_abs_def rel_comp_def rel_inv_def
+  by blast
+
+lemma Eq_rep_sym: "Eq_rep T x y \<Longrightarrow> Eq_rep T y x"
+  unfolding Eq_rep_def rel_comp_def rel_inv_def by blast
+
+lemma Eq_abs_sym: "Eq_abs T x y \<Longrightarrow> Eq_abs T y x"
+  unfolding Eq_abs_def rel_comp_def rel_inv_def by blast
+
+lemma Eq_rep_then_in_dom: "Eq_rep T x x' \<Longrightarrow> in_dom T x"
+  apply (erule Eq_repE')
+  apply (rule in_domI) .
+
+lemma Eq_abs_then_in_co_dom: "Eq_abs T y y' \<Longrightarrow> in_co_dom T y"
+  apply (erule Eq_absE')
+  apply (rule in_co_domI) .
 
 lemma z_property_rel_inv: "z_property T \<Longrightarrow> z_property (rel_inv T)"
   apply (rule z_propertyI)
@@ -226,6 +255,12 @@ lemma transfer_tripleI:
   unfolding transfer_triple_def
   by blast
 
+lemma rel_abs: "\<lbrakk>transfer_triple T abs rep; in_dom T x\<rbrakk> \<Longrightarrow> T x (abs x)"
+  unfolding transfer_triple_def by blast
+
+lemma rel_rep: "\<lbrakk>transfer_triple T abs rep; in_co_dom T y\<rbrakk> \<Longrightarrow> T (rep y) y"
+  unfolding transfer_triple_def by blast
+
 lemma Eq_abs_abs:
   assumes "transfer_triple T abs rep"
   shows "T x y \<Longrightarrow> Eq_abs T y (abs x)"
@@ -253,6 +288,7 @@ proof -
   thus "T x y \<Longrightarrow> Eq_rep T x (rep y)"
     unfolding Eq_rep_def .
 qed
+  
 
 lemma
   assumes "z_property T"
@@ -264,24 +300,29 @@ proof (rule transfer_tripleI)
     using assms(1) .
 next
   fix x
-  assume prem1: "in_dom T x"
-  have 1: "\<And>x y. T x y \<Longrightarrow> (rel_inv T \<circ>\<circ> T) y (abs x)"
+  assume prem: "in_dom T x"
+  obtain y where y: "T x y"
+    using in_domE[OF prem] .
+  have 1: "(rel_inv T \<circ>\<circ> T) y (abs x)"
     unfolding rel_comp_def rel_inv_def
-    using Eq_absE[OF assms(2)] .
-  { fix x y
-    assume prem2: "T x y"
-    have "(T \<circ>\<circ> rel_inv T \<circ>\<circ> T) x (abs x)"
+    using Eq_absE assms(2) y .
+  have "(T \<circ>\<circ> rel_inv T \<circ>\<circ> T) x (abs x)"
     unfolding rel_comp_assoc[symmetric]
-    using rel_compI[of T x y "rel_inv T \<circ>\<circ> T", OF prem2 1[OF prem2]] .
-  }
+    using rel_compI y 1 .
   thus "T x (abs x)"
-    using assms(1) z_property_def prem1 in_domE
-    sorry
+    apply (subst z_property_subst[OF assms(1), symmetric]) .
 next
   fix y
-  assume "in_co_dom T y"
-  show "T (rep y) y"
-    sorry
+  assume prem: "in_co_dom T y"
+  obtain x where x: "T x y"
+    using in_co_domE[OF prem] .
+  have 1: "(T \<circ>\<circ> rel_inv T) (rep y) x"
+    unfolding rel_comp_def rel_inv_def
+    using Eq_repE Eq_rep_sym assms(3) x .
+  have "(T \<circ>\<circ> rel_inv T \<circ>\<circ> T) (rep y) y"
+    using rel_compI 1 x .
+  thus "T (rep y) y"
+    apply (subst z_property_subst[OF assms(1), symmetric]) .
 qed
 
 lemma z_property_transfer_triple:
@@ -289,11 +330,103 @@ lemma z_property_transfer_triple:
   unfolding transfer_triple_def
   by blast
 
+lemma z_property_rel_comp:
+  assumes z_prop1: "z_property T1"
+      and z_prop2: "z_property T2"
+      and Eq_comm: "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
+    shows "z_property (T1 \<circ>\<circ> T2)"
+  proof (rule z_propertyI)
+    fix x1 y1 x2 y2
+    assume rels: "(T1 \<circ>\<circ> T2) x1 y1" "(T1 \<circ>\<circ> T2) x2 y1" "(T1 \<circ>\<circ> T2) x2 y2"
+    obtain z1 where z1: "T1 x1 z1" "T2 z1 y1"
+      using rel_compE rels(1) .
+    obtain z2 where z2: "T1 x2 z2" "T2 z2 y1"
+      using rel_compE rels(2) .
+    obtain z3 where z3: "T1 x2 z3" "T2 z3 y2"
+      using rel_compE rels(3) .
+    have Eq_rep_z1_z2: "Eq_rep T2 z1 z2"
+      using Eq_repI z1(2) z2(2) .
+    have Eq_abs_z2_z3: "Eq_abs T1 z2 z3"
+      using Eq_absI z2(1) z3(1) .
+    obtain z4 where z4: "Eq_abs T1 z1 z4" "Eq_rep T2 z4 z3"
+      apply (rule rel_compE)
+      apply (subst Eq_comm)
+      using rel_compI Eq_rep_z1_z2 Eq_abs_z2_z3 .
+    obtain x3 where x3: "T1 x3 z1" "T1 x3 z4"
+      using Eq_absE'[OF z4(1)] .
+    obtain y3 where y3: "T2 z4 y3" "T2 z3 y3"
+      using Eq_repE'[OF z4(2)] .
+    have "T1 x1 z4"
+      using z_propertyE z_prop1 z1(1) x3 .
+    moreover have "T2 z4 y2"
+      using z_propertyE z_prop2 y3 z3(2) .
+    ultimately show "(T1 \<circ>\<circ> T2) x1 y2"
+      by (rule rel_compI)
+  qed
+
 lemma lifting_triple_composition:
-  assumes "transfer_triple T1 abs1 rep1"
-      and "transfer_triple T1 abs1 rep1"
-      and "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
+  assumes trans_trip1: "transfer_triple T1 abs1 rep1"
+      and trans_trip2: "transfer_triple T2 abs2 rep2"
+      and Eq_comm: "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
     shows "transfer_triple (T1 \<circ>\<circ> T2) (abs2 \<circ> abs1) (rep1 \<circ> rep2)"
-  sorry
+proof (rule transfer_tripleI)
+  show "z_property (T1 \<circ>\<circ> T2)"
+    apply (rule z_property_rel_comp)
+    apply (rule z_property_transfer_triple, (fact trans_trip1 | fact trans_trip2))+
+    using Eq_comm .
+next
+  fix x
+  assume in_dom_x: "in_dom (T1 \<circ>\<circ> T2) x"
+  obtain y where y: "(T1 \<circ>\<circ> T2) x y"
+    using in_domE in_dom_x .
+  obtain z where z: "T1 x z" "T2 z y"
+    using rel_compE y .
+  have in_dom1_x: "in_dom T1 x"
+    using in_domI z(1) .
+  have T1_x_abs_x: "T1 x (abs1 x)"
+    using rel_abs trans_trip1 in_dom1_x .
+  have Eq_x_abs_x: "Eq_abs T1 z (abs1 x)"
+    using Eq_absI z(1) T1_x_abs_x .
+  have Eq_z_z: "Eq_rep T2 z z"
+    using Eq_repI z(2) z(2) .
+  have Eq_abs_x_z: "(Eq_abs T1 \<circ>\<circ> Eq_rep T2) (abs1 x) z"
+    using rel_compI Eq_abs_sym[OF Eq_x_abs_x] Eq_z_z .
+  obtain z' where z': "Eq_abs T1 z' z" "Eq_rep T2 (abs1 x) z'"
+    using rel_compE Eq_abs_x_z[unfolded Eq_comm] .
+  have in_dom2_abs_x: "in_dom T2 (abs1 x)"
+    using Eq_rep_then_in_dom z'(2) .
+  have T2_abs_x_abs_abs_x: "T2 (abs1 x) ((abs2 \<circ> abs1) x)"
+    unfolding comp_def
+    using rel_abs trans_trip2 in_dom2_abs_x .
+  show "(T1 \<circ>\<circ> T2) x ((abs2 \<circ> abs1) x)"
+    using rel_compI T1_x_abs_x T2_abs_x_abs_abs_x .
+next
+  fix y
+  assume in_co_dom_y: "in_co_dom (T1 \<circ>\<circ> T2) y"
+  obtain x where x: "(T1 \<circ>\<circ> T2) x y"
+    using in_co_domE in_co_dom_y .
+  obtain z where z: "T1 x z" "T2 z y"
+    using rel_compE x .
+  have in_co_dom2_y: "in_co_dom T2 y"
+    using in_co_domI z(2) .
+  have T2_rep_y_y: "T2 (rep2 y) y"
+    using rel_rep trans_trip2 in_co_dom2_y .
+  have Eq_x_rep_y: "Eq_rep T2 z (rep2 y)"
+    using Eq_repI z(2) T2_rep_y_y .
+  have Eq_z_z: "Eq_abs T1 z z"
+    using Eq_absI z(1) z(1) .
+  have Eq_rep_y_z: "(Eq_rep T2 \<circ>\<circ> Eq_abs T1) (rep2 y) z"
+    using rel_compI Eq_rep_sym[OF Eq_x_rep_y] Eq_z_z .
+  obtain z' where z': "Eq_rep T2 z' z" "Eq_abs T1 (rep2 y) z'"
+    using rel_compE Eq_rep_y_z[folded Eq_comm] .
+  have in_co_dom1_rep_y: "in_co_dom T1 (rep2 y)"
+    using Eq_abs_then_in_co_dom z'(2) .
+  have T1_rep_y_rep_rep_y: "T1 ((rep1 \<circ> rep2) y) (rep2 y)"
+    unfolding comp_def
+    using rel_rep trans_trip1 in_co_dom1_rep_y .
+  show "(T1 \<circ>\<circ> T2) ((rep1 \<circ> rep2) y) y"
+    using rel_compI T1_rep_y_rep_rep_y T2_rep_y_y .
+qed
+
 
 end
