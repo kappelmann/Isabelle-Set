@@ -1,0 +1,236 @@
+\documentclass[]{article}
+
+\usepackage[english]{babel}
+\usepackage{subcaption}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz-cd}
+\usepackage{trimclip}
+
+%opening
+\title{Lifting}
+\date{}
+\author{}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{example}{Example}[section]
+
+\mathchardef\mhyphen="2D
+
+\newcommand{\cleftsemicirc}{\put(3.5,2.5){\oval(4,4)[l]}\put(3.5,.5){\line(0,1){4}}\phantom{\circ}}
+\newcommand{\crightsemicirc}{\put(1.5,2.5){\oval(4,4)[r]}\put(1.5,.5){\line(0,1){4}}\phantom{\circ}}
+\newcommand{\newcirc}{\put(1.5,2.5){\circle{3.4}}\phantom{\circ}}
+
+\newcommand{\relfuncomp}{\mathbin{\circ\hspace{0.1ex}\clipbox*{0.55ex 0pt 1.5ex 1.5ex}{\(\circ\)}\hspace{-0.35ex}}}
+\newcommand{\funrelcomp}{\mathbin{\hspace{-0.75ex}\clipbox*{0pt 0pt 0.55ex 1.5ex}{\(\circ\)}\hspace{0.1ex}\circ}}
+
+\newcommand{\relcomp}{\mathbin{\circ\circ}}
+\newcommand{\inv}{^{-1}}
+\newcommand{\indom}{\mathsf{in\mhyphen{}dom}}
+\newcommand{\incodom}{\mathsf{in\mhyphen{}co\mhyphen{}dom}}
+\newcommand{\dom}{\mathsf{dom}}
+\newcommand{\codom}{\mathsf{co\mhyphen{}dom}}
+\newcommand{\eq}{\mathsf{Eq}}
+\newcommand{\id}{\mathsf{id}}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section{Lifting}
+	\begin{definition}[Binary relation]
+		A binary relation is a binary predicate ie. \(R\) is a binary relation iff \(R :: \alpha \Rightarrow \alpha \Rightarrow \mathsf{bool}\).
+	\end{definition}
+
+\begin{definition}[Composition of binary relations]
+	The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 \relcomp R_2\) and defined as
+	\begin{equation}
+		(R_1 \relcomp R_2)\ x\ y := \exists z\ldotp R_1\ x\ z \land R_2\ z\ y
+	\end{equation}
+\end{definition}
+
+\begin{definition}[Domain and co-domain of a binary relation]
+	Given a binary relation \(R\), its domain predicate \(\indom_R\) and co-domain predicate \(\incodom_R\) are defined as
+		\begin{align}
+			\indom_R\ x &:= \exists y\ldotp R\ x\ y \label{in-dom-def} \\
+			\incodom_R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}
+		\end{align}
+In informal arguments, I will also use the sets
+\begin{align}
+	\dom_R &:= \{x \mid \indom_R\ x\} \\
+	\codom_R &:= \{y \mid \incodom_R\ y\}
+\end{align}.
+\end{definition}
+	
+	\begin{definition}[Z-Property]
+		A binary relation \(R\) satisfies the Z-Property iff
+		\begin{equation}
+			R \relcomp R^{-1} \relcomp R = R \label{z-prop-def}
+		\end{equation}
+	\end{definition}
+	
+	Since \(\forall x\ y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R)\ x\ y\) is satisfied by all R, the definition of the Z-Property is equivalent to implication
+	\begin{equation}
+		\forall x\ y\ldotp (R \relcomp R^{-1} \relcomp R)\ x\ y \longrightarrow R\ x\ y
+	\end{equation}
+	This property is visualized in the commutative diagram below where the assumptions are in the shape of the letter "Z":
+	
+	\begin{figure}[h]
+		\centering
+		\begin{tikzcd}[column sep=1.25cm, row sep=1cm]
+			\dom_R  \arrow[r, "R"] \arrow[rd, dashrightarrow, "R", pos=0.25] & \codom_R \\
+			\dom_R \arrow[r, swap, "R"] \arrow[ru, "R", crossing over, swap, pos=0.25] & \codom_R
+		\end{tikzcd}
+		\caption{Commutative diagram of the Z-porperty}
+	\end{figure}
+	
+	\begin{definition}[Transfer relation]
+		A transfer relation is a binary relation which satisfies the Z-property.
+	\end{definition}
+	
+	\begin{definition}[Equivalence relations induced by a transfer relation]
+		Any transfer relation \(T\) induced two equivalence relations, denoted \(\eq_{T, rep}\) and \(\eq_{T, abs}\) where
+		\begin{align}
+			\eq_{T, rep} &:= T \relcomp T\inv \label{eq-rep-def} \\
+			\eq_{T, abs} &:= T\inv \relcomp T \label{eq-abs-def}
+		\end{align}
+		I will omit the subscript \(T\) if it can unambiguously inferred from the context.
+	\end{definition}
+	
+	The definitions of \(Eq_{T, rep}\) and \(Eq_{T, abs}\) are visualized in the commutative diagrams below:
+	
+	\begin{figure}[h]
+		\centering
+		\begin{subfigure}[b]{0.35\textwidth}
+			\begin{tikzcd}[column sep=1.25cm, row sep=0.5cm]
+				\dom_T \arrow[rd, "T", pos=0.4] \arrow[dd, dashrightarrow, leftrightarrow, swap, "\eq_{T, rep}"] & \\
+				& \codom_T \\
+				\dom_T \arrow[ru, swap, "T", pos=0.4] &
+			\end{tikzcd}
+			\caption{\(\eq_{T, rep}\)}
+		\end{subfigure}\hspace{10mm}
+		\begin{subfigure}[b]{0.35\textwidth}
+			\begin{tikzcd}[column sep=1.25cm, row sep=0.5cm]
+				& \codom_T \arrow[dd, dashrightarrow, leftrightarrow, "\eq_{T, abs}"] \\
+				\dom_T \arrow[ru, "T", pos=0.6] \arrow[rd, swap, "T", pos=0.6] & \\
+				& \codom_T
+			\end{tikzcd}
+			\caption{\(\eq_{T, abs}\)}
+		\end{subfigure}
+		\caption{Commutative diagrams for induced equivalence relations}
+	\end{figure}
+	
+	\begin{definition}[Abstraction and representation function]
+		For a transfer relation \(T\), \(abs_T\) and \(rep_T\) are abstraction and representation functions, reps., iff
+		\begin{align}
+			\forall x\ldotp \indom_T\ x &\longrightarrow T\ x\ (abs_T\ x) \label{abs-def} \\
+			\forall y\ldotp \incodom_T\ y &\longrightarrow T\ (rep_T\ y)\ y \label{rep-def}
+		\end{align}
+		Note that \(abs_T\) and \(rep_T\) are inverse only modulo \(\eq_{T, abs}\) and \(\eq_{T, rep}\).
+	\end{definition}
+
+	\begin{lemma}
+		The above requirements for \(abs_T\) and \(rep_T\) are equivalent to
+		\begin{align}
+			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eq_{T, abs}\ y\ (abs_T\ x) \label{abs-alt-def} \\
+			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eq_{T, rep}\ x\ (rep_T\ y) \label{rep-alt-def}
+		\end{align}
+	\end{lemma}
+	\begin{proof}
+		To show that equation \ref{abs-def} follows from \ref{abs-alt-def}, we use \ref{eq-abs-def} to rewrite equation \ref{abs-alt-def} to
+		\begin{equation}
+			\forall x\ y\ldotp T\ x\ y \longrightarrow (T\inv \relcomp T)\ y\ (abs_T\ x)
+		\end{equation}
+		From this follows
+		\begin{equation}
+			\forall x\ y\ldotp T\ x\ y \longrightarrow (T \relcomp T\inv \relcomp T)\ x\ (abs_T\ x)
+		\end{equation}
+		Finally, with equation \ref{z-prop-def} and definition \ref{in-dom-def} this is equivalent to \ref{abs-def}.
+		
+		To prove the other direction, we rewrite \ref{abs-def} using definition \ref{in-dom-def} to
+		\begin{equation}
+			\forall x\ y\ldotp T\ x\ y\longrightarrow T\ x\ (abs_T\ x)
+		\end{equation}
+		This is equivalent to
+		\begin{equation}
+			\forall x\ y\ldotp T\ x\ y \longrightarrow (T\inv \relcomp T)\ y\ (abs_T\ x)
+		\end{equation}
+		which can simplified to \ref{abs-alt-def} using \ref{z-prop-def}.
+		The equivalence of \ref{rep-def} and \ref{rep-alt-def} can be proven analogously.
+	\end{proof}
+
+	\begin{definition}[Transfer triple]
+		A transfer triple combines a transfer relation and abstraction and representation functions. For a binary relation \(T\) and functions \(abs\) and \(rep\) we write \(\langle T, abs, rep \rangle\) iff
+		\begin{align*}
+			\text{1.}\quad&(T \relcomp T\inv \relcomp T) = T \\
+			\text{2.}\quad&\forall x\ldotp \indom_T\ x \longrightarrow T\ x\ (abs\ x) \\
+			\text{3.}\quad&\forall y\ldotp \incodom_T\ y \longrightarrow T\ (rep\ y)\ y
+		\end{align*}
+	\end{definition}
+	Note that \(\eq_{T, abs}\) and \(\eq_{T, rep}\) need not to be included in the transfer triple since they can be defined in terms of the transfer relation while, in general, there are multiple valid choices for \(abs_T\) and \(rep_T\).
+
+	\begin{definition}[Parameterized transfer triple]
+		For a type constructor \(\kappa\) of arity \(n\), a parameterized transfer triple is a theorem of the form \(\langle T_1, abs_{T_1}, rep_{T_1}\rangle \land \ldots \land \langle T_n, abs_{T_n}, rep_{T_n}\rangle \longrightarrow \langle T', abs', rep' \rangle\)
+	\end{definition}
+
+	\begin{example}
+		The parameterized transfer triple for the function type \(\alpha \Rightarrow \beta \) is
+		\begin{equation*}
+			\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle rel_\Rightarrow\ T_1\ T_2, map_\Rightarrow\ rep_1\ abs_2 , map_\Rightarrow\ abs_1\ rep_2 \rangle
+		\end{equation*}
+		 where
+		\begin{align*}
+			map_\Rightarrow\ f\ g\ h &:= g \circ h \circ f \\
+			rel_\Rightarrow\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
+		\end{align*}
+	\end{example}
+	\begin{example}
+		Similar to how the type of functions can be generalized to dependent functions, the above example can be generalized to dependent transfer relations.
+		\begin{align*}
+			\langle T_1, abs_1, rep_1 \rangle \land (\forall x\ y\ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2, rep_2 \rangle) \longrightarrow \\ \langle T_1 \Rrightarrow T_2, map_\Rightarrow\ rep_1\ abs_2 , map_\Rightarrow\ abs_1\ rep_2 \rangle
+		\end{align*}
+		where
+		\begin{equation}
+			(T_1 \Rrightarrow T_2)\ f\ g := \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y)
+		\end{equation}
+	\end{example}
+	
+	\begin{theorem}[Composition of lifting triples]
+		Given two lifting triples \(\langle T_1, abs_{T_1}, rep_{T_1} \rangle \) and \(\langle T_2, abs_{T_2}, rep_{T_2} \rangle \), they can be composed to new lifting triple if \(\eq_{T_1, abs}\) commutes with \( \eq_{T_2, rep} \) under relation composition. Formally
+		\begin{equation}
+			\begin{split}
+				\eq_{T_1, abs} \relcomp \eq_{T_2, rep} = \eq_{T_2, rep} \relcomp \eq_{T_1, abs} \\
+				\longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
+			\end{split}			
+		\end{equation}
+	\end{theorem}
+
+	\begin{corollary}[Composition of lifting triples with shared equivalence]
+		If \( \eq_{T_1, abs} = \eq_{T_2, rep} \) then
+		\begin{equation}
+			\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
+		\end{equation}
+	\end{corollary}
+
+	\begin{lemma}[Inverse of lifting triple]
+		\begin{equation}
+			\langle T, abs_T, rep_T \rangle \longrightarrow \langle T\inv, rep_T, abs_T \rangle
+		\end{equation}
+	\end{lemma}
+
+	\begin{lemma}[Identity lifting triple]
+		For any set \(A\)
+		\begin{equation}
+			\langle (=)\rvert_A, \id, \id \rangle
+		\end{equation}
+		where
+		\begin{equation*}
+			(=)\rvert_A\ x\ y := x = y \land x \in A
+		\end{equation*}
+	\end{lemma}
+\end{document}
