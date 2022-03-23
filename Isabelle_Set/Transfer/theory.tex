@@ -36,7 +36,13 @@
 \newcommand{\dom}{\mathsf{dom}}
 \newcommand{\codom}{\mathsf{co\mhyphen{}dom}}
 \newcommand{\eq}{\mathsf{Eq}}
+\newcommand{\eqrep}{\mathsf{Eq_{rep}}}
+\newcommand{\eqabs}{\mathsf{Eq_{abs}}}
 \newcommand{\id}{\mathsf{id}}
+\newcommand{\mapfun}{\mathsf{map_\Rightarrow}}
+\newcommand{\relfun}{\mathsf{rel_\Rightarrow}}
+\newcommand{\mapfund}{\mathsf{map_{\Rightarrow d}}}
+\newcommand{\relfund}{\mathsf{rel_{\Rightarrow d}}}
 
 \begin{document}
 	
@@ -57,13 +63,13 @@
 \begin{definition}[Domain and co-domain of a binary relation]
 	Given a binary relation \(R\), its domain predicate \(\indom_R\) and co-domain predicate \(\incodom_R\) are defined as
 		\begin{align}
-			\indom_R\ x &:= \exists y\ldotp R\ x\ y \label{in-dom-def} \\
-			\incodom_R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}
+			\indom\ R\ x &:= \exists y\ldotp R\ x\ y \label{in-dom-def} \\
+			\incodom\ R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}
 		\end{align}
 In informal arguments, I will also use the sets
 \begin{align}
-	\dom_R &:= \{x \mid \indom_R\ x\} \\
-	\codom_R &:= \{y \mid \incodom_R\ y\}
+	\dom\ R &:= \{x \mid \indom\ R\ x\} \\
+	\codom\ R &:= \{y \mid \incodom\ R\ y\}
 \end{align}.
 \end{definition}
 	
@@ -83,8 +89,8 @@ In informal arguments, I will also use the sets
 	\begin{figure}[h]
 		\centering
 		\begin{tikzcd}[column sep=1.25cm, row sep=1cm]
-			\dom_R  \arrow[r, "R"] \arrow[rd, dashrightarrow, "R", pos=0.25] & \codom_R \\
-			\dom_R \arrow[r, swap, "R"] \arrow[ru, "R", crossing over, swap, pos=0.25] & \codom_R
+			\dom\ R  \arrow[r, "R"] \arrow[rd, dashrightarrow, "R", pos=0.25] & \codom\ R \\
+			\dom\ R \arrow[r, swap, "R"] \arrow[ru, "R", crossing over, swap, pos=0.25] & \codom\ R
 		\end{tikzcd}
 		\caption{Commutative diagram of the Z-porperty}
 	\end{figure}
@@ -96,8 +102,8 @@ In informal arguments, I will also use the sets
 	\begin{definition}[Equivalence relations induced by a transfer relation]
 		Any transfer relation \(T\) induced two equivalence relations, denoted \(\eq_{T, rep}\) and \(\eq_{T, abs}\) where
 		\begin{align}
-			\eq_{T, rep} &:= T \relcomp T\inv \label{eq-rep-def} \\
-			\eq_{T, abs} &:= T\inv \relcomp T \label{eq-abs-def}
+			\eqrep\ T &:= T \relcomp T\inv \label{eq-rep-def} \\
+			\eqabs\ T &:= T\inv \relcomp T \label{eq-abs-def}
 		\end{align}
 		I will omit the subscript \(T\) if it can unambiguously inferred from the context.
 	\end{definition}
@@ -108,17 +114,17 @@ In informal arguments, I will also use the sets
 		\centering
 		\begin{subfigure}[b]{0.35\textwidth}
 			\begin{tikzcd}[column sep=1.25cm, row sep=0.5cm]
-				\dom_T \arrow[rd, "T", pos=0.4] \arrow[dd, dashrightarrow, leftrightarrow, swap, "\eq_{T, rep}"] & \\
-				& \codom_T \\
-				\dom_T \arrow[ru, swap, "T", pos=0.4] &
+				\dom\ T \arrow[rd, "T", pos=0.4] \arrow[dd, dashrightarrow, leftrightarrow, swap, "\eqrep\ T"] & \\
+				& \codom\ T \\
+				\dom\ T \arrow[ru, swap, "T", pos=0.4] &
 			\end{tikzcd}
 			\caption{\(\eq_{T, rep}\)}
 		\end{subfigure}\hspace{10mm}
 		\begin{subfigure}[b]{0.35\textwidth}
 			\begin{tikzcd}[column sep=1.25cm, row sep=0.5cm]
-				& \codom_T \arrow[dd, dashrightarrow, leftrightarrow, "\eq_{T, abs}"] \\
-				\dom_T \arrow[ru, "T", pos=0.6] \arrow[rd, swap, "T", pos=0.6] & \\
-				& \codom_T
+				& \codom\ T \arrow[dd, dashrightarrow, leftrightarrow, "\eqabs\ T"] \\
+				\dom\ T \arrow[ru, "T", pos=0.6] \arrow[rd, swap, "T", pos=0.6] & \\
+				& \codom\ T
 			\end{tikzcd}
 			\caption{\(\eq_{T, abs}\)}
 		\end{subfigure}
@@ -128,8 +134,8 @@ In informal arguments, I will also use the sets
 	\begin{definition}[Abstraction and representation function]
 		For a transfer relation \(T\), \(abs_T\) and \(rep_T\) are abstraction and representation functions, reps., iff
 		\begin{align}
-			\forall x\ldotp \indom_T\ x &\longrightarrow T\ x\ (abs_T\ x) \label{abs-def} \\
-			\forall y\ldotp \incodom_T\ y &\longrightarrow T\ (rep_T\ y)\ y \label{rep-def}
+			\forall x\ldotp \indom\ T\ x &\longrightarrow T\ x\ (abs_T\ x) \label{abs-def} \\
+			\forall y\ldotp \incodom\ T\ y &\longrightarrow T\ (rep_T\ y)\ y \label{rep-def}
 		\end{align}
 		Note that \(abs_T\) and \(rep_T\) are inverse only modulo \(\eq_{T, abs}\) and \(\eq_{T, rep}\).
 	\end{definition}
@@ -137,8 +143,8 @@ In informal arguments, I will also use the sets
 	\begin{lemma}
 		The above requirements for \(abs_T\) and \(rep_T\) are equivalent to
 		\begin{align}
-			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eq_{T, abs}\ y\ (abs_T\ x) \label{abs-alt-def} \\
-			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eq_{T, rep}\ x\ (rep_T\ y) \label{rep-alt-def}
+			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eqabs\ T\ y\ (abs_T\ x) \label{abs-alt-def} \\
+			\forall x\ y\ldotp T\ x\ y &\longrightarrow \eqrep\ T\ x\ (rep_T\ y) \label{rep-alt-def}
 		\end{align}
 	\end{lemma}
 	\begin{proof}
@@ -168,8 +174,8 @@ In informal arguments, I will also use the sets
 		A transfer triple combines a transfer relation and abstraction and representation functions. For a binary relation \(T\) and functions \(abs\) and \(rep\) we write \(\langle T, abs, rep \rangle\) iff
 		\begin{align*}
 			\text{1.}\quad&(T \relcomp T\inv \relcomp T) = T \\
-			\text{2.}\quad&\forall x\ldotp \indom_T\ x \longrightarrow T\ x\ (abs\ x) \\
-			\text{3.}\quad&\forall y\ldotp \incodom_T\ y \longrightarrow T\ (rep\ y)\ y
+			\text{2.}\quad&\forall x\ldotp \indom\ T\ x \longrightarrow T\ x\ (abs\ x) \\
+			\text{3.}\quad&\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y
 		\end{align*}
 	\end{definition}
 	Note that \(\eq_{T, abs}\) and \(\eq_{T, rep}\) need not to be included in the transfer triple since they can be defined in terms of the transfer relation while, in general, there are multiple valid choices for \(abs_T\) and \(rep_T\).
@@ -181,56 +187,73 @@ In informal arguments, I will also use the sets
 	\begin{example}
 		The parameterized transfer triple for the function type \(\alpha \Rightarrow \beta \) is
 		\begin{equation*}
-			\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle rel_\Rightarrow\ T_1\ T_2, map_\Rightarrow\ rep_1\ abs_2 , map_\Rightarrow\ abs_1\ rep_2 \rangle
+			\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relfun\ T_1\ T_2, \mapfun\ rep_1\ abs_2 , \mapfun\ abs_1\ rep_2 \rangle
 		\end{equation*}
 		 where
 		\begin{align*}
-			map_\Rightarrow\ f\ g\ h &:= g \circ h \circ f \\
-			rel_\Rightarrow\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
+			\mapfun\ f\ g\ h &:= g \circ h \circ f \\
+			\relfun\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
 		\end{align*}
 	\end{example}
 	\begin{example}
 		Similar to how the type of functions can be generalized to dependent functions, the above example can be generalized to dependent transfer relations.
+		
+		Given a transfer triple
+		\begin{equation*}
+			\langle T_1, abs_1, rep_1 \rangle
+		\end{equation*}
+		and a parameterized transfer triple
+		\begin{equation*}
+			\forall x\ y \ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2\ x, rep_2\ y\rangle
+		\end{equation*}
+		if \(T_2\ x\ y\) does not depend on which representatives \(x\) and \(y\) are chosen from any given equivalence class of \(\eqrep\ T_1\) and \(\eqabs\ T_1\), reps. and \(abs_2\) and \(rep_2\) behave equivalently for equivalent arguments, formally:
 		\begin{align*}
-			\langle T_1, abs_1, rep_1 \rangle \land (\forall x\ y\ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2, rep_2 \rangle) \longrightarrow \\ \langle T_1 \Rrightarrow T_2, map_\Rightarrow\ rep_1\ abs_2 , map_\Rightarrow\ abs_1\ rep_2 \rangle
+			\forall x\ x'\ y\ y' \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T2\ x\ y = T2\ x'\ y' \\
+			\forall x\ y\ y' \ldotp T_1\ x\ y \land \eqabs\ T_1\ y\ y' \longrightarrow (\relfun\ (\eqabs\ (T_2\ x\ y))\ (\eqrep\ (T_2\ x\ y)))\ (rep_2\ y)\ (rep_2\ y') \\
+			\forall x\ x'\ y \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \longrightarrow (\relfun (\eqrep\ (T_2\ x\ y))\ (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y)\ (abs_2\ y')
 		\end{align*}
+		then
+		\begin{equation*}
+			\langle \relfund\ T_1\ T_2, \mapfund\ rep_1\ abs_2, \mapfund\ abs_1\ rep_2 \rangle
+		\end{equation*}
 		where
-		\begin{equation}
-			(T_1 \Rrightarrow T_2)\ f\ g := \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y)
-		\end{equation}
+		\begin{align*}
+			\relfund\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y) \\
+			\mapfund\ f\ g\ h\ x &:= g\ (f\ x)\ (h\ (f\ x))
+		\end{align*}
 	\end{example}
 	
 	\begin{theorem}[Composition of lifting triples]
-		Given two lifting triples \(\langle T_1, abs_{T_1}, rep_{T_1} \rangle \) and \(\langle T_2, abs_{T_2}, rep_{T_2} \rangle \), they can be composed to new lifting triple if \(\eq_{T_1, abs}\) commutes with \( \eq_{T_2, rep} \) under relation composition. Formally
+		Given two lifting triples \(\langle T_1, abs_{T_1}, rep_{T_1} \rangle \) and \(\langle T_2, abs_{T_2}, rep_{T_2} \rangle \), they can be composed to new lifting triple if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition. Formally
 		\begin{equation}
 			\begin{split}
-				\eq_{T_1, abs} \relcomp \eq_{T_2, rep} = \eq_{T_2, rep} \relcomp \eq_{T_1, abs} \\
+				\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1 \\
 				\longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
 			\end{split}			
 		\end{equation}
 	\end{theorem}
 
 	\begin{corollary}[Composition of lifting triples with shared equivalence]
-		If \( \eq_{T_1, abs} = \eq_{T_2, rep} \) then
+		If \( \eqabs\ T_1 = \eqrep\ T_2 \) then
 		\begin{equation}
 			\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
 		\end{equation}
 	\end{corollary}
 
-	\begin{lemma}[Inverse of lifting triple]
+	\begin{lemma}[Dual lifting triple]
 		\begin{equation}
-			\langle T, abs_T, rep_T \rangle \longrightarrow \langle T\inv, rep_T, abs_T \rangle
+			\langle T, abs, rep \rangle \longrightarrow \langle T\inv, rep, abs \rangle
 		\end{equation}
 	\end{lemma}
 
 	\begin{lemma}[Identity lifting triple]
 		For any set \(A\)
 		\begin{equation}
-			\langle (=)\rvert_A, \id, \id \rangle
+			\langle \eq\ A, \id, \id \rangle
 		\end{equation}
 		where
 		\begin{equation*}
-			(=)\rvert_A\ x\ y := x = y \land x \in A
+			\eq\ A\ x\ y := x = y \land x \in A
 		\end{equation*}
 	\end{lemma}
 \end{document}
