@@ -66,22 +66,6 @@ lemma z_property_no_dep_fun_rel:
   using z_propertyE[OF assms(2)]
   by blast
 
-lemma Eq_rep_app': (* delete *)
-  assumes trans_trip1: "transfer_triple T1 abs1 rep1"
-      and trans_trip2: "transfer_triple T2 abs2 rep2"
-      and Eq_rep_fun: "Eq_rep (T1 \<Rrightarrow> T2) f f'"
-      and Eq_rep_arg: "Eq_rep T1 x x'"
-  shows "Eq_rep T2 (f x) (f' x')"
-proof -
-  obtain y where rel_arg: "T1 x y" "T1 x' y"
-    using Eq_rep_arg Eq_repE by fast
-  obtain g where rel_fun: "(T1 \<Rrightarrow> T2) f g" "(T1 \<Rrightarrow> T2) f' g"
-    using Eq_rep_fun Eq_repE by fast
-  show "Eq_rep T2 (f x) (f' x')"
-    apply (rule Eq_repI)
-      using no_dep_rel_funE[OF rel_fun(1) rel_arg(1)] no_dep_rel_funE[OF rel_fun(2) rel_arg(2)] .
-  qed
-
 lemma
   assumes "transfer_triple T1 abs1 rep1" and "transfer_triple T2 abs2 rep2"
   shows "Eq_rep (T1 \<Rrightarrow> T2) = Eq_rep T1 \<Rrightarrow> Eq_rep T2"
@@ -124,23 +108,18 @@ next
     using h .
 qed
 
-definition dep_map_fun :: "('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'c \<Rightarrow> 'd) \<Rightarrow> ('b \<Rightarrow> 'c) \<Rightarrow> 'a \<Rightarrow> 'd"
-  where "dep_map_fun f g h x \<equiv> g (f x) (h (f x))"
-
-(* point-free representation :) *)
-term "S g h y = g y (h y)" (* substitution combinator *)
-term "(S g h \<circ> f) x = S g h (f x) = g (f x) (h (f x))"
-term "dep_map_fun f g h = S g h \<circ> f"
+definition dep_map_fun :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd) \<Rightarrow> ('b \<Rightarrow> 'c) \<Rightarrow> 'a \<Rightarrow> 'd"
+  where "dep_map_fun f g h x \<equiv> g x (f x) (h (f x))"
 
 definition map_fun :: "('a \<Rightarrow> 'b) \<Rightarrow> ('c \<Rightarrow> 'd) \<Rightarrow> ('b \<Rightarrow> 'c) \<Rightarrow> 'a \<Rightarrow> 'd"
-  where "map_fun f g h \<equiv> dep_map_fun f (\<lambda>_. g) h"
+  where "map_fun f g h \<equiv> dep_map_fun f (\<lambda>_ _. g) h"
 
 lemma map_fun_simp: "map_fun f g h \<equiv> g \<circ> h \<circ> f"
   unfolding map_fun_def dep_map_fun_def comp_def .
 
 lemma Eq_rep_app:
   assumes trans_trip1: "transfer_triple T1 abs1 rep1"
-      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 x) (rep2 y)"
+      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 y x) (rep2 x y)"
       and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
       and Eq_fun: "Eq_rep (dep_rel_fun T1 T2) f f'"
       and Eq_arg: "Eq_rep T1 x x'"
@@ -166,7 +145,7 @@ qed
 
 lemma Eq_abs_app:
   assumes trans_trip1: "transfer_triple T1 abs1 rep1"
-      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 x) (rep2 y)"
+      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 y x) (rep2 x y)"
       and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
       and Eq_fun: "Eq_abs (dep_rel_fun T1 T2) g g'"
       and Eq_arg: "Eq_abs T1 y y'"
@@ -229,10 +208,11 @@ qed
    \<forall>x y. T1 x y \<longrightarrow> T2 x y = T2 x (abs1 x). *)
 lemma fun_transfer_triple:
   assumes trans_trip1: "transfer_triple T1 abs1 rep1"
-      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 x) (rep2 y)"
+      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) (abs2 y x) (rep2 x y)"
+          (* note swapped order of arguments for abs2 *)
       and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
-      and rep2_resp: "\<And>x y y'. \<lbrakk>T1 x y; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> (Eq_abs (T2 x y) \<Rrightarrow> Eq_rep (T2 x y)) (rep2 y) (rep2 y')"
-      and abs2_resp: "\<And>x x' y. \<lbrakk>T1 x y; Eq_rep T1 x x'\<rbrakk> \<Longrightarrow> (Eq_rep (T2 x y) \<Rrightarrow> Eq_abs (T2 x y)) (abs2 x) (abs2 x')"
+      and rep2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> (Eq_abs (T2 x y) \<Rrightarrow> Eq_rep (T2 x y)) (rep2 x y) (rep2 x' y')"
+      and abs2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> (Eq_rep (T2 x y) \<Rrightarrow> Eq_abs (T2 x y)) (abs2 y x) (abs2 y' x')"
   shows "transfer_triple (dep_rel_fun T1 T2) (dep_map_fun rep1 abs2) (dep_map_fun abs1 rep2)"
 proof (rule transfer_tripleI)
   show "z_property (dep_rel_fun T1 T2)"
@@ -261,9 +241,10 @@ next
       apply (rule Eq_rep_app[of T1 _ _ T2])
       apply (fact trans_trip1 trans_trip2 T2_resp Eq_rep_self[OF in_dom_f] 1)+
       done
-    have 5: "transfer_triple (T2 x y) (abs2 (rep1 y)) (rep2 y)"
-      using Eq_rep_abs_transfer_triple[OF trans_trip2[OF rel] abs2_resp[OF rel 1]] rep2_resp[OF rel]
-        Eq_abs_self in_co_domI rel .
+    have 5: "transfer_triple (T2 x y) (abs2 y (rep1 y)) (rep2 x y)"
+      using Eq_rep_abs_transfer_triple[OF trans_trip2, OF rel]
+        abs2_resp[OF rel] 1 Eq_abs_self in_co_domI rel
+        rep2_resp[OF rel] Eq_rep_self in_domI rel Eq_abs_self in_co_domI rel .
     show "T2 x y (f x) (dep_map_fun rep1 abs2 f y)"
       unfolding dep_map_fun_def
       using rel_abs' 5 4 .
@@ -287,10 +268,10 @@ next
       apply (rule Eq_abs_app[of T1 _ _ T2])
       apply (fact trans_trip1 trans_trip2 T2_resp Eq_abs_self[OF in_co_dom_g] 1)+
       done
-    have 5: "transfer_triple (T2 x y) (abs2 x) (rep2 (abs1 x))"
-      using Eq_rep_abs_transfer_triple trans_trip2[OF rel]
-        abs2_resp[OF rel Eq_rep_self[OF in_domI[of T1, OF rel]]]
-        rep2_resp[OF rel 1] .
+    have 5: "transfer_triple (T2 x y) (abs2 y x) (rep2 x (abs1 x))"
+      using Eq_rep_abs_transfer_triple[OF trans_trip2, OF rel]
+        abs2_resp[OF rel] Eq_rep_self in_domI rel Eq_abs_self in_co_domI rel
+        rep2_resp[OF rel] Eq_rep_self in_domI rel 1 .
     show "T2 x y (dep_map_fun abs1 rep2 g x) (g y)"
       unfolding dep_map_fun_def
       using rel_rep' 5 4 .
