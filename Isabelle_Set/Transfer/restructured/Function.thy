@@ -1,5 +1,5 @@
 theory Function
-  imports Basic
+  imports Basic_T
 begin
 
 definition dep_rel_fun ::

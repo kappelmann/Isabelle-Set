@@ -1,10 +1,16 @@
-theory Basic
+theory Basic_T
   imports HOL.HOL
 begin
 
 (* hide_const abs *)
 
 text \<open>From HOL.fun\<close>
+
+definition id :: "'a \<Rightarrow> 'a"
+  where "id = (\<lambda>x. x)"
+
+lemma id_apply [simp]: "id x = x"
+  by (simp add: id_def)
 
 definition comp :: "('b \<Rightarrow> 'c) \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'c"  (infixl "\<circ>" 55)
   where "f \<circ> g = (\<lambda>x. f (g x))"
@@ -155,6 +161,19 @@ qed
 lemma z_property_subst: "z_property R \<Longrightarrow> R \<circ>\<circ> rel_inv R \<circ>\<circ> R \<equiv> R"
   apply (rule eq_reflection)
   unfolding z_property_def .
+
+lemma partial_equivalence_z_property:
+  assumes part_eqiv_R: "partial_equivalence R"
+  shows "z_property R"
+proof (rule z_propertyI)
+  fix a b c d
+  assume rels: "R a b" "R c b" "R c d"
+  have rel': "R b c"
+    using partial_equivalence_sym part_eqiv_R rels(2) .
+  note trans = partial_equivalence_trans[OF part_eqiv_R]
+  show "R a d"
+    using trans trans rels(1) rel' rels(3) .
+qed
 
 definition Eq_rep :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool"
   where "Eq_rep T \<equiv> T \<circ>\<circ> rel_inv T"
