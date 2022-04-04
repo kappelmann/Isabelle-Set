@@ -429,6 +429,18 @@ Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
 	content...
 \end{example}
 
+\begin{example}[Transfer relations for function composition]
+	content...
+\end{example}
+
+\begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
+\begin{equation}
+	\langle T, abs, rep \rangle \longrightarrow \langle T\inv, rep, abs \rangle
+\end{equation}
+\end{lemma}
+
+[Motivation: Lifting algebraic structures like formal power series and matrices]
+
 \begin{theorem}[Composition of lifting triples]
 	Given two lifting triples \(\langle T_1, abs_{T_1}, rep_{T_1} \rangle \) and \(\langle T_2, abs_{T_2}, rep_{T_2} \rangle \), they can be composed to obtain a new lifting triple if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition. Formally
 	\begin{equation}
@@ -439,6 +451,10 @@ Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
 	\end{equation}
 \end{theorem}
 
+\begin{example}[Lifting formal power series]
+	content...
+\end{example}
+
 \begin{corollary}[Composition of lifting triples with shared equivalence]
 	If \( \eqabs\ T_1 = \eqrep\ T_2 \) then
 	\begin{equation}
@@ -446,11 +462,11 @@ Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
 	\end{equation}
 \end{corollary}
 
-\begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
-	\begin{equation}
-		\langle T, abs, rep \rangle \longrightarrow \langle T\inv, rep, abs \rangle
-	\end{equation}
-\end{lemma}
+\section{Goal Simplification}
+
+\subsection{\(\indom\)- and \(\incodom\)-Rules}
+
+\subsection{Respectfulness Rules}
 
 \section{Lifting Algorithm}
 
