@@ -65,6 +65,10 @@
 \newcommand{\cons}{\mathbin{\#}}
 \newcommand{\relint}{\mathsf{rel_\inte}}
 \newcommand{\relintnat}{\mathsf{rel_{\inte, \nat}}}
+\newcommand{\appabs}{\mathsf{app_{abs}}}
+\newcommand{\reland}{\mathsf{rel_\land}}
+\newcommand{\maprel}{\mathsf{map_{rel}}}
+\newcommand{\aprel}{\mathsf{ap_{rel}}}
 
 \begin{document}
 	
@@ -356,7 +360,7 @@ In particular, we can construct a lifting triple from any set-extension.
 	\end{align*}
 \end{example}
 
-\begin{lemma}[Parameterized lifting triple for functions]
+\begin{lemma}[Parameterized lifting triple for functions]\label{fun-lifing-triple}
 	Functions are related if they map related arguments to related results. Hence, the parameterized lifting triple for the function type is
 	\begin{equation*}
 		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relfun\ T_1\ T_2, \mapfun\ rep_1\ abs_2 , \mapfun\ abs_1\ rep_2 \rangle
@@ -366,12 +370,14 @@ In particular, we can construct a lifting triple from any set-extension.
 		\mapfun\ f\ g\ h &:= g \circ h \circ f \\
 		\relfun\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
 	\end{align*}
+
+	Depending on which notation is more convenient, I will write \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\) in the remainder of this paper. The relator \((\Rrightarrow)\) is right associative, so \(T_1 \Rrightarrow T_2 \Rrightarrow T_3\) means \(T_1 \Rrightarrow (T_2 \Rrightarrow T_3)\).
 \end{lemma}
 
 \begin{example}[Lifting triple for functions over \(\inte\)]
 	Using the definitions of \(\inte_{\rep}\) and \(\inte\) from example \ref{lifting-int}, we can define the multiplication function on integers on the representation level \(\mathsf{mul_{\inte_{\rep}}} : [\inte_{\rep}] \Rightarrow [\inte_{\rep}] \Rightarrow [\inte_{\rep}]\) using operations on \(\nat\). I omit the definition here. The transfer relation we need to lift this function to \(\inte\) is \(\relfun\ \relint\ (\relfun\ \relint\ \relint)\) and the corresponding transfer triple is
 	\begin{align*}
-		\langle \relfun\ \relint\ (\relfun\ \relint\ \relint),\\
+		\langle \relint \Rrightarrow \relint \Rrightarrow \relint,\\
 		\mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte),\\
 		\mapfun\ \abs_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte) \rangle
 	\end{align*}
@@ -381,15 +387,19 @@ In particular, we can construct a lifting triple from any set-extension.
 	\end{equation*}
 	From definition \ref{def-lifting-triple} we know that these two multiplication functions are related by the transfer relation stated above.
 	
-	Unfolding the definition of \(\mapfun\), we get \(\mathsf{mul_\inte}\ i\ j = \abs_\inte\ (\mathsf{mul_{\inte_{\rep}}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))\), as expected.
+	Unfolding the definition of \(\mapfun\), we get
+	\begin{equation*}
+		\mathsf{mul_\inte}\ i\ j = \abs_\inte\ (\mathsf{mul_{\inte_{\rep}}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))
+	\end{equation*}
+	as expected.
 	
 	Also functions with mixed argument and return types can be lifted. For instance, the divides predicate on integers, which return \(\true\) iff its first argument divides its second, and the power function on integers, which computes the first arguments raised to the power of the second, can be lifted with the transfer relations
 	\begin{equation*}
-		\relfun\ \relint\ (\relfun\ \relint\ (\eq\ \univ_{\mathsf{bool}}))
+		\relint \Rrightarrow \relint \Rrightarrow (\eq\ \univ_{\mathsf{bool}})
 	\end{equation*}
 	and
 	\begin{equation*}
-		\relfun\ \relint\ (\relfun\ (\eq\ \nat)\ \relint)
+		\relint \Rrightarrow (\eq\ \nat) \Rrightarrow \relint
 	\end{equation*}
 	resp.
 \end{example}
@@ -409,9 +419,9 @@ In particular, we can construct a lifting triple from any set-extension.
 	\begin{align*}
 		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T_2\ x\ y = T_2\ x'\ y' \\
 		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
-		& (\relfun\ (\eqabs\ (T_2\ x\ y))\ (\eqrep\ (T_2\ x\ y)))\ (rep_2\ x\ y)\ (rep_2\ x'\ y') \\
+		& ((\eqabs\ (T_2\ x\ y)) \Rrightarrow (\eqrep\ (T_2\ x\ y)))\ (rep_2\ x\ y)\ (rep_2\ x'\ y') \\
 		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
-		& (\relfun (\eqrep\ (T_2\ x\ y))\ (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y\ x)\ (abs_2\ y'\ x')
+		& ((\eqrep\ (T_2\ x\ y)) \Rrightarrow (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y\ x)\ (abs_2\ y'\ x')
 	\end{align*}
 	then
 	\begin{equation*}
@@ -422,11 +432,27 @@ In particular, we can construct a lifting triple from any set-extension.
 		\relfund\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y) \\
 		\mapfund\ f\ g\ h\ x &:= g\ x\ (f\ x)\ (h\ (f\ x))
 	\end{align*}
-Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\). 
+	Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
+	
+	I extend the syntax introduced for the non-dependent function relator as follows:
+	\begin{equation*}
+		[x\ y :: T_1] \Rrightarrow T_2 := \relfund\ T_1\ (\lambda x'\ y'\ldotp T_2[x \backslash x', y \backslash y'])
+	\end{equation*}
+	[When binary relations are generalized to binary functions with arbitrary co-domain, they form an applicative functor together with \(\maprel\) and \(\aprel\). (At least I think so. Haven't proved it yet) Since these aren't \textit{relations} anymore, I probably should change the names. Expressing eg. relations restricted by a predicate (as in the example below) using these functions seems less ad-hoc and probably makes things easier and more elegant to automatically simplify the proof obligations coming from the side-conditions in the above lemma.]
 \end{lemma}
 
 \begin{example}[Lifting integer division]
-	content...
+	While the non-dependent function relation introduced in Lemma \ref{fun-lifing-triple} was sufficient to relate the multiplication and divides functions on the representation and abstraction level, this is not possible for all functions. For instance, implementations of the integer division function may be undefined or produce arbitrary results for some pairs of integers. Hence two implementations of this function do not need to return related values for all related pairs of arguments, but only for those where the first argument is divisible by the second. To express this relation, we need the more general dependent transfer relation for function defined above. Specifically, given an implementation of inter division over \(\inte_{\rep}\), we want to lift this function to \(\inte\). These two functions must be related by the transfer relation
+	\begin{equation*}
+		[\_\ i :: \relint] \Rrightarrow \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ i)) \Rrightarrow \relint
+	\end{equation*}
+	where
+	\begin{align*}
+		\appabs\ f\ \_\ y &:= f\ y \\
+		\reland\ R\ S &:= (\maprel\ (\land)\ R)\ \aprel\ S \\
+		\maprel\ f\ R\ x\ y &:= f\ (R\ x\ y) \\
+		\aprel\ R\ S\ x\ y &:= R\ x\ y\ (S\ x\ y)
+	\end{align*}
 \end{example}
 
 \begin{example}[Transfer relations for function composition]
