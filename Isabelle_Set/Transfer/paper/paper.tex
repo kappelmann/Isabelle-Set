@@ -1,0 +1,494 @@
+\documentclass[]{article}
+
+\usepackage[english]{babel}
+\usepackage{subcaption}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz-cd}
+\usepackage{trimclip}
+
+%opening
+\title{Lifting Set Extensions}
+\date{}
+\author{Juli Gottfriedsen}
+
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{example}[definition]{Example}
+
+\mathchardef\mhyphen="2D
+
+\newcommand{\cleftsemicirc}{\put(3.5,2.5){\oval(4,4)[l]}\put(3.5,.5){\line(0,1){4}}\phantom{\circ}}
+\newcommand{\crightsemicirc}{\put(1.5,2.5){\oval(4,4)[r]}\put(1.5,.5){\line(0,1){4}}\phantom{\circ}}
+\newcommand{\newcirc}{\put(1.5,2.5){\circle{3.4}}\phantom{\circ}}
+
+\newcommand{\relfuncomp}{\mathbin{\circ\hspace{0.1ex}\clipbox*{0.55ex 0pt 1.5ex 1.5ex}{\(\circ\)}\hspace{-0.35ex}}}
+\newcommand{\funrelcomp}{\mathbin{\hspace{-0.75ex}\clipbox*{0pt 0pt 0.55ex 1.5ex}{\(\circ\)}\hspace{0.1ex}\circ}}
+
+\newcommand{\relcomp}{\mathbin{\circ\circ}}
+\newcommand{\inv}{^{-1}}
+\newcommand{\indom}{\mathsf{in\mhyphen{}dom}}
+\newcommand{\incodom}{\mathsf{in\mhyphen{}co\mhyphen{}dom}}
+\newcommand{\dom}{\mathsf{dom}}
+\newcommand{\codom}{\mathsf{co\mhyphen{}dom}}
+\newcommand{\bool}{\mathsf{Bool}}
+\newcommand{\eq}{\mathsf{Eq}}
+\newcommand{\eqrep}{\mathsf{Eq_{rep}}}
+\newcommand{\eqabs}{\mathsf{Eq_{abs}}}
+\newcommand{\id}{\mathsf{id}}
+\newcommand{\mapfun}{\mathsf{map_\Rightarrow}}
+\newcommand{\relfun}{\mathsf{rel_\Rightarrow}}
+\newcommand{\mapfund}{\mathsf{map_{\Rightarrow d}}}
+\newcommand{\rel}{\mathsf{rel}}
+\newcommand{\relfund}{\mathsf{rel_{\Rightarrow d}}}
+\newcommand{\bijection}{\mathsf{bijection}}
+\newcommand{\birel}{\mathsf{Bi\mhyphen{}Rel}}
+\newcommand{\univ}{\mathsf{Univ}}
+\newcommand{\snd}{\mathsf{snd}}
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\inte}{\mathbb{Z}}
+\newcommand{\rat}{\mathbb{Q}}
+\newcommand{\abs}{\mathsf{abs}}
+\newcommand{\rep}{\mathsf{rep}}
+\newcommand{\mapsum}{\mathsf{map_+}}
+\newcommand{\mapprod}{\mathsf{map_\times}}
+\newcommand{\maplist}{\mathsf{map_\ast}}
+\newcommand{\relsum}{\mathsf{rel_+}}
+\newcommand{\relprod}{\mathsf{rel_\times}}
+\newcommand{\rellist}{\mathsf{rel_\ast}}
+\newcommand{\Left}{\mathsf{Left}}
+\newcommand{\Right}{\mathsf{Right}}
+\newcommand{\true}{\mathsf{True}}
+\newcommand{\false}{\mathsf{False}}
+\newcommand{\cons}{\mathbin{\#}}
+\newcommand{\relint}{\mathsf{Rel_\inte}}
+\newcommand{\relnatnatint}{\mathsf{Rel_{\nat \times \nat, \inte}}}
+\newcommand{\relintnat}{\mathsf{Rel_{\inte, \nat}}}
+\newcommand{\appabs}{\mathsf{app_{abs}}}
+\newcommand{\reland}{\mathsf{rel_\land}}
+\newcommand{\maprel}{\mathsf{map_{rel}}}
+\newcommand{\aprel}{\mathsf{ap_{rel}}}
+
+\begin{document}
+	
+\maketitle
+\begin{abstract}
+	
+\end{abstract}
+
+\section{Introduction}
+
+\section{Preliminaries}
+
+\subsection{Parametricity}
+
+\subsection{Transfer and Lifting Tool}
+
+\subsection{Soft Types}
+\begin{itemize}
+	\item Alternative type system implemented in Isabelle/HOL
+	\item Types are represented as predicates.
+	\item If one predicate implies another, the respective type of the former is a subtype of the type corresponding to the latter.
+	\item Formal definition of types and type judgments?
+	\item Examples?
+	\item Dependent function soft types?
+\end{itemize}
+
+\section{Transfer Relations} \label{sec-trans-rels}
+As mentioned in the introduction, a central concept for lifting are transfer relations, which relate terms on the representation level with terms on the abstraction level. Since a transfer relation is a special type of binary relation, we first need a definition of binary relations.
+
+\begin{definition}[Binary relation]
+	A binary relation is a binary predicate ie. \(R\) is a binary relation iff \(R :: \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
+\end{definition}
+
+Two operations on binary relations, which we need throughout the whole paper and in particular for the definition of transfer relations, are the inverse and composition of binary relations.
+
+\begin{definition}[Inverse of binary relations]
+	The inverse of a binary relations \(R\) is written as \(R\inv\) and defined as
+	\begin{equation}
+		R\inv\ x\ y := R\ y\ x
+	\end{equation}
+\end{definition}
+
+\begin{definition}[Composition of binary relations]
+	The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 \relcomp R_2\) and defined as
+	\begin{equation}
+		(R_1 \relcomp R_2)\ x\ y := \exists z\ldotp R_1\ x\ z \land R_2\ z\ y
+	\end{equation}
+\end{definition}
+
+Based on the intuition that a transfer relation \(T\) relates representations of objects with there abstractions, the following constraints on the sub-class of binary relations which constitute transfer relations arise: `Being related to the same abstract (representation) value' is a partial equivalence relation on the (co-)domain of \(T\) and \(T\) must respect these relations. To formalize these requirements, we need to define the just mentioned relations on the domain and co-domain of a binary relation.
+
+\begin{definition}[Induced relations on the domain and co-domain of a binary relation]
+	Any relation \(T\) induced two symmetric relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\) where
+	\begin{align}
+		\eqrep\ T &:= T \relcomp T\inv \label{eq-rep-def} \\
+		\eqabs\ T &:= T\inv \relcomp T \label{eq-abs-def}
+	\end{align}
+\end{definition}
+
+With this, we can state the above constraints on \(T\) more formally:
+\begin{enumerate}
+	\item \(\eqrep\ T\) must be a partial equivalence relation
+	\item \(\eqabs\ T\) must be a partial equivalence relation
+	\item \(\forall x\ x'\ y\ y'\ldotp T\ x\ y \land \eqrep\ T\ x\ x' \land \eqabs\ T\ y\ y' \longrightarrow T\ x'\ y'\)
+\end{enumerate}
+
+These requirements are equivalent to the following, more compact, property:
+
+\begin{definition}[Z-Property]
+	A binary relation \(T\) satisfies the Z-Property iff
+	\begin{equation}
+		T \relcomp T^{-1} \relcomp T = T \label{z-prop-def}
+	\end{equation}
+\end{definition}
+
+Since \(\forall x\ y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R)\ x\ y\) is satisfied by all R, the Z-Property is equivalent to the implication
+\begin{equation}
+	\forall x\ y\ldotp (R \relcomp R^{-1} \relcomp R)\ x\ y \longrightarrow R\ x\ y
+\end{equation}
+%This property is visualized in the commutative diagram below where the assumptions are in the shape of the letter "Z":
+%
+%\begin{figure}[h]
+%	\centering
+%	\begin{tikzcd}[column sep=1.5cm, row sep=0.75cm]
+%		\dom\ R  \arrow[r, "R"] \arrow[rd, dashrightarrow, "R", pos=0.25] & \codom\ R \\
+%		\dom\ R \arrow[r, swap, "R"] \arrow[ru, "R", crossing over, swap, pos=0.25] & \codom\ R
+%	\end{tikzcd}
+%	\caption{Commutative diagram of the Z-porperty}
+%\end{figure}
+
+Now, we can define transfer relations:
+
+\begin{definition}[Transfer relation]
+	A transfer relation is a binary relation which satisfies the Z-property.
+\end{definition}
+
+When comparing my definition of transfer relations to the notion of transfer relations used for the Lifting-Tool, one notices that no restriction similar to mine is imposed to the transfer relation by the Lifting-Tool. However, all transfer relations used by the Lifting-Tool are right-unique and right-total, and such relations always satisfy the Z-property. I, in contrast, allow for partial quotients on both the representation and abstraction level. The relaxation to non-right-total relations is a direct consequence of the support of sub-typing. The generalization to non-right-unique relations follows from the duality of sub- and quotient-types, as described in [source]. To illustrate this duality, let us consider two functions of type \(\inte \Rightarrow \inte\): The identity function \(\id\) and the absolute value function \(\abs\). When used as functions of the type \(\inte \Rightarrow \inte\), these clearly do not behave equivalently. However, when view at with the restricted domain \(\nat\), the two functions are equivalent. More generally, for any contra-variant type constructor \(\kappa\) (in this case \(\Rightarrow \inte \)), and two types \(\alpha\) and \(\beta\) where \(\alpha \prec \beta\), then \(\kappa\ \alpha\) can be considered a quotient type of \(\kappa\ \beta\). The Transfer-Tool does not impose any restrictions on transfer relations, because the partial equivalence relations on the (co-)domain are not relevant to transfer individual values. For the lifting process, however, we need these relations to be able to express that equivalent representation values must be mapped to equivalent abstract values. Even though the Transfer-Tool accepts all binary relations as transfer relations, I do not expect that my constraints on transfer relations would lead to any practical limitations of the applicability of the Transfer-Tool.
+
+\begin{example}[Transfer relations between \(\nat\) and \(\inte\)]\label{trans-rel-nat-int}
+	Assuming we have a type \(\nat\) for natural numbers, we can defined a type \(\inte\) for integers as the quotient type:
+	\begin{equation*}
+		\inte := \nat \times \nat\, / \equiv_\inte\ \text{where}\ (a, b) \equiv_\inte (c, d)\ \text{iff}\ a + d = b + c
+	\end{equation*}
+	with an abstraction function \(\mathsf{abs_{\nat \times \nat, \inte}} : \nat \times \nat \Rightarrow \inte\) and representation function \(\mathsf{rep_{\nat \times \nat, \inte}} : \inte \Rightarrow \nat \times \nat\).
+	
+	Now we can define a transfer relation to relate integers on the representation level, ie. values of type \(\nat \times \nat\), and the abstraction level, ie. values of type \(\inte\).
+	\begin{equation*}
+		\mathsf{Rel_{\nat \times \nat, \inte}}\ (m, n)\ i := \mathsf{abs_{\nat \times \nat, \inte}}\ (m, n) = i 
+	\end{equation*}
+	Furthermore, we can express the relation between naturals and non-negative integers with the following transfer relation:
+	\begin{equation*}
+		\mathsf{Rel_{\inte, \nat}}\ i\ n := \mathsf{abs_{\nat \times \nat, \inte}}\ (n, 0) = i
+	\end{equation*}
+
+	For these transfer relations we get the following partial equivalence relations: \(\eqabs\ \relnatnatint\) and \(\eqabs\ \relintnat\) are the equality relations on \(\inte\) and \(\nat\), resp. \(\eqrep\ \relnatnatint\) is the equivalence relation used in the definition of the quotient type \(\inte\), namely \(\equiv_\inte\), and finally, \(\eqrep\ \relintnat\) is the equality on \(\inte\) restricted to non-negative numbers.
+\end{example}
+
+If we want to express transfer relations not only between values of simple types like \(\nat\) or \(\inte\) but of types involving type constructors like algebraic data types, functions, sets or compound algebraic structures like vectors or polynomials, we need the relational analogue of type constructors, ie. parameterized transfer relations as introduced by [source]. As type constructors map types to types, parameterized transfer relations map relations to relations. When \(\kappa\) and \(\kappa'\) are type constructs of arity \(n\), a transfer relations between the type \(\kappa\ \overline{\tau}\) on the representation level and the type \(\kappa'\ \overline{\tau'}\) on the abstraction level is, in general, composed of two parts: First, a relator \(rel\) of type
+\begin{equation*}
+	(\alpha_1 \Rightarrow \alpha'_1 \Rightarrow \bool) \Rightarrow \ldots \Rightarrow (\alpha_n \Rightarrow \alpha'_n \Rightarrow \bool) \Rightarrow \kappa\ \overline{\alpha} \Rightarrow \kappa\ \overline{\alpha'} \Rightarrow \bool
+\end{equation*}
+which takes the relations between the representation and abstraction versions of the type parameters as arguments and lifts them to the type constructor \(\kappa\), leafing the type constructor itself unchanged, and, second, a non-parameterized transfer relation \(R : \kappa\ \overline{\alpha} \Rightarrow \kappa'\ \overline{\alpha} \Rightarrow \bool\) which relates representation and abstraction values on the outer level.
+
+In contrast to the transfer relations used in the Lifting-Tool, my, more general, transfer relations are not closed under composition because the Z-property is not preserved by composition. We can, however, prove a restricted composition theorem. In particular, the composition of two transfer relations \(T_1\) and \(T_2\) is again a transfer relation if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition. Formally:
+
+\begin{lemma}[Composition of transfer relations]\label{comp-of-trans-rels}
+	If \(\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1\) then \(T_1 \ \relcomp T_2\) is a transfer relation.
+\end{lemma}
+
+When applying this theorem to the situation described above, ie. to build a transfer relation between \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\), the side condition of this theorem is specialized to
+\begin{equation*}
+	\eqabs\ (rel\ T_1 \ldots T_n) \relcomp \eqrep\ R = \eqrep\ R \relcomp \eqabs\ (rel\ T_1 \ldots T_n)
+\end{equation*}
+This, intuitively, means that the representation of the type constructor \(\kappa\) is independent of the representations of the type arguments. Since it is reasonable to expect this property for all meaningful datatypes, the side-condition should not lead to any practical limitations. In particular, the theorem is applicable to all datatypes which can be handled by the Lifting-Tool.
+
+
+\section{Lifting Triples}
+Let us recall that the goal of lifting is, given a value on the representation level and a transfer relation, generate an abstract value build from the given value and abstraction and representation functions, such that the new value is related to the representation value by the given transfer relation. To find suitable abstraction and representation functions during that process, we need to associate such functions with transfer relations. For this purpose, I use lifting-triples, which are similar to quotient predicates used by the Lifting-Tool. Specifically, a lifting-triple, written \(\langle T, abs, rep \rangle\), combines a transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) with an abstraction and representation function \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\), reps., st. \(abs\) (\(rep\)) maps values on the representation (abstraction) level to related values on the abstraction (representation) level. To formalize this, we first need two predicates which indicate whether a value is in the domain or co-domain of a transfer relations, or, put in other words, whether that value is a valid representation or abstraction, reps.
+
+\begin{definition}[Domain and co-domain of a binary relation]
+	Given a binary relation \(R\), its domain predicate \(\indom\ R\) and co-domain predicate \(\incodom\ R\) are defined as
+	\begin{align}
+		\indom\ R\ x &:= \exists y\ldotp R\ x\ y \label{in-dom-def} \\
+		\incodom\ R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}
+	\end{align}
+%	In informal arguments, I will also use the sets
+%	\begin{align}
+%		\dom\ R &:= \{x \mid \indom\ R\ x\} \\
+%		\codom\ R &:= \{y \mid \incodom\ R\ y\}
+%	\end{align}
+\end{definition}
+
+If \(T\) is a transfer relation, then \(\indom\ T\ x = \eqrep\ T\ x\ x\) and \(\incodom\ T\ y = \eqabs\ T\ y\ y\).
+
+Now we can formalize the definition of lifting triples:
+
+\begin{definition}[Lifting triple]\label{def-lifting-triple}
+	A transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) and functions \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\) form a lifting triple, written \(\langle T, abs, rep \rangle\), iff
+	\begin{align*}
+		\text{1.}\quad&\forall x\ldotp \indom\ T\ x \longrightarrow T\ x\ (abs\ x) \\
+		\text{2.}\quad&\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y
+	\end{align*}
+\end{definition}
+
+When comparing this definition to the quotient predicate from [source], two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the transfer relation in a quotient-predicate must be right-unique and right-total, while the relation in a lifting-triple must only satisfy the z-property, as explained in section \ref{sec-trans-rels}. This generalization to arbitrary transfer relations has the added benefit, that the lifting triple is symmetric, which can be used to obtain a dual theorem for any given theorem about lifting triples.
+
+\begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
+	\begin{equation}
+		\langle T, abs, rep \rangle \longrightarrow \langle T\inv, rep, abs \rangle
+	\end{equation}
+\end{lemma}
+
+As explained in section \ref{sec-trans-rels}, transfer relations are not closed under composition and hence also the composition of two lifting-triples, in general, does not result in a lifting triple anymore. However, if we add the side-condition from lemma \ref{comp-of-trans-rels}, we still get a composition theorem for lifting-triples, which is sufficiently general for our application.
+
+\begin{theorem}[Composition of lifting triples]
+	\begin{equation}
+		\begin{split}
+			\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \land \\
+			\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1 \\
+			\longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
+		\end{split}			
+	\end{equation}
+\end{theorem}
+
+When one wants, for instance, to lift a value from a representation level to an intermediate level and from there to a fully abstract level, the following corollary can be applied:
+
+\begin{corollary}[Composition of lifting triples with shared equivalence]
+	If \( \eqabs\ T_1 = \eqrep\ T_2 \) then
+	\begin{equation}
+		\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
+	\end{equation}
+\end{corollary}
+
+% Note that \(abs_T\) and \(rep_T\) are inverse only modulo \(\eqabs\ T\) and \(\eqrep\ T\).
+
+%\begin{lemma}
+%	The above requirements for \(abs_T\) and \(rep_T\) are equivalent to
+%	\begin{align}
+%		\forall x\ y\ldotp T\ x\ y &\longrightarrow \eqabs\ T\ y\ (abs_T\ x) \label{abs-alt-def} \\
+%		\forall x\ y\ldotp T\ x\ y &\longrightarrow \eqrep\ T\ x\ (rep_T\ y) \label{rep-alt-def}
+%	\end{align}
+%\end{lemma}
+
+\section{Set Extensions}
+In particular when working with algebraic structures, one often wants to extend one structure (eg. \(\nat\)) to a larger structure (eg. \(\inte\)). However when using standard constructions of \(\inte\) like a quotient of \(\nat \times \nat\) or a sum of \(\nat\) and \(\nat_+\), one faces the problem that \(\nat\) is not a subset of \(\inte\). Set extensions solve this problem by constructing a new set as the union of \(\nat\) and all elements in the representation set of \(\inte\) which do not represent a value already included in \(\nat\). To formalize this, we first need a definition of bijections between two sets.
+
+\begin{definition}[Bijection]
+\begin{equation}
+	\begin{split}
+		\bijection\ A\ B\ f\ g := & (\forall x \in A\ldotp f\ x \in B \land g\ (f\ x) = x) \land \\
+		& (\forall y \in B\ldotp g\ y \in A \land f\ (g\ y) = y)
+	\end{split}
+\end{equation}
+\end{definition}
+
+Given sets \(A\) and \(B\) and an injection \(f\) from \(A\) to \(B\), we want to construct a set \(B'\) and functions \(abs : [B] \rightarrow [B']\) and \(rep : [B'] \rightarrow [B]\) st. \(\bijection\ B\ B'\ abs\ rep\), \(A \subseteq B'\) and \(\forall x \in A\ldotp abs\ x = f\ x\). The last property states that \(abs\) and \(f\) are identical when their domains are restricted to \(A\) ie. the embedding of \(A\) in \(B'\) by \(abs\) respects the structural connection between \(A\) and \(B\) given by \(f\). This is equivalent to \(\forall x \in A\ldotp abs\ (f\ x) = x\).
+
+[If I already had defined the function relator at this point, the last two properties could be expressed more elegantly as \((\eq\ A \Rrightarrow \eq\ B')\ abs\ f\) and \((\eq\ A \Rrightarrow \eq\ A)\ (abs \circ f)\ \id\).]
+
+To obtain such a bijection, we define
+\begin{align}
+B' &:= A \cup \{(A, x) \mid x \in (B \setminus \{f\ a \mid a \in A\})\} \\
+rep\ y &:= f\ x\ \text{if}\ y \in A\ \text{else}\ \snd\ y \\
+abs\ x &:= z\ \text{st.}\ x \in A \land f\ x = x\ \text{if}\ \exists z \in A\ldotp f\ z = x\ \text{else}\ (A, x)
+\end{align}
+where \( (x, y) \) is the pair containing \(x\) and \(y\) and \(\snd\ (x, y) = y\).
+
+That these definitions satisfy the properties stated above was proven in Isabelle/HOL by [?]. It is, however, not convenient to directly define operations on the set \(B'\) since such definitions would require case distinctions between elements which are contained in the extended set and those which are not. Instead, an operation on \(B'\) is usually defined as a combination of the respective operation on \(B\) and the functions \(abs\) and \(rep\) which translate between \(B\) and \(B'\).
+
+[Just copied all examples which where in the lifting-triple section before down here. You don't have to read them.]
+
+While arbitrary lifting triples can be constructed from scratch, in the context of lifting operations to types constructed by set extensions, we only need lifting triples build from bijections and the lifting of these lifting triples over type constructors.
+
+\begin{lemma}[Lifting triple from bijection]
+	If \(\bijection\ A\ B\ f\ g \) then
+	\begin{equation}
+		\langle \birel\ A\ f, f, g \rangle
+	\end{equation}
+	where
+	\begin{equation}
+		\birel\ A\ f\ x\ y := x \in A \land f\ x = y
+	\end{equation}
+\end{lemma}
+
+In particular, we can construct a lifting triple from any set-extension.
+
+\begin{example}[Lifting triple from set extensions]\label{lifting-int}
+	Given the set \(\nat\) of natural numbers, we can construct a representation of integers as the disjoint union of \(\nat\), representing non-negative integers, and \(\nat \setminus \{0\}\), representing negative integers. We call this set \(\inte_{\rep}\). Because of the disjoint union construction \(\nat \nsubseteq \inte_{\rep}\). To fix this, we can build the set extension of \(\nat\) by \(\inte_{\rep}\) with the injection \(\mathsf{in_l}\) from \(\nat\) to \(\inte_{\rep}\). When the bijection theorem of this set extension is \(\bijection\ \inte_{\rep}\ \inte\ \abs_\inte\ \rep_\inte\), the corresponding transfer triple is \(\langle \relint, \abs_\inte, \rep_\inte \rangle\) where \(\relint := \birel\ \inte_{\rep}\ \abs_\inte\). In particular, \(\relint\ (\mathsf{in_l}\ n)\ n\) for any \(n \in \nat\).
+\end{example}
+
+\begin{corollary}[Lifting triple from restricted identity]
+	For any set \(A\)
+	\begin{equation}
+		\langle \eq\ A, \id, \id \rangle
+	\end{equation}
+	where
+	\begin{equation}
+		\eq\ A\ x\ y := \birel\ A\ id
+	\end{equation}
+\end{corollary}
+
+\begin{corollary}[Lifting triple from HOL type]
+	For any type \(\alpha\)
+	\begin{equation}
+		\langle \eq\ \univ_\alpha, \id, \id \rangle
+	\end{equation}
+	where
+	\begin{equation}
+		\univ_\alpha\ := \{x \mid x : \alpha\}
+	\end{equation}
+\end{corollary}
+
+\begin{definition}[Parameterized lifting triple]
+	For a type constructor \(\kappa\) of arity \(n\), a parameterized lifting triple is a theorem of the form \(\langle T_1, abs_{T_1}, rep_{T_1}\rangle \land \ldots \land \langle T_n, abs_{T_n}, rep_{T_n}\rangle \longrightarrow \langle T', abs', rep' \rangle\)
+\end{definition}
+
+\begin{example}[Parameterized lifting triple for algebraic data types]
+	Given two transfer relations \(T_1 : \alpha \Rightarrow \gamma\) and \(T_2 : \beta \Rightarrow \delta\), values of the product types \(\alpha \times \beta\) and \(\gamma \times \delta\) are related if both components are related, values of the sum types \(\alpha + \beta\) and \(\gamma + \delta\) are related if both are left values or both are right values and their content is related and finally tow values of the list types \(\alpha^\ast\) and \(\gamma^\ast\) are related if they have the same length and their elements are related pointwise. Formally, the parameterized lifting triple for the product, sum and list types are
+	\begin{equation*}
+		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relprod\ T_1\ T_2, \mapprod\ abs_1\ abs_2, \mapprod\ rep_1\ rep_2 \rangle
+	\end{equation*}
+	\begin{equation*}
+		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relsum\ T_1\ T_2, \mapsum\ abs_1\ abs_2, \mapsum\ rep_1\ rep_2 \rangle
+	\end{equation*}
+	and
+	\begin{equation*}
+		\langle T, abs, rep \rangle \longrightarrow \langle \rellist\ T, \maplist\ abs, \maplist\ rep \rangle
+	\end{equation*}
+	resp. where
+	\begin{align*}
+		\mapprod\ f\ g\ (x, y) &:= (f\ x, g\ y) \\
+		\relprod\ T_1\ T_2\ (x, y)\ (x', y') &:= T_1\ x\ x' \land T_2\ y\ y' \\
+		\mapsum\ f\ g\ (\Left\ x) &:= \Left\ (f\ x) \\
+		\mapsum\ f\ g\ (\Right\ y) &:= \Right\ (f\ y) \\
+		\relsum\ T_1\ T_2\ (\Left\ x)\ (\Left\ x') &:= T_1\ x\ x' \\
+		\relsum\ T_1\ T_2\ (\Right\ y)\ (\Right\ y') &:= T_2\ y\ y' \\
+		\relsum\ T_1\ T_2\ \_\ \_ &:= \false \\
+		\maplist\ f\ [] &:= [] \\
+		\maplist\ f\ (x \cons xs) &:= f\ x \cons \maplist\ f\ xs \\
+		\rellist\ T\ []\ [] &:= \true \\
+		\rellist\ T\ (x \cons xs)\ (y \cons ys) &:= T\ x\ y \land \rellist\ T\ xs\ ys \\
+		\rellist\ T\ \_\ \_ &:= \false \\
+	\end{align*}
+\end{example}
+
+\begin{lemma}[Parameterized lifting triple for functions]\label{fun-lifing-triple}
+	Functions are related if they map related arguments to related results. Hence, the parameterized lifting triple for the function type is
+	\begin{equation*}
+		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relfun\ T_1\ T_2, \mapfun\ rep_1\ abs_2 , \mapfun\ abs_1\ rep_2 \rangle
+	\end{equation*}
+	where
+	\begin{align*}
+		\mapfun\ f\ g\ h &:= g \circ h \circ f \\
+		\relfun\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
+	\end{align*}
+	
+	Depending on which notation is more convenient, I will write \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\) in the remainder of this paper. The relator \((\Rrightarrow)\) is right associative, so \(T_1 \Rrightarrow T_2 \Rrightarrow T_3\) means \(T_1 \Rrightarrow (T_2 \Rrightarrow T_3)\).
+\end{lemma}
+
+\begin{example}[Lifting triple for functions over \(\inte\)]
+	Using the definitions of \(\inte_{\rep}\) and \(\inte\) from example \ref{lifting-int}, we can define the multiplication function on integers on the representation level \(\mathsf{mul_{\inte_{\rep}}} : [\inte_{\rep}] \Rightarrow [\inte_{\rep}] \Rightarrow [\inte_{\rep}]\) using operations on \(\nat\). I omit the definition here. The transfer relation we need to lift this function to \(\inte\) is \(\relfun\ \relint\ (\relfun\ \relint\ \relint)\) and the corresponding transfer triple is
+	\begin{align*}
+		\langle \relint \Rrightarrow \relint \Rrightarrow \relint,\\
+		\mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte),\\
+		\mapfun\ \abs_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte) \rangle
+	\end{align*}
+	Now we can construct the multiplication on \(\inte\) as the lifting of \(\mathsf{mul_{\inte_{\rep}}}\):
+	\begin{equation*}
+		\mathsf{mul_\inte} := \mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte)\ \mathsf{mul_{\inte_{\rep}}}
+	\end{equation*}
+	From definition \ref{def-lifting-triple} we know that these two multiplication functions are related by the transfer relation stated above.
+	
+	Unfolding the definition of \(\mapfun\), we get
+	\begin{equation*}
+		\mathsf{mul_\inte}\ i\ j = \abs_\inte\ (\mathsf{mul_{\inte_{\rep}}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))
+	\end{equation*}
+	as expected.
+	
+	Also functions with mixed argument and return types can be lifted. For instance, the divides predicate on integers, which return \(\true\) iff its first argument divides its second, and the power function on integers, which computes the first arguments raised to the power of the second, can be lifted with the transfer relations
+	\begin{equation*}
+		\relint \Rrightarrow \relint \Rrightarrow (\eq\ \univ_{\mathsf{bool}})
+	\end{equation*}
+	and
+	\begin{equation*}
+		\relint \Rrightarrow (\eq\ \nat) \Rrightarrow \relint
+	\end{equation*}
+	resp.
+\end{example}
+
+\begin{example}[Transfer relations for function composition]
+	The function composition operator is related to itself by the following transfer relation:
+	\begin{equation*}
+		((T_2 \Rrightarrow T_3) \Rrightarrow (T_1 \Rrightarrow T_2) \Rrightarrow T_1 \Rrightarrow T_3)\ (\circ)\ (\circ)
+	\end{equation*}
+	[more explanation?]
+\end{example}
+
+\begin{lemma}[lifting triple with dependent transfer relation for functions]
+	Similar to how the type of functions can be generalized to dependent function types, the above example can be generalized to dependent transfer relations.
+	
+	Given a lifting triple
+	\begin{equation*}
+		\langle T_1, abs_1, rep_1 \rangle
+	\end{equation*}
+	and a parameterized lifting triple
+	\begin{equation*}
+		\forall x\ y \ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2\ y\ x, rep_2\ x\ y\rangle
+	\end{equation*}
+	if \(T_2\ x\ y\) does not depend on which representatives \(x\) and \(y\) are chosen from any given equivalence class of \(\eqrep\ T_1\) and \(\eqabs\ T_1\), reps. and \(abs_2\) and \(rep_2\) behave equivalently for equivalent arguments, formally:
+	\begin{align*}
+		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T_2\ x\ y = T_2\ x'\ y' \\
+		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
+		& ((\eqabs\ (T_2\ x\ y)) \Rrightarrow (\eqrep\ (T_2\ x\ y)))\ (rep_2\ x\ y)\ (rep_2\ x'\ y') \\
+		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
+		& ((\eqrep\ (T_2\ x\ y)) \Rrightarrow (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y\ x)\ (abs_2\ y'\ x')
+	\end{align*}
+	[these conditions could be expressed in a purely relational way without explicit quantifiers and the second argument could be dropped using \(\indom\)] \\
+	then
+	\begin{equation*}
+		\langle \relfund\ T_1\ T_2, \mapfund\ rep_1\ abs_2, \mapfund\ abs_1\ rep_2 \rangle
+	\end{equation*}
+	where
+	\begin{align*}
+		\relfund\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y) \\
+		\mapfund\ f\ g\ h\ x &:= g\ x\ (f\ x)\ (h\ (f\ x))
+	\end{align*}
+	Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
+	
+	I extend the syntax introduced for the non-dependent function relator as follows:
+	\begin{equation*}
+		[x\ y :: T_1] \Rrightarrow T_2 := \relfund\ T_1\ (\lambda x'\ y'\ldotp T_2[x \backslash x', y \backslash y'])
+	\end{equation*}
+	[When binary relations are generalized to binary functions with arbitrary co-domain, they form an applicative functor together with \(\maprel\) and \(\aprel\). (At least I think so. Haven't proved it yet) Since these aren't \textit{relations} anymore, I probably should change the names. Expressing eg. relations restricted by a predicate (as in the example below) using these functions seems less ad-hoc and probably makes things easier and more elegant to automatically simplify the proof obligations coming from the side-conditions in the above lemma.]
+\end{lemma}
+
+\begin{example}[Lifting integer division]
+	While the non-dependent function relation introduced in Lemma \ref{fun-lifing-triple} was sufficient to relate the multiplication and divides functions on the representation and abstraction level, this is not possible for all functions. For instance, implementations of the integer division function may be undefined or produce arbitrary results for some pairs of integers. Hence two implementations of this function do not need to return related values for all related pairs of arguments, but only for those where the first argument is divisible by the second. To express this relation, we need the more general dependent transfer relation for function defined above. Specifically, given an implementation of inter division over \(\inte_{\rep}\), we want to lift this function to \(\inte\). These two functions must be related by the transfer relation
+	\begin{equation*}
+		[\_\ i :: \relint] \Rrightarrow \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ i)) \Rrightarrow \relint
+	\end{equation*}
+	where
+	\begin{align*}
+		\appabs\ f\ \_\ y &:= f\ y \\
+		& \text{alternatively: } \lambda f\ldotp \maprel\ f\ \mathsf{\pi_{abs}} \\
+		& \text{where } \mathsf{\pi_{abs}}\ \_\ y := y \\
+		\reland\ R\ S &:= (\maprel\ (\land)\ R)\ \aprel\ S \\
+		\maprel\ f\ R\ x\ y &:= f\ (R\ x\ y) \\
+		\aprel\ R\ S\ x\ y &:= R\ x\ y\ (S\ x\ y)
+	\end{align*}
+\end{example}
+
+\section{Lifting Algorithm}
+\begin{example}[Lifting formal power series]
+content...
+\end{example}
+
+\section{Conclusion}
+
+\end{document}
