@@ -1,12 +1,20 @@
-\documentclass[]{article}
+\documentclass{article}
+\usepackage{geometry}
 
 \usepackage[english]{babel}
 \usepackage{subcaption}
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{mathtools}
 \usepackage{tikz-cd}
 \usepackage{trimclip}
+
+
+\usepackage{url}
+
+\newcommand{\kevin}[1]{\textcolor{blue}{\textbf{Kevin}: #1}}
+\newcommand{\juli}[1]{\textcolor{green}{\textbf{Juli}: #1}}
 
 %opening
 \title{Lifting Set Extensions}
@@ -75,10 +83,10 @@
 \newcommand{\aprel}{\mathsf{ap_{rel}}}
 
 \begin{document}
-	
+
 \maketitle
 \begin{abstract}
-	
+
 \end{abstract}
 
 \section{Introduction}
@@ -103,33 +111,47 @@
 [I moved most of the section on transfer-triple in the preliminaries because otherwise I would write about the same ideas in the introduction, preliminaries and the theory part.]
 
 [I haven't created any of the figures yet. I hope it is comprehensible nevertheless.]
+\kevin{It was okay, but please add them soon}
 
-As mentioned in the introduction, the Lifting-Tool was designed to lift operations form an underlining base type to a type copy, a sub-, quotient or, in the most general case, partial quotient type defined by the \texttt{typedef} or \texttt{quotient\_type} command. The transfer relations for these cases are always right-total, ie. surjective, and right-unique, ie. single-valued. Exemplary transfer relations for these cases are depicted in figure [fig-ref]. To be able to formalize properties of such relations, we first need a definition of binary relations, their domain and co-domain, partial equivalence relations, which are a subclass of binary relations, and two operations, namely inversion and composition, on  binary relations.
+The lifting tool lifts operations from an underlying base type to a type copy, a sub-, quotient or, in the most general case, partial quotient type defined by the \texttt{typedef} or \texttt{quotient\_type} command.
+Transfer relations for these cases are always right-total, i.e.\ surjective,
+and right-unique, i.e.\ single-valued.
+Exemplary transfer relations for these cases are depicted in
+\kevin{use the cleveref package for automatic reference names and capitalisaiton}
+Figure [fig-ref].
+% To formalize properties of such relations, we first need a definition of binary relations, their domain and co-domain, partial equivalence relations, which are a subclass of binary relations, and two operations, namely inversion and composition, on binary relations.
+To formalize properties of such relations,
+we need some basic definitions:
 
-\begin{definition}[Binary relation]
-	A binary relation is a binary predicate ie. \(R\) is a binary relation iff \(R : \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
+\begin{definition}[Binary relations]
+A binary relation is a binary predicate, that is \(R\) is a binary relation
+if \(R : \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
 \end{definition}
 
-\begin{definition}[Domain and co-domain of a binary relation]
+\begin{definition}[Domain, co-domain]
 	Given a binary relation \(R\), its domain predicate \(\indom\ R\) and co-domain predicate \(\incodom\ R\) are defined as
+  \kevin{use coloneqq instead of :=}
+  \kevin{maybe this is useful: \url{detexify.kirelabs.org/classify.html}}
+  \kevin{only use numbers for align, equation when you refer to them; otherwise use align*, equation*}
 	\begin{align}
 		\indom\ R\ x &:= \exists y\ldotp R\ x\ y \label{in-dom-def} \\
-		\incodom\ R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}
+		\incodom\ R\ y &:= \exists x\ldotp R\ x\ y \label{in-co-dom-def}.
 	\end{align}
 	We call the set \(\{x \mid \indom\ R\ x\}\) the domain and the set \(\{y \mid \incodom\ y\}\) the co-domain of \(R\).
 \end{definition}
 
-\begin{definition}[Partial equivalence relations]
-	A binary relations \(R : \alpha \Rightarrow \beta \Rightarrow \bool\) is a partial equivalence relation iff it is symmetric and transitive. Formally, R must satisfy the property
+\begin{definition}[Partial equivalence relations (PERs)]
+  A binary relations \(R : \alpha \Rightarrow \beta \Rightarrow \bool\) is a partial equivalence relation (PER) if it is symmetric and transitive. Formally, R must satisfy the property
 	\begin{equation}
 		(\forall x\ y\ldotp R\ x\ y \longleftrightarrow R\ y\ x) \land (\forall x\ y\ z\ldotp R\ x\ y \land R\ y\ z \longrightarrow R\ x\ z)
 	\end{equation}
 \end{definition}
+\kevin{note here that a PER is an equivalence relation on its domain}
 
-\begin{definition}[Inverse of binary relations]
+\begin{definition}[Inverse relations]
 The inverse of a binary relations \(R\) is written as \(R\inv\) and defined as
 \begin{equation}
-	R\inv\ x\ y := R\ y\ x
+	R\inv\ x\ y \coloneqq R\ y\ x
 \end{equation}
 \end{definition}
 
@@ -139,45 +161,89 @@ The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 
 	(R_1 \relcomp R_2)\ x\ y := \exists z\ldotp R_1\ x\ z \land R_2\ z\ y
 \end{equation}
 \end{definition}
-
-[too many definitions at once?]
-
-With these definitions at hand, we can characterize the transfer relations supported by the lifting tool. As suggested by the dotted circles on the left side of each picture in figure [fig-ref], `being related to the same abstract value' is a partial equivalence relation for all four types of transfer relations. On the other hand, the dual relation, ie. `being related to the same representation value' is the equality relation on the respective type. We can define the just mentioned relations on the domain and co-domain of transfer relations as follows:
-
-\begin{definition}[Induced relations on the domain and co-domain of a binary relation]
-	Any relation \(T\) induces two symmetric relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\) where
+% [too many definitions at once?]
+\kevin{you may make it a bit shorter if you run out of space because most of it is known to most readers}
+We next characterize the transfer relations supported by the lifting tool.
+As suggested by the dotted circles on the left side of each picture in figure [fig-ref], `being related to the same abstract value is a partial equivalence relation for all four types of transfer relations.
+On the other hand, the dual relation --
+``being related to the same representation value'' --
+is the equality relation on the respective type.
+The relations on the domain and co-domain of transfer relations can be defined as follows:
+\kevin{maybe provide some intuition why those definitions do what one expects}
+\begin{definition}[Induced equivalence relations]
+  % on the domain and co-domain of a binary relation]
+	Any transfer relation \(T\) induces two equivalence relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\), where
 	\begin{align}
 		\eqrep\ T &:= T \relcomp T\inv \label{eq-rep-def} \\
-		\eqabs\ T &:= T\inv \relcomp T \label{eq-abs-def}
+		\eqabs\ T &:= T\inv \relcomp T \label{eq-abs-def}.
 	\end{align}
 \end{definition}
+\kevin{you haven't defined what a ``transfer relation'' is}
+Note that in particular \(\eqabs\ T = (=)\) for any transfer relation $T$.
+There is, however, no inherent reason, why lifting should be limited to such transfer relations.
+In particular, for a transfer relation \(T\) between soft types, as illustrated in figure [fig-ref], \(\eqabs\ T\) is only a restricted equality.
 
-Now we can says, that if \(T\) is a transfer relation for a type copy, subtype, or total or partial quotient, then \(\eqrep\ T\) is a partial equivalence relation and \(\eqabs\ T = (=)\). There is, however, no inherent reason, why lifting should be limited to such transfer relations. In particular, for a transfer relation \(T\) between soft types, as illustrated in figure [fig-ref], \(\eqabs\ T\) is only a restricted equality. To see, why soft types also lead to non-right-unique transfer relations, remember, that two functions are related if they map related arguments to related results. Formally, given two transfer relations \(T_1\) and \(T_2\), we can construct a transfer relation between functions with the functions relator
+Let us showcase how soft types might lead to non-right-unique transfer relations.
+First recall
+\kevin{are you mentioning it somewhere before?}
+that two functions are related if they map related arguments to related results:
+\kevin{use a definition here}.
+Given two transfer relations \(T_1\) and \(T_2\), we can construct a transfer relation between functions with the functions relator
 \begin{equation*}
-	(T_1 \Rrightarrow T_2)\ f\ g := \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
+	(T_1 \Rrightarrow T_2)\ f\ g \coloneqq \forall x\, y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
 \end{equation*}
-As an example, consider functions of type \(\bool \Rightarrow \bool\). When using the identity transfer relation, visualized in figure [fig-ref] by the solid arrows, for both, the domain and co-domain, then two functions are related by \((=) \Rrightarrow (=)\) if they are identical, as illustrated in figure [fig-ref] by the solid arrows. If we restrict the equality relation to the soft type \(\sigma = \mathsf{type}\ ((=)\ \true)\), we get the transfer relation visualized in by the dashed arrow in figure [fig-ref]. I denote this relation \((=)_{\{\true\}}\). If we relate arguments by \((=)_{\{\true\}}\), two functions are related if they map the value \(\true\) to the same result. Since it is no longer relevant, what \(\false\) is mapped to, all functions on the right-hand side, which behave equivalently on the soft type \(\sigma\), are related to the same functions on the left-hand side. Hence, we get an equivalence relation, on both, the left hand right-hand side. Since soft types can be considered sub-type of the respective base type, the occurrence of quotients in the co-domain of transfer relations can also be explained by the duality of sub- and quotient types described by [source]. As we have to support both, restricted equalities and equivalence relations, and both cases can occur together, in general, we have to deal with partial equivalence relations for the domain and co-domain of transfer relations.
+\kevin{the next sentence is quite a mouthful; rewrite it into shorter ones}
+As an example, consider functions of type \(\bool \Rightarrow \bool\).
+When using the identity transfer relation, visualized in \kevin{reminder: use cleveref and make it capitalise reference like Figure, Section, etc.} figure [fig-ref] by the solid arrows, for both the domain and co-domain, two functions are related by \((=) \Rrightarrow (=)\) if they are identical, as illustrated in figure [fig-ref] by the solid arrows.
+If we restrict the equality relation to the soft type \(\sigma \coloneqq \mathsf{type}\ ((=)\ \true)\), we get the transfer relation visualized in by the dashed arrow in figure [fig-ref].
+We denote this relation by \((=)_{\{\true\}}\).
+If we relate arguments by \((=)_{\{\true\}}\), two functions are related if they map the value \(\true\) to the same result.
+Since the image of \(\false\) is no longer relevant,
+all functions on the right-hand side,
+which behave equivalently on the soft type \(\sigma\),
+are related to the same functions on the left-hand side.
+\kevin{what left and right-hand sides are you referring to?}
+We have an equivalence relation on both the left-hand hand right-hand side.
+Since soft types can be considered as subtypes of the respective base type,
+the occurrence of quotients in the co-domain of transfer relations can also
+be explained by the duality of sub- and quotient types described by [source].
+As we have to support both, restricted equalities and equivalence relations,
+and both cases can occur together, we have to deal with partial equivalence relations
+for the domain and co-domain of transfer relations.
 
-If a relation \(T\) is right-unique and right-total, \(\eqrep\ T\) is always a partial equivalence relation, but for an arbitrary relation \(T\), in general, neither \(\eqrep\ T\) not \(\eqabs\ T\) is a partial equivalence relation. In particular, they may not be transitive. Furthermore, even if both, \(\eqrep\ T\) and \(\eqabs\ T\) are partial equivalence relations, it is not guarantied that \(T\) respects the equivalence classes of these relations, ie. if one element of an equivalence class of \(\eqrep\ T\) is related to one element of an equivalence class of \(\eqabs\ T\), not all elements of the first class must be related to all elements of the second. These properties, however, are necessary to describe which abstract values are valid liftings of representation values. For this reason, we restrict the class of relations, which are transfer relations, to those relations that satisfy the following properties:
+If a relation \(T\) is right-unique and right-total, \(\eqrep\ T\) is always a partial equivalence relation, but for an arbitrary relation \(T\), in general, neither \(\eqrep\ T\) not \(\eqabs\ T\) is a PER.
+In particular, they may not be transitive.
+Moreover, even if both \(\eqrep\ T\) and \(\eqabs\ T\) are PERs,
+it is not guaranteed that \(T\) respects the equivalence classes of these relations:
+\kevin{use i.e.\ instead of ie.}
+If some element of an equivalence class $C$ of \(\eqrep\ T\) is related to another element of an equivalence class $C'$ of \(\eqabs\ T\),
+not all elements of $C$ may be related to all elements of $C'$.
+This property is, however, necessary to describe which abstract values are
+valid liftings of representation values.
+\kevin{It's not so much a property of the values but of the relations, no?}
+\kevin{While reading, I found that calling the old and new concept ``transfer relation'' makes it sometimes ambigious what concept we are talking about.
+I propose to rename one (preferably the new one) for the rest of the paper and tell the reader that this is
+done for clarity}
+We thus define the class of transfer relations,
+to those relations that satisfy the following properties:
+\kevin{use a definition}
 \begin{enumerate}
 	\item \(\eqrep\ T\) must be a partial equivalence relation
 	\item \(\eqabs\ T\) must be a partial equivalence relation
-	\item \(\forall x\ x'\ y\ y'\ldotp T\ x\ y \land \eqrep\ T\ x\ x' \land \eqabs\ T\ y\ y' \longrightarrow T\ x'\ y'\)
+	\item $T$ respects the PERs, formally: \(\forall x\, x'\, y\, y'\ldotp T\ x\ y \land \eqrep\ T\ x\ x' \land \eqabs\ T\ y\ y' \longrightarrow T\ x'\ y'\)
 \end{enumerate}
-
-These requirements are equivalent to the following, more compact, property:
-
+These requirements are equivalent to the following compact property:
 \begin{definition}[Z-Property]
-	A binary relation \(T\) satisfies the Z-Property iff
+	A binary relation \(T\) satisfies the Z-Property if
 	\begin{equation}
-		T \relcomp T^{-1} \relcomp T = T \label{z-prop-def}
+		T \relcomp T^{-1} \relcomp T = T \label{z-prop-def}.
 	\end{equation}
 \end{definition}
-
-Since \(\forall x\ y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R)\ x\ y\) is satisfied by all relations R, the Z-Property is equivalent to the implication
+Since \(\forall x\, y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R)\ x\ y\) is satisfied by all relations R, the Z-Property can be simplified to proving the implication
 \begin{equation}
-	\forall x\ y\ldotp (R \relcomp R^{-1} \relcomp R)\ x\ y \longrightarrow R\ x\ y
+	\forall x\ y\ldotp (R \relcomp R^{-1} \relcomp R)\ x\ y \longrightarrow R\ x\ y.
 \end{equation}
+\kevin{also use punctuation in equations (e.g. I added a period here)}
 %This property is visualized in the commutative diagram below where the assumptions are in the shape of the letter "Z":
 %
 %\begin{figure}[h]
@@ -188,94 +254,119 @@ Since \(\forall x\ y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R
 %	\end{tikzcd}
 %	\caption{Commutative diagram of the Z-porperty}
 %\end{figure}
-
-Now, we can define transfer relations as follows:
-
+We can now state our generalized definition of transfer relations:
 \begin{definition}[Transfer relation]
-	A transfer relation is a binary relation which satisfies the Z-property.
+	A transfer relation is a binary relation satisfying the Z-property.
 \end{definition}
-
-Since the z-property is satisfied by all relations which are right-unique and right-total, my definition covers all transfer relations accepted by the Lifting-Tool. The Transfer-Tool does not impose any restrictions on transfer relations, because the partial equivalence relations on the (co-)domain are not relevant to transfer values. Even though the Transfer-Tool accepts all binary relations as transfer relations, I do not expect that my constraints would lead to any practical limitations of the applicability of the Transfer-Tool.
-
-\begin{example}[Transfer relations between \(\nat\) and \(\inte\)]\label{trans-rel-nat-int}
-	Assuming we have a type \(\nat\) for natural numbers, we can defined a type \(\inte\) for integers as the quotient type:
+Since the Z-property is satisfied by all right-unique and right-total relations,
+the definition subsumes all transfer relations accepted by the lifting tool.
+The transfer tool imposes no restrictions on its transfer relations
+since the partial equivalence relations on the (co-)domain are not relevant to transfer values.
+\kevin{Transfer does do some shenanigans like special support for equality relations, etc. so it is not quite clear what ``no restrictions'' means here, let's discuss next time}
+Even though the transfer tool accepts all binary relations as transfer relations, I do not expect that my constraints would lead to any practical limitations of the applicability of the Transfer-Tool.
+\kevin{same here -- if it accepts any relation, what's the problem with putting in some special ones?}
+\begin{example}\label{trans-rel-nat-int}
+Assuming we have a type \(\nat\) for natural numbers,
+we can define the type \(\inte\) of integers as the quotient type
 	\begin{equation*}
-		\inte := \nat \times \nat\, / \equiv_\inte\ \text{where}\ (a, b) \equiv_\inte (c, d)\ \text{iff}\ a + d = b + c
+    \inte := \nat \times \nat\, / \equiv_\inte, \quad \text{where}\ (a, b) \equiv_\inte (c, d) \text{ if and only if } a + d = b + c
 	\end{equation*}
 	with an abstraction function \(\mathsf{abs_{\nat \times \nat, \inte}} : \nat \times \nat \Rightarrow \inte\) and representation function \(\mathsf{rep_{\nat \times \nat, \inte}} : \inte \Rightarrow \nat \times \nat\).
-	
-	Now we can define a transfer relation to relate integers on the representation level, ie. values of type \(\nat \times \nat\), and the abstraction level, ie. values of type \(\inte\).
+We can then define a transfer relation to relate integers on the representation level,
+i.e.\ values of type \(\nat \times \nat\),
+and the abstraction level, i.e.\ values of type \(\inte\):
 	\begin{equation*}
-		\mathsf{Rel_{\nat \times \nat, \inte}}\ (m, n)\ i := \mathsf{abs_{\nat \times \nat, \inte}}\ (m, n) = i 
+		\mathsf{Rel_{\nat \times \nat, \inte}}\ (m, n)\ i := \mathsf{abs_{\nat \times \nat, \inte}}\ (m, n) = i
 	\end{equation*}
 	Furthermore, we can express the relation between naturals and non-negative integers with the following transfer relation:
 	\begin{equation*}
 		\mathsf{Rel_{\inte, \nat}}\ i\ n := \mathsf{abs_{\nat \times \nat, \inte}}\ (n, 0) = i
 	\end{equation*}
-
-	For these transfer relations we get the following partial equivalence relations: \(\eqabs\ \relnatnatint\) and \(\eqabs\ \relintnat\) are the equality relations on \(\inte\) and \(\nat\), resp. \(\eqrep\ \relnatnatint\) is the equivalence relation used in the definition of the quotient type \(\inte\), namely \(\equiv_\inte\), and finally, \(\eqrep\ \relintnat\) is the equality on \(\inte\) restricted to non-negative numbers.
+	For these transfer relations, we get the following PERs:
+  \(\eqabs\ \relnatnatint\) and \(\eqabs\ \relintnat\) are the equality relations on \(\inte\) and \(\nat\), resp. \(\eqrep\ \relnatnatint\) is the equivalence relation used in the definition of the quotient type \(\inte\), namely \(\equiv_\inte\), and finally, \(\eqrep\ \relintnat\) is the equality on \(\inte\) restricted to non-negative numbers.
 \end{example}
 
 \section{Lifting Triples}
-Let us recall that the goal of lifting is, given a value on the representation level and a transfer relation, generate an abstract value build from the given value and abstraction and representation functions, such that the new value is related to the representation value by the given transfer relation. To find suitable abstraction and representation functions during that process, we need to associate transfer relations with such functions. For this purpose, I use lifting-triples, which are similar to quotient predicates used by the Lifting-Tool. Specifically, a lifting-triple, written \(\langle T, abs, rep \rangle\), combines a transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) with an abstraction and representation function \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\), reps., st. \(abs\) (\(rep\)) maps values on the representation (abstraction) level to related values on the abstraction (representation) level.
-
+Recall the goal of lifting:
+given a value on the representation level and a transfer relation,
+generate an abstract value related to it.
+To do so, we must use suitable abstraction and representation functions,
+mapping back and forth between related values.
+We associate such functions with transfer relations by using \emph{lifting-triples},
+which are similar to quotient predicates used by the lifting tool.
+Specifically, a lifting triple,
+written \(\langle T, abs, rep \rangle\),
+combines a transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) with an abstraction function \(abs : \alpha \Rightarrow \beta\) and representation function \(rep : \beta \Rightarrow \alpha\) respecting the transfer relation.
+\kevin{I rewrote this paragraph a bit; you may double check it}
 \begin{definition}[Lifting triple]\label{def-lifting-triple}
-	A transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) and functions \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\) form a lifting triple, written \(\langle T, abs, rep \rangle\), iff
+	A transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) and functions \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\) form a lifting triple, written \(\langle T, abs, rep \rangle\), if
 	\begin{align*}
 		\text{1.}\quad&\forall x\ldotp \indom\ T\ x \longrightarrow T\ x\ (abs\ x) \\
 		\text{2.}\quad&\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y
 	\end{align*}
 \end{definition}
-
-When comparing this definition to the quotient predicate from [source], two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the transfer relation in a quotient-predicate must be right-unique and right-total, while the relation in a lifting-triple must only satisfy the z-property, as explained in section \ref{sec-prelims}. This generalization to arbitrary transfer relations has the added benefit, that the lifting triple is symmetric, which can be used to obtain a dual theorem for any given theorem about lifting triples.
-
+When comparing this definition to the quotient predicate from [source], two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the relation in a quotient-predicate must be right-unique and right-total, while the relation in a lifting-triple must only satisfy the Z-property, as explained in \kevin{cleveref} Section \ref{sec-prelims}.
+This generalization has the benefit of being symmetric:
+any lifting triple gives rise to a dual lifting triple.
 \begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
-	\begin{equation}
-		\langle T, abs, rep \rangle \longrightarrow \langle T\inv, rep, abs \rangle
-	\end{equation}
+  If $\langle T, abs, rep \rangle$ then $\langle T\inv, rep, abs \rangle$.
 \end{lemma}
-
 [The next part must be slightly rewritten because it doesn't fit well in here. Before, this was part of the section about transfer relations but now I moved it back here again because it is too much for the preliminaries.]
 
+If we want to express transfer relations between representations and abstractions of abstract data types, like like vectors and polynomials,
+we need the relational analogue of type constructors.
+These are known as \emph{parameterized transfer relations} [source].
+Just like type constructors map types to types,
+parameterized transfer relations map relations to relations.
+When \(\kappa\) and \(\kappa'\) are type constructs of arity \(n\),
+a transfer relation between \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\)
+is composed of two parts:
 
-If we want to express transfer relations between representations and abstractions of abstract data types like like vectors or polynomials, we need the relational analogue of type constructors, ie. parameterized transfer relations as introduced by [source]. As type constructors map types to types, parameterized transfer relations map relations to relations. When \(\kappa\) and \(\kappa'\) are type constructs of arity \(n\), then a transfer relations between the type \(\kappa\ \overline{\tau}\) on the representation level and the type \(\kappa'\ \overline{\tau'}\) on the abstraction level is, in general, composed of two parts: First, a relator \(rel\) of type
+First, a relator \(rel\) of type
 \begin{equation*}
 (\alpha_1 \Rightarrow \alpha'_1 \Rightarrow \bool) \Rightarrow \ldots \Rightarrow (\alpha_n \Rightarrow \alpha'_n \Rightarrow \bool) \Rightarrow \kappa\ \overline{\alpha} \Rightarrow \kappa\ \overline{\alpha'} \Rightarrow \bool
 \end{equation*}
-which takes the relations between the representation and abstraction versions of the type parameters as arguments and lifts them to the type constructor \(\kappa\), leafing the type constructor itself unchanged, and, second, a non-parameterized transfer relation \(R : \kappa\ \overline{\alpha} \Rightarrow \kappa'\ \overline{\alpha} \Rightarrow \bool\) which relates representation and abstraction values on the outer level.
+which takes relations on the type parameters as arguments
+and lifts them to a relation on \(\kappa\).
+Second, a non-parameterized transfer relation \(T : \kappa\ \overline{\alpha} \Rightarrow \kappa'\ \overline{\alpha} \Rightarrow \bool\) that relates representation and abstraction values on the outer level.
 
-For the class of transfer relation supported by the Lifting-Tool, the composition of these parts always resulted in a transfer relation. In contrast, my, more general, transfer relations are not closed under composition because the Z-property is not preserved by composition. We can, however, prove a restricted composition theorem. In particular, the composition of two transfer relations \(T_1\) and \(T_2\) is again a transfer relation if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition. Formally:
-
+For the class of transfer relations supported by the lifting tool,
+the composition of these components always resulted in a transfer relation.
+This does not hold for our generalized transfer relations
+since the Z-property is not closed under composition.
+We can, however, prove a restricted composition theorem:
 \begin{lemma}[Composition of transfer relations]\label{comp-of-trans-rels}
-If \(\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1\) then \(T_1 \ \relcomp T_2\) is a transfer relation.
+The composition of two transfer relations \(T_1\) and \(T_2\) is again a transfer relation if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition.
+Formally: if \(\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1\) then \(T_1 \ \relcomp T_2\) is a transfer relation.
 \end{lemma}
-
-When applying this theorem to the situation described above, ie. to build a transfer relation between \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\), the side condition of this theorem is specialized to
+When applying this theorem to build a transfer relation between \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\),
+the side condition becomes
 \begin{equation*}
-\eqabs\ (rel\ T_1 \ldots T_n) \relcomp \eqrep\ R = \eqrep\ R \relcomp \eqabs\ (rel\ T_1 \ldots T_n)
+\eqabs\ (rel\ T_1 \ldots T_n) \relcomp \eqrep\ T = \eqrep\ T \relcomp \eqabs\ (rel\ T_1 \ldots T_n).
 \end{equation*}
-This, intuitively, means that the representation of the type constructor \(\kappa\) is independent of the representations of the type arguments. Since it is reasonable to expect this property for all meaningful datatypes, the side-condition should not lead to any practical limitations. In particular, the theorem is applicable to all datatypes which can be handled by the Lifting-Tool because there \(\eqabs\ (rel\ T_1 \ldots T_n)\) is the equality relation which commutes with all relations.
+This intuitively means that the representation of the type constructor
+\(\kappa\) is independent of the representations of the type arguments.
+Since it is reasonable to expect this property for all meaningful datatypes, the side-condition should not lead to any practical limitations. In particular, the theorem is applicable to all datatypes which can be handled by the lifting tool
+because there \(\eqabs\ (rel\ T_1 \ldots T_n)\) is the equality relation,
+which commutes with all relations.
 
 [Not a nice transition. Will fix this later]
-While quotient predicates are closed under composition, lifting-triples are not since the composition of lifting triples involves the composition of their transfer relations. However, if we add the side-condition from lemma \ref{comp-of-trans-rels}, we still get a composition theorem for lifting-triples, which is sufficiently general for our application.
-
-\begin{theorem}[Composition of lifting triples]
-	\begin{equation}
-		\begin{split}
-			\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \land \\
-			\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1 \\
-			\longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
-		\end{split}			
-	\end{equation}
-\end{theorem}
-
+As a consequence,
+also lifting triples are not in general closed under composition.
+But if we add the side-condition from \kevin{cleveref} Lemma \ref{comp-of-trans-rels},
+we again get a composition theorem that is sufficiently general for our applications.
+\begin{lemma}[Composition of lifting triples]
+Assume we have lifting triples
+$\langle T_1, abs_{T_1}, rep_{T_1} \rangle$ and $\langle T_2, abs_{T_2}, rep_{T_2} \rangle$
+and \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \),
+then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$.
+\end{lemma}
+\kevin{The next sentence needs more explanation, e.g.\ talk about coinciding PERs.}
 When one wants, for instance, to lift a value from a representation level to an intermediate level and from there to a fully abstract level, the following corollary can be applied:
-
-\begin{corollary}[Composition of lifting triples with shared equivalence]
-	If \( \eqabs\ T_1 = \eqrep\ T_2 \) then
-	\begin{equation}
-		\langle T_1, abs_{T_1}, rep_{T_1} \rangle \land \langle T_2, abs_{T_2}, rep_{T_2} \rangle \longrightarrow \langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle
-	\end{equation}
+\kevin{I forgot: does it really need to be equality or does the latter being coarser also work?}
+\begin{corollary}
+Assume $\langle T_1, abs_{T_1}, rep_{T_1} \rangle$ and $\langle T_2, abs_{T_2}, rep_{T_2} \rangle$ and \( \eqabs\ T_1 = \eqrep\ T_2 \),
+then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$
 \end{corollary}
 
 % Note that \(abs_T\) and \(rep_T\) are inverse only modulo \(\eqabs\ T\) and \(\eqrep\ T\).
@@ -407,7 +498,7 @@ In particular, we can construct a lifting triple from any set-extension.
 		\mapfun\ f\ g\ h &:= g \circ h \circ f \\
 		\relfun\ T_1\ T_2\ f\ g &:= \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
 	\end{align*}
-	
+
 	Depending on which notation is more convenient, I will write \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\) in the remainder of this paper. The relator \((\Rrightarrow)\) is right associative, so \(T_1 \Rrightarrow T_2 \Rrightarrow T_3\) means \(T_1 \Rrightarrow (T_2 \Rrightarrow T_3)\).
 \end{lemma}
 
@@ -423,13 +514,13 @@ In particular, we can construct a lifting triple from any set-extension.
 		\mathsf{mul_\inte} := \mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte)\ \mathsf{mul_{\inte_{\rep}}}
 	\end{equation*}
 	From definition \ref{def-lifting-triple} we know that these two multiplication functions are related by the transfer relation stated above.
-	
+
 	Unfolding the definition of \(\mapfun\), we get
 	\begin{equation*}
 		\mathsf{mul_\inte}\ i\ j = \abs_\inte\ (\mathsf{mul_{\inte_{\rep}}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))
 	\end{equation*}
 	as expected.
-	
+
 	Also functions with mixed argument and return types can be lifted. For instance, the divides predicate on integers, which return \(\true\) iff its first argument divides its second, and the power function on integers, which computes the first arguments raised to the power of the second, can be lifted with the transfer relations
 	\begin{equation*}
 		\relint \Rrightarrow \relint \Rrightarrow (\eq\ \univ_{\mathsf{bool}})
@@ -451,7 +542,7 @@ In particular, we can construct a lifting triple from any set-extension.
 
 \begin{lemma}[lifting triple with dependent transfer relation for functions]
 	Similar to how the type of functions can be generalized to dependent function types, the above example can be generalized to dependent transfer relations.
-	
+
 	Given a lifting triple
 	\begin{equation*}
 		\langle T_1, abs_1, rep_1 \rangle
@@ -479,7 +570,7 @@ In particular, we can construct a lifting triple from any set-extension.
 		\mapfund\ f\ g\ h\ x &:= g\ x\ (f\ x)\ (h\ (f\ x))
 	\end{align*}
 	Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
-	
+
 	I extend the syntax introduced for the non-dependent function relator as follows:
 	\begin{equation*}
 		[x\ y :: T_1] \Rrightarrow T_2 := \relfund\ T_1\ (\lambda x'\ y'\ldotp T_2[x \backslash x', y \backslash y'])
