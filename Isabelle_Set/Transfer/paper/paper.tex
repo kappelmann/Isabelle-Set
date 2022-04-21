@@ -10,8 +10,10 @@
 \usepackage{cleveref}
 \usepackage{tikz-cd}
 \usepackage{tikz}
+\usetikzlibrary{decorations.markings}
 \usetikzlibrary{calc}
 \usepackage{trimclip}
+\usepackage{xcolor}
 
 
 \usepackage{url}
@@ -87,6 +89,9 @@
 \newcommand{\liftrel}{lifting relation}
 \newcommand{\liftrels}{lifting relations}
 
+\definecolor{col1}{rgb}{0,0.5,0.7}
+\definecolor{col2}{rgb}{0.9,0.4,0.0}
+
 \begin{document}
 
 \maketitle
@@ -115,15 +120,107 @@
 \section{Preliminaries}\label{sec-prelims}
 [I moved most of the section on transfer-triple in the preliminaries because otherwise I would write about the same ideas in the introduction, preliminaries and the theory part.]
 
-[I haven't created any of the figures yet. I hope it is comprehensible nevertheless.]
-\kevin{It was okay, but please add them soon}
-
-The lifting tool lifts operations from an underlying base type to a type copy, a sub-, quotient or, in the most general case, partial quotient type defined by the \texttt{typedef} or \texttt{quotient\_type} command.
+The Lifting Tool lifts operations from an underlying base type to a type copy, a sub-, quotient or, in the most general case, partial quotient type defined by the \texttt{typedef} or \texttt{quotient\_type} command.
 Transfer relations for these cases are always right-total, i.e.\ surjective,
 and right-unique, i.e.\ single-valued.
 Exemplary transfer relations for these cases are depicted in
 \kevin{use the cleveref package for automatic reference names and capitalisaiton}
 Figure [fig-ref].
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\begin{tikzpicture}
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r1) at (-1.8,1.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r2) at (-1.4,1.0) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r3) at (-2.0,0.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r4) at (-1.6,0.0) {};
+			\draw (-1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a1) at (1.6,1.5) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a2) at (2.0,1.0) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a3) at (1.4,0.5) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a4) at (1.8,0.0) {};
+			\draw[col2] (1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\path ($(r1.east)+(10:0.05)$) edge [-, bend left=5] ($(a1.west)+(170:0.05)$);
+			\path ($(r2.east)+(10:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
+			\path ($(r3.east)+(10:0.05)$) edge [-, bend left=5] ($(a3.west)+(170:0.05)$);
+			\path ($(r4.east)+(10:0.05)$) edge [-, bend left=5] ($(a4.west)+(170:0.05)$);
+		\end{tikzpicture}
+		\caption{type copy}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\begin{tikzpicture}
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r1) at (-1.8,1.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r2) at (-1.4,1.0) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r3) at (-2.0,0.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r4) at (-1.6,0.0) {};
+			\draw (-1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\draw[dashed, col2] (-1.7, 1.0) ellipse (0.7cm and 0.85cm);
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a1) at (1.6,1.5) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a2) at (2.0,1.0) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a3) at (1.4,0.5) {};
+			\draw[col2] (1.7, 1.0) ellipse (0.7cm and 0.85cm);
+			\path ($(r1.east)+(10:0.05)$) edge [-, bend left=5] ($(a1.west)+(170:0.05)$);
+			\path ($(r2.east)+(10:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
+			\path ($(r3.east)+(10:0.05)$) edge [-, bend left=5] ($(a3.west)+(170:0.05)$);
+		\end{tikzpicture}
+		\caption{sub-type}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\begin{tikzpicture}
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r1) at (-1.8,1.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r2) at (-1.6,1.3) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r3) at (-2.0,0.85) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r4) at (-1.8,0.65) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r5) at (-1.6,0.2) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r6) at (-1.4,0.0) {};
+			\draw[densely dotted, col1] (-1.7, 1.4) ellipse (0.3cm and 0.3cm);
+			\draw[densely dotted, col1] (-1.9, 0.75) ellipse (0.3cm and 0.3cm);
+			\draw[densely dotted, col1] (-1.5, 0.1) ellipse (0.3cm and 0.3cm);
+			\draw (-1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a1) at (1.7,1.35) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a2) at (1.5,0.75) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a3) at (1.9,0.15) {};
+			\draw[col2] (1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\path ($(r1.east)+(10:0.05)$) edge [-, bend left=5] ($(a1.west)+(150:0.05)$);
+			\path ($(r2.east)+(20:0.05)$) edge [-, bend left=5] ($(a1.west)+(170:0.05)$);
+			\path ($(r3.east)+(10:0.05)$) edge [-, bend left=5] ($(a2.west)+(150:0.05)$);
+			\path ($(r4.east)+(20:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
+			\path ($(r5.east)+(10:0.05)$) edge [-, bend left=5] ($(a3.west)+(150:0.05)$);
+			\path ($(r6.east)+(20:0.05)$) edge [-, bend left=5] ($(a3.west)+(170:0.05)$);
+		\end{tikzpicture}
+		\caption{quotient type}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\begin{tikzpicture}
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r1) at (-1.8,1.5) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r2) at (-1.6,1.3) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r3) at (-2.0,0.85) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r4) at (-1.8,0.65) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r5) at (-1.6,0.2) {};
+			\node[circle,fill=black,inner sep=0pt,minimum size=3pt] (r6) at (-1.4,0.0) {};
+			\draw[densely dotted, col1] (-1.7, 1.4) ellipse (0.3cm and 0.3cm);
+			\draw[densely dotted, col1] (-1.9, 0.75) ellipse (0.3cm and 0.3cm);
+			\draw[dashed, col2] (-1.8, 1.05) ellipse (0.65cm and 0.75cm);
+			\draw (-1.7, 0.75) ellipse (0.9cm and 1.3cm);
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a1) at (1.7,1.35) {};
+			\node[circle,fill=col1,inner sep=0pt,minimum size=3pt] (a2) at (1.5,0.75) {};
+			\draw[col2] (1.6, 1.05) ellipse (0.65cm and 0.75cm);
+			\path ($(r1.east)+(10:0.05)$) edge [-, bend left=5] ($(a1.west)+(150:0.05)$);
+			\path ($(r2.east)+(20:0.05)$) edge [-, bend left=5] ($(a1.west)+(170:0.05)$);
+			\path ($(r3.east)+(10:0.05)$) edge [-, bend left=5] ($(a2.west)+(150:0.05)$);
+			\path ($(r4.east)+(20:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
+		\end{tikzpicture}
+		\caption{partial quotient type}
+	\end{subfigure}
+\end{figure}
 % To formalize properties of such relations, we first need a definition of binary relations, their domain and co-domain, partial equivalence relations, which are a subclass of binary relations, and two operations, namely inversion and composition, on binary relations.
 To formalize properties of such relations,
 we need some basic definitions:
