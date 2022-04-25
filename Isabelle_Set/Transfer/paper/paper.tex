@@ -15,8 +15,10 @@
 \usepackage{trimclip}
 \usepackage{xcolor}
 
-
 \usepackage{url}
+
+\captionsetup[subfigure]{subrefformat=simple,labelformat=simple}
+\renewcommand\thesubfigure{(\alph{subfigure})}
 
 \newcommand{\kevin}[1]{\textcolor{blue}{\textbf{Kevin}: #1}}
 \newcommand{\juli}[1]{\textcolor{orange}{\textbf{Juli}: #1}}
@@ -118,14 +120,31 @@
 \end{itemize}
 
 \section{Preliminaries}\label{sec-prelims}
-[I moved most of the section on transfer-triple in the preliminaries because otherwise I would write about the same ideas in the introduction, preliminaries and the theory part.]
+\begin{itemize}
+	\item Running example: Representation of \(\inte\) as partial quotient of \(\nat \times \nat\)
+	\item Transfer Tool
+		\begin{itemize}
+			\item Translates terms between two representations
+			\item Relation between representation and abstraction are expressed using transfer relations
+			\item Transfer relations are arbitrary binary relations
+			\item Terms can be related by transfer rules
+			\item Relators lift transfer relations over type constructors
+			\item For abstract datatypes like finite sets, we can combine a relator with a transfer relations to construct a parameterized transfer relation
+			\item Intuitive explanation of transfer algorithm with example (\(\mathsf{singleton_{fset}}\ i \cup \mathsf{empty_{fset}} = \mathsf{singleton_{fset}}\ i\))
+		\end{itemize}
+	\item Lifting Tool
+		\begin{itemize}
+			\item Generates transfer relations for type definitions
+			\item Synthesizes abstract terms from representation terms
+			\item Proves transfer rules between representation and abstract terms
+			\item ...
+		\end{itemize}
+\end{itemize}
 
 The Lifting Tool lifts operations from an underlying base type to a type copy, a sub-, quotient or, in the most general case, partial quotient type defined by the \texttt{typedef} or \texttt{quotient\_type} command.
 Transfer relations for these cases are always right-total, i.e.\ surjective,
 and right-unique, i.e.\ single-valued.
-Exemplary transfer relations for these cases are depicted in
-\kevin{use the cleveref package for automatic reference names and capitalisaiton}
-Figure [fig-ref].
+Exemplary transfer relations for these cases are depicted in \cref{fig:lift-tool-trans-rels}.
 
 \begin{figure}[h]
 	\centering
@@ -195,6 +214,7 @@ Figure [fig-ref].
 			\path ($(r6.east)+(20:0.05)$) edge [-, bend left=5] ($(a3.west)+(170:0.05)$);
 		\end{tikzpicture}
 		\caption{quotient type}
+		\label{fig:trans-rels-quot}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.4\textwidth}
@@ -219,7 +239,10 @@ Figure [fig-ref].
 			\path ($(r4.east)+(20:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
 		\end{tikzpicture}
 		\caption{partial quotient type}
+		\label{fig:trans-rels-par-quot}
 	\end{subfigure}
+	\caption{Visualization of transfer relations for type copies, sub-types, quotient types and partial quotient types.}
+	\label{fig:lift-tool-trans-rels}
 \end{figure}
 % To formalize properties of such relations, we first need a definition of binary relations, their domain and co-domain, partial equivalence relations, which are a subclass of binary relations, and two operations, namely inversion and composition, on binary relations.
 To formalize properties of such relations,
@@ -232,7 +255,6 @@ if \(R : \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
 
 \begin{definition}[Domain, co-domain]
 	Given a binary relation \(R\), its domain predicate \(\indom\ R\) and co-domain predicate \(\incodom\ R\) are defined as
-  \kevin{maybe this is useful: \url{detexify.kirelabs.org/classify.html}}
   \kevin{only use numbers for align, equation when you refer to them; otherwise use align*, equation*}
 	\begin{align}
 		\indom\ R\ x &\coloneqq \exists y\ldotp R\ x\ y \label{in-dom-def} \\
@@ -242,12 +264,12 @@ if \(R : \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
 \end{definition}
 
 \begin{definition}[Partial equivalence relations (PERs)]
-  A binary relations \(R : \alpha \Rightarrow \beta \Rightarrow \bool\) is a partial equivalence relation (PER) if it is symmetric and transitive. Formally, R must satisfy the property
+  A binary relations \(R : \alpha \Rightarrow \alpha \Rightarrow \bool\) is a partial equivalence relation (PER) if it is symmetric and transitive. Formally, R must satisfy the property
 	\begin{equation}
 		(\forall x\ y\ldotp R\ x\ y \longleftrightarrow R\ y\ x) \land (\forall x\ y\ z\ldotp R\ x\ y \land R\ y\ z \longrightarrow R\ x\ z)
 	\end{equation}
 \end{definition}
-\kevin{note here that a PER is an equivalence relation on its domain}
+Note that, if \(R : \alpha \Rightarrow \alpha \Rightarrow \bool\) is a PER, then \(R : \mathsf{type}\ (\indom\ R) \Rightarrow \mathsf{type}\ (\indom\ R) \Rightarrow \bool\), i.e. \(R\) with its argument type restricted to its domain, is also reflexive and hence an equivalence relation.
 
 \begin{definition}[Inverse relations]
 The inverse of a binary relations \(R\) is written as \(R\inv\) and defined as
@@ -265,7 +287,7 @@ The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 
 % [too many definitions at once?]
 \kevin{you may make it a bit shorter if you run out of space because most of it is known to most readers}
 We next characterize the transfer relations supported by the lifting tool.
-As suggested by the dotted circles on the left side of each picture in figure [fig-ref], `being related to the same abstract value is a partial equivalence relation for all four types of transfer relations.
+As suggested by the blue dotted circles on the left side of \cref{fig:trans-rels-quot,fig:trans-rels-par-quot}, ``being related to the same abstract value'' is a PER for transfer relations form total and partial quotient types. For type copies and sub-types, at most one representation value is related to any abstract value and thus ``being related to the same abstract value'' is a restricted quality relations for these cases, which is PER as well.
 On the other hand, the dual relation --
 ``being related to the same representation value'' --
 is the equality relation on the respective type.
@@ -298,16 +320,17 @@ As an example, consider functions of type \(\bool \Rightarrow \bool\).
 \begin{figure}[h]
 	\centering
 	\begin{tikzpicture}
-		\path 
-		(-1,1) node (tl) {$\true$}
-		(-1,0) node (fl) {$\false$}
-		(1,1) node (tr) {$\true$}
-		(1,0) node (fr) {$\false$};
-		\draw[rounded corners=8] ($(tl.north west)+(-0.3,0.3)$)  rectangle ($(fl.south east)+(0.3,-0.3)$);
-		\draw[rounded corners=8] ($(tr.north west)+(-0.3,0.3)$)  rectangle ($(fr.south east)+(0.3,-0.3)$);
-		\draw[-latex, bend right, dashed] (tl) edge (tr);
-		\draw[-latex, bend left] (tl) edge (tr);
-		\draw[-latex] (fl) edge (fr);
+		\node[inner sep=1.5] at (-1,1) (tl) {$\true$};
+		\node[inner sep=1.5] at (-1,0) (fl) {$\false$};
+		\node[inner sep=1.5] at (1,1) (tr) {$\true$};
+		\node[inner sep=1.5] at (1,0) (fr) {$\false$};
+		\draw[rounded corners=8, dashed, col2] ($(tl.north west)+(-0.2,0.2)$)  rectangle ($(tl.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=8, dashed, col2] ($(tr.north west)+(-0.2,0.2)$)  rectangle ($(tr.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=14] ($(tl.north west)+(-0.4,0.4)$)  rectangle ($(fl.south east)+(0.4,-0.4)$);
+		\draw[rounded corners=14] ($(tr.north west)+(-0.4,0.4)$)  rectangle ($(fr.south east)+(0.4,-0.4)$);
+		\path (tl.north east) edge [->, bend left] (tr.north west);
+		\path (tl.south east) edge [->, bend right, dashed] (tr.south west);
+		\path (fl.east) edge [->] (fr.west);
 	\end{tikzpicture}
 	\caption{caption}
 \end{figure}
@@ -315,17 +338,20 @@ When using the identity transfer relation, visualized in \kevin{reminder: use cl
 \begin{figure}[h]
 	\centering
 	\begin{tikzpicture}
-		\path
-		(-3,3) node (l1) {$\{\false \mapsto \false, \true \mapsto \false\}$}
-		(-3,2) node (l2) {$\{\false \mapsto \true, \true \mapsto \false\}$}
-		(-3,1) node (l3) {$\{\false \mapsto \false, \true \mapsto \true\}$}
-		(-3,0) node (l4) {$\{\false \mapsto \true, \true \mapsto \true\}$}
-		(3,3) node (r1) {$\{\false \mapsto \false, \true \mapsto \false\}$}
-		(3,2) node (r2) {$\{\false \mapsto \true, \true \mapsto \false\}$}
-		(3,1) node (r3) {$\{\false \mapsto \false, \true \mapsto \true\}$}
-		(3,0) node (r4) {$\{\false \mapsto \true, \true \mapsto \true\}$};
-		\draw[rounded corners=8] ($(l1.north west)+(-0.3,0.3)$)  rectangle ($(l4.south east)+(0.3,-0.3)$);
-		\draw[rounded corners=8] ($(r1.north west)+(-0.3,0.3)$)  rectangle ($(r4.south east)+(0.3,-0.3)$);
+		\node[inner sep=0.3] at (-3,3) (l1) {$\{\false \mapsto \false, \true \mapsto \false\}$};
+		\node[inner sep=0.3] at (-3,2) (l2) {$\{\false \mapsto \true, \true \mapsto \false\}$};
+		\node[inner sep=0.3] at (-3,1) (l3) {$\{\false \mapsto \false, \true \mapsto \true\}$};
+		\node[inner sep=0.3] at (-3,0) (l4) {$\{\false \mapsto \true, \true \mapsto \true\}$};
+		\node[inner sep=0.3] at (3,3) (r1) {$\{\false \mapsto \false, \true \mapsto \false\}$};
+		\node[inner sep=0.3] at (3,2) (r2) {$\{\false \mapsto \true, \true \mapsto \false\}$};
+		\node[inner sep=0.3] at (3,1) (r3) {$\{\false \mapsto \false, \true \mapsto \true\}$};
+		\node[inner sep=0.3] at (3,0) (r4) {$\{\false \mapsto \true, \true \mapsto \true\}$};
+		\draw[rounded corners=8, densely dotted, col1] ($(l1.north west)+(-0.2,0.2)$)  rectangle ($(l2.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=8, densely dotted, col1] ($(l3.north west)+(-0.2,0.2)$)  rectangle ($(l4.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=8, densely dotted, col1] ($(r1.north west)+(-0.2,0.2)$)  rectangle ($(r2.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=8, densely dotted, col1] ($(r3.north west)+(-0.2,0.2)$)  rectangle ($(r4.south east)+(0.2,-0.2)$);
+		\draw[rounded corners=14] ($(l1.north west)+(-0.4,0.4)$)  rectangle ($(l4.south east)+(0.4,-0.4)$);
+		\draw[rounded corners=14] ($(r1.north west)+(-0.4,0.4)$)  rectangle ($(r4.south east)+(0.4,-0.4)$);
 		\path (l1.north east) edge [->, bend left=15] (r1.north west);
 		\path (l2.south east) edge [->, bend right=15] (r2.south west);
 		\path (l3.north east) edge [->, bend left=15] (r3.north west);
@@ -361,7 +387,6 @@ If a relation \(T\) is right-unique and right-total, \(\eqrep\ T\) is always a p
 In particular, they may not be transitive.
 Moreover, even if both \(\eqrep\ T\) and \(\eqabs\ T\) are PERs,
 it is not guaranteed that \(T\) respects the equivalence classes of these relations:
-\kevin{use i.e.\ instead of ie.}
 If some element of an equivalence class $C$ of \(\eqrep\ T\) is related to another element of an equivalence class $C'$ of \(\eqabs\ T\),
 not all elements of $C$ may be related to all elements of $C'$.
 This property is, however, necessary to describe which abstract values are
@@ -451,7 +476,7 @@ combines a transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) 
 		\text{2.}\quad&\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y
 	\end{align*}
 \end{definition}
-When comparing this definition to the quotient predicate from [source], two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the relation in a quotient-predicate must be right-unique and right-total, while the relation in a lifting-triple must only satisfy the Z-property, as explained in \kevin{cleveref} Section \ref{sec-prelims}.
+When comparing this definition to the quotient predicate from [source], two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the relation in a quotient-predicate must be right-unique and right-total, while the relation in a lifting-triple must only satisfy the Z-property, as explained in \cref{sec-prelims}.
 This generalization has the benefit of being symmetric:
 any lifting triple gives rise to a dual lifting triple.
 \begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
@@ -499,7 +524,7 @@ which commutes with all relations.
 [Not a nice transition. Will fix this later]
 As a consequence,
 also lifting triples are not in general closed under composition.
-But if we add the side-condition from \kevin{cleveref} Lemma \ref{comp-of-trans-rels},
+But if we add the side-condition from \cref{comp-of-trans-rels},
 we again get a composition theorem that is sufficiently general for our applications.
 \begin{lemma}[Composition of lifting triples]
 Assume we have lifting triples
@@ -584,7 +609,7 @@ In particular when working with algebraic structures, one often wants to extend 
 	\end{equation}
 \end{definition}
 
-Given sets \(A\) and \(B\) and an injection \(f\) from \(A\) to \(B\), we want to construct a set \(B'\) and functions \(abs : [B] \rightarrow [B']\) and \(rep : [B'] \rightarrow [B]\) st. \(\bijection\ B\ B'\ abs\ rep\), \(A \subseteq B'\) and \(\forall x \in A\ldotp abs\ x = f\ x\). The last property states that \(abs\) and \(f\) are identical when their domains are restricted to \(A\) ie. the embedding of \(A\) in \(B'\) by \(abs\) respects the structural connection between \(A\) and \(B\) given by \(f\). This is equivalent to \(\forall x \in A\ldotp abs\ (f\ x) = x\).
+Given sets \(A\) and \(B\) and an injection \(f\) from \(A\) to \(B\), we want to construct a set \(B'\) and functions \(abs : [B] \rightarrow [B']\) and \(rep : [B'] \rightarrow [B]\) st. \(\bijection\ B\ B'\ abs\ rep\), \(A \subseteq B'\) and \(\forall x \in A\ldotp abs\ x = f\ x\). The last property states that \(abs\) and \(f\) are identical when their domains are restricted to \(A\) i.e. the embedding of \(A\) in \(B'\) by \(abs\) respects the structural connection between \(A\) and \(B\) given by \(f\). This is equivalent to \(\forall x \in A\ldotp abs\ (f\ x) = x\).
 
 [Using the function relator, the last two properties could be expressed more elegantly as \((\eq\ A \Rrightarrow \eq\ B')\ abs\ f\) and \((\eq\ A \Rrightarrow \eq\ A)\ (abs \circ f)\ \id\), but I haven't defined it at the point I wrote this part originally.]
 
