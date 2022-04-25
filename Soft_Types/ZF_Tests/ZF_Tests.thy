@@ -26,6 +26,10 @@ consts nat :: i
 consts int :: i
 consts pos_int :: i
 consts succ :: "i \<Rightarrow> i"
+consts min :: "i \<Rightarrow> i \<Rightarrow> i"
+
+lemma [TC]: "0 \<in> nat"
+  sorry
 
 lemma [TC]: "x \<in> nat \<Longrightarrow> x \<in> int"
   sorry
@@ -51,5 +55,13 @@ lemma [TC]: "x \<in> int \<Longrightarrow> succ(x) \<in> int"
 
 lemma "x \<in> int \<Longrightarrow> succ(x) \<in> pos_int"
   by (typecheck | auto)+ (*no progress or unprovable goal*)
+
+lemma [TC]: "x \<in> nat \<Longrightarrow> y \<in> nat \<Longrightarrow> min(x,y) \<in> nat"
+  sorry
+
+lemma "map(map(\<lambda>x. min(x, 0)), [[0], []]) \<in> list(list(nat))"
+  by typecheck
+
+
 
 end

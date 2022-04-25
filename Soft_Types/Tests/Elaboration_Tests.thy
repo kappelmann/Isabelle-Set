@@ -10,6 +10,8 @@ subsection \<open>Example: Basic type inference with lists.\<close>
 
 text \<open>Compared to HOL, the type argument becomes an explicit set argument here:\<close>
 
+consts nat_rec :: "'a \<Rightarrow> (set \<Rightarrow> 'a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
+
 experiment
   fixes Element :: "set \<Rightarrow> set type"
   and Set :: "set type"
@@ -17,11 +19,20 @@ experiment
   and nil :: "set \<Rightarrow> set"
   and cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
+  and zero :: set ("0")
+  and succ :: "set \<Rightarrow> set"
+  and Nat :: "set type"
   assumes nil_type [type]: "nil : (A : Set) \<Rightarrow> Element (list A)"
+  and nat_rec_type [type]: "nat_rec : A 0 \<Rightarrow> ((n : Nat) \<Rightarrow> A n \<Rightarrow> A (succ n)) \<Rightarrow> (n : Nat) \<Rightarrow> A n"
   and list_cons_type [type]: "cons : (A : Set) \<Rightarrow> Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
   and append [type]: "append: (A : Set) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
-
+  and zero_type [type]: "0 : Nat"
+  and succ_type [type]: "succ : Nat \<Rightarrow> Nat"
 begin
+
+declare [[auto_elaborate]]
+lemma "nat_rec 0 (\<lambda>n h. 0) 0 = 0"
+
 
 ML \<open>
   [\<^term>\<open>nil A = B\<close>]
@@ -112,6 +123,11 @@ experiment
 begin
 
 text \<open>The base set of the vector and the dimensions are completely inferred:\<close>
+
+(*ignores type mismatches*)
+ML \<open> Elaboration.elaborate_terms \<^context> [
+  \<^term>\<open>vcons A m x v : (Element (succ n))\<close>
+]\<close>
 
 ML \<open> Elaboration.elaborate_terms \<^context> [
   \<^term>\<open>vappend ? ? ? (vcons ? ? x xs) ys = vcons ? ? x (vappend ? ? ? xs ys)\<close>
