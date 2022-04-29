@@ -26,7 +26,7 @@
  citecolor=pastelblue,
  urlcolor=pastelblue
 }
-\usepackage[capitalise]{cleveref}
+\usepackage[capitalise,noabbrev]{cleveref}
 \usepackage{url}
 
 \captionsetup[subfigure]{subrefformat=simple,labelformat=simple}
@@ -134,45 +134,82 @@
 
 \section{Preliminaries}\label{sec-prelims}
 
-To illustrate the idea of transfer relations and transfer rules and how these are used by the Transfer- and Lifting-Tool, I begin this section with a running example. Assuming we already have a type \(\inte\) for integers and we want to construct a type \(\rat\) for rationals, we can construct \(\rat\) as a partial quotient of \(\inte \times \inte\). In particular, we can represent a rational number \(x\) as any pair \((i, j)\) st. \(x \cdot j = i\) where \(j \neq 0\). When we define \(\rat\) in Isabelle/HOL as
+We illustrate the idea of transfer relations and transfer rules
+and how they are used by the transfer and lifting tool with a running example.
+Assume we have a type \(\inte\) of integers and want to construct a type \(\rat\) of rationals.
+We can construct \(\rat\) as a partial quotient of \(\inte \times \inte\).
+More specifically, we can represent a rational number \(x\) as any pair \((i, j)\)
+such that \(x \cdot j = i\),
+where \(j \neq 0\).
+When we define \(\rat\) in Isabelle/HOL as
 \begin{equation*}
-	\mathtt{quotient\_type}\ \rat = \inte \times \inte\, /\, \mathtt{partial} : \mathsf{R}_{\rat}
+	\mathtt{quotient\_type}\ \rat = \inte \times \inte\, /\, \mathtt{partial} : \mathsf{R}_{\rat},
 \end{equation*}
 where
 \begin{equation*}
-	\mathsf{R}_\rat\ (i_1, j_1)\ (i_2, j_2) \coloneqq (\mathsf{mul_\inte}\ i_1\ j_2 = \mathsf{mul_\inte}\ i_2\ j_1) \land j_1 \neq 0 \land j_2 \neq 0
+	\mathsf{R}_\rat\ (i_1, j_1)\ (i_2, j_2) \coloneqq (\mathsf{mul_\inte}\ i_1\ j_2 = \mathsf{mul_\inte}\ i_2\ j_1) \land j_1 \neq 0 \land j_2 \neq 0,
 \end{equation*}
-we get not only the type \(\rat\) but also the abstraction and representation functions \(\abs_\rat :: \inte \times \inte \Rightarrow \rat\) and \(\rep_\rat :: \rat \Rightarrow \inte \times \inte\), resp. Now, we can define multiplication on rationals as follows:
+we not only get the type \(\rat\)
+but also the abstraction and representation functions
+\(\abs_\rat :: \inte \times \inte \Rightarrow \rat\) and \(\rep_\rat :: \rat \Rightarrow \inte \times \inte\).
+We can then define multiplication on $\mathbb{Q}$ as
 \begin{equation}\label{eq:mul_rat}
-	\mathsf{mul_\rat}\ x\ y \coloneqq \abs_\rat\ (\mathsf{mul_{\rat rep}}\ (\rep_\rat\ x)\ (\rep_\rat\ y))
+	\mathsf{mul_\rat}\ x\ y \coloneqq \abs_\rat\ (\mathsf{mul_{\rat rep}}\ (\rep_\rat\ x)\ (\rep_\rat\ y)),
 \end{equation}
 where
 \begin{equation*}
 	\mathsf{mul_{\rat rep}}\ (i_1, j_1)\ (i_2, j_2) \coloneqq (\mathsf{mul_\inte}\ i_1\ i_2, \mathsf{mul_\inte}\ j_1\ j_2)\,.
 \end{equation*}
-If we want to obtain a proof of symmetry of \(\mathsf{mul_\rat}\) from a proof that \(\mathsf{mul_{\rat rep}}\) is symmetric modulo \(\mathsf{R_\rat}\) without support by further tools, we have to manually unfold the definition of \(\mathsf{mul_\rat}\) and apply elementary properties of \(\abs_\rat\). Since one typically defines multiple abstract operations like \(\mathsf{mul_\rat}\) using corresponding functions on the representation level, like \(\mathsf{mul_{\rat rep}}\), and wants to derive proofs of various properties of the abstract operations from theorems on the representation level, the manual process sketched above is rather cumbersome and repetitive. In the remainder of this section, I introduce two tools, which are part of the Isabelle/HOL distribution, and their underlying concepts.
+If we manually want to prove symmetry of \(\mathsf{mul_\rat}\) by using
+a proof that \(\mathsf{mul_{\rat rep}}\) is symmetric modulo \(\mathsf{R_\rat}\),
+we have to unfold the definition of \(\mathsf{mul_\rat}\)
+and apply elementary properties of \(\abs_\rat\).
 
-\paragraph{Transfer-Tool} First, I give an overview of the Transfer-Tool, which is a proof tool that can translate properties about abstract types to properties about the corresponding representation types. To express the connection between terms on the representation and abstraction level, the Transfer-Tool uses binary relations. I follow the terminology of \cite{huffman2013lifting} and use the term \textit{transfer relation} for binary relations which serve the purpose of connecting representations and abstractions. Here, binary relations are represented as binary predicates.
+In practice, one typically wants to define multiple abstract operations
+using corresponding functions on the representation level and
+derive theorems for these operations from the corresponding theorems on the representation level.
+The process sketched above thus becomes rather repetitive.
+In the remainder of this section,
+we introduce two tools from Isabelle/HOL
+that deal with this problem.
+
+\paragraph{Transfer tool} The transfer tool translates properties about abstract types to properties about the corresponding representation types.
+It uses binary relations to express the connection between terms on the representation and abstraction level.
+We follow the terminology of \cite{huffman2013lifting}
+and use the term \textit{transfer relation} for binary relations that serve the purpose of connecting representations and abstractions.
+Binary relations are represented as binary predicates:
 \begin{definition}[Binary relations]
-	A binary relation is a binary predicate, that is \(R\) is a binary relation
-	if \(R :: \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
+	A binary relation $R$ is a function \(R :: \alpha \Rightarrow \beta \Rightarrow \mathsf{bool}\).
 \end{definition}
-
-For instance, the transfer relation \(\mathsf{T_\rat} :: \inte \times \inte \Rightarrow \rat \Rightarrow \bool\), which relates terms between the representation and abstraction level of rationals, can be defined as
+For instance, the transfer relation \(\mathsf{T_\rat} :: \inte \times \inte \Rightarrow \rat \Rightarrow \bool\) can be defined as
 \begin{equation}\label{eq:trans-rel-rat}
 	\mathsf{T_\rat}\ x\ y \coloneqq (\abs_\rat\ x = y)\,.
 \end{equation}
-Since the pair of integers \((0, 1)\) is a representation of the rational number zero, we can define \(\mathsf{zero_\rat}\) as \(\abs_\rat\ (0, 1)\) and state the relatedness of these two terms as \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\). Any theorem of the form \(T\ x\ y\) where \(T\) is a transfer relation is called a transfer rule. To relate \(\mathsf{mul_\rat}\) with \(\mathsf{mul_{\rat rep}}\), it is not sufficient to have a transfer relation between the argument and return types of these functions but we have to lift \(T_\rat\) over the function type constructor. Any function which lifts one or more transfer relations over a type constructor is called a relator. Since two functions are related if they map related arguments to related results, we can define the function relator as
+Since the pair of integers \((0, 1)\) is a representation of the rational number zero,
+we can define \(\mathsf{zero_\rat}\coloneqq\abs_\rat\ (0, 1)\) and state the relatedness of these two terms as \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\).
+Any theorem of the form \(T\ x\ y\),
+where \(T\) is a transfer relation,
+is called a \emph{transfer rule}.
+To relate \(\mathsf{mul_\rat}\) with \(\mathsf{mul_{\rat rep}}\),
+it is not sufficient to have the transfer relation $T_\rat$ between the argument and return types of these functions.
+We also have to lift \(T_\rat\) over the function type constructor.
+Any function that lifts one or more transfer relations over a type constructor is called
+a \emph{relator}.
+Following \cite{wadler1989theorems},
+we define two functions
+to be related if they map related arguments to related results:
 \begin{equation*}
 	\rel_\Rightarrow\ T_1\ T_2\ f\ g \coloneqq \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)\,.
 \end{equation*}
-I will also the notation \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\) where \(\Rrightarrow\) is right associative.
+We will also use the notation \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\), where \(\Rrightarrow\) is right associative.
 
-Now, we can state
+Now, we can state the desired relatedness property:
 \begin{equation*}
 	(\mathsf{T_\rat} \Rrightarrow \mathsf{T_\rat} \Rrightarrow \mathsf{T_\rat})\ \mathsf{mul_{\rat rep}}\ \mathsf{mul_\rat}\,.
 \end{equation*}
-When we register this transfer rule to the Transfer-Tool and also similar rules which relate equality on \(\rat\) with \(\mathsf{R_\rat}\) on \(\inte \times \inte\) and universal quantification over \(\rat\) with bounded quantification over the set \(\mathsf{Dom_\rat} \coloneqq \{(i, j) \mid j \neq 0\}\), then the Transfer-Tool can translate the proof goal
+We can then register this transfer rule to the transfer tool.
+Similarly, we can register rules that relate equality on \(\rat\) with \(\mathsf{R_\rat}\) on \(\inte \times \inte\) and universal quantification over \(\rat\) with bounded quantification over the set \(\mathsf{Dom_\rat} \coloneqq \{(i, j) \mid j \neq 0\}\).
+This allows the transfer tool to translate the proof goal
 \begin{equation*}
 	\forall x\ y\ldotp \mathsf{mul_\rat}\ x\ y = \mathsf{mul_\rat}\ y\ x
 \end{equation*}
@@ -181,30 +218,74 @@ to the goal
 	\forall x\ y \in \mathsf{Dom_\rat}\ldotp \mathsf{R_\rat}\ (\mathsf{mul_{\rat rep}}\ x\ y)\ (\mathsf{mul_{\rat rep}}\ y\ x)\,.
 \end{equation*}
 
-Now, that we have seen both, transfer relations between a representation and an abstraction version of a base type and how to lift transfer relations over fixed type constructors to obtain new transfer relations, the only part that is missing to express relations between arbitrary types are transfer relations between a representation and an abstraction version of datatype with type arguments. As an example, consider the type definition for finite sets as a restriction of the type \(\mathsf{set}\):
+So far, we have seen
+1) transfer relations between a representation and an abstraction version of a base type and
+2) how to obtain new transfer relations by lifting transfer relations over a fixed type constructor.
+The missing part deals with transfer relations between a representation and an abstraction version of a type constructor.
+
+For example, consider the type definition of finite sets as a restriction of the type \(\mathsf{set}\):
 \begin{equation*}
 	\mathtt{typedef}\ \alpha\ \mathsf{fset} = \{S \mid \mathsf{finite}\ S\}
 \end{equation*}
-Analogous to \(\mathsf{T_\rat}\), we can define the transfer relation \(\mathsf{T_{fset}}\ S\ F \coloneqq (\abs_\mathsf{fset}\ S = F)\). Moreover, since two sets are related when for all elements in each set, there is a related element in the other set, the set relator is
+Analogous to \(\mathsf{T_\rat}\), we can define the transfer relation \(\mathsf{T_{fset}}\ S\ F \coloneqq (\abs_\mathsf{fset}\ S = F)\).
+We can also define two sets to be related
+if for all elements in each of the sets,
+there is a related element in the other one:
 \begin{equation*}
 	\mathsf{rel_{set}}\ T\ A\ B \coloneqq (\forall x \in A\ldotp \exists y \in B\ldotp T\ x\ y) \land  (\forall y \in B\ldotp \exists x \in A\ldotp T\ x\ y)\,.
 \end{equation*}
-Neither, \(\mathsf{T_{fset}}\) nor \(\mathsf{rel_{set}}\) on its own, is sufficient to relate terms of type \((\inte \times \inte)\ \mathsf{set}\) with terms of type \(\rat\ \mathsf{fset}\). We can, however, compose the transfer relation \(\mathsf{T_{fset}}\) with the relator \(\mathsf{rel_{set}}\), to obtain a parameterized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{rel_{set}}\ T \relcomp \mathsf{T_{fset}}\) with type \((\inte \times \inte)\ \mathsf{set} \Rightarrow \rat\ \mathsf{fset} \Rightarrow \bool \).
-
-\paragraph{Lifting-Tool} The second Tool to which I give an overview in this section is the Lifting-Tool. Remember that the Transfer-Tool translates properties between two types using transfer rules which relate constants and operators on the representation and abstraction level by transfer relations. The steps required to define transfer relations, to lift constants and operators on the representation level to the abstraction level and to prove transfer rules for these terms, can, however, in many cases, be automated and this is what the Lifting-Tool does. In particular, for any type defined by one of the commands \(\mathtt{typedef}\) or \(\mathtt{quotient\_type}\), the Lifting-Tool generates a transfer relation between the representation type and the newly defined abstract type. If one defines a polymorphic type, the tool also generates a relator. Moreover, the tool can synthesize abstract terms from terms on the representation level and prove transfer rules for these terms which can then be used by the Transfer-Tool.
-
-Let us first have a close look at the commands \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\). With the first command, given a type \(\sigma\), we can create a sub-type \(\sigma\) from a set \(A :: \sigma\ \mathsf{set}\) by \(	\mathtt{typedef}\ \tau = A\). If \(A = \mathsf{UNIV_\sigma}\) then \(\tau\) is a type copy of \(\sigma\). As the name suggests, the command \(\mathtt{quotient\_type}\) allows us to construct quotient types. To create a total quotient of some type \(\sigma\), we can use the statement \(\mathtt{quotient\_type}\ \tau = \sigma\, /\, R\), which prompts us to prove that \(R\) is an equivalence relation. If we add the parameter \(\mathtt{partial}\), we can also define a partial quotient type of \(\sigma\) with \(\mathtt{quotient\_type}\ \tau = \sigma\, /\, \mathtt{partial} : R\). 
-In this case, we have to prove that \(R\) is a partial equivalence relation, which we define as follows:
-
-\begin{definition}[Partial equivalence relations (PERs)]
-	A binary relations \(R : \alpha \Rightarrow \alpha \Rightarrow \bool\) is a partial equivalence relation (PER) if it is symmetric and transitive. Formally, R must satisfy the property
+However, neither \(\mathsf{T_{fset}}\) nor \(\mathsf{rel_{set}}\) on its own
+is sufficient to relate terms of type \((\inte \times \inte)\ \mathsf{set}\) with terms of type \(\rat\ \mathsf{fset}\).
+Instead, we have to compose the transfer relation \(\mathsf{T_{fset}}\) with the relator \(\mathsf{rel_{set}}\)
+to obtain a suitable parameterized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{rel_{set}}\ T \relcomp \mathsf{T_{fset}}\)
+with type \((\inte \times \inte)\ \mathsf{set} \Rightarrow \rat\ \mathsf{fset} \Rightarrow \bool \),
+where $(\relcomp)$ is defined as follows:
+\begin{definition}[Composition of binary relations]
+	The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 \relcomp R_2\) and defined as
 	\begin{equation}
-		(\forall x\ y\ldotp R\ x\ y \longleftrightarrow R\ y\ x) \land (\forall x\ y\ z\ldotp R\ x\ y \land R\ y\ z \longrightarrow R\ x\ z)
+		(R_1 \relcomp R_2)\ x\ y \coloneqq \exists z\ldotp R_1\ x\ z \land R_2\ z\ y.
+	\end{equation}
+\end{definition}
+
+\paragraph{Lifting tool} Recall that the transfer tool translates properties between two types using transfer rules, which relate constants and operators on the representation and abstraction level by transfer relations.
+Defining such transfer relations,
+lifting the constants and operations on the representation level to the abstraction level,
+and proving the transfer rules for these terms
+is cumbersome but can in many cases be automated by the lifting tool.
+
+More precisely, for any type defined by one of the commands \(\mathtt{typedef}\) or \(\mathtt{quotient\_type}\),
+the lifting tool generates a transfer relation between the representation type and the newly defined abstract type.
+If one defines a polymorphic type,
+the tool also generates a relator.
+Moreover, the tool can synthesize abstract terms from terms on the representation level and prove transfer rules for these terms,
+which can then be used by the transfer tool.
+
+Let us first have a close look at the commands \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\).
+By writing \(	\mathtt{typedef}\ \tau = A\),
+the former creates a \emph{subtype} \(\tau\) of $\sigma$ from a set \(A :: \sigma\ \mathsf{set}\).
+If \(A = \mathsf{UNIV_\sigma}\)
+then \(\tau\) is a \emph{type copy} of \(\sigma\).
+The other command -- \(\mathtt{quotient\_type}\) -- allows us to construct quotient types.
+To create a \emph{(total) quotient} type of some type \(\sigma\),
+we can use the statement \(\mathtt{quotient\_type}\ \tau = \sigma\, /\, R\),
+which prompts us to prove that \(R\) is an equivalence relation.
+We can also define a \emph{partial quotient type} of \(\sigma\) using the command \(\mathtt{quotient\_type}\ \tau = \sigma\, /\, \mathtt{partial} : R\).
+In this case,
+we have to prove that \(R\) is a partial equivalence relation:
+\begin{definition}[Partial equivalence relations]
+  A binary relations \(R : \alpha \Rightarrow \alpha \Rightarrow \bool\) is a \emph{partial equivalence relation} (PER) if it is symmetric and transitive. Formally, R must satisfy the property
+	\begin{equation}
+		(\forall x\ y\ldotp R\ x\ y \longleftrightarrow R\ y\ x) \land (\forall x\ y\ z\ldotp R\ x\ y \land R\ y\ z \longrightarrow R\ x\ z).
 	\end{equation}
 \end{definition}
 Note that, if \(R : \alpha \Rightarrow \alpha \Rightarrow \bool\) is a PER, then \(R\) is an equivalence relation on the part of \(\alpha\) on which \(R\) is reflexive.
 
-For the four kinds of types which we can construct with \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\), type-copies and sub-types for first command and total and partial quotients for the second, \cref{fig:lift-tool-trans-rels} depicts examples for transfer relations which the Lifting-Tool generates for these kinds of type definitions. For quotient types, the dotted blue circles visualize the equivalence classes of the PERs on the source type and for sub- and partial quotient types, the set of values that represent abstract values are highlighted in dashed orange ellipses. Note that transfer relations for these cases are always right-total, i.e.\ surjective, and right-unique, i.e.\ single-valued.
+% For the four kinds of types which we can construct with \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\) --
+% type-copies and subtypes with former command and total and partial quotients with the latter --
+\cref{fig:lift-tool-trans-rels} depicts examples of transfer relations that the lifting tool generates for these four kinds of type definitions.
+For quotient types, the dotted blue circles visualize the equivalence classes of the PERs on the source type
+and for subtypes and partial quotient types, the set of values that represent abstract values are highlighted in dashed orange ellipses.
+Note that transfer relations for these cases are always right-total and right-unique.
 
 \begin{figure}[h]
 	\centering
@@ -246,7 +327,7 @@ For the four kinds of types which we can construct with \(\mathtt{typedef}\) and
 			\path ($(r2.east)+(10:0.05)$) edge [-, bend left=5] ($(a2.west)+(170:0.05)$);
 			\path ($(r3.east)+(10:0.05)$) edge [-, bend left=5] ($(a3.west)+(170:0.05)$);
 		\end{tikzpicture}
-		\caption{sub-type}
+		\caption{subtype}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.4\textwidth}
@@ -301,73 +382,117 @@ For the four kinds of types which we can construct with \(\mathtt{typedef}\) and
 		\caption{partial quotient type}
 		\label{fig:trans-rels-par-quot}
 	\end{subfigure}
-	\caption{Visualization of transfer relations for type copies, sub-types, quotient types and partial quotient types.}
+	\caption{Visualization of transfer relations for type copies, subtypes, quotient types and partial quotient types.}
 	\label{fig:lift-tool-trans-rels}
 \end{figure}
 
-In the remainder of this section, I explain, how the Lifting-Tool synthesizes abstract terms from terms on the representation level. For this purpose the Lifting-Tool provides the command \(\mathtt{lift\_definition}\). With this command, we can, for instance, lift the term \((0, 1)\) from \(\inte \times \inte\) to \(\rat\) and assign the name \(\mathsf{zero_\rat}\) to the lifted term:
+In the remainder of this section,
+we explain how the lifting tool synthesizes abstract terms from terms on the representation level.
+For this purpose the tool provides the command \(\mathtt{lift\_definition}\).
+With this command, we can, for instance, lift the term
+\((0, 1)\) from \(\inte \times \inte\) to \(\rat\) and assign the name \(\mathsf{zero_\rat}\) to the lifted term:
 \begin{equation*}
-	\mathtt{lift\_definition}\ \mathsf{zero_\rat} :: \rat\ \mathtt{is}\ (0, 1) 
+	\mathtt{lift\_definition}\ \mathsf{zero_\rat} :: \rat\ \mathtt{is}\ (0, 1)
 \end{equation*}
-Since we defined the type \(\rat\) as a partial quotient, the user must prove that the term \((0, 1)\) is indeed a representation of a rational. This property can be formalized as \(\mathsf{R_\rat}\ (0, 1)\ (0, 1)\). Once we have discharged this obligation, the Lifting-Tool defines \(\mathsf{zero_\rat}\) as \(\abs_\rat\ (0, 1)\). Moreover, with \cref{eq:trans-rel-rat}, the Lifting-Tool proves the transfer relation \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\).
+Since we defined the type \(\rat\) as a partial quotient, the user must prove that the term \((0, 1)\) is indeed a representation of a rational.
+This property is equivalent to the statement \(\mathsf{R_\rat}\ (0, 1)\ (0, 1)\).
+Once we have discharged this obligation, the Lifting-Tool defines \(\mathsf{zero_\rat}\) as \(\abs_\rat\ (0, 1)\).
+Moreover, using \cref{eq:trans-rel-rat}, the lifting tool
+proves the transfer rule \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\).
 
-Let us now generalize from this example. We are able to prove \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\) because the PER \(\mathsf{R_\rat}\), the abstraction function \(\abs_\rat\) and the transfer relation \(\mathsf{T_\rat}\) stand in a particular relation to each other. Before we can formalize, how these relations and functions are connected, we need to define two operations on binary relations.
-
+Let us now generalize from this example:
+We were able to prove \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\) because the PER \(\mathsf{R_\rat}\),
+the abstraction function \(\abs_\rat\),
+and the transfer relation \(\mathsf{T_\rat}\)
+stand in a particular relation to each other.
+Before we can formalize this relation,
+we need to define the inverse relation of a binary relation.
 \begin{definition}[Inverse relations]
 	The inverse of a binary relations \(R\) is written as \(R\inv\) and defined as
 	\begin{equation}
-		R\inv\ x\ y \coloneqq R\ y\ x
+		R\inv\ x\ y \coloneqq R\ y\ x.
 	\end{equation}
 \end{definition}
 
-\begin{definition}[Composition of binary relations]
-	The composition of two binary relations \(R_1\) and \(R_2\) is written as \(R_1 \relcomp R_2\) and defined as
-	\begin{equation}
-		(R_1 \relcomp R_2)\ x\ y \coloneqq \exists z\ldotp R_1\ x\ z \land R_2\ z\ y
-	\end{equation}
-\end{definition}
-
-With these definitions, we can define the quotient predicate introduced in \cite{huffman2013lifting}, which is a quaternary predicate used by the Lifting-Tool that formalizes the connection required for the lifting procedure between the PER on the source type, the abstraction and representation functions and the transfer relation. We will see later, why we also have to include the representation function.
-
-\begin{definition}[Quotient predicate]
-	Given \(R :: \alpha \Rightarrow \alpha \Rightarrow \bool\), \(abs :: \alpha \Rightarrow \beta\), \(rep :: \beta \Rightarrow \alpha\) and \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\), these terms form a quotient predicate, written \(\langle R, abs, rep, T \rangle\), iff
+The quotient predicate~\cite{huffman2013lifting} is a tuple used by the lifting tool that formalizes said relationship between the PER on the source type,
+the abstraction and representation functions,
+and the transfer relation.
+We will see later why it also has to include the representation function.
+\begin{definition}[Quotient predicate~\cite{huffman2013lifting}]
+  The terms \(R :: \alpha \Rightarrow \alpha \Rightarrow \bool\), \(abs :: \alpha \Rightarrow \beta\), \(rep :: \beta \Rightarrow \alpha\) and \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\) form a \emph{quotient predicate},
+  written \(\langle R, abs, rep, T \rangle\),
+  if
 	\begin{enumerate}
-		\item \(R = T \relcomp T\inv\)
-		\item \(\forall x\ y\ldotp T\ x\ y \longrightarrow abs\ x = y\)
+		\item \(R = T \relcomp T\inv\),
+		\item \(\forall x\ y\ldotp T\ x\ y \longrightarrow abs\ x = y\), and
 		\item \(\forall x\ldotp T\ (rep\ x)\ x\)\,.
 	\end{enumerate}
 \end{definition}
-Starting from the bottom, the third condition encapsulates two properties: First, that the function \(rep\) respects the transfer relation \(T\) and second, that \(T\) is right-unique and right-total. The second condition ensures that also the function \(\abs\) respects \(T\). Lastly, the first condition states that two terms are related by \(R\) iff they are related to the same abstract term by \(T\). Together with the fact that \(T\) is right-unique, this guaranties that \(R\) is a PER. While the Lifting-Tool automatically proves quotient predicates for types defined by \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\), users can also manually prove custom quotient predicates.
+The third condition encapsulates two properties:
+First, that the function \(rep\) respects the transfer relation \(T\) and second, that \(T\) is right-unique and right-total.
+The second condition ensures that also the function \(\abs\) respects \(T\).
+Lastly, the first condition states that two terms are related by \(R\) if and only if they are related to the same abstract term by \(T\).
+Together with the fact that \(T\) is right-unique,
+this guarantees that \(R\) is a PER.
+While the lifting tool automatically proves quotient predicates for types defined by \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\),
+users can also manually prove custom quotient predicates.
 
-Now, we can state the core theorem of the Lifting-Tool that generalizes our above reasoning, why \(\mathsf{R_\rat}\ (0, 1)\ (0, 1)\) is valid:
+Now we can state the central theorem~\cite{huffman2013lifting} of the lifting tool that generalizes our reasoning why \(\mathsf{R_\rat}\ (0, 1)\ (0, 1)\) is valid:
 \begin{equation}\label{eq:lifting-thm}
-	\langle R, abs, rep, T \rangle \land y = abs\ x \land R\ x\ x \longrightarrow T\ x\ y
+	\langle R, abs, rep, T \rangle \land abs\ x = y \land R\ x\ x \longrightarrow T\ x\ y
 \end{equation}
-This theorem was proved in \cite{huffman2013lifting}.
 
-Similar to why we needed the function relator \(\rel_\Rightarrow\) in addition to the transfer relation \(\mathsf{T_\rat}\) to relate \(\mathsf{mul_{\rat rep}}\) with \(\mathsf{mul_\rat}\), we have to lift the quotient predicate \(\langle \mathsf{R_\rat}, \abs_\rat, \rep_\rat, \mathsf{T_\rat} \rangle\) to the function space before we can  lift \(\mathsf{mul_{\rat rep}}\) from the representation level to \(\rat \Rightarrow \rat \Rightarrow \rat\). For the relation \(\mathsf{R_\rat}\) and \(\mathsf{T_\rat}\) we can, again, use the relator \(\rel_\Rightarrow\). To lift the functions \(\abs_\rat\) and \(\rep_\rat\) to the function space, we need a map function for the function type constructor. Looking at \cref{eq:mul_rat}, we can see that we mapped the arguments with the representation function and the result with the abstraction function to obtain a function on the abstraction level, here \(\mathsf{mul_\rat}\), from a function on the representation level, here \(\mathsf{mul_{\rat rep}}\). Hence, we can define the map function for functions as
+Similarly to why we needed the function relator \(\rel_\Rightarrow\) in addition to the transfer relation \(\mathsf{T_\rat}\) to relate \(\mathsf{mul_{\rat rep}}\) with \(\mathsf{mul_\rat}\),
+we have to lift the quotient predicate \(\langle \mathsf{R_\rat}, \abs_\rat, \rep_\rat, \mathsf{T_\rat} \rangle\) to the function space before we can lift \(\mathsf{mul_{\rat rep}}\) from the representation level to \(\rat \Rightarrow \rat \Rightarrow \rat\).
+For the relations \(\mathsf{R_\rat}\) and \(\mathsf{T_\rat}\),
+we can again use the relator \(\rel_\Rightarrow\).
+To lift the functions \(\abs_\rat\) and \(\rep_\rat\) to the function space, we need a map function for the function type constructor.
+Looking at \cref{eq:mul_rat},
+we can see that we first applied the representation function to the arguments,
+then applied the function on the representation level,
+and finally applied the abstraction function to the result.
+We hence define the map function for functions as
 \begin{equation*}
-	\mapfun\ f\ g\ h \coloneqq g \circ h \circ f\,.
+	\mapfun\ f\ g\ h \coloneqq g \circ h \circ f.
 \end{equation*}
-With this, given a quotient predicates \(\langle R_1, abs_1, rep_1, T_1 \rangle\) for the domain and \(\langle R_2, abs_2, rep_2, T_2 \rangle\) for the co-domain, we can build a new quotient predicate
+With this, given quotient predicates \(\langle R_1, abs_1, rep_1, T_1 \rangle\) and \(\langle R_2, abs_2, rep_2, T_2 \rangle\) for the domain and co-domain, respectively,
+we can build a new quotient predicate
 \begin{equation*}
-	\langle \relfun\ R_1\ R_2, \mapfun\ rep_1\ abs_2, \mapfun\ abs_1\ rep_2, \relfun\ T_1\ T_2 \rangle
+	\langle \relfun\ R_1\ R_2, \mapfun\ rep_1\ abs_2, \mapfun\ abs_1\ rep_2, \relfun\ T_1\ T_2 \rangle.
 \end{equation*}
-for functions. I omit the proof, that this construction does indeed result in a quotient predicate, in this paper. Since the abstraction function of the new quotient predicate involves the representation function of the domain quotient predicates, we have to include both, abstraction and representation functions, in quotient predicates.  Applying this construction twice, we get the following PER, abstraction function and transfer relation:
+Since the new quotient predicate involves the representation function of input quotient predicates,
+we have to include both abstraction and representation functions in quotient predicates.
+Applying this construction twice, we get the following PER, abstraction function,
+and transfer relation:
 \begin{align*}
 	\mathsf{R}_{\rat \Rightarrow\rat \Rightarrow\rat} &\coloneqq \mathsf{R_\rat} \Rrightarrow \mathsf{R_\rat} \Rrightarrow \mathsf{R_\rat} \\
 	\mathsf{map}_{\rat \Rightarrow\rat \Rightarrow\rat} &\coloneqq \mapfun\ \rep_\rat\ (\mapfun\ \abs_\rat\ \rep_\rat) \\
 	\mathsf{T}_{\rat \Rightarrow\rat \Rightarrow\rat} &\coloneqq \mathsf{T_\rat} \Rrightarrow \mathsf{T_\rat} \Rrightarrow \mathsf{T_\rat}
 \end{align*}
-With \cref{eq:lifting-thm} we can prove \(\mathsf{T}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}}\ (\mathsf{map}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}})\) given a prove of the respectfulness theorem \(\mathsf{R}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}}\ \mathsf{mul_{\rat rep}}\). With the right choice of map functions and relators, we can use similar constructions to lift quotient predicates over various type constructors like lists and sets.
+Using \cref{eq:lifting-thm},
+we can prove \(\mathsf{T}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}}\ (\mathsf{map}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}})\) given a proof
+of the respectfulness theorem \(\mathsf{R}_{\rat \Rightarrow\rat \Rightarrow\rat}\ \mathsf{mul_{\rat rep}}\ \mathsf{mul_{\rat rep}}\).
+With the right choice of map functions and relators, we can use similar constructions to lift quotient predicates over various type constructors, like lists and sets.
 
-Note that, if we want to lift, for instance, the exponentiation function from \(\inte \times \inte \Rightarrow \nat \Rightarrow \inte \times \inte\) to \(\rat \Rightarrow \nat \Rightarrow \rat\), where the type of the second parameter does not change, or a comparison function like \((\leq)\), where the result is \(\bool\) on both, the representation and abstraction level, we can use the identity quotient predicate \(\langle (=), \id, \id, (=) \rangle\).
+Note that if we want to lift, for instance,
+the exponentiation function from \(\inte \times \inte \Rightarrow \nat \Rightarrow \inte \times \inte\) to \(\rat \Rightarrow \nat \Rightarrow \rat\),
+where the type of the second parameter does not change,
+% or a function like \((\leq) :: \bool \Rightarrow \bool\),
+% where the result is \(\bool\) on both the representation and abstraction level,
+we can use the identity quotient predicate \(\langle (=), \id, \id, (=) \rangle\).
 
-As in my description of the Transfer-Tool, for the last case, i.e. to lift type constructors we have to combine the lifting for the type arguments with the lifting of the type constructor itself. For this Huffman and Kun{\v{c}}ar have proven a composition theorem for quotient predicates \cite{huffman2013lifting}:
+As in above description of the transfer tool,
+to account for the last case -- the lifting of type constructors --
+we have to combine the previous lifting principles.
+For this, we can use a composition theorem for quotient predicates~\cite{huffman2013lifting}:
 \begin{theorem}\label{eq:quotient-comp}
-	Given two quotient predicates \(\langle R_1, abs_1, rep_1, T_1 \rangle\) and \(\langle R_2, abs_2, rep_2, T_2 \rangle\), then their composition \(\langle T_1 \relcomp R_2 \relcomp T_1\inv, abs_2 \circ abs_1, rep_1 \circ rep_2, T_1 \relcomp T_2 \rangle\) is a quotient predicate as well.
+	Given two quotient predicates \(\langle R_1, abs_1, rep_1, T_1 \rangle\) and \(\langle R_2, abs_2, rep_2, T_2 \rangle\), their composition \(\langle T_1 \relcomp R_2 \relcomp T_1\inv, abs_2 \circ abs_1, rep_1 \circ rep_2, T_1 \relcomp T_2 \rangle\) is a quotient predicate as well.
 \end{theorem}
-For instance, to lift finite sets of rationals from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\), we do so via the intermediate level \(\rat\ \mathsf{set}\). For this, we need the map function \(\mathsf{map_{fset}}\ f\ A \coloneqq \{f\ x \mid x\ldotp x \in A\}\). Then we can prove
+For example, lifting finite sets of rationals from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\)
+goes via the intermediate level \(\rat\ \mathsf{set}\).
+\kevin{in the next sentence and equation, all $\mathsf{fset}$ subscripts should be $\mathsf{set}$, right?}
+For this, we need the function \(\mathsf{map_{fset}}\ f\ A \coloneqq \{f\ x \mid x \in A\}\).
+Then we can prove
 \begin{equation*}
 	\langle R, abs, rep, T\rangle \longrightarrow \langle \rel_\mathsf{fset}\ R, \mathsf{map_{fset}}\ abs, \mathsf{map_{fset}}\ rep, \rel_\mathsf{fset}\ T \rangle\,.
 \end{equation*}
@@ -391,7 +516,7 @@ we need some basic definitions:
 \end{definition}
 
 We next characterize the transfer relations supported by the lifting tool.
-As suggested by the blue dotted circles on the left side of \cref{fig:trans-rels-quot,fig:trans-rels-par-quot}, ``being related to the same abstract value'' is a PER for transfer relations form total and partial quotient types. For type copies and sub-types, at most one representation value is related to any abstract value and thus ``being related to the same abstract value'' is a restricted quality relations for these cases, which is PER as well.
+As suggested by the blue dotted circles on the left side of \cref{fig:trans-rels-quot,fig:trans-rels-par-quot}, ``being related to the same abstract value'' is a PER for transfer relations form total and partial quotient types. For type copies and subtypes, at most one representation value is related to any abstract value and thus ``being related to the same abstract value'' is a restricted quality relations for these cases, which is PER as well.
 On the other hand, the dual relation --
 ``being related to the same representation value'' --
 is the equality relation on the respective type.
@@ -479,7 +604,7 @@ are related to the same functions on the left-hand side.
 We have an equivalence relation on both the left-hand hand right-hand side.
 Since soft types can be considered as subtypes of the respective base type,
 the occurrence of quotients in the co-domain of transfer relations can also
-be explained by the duality of sub- and quotient types described by [source].
+be explained by the duality of subtypes and quotient types described by [source].
 As we have to support both, restricted equalities and equivalence relations,
 and both cases can occur together, we have to deal with partial equivalence relations
 for the domain and co-domain of transfer relations.
@@ -996,7 +1121,7 @@ In particular, we can construct a lifting triple from any set-extension.
 \end{example}
 
 \begin{lemma}[lifting triple with dependent transfer relation for functions]
-	Similar to how the type of functions can be generalized to dependent function types, the above example can be generalized to dependent transfer relations.
+	Similarly to how the type of functions can be generalized to dependent function types, the above example can be generalized to dependent transfer relations.
 
 	Given a lifting triple
 	\begin{equation*}
