@@ -496,13 +496,31 @@ Then we can prove
 \end{equation*}
 Applying this to \(\langle \mathsf{R_\rat}, \abs_\rat, \rep_\rat, \mathsf{T_\rat} \rangle\) and composing the result with \(\langle (=), \abs_\mathsf{fset}, \rep_\mathsf{fset}, \mathsf{T_{fset}} \rangle\) using \cref{eq:quotient-comp}, we get the quotient predicate required to lift terms from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\).
 
-\section{Lifting Triples}\label{lift-trip-sec}
-As mentioned in \cref{sec-prelims}, the Lifting-Tool only supports right-total, right-unique transfer relation. I start this section by demonstrating, why this limitation is too restrictive, in particular when working with soft types. The remainder of this section is concerned with, how we can alter the notion of transfer relations and quotient predicates to support lifting for a wider range of use cases.
+\section{Lifting Relations and Lifting Triples}\label{lift-trip-sec}
+As mentioned in \cref{sec-prelims},
+the Lifting-Tool only supports right-total, right-unique transfer relation.
+Let us first demonstrate why this limitation is too restrictive,
+in particular when working with soft types.
+We then continue to explain how we can generalise the notion of transfer relations
+and quotient predicates to support lifting for a wider range of use cases.
 
-It is easy to see, why soft types can lead to transfer relation which are not right-total.
-For instance, if we want to lift operations from the soft type \(\nat\) to \((\lambda i\ldotp 0 \leq i) \boldsymbol{\cdot} \inte\), we need a transfer relation, which relates naturals with non-negative integers.
+It is easy to see why transfer relation may not be right-total:
+For instance, if we want to lift operations from \(\nat\) to $\inte$,
+we need a transfer relation that relates natural numbers to
+the non-negative subset of integers.
+In Isabelle/HOL, we could use $\mathtt{typedef}$ to create a new Pure
+type $\inte_+$ of that subset.
+But this approach defeats the purpose and flexibility of a soft type system,
+where terms of different types (such as $\nat$ and $\inte$)
+may inhibit the same Pure type $\mathtt{set}$.
 
-\begin{figure}[h]
+To see why soft types can lead to non-right-unique transfer relations,
+consider the two transfer relations on $\bool$ visualized in \cref{fig:bool-rels}:
+The equality relation \((=)\) and equality restricted to the soft type \(\sigma \coloneqq \mathtt{type}\, ((=)\,\true)\),
+which we denote \((=_\sigma)\).
+Note that both relations are right-unique but the latter is not right-total.
+
+\begin{figure}[ht]
 	\centering
 	\begin{tikzpicture}
 		\node[inner sep=1.5] at (-1,1) (tl) {$\true$};
@@ -517,21 +535,26 @@ For instance, if we want to lift operations from the soft type \(\nat\) to \((\l
 		\path (tl.south east) edge [->, bend right, dashed] (tr.south west);
 		\path (fl.east) edge [->] (fr.west);
 	\end{tikzpicture}
-	\caption{Transfer relation \((=) : \bool \rightarrow \bool \rightarrow \bool\) (solid arrows) and \((=_\sigma) : \sigma \rightarrow \sigma \rightarrow \bool\) (dashed arrow). The soft type \(\sigma\) is highlighted by the dashed orange border.}
+	\caption{Transfer relations \((=)\) (solid arrows) and \((=_\sigma)\) (dashed arrow). The soft type \(\sigma\) is highlighted by the dashed orange border.}
 	\label{fig:bool-rels}
 \end{figure}
 
-Let us now showcase how soft types might also lead to non-right-unique transfer relations.
-For this, we start with two transfer relation on boolean values, visualized in \cref{fig:bool-rels}:
-The equality relation \((=)\) and the equality restricted to the soft type \(\sigma \coloneqq [\{\true\}]\), which we denote \((=_\sigma)\).
-Note that both relations are right-unique but the latter one is non-right-total. Now, let us lift these transfer relations to the function space.
-If we use \((=)\) for both, the domain and co-domain, we get the right-unique, right-total transfer relation \((=) \Rrightarrow (=)\), depicted in \cref{fig:bool-fun-rels} by the solid arrows.
-If, however, we use \((=_\sigma)\) for the co-domain, we get the non-right-unique relation \((=_\sigma) \Rrightarrow (=)\), visualized by the dashed arrows in \cref{fig:bool-fun-rels}.
-To see, why this relation is not right-unique, remember that two functions are related if they map related inputs to related results.
-Since, with \((=_\sigma)\), only \(\true\) is related to itself, but \(\false\) is not related to anything, two functions are related by \((=_\sigma) \Rrightarrow (=)\), if they map \(\true\) to the same value.
-In other words, it is not relevant, what \(\false\) is mapped to.
-This, in parctular, means that all functions on the right-hand-side of \cref{fig:bool-fun-rels} which behave equivalently on the soft type \(\sigma\), are related to the same function on the left-hand-side.
-The resulting PERs are highlighted with dotted blue borders in \cref{fig:bool-fun-rels}.
+Now let us lift these transfer relations to the function space.
+If we use \((=)\) for both the domain and co-domain, we get the right-unique, right-total transfer relation \((=) \Rrightarrow (=)\),
+depicted in \cref{fig:bool-fun-rels} by solid arrows.
+If, however, we use \((=_\sigma)\) for the domain,
+we get the non-right-unique relation \((=_\sigma) \Rrightarrow (=)\),
+visualized by the dashed arrows.
+To see why this relation is not right-unique,
+remember that two functions are related if they map related inputs to related results.
+Since only \(\true\) is related to itself when using \((=_\sigma)\),
+but \(\false\) is not related to anything,
+two functions are related by \((=_\sigma) \Rrightarrow (=)\) if and only if they map \(\true\) to the same value.
+% In other words, it is not relevant, what \(\false\) is mapped to.
+% This in particular means that all functions at the right side of \cref{fig:bool-fun-rels}
+% that behave equivalently on the soft type \(\sigma\)
+% are related to the same function on the left side.
+% The resulting PERs are highlighted with dotted blue borders in \cref{fig:bool-fun-rels}.
 
 \begin{figure}[h]
 	\centering
@@ -567,18 +590,28 @@ The resulting PERs are highlighted with dotted blue borders in \cref{fig:bool-fu
 	\label{fig:bool-fun-rels}
 \end{figure}
 
-As a more practical example for the need of a non-right-unique transfer relation, consider the lifting of operations from \(\nat\) to the non-negative part of \(\inte\). We can express this connection with the transfer relation \(\mathsf{T_{\nat, \inte}}\ n\ i \coloneqq (\mathsf{int}\ n = i)\). Then the transfer relation \(\mathsf{T_{\nat, \inte}} \Rrightarrow (=)\) relates the function \(\mathsf{const}\ \true :: \nat \Rightarrow \bool\) with both, \(\mathsf{const}\ \true :: \inte \Rightarrow \bool\) and \(\lambda i :: \inte\ldotp 0 \leq i\).
+For a more practical example,
+consider the lifting of operations from \(\nat\) to the non-negative part of \(\inte\).
+For this purpose, we can use the transfer relation \(\mathsf{T_{\nat, \inte}}\ n\ i \coloneqq (\mathsf{int}\ n = i)\).
+The transfer relation \(\mathsf{T_{\nat, \inte}} \Rrightarrow (=)\) then relates the function \(\mathsf{const}\ \true :: \nat \Rightarrow \bool\) with both
+\(\mathsf{const}\ \true :: \inte \Rightarrow \bool\) and \(\lambda i :: \inte\ldotp 0 \leq i\).
 
-Since soft types can be considered as subtypes of the respective base type,
-the occurrence of quotients in the co-domain of transfer relations can also
-be explained by the duality of subtypes and quotient types described by \cite{oliveira2020duality}. \juli{This is rather hand-wavy but it should be possible to formalize this notion of sub-relations and co-/contra-variance for relators. Being a sub-relation in this sense is also the side-condition in the corollary at the end of this section.}
-As we have to support both, restricted equalities and equivalence relations,
-and both cases can occur together, we have to deal with PERs
-for the domain and co-domain of transfer relations.
+All in all, since we want to support both
+restricted equalities and equivalence relations,
+and both cases can occur together,
+we have to support PERs for the domain and co-domain of transfer relations.
 
-Knowing that we need to support a broader class of transfer relations then the Lifting-Tool supports, we can now examine, what the maximal class of relations is, which are suitable for lifting. For this, we first need a formal definition of the relations ``being related to the same abstraction value'' and ``being related to the same representation value''.
+% Since soft types can be considered as subtypes of the respective base type,
+% the occurrence of quotients in the co-domain of transfer relations may also
+% be explained by the duality of subtypes and quotient types described by \cite{oliveira2020duality}.
+% \juli{This is rather hand-wavy but it should be possible to formalize this notion of sub-relations and co-/contra-variance for relators. Being a sub-relation in this sense is also the side-condition in the corollary at the end of this section.}
+% \kevin{1. Is this citation correct? I couldn't find anything about quotients there. Didn't you want to cite Raabe? 2. I think it is just confusing at this stage; If you think there's a good way to explain this, then let's discuss this for a possible future paper instead}
+
+\paragraph{Lifting Relations}
+We now examine the maximally suitable class of relations for lifting.
+For this, we first need a formal definition of the relations ``are related to the same abstraction values'' and ``are related to the same representation values''.
 \begin{definition}[Induced relations]
-	Any transfer relation \(T\) induces two relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\), where
+	Any transfer relation \(T\) induces two relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\), defined as
 	\begin{align*}
 		\eqrep\ T &\coloneqq T \relcomp T\inv \\
 		\eqabs\ T &\coloneqq T\inv \relcomp T.
@@ -586,31 +619,34 @@ Knowing that we need to support a broader class of transfer relations then the L
 \end{definition}
 
 \begin{example}\label{trans-rel-nat-int}
-For the transfer relation \(\mathsf{T_\rat}\), introduced in \cref{sec-prelims}, we have \(\eqrep\ \mathsf{T_\rat} = \mathsf{R_\rat}\) and \(\eqabs\ \mathsf{T_\rat} = (=)\). For \(\mathsf{T_{\nat, \inte}}\), defined above, \(\eqrep \mathsf{T_{\nat, \inte}} = (=)\) and \(\eqabs \mathsf{T_{\nat, \inte}}\) is the quality on \(\inte\) restricted to non-negative numbers.
+For the transfer relation \(\mathsf{T_\rat}\) from \cref{sec-prelims},
+we have \(\eqrep\ \mathsf{T_\rat} = \mathsf{R_\rat}\) and \(\eqabs\ \mathsf{T_\rat} = (=)\). For \(\mathsf{T_{\nat, \inte}}\) defined above,
+\(\eqrep \mathsf{T_{\nat, \inte}} = (=)\) and \(\eqabs \mathsf{T_{\nat, \inte}}\) is equality on \(\inte\) restricted to non-negative numbers.
 \end{example}
 
-
-If a relation \(T\) is right-unique and right-total, then \(\eqabs\ T\) is \((=)\) and \(\eqrep\ T\) is a PER, but for an arbitrary relation \(T\), in general, neither \(\eqrep\ T\) nor \(\eqabs\ T\) are PERs.
+If a relation \(T\) is right-unique and right-total,
+then \(\eqabs\ T\) is always \((=)\) and \(\eqrep\ T\) is a PER,
+but for an arbitrary relation \(T\),
+neither \(\eqrep\ T\) nor \(\eqabs\ T\) may be PERs.
 In particular, they may not be transitive.
 Moreover, even if both \(\eqrep\ T\) and \(\eqabs\ T\) are PERs,
 it is not guaranteed that \(T\) respects the equivalence classes of these relations:
-If some element of an equivalence class $C$ of \(\eqrep\ T\) is related to another element of an equivalence class $C'$ of \(\eqabs\ T\),
+if some element of an equivalence class $C$ of \(\eqrep\ T\) is related to another element of an equivalence class $C'$ of \(\eqabs\ T\),
 not all elements of $C$ may be related to all elements of $C'$.
-This property of \(T\) is, however, necessary to describe which abstract values are
-valid liftings of representation values.
-We thus have to limit the class of transfer relations to \liftrels:
+% This property of \(T\) is, however, necessary to describe which abstract values are
+% valid liftings of representation values.
+We thus restrict the class of transfer relations to \emph{\liftrels}:
 \begin{definition}[Lifting relation]
-	A \liftrel is a binary relation which satisfies the following properties
+  A \emph{\liftrel} is a binary relation if it satisfies the following properties:
 	\begin{enumerate}
-		\item \(\eqrep\ T\) must be a partial equivalence relation
-		\item \(\eqabs\ T\) must be a partial equivalence relation
+		\item \(\eqrep\ T\) is a partial equivalence relation
+		\item \(\eqabs\ T\) is a partial equivalence relation
 		\item $T$ respects the PERs, formally: \(\forall x\, x'\, y\, y'\ldotp T\ x\ y \land \eqrep\ T\ x\ x' \land \eqabs\ T\ y\ y' \longrightarrow T\ x'\ y'\).
 	\end{enumerate}
 \end{definition}
-
 These requirements are equivalent to the following compact property:
 \begin{definition}[Z-Property]
-	A binary relation \(T\) satisfies the Z-Property if
+  A binary relation \(T\) satisfies the \emph{Z-Property} if
 	\begin{equation*}
 		T \relcomp T^{-1} \relcomp T = T \label{z-prop-def}.
 	\end{equation*}
@@ -629,16 +665,26 @@ Since \(\forall x\, y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp 
 %	\end{tikzcd}
 %	\caption{Commutative diagram of the Z-porperty}
 %\end{figure}
-This definition subsumes all transfer relations accepted by the lifting tool, because the Z-property is satisfied by all right-unique and right-total relations.
-Since the Transfer-Tool accepts all binary relations as transfer relations, it also accepts my \liftrels.
+This definition subsumes all transfer relations accepted by the lifting tool
+because the Z-property is satisfied by all right-unique and right-total relations.
+Since the transfer tool accepts all binary relations as transfer relations,
+it also accepts \liftrels.
 
-In \cref{sec-prelims}, we build the parameterized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{rel_{set}}\) with a non-parameterized transfer relation \(\mathsf{T_{fset}}\). While being right-total and right-unique is preserved by relational composition, this is not the case for the Z-property. We can, however, prove a restricted composition theorem for \liftrels:
+% Let us consider closure properties of \liftrels.
+In \cref{sec-prelims},
+we built the parameterized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{rel_{set}}\) with a non-parameterized transfer relation \(\mathsf{T_{fset}}\).
+While being right-total and right-unique is preserved by relational composition,
+this is not the case for the Z-property.
+We can, however, prove a restricted composition theorem for \liftrels:
 \begin{lemma}[Composition of \liftrels]\label{comp-of-trans-rels}
 	The composition of two \liftrels \(T_1\) and \(T_2\) is again a \liftrel if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition.
 	Formally: if \(\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1\) then \(T_1 \ \relcomp T_2\) is a \liftrel.
 \end{lemma}
 
-When applying this theorem to build a \liftrel between \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\) where \(\rel\) is the relator which lifts \liftrels \(T_i\) from \(\alpha_i\) to \(\alpha_i'\) over the type constructor \(\kappa\) and \(T\) is the \liftrel from \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha}\), then the side condition becomes
+When we apply this theorem to build a \liftrel between
+\(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\),
+where \(\rel\) is the relator which lifts \liftrels \(T_i\) from \(\alpha_i\) to \(\alpha_i'\) over the type constructor \(\kappa\) and \(T\) is the \liftrel from \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha}\),
+then the side condition becomes
 \begin{equation*}
 	\eqabs\ (rel\ T_1 \ldots T_n) \relcomp \eqrep\ T = \eqrep\ T \relcomp \eqabs\ (rel\ T_1 \ldots T_n).
 \end{equation*}
@@ -646,43 +692,49 @@ This intuitively means that the representation of the type constructor
 \(\kappa\) is independent of the representations of the type arguments.
 Since it is reasonable to expect this property for all meaningful datatypes, the side-condition should not lead to any practical limitations. In particular, the theorem is applicable to all datatypes which can be handled by the lifting tool
 because there \(\eqabs\ (rel\ T_1 \ldots T_n)\) is the equality relation,
-which commutes with all relations. \\\\
+which commutes with all relations.
 
+\paragraph{Lifting Triples}
 Recall the goal of lifting:
 given a value on the representation level and a \liftrel,
 generate an abstract value related to it.
 To do so, we must use suitable abstraction and representation functions,
 mapping back and forth between related values.
 We associate such functions with \liftrels by using \emph{lifting triples},
-which are similar to quotient predicates used by the Lifting-Tool.
+which are similar to quotient predicates used by the lifting tool.
 Specifically, a lifting triple,
 written \(\langle T, abs, rep \rangle\),
-combines a transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) with an abstraction function \(abs : \alpha \Rightarrow \beta\) and representation function \(rep : \beta \Rightarrow \alpha\) respecting the transfer relation.
-To be able to express what it means for an abstraction and representation function to respect a \liftrel, we first need to formalize the notion of the domain and co-domain of binary relations.
+combines a
+lifting relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) with an abstraction function \(abs : \alpha \Rightarrow \beta\) and representation function \(rep : \beta \Rightarrow \alpha\) respecting the
+lifting relation.
+To formally describe what it means for abstraction and representation functions to respect a \liftrel,
+we need to introduce the notions of the domain and co-domain of a binary relation.
 \begin{definition}[Domain, co-domain]
 	Given a binary relation \(R\), its domain predicate \(\indom\ R\) and co-domain predicate \(\incodom\ R\) are defined as
 	\begin{align*}
-		\indom\ R\ x &\coloneqq \exists y\ldotp R\ x\ y \\
-		\incodom\ R\ y &\coloneqq \exists x\ldotp R\ x\ y\,.
+		\indom\ R\ x &\coloneqq \exists y\ldotp R\ x\ y, \\
+		\incodom\ R\ y &\coloneqq \exists x\ldotp R\ x\ y.
 	\end{align*}
 \end{definition}
-With this, we can define lifting triple:
 \begin{definition}[Lifting triple]\label{def-lifting-triple}
 	A \liftrel \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) and functions \(abs : \alpha \Rightarrow \beta\) and \(rep : \beta \Rightarrow \alpha\) form a lifting triple, written \(\langle T, abs, rep \rangle\), if
-	\begin{align*}
-		\text{1.}\quad&\forall x\ldotp \indom\ T\ x \longrightarrow T\ x\ (abs\ x) \\
-		\text{2.}\quad&\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y.
-	\end{align*}
+	\begin{enumerate}
+    \item $\forall x\ldotp \indom\ T\ x \longrightarrow T\ x\ (abs\ x)$
+    \item $\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y$.
+	\end{enumerate}
 \end{definition}
-When comparing this definition to the quotient predicate from \cite{huffman2013lifting}, two differences stand out: First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation. Second, the transfer relation in a quotient-predicate must be right-unique and right-total, while the lifting relation in a lifting-triple must only satisfy the Z-property.
+When comparing this definition to the quotient predicate from \cite{huffman2013lifting},
+two differences stand out:
+First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation.
+Second, the transfer relation in a quotient-predicate must be right-unique and right-total while the lifting relation in a lifting-triple must only satisfy the Z-property.
 This generalization has the benefit of being symmetric:
 any lifting triple gives rise to a dual lifting triple.
 \begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
   If $\langle T, abs, rep \rangle$ then $\langle T\inv, rep, abs \rangle$.
 \end{lemma}
 
-
-As a consequence of the fact that the Z-property is not closed under composition, also lifting triples are not in general closed under composition.
+Since the Z-property is not closed under composition,
+also lifting triples are not in general closed under composition.
 But if we add the side-condition from \cref{comp-of-trans-rels},
 we again get a composition theorem that is sufficiently general for our applications.
 \begin{lemma}[Composition of lifting triples]\label{lem:comp-of-lift-trips}
@@ -692,16 +744,26 @@ and \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \),
 then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$.
 \end{lemma}
 
-When one lifts terms in the context of data refinement, one often has not only a single representation and abstraction level but multiple intermediate levels of representation. For instance, one might have defined operations on the bit level from where operations are lifted to a more abstract level of primitive data structures like integers and arrays and from there to a fully abstract level of abstract datatypes like sets and graphs. In this scenario, one can apply the following corollary of \cref{lem:comp-of-lift-trips} to compose the lifting triples for those steps:
+When lifting terms in the context of data refinement,
+\kevin{add citations to \url{https://www21.in.tum.de/~lammich/autoref/Refine/document.pdf} and \url{https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.800.3800&rep=rep1&type=pdf\#page=111}}
+there is often not a single representation and abstraction level
+but multiple intermediate levels of representation.
+% For instance,
+% one might have defined operations on the bit level from where operations
+% are lifted to a more abstract level of primitive data structures like integers
+% and arrays and from there to a fully abstract level of abstract datatypes like sets and graphs.
+In this scenario, one can apply the following corollary of \cref{lem:comp-of-lift-trips} to compose the involved lifting triples:
 \begin{corollary}
-Given two lifting triple $\langle T_1, abs_{T_1}, rep_{T_1} \rangle$ and $\langle T_2, abs_{T_2}, rep_{T_2} \rangle$ where
+Assume we have two lifting triples $\langle T_1, abs_{T_1}, rep_{T_1} \rangle$ and $\langle T_2, abs_{T_2}, rep_{T_2} \rangle$ and it holds that
 \begin{enumerate}
 	\item \(\forall x_1\ x_2\ldotp \eqabs\ T_1\ x_1\ x_2 \longrightarrow \eqrep\ T_2\ x_1\ x_2\) and
-	\item \(\forall x\ldotp \indom\ T_2\ x \longrightarrow \incodom\ T_1\ x\)
+	\item \(\forall x\ldotp \indom\ T_2\ x \longrightarrow \incodom\ T_1\ x\).
 \end{enumerate}
-then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$.
+Then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$.
 \end{corollary}
-The first side condition states that the equivalence classes of \(\eqabs\ T_1\) must be at least as fine as those of \(\eqrep\ T_2\) and the second condition states that the domain of \(\eqabs\ T_1\) must at least as large as that of \(\eqrep\ T_2\).
+The first side condition states that the equivalence classes of \(\eqabs\ T_1\)
+must be at least as fine as those of \(\eqrep\ T_2\)
+and the second condition states that the domain of \(\eqabs\ T_1\) must at least as large as that of \(\eqrep\ T_2\).
 
 % Note that \(abs_T\) and \(rep_T\) are inverse only modulo \(\eqabs\ T\) and \(\eqrep\ T\).
 
