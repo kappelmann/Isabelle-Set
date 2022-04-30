@@ -579,10 +579,10 @@ for the domain and co-domain of transfer relations.
 Knowing that we need to support a broader class of transfer relations then the Lifting-Tool supports, we can now examine, what the maximal class of relations is, which are suitable for lifting. For this, we first need a formal definition of the relations ``being related to the same abstraction value'' and ``being related to the same representation value''.
 \begin{definition}[Induced relations]
 	Any transfer relation \(T\) induces two relations, denoted \(\eqrep\ T\) and \(\eqabs\ T\), where
-	\begin{align}
-		\eqrep\ T &\coloneqq T \relcomp T\inv \label{eq-rep-def} \\
-		\eqabs\ T &\coloneqq T\inv \relcomp T \label{eq-abs-def}.
-	\end{align}
+	\begin{align*}
+		\eqrep\ T &\coloneqq T \relcomp T\inv \\
+		\eqabs\ T &\coloneqq T\inv \relcomp T.
+	\end{align*}
 \end{definition}
 
 \begin{example}\label{trans-rel-nat-int}
@@ -611,14 +611,14 @@ We thus have to limit the class of transfer relations to \liftrels:
 These requirements are equivalent to the following compact property:
 \begin{definition}[Z-Property]
 	A binary relation \(T\) satisfies the Z-Property if
-	\begin{equation}
+	\begin{equation*}
 		T \relcomp T^{-1} \relcomp T = T \label{z-prop-def}.
-	\end{equation}
+	\end{equation*}
 \end{definition}
 Since \(\forall x\, y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp R)\ x\ y\) is satisfied by all relations R, the Z-Property can be simplified to proving the implication
-\begin{equation}
+\begin{equation*}
 	\forall x\ y\ldotp (R \relcomp R^{-1} \relcomp R)\ x\ y \longrightarrow R\ x\ y.
-\end{equation}
+\end{equation*}
 %This property is visualized in the commutative diagram below where the assumptions are in the shape of the letter "Z":
 %
 %\begin{figure}[h]
