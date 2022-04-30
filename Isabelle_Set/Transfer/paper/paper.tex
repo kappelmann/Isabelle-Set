@@ -237,7 +237,7 @@ there is a related element in the other one:
 However, neither \(\mathsf{T_{fset}}\) nor \(\mathsf{rel_{set}}\) on its own
 is sufficient to relate terms of type \((\inte \times \inte)\ \mathsf{set}\) with terms of type \(\rat\ \mathsf{fset}\).
 Instead, we have to compose the transfer relation \(\mathsf{T_{fset}}\) with the relator \(\mathsf{rel_{set}}\)
-to obtain a suitable parameterized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{rel_{set}}\ T \relcomp \mathsf{T_{fset}}\)
+to obtain a suitable parametrized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{rel_{set}}\ T \relcomp \mathsf{T_{fset}}\)
 with type \((\inte \times \inte)\ \mathsf{set} \Rightarrow \rat\ \mathsf{fset} \Rightarrow \bool \),
 where $(\relcomp)$ is defined as follows:
 \begin{definition}[Composition of binary relations]
@@ -457,9 +457,9 @@ We hence define the map function for functions as
 \end{equation*}
 With this, given quotient predicates \(\langle R_1, abs_1, rep_1, T_1 \rangle\) and \(\langle R_2, abs_2, rep_2, T_2 \rangle\) for the domain and co-domain, respectively,
 we can build a new quotient predicate
-\begin{equation*}
-	\langle \relfun\ R_1\ R_2, \mapfun\ rep_1\ abs_2, \mapfun\ abs_1\ rep_2, \relfun\ T_1\ T_2 \rangle.
-\end{equation*}
+\begin{equation}
+	\langle \relfun\ R_1\ R_2, \mapfun\ rep_1\ abs_2, \mapfun\ abs_1\ rep_2, \relfun\ T_1\ T_2 \rangle\label{eq:fun-quot-pred}.
+\end{equation}
 Since the new quotient predicate involves the representation function of input quotient predicates,
 we have to include both abstraction and representation functions in quotient predicates.
 Applying this construction twice, we get the following PER, abstraction function,
@@ -491,9 +491,9 @@ For this, we can use a composition theorem for quotient predicates~\cite{huffman
 For example, lifting finite sets of rationals from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\)
 goes via the intermediate level \(\rat\ \mathsf{set}\). For this, we need the function \(\mathsf{map_{set}}\ f\ A \coloneqq \{f\ x \mid x \in A\}\).
 Then we can prove
-\begin{equation*}
-	\langle R, abs, rep, T\rangle \longrightarrow \langle \rel_\mathsf{set}\ R, \mathsf{map_{set}}\ abs, \mathsf{map_{set}}\ rep, \rel_\mathsf{set}\ T \rangle\,.
-\end{equation*}
+\begin{equation}
+	\langle R, abs, rep, T\rangle \longrightarrow \langle \rel_\mathsf{set}\ R, \mathsf{map_{set}}\ abs, \mathsf{map_{set}}\ rep, \rel_\mathsf{set}\ T \rangle\label{eq:set-rel}\,.
+\end{equation}
 Applying this to \(\langle \mathsf{R_\rat}, \abs_\rat, \rep_\rat, \mathsf{T_\rat} \rangle\) and composing the result with \(\langle (=), \abs_\mathsf{fset}, \rep_\mathsf{fset}, \mathsf{T_{fset}} \rangle\) using \cref{eq:quotient-comp}, we get the quotient predicate required to lift terms from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\).
 
 \section{Lifting Triples}\label{lift-trip-sec}
@@ -632,7 +632,7 @@ Since \(\forall x\, y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp 
 This definition subsumes all transfer relations accepted by the lifting tool, because the Z-property is satisfied by all right-unique and right-total relations.
 Since the Transfer-Tool accepts all binary relations as transfer relations, it also accepts my \liftrels.
 
-In \cref{sec-prelims}, we build the parameterized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{rel_{set}}\) with a non-parameterized transfer relation \(\mathsf{T_{fset}}\). While being right-total and right-unique is preserved by relational composition, this is not the case for the Z-property. We can, however, prove a restricted composition theorem for \liftrels:
+In \cref{sec-prelims}, we build the parametrized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{rel_{set}}\) with a non-parametrized transfer relation \(\mathsf{T_{fset}}\). While being right-total and right-unique is preserved by relational composition, this is not the case for the Z-property. We can, however, prove a restricted composition theorem for \liftrels:
 \begin{lemma}[Composition of \liftrels]\label{comp-of-trans-rels}
 	The composition of two \liftrels \(T_1\) and \(T_2\) is again a \liftrel if \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \) under relation composition.
 	Formally: if \(\eqabs\ T_1 \relcomp \eqrep\ T_2 = \eqrep\ T_2 \relcomp \eqabs\ T_1\) then \(T_1 \ \relcomp T_2\) is a \liftrel.
@@ -646,7 +646,8 @@ This intuitively means that the representation of the type constructor
 \(\kappa\) is independent of the representations of the type arguments.
 Since it is reasonable to expect this property for all meaningful datatypes, the side-condition should not lead to any practical limitations. In particular, the theorem is applicable to all datatypes which can be handled by the lifting tool
 because there \(\eqabs\ (rel\ T_1 \ldots T_n)\) is the equality relation,
-which commutes with all relations. \\\\
+which commutes with all relations.
+\newline
 
 Recall the goal of lifting:
 given a value on the representation level and a \liftrel,
@@ -714,38 +715,56 @@ The first side condition states that the equivalence classes of \(\eqabs\ T_1\) 
 %\end{lemma}
 
 \section{Generalizing The Lifting Algorithm}
-\kevin{overall note: I think this section can be shortened; I might do so in a second run when you added the example}
-In this section, we give an informal account of the lifting algorithm introduced in \kevin{add citation}
-and describe how it can be generalized to lifting triples.
+\juli{I rewrote this using an example. I hope, this is not too redundant.}
+Before I explain, what implications the generalization from quotient predicates to lifting triples has for the lifting algorithm, I first demonstrate, how the scheme described in \cref{sec-prelims} is implemented by the Lifting-Tool. For this, let us lift a term \(f\) of type \((\inte \times \inte)\ \mathsf{set} \Rightarrow \nat \Rightarrow (\inte \times \inte)\ \mathsf{set}\) to a term \(?t\) with type \(\rat\ \mathsf{fset} \Rightarrow \nat \Rightarrow \rat\ \mathsf{fset}\). With \cref{eq:lifting-thm}, we can instantiate \(?t\) as \(?abs\ f\) given a quotient predicate \(\langle ?R, ?abs, ?rep, ?T \rangle\) and a proof of \(?R\ f\ f\). Hence, the main part of the lifting algorithm is concerned with instantiating and proving the quotient predicate \(\langle ?R, ?abs, ?rep, ?T \rangle\). For this, the Lifting-Tool compares the type of \(f\) with the target type \(\rat\ \mathsf{fset} \Rightarrow \nat \Rightarrow \rat\ \mathsf{fset}\).
 
-The lifting tool takes a term on the representation level and a target type as input.
-It returns a term with the given target type and a transfer rule relating the input and output term.
-\juli{Here, I can introduce a running example. Probably, something like element-wise addition for finite sets of integers}
-The algorithm used in the lifting tool is guided by the types of both the representation
-and abstract term,
-where the type of the former is passed implicitly with the term in Isabelle/HOL.
-In each step, the two types are compared, leading to three cases:
-\begin{enumerate}
-  \item If the types are identical, then the identity quotient predicate is applied, i.e.\ the abstract term is just a copy of the representation term and these terms are related by the identity relation.
-  \item If the types are instances of the same type constructor, possibly using different type arguments,
-the algorithm continues with recursive calls for each pair of type arguments.
-The results are combined with functions propagating the abstraction functions and transfer relation \kevin{relations (plural)?} for the type arguments through the type constructor
-such that a new quotient predicate is generated from the quotient predicates of the recursive calls.
-\juli{I can make this more explicit when I have formally defined quotient predicates in the preliminaries.}
-\kevin{yeah, right now, it is unclear what is happening}
-\kevin{Isn't case 2 just a special case of case 3? Why not just lift the type constructor using the identity quot. pred. for case 2?}
-\item\label{enum:lift_case3} If representation and abstraction types are built from different type constructors,
-  then first, the type constructor is lifted by using a quotient predicate with a non-parametric transfer relation.
-Then the type arguments are lifted by the second case above.
-Finally, the steps are combined with a composition theorem similar to \kevin{simply add reference to theorem here instead and remove the rest of the sentence} my composition theorem for lifting-triples.
-Note that, as mentioned in \cref{lift-trip-sec},
-the composition theorem for quotient predicates does not have any side conditions which would lead to further proof obligations.
-This case also includes the case of type constructors with zero arguments i.e.\ abstract base types.
-\end{enumerate}
+Since the outer-most type constructor is \((\Rightarrow)\) in both types, the tool applies \cref{eq:fun-quot-pred} to reduce the problem in two sub-goal: Proving a quotient predicates to lift the domain from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\) and to lift the co-domain from \(\nat \Rightarrow (\inte \times \inte)\ \mathsf{set}\) to \(\nat \Rightarrow \rat\ \mathsf{fset}\). In the first goal, the outer-most type constructor changes from \(\mathsf{set}\) to \(\mathsf{fset}\). Hence, the Lifting-Tool uses \cref{eq:quotient-comp} to split the lifting from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\) in two steps: First from \((\inte \times \inte)\ \mathsf{set}\) to \(\rat\ \mathsf{set}\) and then from \(\rat\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\). For the first part, \cref{eq:set-rel} is applied. This leaves the goal \(\langle \mathsf{R_\rat}, \abs_\rat, \rep_\rat, \mathsf{T_\rat} \rangle\) which was registered to the Lifting-Tool when defining the type \(\rat\). Strictly speaking, the Lifting-Tool always first applies the composition theorem when the outer-most type constructor changes, here from \(\inte \times \inte\) to \(\rat\). However, when there are no type arguments, the first premise is discharged by the identity quotient predicate \(\langle (=), \id, \id, (=) \rangle\), which forms the base case of the algorithm.
+
+For the second premise of the composition theorem, we need a quotient predicate to lift from \(\rat\ \mathsf{set}\) to \(\rat\ \mathsf{fset}\). For this, we can use the quotient predicate \(\langle (=), \abs_\mathsf{fset}, \rep_\mathsf{fset}, \mathsf{T_{fset}} \rangle\) mentioned in \cref{sec-prelims}.
+
+The lifting from \(\nat \Rightarrow (\inte \times \inte)\ \mathsf{set}\) to \(\nat \Rightarrow \rat\ \mathsf{fset}\) is again reduced to one goal for the domain and one for the co-domain. For the domain, the types on representation and abstraction level are identical and thus the Lifting-Tool applies the identity quotient predicate \(\langle (=), \id, \id, (=) \rangle\). Now, we are left with the goal for the co-domains \((\inte \times \inte)\ \mathsf{set}\) and \(\rat\ \mathsf{fset}\), which we already solved above.
+
+Putting it all together, we got the abstraction function
+\begin{equation*}
+	\mapfun\ (\mathsf{map_{set}}\ \rep_\rat \circ \rep_\mathsf{fset})\ (\mapfun\ \id\ (\abs_\mathsf{fset} \circ \mathsf{map_{set}}\ \abs_\rat))
+\end{equation*}
+and the transfer relation
+\begin{equation*}
+	(\mathsf{rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}) \Rrightarrow (=) \Rrightarrow (\mathsf{rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}).
+\end{equation*}
+
+%\kevin{overall note: I think this section can be shortened; I might do so in a second run when you added the example}
+%In this section, we give an informal account of the lifting algorithm introduced in \kevin{add citation}
+%and describe how it can be generalized to lifting triples.
+%
+%The lifting tool takes a term on the representation level and a target type as input.
+%It returns a term with the given target type and a transfer rule relating the input and output term.
+%\juli{Here, I can introduce a running example. Probably, something like element-wise addition for finite sets of integers}
+%The algorithm used in the lifting tool is guided by the types of both the representation
+%and abstract term,
+%where the type of the former is passed implicitly with the term in Isabelle/HOL.
+%In each step, the two types are compared, leading to three cases:
+%\begin{enumerate}
+%  \item If the types are identical, then the identity quotient predicate is applied, i.e.\ the abstract term is just a copy of the representation term and these terms are related by the identity relation.
+%  \item If the types are instances of the same type constructor, possibly using different type arguments,
+%the algorithm continues with recursive calls for each pair of type arguments.
+%The results are combined with functions propagating the abstraction functions and transfer relation \kevin{relations (plural)?} for the type arguments through the type constructor
+%such that a new quotient predicate is generated from the quotient predicates of the recursive calls.
+%\juli{I can make this more explicit when I have formally defined quotient predicates in the preliminaries.}
+%\kevin{yeah, right now, it is unclear what is happening}
+%\kevin{Isn't case 2 just a special case of case 3? Why not just lift the type constructor using the identity quot. pred. for case 2?}
+%\item\label{enum:lift_case3} If representation and abstraction types are built from different type constructors,
+%  then first, the type constructor is lifted by using a quotient predicate with a non-parametric transfer relation.
+%Then the type arguments are lifted by the second case above.
+%Finally, the steps are combined with a composition theorem similar to \kevin{simply add reference to theorem here instead and remove the rest of the sentence} my composition theorem for lifting-triples.
+%Note that, as mentioned in \cref{lift-trip-sec},
+%the composition theorem for quotient predicates does not have any side conditions which would lead to further proof obligations.
+%This case also includes the case of type constructors with zero arguments i.e.\ abstract base types.
+%\end{enumerate}
 While our algorithm follows a similar scheme,
 a few adjustments have to be made:
 
-\kevin{added provisional titles for paragraphs}
+\juli{The distinction between HOL types (eg. \(t :: \sigma \Rightarrow \tau\)) and soft types (eq. \(t : \sigma \rightarrow \tau\)) should be clearer now.}
 \paragraph{Guidance by Types}
 First, we cannot use types to guide the procedure for two reasons:
 1) our algorithm does not depend on any specific type system, like HOL-types,
@@ -753,68 +772,58 @@ but can be used independent of any type-system, and
 2) we no longer have a one-to-one correspondence between abstract types
 and co-domains of \liftrels.
 
-More specifically, consider the case of a left-total \kevin{should be right-total} transfer relation \(T : \alpha \Rightarrow \beta \Rightarrow \bool\).
-For such a relation, the statements \(\incodom\ T\ y\) and \(y : \beta\) are equivalent.
-This can be used to select a transfer relation given a type.
-If \(T : \alpha \Rightarrow \beta \Rightarrow \bool\) is not right-total,
-then there is a value \(y : \beta\) which is not in the co-domain of \(T\).
-Note that for HOL-types,
-the implication \(\incodom\ T\ y \longrightarrow y :: \beta\) \kevin{should be $y : \beta$?} is still valid,
-and with soft types,
-we could always choose a type for \(T\) such that \(T\) is right-total with respect to that type.
-In particular, \(T : \alpha \Rightarrow \mathsf{type}\ (\incodom\ T) \Rightarrow \bool\) is right-total by definition, but
-\kevin{It gets confusing what the meaning of $:$ is. Is it overloaded for HOL and soft types?}
-\(\mathsf{type}\ (\incodom\ T)\) is, in general, not the type one would like to use for $T$.
+More specifically, consider the case of a right-total transfer relation \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\).
+For such a relation, the statements \(\incodom\ T\ y\) and \(y :: \beta\) are equivalent.
+This can be used to select a transfer relation given an HOL type.
+If \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\) is not right-total,
+then there is a value \(y :: \beta\) which is not in the co-domain of \(T\).
+Note that for HOL types,
+the implication \(\incodom\ T\ y \longrightarrow y :: \beta\) is still valid,
+and we could always choose a soft type for \(T\) such that \(T\) is right-total with respect to that type.
+In particular, \(T : \alpha \rightarrow \mathsf{type}\ (\incodom\ T) \rightarrow \bool\) is right-total by definition, but \(\mathsf{type}\ (\incodom\ T)\) is, in general, not the type one would like to use for $y$.
 
-To see why,\kevin{to see what? to see why we would not like to use such types? I am confused}
-first consider the \liftrel\ \(T_1 \Rrightarrow T_2\) where \(T_1\) is not right-unique.
+To see why the soft type \(\mathsf{type}\ (\incodom\ T)\) can be inhabit both, more and fewer values then one would expect, first consider the \liftrel\ \(T_1 \Rrightarrow T_2\) where \(T_1\) is not right-unique.
 Then the statement \(\incodom\ (T_1 \Rrightarrow T_2)\ f\)
 % which we can rewrite to \(\eqabs\ (T_1 \Rrightarrow T_2)\ f\ f\),
 is equivalent to \((\eqabs\ T_1 \Rrightarrow \eqabs\ T_2)\ f\ f\).
-In other words: for any \(x_1, x_2\) such that \(\eqabs\ x_1\ x_2\) \kevin{missing relation},
+In other words: for any \(x_1, x_2\) such that \(\eqabs\ T_1\ x_1\ x_2\),
 it must hold that \(\eqabs\ T_2\ (f\ x_1)\ (f\ x_2)\);
 that is, \(f\) must not only map values from the co-domain of \(T_1\) to the co-domain of \(T_2\),
 but \(f\) is also expected to map values from some equivalence class of \(\eqabs\ T_1\)
 to values which are equivalent with respect to \(\eqabs\ T_2\).
-In theory, we could encode this respectfulness property in a type,
+In theory, we could encode this respectfulness property in a soft type,
 but this would result in types that are unsuitable for practical use.
-However, if \(T_1\) has type\kevin{soft type? I think we need to have some way to differentiate, i.e.\ use $::$ (HOL) and $:$ (soft) everywhere} \(\alpha_1 \Rightarrow \beta_1\) and is right-total and \(T_2\) has type \(\alpha_2 \Rightarrow \beta_2\),
-we cold still prove the implication \(\incodom\ (T_1 \Rrightarrow T_2)\ f \longrightarrow f : \beta_1 \Rightarrow \beta_2\).
+However, if \(T_1\) has the soft type \(\alpha_1 \rightarrow \beta_1\) and is right-total and \(T_2\) has the type \(\alpha_2 \rightarrow \beta_2\),
+we cold still prove the implication \(\incodom\ (T_1 \Rrightarrow T_2)\ f \longrightarrow f : \beta_1 \rightarrow \beta_2\).
 
-To see why this implication is not valid in general,
+To see why this implication is not valid for arbitrary \liftrels \(T_1\) and \(T_2\),
 we can use an idea similar to the line of reasoning showing why non-right-total \liftrels lead to non-right-unique \liftrels from \cref{lift-trip-sec}:
-Consider the \liftrel\ \(T = (T_1 \Rrightarrow T_2) \Rrightarrow T_3\) where \(T_1 : \alpha_1 \Rightarrow \beta_1\), \(T_2 : \alpha_2 \Rightarrow \beta_2\), \(T_3 : \alpha_3 \Rightarrow \beta_3\),\kevin{isn't $\Rightarrow bool$ missing everywhere?} and  \(T_1\) is non-right-unique.
+Consider the \liftrel\ \(T = (T_1 \Rrightarrow T_2) \Rrightarrow T_3\) where \(T_1 : \alpha_1 \rightarrow \beta_1\rightarrow \bool\), \(T_2 : \alpha_2 \rightarrow \beta_2 \rightarrow \bool\), \(T_3 : \alpha_3 \rightarrow \beta_3 \rightarrow \bool\), and  \(T_1\) is non-right-unique.
 Then \(\incodom\ T\ f\) means that for any two functions \(g_1, g_2\),
 if \(\eqabs\ (T_1 \Rrightarrow T_2)\ g_1\ g_2\) then \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\).
-As before, we get a stronger conclusion then what one would expect for a type theorem.
-\kevin{I do not get the previous sentence; what ``type theorem''?}
+As before, \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\) is a stronger conclusion then \(f\ g_i : \beta_3\) for \(i \in \{1, 2\}\).
 But now, also the premise is stronger.
-In particular, from \(\incodom\ T_1\ f\) \kevin{should be $T$},
+In particular, from \(\incodom\ T\ f\),
 we can only say something about \(f\ g\) if \(\incodom\ (T_1 \Rrightarrow T_2)\ g\), which
 % as discussed above,
-is only true for a subset of all functions of type \(\alpha_1 \Rightarrow \alpha_2\).
-Hence, we cannot conclude \(f : (\beta_1 \Rightarrow \beta_2) \Rightarrow \beta_3\).
+is only true for a subset of all functions with soft type \(\alpha_1 \rightarrow \alpha_2\).
+Hence, we cannot conclude \(f : (\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\).
 
-In summary, for a \liftrel\ \(T: \alpha \Rightarrow \beta\),
+In summary, for a \liftrel\ \(T: \alpha \rightarrow \beta\),
 the statement \(\incodom\ T\ y\) can be stronger, weaker,
 or incomparable to the statement \(y : \beta\).
 Despite this missing correspondence,
 we can still compute the expected type of a lifted term by type inference using
 the types of the representation term and of the abstraction function.
 However, we cannot direct the lifting algorithm by
-the \kevin{HOL} types of the representation and abstract term.
-Instead, our lifting algorithm must take a \liftrel\ as additional input.
-If one does not want to explicitly specify the \liftrel\ but only the \kevin{soft} types \kevin{of the input terms},
-an additional phase preceeding the algorithm can implemented,
-which computes a \liftrel from the given \kevin{soft} types.
+the HOL types or soft types of the representation and abstract term.
+Instead, our lifting algorithm takes a \liftrel\ instead of the target type as input.
+If one does not want to explicitly specify the \liftrel\ but only the type of the input terms and the target types in some type system like HOL types or soft type,
+an additional phase preceeding the algorithm can be implemented,
+which computes a \liftrel from the given types.
 
 \paragraph{Compositionality}
-In case~\ref{enum:lift_case3} of the lifting algorithm,
-the composition theorem for quotient predicates
-is applied to the non-parametric transfer relation of the type constructors
-and the quotient predicate obtained by applying the relator for the type constructor on the representation level to the transfer relations of the type arguments
-\juli{I will add an example here.}
-% In this case, the procedure composes the quotient predicate of the non-parametric transfer relation for the respective type constructors and the quotient predicate obtained by applying the relator for the type constructor on the representation level to the transfer relations for the type arguments.
+As we have seen in the example at the start of this section, to lift a term from the type \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha'}\), the lifting algorithm applies the composition theorem \cref{eq:quotient-comp}. Specifically, it composes the relator for \(\kappa\) applied to the transfer relations for the type arguments, there \(\mathsf{rel_{set}}\ \mathsf{T_\rat}\), with the non parametric transfer relation from \(\kappa\ \overline{\alpha'}\) to \(\kappa'\ \overline{\alpha'}\), there \(\mathsf{T_{fset}}\).
 Unlike the composition theorem for quotient predicates,
 the composition theorem for lifting triples has a side condition.
 Thus, one obtains additional proof obligations from each application of the theorem,
@@ -822,83 +831,65 @@ and these obligations can, in general, not be discharged automatically.
 
 Luckily, the side-condition of the composition theorem only depends on the involved \liftrels and not the input term to be lifted.
 % Leaving these goals to the user would often result in redundant proof obligations since the side-condition of the composition theorem does not depend on the exact term to be lifted but only on the involved \liftrels.
-Hence, the user only has to prove the side-condition for the non-parametric \liftrel
+Hence, the user only has to prove the side-condition for the non-parametrized \liftrel
 and the relator once and for all,
-obtaining a specialized side-condition-free composition theorem,
+obtaining a parametrized transfer relation,
 which can then be used by the lifting algorithm.
-% discharge the side-condition once and for all for each
-% abstract datatype and use the resulting side-condition-free composition theorem during
-% the lifting process.
-% that there the composition theorem does not depend inside the algorithm.
-% More specifically,
-% we can compose the lifting triples for the non-parametric \liftrel
-% and the relator once and use the composed lifting triple within our algorithm.
 \newline
 
-\kevin{restructured most starting from here; please double-check}
 Let us now describe the generalized algorithm in more detail.
 Given a term \(x\) on the representation level and a \liftrel \(T\),
 we want to construct an abstract term \(y\) such that \(T\ x\ y\).
-It directly follows from the definition of lifting triples that we can choose \(y = abs\ x\) if there is a lifting triple \(\langle T, abs, rep\rangle\) and \(\indom\ T\ x\).
+It directly follows from \cref{def-lifting-triple} that we can choose \(y = abs\ x\) if there is a lifting triple \(\langle T, abs, rep\rangle\) and \(\indom\ T\ x\).
 However, in general, we do not directly have a lifting triple \(\langle T, abs, rep\rangle\),
 but the algorithm must first construct it.
 
-As in the previous algorithm,
-this is done by repeated application of rules of the form \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\),
-where \(\overline{P}\) is a sequence of premises.
-If \(\overline{P}\) is not empty, it may contain both, premises of the form \(\langle T', abs', rep' \rangle \),
-which we call \emph{lifting triple premises},
-or other side conditions.
-All such rules which the lifting tool applies to lift terms are also generated by the lifting tool.\kevin{I do not understand the previous sentence and hence also the following ones}
-Hence it can enforce further constraints on these rules,
-and the correctness of the algorithm in the lifting tool can rely on these constraints.
-In contrast, our approach allows the user to register custom rules.
-
-\kevin{some glue text needed, depending on how the previous paragraph is rephrased}
 Given some goal \(\langle T, abs, rep\rangle\),
 the algorithm searches for matching lifting rules \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\),
 applies them, and then recurses on every resulting lifting triple premise
 while leaving all other side-condition to the user.
-% The algorithm then distinguishes two cases:
-% \kevin{those cases really do the same thing}
-% \textbf{Base case:} If a lifting rule \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\) is registered, where \(\overline{P}\) does not contain conditions in the form of lifting triples, the algorithm applies this rule to the current goal and all new proof obligations are left to the user.
-% In particular, this case includes the case \makebox{\(\langle T, abs, rep \rangle = \langle (=), \id, \id \rangle\)}.
-% \textbf{Recursive case:} If the algorithm finds a lifting rule \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\) where \(\overline{P}\) contains at least one lifting triple condition, this rule is applied and the procedure continues recursively with all lifting triple conditions, leaving all remaining condition to the user.
 If no matching lifting rule can be found, the given term cannot be lifted.
 If the algorithm succeeds,
 the user is left with all generated side-conditions and the goal \(\indom\ T\ x\).
 We remark that for soft types,
 the latter can in many cases be simplified to a
 goal of the form \(x : \tau\) for some type \(\tau\),
-which can then automatically be discharged by the soft-type-checker.
+which can then automatically be discharged by the soft-type-checker. If the algorithm terminates without errors, it is guaranteed that it generates a valid lifting triple, since it only applies rules verified by Isabelle.
 
-Note that if we allow arbitrary rules of the form \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\), we cannot guarantee that this process terminates.
+%As in the previous algorithm, the lifting triple (previously quotient predicate) is constructed by repeated application of rules of the form \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\),
+%where \(\overline{P}\) is a sequence of premises.
+%If \(\overline{P}\) is not empty, it may contain both, premises of the form \(\langle T', abs', rep' \rangle \),
+%which we call \emph{lifting triple premises},
+%or other side conditions.
+As explained above, the algorithm of the Lifting-Tool is, in essence, a recursion over the structure of the type of the representation value and the target type. Hence, the correctness proof provided in \cite{huffman2013lifting} is a proof by induction over these types.
+Since the new algorithm is not guided by types but the structure of transfer relations, we need a more flexible approach to prove termination.
+As before, each rule which the algorithm applies has only finitely many premises and in particular finitely many lifting triple premises.
+Thus, if we want to guarantee termination, we may attempt to find some well-founded order on \liftrels and only accept rules respecting it, i.e. rules \(\overline{P} \longrightarrow Q\) for some lifting triple \(Q\) st. the \liftrel of each lifting triple premise in \(\overline{P}\) is less then the \liftrel of \(Q\) wrt. the well-founded order.
+In practice, I suggest a sub-term ordering on the \liftrels, since this is in close connection to the sub-term ordering on types used for the Lifting-Tool.
+
+% Note that if we allow arbitrary rules of the form \(\overline{P} \longrightarrow \langle T, abs, rep \rangle\), we cannot guarantee that this process terminates.
 % Thus, we have to be explicit about what rules we accept.
-The correctness proof\kevin{correctness or termination? I suppose the latter} of the previous algorithm is, in essence, a proof by induction over types.\kevin{which of the input types?}
-Since our algorithm takes a \liftrel instead,
-if we want to guarantee termination,
-we may attempt to find some well-founded relation on \liftrels
-and only accept rules respecting it.
-\kevin{I suppose the proof does not depend on the choice of the order; hence I generalised it -- or does it only work for the subterm order?}
+%The correctness proof\kevin{correctness or termination? I suppose the latter} of the previous algorithm is, in essence, a proof by induction over types.\kevin{which of the input types?}
 % If we want to guarantee termination\kevin{I added ``If'' here because termination might not be that important in practice or proving that the rule is order-preserving can be too much of a hassle}, we can establish a well-founded relation on lifting triples
 % and only accept rules respecting it.
 % Since our algorithm takes a \liftrel instead, let us attempt a proof by induction over the term structure of \liftrels.
-A natural choice for such a relation would be the following:
-\begin{definition}
-	\(\langle T_1, abs_1, rep_1 \rangle \prec \langle T_2, abs_2, rep_2 \rangle \) if \(T_1\) is a strict sub-term of \(T_2\).
-\end{definition}
-\kevin{It is unclear how this works with meta variables. For example, is $f(c)\prec f(?x)$ true?}
-\juli{I can add an example here.}
+
+%A natural choice for such a relation would be the following:
+%\begin{definition}
+%	\(\langle T_1, abs_1, rep_1 \rangle \prec \langle T_2, abs_2, rep_2 \rangle \) if \(T_1\) is a strict sub-term of \(T_2\).
+%\end{definition}
+%\kevin{It is unclear how this works with meta variables. For example, is $f(c)\prec f(?x)$ true?}
+%\juli{I can add an example here.}
 % The fact that \((\prec)\) is well-founded is inherited from the strict sub-term relation.
-We can then define a restricted set of lifting rules that preserve a given order:
-\begin{definition}[Order-preserving lifting rule]
-  \(P_1 \land\dotsb\land P_n \longrightarrow \langle T, abs, rep \rangle\) is said to be \makebox{\emph{$(\prec)$-preserving}} if \(P_i \prec \langle T, abs, rep \rangle\) for all lifting triple premises \(P_i\).
-\end{definition}
-We can then show that,
-for any well-founded relation $(\prec)$ on lifting triples,
-the algorithm terminates on $(\prec)$-preserving lifting rules.
-\kevin{TODO? or conjecture?}
-\kevin{somewhere it should be mentioned that this process is basically the same for transfer, i.e.\ the algorithm is mostly guided by $T$.}
+%We can then define a restricted set of lifting rules that preserve a given order:
+%\begin{definition}[Order-preserving lifting rule]
+%  \(P_1 \land\dotsb\land P_n \longrightarrow \langle T, abs, rep \rangle\) is said to be \makebox{\emph{$(\prec)$-preserving}} if \(P_i \prec \langle T, abs, rep \rangle\) for all lifting triple premises \(P_i\).
+%\end{definition}
+%We can then show that,
+%for any well-founded relation $(\prec)$ on lifting triples,
+%the algorithm terminates on $(\prec)$-preserving lifting rules.
+%\kevin{TODO? or conjecture?}
+%\kevin{somewhere it should be mentioned that this process is basically the same for transfer, i.e.\ the algorithm is mostly guided by $T$.}
 
 \section{Example}
 \begin{itemize}
