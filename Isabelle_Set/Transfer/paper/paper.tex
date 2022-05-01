@@ -103,6 +103,7 @@
 \newcommand{\liftrel}{lifting relation\xspace}
 \newcommand{\liftrels}{lifting relations\xspace}
 \newcommand{\related}{\mathbin{\raisebox{-0.5pt}{$\centerdot$} \hspace{-2.9pt} \raisebox{3.5pt}{$\centerdot$}}}
+\newcommand{\adj}{\mathsf{\boldsymbol{\cdot}}}
 
 \definecolor{col1}{rgb}{0,0.5,0.7}
 \definecolor{col2}{rgb}{0.9,0.4,0.0}
@@ -120,17 +121,17 @@
 	\item parametrizity
 	\item transfering and lifting
 	\item current approaches to above ideas
-	\item soft types
-		\begin{itemize}
-			\item Alternative type system implemented in Isabelle/HOL
-			\item Types are represented as predicates.
-			\item Formal definition of types and type judgments?
-			\item Examples?
-			\item Subtypes: \(p \longrightarrow q\) then \(\mathsf{type}\ q \prec \mathsf{type}\ p\)
-			\item Co- and contra-variance
-			\item Dependent function soft types?
-		\end{itemize}
+\end{itemize}
+
+While it is easy to work with HOL types since in this type system, every term has a unique type and types are automatically checked and inferred, often a more expressive and flexible type system is desirable. For instance, with HOL types, if one wants to encode a property like finiteness of sets in a type, one has to define a new type. Since, from the perspective of the type system, these type are not related, operations defined on one type can not be used for the other type. Similarly, the sematic connection between the types \(\nat\), \(\inte\) and \(\rat\) can not be expressed in the HOL type system and hence theorems proven about \(\nat\) are not directly applicable to the set of non-negative integers. To some extend, one can use the Transfer- and Lifting-Tool to translate theorems and lift definitions from one type to another. This can, however become quiet cumbersome. Especially when one takes the approach common in mathematics to encode a variety of algebraic structures, datatypes and even functions as sets, the HOL type system is of little use to prevent errors otherwise detected by a type checker.
+
+Soft types allow the user to encode arbitrary properties in a type. In this type system, a type is represented by a predicate over an HOL type. If a term \(x\) has the soft type \(\tau\), we write \(x : \tau\). The most primitive way to construct a soft type is using the function \(\mathsf{type}\) which takes a predicate as input and return the soft type containing exactly the values satisfying that predicate. Formally, \(x : \mathsf{type}\ P\) iff \(P\ x\). For instance, the soft type \(\mathsf{type}\ (\lambda i :: \inte\ldotp 0 \leq i)\) encodes the natural numbers within the HOL type \(\inte\). To further refine a given soft type \(T\) with a predicate \(P\), one can use the operator \((\adj)\) where \(x : P \adj T\) iff \(P\ x \land x : T\). Since one often wants do define a soft type which inhabits all elements of a given set, we use the notation \([A]\) as an abbreviation for \(\mathsf{type}\ (\lambda x\ldotp x \in A)\).
+
+The last kind of soft type we use in this paper are dependent function types. A function \(f\) has the soft type \((x : \sigma) \rightarrow \tau\) iff \(\forall x\ldotp x : \sigma \longrightarrow f\ x : \tau\) where \(\tau\) may contain the variable \(x\). If the co-domain type does not depend on the argument, we use the simpler notation \(f : \sigma \rightarrow \tau\).
+
+\begin{itemize}
 	\item contribution
+	\item structure of paper
 \end{itemize}
 
 \section{Preliminaries}\label{sec-prelims}
