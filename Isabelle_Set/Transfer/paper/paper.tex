@@ -102,6 +102,7 @@
 \newcommand{\aprel}{\mathsf{ap_{rel}}}
 \newcommand{\liftrel}{lifting relation\xspace}
 \newcommand{\liftrels}{lifting relations\xspace}
+\newcommand{\related}{\mathbin{\raisebox{-0.5pt}{$\centerdot$} \hspace{-2.9pt} \raisebox{3.5pt}{$\centerdot$}}}
 
 \definecolor{col1}{rgb}{0,0.5,0.7}
 \definecolor{col2}{rgb}{0.9,0.4,0.0}
@@ -949,15 +950,12 @@ In practice, I suggest a sub-term ordering on the \liftrels, since this is in cl
 %\kevin{TODO? or conjecture?}
 %\kevin{somewhere it should be mentioned that this process is basically the same for transfer, i.e.\ the algorithm is mostly guided by $T$.}
 
-\section{Example}
-\begin{itemize}
-	\item Set extensions
-	\item Lifting formal power series
-\end{itemize}
+\section{Application to Set Extensions}
+From the examples in the sections above, we have seen, how we can construct new algebraic structures from already existing ones (eg. the construction of \(\rat\) from \(\inte\)) and how we can restrict a given type to encode further properties in a new type (eg. refining \(\mathsf{set}\) to \(\mathsf{fset}\)). We have also seen, that we can not directly apply operations defined over one type to values of another type. For instance we can not apply the union operator for \(\alpha\ \mathsf{set}\) to values of type \(\alpha\ \mathsf{fset}\) and multiply integers with the multiplication operator we defined over \(\rat\). Instead, we have to lift these operations. Because of this incomparability of \(\inte\) and \(\rat\) or \(\mathsf{set}\) and \(\mathsf{fset}\), we also were not able to directly reuse theorems about one type for the other type, but we had to transfer them.
 
-[I moved this from another section, hence it starts rather abruptly.]
+Most mathematicians circumvent this problem by using set theoretic constructions instead of types. In this framework, everything is a set and \(\nat \subset \inte \subset \rat\) and \(\alpha\ \mathsf{fset}\) is a subsets of \(\alpha\ \mathsf{set}\).
 
-In particular when working with algebraic structures, one often wants to extend one structure (eg. \(\nat\)) to a larger structure (eg. \(\inte\)). However when using standard constructions of \(\inte\) like a quotient of \(\nat \times \nat\) or a sum of \(\nat\) and \(\nat_+\), one faces the problem that \(\nat\) is not a subset of \(\inte\). Set extensions solve this problem by constructing a new set as the union of \(\nat\) and all elements in the representation set of \(\inte\) which do not represent a value already included in \(\nat\). To formalize this, we first need a definition of bijections between two sets.
+However when, for instance, using standard constructions of \(\inte\) like a quotient of \(\nat \times \nat\) or a sum of \(\nat\) and \(\nat_+\), one faces the problem that \(\nat\) is not a subset of \(\inte\). Set extensions \juli{I haven't found a reference for this.} solve this problem by constructing a new set as the union of \(\nat\) and all elements in the representation set of \(\inte\) which do not represent a value already included in \(\nat\). To formalize and generalize this, we first need a definition of \emph{bijections} between two sets.
 
 \begin{definition}[Bijection]
 	\begin{equation}
@@ -970,25 +968,27 @@ In particular when working with algebraic structures, one often wants to extend 
 
 Given sets \(A\) and \(B\) and an injection \(f\) from \(A\) to \(B\), we want to construct a set \(B'\) and functions \(abs : [B] \rightarrow [B']\) and \(rep : [B'] \rightarrow [B]\) st. \(\bijection\ B\ B'\ abs\ rep\), \(A \subseteq B'\) and \(\forall x \in A\ldotp abs\ x = f\ x\). The last property states that \(abs\) and \(f\) are identical when their domains are restricted to \(A\) i.e. the embedding of \(A\) in \(B'\) by \(abs\) respects the structural connection between \(A\) and \(B\) given by \(f\). This is equivalent to \(\forall x \in A\ldotp abs\ (f\ x) = x\).
 
-[Using the function relator, the last two properties could be expressed more elegantly as \((\eq\ A \Rrightarrow \eq\ B')\ abs\ f\) and \((\eq\ A \Rrightarrow \eq\ A)\ (abs \circ f)\ \id\), but I haven't defined it at the point I wrote this part originally.]
+% Using the function relator, the last two properties could be expressed more elegantly as \((\eq\ A \Rrightarrow \eq\ B')\ abs\ f\) and \((\eq\ A \Rrightarrow \eq\ A)\ (abs \circ f)\ \id\), but I haven't defined it at the point I wrote this part originally.
 
-To obtain such a bijection, we define
+To obtain such a bijection, we define \(\mathsf{ext}\ A\ B\ f \coloneqq (B', rep, abs)\) where
 \begin{align}
 	B' &\coloneqq A \cup \{(A, x) \mid x \in (B \setminus \{f\ a \mid a \in A\})\} \\
 	rep\ y &\coloneqq f\ x\ \text{if}\ y \in A\ \text{else}\ \snd\ y \\
 	abs\ x &\coloneqq z\ \text{st.}\ x \in A \land f\ x = x\ \text{if}\ \exists z \in A\ldotp f\ z = x\ \text{else}\ (A, x)
 \end{align}
-where \( (x, y) \) is the pair containing \(x\) and \(y\) and \(\snd\ (x, y) = y\).
+where \( (x, y) \) is the pair containing \(x\) and \(y\) and \(\snd\ (x, y) = y\). \juli{Again, I only found the Isabelle theory as a reference.}
 
-That these definitions satisfy the properties stated above was proven in Isabelle/HOL by [?]. It is, however, not convenient to directly define operations on the set \(B'\) since such definitions would require case distinctions between elements which are contained in the extended set and those which are not. Instead, an operation on \(B'\) is usually defined as a combination of the respective operation on \(B\) and the functions \(abs\) and \(rep\) which translate between \(B\) and \(B'\).
+That these definitions satisfy the properties stated above was proven in Isabelle/HOL. It is, however, not convenient to directly define operations on the set \(B'\) since such definitions would require case distinctions between elements which are contained in the extended set and those which are not. Instead, an operation on \(B'\) is usually defined as a combination of the respective operation on \(B\) and the functions \(abs\) and \(rep\) which translate between \(B\) and \(B'\).
 
-\vspace{1cm}
+\begin{example}
+	Let us define the representation set of integers as \(\inte_{\rep} \coloneqq \nat \uplus \nat_+\) where \(A \uplus B\) is the disjoint union of the sets \(A\) and \(B\) with the injections \(\mathsf{in_l}\) and \(\mathsf{in_r}\) from \(A\) and \(B\) into \(A \uplus B\), reps, and \(\nat_+ \coloneqq \nat \setminus \{0\}\). Now we can construct the set extension \((\inte, \rep_\inte, \abs_\inte) \coloneqq \mathsf{ext}\ \nat\ \inte_{\rep}\ \mathsf{in_l} \). Then there is a bijection between \(\inte\) and \(\inte_{\rep}\) witnessed by \(\rep_\inte\) and \(\abs_\inte\) and we have \(\nat \subset \inte\).
+	
+	Given a multiplication function \(\mathsf{mul_{\inte rep}} : [\inte_{\rep}] \rightarrow [\inte_{\rep}] \rightarrow [\inte_{\rep}]\) on the representation level, we can lift this operator to \(\inte\) by \(\mathsf{mul_\inte}\ i\ j \coloneqq \abs_\inte\ (\mathsf{mul_{\inte rep}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))\).
+\end{example}
 
-[Just copied all examples which where in the lifting-triple section before down here. You don't have to read them.]
+While we can not apply the original Lifting-Tool for the lifting in the above example, we can use our generalized approach to lifting. For this, we need a lifting triple to lift terms from \(\inte_{\rep}\) to \(\inte\). More generally, we can obtain a lifting triple from any bijection.
 
-While arbitrary lifting triples can be constructed from scratch, in the context of lifting operations to types constructed by set extensions, we only need lifting triples build from bijections and the lifting of these lifting triples over type constructors.
-
-\begin{lemma}[Lifting triple from bijection]
+\begin{lemma}[Lifting triple from bijection]\label{lem:lift-trip-bij}
 	If \(\bijection\ A\ B\ f\ g \) then
 	\begin{equation}
 		\langle \birel\ A\ f, f, g \rangle
@@ -1001,166 +1001,91 @@ While arbitrary lifting triples can be constructed from scratch, in the context 
 
 In particular, we can construct a lifting triple from any set-extension.
 
-\begin{example}[Lifting triple from set extensions]\label{lifting-int}
-	Given the set \(\nat\) of natural numbers, we can construct a representation of integers as the disjoint union of \(\nat\), representing non-negative integers, and \(\nat \setminus \{0\}\), representing negative integers. We call this set \(\inte_{\rep}\). Because of the disjoint union construction \(\nat \nsubseteq \inte_{\rep}\). To fix this, we can build the set extension of \(\nat\) by \(\inte_{\rep}\) with the injection \(\mathsf{in_l}\) from \(\nat\) to \(\inte_{\rep}\). When the bijection theorem of this set extension is \(\bijection\ \inte_{\rep}\ \inte\ \abs_\inte\ \rep_\inte\), the corresponding transfer triple is \(\langle \relint, \abs_\inte, \rep_\inte \rangle\) where \(\relint \coloneqq \birel\ \inte_{\rep}\ \abs_\inte\). In particular, \(\relint\ (\mathsf{in_l}\ n)\ n\) for any \(n \in \nat\).
+\begin{example}[Lifting triple for \(\inte\)]
+	The bijection theorem of this set extension from the example above is \(\bijection\ \inte_{\rep}\ \inte\ \abs_\inte\ \rep_\inte\). From this, we get the lifting triple \(\langle \relint, \abs_\inte, \rep_\inte \rangle\) where \(\relint \coloneqq \birel\ \inte_{\rep}\ \abs_\inte\). In particular, \(\relint\ (\mathsf{in_l}\ n)\ n\) for any \(n \in \nat\).
 \end{example}
 
-\begin{corollary}[Lifting triple from restricted identity]
-	For any set \(A\)
-	\begin{equation}
-		\langle \eq\ A, \id, \id \rangle
-	\end{equation}
-	where
-	\begin{equation}
-		\eq\ A\ x\ y \coloneqq \birel\ A\ id
-	\end{equation}
+From \cref{lem:lift-trip-bij}, we get the following corollaries for two common scenarios:
+
+\begin{corollary}[Identity lifting triple for a set]
+	For any set \(A\), there is the lifting triple \(\langle \eq\ A, \id, \id \rangle\) where \(\eq\ A\ x\ y \coloneqq \birel\ A\ id\).
 \end{corollary}
 
-\begin{corollary}[Lifting triple from HOL type]
-	For any type \(\alpha\)
-	\begin{equation}
-		\langle \eq\ \univ_\alpha, \id, \id \rangle
-	\end{equation}
-	where
-	\begin{equation}
-		\univ_\alpha\ \coloneqq \{x \mid x : \alpha\}
-	\end{equation}
+\begin{corollary}[Identity lifting triple for an HOL type]
+	For any HOL type \(\alpha\), there is the lifting triple \(\langle \eq\ \univ_\alpha, \id, \id \rangle\) where \(\univ_\alpha\ \coloneqq \{x \mid x :: \alpha\}\).
 \end{corollary}
 
-\begin{example}[Parameterized lifting triple for algebraic data types]
-	Given two transfer relations \(T_1 : \alpha \Rightarrow \gamma\) and \(T_2 : \beta \Rightarrow \delta\), values of the product types \(\alpha \times \beta\) and \(\gamma \times \delta\) are related if both components are related, values of the sum types \(\alpha + \beta\) and \(\gamma + \delta\) are related if both are left values or both are right values and their content is related and finally tow values of the list types \(\alpha^\ast\) and \(\gamma^\ast\) are related if they have the same length and their elements are related pointwise. Formally, the parameterized lifting triple for the product, sum and list types are
-	\begin{equation*}
-		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relprod\ T_1\ T_2, \mapprod\ abs_1\ abs_2, \mapprod\ rep_1\ rep_2 \rangle
-	\end{equation*}
-	\begin{equation*}
-		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relsum\ T_1\ T_2, \mapsum\ abs_1\ abs_2, \mapsum\ rep_1\ rep_2 \rangle
-	\end{equation*}
-	and
-	\begin{equation*}
-		\langle T, abs, rep \rangle \longrightarrow \langle \rellist\ T, \maplist\ abs, \maplist\ rep \rangle
-	\end{equation*}
-	resp. where
-	\begin{align*}
-		\mapprod\ f\ g\ (x, y) &\coloneqq (f\ x, g\ y) \\
-		\relprod\ T_1\ T_2\ (x, y)\ (x', y') &\coloneqq T_1\ x\ x' \land T_2\ y\ y' \\
-		\mapsum\ f\ g\ (\Left\ x) &\coloneqq \Left\ (f\ x) \\
-		\mapsum\ f\ g\ (\Right\ y) &\coloneqq \Right\ (f\ y) \\
-		\relsum\ T_1\ T_2\ (\Left\ x)\ (\Left\ x') &\coloneqq T_1\ x\ x' \\
-		\relsum\ T_1\ T_2\ (\Right\ y)\ (\Right\ y') &\coloneqq T_2\ y\ y' \\
-		\relsum\ T_1\ T_2\ \_\ \_ &\coloneqq \false \\
-		\maplist\ f\ [] &\coloneqq [] \\
-		\maplist\ f\ (x \cons xs) &\coloneqq f\ x \cons \maplist\ f\ xs \\
-		\rellist\ T\ []\ [] &\coloneqq \true \\
-		\rellist\ T\ (x \cons xs)\ (y \cons ys) &\coloneqq T\ x\ y \land \rellist\ T\ xs\ ys \\
-		\rellist\ T\ \_\ \_ &\coloneqq \false \\
-	\end{align*}
-\end{example}
+To build the \liftrel to lift \(\mathsf{mul_{\inte rep}} : [\inte_{\rep}] \rightarrow [\inte_{\rep}] \rightarrow [\inte_{\rep}]\) to \(\mathsf{mul_{\inte}} : [\inte] \rightarrow [\inte] \rightarrow [\inte]\) or the divisibility predicate \(\mathsf{divides_{\inte rep}} : [\inte_{\rep}] \rightarrow [\inte_{\rep}] \rightarrow \bool\) to \(\mathsf{divides_{\inte}} : [\inte] \rightarrow [\inte] \rightarrow \bool\), we can use the previously introduced function relator \((\Rrightarrow)\) together with the \liftrels \(\mathsf{Rel_\inte}\) and \(\eq\ \univ_{\mathsf{bool}}\). However, in some cases this function relator is not sufficient. As an example, consider an operator for integer division \(\mathsf{div_\inte}\). We allow this function to be undefined or return an arbitrary value if its firs argument is not divisible by its second argument. Hence, \(\mathsf{div_\inte}\) has the dependent type \((i : [\inte]) \rightarrow (\lambda j\ldotp \mathsf{divides_\inte}\ j\ i) \boldsymbol{\cdot} [\inte] \rightarrow [\inte]\). Analogously, we also need a dependent function relator to relate the representation and abstraction version of this operator, since these must only produce related results for a subset of pairs of integers which is dependent on the first argument. We can define this dependent function relator analogous to the dependent function type constructor, intuitively substituting types by relations:
 
-\begin{lemma}[Parameterized lifting triple for functions]\label{fun-lifing-triple}
-	Functions are related if they map related arguments to related results. Hence, the parameterized lifting triple for the function type is
-	\begin{equation*}
-		\langle T_1, abs_1, rep_1 \rangle \land \langle T_2, abs_2, rep_2 \rangle \longrightarrow \langle \relfun\ T_1\ T_2, \mapfun\ rep_1\ abs_2 , \mapfun\ abs_1\ rep_2 \rangle
-	\end{equation*}
-	where
-	\begin{align*}
-		\mapfun\ f\ g\ h &\coloneqq g \circ h \circ f \\
-		\relfun\ T_1\ T_2\ f\ g &\coloneqq \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ (f\ x)\ (g\ y)
-	\end{align*}
+\begin{definition}[Dependent function relator]
+	\(\relfund\ T_1\ T_2\ f\ g \coloneqq \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y)\)
+\end{definition}
 
-	Depending on which notation is more convenient, I will write \(T_1 \Rrightarrow T_2\) for \(\relfun\ T_1\ T_2\) in the remainder of this paper. The relator \((\Rrightarrow)\) is right associative, so \(T_1 \Rrightarrow T_2 \Rrightarrow T_3\) means \(T_1 \Rrightarrow (T_2 \Rrightarrow T_3)\).
+We extend the syntax introduced for the non-dependent function relator as follows:
+\begin{equation*}
+[x\ y \related T_1] \Rrightarrow T_2 \coloneqq \relfund\ T_1\ (\lambda x'\ y'\ldotp T_2[x \backslash x', y \backslash y'])
+\end{equation*}
+
+To construct a lifting triple with this relator, we also have to generalize \(\mapfun\) to \(\mapfund\) st. the function which maps the output of the mapped function may depend on the input of the mapped function.
+
+\begin{definition}[Dependent map function for functions]
+	\(\mapfund\ f\ g\ h\ x \coloneqq g\ x\ (f\ x)\ (h\ (f\ x))\)
+\end{definition}
+
+Now, we can put these definitions together into a lifting triple.
+
+\begin{lemma}[Lifting triple with dependent function relator and map function]
+Given a lifting triple
+\begin{equation*}
+	\langle T_1, abs_1, rep_1 \rangle
+\end{equation*}
+and a parametrized lifting triple
+\begin{equation*}
+	\forall x\ y \ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2\ y\ x, rep_2\ x\ y\rangle
+\end{equation*}
+if \(T_2\ x\ y\) does not depend on which representatives \(x\) and \(y\) are chosen from any given equivalence class of \(\eqrep\ T_1\) and \(\eqabs\ T_1\), reps., and \(abs_2\) and \(rep_2\) each behave equivalently for equivalent arguments, formally
+\begin{enumerate}
+	\item \(\forall x\ x'\ y\ y' \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T_2\ x\ y = T_2\ x'\ y'\),
+	\item \(\forall x\ x'\ y\ y' \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow\) \\
+	\null\quad\(((\eqabs\ (T_2\ x\ y)) \Rrightarrow (\eqrep\ (T_2\ x\ y)))\ (rep_2\ x\ y)\ (rep_2\ x'\ y')\) and
+	\item \(\forall x\ x'\ y\ y' \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \) \\
+	\null\quad\(((\eqrep\ (T_2\ x\ y)) \Rrightarrow (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y\ x)\ (abs_2\ y'\ x')\),
+\end{enumerate}
+then
+\begin{equation*}
+	\langle \relfund\ T_1\ T_2, \mapfund\ rep_1\ abs_2, \mapfund\ abs_1\ rep_2 \rangle.
+\end{equation*}
 \end{lemma}
+Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\) in the second side condition.
 
-\begin{example}[Lifting triple for functions over \(\inte\)]
-	Using the definitions of \(\inte_{\rep}\) and \(\inte\) from example \ref{lifting-int}, we can define the multiplication function on integers on the representation level \(\mathsf{mul_{\inte_{\rep}}} : [\inte_{\rep}] \Rightarrow [\inte_{\rep}] \Rightarrow [\inte_{\rep}]\) using operations on \(\nat\). I omit the definition here. The transfer relation we need to lift this function to \(\inte\) is \(\relfun\ \relint\ (\relfun\ \relint\ \relint)\) and the corresponding transfer triple is
-	\begin{align*}
-		\langle \relint \Rrightarrow \relint \Rrightarrow \relint,\\
-		\mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte),\\
-		\mapfun\ \abs_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte) \rangle
-	\end{align*}
-	Now we can construct the multiplication on \(\inte\) as the lifting of \(\mathsf{mul_{\inte_{\rep}}}\):
-	\begin{equation*}
-		\mathsf{mul_\inte} \coloneqq \mapfun\ \rep_\inte\ (\mapfun\ \rep_\inte\ \abs_\inte)\ \mathsf{mul_{\inte_{\rep}}}
-	\end{equation*}
-	From definition \ref{def-lifting-triple} we know that these two multiplication functions are related by the transfer relation stated above.
+If the abstraction and representation functions of the lifting triple for the co-domain are not dependent on the arguments, we can use the following corollary:
 
-	Unfolding the definition of \(\mapfun\), we get
-	\begin{equation*}
-		\mathsf{mul_\inte}\ i\ j = \abs_\inte\ (\mathsf{mul_{\inte_{\rep}}}\ (\rep_\inte\ i)\ (\rep_\inte\ j))
-	\end{equation*}
-	as expected.
+\begin{corollary}[Lifting triple with dependent function relator]\label{cor:lift-trip-dep-fun}
+	Assuming \(\langle T_1, abs_1, rep_1 \rangle\) and \(\forall x\ y \ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2, rep_2\rangle\) we have \(\langle \relfund\ T_1\ T_2, \mapfun\ rep_1\ abs_2, \mapfun\ abs_1\ rep_2 \rangle\) if \(\forall x\ x'\ y\ y' \ldotp T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T_2\ x\ y = T_2\ x'\ y'\).
+\end{corollary}
 
-	Also functions with mixed argument and return types can be lifted. For instance, the divides predicate on integers, which return \(\true\) iff its first argument divides its second, and the power function on integers, which computes the first arguments raised to the power of the second, can be lifted with the transfer relations
-	\begin{equation*}
-		\relint \Rrightarrow \relint \Rrightarrow (\eq\ \univ_{\mathsf{bool}})
-	\end{equation*}
-	and
-	\begin{equation*}
-		\relint \Rrightarrow (\eq\ \nat) \Rrightarrow \relint
-	\end{equation*}
-	resp.
+Now, we can apply this corollary to the problem of lifting the integer division operator.
+
+\begin{example}[Lifting integer division] The \liftrel which relates the integer division operators on \(\inte_{\rep}\) and \(\inte\) is
+\begin{equation*}
+	\mathsf{T_{div}} \coloneqq [\_\ i \related \relint] \Rrightarrow \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ i)) \Rrightarrow \relint
+\end{equation*}
+where
+\begin{align*}
+	\appabs\ f &\coloneqq \maprel\ f\ \pi_\abs \\
+	\mathsf{\pi_{abs}}\ \_\ y &\coloneqq y \\
+	\reland\ R\ S &\coloneqq \aprel\ (\maprel\ (\land)\ R)\ S \\
+	\maprel\ f\ R\ x\ y &\coloneqq f\ (R\ x\ y) \\
+	\aprel\ R\ S\ x\ y &\coloneqq R\ x\ y\ (S\ x\ y).
+\end{align*}
+To show \(\mathsf{T_{div}}\ \mathsf{div_{\inte rep}}\ (\mapfun\ \rep_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte))\ \mathsf{div_{\inte rep}}\), it remains to prove
+\begin{enumerate}
+	\item \(\forall i\ j\ldotp \relint\ i\ j \longrightarrow \langle \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint, \mapfun\ \rep_\inte\ \abs_\inte, \mapfun\ \abs_\inte\ \rep_\inte \rangle\) and
+	\item \(\forall i\ i'\ j\ j'\ldotp \relint\ i\ j \land \eqrep\ \relint\ i\ i' \land \eqabs\ \relint\ j\ j' \longrightarrow\)\\
+	\null\quad\( (\reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint)\ i\ j =(\reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint)\ i'\ j'\).
+\end{enumerate}
 \end{example}
-
-\begin{example}[Transfer relations for function composition]
-	The function composition operator is related to itself by the following transfer relation:
-	\begin{equation*}
-		((T_2 \Rrightarrow T_3) \Rrightarrow (T_1 \Rrightarrow T_2) \Rrightarrow T_1 \Rrightarrow T_3)\ (\circ)\ (\circ)
-	\end{equation*}
-	[more explanation?]
-\end{example}
-
-\begin{lemma}[lifting triple with dependent transfer relation for functions]
-	Similarly to how the type of functions can be generalized to dependent function types, the above example can be generalized to dependent transfer relations.
-
-	Given a lifting triple
-	\begin{equation*}
-		\langle T_1, abs_1, rep_1 \rangle
-	\end{equation*}
-	and a parameterized lifting triple
-	\begin{equation*}
-		\forall x\ y \ldotp T_1\ x\ y \longrightarrow \langle T_2\ x\ y, abs_2\ y\ x, rep_2\ x\ y\rangle
-	\end{equation*}
-	if \(T_2\ x\ y\) does not depend on which representatives \(x\) and \(y\) are chosen from any given equivalence class of \(\eqrep\ T_1\) and \(\eqabs\ T_1\), reps. and \(abs_2\) and \(rep_2\) behave equivalently for equivalent arguments, formally:
-	\begin{align*}
-		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow T_2\ x\ y = T_2\ x'\ y' \\
-		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
-		& ((\eqabs\ (T_2\ x\ y)) \Rrightarrow (\eqrep\ (T_2\ x\ y)))\ (rep_2\ x\ y)\ (rep_2\ x'\ y') \\
-		\forall x\ x'\ y\ y' \ldotp\, & T_1\ x\ y \land \eqrep\ T_1\ x\ x' \land \eqabs\ T_1\ y\ y' \longrightarrow \\
-		& ((\eqrep\ (T_2\ x\ y)) \Rrightarrow (\eqabs\ (T_2\ x\ y)))\ (abs_2\ y\ x)\ (abs_2\ y'\ x')
-	\end{align*}
-	[these conditions could be expressed in a purely relational way without explicit quantifiers and the second argument could be dropped using \(\indom\)] \\
-	then
-	\begin{equation*}
-		\langle \relfund\ T_1\ T_2, \mapfund\ rep_1\ abs_2, \mapfund\ abs_1\ rep_2 \rangle
-	\end{equation*}
-	where
-	\begin{align*}
-		\relfund\ T_1\ T_2\ f\ g &\coloneqq \forall x\ y\ldotp T_1\ x\ y \longrightarrow T_2\ x\ y\ (f\ x)\ (g\ y) \\
-		\mapfund\ f\ g\ h\ x &\coloneqq g\ x\ (f\ x)\ (h\ (f\ x))
-	\end{align*}
-	Note the swapped order of arguments of \(abs_2\) when compared to \(rep_2\).
-
-	I extend the syntax introduced for the non-dependent function relator as follows:
-	\begin{equation*}
-		[x\ y :: T_1] \Rrightarrow T_2 \coloneqq \relfund\ T_1\ (\lambda x'\ y'\ldotp T_2[x \backslash x', y \backslash y'])
-	\end{equation*}
-	[When binary relations are generalized to binary functions with arbitrary co-domain, they form an applicative functor together with \(\maprel\) and \(\aprel\). (At least I think so. Haven't proved it yet) Since these aren't \textit{relations} anymore, I probably should change the names. Expressing eg. relations restricted by a predicate (as in the example below) using these functions seems less ad-hoc and probably makes things easier and more elegant to automatically simplify the proof obligations coming from the side-conditions in the above lemma.]
-\end{lemma}
-
-\begin{example}[Lifting integer division]
-	While the non-dependent function relation introduced in Lemma \ref{fun-lifing-triple} was sufficient to relate the multiplication and divides functions on the representation and abstraction level, this is not possible for all functions. For instance, implementations of the integer division function may be undefined or produce arbitrary results for some pairs of integers. Hence two implementations of this function do not need to return related values for all related pairs of arguments, but only for those where the first argument is divisible by the second. To express this relation, we need the more general dependent transfer relation for function defined above. Specifically, given an implementation of inter division over \(\inte_{\rep}\), we want to lift this function to \(\inte\). These two functions must be related by the transfer relation
-	\begin{equation*}
-		[\_\ i :: \relint] \Rrightarrow \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ i)) \Rrightarrow \relint
-	\end{equation*}
-	where
-	\begin{align*}
-		\appabs\ f\ \_\ y &\coloneqq f\ y \\
-		& \text{alternatively: } \lambda f\ldotp \maprel\ f\ \mathsf{\pi_{abs}} \\
-		& \text{where } \mathsf{\pi_{abs}}\ \_\ y \coloneqq y \\
-		\reland\ R\ S &\coloneqq (\maprel\ (\land)\ R)\ \aprel\ S \\
-		\maprel\ f\ R\ x\ y &\coloneqq f\ (R\ x\ y) \\
-		\aprel\ R\ S\ x\ y &\coloneqq R\ x\ y\ (S\ x\ y)
-	\end{align*}
-\end{example}
+While the proof obligations resulting from the side-conditions of \cref{cor:lift-trip-dep-fun} seem complicated, it should be possible to automate them in most practical cases.
 
 \section{Conclusion}
 \begin{itemize}
