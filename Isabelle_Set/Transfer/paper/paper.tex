@@ -1145,9 +1145,9 @@ To show \(\mathsf{T_{div}}\ \mathsf{div_{\inte rep}}\ (\mapfun\ \rep_\inte\ (\ma
 While the proof obligations resulting from the side-conditions of \cref{cor:lift-trip-dep-fun} seem complicated, it should be possible to automate them in most practical cases.
 
 \section{Conclusion}
-\begin{itemize}
-	\item Further work
-\end{itemize}
+In this paper we proposed a generalization of the approach to lifting used by the Lifting-Tool. While the Lifting-Tool is limited to right-total and -unique transfer relations, our approach supports a larger class of relations, which we called \liftrels. This generalization is, in particular, necessary to lift terms between soft types. Since we use \liftrels instead of right-total and -unique transfer relations, we also had to generalize quotient predicates \cite{huffman2013lifting} to lifting triples which subsume the former. While quotient predicates are closed under composition but are not symmetric, lifting triples are not closed under composition but are symmetric. However, we proved a restricted composition theorem for lifting triples, which, we argued, is sufficiently general for the application of lifting. Moreover, we demonstrated, how our generalized approach can be applied to lift terms between soft types in a set theoretic framework. In particular, we introduced a dependent function relator which allowed us to lift partial functions, which, in general, is not possible with the Lifting-Tool.
+
+While we presented the theoretical foundation for a new approach to lifting, it remains further work to implement our algorithm in a tool like the Lifting-Tool or a modification of that tool. Since the composition of lifting relations and triples as well as the construction of lifting triples involving the dependent function relator require proofs of side-condition, it is worth investigating how these proof obligations can be either discharged fully automatically or simplified to goal more readable and convenient to the user. It also remains an open question, whether there are practical applications for lifting for which the class of \liftrels is not general enough.
 
 \bibliography{refs}
 
