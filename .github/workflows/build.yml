@@ -15,7 +15,7 @@ jobs:
             ~/.isabelle
             ~/Isabelle
             ~/AFP/thys
-          key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('AFP_VERSION') }}-${{ hashFiles('.circleci/prepare_isabelle.sh') }}
+          key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('AFP_VERSION') }}-${{ hashFiles('.github/workflows/prepare_isabelle.sh') }}
           restore-keys: v1-Isabelle-
 
       - name: Prepare Isabelle
