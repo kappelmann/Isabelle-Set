@@ -141,6 +141,15 @@ The last kind of soft type we use in this paper are dependent function types. A 
 
 \section{Preliminaries}\label{sec-prelims}
 
+\paragraph{Isabelle}
+Reference to isabelle manual
+
+\paragraph{Soft types}
+Reference to github
+\newline
+
+In the remainder of this section,
+we introduce the two tools Lifting and Transfer from Isabelle/HOL.
 We illustrate the idea of transfer relations and transfer rules
 and how they are used by the transfer and lifting tool with a running example.
 Assume we have a type \(\inte\) of integers and want to construct a type \(\rat\) of rationals.
@@ -176,9 +185,6 @@ In practice, one typically wants to define multiple abstract operations
 using corresponding functions on the representation level and
 derive theorems for these operations from the corresponding theorems on the representation level.
 The process sketched above thus becomes rather repetitive.
-In the remainder of this section,
-we introduce two tools from Isabelle/HOL
-that deal with this problem.
 
 \paragraph{Transfer tool} The transfer tool translates properties about abstract types to properties about the corresponding representation types.
 It uses binary relations to express the connection between terms on the representation and abstraction level.
@@ -860,9 +866,9 @@ First, we cannot use Pure-types to guide the algorithm for two reasons:
 1) our algorithm should not depend on any static type system
 but should be usable with soft type systems and
 % but should be independent of any specific type-system, and
-\kevin{I do not get the second point; can you rephrase it? Is it the issue described in the next paragraphs?}
-2) we no longer have a one-to-one correspondence between abstract types
-and co-domains of \liftrels.
+% \kevin{I do not get the second point; can you rephrase it? Is it the issue described in the next paragraphs?}
+2) there is no unique correspondence between the target's Pure-type
+and the and the co-domains of \liftrels (in other words, we cannot select a \liftrel based on the target's Pure-type).
 
 More specifically, consider the case of a transfer relation \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\).
 Since $T$ is right-total,
@@ -888,7 +894,7 @@ first consider the \liftrel\ \(T \coloneqq T_1 \Rrightarrow T_2\) where \(T_1\) 
 Then the statement \(\incodom\ (T_1 \Rrightarrow T_2)\ f\)
 % which we can rewrite to \(\eqabs\ (T_1 \Rrightarrow T_2)\ f\ f\),
 is equivalent to \((\eqabs\ T_1 \Rrightarrow \eqabs\ T_2)\ f\ f\).
-\kevin{it is equivalent to \((\eqabs\ T_1 \Rrightarrow \eqabs\ T_2)\ g\ f\) for some $g$. Something is odd here}
+% \kevin{it is equivalent to \((\eqabs\ T_1 \Rrightarrow \eqabs\ T_2)\ g\ f\) for some $g$. Something is odd here}
 In other words: for any \(x_1, x_2\) such that \(\eqabs\ T_1\ x_1\ x_2\),
 it must hold that \(\eqabs\ T_2\ (f\ x_1)\ (f\ x_2)\);
 that is, \(f\) must not only map values from the co-domain of \(T_1\) to the co-domain of \(T_2\),
@@ -904,7 +910,7 @@ we can use an idea similar to the line of reasoning showing why non-right-total 
 Consider the \liftrel\ \(T \coloneqq (T_1 \Rrightarrow T_2) \Rrightarrow T_3\) where \(T_1 : \alpha_1 \rightarrow \beta_1\rightarrow \bool\), \(T_2 : \alpha_2 \rightarrow \beta_2 \rightarrow \bool\), \(T_3 : \alpha_3 \rightarrow \beta_3 \rightarrow \bool\), and  \(T_1\) is non-right-unique.
 Then \(\incodom\ T\ f\) means that for any two functions \(g_1, g_2\),
 if \(\eqabs\ (T_1 \Rrightarrow T_2)\ g_1\ g_2\) then \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\).
-\kevin{again, this should be \(\eqabs\ T_3\ (h\ g_1)\ (f\ g_2)\) for some $h$}
+% \kevin{again, this should be \(\eqabs\ T_3\ (h\ g_1)\ (f\ g_2)\) for some $h$}
 As before, \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\) is a stronger conclusion
 than \(f\ g_i : \beta_3\) for \(i \in \{1, 2\}\).
 But now, also the premise is stronger:
