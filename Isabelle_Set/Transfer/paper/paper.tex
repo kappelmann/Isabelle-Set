@@ -874,25 +874,24 @@ but should be usable with soft type systems and
 % but should be independent of any specific type-system, and
 % \kevin{I do not get the second point; can you rephrase it? Is it the issue described in the next paragraphs?}
 2) there is no unique correspondence between the target's Pure-type
-and the and the co-domains of \liftrels (in other words, we cannot select a \liftrel based on the target's Pure-type).
+and the co-domains of \liftrels (in other words, we cannot select a \liftrel based on the target's Pure-type).
 
 More specifically, consider the case of a transfer relation \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\).
-Since $T$ is right-total,
+If $T$ is right-total,
 the statements \(\incodom\ T\ y\) and \(y :: \beta\) are equivalent.
-\kevin{why is this important? When we find the lifting triple, we always have $\incodom\ T\ (abs\ x)$; I think you are basically trying to convey a problem about the soft type of $\Rrightarrow$, but it is very unclear in the current form. Let's discuss on Wednesday and update it together.}.
 % Hence, given the target type $\beta$,
 % we can select an appropriate transfer relation
 % $T$ without having to worry about whether or not \(\incodom\ T\ y\).
-This can be used to select suitable transfer relations given a Pure-type.
+This can be used to select a suitable transfer relation given a Pure-type.
 % If \(T :: \alpha \Rightarrow \beta \Rightarrow \bool\) is not right-total,
 % then there is a value \(y :: \beta\) which is not in the co-domain of \(T\).
 % Note that for Pure-types,
 % the implication \(\incodom\ T\ y \longrightarrow y :: \beta\) is still valid,
-If $T$ is a lifting relation, however, it might not be right-total.
-Note that, theoretically, we could always choose a soft type for \(T\)
+It, however, we deal with potentially non-right-total lifting relations, there may be many lifting relations with the same Pure-type.
+Note that, theoretically, we could always choose a soft type for a lifting relation \(T\)
 such that \(T\) is right-total with respect to that type,
 namely \(T : \alpha \rightarrow \mathsf{type}\ (\incodom\ T) \rightarrow \bool\),
-but this is in general not the type one would like to use and specify for $y$.
+but \(\mathsf{type}\ (\incodom\ T)\) this is in general not the type one would like to use and specify for $y$.
 
 To see why the soft type \(\mathsf{type}\ (\incodom\ T)\) can inhabit both
 more and fewer values than one would expect,
@@ -911,35 +910,18 @@ but this would result in types that are unsuitable for practical use.
 However, if \(T_1\) has the soft type \(\alpha_1 \rightarrow \beta_1\rightarrow \bool\) and is right-total and \(T_2\) has the type \(\alpha_2 \rightarrow \beta_2\rightarrow\bool\),
 we cold still prove the implication \((\incodom\ (T_1 \Rrightarrow T_2)\ f) \longrightarrow f : \beta_1 \rightarrow \beta_2\).
 
-To see why this implication does not hold in general,
+To see why \(\incodom\ T f\) does not imply that \(f\) has the expected type in general,
 we can use an idea similar to the line of reasoning showing why non-right-total \liftrels lead to non-right-unique \liftrels from \cref{lift-trip-sec}:
 Consider the \liftrel\ \(T \coloneqq (T_1 \Rrightarrow T_2) \Rrightarrow T_3\) where \(T_1 : \alpha_1 \rightarrow \beta_1\rightarrow \bool\), \(T_2 : \alpha_2 \rightarrow \beta_2 \rightarrow \bool\), \(T_3 : \alpha_3 \rightarrow \beta_3 \rightarrow \bool\), and  \(T_1\) is non-right-unique.
-Then \(\incodom\ T\ f\) means that for any two functions \(g_1, g_2\),
-if \(\eqabs\ (T_1 \Rrightarrow T_2)\ g_1\ g_2\) then \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\).
-% \kevin{again, this should be \(\eqabs\ T_3\ (h\ g_1)\ (f\ g_2)\) for some $h$}
-As before, \(\eqabs\ T_3\ (f\ g_1)\ (f\ g_2)\) is a stronger conclusion
-than \(f\ g_i : \beta_3\) for \(i \in \{1, 2\}\).
-But now, also the premise is stronger:
-from \(\incodom\ T\ f\),
-we can only say something about \(f\ g\) if \(\incodom\ (T_1 \Rrightarrow T_2)\ g\), which
-% as discussed above,
-is only true for a subset of all functions with soft type \(\beta_1 \rightarrow \beta_2\).
-Hence, we cannot conclude \(f : (\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\).
+From this, one might expect that \(f\) has type \((\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\) or put in other words that, given a function \(g\) of type \(\beta_1 \rightarrow \beta_2\), that \(f\ g\) has type \(\beta_3\). Let us compare this with \(\incodom\ T\ f\): The latter means that \(f\) maps functions related by \(\eqabs\ (T_1 \Rrightarrow T_2)\) to values related by \(\eqabs\ T_3\). The premise of this statement can only be satisfied by functions \(g\) s.t.\ \(\incodom\ (T_1 \Rrightarrow T_2)\ g\). From the paragraph above, we learned that this requirement on \(g\) is stronger that \(g : \beta_1 \rightarrow \beta_2\). Hence, from \(\incodom\ T\ f\) we can not conclude \(f : (\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\).
 
 In summary, for a \liftrel\ \(T: \alpha \rightarrow \beta \rightarrow \bool\),
 the statement \(\incodom\ T\ y\) can be stronger, weaker,
 or incomparable to the statement \(y : \beta\).
-Despite this missing correspondence,
-we can still compute the expected type of a lifted term by type inference using
-the types of the representation term and of the abstraction function.
+Nevertheless, given suitable types for the source term and the abstraction and representation functions involved in lifting it, we can get the expected type of the lifted term by type checking.
 However, we cannot direct the lifting algorithm by
-the Pure-types or soft types of the representation and abstract term.
-Instead, our lifting algorithm takes a \liftrel\ of the target type as input.
-If one does not explicitly want to specify the \liftrel\ but only the type of the input term and the target type,
-% in some type system like Pure-types or soft type,
-an additional phase preceeding the algorithm can be implemented
-which computes a \liftrel from the given types.
-\kevin{this seems to contradict the sentence preceeding it}
+the Pure-types of the representation and abstract term and to direct it by the respective soft types, additional information about which lifting relation relates which soft types is required.
+Since we want to keep the lifting algorithm independent from any type system, we did not incorporate the inference from types to lifting relations in our algorithm. Instead our algorithm takes a lifting relation as input and one can implement a preceding phase which computes a lifting relation from the source and target types for some type system.
 
 \paragraph{Compositionality}
 As discussed,
