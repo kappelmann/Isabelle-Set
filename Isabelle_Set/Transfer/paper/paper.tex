@@ -118,32 +118,38 @@
 \end{abstract}
 
 \section{Introduction}
-In Isabelle/HOL there are two widely used commands to construct new types from existing ones: \(\mathtt{newtype}\) and \(\mathtt{quotient_type}\). The former defines a new type from a subset and the latter from a quotient set of some type. For instance, we can define the type \(\inte\) as a quotient of \(\nat \times \nat\) and the type of finite sets \(\alpha\ \mathsf{fset}\) as a subtype of \(\alpha\ \mathsf{set}\). Even though one type is defined as a subtype or quotient type of the other, this relations is not captured by the type system. In particular, one can not apply functions over one type to values of the other type and theorems about one type are not directly applicable to the other type. Moreover, while \(\inte\) is defined as a quotient type of \(\nat \times \nat\), from a semantic perspective, \(\nat\) should be a subtype of \(\inte\).
+In Isabelle/HOL there are two widely used commands to construct new types from existing ones: \(\mathtt{newtype}\) and \(\mathtt{quotient\_type}\). The former defines a new type from a subset and the latter from a quotient set of some type. For instance, we can define the type \(\inte\) as a quotient of \(\nat \times \nat\) and the type of finite sets \(\alpha\ \mathsf{fset}\) as a subtype of \(\alpha\ \mathsf{set}\). Even though one type is defined as a subtype or quotient type of the other, this relations is not captured by the type system. In particular, one can not apply functions over one type to values of the other type and theorems about one type are not directly applicable to the other type. Moreover, while \(\inte\) is defined as a quotient type of \(\nat \times \nat\), from a semantic perspective, \(\nat\) should be a subtype of \(\inte\).
 
-Before we can lift definitions or translate theorems from one type to another, we first need a framework to express the correspondence between two types. For this, Reynolds [ref] introduced relational prametricity. Intuitively, we can model a single type as a set and the fundamental idea of relational parametricity is that we can model the connection between a pair of types as a set of pairs, i.e.\ a relation. We call such relations transfer relations. Every type which we do not want to translate is related to itself by the identity relation. The relation \(\mathsf{T}_{\nat, \inte} :: \nat \Rightarrow \inte \Rightarrow \bool\) relates each non-negative integer with the corresponding natural number and the relation \(\mathsf{T}_\inte :: \nat \times \nat \Rightarrow \inte \Rightarrow \bool\) relates each integer with all its representations. Given these relation, we can state facts like \(\mathsf{T}_{\nat, \inte}\ 0_\nat\ 0_\inte\) and \(\mathsf{T}_\inte\ (n+3, n)\ 3\). We call such rules \(T\ x\ y\), where \(T\) is a transfer relations, transfer rules. Since type constructors like \((\Rightarrow)\) or \(\mathsf{set}\) and \(\mathsf{fset}\) map types to types, we express their connection by mappings from relations to relations. For instance, a function has type \(\alpha \Rightarrow \beta\) if it maps value of type \(\alpha\) to values of type \(\beta\) and analogously two functions are related by \(R \Rrightarrow S\) if they map inputs related by \(R\) to results related by \(S\).
+Before we can lift definitions or translate theorems from one type to another, we first need a framework to express the correspondence between two types. For this, Reynolds [ref] introduced relational prametricity. Intuitively, we can model a single type as a set and the fundamental idea of relational parametricity is that we can model the connection between a pair of types as a set of pairs, i.e.\ a relation. We call such relations transfer relations.
+% Every type which we do not want to translate is related to itself by the identity relation.
+% The relation \(\mathsf{T}_{\nat, \inte} :: \nat \Rightarrow \inte \Rightarrow \bool\) relates each non-negative integer with the corresponding natural number and the relation \(\mathsf{T}_\inte :: \nat \times \nat \Rightarrow \inte \Rightarrow \bool\) relates each integer with all its representations.
+For instance, we can express the connection between \(0_nat\) and \(0_\inte\) as \(\mathsf{T}_{\nat, \inte}\ 0\ 0\) with a suitable transfer relation \(\mathsf{T}_{\nat, \inte}\).
+% Given these relation, we can state facts like \(\mathsf{T}_{\nat, \inte}\ 0_\nat\ 0_\inte\) and \(\mathsf{T}_\inte\ (n+3, n)\ 3\).
+We call such rules \(T\ x\ y\), where \(T\) is a transfer relations, transfer rules.
+Since type constructors like \((\Rightarrow)\) or \(\mathsf{set}\) and \(\mathsf{fset}\) map types to types, we express their connection by mappings from relations to relations. For instance, a function has type \(\alpha \Rightarrow \beta\) if it maps value of type \(\alpha\) to values of type \(\beta\) and analogously two functions are related by \(R \Rrightarrow S\) if they map inputs related by \(R\) to results related by \(S\).
 
-Inspired by the work of Mitchell on representation independence [ref], the Transfer tool [ref] implements this idea to translate properties about one type to properties about another type. For example, when providing the right transfer rules, this tool can translate the proposition \(\forall m\ n :: \nat\ldotp 0 < m \longrightarrow 0 < m * n\) to \(\forall i\ j \in \{i :: \inte \mid 0 \leq i\}\ldotp 0 < i \longrightarrow 0 < i * j\).
+Inspired by the work of Mitchell on representation independence [ref], the Transfer tool [ref] implements the idea of relational parametricity to translate properties about one type to properties about another type. For example, when providing the right transfer rules, this tool can translate the proposition \(\forall m\ n :: \nat\ldotp 0 < m \longrightarrow 0 < m * n\) to \(\forall i\ j \in \{i :: \inte \mid 0 \leq i\}\ldotp 0 < i \longrightarrow 0 < i * j\).
 
 While the Transfer tool translates propositions, the Lifting tool lifts definitions from one type to another. For instance, this tool can lift the addition operator \(\mathsf{add_{\inte rep}}\ (m_1, n_1)\ (m_2, n_2) \coloneqq (m_1 + m_2, n_1 + n_2)\) on the representation level of integers to the type \(\inte \Rightarrow \inte \Rightarrow \inte\) after the user provided a respectfulness theorem which states that \(\mathsf{add_{\inte rep}}\) respects the equivalence classes of the relation used in the definition of \(\inte\) as a quotient of \(\nat \times \nat\).
-
-% fix transition
 
 Working with a static type system,
 such as offered by Isabelle/Pure,
 has many benefits:
 every term has a unique type and types are automatically checked and inferred.
-However, often a more expressive and flexible type system is desirable.
-For instance, with HOL types, if one wants to encode a property like finiteness of sets in a type, one has to define a new type. Since, from the perspective of the type system, these type are not related, operations defined on one type can not be used for the other type. Similarly, the sematic connection between the types \(\nat\), \(\inte\) and \(\rat\) can not be expressed in the HOL type system and hence theorems proven about \(\nat\) are not directly applicable to the set of non-negative integers. To some extend, one can use the Transfer- and Lifting-Tool to translate theorems and lift definitions from one type to another. This can, however become quiet cumbersome. Especially when one takes the approach common in mathematics to encode a variety of algebraic structures, datatypes and even functions as sets, the HOL type system is of little use to prevent errors otherwise detected by a type checker.
+However, as mentioned above, when one wants to refine a Pure-type to some set of values, the operations and theorems of the original type are not applicable to new type and vise versa.
+The soft type system offers a solution to this problem.
+In this system, a type is represented by a predicate and operations and theorems can be reused between all soft types defined on a shared Pure-type.
+% However, often a more expressive and flexible type system is desirable.
+% For instance, with Pure-types, if one wants to encode a property like finiteness of sets in a type, one has to define a new type as .
+% Since, from the perspective of the type system, these type are not related, operations defined on one type can not be used for the other type. Similarly, the sematic connection between the types \(\nat\), \(\inte\) and \(\rat\) can not be expressed in the HOL type system and hence theorems proven about \(\nat\) are not directly applicable to the set of non-negative integers.
+% To some extend, one can use the Transfer- and Lifting-Tool to translate theorems and lift definitions from one type to another. This can, however become quiet cumbersome.
+This is especially useful when one takes the approach common in mathematics to encode a variety of algebraic structures, datatypes and even functions as sets, the Pure-type system is of little use to prevent errors otherwise detected by a type checker.
 
-Soft types allow the user to encode arbitrary properties in a type. In this type system, a type is represented by a predicate over an HOL type. If a term \(x\) has the soft type \(\tau\), we write \(x : \tau\). The most primitive way to construct a soft type is using the function \(\mathsf{type}\) which takes a predicate as input and return the soft type containing exactly the values satisfying that predicate. Formally, \(x : \mathsf{type}\ P\) iff \(P\ x\). For instance, the soft type \(\mathsf{type}\ (\lambda i :: \inte\ldotp 0 \leq i)\) encodes the natural numbers within the HOL type \(\inte\). To further refine a given soft type \(T\) with a predicate \(P\), one can use the operator \((\adj)\) where \(x : P \adj T\) iff \(P\ x \land x : T\). Since one often wants do define a soft type which inhabits all elements of a given set, we use the notation \([A]\) as an abbreviation for \(\mathsf{type}\ (\lambda x\ldotp x \in A)\).
+While in some scenarios, one can reduce the need for the Lifting tool by using soft types instead of Pure-types defined by the \(\mathtt{typedef}\) command, there are many applications of lifting between soft types. The Lifting tool is, however, designed to lift terms between Pure-types and hence it is not applicable to soft types.
 
-The last kind of soft type we use in this paper are dependent function types. A function \(f\) has the soft type \((x : \sigma) \rightarrow \tau\) iff \(\forall x\ldotp x : \sigma \longrightarrow f\ x : \tau\) where \(\tau\) may contain the variable \(x\). If the co-domain type does not depend on the argument, we use the simpler notation \(f : \sigma \rightarrow \tau\).
+In this paper, we investigate the limitations of the Lifting tool, introduce a generalization of the theory on which the Lifting tool is based and propose a new lifting algorithm.
 
-\begin{itemize}
-	\item limitation of Lifting tool (supports too restrictive class of transfer relations for lifting between soft types)
-	\item contribution
-	\item structure of paper
-\end{itemize}
+\cref{sec-prelims} introduces soft types and the theoretical foundations of the Transfer and Lifting tool. In \cref{lift-trip-sec} we explain the limitations of the concept introduced in the previous section and generalize them appropriately. Based on these generalizations, we propose a new lifting algorithm in \cref{sec:lift-alg} and \cref{sec:appl} demonstrates the application of this algorithm in the a set theoretic framework. Finally \cref{sec:concl} summarizes our work and outlines further work.
 
 \section{Preliminaries}\label{sec-prelims}
 
@@ -151,7 +157,9 @@ The last kind of soft type we use in this paper are dependent function types. A 
 Reference to isabelle manual
 
 \paragraph{Soft types}
-Reference to github
+Soft types [ref to github] allow the user to encode arbitrary properties in a type. In this type system, a type is represented by a predicate over a Pure-type. If a term \(x\) has the soft type \(\tau\), we write \(x : \tau\). The most primitive way to construct a soft type is using the function \(\mathsf{type}\) which takes a predicate as input and return the soft type containing exactly the values satisfying that predicate. Formally, \(x : \mathsf{type}\ P\) iff \(P\ x\). For instance, the soft type \(\mathsf{type}\ (\lambda i :: \inte\ldotp 0 \leq i)\) encodes the natural numbers within the Pure-type \(\inte\). To further refine a given soft type \(T\) with a predicate \(P\), one can use the operator \((\adj)\) where \(x : P \adj T\) iff \(P\ x \land x : T\). Since one often wants do define a soft type which inhabits all elements of a given set, we use the notation \([A]\) as an abbreviation for \(\mathsf{type}\ (\lambda x\ldotp x \in A)\).
+
+The last kind of soft type we use in this paper are dependent function types. A function \(f\) has the soft type \((x : \sigma) \rightarrow \tau\) iff \(\forall x\ldotp x : \sigma \longrightarrow f\ x : \tau\) where \(\tau\) may contain the variable \(x\). If the co-domain type does not depend on the argument, we use the simpler notation \(f : \sigma \rightarrow \tau\).
 \newline
 
 In the remainder of this section,
@@ -791,7 +799,7 @@ and the second condition states that the domain of \(\eqabs\ T_1\) must at least
 %	\end{align}
 %\end{lemma}
 
-\section{Generalizing The Lifting Algorithm}
+\section{Generalizing The Lifting Algorithm}\label{sec:lift-alg}
 % \juli{I rewrote this using an example. I hope, this is not too redundant.}
 Before we explain how we can generalize the lifting algorithm from quotient predicates to lifting triples,
 we demonstrate the main ideas of the existing algorithm by means of an example.
@@ -1007,7 +1015,7 @@ since this is in close connection to the subterm order on types used by the exis
 %\kevin{TODO? or conjecture?}
 %\kevin{somewhere it should be mentioned that this process is basically the same for transfer, i.e.\ the algorithm is mostly guided by $T$.}
 
-\section{Application to Set Extensions}
+\section{Application to Set Extensions}\label{sec:appl}
 We have seen the construction of new algebraic structures from already existing ones
 (e.g.\ the construction of \(\rat\) from \(\inte\)) and how we can restrict a given type to encode further properties in a new type
 (e.g.\ refining \(\mathsf{set}\) to \(\mathsf{fset}\)).
@@ -1183,28 +1191,27 @@ Finally, we can apply this corollary to lift the integer division operator:
 \begin{example}[Lifting integer division]
 The \liftrel which relates the integer division operators on \(\inte_{\rep}\) and \(\inte\) is
 \begin{equation*}
-	\mathsf{T_{div}} \coloneqq [\_\ i \related \relint] \Rrightarrow \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ i)) \Rrightarrow \relint,
+	\mathsf{T_{div}} \coloneqq [\_\ j \related \relint] \Rrightarrow \reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j') \Rrightarrow \relint,
 \end{equation*}
 where
-\kevin{we need to simplify this and rephrase it in a ``morraly correct'' way}
-\begin{align*}
-	\appabs\ f &\coloneqq \maprel\ f\ \pi_\abs \\
-	\mathsf{\pi_{abs}}\ \_\ y &\coloneqq y \\
-	\reland\ R\ S &\coloneqq \aprel\ (\maprel\ (\land)\ R)\ S \\
-	\maprel\ f\ R\ x\ y &\coloneqq f\ (R\ x\ y) \\
-	\aprel\ R\ S\ x\ y &\coloneqq R\ x\ y\ (S\ x\ y).
-\end{align*}
-To show \(\mathsf{T_{div}}\ \mathsf{div_{\inte rep}}\ (\mapfun\ \rep_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte))\ \mathsf{div_{\inte rep}}\), \kevin{something is wrong here...?}
-it remains to prove
+\begin{equation*}
+	\reland\ R\ S\ x\ y \coloneqq (R\ x\ y) \land (S\ x\ y)
+\end{equation*}
+The abstraction function \(\abs_{\mathsf{T_{div}}}\) for the above lifting relation is \(\mapfun\ \rep_\inte\ (\mapfun\ \abs_\inte\ \rep_\inte)\) and hence \(\mathsf{div}_\inte \coloneqq \abs_{\mathsf{T_{div}}}\ \mathsf{div_{\inte rep}}\). To show \(\mathsf{T_{div}}\ \mathsf{div_{\inte rep}}\ \mathsf{div}_\inte\), we have to prove the premises of \cref{cor:lift-trip-dep-fun}. Since we already have \(\langle \relint, \abs_\inte, \rep_\inte \rangle\), it remains to prove
 \begin{enumerate}
-	\item \(\forall i\ j\ldotp \relint\ i\ j \longrightarrow \langle \reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint, \mapfun\ \rep_\inte\ \abs_\inte, \mapfun\ \abs_\inte\ \rep_\inte \rangle\) and
+	\item \(\forall i\ j\ldotp \relint\ i\ j \longrightarrow \langle \reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j') \Rrightarrow \relint, \mapfun\ \rep_\inte\ \abs_\inte, \mapfun\ \abs_\inte\ \rep_\inte \rangle\) and
 	\item \(\forall i\ i'\ j\ j'\ldotp \relint\ i\ j \land \eqrep\ \relint\ i\ i' \land \eqabs\ \relint\ j\ j' \longrightarrow\)\\
-	\null\quad\( (\reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint)\ i\ j =(\reland\ \relint\ (\appabs\ (\mathsf{divides_\inte}\ j)) \Rrightarrow \relint)\ i'\ j'\).
+	\null\quad\( (\reland\ \relint\ (\lambda j''\ldotp \mathsf{divides_\inte}\ j\ j'') \Rrightarrow \relint) =(\reland\ \relint\ (\lambda j''\ldotp \mathsf{divides_\inte}\ j'\ j'') \Rrightarrow \relint)\).
 \end{enumerate}
+The first goal requires us to prove that the lifting relation of the dependent part of \(\mathsf{T_{div}}\), namely \(\reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j')\), and the corresponding abstraction and representation function do indeed form a lifting triple. The second goal states that \(\reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j')\) does not depend on which representative \(j\) we choose from any equivalence class of the co-domain of \(\mathsf{Rel_\inte}\). Note that the variables \(i\) and \(i'\) do not appear in the conclusion of this statement and hence, we can reduce the premise to \(\eqabs\ \rel_\inte\ j\ j'\). Furthermore, the conclusion is implied by \(\mathsf{divides}\ j = \mathsf{divides}\ j'\). Thus, it suffices to prove
+\begin{equation*}
+	\forall j\ j' \ldotp \eqabs\ \rel_\inte\ j\ j' \longrightarrow \mathsf{divides}\ j = \mathsf{divides}\ j'.
+\end{equation*}
+It is easy to see that this is the case since the equivalence classes of \(\eqabs\ \rel_\inte\) are singleton sets.
 \end{example}
 While the proof obligations resulting from the side-conditions of \cref{cor:lift-trip-dep-fun} seem complicated, it should be possible to automate them in most practical cases.
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:concl}
 We proposed a generalization of the Isabelle/HOL lifting tool \cite{huffman2013lifting},
 which is limited to right-total and right-unique transfer relations.
 Our approach supports a larger class of relations, which we called \liftrels.
