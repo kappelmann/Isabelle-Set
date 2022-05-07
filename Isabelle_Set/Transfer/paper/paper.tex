@@ -114,9 +114,9 @@
 
 \maketitle
 \begin{abstract}
-The Transfer tool implements good automation to translate statements between different representations and the Lifting tool helps users to lift terms from one Pure-type to another and provides rules about these terms for the Transfer tool. However, due to technical limitations, when working with the soft type system, implemented within Isabelle/Set, one can not use the Lifting tool to lift terms between soft types.
+The transfer tool\cite{huffman2013lifting} implements good automation to translate statements between different representations and the lifting tool\cite{huffman2013lifting} helps users to lift terms from one Pure-type to another and provides rules about these terms for the transfer tool. However, due to technical limitations, when working with the soft type system, implemented within the Isabelle/Set framework\cite{isabelleset}, one can not use the lifting tool to lift terms between soft types.
 
-We present a generalization of the approach to lifting implemented by the Lifting tool which, in particular, allows us lift terms between soft types. We verified the theoretic foundations of our approach in Isabelle/HOL and propose a new lifting algorithm.
+We present a generalization of the approach to lifting implemented by the lifting tool which, in particular, allows us lift terms between soft types. We verified the theoretic foundations of our approach in Isabelle/HOL and propose a new lifting algorithm.
 \end{abstract}
 
 \section{Introduction}
@@ -134,8 +134,7 @@ Rather than manually re-defining and re-proving
 these definitions and statements,
 users would prefer them to be automatically generated.
 To do so, a framework capturing the correspondence between two types is needed.
-Such frameworks are typically inspired by work of Reynolds [ref]
-\kevin{add Mitchell and Wadler here}
+Such frameworks are typically inspired by work of Reynolds \cite{reynolds1983types}, Mitchel \cite{mitchell1986representation} and Wadler \cite{wadler1989theorems}
 and use relations for this purpose.
 % The fundamental idea of relational parametricity is
 % that we can model the connection between a pair of types as a set of pairs, i.e.\ a relation.
@@ -149,7 +148,7 @@ Since type constructors like \((\Rightarrow)\) or \(\mathsf{set}\) and \(\mathsf
 and analogously, two functions are related by \(R \Rrightarrow S\) if they map inputs related by \(R\) to results related by \(S\).
 
 % Inspired by the work of Mitchell on representation independence [ref],
-The transfer tool [ref] of Isabelle/HOL allows one to translate theorems about one type to theorems about another type.
+The transfer tool\cite{huffman2013lifting} of Isabelle/HOL allows one to translate theorems about one type to theorems about another type.
 For example, it can translate between the statements
 \begin{align*}
   \forall m\ n :: \nat\ldotp 0 < m \longrightarrow 0 < m * n,\\
