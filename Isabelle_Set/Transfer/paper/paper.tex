@@ -125,7 +125,7 @@ We present a generalization of the lifting package that
 relaxes the conditions put on its transfer relations and,
 in particular,
 allows users to lift terms between soft types.
-We verified the theoretic foundations of our approach in Isabelle/HOL\footnote{The work of this paper can be found on \url{https://github.com/kappelmann/Isabelle-Set/tree/b12c171b81fd91243b23bfdf77f4bff0d463e387/Isabelle_Set/Transfer/restructured}}
+We verified the theoretic foundations of our approach in Isabelle/HOL\footnote{The work of this paper can be found on \url{https://github.com/kappelmann/Isabelle-Set/tree/dec546894380c91344f5732e8cab7f49de28f4c4/Isabelle_Set/Transfer/restructured}}
 and propose a new lifting algorithm.
 \end{abstract}
 
@@ -295,7 +295,7 @@ Binary relations are represented as binary predicates:
 \end{definition}
 For instance, the transfer relation \(\mathsf{T_\rat} :: \inte \times \inte \Rightarrow \rat \Rightarrow \bool\) can be defined as
 \begin{equation}\label{eq:trans-rel-rat}
-	\mathsf{T_\rat}\ x\ y \coloneqq (\abs_\rat\ x = y)\,.
+	\mathsf{T_\rat}\ x\ y \coloneqq \mathsf{R_\rat}\ x\ x \land (\abs_\rat\ x = y)\,.
 \end{equation}
 Since the pair of integers \((0, 1)\) is a representation of the rational number zero,
 we can define \(\mathsf{zero_\rat}\coloneqq\abs_\rat\ (0, 1)\) and state the relatedness of these two terms as \(\mathsf{T_\rat}\ (0, 1)\ \mathsf{zero_\rat}\).
@@ -303,8 +303,8 @@ Any theorem of the form \(T\ x\ y\),
 where \(T\) is a transfer relation,
 is called a \emph{transfer rule}.
 To relate \(\mathsf{mul_\rat}\) with \(\mathsf{mul_{\rat rep}}\),
-it is not sufficient to have the transfer relation $T_\rat$ between the argument and return types of these functions.
-We also have to lift \(T_\rat\) over the function type constructor.
+it is not sufficient to have the transfer relation $\mathsf{T}_\rat$ between the argument and return types of these functions.
+We also have to lift \(\mathsf{T}_\rat\) over the function type constructor.
 Any function that lifts one or more transfer relations over a type constructor is called
 a \emph{relator}.
 Following~\cite{wadler1989theorems},
@@ -339,7 +339,7 @@ For example, consider the type definition of finite sets as a restriction of the
 \begin{equation*}
 	\mathtt{typedef}\ \alpha\ \mathsf{fset} = \{S \mid \mathsf{finite}\ S\}
 \end{equation*}
-Analogous to \(\mathsf{T_\rat}\), we can define the transfer relation \(\mathsf{T_{fset}}\ S\ F \coloneqq (\abs_\mathsf{fset}\ S = F)\).
+We define the corresponding transfer relation as \(\mathsf{T_{fset}}\ S\ F \coloneqq (S = \rep_\mathsf{fset}\ F)\). Note that this definition follows a simpler scheme then the definition of \(\mathsf{T_\rat}\) because \(\alpha\ \mathsf{fset}\) is a subtype while \(\rat\) is a partial quotient type.
 We can also define two sets to be related
 if for all elements in each of the sets,
 there is a related element in the other one:
@@ -791,7 +791,7 @@ We can, however, prove a restricted composition theorem for \liftrels:
 
 When we apply this theorem to build a \liftrel between
 \(\kappa\ \overline{\alpha}\) and \(\kappa'\ \overline{\alpha'}\),
-where \(\rel\) is the relator which lifts \liftrels \(T_i\) from \(\alpha_i\) to \(\alpha_i'\) over the type constructor \(\kappa\) and \(T\) is the \liftrel from \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha}\),
+where \(rel\) is the relator which lifts \liftrels \(T_i\) from \(\alpha_i\) to \(\alpha_i'\) over the type constructor \(\kappa\) and \(T\) is the \liftrel from \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha}\),
 then the side condition becomes
 \begin{equation*}
 	\eqabs\ (rel\ T_1 \ldots T_n) \relcomp \eqrep\ T = \eqrep\ T \relcomp \eqabs\ (rel\ T_1 \ldots T_n).
@@ -835,7 +835,7 @@ we need to introduce the notions of the domain and co-domain of a binary relatio
 When comparing this definition to the quotient predicate from~\cite{huffman2013lifting},
 two differences stand out:
 First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation.
-Second, the transfer relation in a quotient-predicate must be right-unique and right-total while the lifting relation in a lifting-triple must only satisfy the Z-property.
+Second, the transfer relation in a quotient predicate must be right-unique and right-total while the lifting relation in a lifting triple must only satisfy the Z-property.
 This generalization has the benefit of being symmetric:
 any lifting triple gives rise to a dual lifting triple.
 \begin{lemma}[Dual lifting triple]\label{dual-lifting-triple}
