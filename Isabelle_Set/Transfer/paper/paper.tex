@@ -69,10 +69,10 @@
 \newcommand{\eqabs}{\mathsf{Eq_{abs}}}
 \newcommand{\id}{\mathsf{id}}
 \newcommand{\mapfun}{\mathsf{map_\Rightarrow}}
-\newcommand{\relfun}{\mathsf{rel_\Rightarrow}}
+\newcommand{\relfun}{\mathsf{Rel_\Rightarrow}}
 \newcommand{\mapfund}{\mathsf{map_{\Rightarrow d}}}
-\newcommand{\rel}{\mathsf{rel}}
-\newcommand{\relfund}{\mathsf{rel_{\Rightarrow d}}}
+\newcommand{\rel}{\mathsf{Rel}}
+\newcommand{\relfund}{\mathsf{Rel_{\Rightarrow d}}}
 \newcommand{\bijection}{\mathsf{bijection}}
 \newcommand{\birel}{\mathsf{Bi\mhyphen{}Rel}}
 \newcommand{\univ}{\mathsf{Univ}}
@@ -93,9 +93,7 @@
 \newcommand{\true}{\mathsf{True}}
 \newcommand{\false}{\mathsf{False}}
 \newcommand{\cons}{\mathbin{\#}}
-\newcommand{\relint}{\mathsf{Rel_\inte}}
-\newcommand{\relnatnatint}{\mathsf{Rel_{\nat \times \nat, \inte}}}
-\newcommand{\relintnat}{\mathsf{Rel_{\inte, \nat}}}
+\newcommand{\relint}{\mathsf{T_\inte}}
 \newcommand{\appabs}{\mathsf{app_{abs}}}
 \newcommand{\reland}{\mathsf{rel_\land}}
 \newcommand{\maprel}{\mathsf{map_{rel}}}
@@ -120,7 +118,7 @@ We present a generalization of the approach to lifting implemented by the liftin
 \end{abstract}
 
 \section{Introduction}
-In Isabelle/HOL, there are two widely used commands to construct new types from existing ones: \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\).
+In Isabelle/HOL there are two widely used commands to construct new types from existing ones: \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\).
 The former defines a new type from a subset and the latter from a quotient set of some type.
 For instance, we can define the type \(\inte\) as a quotient of \(\nat \times \nat\) and the type of finite sets \(\alpha\ \mathsf{fset}\) as a subtype of \(\alpha\ \mathsf{set}\). Even though one type is defined as a subtype or quotient type of the other,
 this relations is not captured by the type system.
@@ -200,7 +198,7 @@ we investigate the limitations of the lifting tool,
 introduce a generalization of its theory,
 and propose a new lifting algorithm applicable to soft types.
 \cref{sec-prelims} introduces soft types and the theoretical foundations of the transfer and lifting tool.
-In \cref{lift-trip-sec} we describe the limitations of the existsing lifting tool
+In \cref{lift-trip-sec} we describe the limitations of the existing lifting tool
 and generalize its theory appropriately.
 Based on this, we propose a generalized lifting algorithm in \cref{sec:lift-alg}.
 \cref{sec:appl} demonstrates the application of this algorithm in a set-theoretic framework.
@@ -332,12 +330,12 @@ We can also define two sets to be related
 if for all elements in each of the sets,
 there is a related element in the other one:
 \begin{equation*}
-	\mathsf{rel_{set}}\ T\ A\ B \coloneqq (\forall x \in A\ldotp \exists y \in B\ldotp T\ x\ y) \land  (\forall y \in B\ldotp \exists x \in A\ldotp T\ x\ y)\,.
+	\mathsf{Rel_{set}}\ T\ A\ B \coloneqq (\forall x \in A\ldotp \exists y \in B\ldotp T\ x\ y) \land  (\forall y \in B\ldotp \exists x \in A\ldotp T\ x\ y)\,.
 \end{equation*}
-However, neither \(\mathsf{T_{fset}}\) nor \(\mathsf{rel_{set}}\) on its own
+However, neither \(\mathsf{T_{fset}}\) nor \(\mathsf{Rel_{set}}\) on its own
 is sufficient to relate terms of type \((\inte \times \inte)\ \mathsf{set}\) with terms of type \(\rat\ \mathsf{fset}\).
-Instead, we have to compose the transfer relation \(\mathsf{T_{fset}}\) with the relator \(\mathsf{rel_{set}}\)
-to obtain a suitable parametrized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{rel_{set}}\ T \relcomp \mathsf{T_{fset}}\)
+Instead, we have to compose the transfer relation \(\mathsf{T_{fset}}\) with the relator \(\mathsf{Rel_{set}}\)
+to obtain a suitable parametrized transfer relation \(\mathsf{T_{fset p}}\ T \coloneqq \mathsf{Rel_{set}}\ T \relcomp \mathsf{T_{fset}}\)
 with type \((\inte \times \inte)\ \mathsf{set} \Rightarrow \rat\ \mathsf{fset} \Rightarrow \bool \),
 where $(\relcomp)$ is defined as follows:
 \begin{definition}[Composition of binary relations]
@@ -601,7 +599,7 @@ As mentioned in \cref{sec-prelims},
 the lifting tool only supports right-total, right-unique transfer relation.
 Let us first demonstrate why this limitation is too restrictive,
 in particular when working with soft types.
-We then continue to explain how we can generalise the notion of transfer relations
+We then continue to explain how we can generalize the notion of transfer relations
 and quotient predicates to support lifting for a wider range of use cases.
 
 It is easy to see why transfer relation may not be right-total:
@@ -768,7 +766,7 @@ Since \(\forall x\, y\ldotp R\ x\ y \longrightarrow (R \relcomp R^{-1} \relcomp 
 
 % Let us consider closure properties of \liftrels.
 In \cref{sec-prelims},
-we built the parameterized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{rel_{set}}\) with a non-parameterized transfer relation \(\mathsf{T_{fset}}\).
+we built the parameterized transfer relation \(\mathsf{T_{fset p}}\) by composing the relator \(\mathsf{Rel_{set}}\) with a non-parameterized transfer relation \(\mathsf{T_{fset}}\).
 While being right-total and right-unique is preserved by relational composition,
 this is not the case for the Z-property.
 We can, however, prove a restricted composition theorem for \liftrels:
@@ -913,7 +911,7 @@ Putting it all together, we obtain the abstraction function
 \end{equation*}
 and the transfer relation
 \begin{equation*}
-	(\mathsf{rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}) \Rrightarrow (=) \Rrightarrow (\mathsf{rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}).
+	(\mathsf{Rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}) \Rrightarrow (=) \Rrightarrow (\mathsf{Rel_{set}}\ \mathsf{T_\rat} \relcomp \mathsf{T_{fset}}).
 \end{equation*}
 
 %\kevin{overall note: I think this section can be shortened; I might do so in a second run when you added the example}
@@ -1029,7 +1027,7 @@ which computes a lifting relation from the source and target types of a given ty
 As discussed,
 to lift a term from type \(\kappa\ \overline{\alpha}\) to \(\kappa'\ \overline{\alpha'}\),
 the lifting algorithm applies \cref{eq:quotient-comp}.
-Specifically, it composes the relator for \(\kappa\) applied to the transfer relations for the type arguments (e.g.\ \(\mathsf{rel_{set}}\ \mathsf{T_\rat}\))
+Specifically, it composes the relator for \(\kappa\) applied to the transfer relations for the type arguments (e.g.\ \(\mathsf{Rel_{set}}\ \mathsf{T_\rat}\))
 with the non parametric transfer relation from \(\kappa\ \overline{\alpha'}\) to \(\kappa'\ \overline{\alpha'}\) (e.g.~\(\mathsf{T_{fset}}\)).
 Unlike the composition theorem for quotient predicates,
 the lemma for lifting triples (\cref{lem:comp-of-lift-trips})
@@ -1132,7 +1130,7 @@ In Isabelle/Set \cite{isabelleset},
 % \juli{I haven't found a reference for this.}
 % \kevin{because I think we are the first to use it in a formal sense :)}
 this problem is solved with so-called \emph{set extensions}.
-Loosly speaking, a set extension would ``carve out''
+Loosely speaking, a set extension would ``carve out''
 the non-negative part of $\inte$ and replace it with $\nat$
 to achieve the wanted inclusion.
 % For this, it constructs a new abstraction of $\inte$ as the union
@@ -1229,7 +1227,7 @@ In particular, \(\relint\ (\mathsf{in_l}\ n)\ n\) for any \(n \in \nat\).
 To obtain lifting triples to lift, for example, \(\mathsf{mul_{\inte rep}} : \inte_{\rep} \rightarrow \inte_{\rep} \rightarrow \inte_{\rep}\) to \(\mathsf{mul_{\inte}} : \inte \rightarrow \inte \rightarrow \inte\)
 or a divisibility predicate \(\mathsf{divides_{\inte rep}} : \inte_{\rep} \rightarrow \inte_{\rep} \rightarrow \bool\) to \(\mathsf{divides_{\inte}} : \inte \rightarrow \inte \rightarrow \bool\),
 we can use the function relator \((\Rrightarrow)\)
-together with the \liftrels \(\mathsf{Rel_\inte}\) and \(\eq\ \univ_{\mathsf{bool}}\).
+together with the \liftrels \(\mathsf{T_\inte}\) and \(\eq\ \univ_{\mathsf{bool}}\).
 However, in some cases this function relator is not sufficient.
 
 As an example, consider an operator for integer division \(\mathsf{div_\inte}\).
@@ -1301,11 +1299,11 @@ The first goal requires us to prove that the co-domain of the dependent function
 namely \(\reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j')\Rrightarrow \relint\),
 and the corresponding abstraction and representation function do indeed form a lifting triple.
 Proving this requires further lemmas for $\reland$ and $\mapfun$ that we omit here.
-The second goal states that \(\reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j')\) does not depend on which representative \(j\) we choose from any equivalence class of the co-domain of \(\mathsf{Rel_\inte}\). Note that the variables \(i\) and \(i'\) do not appear in the conclusion of this statement and hence, we can reduce the premise to \(\eqabs\ \rel_\inte\ j\ j'\). Furthermore, the conclusion is implied by \(\mathsf{divides}\ j = \mathsf{divides}\ j'\). Thus, the second goal can be simplified to
+The second goal states that \(\reland\ \relint\ (\lambda j'\ldotp \mathsf{divides_\inte}\ j\ j')\) does not depend on which representative \(j\) we choose from any equivalence class of the co-domain of \(\mathsf{T_\inte}\). Note that the variables \(i\) and \(i'\) do not appear in the conclusion of this statement and hence, we can reduce the premise to \(\eqabs\ \mathsf{T}_\inte\ j\ j'\). Furthermore, the conclusion is implied by \(\mathsf{divides}\ j = \mathsf{divides}\ j'\). Thus, the second goal can be simplified to
 \begin{equation*}
-	\forall j\ j' \ldotp \eqabs\ \rel_\inte\ j\ j' \longrightarrow \mathsf{divides}\ j = \mathsf{divides}\ j'.
+	\forall j\ j' \ldotp \eqabs\ \relint\ j\ j' \longrightarrow \mathsf{divides}\ j = \mathsf{divides}\ j'.
 \end{equation*}
-It is easy to see that this is the case since the equivalence classes of \(\eqabs\ \rel_\inte\) are singleton sets.
+It is easy to see that this is the case since the equivalence classes of \(\eqabs\ \relint\) are singleton sets.
 \end{example}
 While the proof obligations resulting from the side-conditions of \cref{cor:lift-trip-dep-fun} seem complicated,
 we suspect that it should be possible to automate them in most practical cases.
