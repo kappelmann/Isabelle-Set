@@ -112,17 +112,29 @@
 
 \maketitle
 \begin{abstract}
-The transfer tool\cite{huffman2013lifting} implements good automation to translate statements between different representations and the lifting tool\cite{huffman2013lifting} helps users to lift terms from one Pure-type to another and provides rules about these terms for the transfer tool. However, due to technical limitations, when working with the soft type system, implemented within the Isabelle/Set framework\cite{isabelleset}, one can not use the lifting tool to lift terms between soft types.
-
-We present a generalization of the approach to lifting implemented by the lifting tool which, in particular, allows us lift terms between soft types. We verified the theoretic foundations of our approach in Isabelle/HOL and propose a new lifting algorithm.
+The transfer and lifting packages of Isabelle/HOL
+allow users to automatically translate statements and definitions between different types.
+% and the lifting tool helps users to lift terms
+% from one Pure-type to another one
+% and provides rules about these terms for the transfer tool.
+However, the latter is tailored to work with the static type system of Isabelle/Pure
+and expects its transfer relations to be right-total and right-unique.
+As such, it cannot be used to lift terms in a soft type systems,
+as recently explored in Isabelle/Set.
+We present a generalization of the lifting package that
+relaxes the conditions put on its transfer relations and,
+in particular,
+allows users to lift terms between soft types.
+We verified the theoretic foundations of our approach in Isabelle/HOL\footnote{The work of this paper can be found on \url{https://github.com/kappelmann/Isabelle-Set/tree/b12c171b81fd91243b23bfdf77f4bff0d463e387/Isabelle_Set/Transfer/restructured}}
+and propose a new lifting algorithm.
 \end{abstract}
 
 \section{Introduction}
 In Isabelle/HOL there are two widely used commands to construct new types from existing ones: \(\mathtt{typedef}\) and \(\mathtt{quotient\_type}\).
 The former defines a new type from a subset and the latter from a quotient set of some type.
 For instance, we can define the type \(\inte\) as a quotient of \(\nat \times \nat\) and the type of finite sets \(\alpha\ \mathsf{fset}\) as a subtype of \(\alpha\ \mathsf{set}\). Even though one type is defined as a subtype or quotient type of the other,
-this relations is not captured by the type system.
-In particular, one can not apply functions operating on one type to values of the other type.
+this relation is not captured by the type system.
+In particular, one cannot apply functions operating on one type to values of the other type.
 Similarly, theorems about one type are not directly applicable to the other one.
 % Users do not want to reprove
 % Moreover, while \(\inte\) is defined as a quotient type of \(\nat \times \nat\),
@@ -132,7 +144,7 @@ Rather than manually re-defining and re-proving
 these definitions and statements,
 users would prefer them to be automatically generated.
 To do so, a framework capturing the correspondence between two types is needed.
-Such frameworks are typically inspired by work of Reynolds \cite{reynolds1983types}, Mitchel \cite{mitchell1986representation} and Wadler \cite{wadler1989theorems}
+Such frameworks are typically inspired by work of Reynolds~\cite{reynolds1983types}, Mitchel~\cite{mitchell1986representation}, and Wadler~\cite{wadler1989theorems},
 and use relations for this purpose.
 % The fundamental idea of relational parametricity is
 % that we can model the connection between a pair of types as a set of pairs, i.e.\ a relation.
@@ -146,7 +158,7 @@ Since type constructors like \((\Rightarrow)\) or \(\mathsf{set}\) and \(\mathsf
 and analogously, two functions are related by \(R \Rrightarrow S\) if they map inputs related by \(R\) to results related by \(S\).
 
 % Inspired by the work of Mitchell on representation independence [ref],
-The transfer tool\cite{huffman2013lifting} of Isabelle/HOL allows one to translate theorems about one type to theorems about another type.
+The transfer tool~\cite{huffman2013lifting} of Isabelle/HOL allows one to translate theorems about one type to theorems about another type.
 For example, it can translate between the statements
 \begin{align*}
   \forall m\ n :: \nat\ldotp 0 < m \longrightarrow 0 < m * n,\\
@@ -154,7 +166,7 @@ For example, it can translate between the statements
 \end{align*}
 
 While the transfer tool translates propositions,
-the lifting tool \cite{huffman2013lifting} lifts definitions from one type to another one.
+the lifting tool~\cite{huffman2013lifting} lifts definitions from one type to another one.
 For instance, it can lift the addition operator \(\mathsf{add_{\inte rep}}\ (m_1, n_1)\ (m_2, n_2) \coloneqq (m_1 + m_2, n_1 + n_2)\)
 on the representation level of integers to the type
 \(\inte \Rightarrow \inte \Rightarrow \inte\)
@@ -175,12 +187,12 @@ rather than an inclusive one (in which $t : A$ and $A <: B$ implies $t : B$).
 % when one wants to refine a type to another one using a set of values,
 % the operations and theorems of the original type are not applicable to new type and vise versa.
 Soft types offer solutions to these problems,
-as explored recently in Isabelle/Set\cite{isabelleset}.
+as explored recently in Isabelle/Set~\cite{isabelleset}.
 % In a soft type system, a type may be regarded as a predicate on terms.
 % Operations and theorems can be reused between all soft types defined on a shared Pure-type.
 % However, often a more expressive and flexible type system is desirable.
 % For instance, with Pure-types, if one wants to encode a property like finiteness of sets in a type, one has to define a new type as .
-% Since, from the perspective of the type system, these type are not related, operations defined on one type can not be used for the other type. Similarly, the sematic connection between the types \(\nat\), \(\inte\) and \(\rat\) can not be expressed in the HOL type system and hence theorems proven about \(\nat\) are not directly applicable to the set of non-negative integers.
+% Since, from the perspective of the type system, these type are not related, operations defined on one type cannot be used for the other type. Similarly, the sematic connection between the types \(\nat\), \(\inte\) and \(\rat\) cannot be expressed in the HOL type system and hence theorems proven about \(\nat\) are not directly applicable to the set of non-negative integers.
 % To some extend, one can use the Transfer- and Lifting-Tool to translate theorems and lift definitions from one type to another. This can, however become quiet cumbersome.
 % This is becomes particularly useful when one takes the approach common in mathematics,
 % encoding algebraic structures, datatypes, and even functions as sets.
@@ -207,7 +219,9 @@ Finally \cref{sec:concl} summarizes our work and outlines future work.
 \section{Preliminaries}\label{sec-prelims}
 
 \paragraph{Isabelle}
-In Isabelle/Pure, the logical framework on which Isabelle/HOL \cite{wenzel2021isabelle} is build on, every term has a unique Pure-type. We state that a term \(x\) has the Pure-type \(\tau\) by \(x :: \tau\) and for the Pure-type of functions with domain \(\sigma\) and co-domain \(\tau\) we write \(\sigma \Rightarrow \tau\).
+In Isabelle/Pure, the logical framework on which Isabelle/HOL~\cite{wenzel2021isabelle} is built on,
+every term has a unique Pure-type. We state that a term \(t\) has the Pure-type \(\tau\) by \(t :: \tau\).
+We write \(\sigma \Rightarrow \tau\) for the Pure-type of functions with domain \(\sigma\) and co-domain \(\tau\) .
 
 \paragraph{Soft types}
 Soft types allow users to encode (almost) arbitrary properties in a type.
@@ -218,7 +232,7 @@ In Isabelle/Set, the Pure-type of soft types is $\alpha\ \mathsf{type}$,
 and the function \(\mathtt{type} :: (\alpha \Rightarrow \bool)\Rightarrow \alpha\ \mathsf{type}\) takes a predicate $P$ and returns a soft type such that
 \(t : \mathtt{type}\ P\) if and only if \(P\ t\).
 For instance, the soft type \(\mathtt{type}\ (\lambda i :: \inte\ldotp 0 \leq i)\) encodes the natural numbers within the Pure-type \(\inte\).
-To further refine a given soft type \(T\) with a predicate \(P\),
+To further refine a soft type \(T\),
 one can use the intersection type operator \((\&)\),
 where \(x : T_1\  \&\  T_2\) if and only if \(x : T_1 \land x : T_2\).
 
@@ -228,7 +242,7 @@ For ease of exposition, we silently drop this construction in this paper and sim
 $t : A$ to mean $t : \mathtt{type}\ (\lambda x\ldotp x \in A)$.
 
 The final kind of soft type we use in this paper are dependent function types.
-A function \(f\) has the soft type \((x : \sigma) \rightarrow \tau\ x\) iff \(\forall x\ldotp x : \sigma \longrightarrow f\ x : \tau\ x\).
+A function \(f\) has the soft type \((x : \sigma) \rightarrow \tau\ x\) if and only if \(\forall x\ldotp x : \sigma \longrightarrow f\ x : \tau\ x\).
 If $\tau$ does not depend on its argument,
 we use the simpler notation \(\sigma \rightarrow \tau\).
 \newline
@@ -273,7 +287,7 @@ The process sketched above thus becomes rather repetitive.
 
 \paragraph{Transfer tool} The transfer tool translates properties about abstract types to properties about the corresponding representation types.
 It uses binary relations to express the connection between terms on the representation and abstraction level.
-We follow the terminology of \cite{huffman2013lifting}
+We follow the terminology of~\cite{huffman2013lifting}
 and use the term \textit{transfer relation} for binary relations that serve the purpose of connecting representations and abstractions.
 Binary relations are represented as binary predicates:
 \begin{definition}[Binary relations]
@@ -293,7 +307,7 @@ it is not sufficient to have the transfer relation $T_\rat$ between the argument
 We also have to lift \(T_\rat\) over the function type constructor.
 Any function that lifts one or more transfer relations over a type constructor is called
 a \emph{relator}.
-Following \cite{wadler1989theorems},
+Following~\cite{wadler1989theorems},
 we define two functions
 to be related if they map related arguments to related results:
 \begin{equation*}
@@ -818,7 +832,7 @@ we need to introduce the notions of the domain and co-domain of a binary relatio
     \item $\forall y\ldotp \incodom\ T\ y \longrightarrow T\ (rep\ y)\ y$.
 	\end{enumerate}
 \end{definition}
-When comparing this definition to the quotient predicate from \cite{huffman2013lifting},
+When comparing this definition to the quotient predicate from~\cite{huffman2013lifting},
 two differences stand out:
 First, \(\eqabs\ T\) and \(\eqrep\ T\) are not included in the lifting triple since they can unambiguously be defined in terms of the transfer relation.
 Second, the transfer relation in a quotient-predicate must be right-unique and right-total while the lifting relation in a lifting-triple must only satisfy the Z-property.
@@ -839,7 +853,7 @@ and \(\eqabs\ T_1\) commutes with \( \eqrep\ T_2 \),
 then $\langle T_1 \relcomp T_2, abs_2 \circ abs_1, rep_1 \circ rep_2 \rangle$.
 \end{lemma}
 
-When lifting terms in the context of data refinement \cite{haftmann2013data,lammich2013automatic},
+When lifting terms in the context of data refinement~\cite{haftmann2013data,lammich2013automatic},
 there is often not a single representation and abstraction level
 but multiple intermediate levels of representation.
 % For instance,
@@ -1005,7 +1019,7 @@ but also that $f$ respects said PERs.
 % To see why \(\incodom\ T f\) does not imply that \(f\) has the expected type in general,
 % we can use an idea similar to the line of reasoning showing why non-right-total \liftrels lead to non-right-unique \liftrels from \cref{lift-trip-sec}:
 % Consider the \liftrel\ \(T \coloneqq (T_1 \Rrightarrow T_2) \Rrightarrow T_3\) where \(T_1 : \alpha_1 \rightarrow \beta_1\rightarrow \bool\), \(T_2 : \alpha_2 \rightarrow \beta_2 \rightarrow \bool\), \(T_3 : \alpha_3 \rightarrow \beta_3 \rightarrow \bool\), and  \(T_1\) is non-right-unique.
-% From this, one might expect that \(f\) has type \((\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\) or put in other words that, given a function \(g\) of type \(\beta_1 \rightarrow \beta_2\), that \(f\ g\) has type \(\beta_3\). Let us compare this with \(\incodom\ T\ f\): The latter means that \(f\) maps functions related by \(\eqabs\ (T_1 \Rrightarrow T_2)\) to values related by \(\eqabs\ T_3\). The premise of this statement can only be satisfied by functions \(g\) s.t.\ \(\incodom\ (T_1 \Rrightarrow T_2)\ g\). From the paragraph above, we learned that this requirement on \(g\) is stronger that \(g : \beta_1 \rightarrow \beta_2\). Hence, from \(\incodom\ T\ f\) we can not conclude \(f : (\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\).
+% From this, one might expect that \(f\) has type \((\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\) or put in other words that, given a function \(g\) of type \(\beta_1 \rightarrow \beta_2\), that \(f\ g\) has type \(\beta_3\). Let us compare this with \(\incodom\ T\ f\): The latter means that \(f\) maps functions related by \(\eqabs\ (T_1 \Rrightarrow T_2)\) to values related by \(\eqabs\ T_3\). The premise of this statement can only be satisfied by functions \(g\) s.t.\ \(\incodom\ (T_1 \Rrightarrow T_2)\ g\). From the paragraph above, we learned that this requirement on \(g\) is stronger that \(g : \beta_1 \rightarrow \beta_2\). Hence, from \(\incodom\ T\ f\) we cannot conclude \(f : (\beta_1 \rightarrow \beta_2) \rightarrow \beta_3\).
 
 % In summary, for a \liftrel\ \(T: \alpha \rightarrow \beta \rightarrow \bool\),
 % the statement \(\incodom\ T\ y\) can be stronger, weaker,
@@ -1072,7 +1086,7 @@ which can then automatically be discharged by the soft-type-checker.
 In essence,
 the existing lifting algorithm recurses over the structure of the type of the
 representation value and the target type.
-Hence, the termination proof provided in \cite{huffman2013lifting} is a proof by induction over these types.
+Hence, the termination proof provided in~\cite{huffman2013lifting} is a proof by induction over these types.
 Since the new algorithm is not guided by types but the structure of transfer relations,
 we need a more flexible approach to prove termination.
 As before, each rule that the algorithm applies has only finitely many premises,
@@ -1111,7 +1125,7 @@ since this is in close connection to the subterm order on types used by the exis
 We have seen the construction of new algebraic structures from already existing ones
 (e.g.\ the construction of \(\rat\) from \(\inte\)) and how we can restrict a given type to encode further properties in a new type
 (e.g.\ refining \(\mathsf{set}\) to \(\mathsf{fset}\)).
-We have also seen that we can not directly apply functions defined on one
+We have also seen that we cannot directly apply functions defined on one
 type to values of another one.
 For instance, we cannot apply the union operator for \(\alpha\ \mathsf{set}\) to values of type \(\alpha\ \mathsf{fset}\) or multiply integers with the multiplication operator we defined for~\(\rat\).
 Instead, we have to lift these operations.
@@ -1126,7 +1140,7 @@ However, using standard constructions,
 such as the construction of \(\inte\) as a quotient of \(\nat \times \nat\),
 the desired inclusions do not hold, i.e.\ \(\nat\not\subset\inte\).
 
-In Isabelle/Set \cite{isabelleset},
+In Isabelle/Set~\cite{isabelleset},
 % \juli{I haven't found a reference for this.}
 % \kevin{because I think we are the first to use it in a formal sense :)}
 this problem is solved with so-called \emph{set extensions}.
@@ -1310,7 +1324,7 @@ we suspect that it should be possible to automate them in most practical cases.
 However, this requires a larger case study and is left as future work.
 
 \section{Conclusion}\label{sec:concl}
-We proposed a generalization of the Isabelle/HOL lifting tool \cite{huffman2013lifting},
+We proposed a generalization of the Isabelle/HOL lifting tool~\cite{huffman2013lifting},
 which is limited to right-total and right-unique transfer relations.
 Our approach supports a larger class of relations, which we called \liftrels.
 This generalization is, in particular,
@@ -1320,7 +1334,7 @@ we also had to generalize the notion of quotient predicates to lifting triples.
 While quotient predicates are closed under composition but are not symmetric,
 lifting triples are not closed under composition but are symmetric.
 However, we proved a restricted composition theorem for lifting triples, which, we argued, is sufficiently general for most applications.
-We demonstrated how our generalized approach can be applied to lift terms between soft types in a set theoretic framework such as Isabelle/Set \cite{isabelleset}.
+We demonstrated how our generalized approach can be applied to lift terms between soft types in a set theoretic framework such as Isabelle/Set~\cite{isabelleset}.
 % In particular, we introduced a dependent function relator to lift partial functions,
 % which, in general, is not possible with the Lifting-Tool.
 
