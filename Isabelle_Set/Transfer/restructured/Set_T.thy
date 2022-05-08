@@ -26,6 +26,24 @@ lemma bijection_map_mem1: "bijection A B f g \<Longrightarrow> x \<in> A \<Longr
 lemma bijection_map_mem2: "bijection A B f g \<Longrightarrow> y \<in> B \<Longrightarrow> g y \<in> A"
   unfolding bijection_def by blast
 
+lemma bijection_eq_1:
+  assumes bij: "bijection A B f g"
+      and x_in_A: "x \<in> A" and x'_in_A: "x' \<in> A"
+      and f_x: "f x = y" and f_x': "f x' = y"
+  shows "x = x'"
+proof -
+  have "g (f x) = g y"
+    using f_x by blast
+  hence 1: "x = g y"
+    using bijection_inv1[OF bij x_in_A] by simp
+  have "g (f x') = g y"
+    using f_x' by blast
+  hence 2: "x' = g y"
+    using bijection_inv1[OF bij x'_in_A] by simp
+  show "x = x'"
+    using 1 2 by simp
+qed
+
 definition Iso_Rel :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool"
   where "Iso_Rel A f x y \<equiv> x \<in> A \<and> f x = y"
 
@@ -37,6 +55,29 @@ lemma Iso_Rel_mem: "Iso_Rel A f x y \<Longrightarrow> x \<in> A"
 
 lemma Iso_Rel_map: "Iso_Rel A f x y \<Longrightarrow> f x = y"
   unfolding Iso_Rel_def by simp
+
+definition "left_unique R \<equiv> (\<forall>x x'. Eq_rep R x x' \<longrightarrow> x = x')"
+
+lemma left_uniqueI: "(\<And>x x'. Eq_rep R x x' \<Longrightarrow> x = x') \<Longrightarrow> left_unique R"
+  unfolding left_unique_def by blast
+
+lemma left_unique_Iso_Rel: "bijection A B f g \<Longrightarrow> left_unique (Iso_Rel A f)"
+proof (rule left_uniqueI)
+  fix x x'
+  assume assms: "bijection A B f g" "Eq_rep (Iso_Rel A f) x x'"
+  obtain y where 1: "Iso_Rel A f x y" "Iso_Rel A f x' y"
+    using Eq_repE' assms(2) .
+  have 2: "f x = y"
+    using Iso_Rel_map 1(1) .
+  have 3: "f x' = y"
+    using Iso_Rel_map 1(2) .
+  have 4: "x \<in> A"
+    using Iso_Rel_mem 1(1) .
+  have 5: "x' \<in> A"
+    using Iso_Rel_mem 1(2) .
+  show "x = x'"
+    using bijection_eq_1 assms(1) 4 5 2 3 .
+qed
 
 lemma z_property_Iso_Rel: "z_property (Iso_Rel A f)"
   apply (rule z_propertyI)
@@ -54,7 +95,6 @@ next
     using in_domI[of "Iso_Rel A f"] Iso_RelI x_in_A by blast
 qed
 
-(* required? *)
 lemma in_co_dom_Iso_Rel_if_ex: "in_co_dom (Iso_Rel A f) y = (\<exists>x\<in>A. f x = y)"
 proof (rule iffI)
   assume in_co_dom_y: "in_co_dom (Iso_Rel A f) y"
@@ -109,13 +149,16 @@ lemma Eq_Rel_eq: "Eq_Rel A x y \<Longrightarrow> x = y"
   unfolding Eq_Rel_def
   apply (drule Iso_Rel_map) by simp
 
-(* required? *)
 lemma partial_equivalence_Eq_Rel: "partial_equivalence (Eq_Rel A)"
   apply (rule partial_equivalenceI)
   using Eq_RelI Eq_Rel_elem Eq_Rel_eq by blast+
 
 lemma bijection_id: "bijection A A id id"
   apply (rule bijectionI) by simp+
+
+lemma left_unique_Eq_Rel: "left_unique (Eq_Rel A)"
+  unfolding Eq_Rel_def
+  using left_unique_Iso_Rel bijection_id .
 
 lemma id_transfer_triple: "transfer_triple (Eq_Rel A) id id"
   unfolding Eq_Rel_def

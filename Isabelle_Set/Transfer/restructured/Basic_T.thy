@@ -339,7 +339,7 @@ proof -
 qed
   
 
-lemma
+lemma transfer_tripleI_alt:
   assumes "z_property T"
       and "\<And>x y. T x y \<Longrightarrow> Eq_abs T y (abs x)"
       and "\<And>x y. T x y \<Longrightarrow> Eq_rep T x (rep y)"
@@ -475,6 +475,87 @@ lemma z_property_rel_comp:
       by (rule rel_compI)
   qed
 
+lemma rel_comp1:
+  assumes z_prop1: "z_property T1"
+      and z_prop2: "z_property T2"
+      and Eq_sup: "\<And>x1 x2. Eq_abs T1 x1 x2 \<Longrightarrow> Eq_rep T2 x1 x2"
+      and dom_sub: "\<And>x. in_dom T2 x \<Longrightarrow> in_co_dom T1 x" 
+    shows "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
+proof ((rule ext)+, rule iffI)
+  fix x1 x2
+  assume prem: "(Eq_abs T1 \<circ>\<circ> Eq_rep T2) x1 x2"
+  obtain y where y: "Eq_abs T1 x1 y" "Eq_rep T2 y x2"
+    using rel_compE prem .
+  have 1: "Eq_rep T2 x1 y"
+    using Eq_sup y(1) .
+  have 2: "Eq_rep T2 x1 x2"
+    using partial_equivalence_trans partial_equivalence_Eq_rep z_prop2 1 y(2) .
+  obtain x where x: "T1 x y"
+    using Eq_absE' y(1) .
+  obtain z where 5: "T2 x2 z"
+    using Eq_repE' y(2) .
+  have 6: "in_dom T2 x2"
+    using in_domI 5 .
+  have 7: "in_co_dom T1 x2"
+    using dom_sub 6 .
+  have 4: "Eq_abs T1 x2 x2"
+    using Eq_abs_self 7 .
+  show "(Eq_rep T2 \<circ>\<circ> Eq_abs T1) x1 x2"
+    using rel_compI 2 4 .
+next
+  fix x1 x2
+  assume prem: "(Eq_rep T2 \<circ>\<circ> Eq_abs T1) x1 x2"
+  obtain y where y: "Eq_rep T2 x1 y" "Eq_abs T1 y x2"
+    using rel_compE prem .
+  have 1: "Eq_rep T2 y x2"
+    using Eq_sup y(2) .
+  have 2: "Eq_rep T2 x1 x2"
+    using partial_equivalence_trans partial_equivalence_Eq_rep z_prop2 y(1) 1 .
+  obtain x where x: "T1 x y"
+    using Eq_absE' y(2) .
+  obtain z where 5: "T2 x1 z"
+    using Eq_repE' y(1) .
+  have 6: "in_dom T2 x1"
+    using in_domI 5 .
+  have 7: "in_co_dom T1 x1"
+    using dom_sub 6 .
+  have 4: "Eq_abs T1 x1 x1"
+    using Eq_abs_self 7 .
+  show "(Eq_abs T1 \<circ>\<circ> Eq_rep T2) x1 x2"
+    using rel_compI 4 2 .
+qed
+
+lemma in_co_dom_inv_simp: "in_co_dom (rel_inv T) = in_dom T"
+  apply (rule ext)
+  unfolding in_dom_def in_co_dom_def rel_inv_def
+  by blast
+
+lemma in_dom_inv_simp: "in_dom (rel_inv T) = in_co_dom T"
+  apply (rule ext)
+  unfolding in_dom_def in_co_dom_def rel_inv_def
+  by blast
+
+lemma rel_comp2:
+  assumes z_prop1: "z_property T1"
+      and z_prop2: "z_property T2"
+      and Eq_sup: "\<And>x1 x2. Eq_rep T2 x1 x2 \<Longrightarrow> Eq_abs T1 x1 x2"
+      and dom_sub: "\<And>x. in_co_dom T1 x \<Longrightarrow> in_dom T2 x" 
+    shows "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
+proof -
+  show "rel_comp (Eq_abs T1) (Eq_rep T2) = rel_comp (Eq_rep T2) (Eq_abs T1)"
+    apply (rule sym)
+    apply (subst Eq_rep_inv_simp[symmetric])+
+    apply (subst  Eq_abs_inv_simp[of T2, symmetric])+
+    apply (rule rel_comp1)
+    apply (rule z_property_rel_inv, fact z_prop2)
+      apply (rule z_property_rel_inv, fact z_prop1)
+    unfolding Eq_abs_inv_simp Eq_rep_inv_simp
+     apply (fact Eq_sup)
+    unfolding in_co_dom_inv_simp in_dom_inv_simp
+    apply (fact dom_sub)
+    done
+qed
+
 lemma transfer_triple_composition:
   assumes trans_trip1: "transfer_triple T1 abs1 rep1"
       and trans_trip2: "transfer_triple T2 abs2 rep2"
@@ -539,5 +620,27 @@ next
     using rel_compI T1_rep_y_rep_rep_y T2_rep_y_y .
 qed
 
+lemma Eq_rep_rep':
+  assumes trans_trip: "transfer_triple T abs rep"
+      and Eq_y: "Eq_abs T y1 y2"
+    shows "Eq_rep T (rep y1) (rep y2)"
+proof -
+  obtain x where 1: "T x y1" "T x y2"
+    using Eq_absE' Eq_y .
+  have 2: "Eq_rep T x (rep y1)"
+    using Eq_repI 1(1) rel_rep trans_trip in_co_domI 1(1) .
+  have 3: "Eq_rep T x (rep y2)"
+    using Eq_repI 1(2) rel_rep trans_trip in_co_domI 1(2) .
+  have 4: "Eq_rep T (rep y1) x"
+    using partial_equivalence_sym partial_equivalence_Eq_rep z_property_transfer_triple trans_trip 2 .
+  show "Eq_rep T (rep y1) (rep y2)"
+    using partial_equivalence_trans partial_equivalence_Eq_rep z_property_transfer_triple trans_trip
+      4 3 .
+qed
+
+lemma id_transfer_triple': "transfer_triple (=) id id"
+  apply (rule transfer_tripleI)
+    apply (rule z_propertyI)
+  by simp+
 
 end

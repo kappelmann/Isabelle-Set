@@ -38,7 +38,13 @@ lemma no_dep_rel_funI: "(\<And>x y. R x y \<Longrightarrow> S (f x) (g y)) \<Lon
 
 definition rel_rest :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
     ("[_ | _]" [102, 102] 101)
-  where "rel_rest R p \<equiv> (\<lambda>x y. R x y \<and> p x y)"
+    where "rel_rest R p \<equiv> (\<lambda>x y. R x y \<and> p x y)"
+
+lemma rel_restI: "\<lbrakk>T x y; P x y\<rbrakk> \<Longrightarrow> rel_rest T P x y"
+  unfolding rel_rest_def by simp
+
+lemma rel_restE: "rel_rest T P x y \<Longrightarrow> (\<lbrakk>T x y; P x y\<rbrakk> \<Longrightarrow> Q) \<Longrightarrow> Q"
+  unfolding rel_rest_def by simp
 
 definition rel_weak :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
     ("[_ \<longrightarrow> _]" [102, 102] 101)
@@ -65,48 +71,6 @@ lemma z_property_no_dep_fun_rel:
   apply (drule no_dep_rel_funE, assumption)+
   using z_propertyE[OF assms(2)]
   by blast
-
-lemma
-  assumes "transfer_triple T1 abs1 rep1" and "transfer_triple T2 abs2 rep2"
-  shows "Eq_rep (T1 \<Rrightarrow> T2) = Eq_rep T1 \<Rrightarrow> Eq_rep T2"
-proof ((rule ext)+, rule iffI)
-  fix f g
-  assume prem1: "Eq_rep (T1 \<Rrightarrow> T2) f g"
-  obtain h where h: "(T1 \<Rrightarrow> T2) f h" "(T1 \<Rrightarrow> T2) g h"
-    using Eq_repE[OF prem1] by blast
-  show "(Eq_rep T1 \<Rrightarrow> Eq_rep T2) f g"
-  proof (rule no_dep_rel_funI)
-    fix x y
-    assume prem2: "Eq_rep T1 x y"
-    obtain z where z: "T1 x z" "T1 y z"
-      using Eq_repE[OF prem2] by blast
-    show "Eq_rep T2 (f x) (g y)"
-      apply (rule Eq_repI)
-      using no_dep_rel_funE[OF h(1) z(1)] no_dep_rel_funE[OF h(2) z(2)] .
-  qed
-next
-  fix f g
-  assume prem1: "(Eq_rep T1 \<Rrightarrow> Eq_rep T2) f g"
-  { fix x y
-    assume "Eq_rep T1 x y"
-    hence "Eq_rep T2 (f x) (g y)"
-      using no_dep_rel_funE[OF prem1] by simp
-  }
-  note 1 = this
-  { fix x y
-    assume prem2: "Eq_rep T1 x y"
-    obtain z where z: "T2 (f x) z" "T2 (g y) z"
-      using Eq_repE[OF 1, of x y, OF prem2] by blast
-    hence "\<exists>h. T2 (f x) (h x) \<and> T2 (g y) (h y)" by auto
-  }
-  note 2 = this
-  obtain h where h: "(T1 \<Rrightarrow> T2) f h" "(T1 \<Rrightarrow> T2) g h"
-    using 2 Eq_repI Eq_repE no_dep_rel_funE[OF prem1]
-    sorry
-  show "Eq_rep (T1 \<Rrightarrow> T2) f g"
-    apply (rule Eq_repI)
-    using h .
-qed
 
 definition dep_map_fun :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd) \<Rightarrow> ('b \<Rightarrow> 'c) \<Rightarrow> 'a \<Rightarrow> 'd"
   where "dep_map_fun f g h x \<equiv> g x (f x) (h (f x))"
@@ -278,6 +242,34 @@ next
   qed
 qed
 
+lemma fun_transfer_triple':
+  assumes trans_trip1: "transfer_triple T1 abs1 rep1"
+      and trans_trip2: "\<And>x y. T1 x y \<Longrightarrow> transfer_triple (T2 x y) abs2 rep2"
+          (* note swapped order of arguments for abs2 *)
+      and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
+    shows "transfer_triple (dep_rel_fun T1 T2) (map_fun rep1 abs2) (map_fun abs1 rep2)"
+  unfolding map_fun_def
+  apply (rule fun_transfer_triple)
+  apply (fact trans_trip1)
+  apply (fact trans_trip2)
+    apply (fact T2_resp)
+  unfolding no_dep_rel_fun_def dep_rel_fun_def
+   apply (rule allI)+ apply (rule impI)
+  apply (rule Eq_rep_rep)
+  apply (rule trans_trip2)
+    apply assumption
+  apply (rule rel_rep'[OF trans_trip2])
+    apply assumption+
+   apply (rule allI)+ apply (rule impI)
+  apply (rule Eq_abs_abs)
+  apply (rule trans_trip2)
+    apply assumption
+  apply (rule rel_abs'[OF trans_trip2])
+   apply assumption
+  apply (rule partial_equivalence_sym[OF partial_equivalence_Eq_rep, OF z_property_transfer_triple, OF trans_trip2])
+  apply assumption+
+  done
+
 lemma rel_comp_Eq_abs:
   assumes trans_trip: "transfer_triple T abs rep"
   shows "T \<circ>\<circ> Eq_abs T = T"
@@ -363,5 +355,210 @@ lemma no_dep_fun_transfer_triple:
    apply (rule no_dep_rel_funI)
   apply (rule Eq_arg_abs[OF trans_trip2], assumption)
   done
+
+lemma rel_inv_no_dep_rel_fun_dist: "rel_inv (T1 \<Rrightarrow> T2) = rel_inv T1 \<Rrightarrow> rel_inv T2"
+  unfolding rel_inv_def no_dep_rel_fun_def dep_rel_fun_def by blast
+
+lemma Eq_rep_no_dep_rel_fun_dist:
+  assumes "transfer_triple T1 abs1 rep1" and "transfer_triple T2 abs2 rep2"
+  shows "Eq_rep (T1 \<Rrightarrow> T2) = Eq_rep T1 \<Rrightarrow> Eq_rep T2"
+proof ((rule ext)+, rule iffI)
+  fix f g
+  assume prem1: "Eq_rep (T1 \<Rrightarrow> T2) f g"
+  obtain h where h: "(T1 \<Rrightarrow> T2) f h" "(T1 \<Rrightarrow> T2) g h"
+    using Eq_repE[OF prem1] by blast
+  show "(Eq_rep T1 \<Rrightarrow> Eq_rep T2) f g"
+  proof (rule no_dep_rel_funI)
+    fix x y
+    assume prem2: "Eq_rep T1 x y"
+    obtain z where z: "T1 x z" "T1 y z"
+      using Eq_repE[OF prem2] by blast
+    show "Eq_rep T2 (f x) (g y)"
+      apply (rule Eq_repI)
+      using no_dep_rel_funE[OF h(1) z(1)] no_dep_rel_funE[OF h(2) z(2)] .
+  qed
+next
+  fix f g
+  assume prem1: "(Eq_rep T1 \<Rrightarrow> Eq_rep T2) f g"
+  define h where "h \<equiv> map_fun rep1 abs2 f"
+  { fix x z
+    assume rel_arg: "T1 x z"
+    have 1: "Eq_rep T1 x (rep1 z)"
+      using Eq_rep_rep assms(1) rel_arg .
+    have 2: "Eq_rep T2 (f x) (g (rep1 z))"
+      using no_dep_rel_funE prem1 1 .
+    have 3: "Eq_rep T2 (f x) (g x)"
+      using no_dep_rel_funE prem1 Eq_rep_self in_domI rel_arg .
+    have 4: "Eq_rep T2 (g x) (f (rep1 z))"
+      using  Eq_rep_sym no_dep_rel_funE prem1 Eq_rep_sym 1 .
+    have 5: "Eq_rep T2 (f x) (f (rep1 z))"
+      using partial_equivalence_trans partial_equivalence_Eq_rep z_property_transfer_triple assms(2) 3 4 .
+    have 6: "T2 (f (rep1 z)) (abs2 (f (rep1 z)))"
+      using rel_abs assms(2) Eq_rep_then_in_dom Eq_rep_sym 5 .
+    have 7: "T2 (f x) (abs2 (f (rep1 z)))"
+      apply (subst  Eq_rep_rep_comp[OF assms(2), symmetric])
+      using rel_compI 5 6 .
+    have "T2 (f x) (h z)"
+      unfolding h_def map_fun_def dep_map_fun_def
+      using 7 .
+  }
+  note 1 = this
+  { fix x z
+    assume rel_arg: "T1 x z"
+    have 2: "T2 (f x) (h z)"
+      using 1 rel_arg .
+    have 3: "Eq_rep T2 (f x) (g x)"
+      using no_dep_rel_funE prem1 Eq_rep_self in_domI rel_arg .
+    have "T2 (g x) (h z)"
+      apply (subst Eq_rep_rep_comp[OF assms(2), symmetric])
+      using rel_compI Eq_rep_sym 3 2 .
+  }
+  note 2 = this
+  show "Eq_rep (T1 \<Rrightarrow> T2) f g"
+    by (rule Eq_repI; rule no_dep_rel_funI, fact 1 2)
+qed
+
+lemma Eq_abs_no_dep_rel_fun_dist:
+  assumes "transfer_triple T1 abs1 rep1" and "transfer_triple T2 abs2 rep2"
+  shows "Eq_abs (T1 \<Rrightarrow> T2) = Eq_abs T1 \<Rrightarrow> Eq_abs T2"
+proof -
+  have "Eq_abs (T1 \<Rrightarrow> T2) = Eq_rep (rel_inv (T1 \<Rrightarrow> T2))"
+    apply (subst Eq_rep_inv_simp) ..
+  also have "... = Eq_rep (rel_inv T1 \<Rrightarrow> rel_inv T2)"
+    apply (subst rel_inv_no_dep_rel_fun_dist) ..
+  also have "... = Eq_rep (rel_inv T1) \<Rrightarrow> Eq_rep (rel_inv T2)"
+    apply (subst Eq_rep_no_dep_rel_fun_dist[OF
+        transfer_triple_dual[OF assms(1)] transfer_triple_dual[OF assms(2)]]) ..
+  also have "... = Eq_abs T1 \<Rrightarrow> Eq_abs T2"
+    apply (subst Eq_rep_inv_simp)+ ..
+  finally show "Eq_abs (T1 \<Rrightarrow> T2) = Eq_abs T1 \<Rrightarrow> Eq_abs T2" .
+qed
+
+lemma z_property_rel_rest:
+  assumes z_prop_T: "z_property T"
+    and z_prop_P: "z_property P"
+  shows "z_property (rel_rest T P)"
+  apply (rule z_propertyI)
+  using z_propertyE[OF z_prop_T] z_propertyE[OF z_prop_P]
+  unfolding rel_rest_def
+  by blast
+
+lemma indep_fst_then_z_property:
+  assumes P_subst: "\<And>x x' y. P x y = P x' y"
+  shows "z_property P"
+proof (rule z_propertyI)
+  fix x y x' y'
+  assume rels: "P x y" "P x' y" "P x' y'"
+  show "P x y'"
+    apply (subst P_subst[of x y' x'])
+    using rels(3) .
+qed
+
+lemma indep_snd_then_z_property:
+  assumes P_subst: "\<And>x y y'. P x y = P x y'"
+  shows "z_property P"
+proof (rule z_propertyI)
+  fix x y x' y'
+  assume rels: "P x y" "P x' y" "P x' y'"
+  show "P x y'"
+    apply (subst P_subst[of x y' y])
+    using rels(1) .
+qed
+
+lemma rel_rest_transfer_triple:
+  assumes trans_trip: "transfer_triple T abs rep"
+    and eq: "(Eq_rep T \<Rrightarrow> Eq_abs T \<Rrightarrow> (=)) P P"
+  shows "transfer_triple (rel_rest T P) abs rep"
+proof (rule transfer_tripleI)
+  show "z_property (rel_rest T P)"
+  proof (rule z_propertyI)
+  fix x y x' y'
+  assume rels: "rel_rest T P x y" "rel_rest T P x' y" "rel_rest T P x' y'"
+  have in_dom_T_x: "in_dom T x"
+    using rels(1) in_domI
+    unfolding rel_rest_def
+    by fast
+  have Eq_abs_y_y': "Eq_abs T y y'"
+    apply (rule Eq_absI)
+    using rels(2, 3)
+    unfolding rel_rest_def
+     apply blast+
+    done
+  have T_x_y': "T x y'"
+    using z_propertyE z_property_transfer_triple[OF trans_trip] rels
+    unfolding rel_rest_def
+    by fast
+  show "rel_rest T P x y'"
+    apply (rule rel_restI)
+    apply (fact T_x_y')
+    apply (rule rel_restE[OF rels(1)])
+    unfolding no_dep_rel_funE[OF no_dep_rel_funE[OF eq], OF Eq_rep_self[OF in_dom_T_x] Eq_abs_y_y'] .
+qed
+next
+  fix x
+  assume in_dom_rel_rest_x: "in_dom (rel_rest T P) x"
+  obtain y where rel_rest_x_y: "rel_rest T P x y"
+    using in_domE in_dom_rel_rest_x .
+  have in_dom_T_x: "in_dom T x"
+    apply (rule in_domI)
+    by (rule rel_restE[OF rel_rest_x_y], assumption) 
+  have T_x_abs_x: "T x (abs x)"
+    by (fact rel_abs[OF trans_trip, OF in_dom_T_x])
+  have T_x_y: "T x y" and P_x_y: "P x y"
+    by (rule rel_restE[OF rel_rest_x_y], assumption)+
+  have Eq_abs_abs_x_y: "Eq_abs T (abs x) y"
+    using Eq_absI T_x_abs_x T_x_y .
+  show "rel_rest T P x (abs x)"
+    apply (rule rel_restI)
+    using no_dep_rel_funE[OF no_dep_rel_funE[OF eq], OF Eq_rep_self[OF in_dom_T_x] Eq_abs_abs_x_y]
+      T_x_abs_x P_x_y
+    by simp+
+next
+  fix y
+  assume in_co_dom_rel_rest_y: "in_co_dom (rel_rest T P) y"
+  obtain x where rel_rest_x_y: "rel_rest T P x y"
+    using in_co_domE in_co_dom_rel_rest_y .
+  have in_co_dom_T_y: "in_co_dom T y"
+    apply (rule in_co_domI)
+    by (rule rel_restE[OF rel_rest_x_y], assumption) 
+  have T_rep_y_y: "T (rep y) y"
+    by (fact rel_rep[OF trans_trip, OF in_co_dom_T_y])
+  have T_x_y: "T x y" and P_x_y: "P x y"
+    by (rule rel_restE[OF rel_rest_x_y], assumption)+
+  have Eq_rep_rep_y_x: "Eq_rep T (rep y) x"
+    using Eq_repI T_rep_y_y T_x_y .
+  show "rel_rest T P (rep y) y"
+    apply (rule rel_restI)
+    using no_dep_rel_funE[OF no_dep_rel_funE[OF eq], OF Eq_rep_rep_y_x Eq_abs_self[OF in_co_dom_T_y]]
+      T_rep_y_y P_x_y
+    by simp+
+qed
+
+lemma rel_comp: "((S \<Rrightarrow> T) \<Rrightarrow> (R \<Rrightarrow> S) \<Rrightarrow> R \<Rrightarrow> T) (\<circ>) (\<circ>)"
+proof ((rule no_dep_rel_funI)+, (subst comp_def)+)
+  fix f f' g g' x x'
+  assume rel_f: "(S \<Rrightarrow> T) f f'"
+    and rel_g: "(R \<Rrightarrow> S) g g'"
+    and rel_x: "R x x'"
+  have rel_g_x: "S (g x) (g' x')"
+    using no_dep_rel_funE rel_g rel_x .
+  show "T (f (g x)) (f' (g' x'))"
+    using no_dep_rel_funE rel_f rel_g_x .
+qed
+
+lemma
+  assumes eq: "(Eq_rep T \<Rrightarrow> Eq_abs T \<Rrightarrow> (=)) T T"
+  shows "z_property T"
+proof (rule z_propertyI)
+  fix x y x' y'
+  assume rels: "T x y" "T x' y" "T x' y'"
+  have Eq_x_x: "Eq_rep T x x"
+    using Eq_repI rels(1, 1) .
+  have Eq_y'_y: "Eq_abs T y' y"
+    using Eq_absI rels (3, 2) .
+  show "T x y'"
+    apply (subst no_dep_rel_funE[OF no_dep_rel_funE[OF eq], OF  Eq_x_x Eq_y'_y])
+    using rels(1) .
+qed
 
 end

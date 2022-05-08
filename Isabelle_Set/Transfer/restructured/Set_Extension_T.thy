@@ -1,4 +1,4 @@
-theory Set_Extension
+theory Set_Extension_T
   imports Set_T Isabelle_Set.Set_Extension
 begin
 
@@ -13,7 +13,6 @@ abbreviation "Abs \<equiv> ext.abs_image"
 
 abbreviation "T \<equiv> Iso_Rel Rep abs"
 
-(* required? *)
 lemma z_property_T: "z_property T"
   using z_property_Iso_Rel .
 
@@ -28,6 +27,9 @@ lemma bijection_ext: "bijection Rep Abs abs rep"
   apply (rule ext.Rep_Abs_inv)
   apply (fact ext.Abs_Rep_inv)
   done
+
+lemma left_unique_T: "left_unique T"
+  using left_unique_Iso_Rel bijection_ext .
 
 lemma ext_tranfer_triple: "transfer_triple T abs rep"
   using bijection_transfer_triple bijection_ext .
