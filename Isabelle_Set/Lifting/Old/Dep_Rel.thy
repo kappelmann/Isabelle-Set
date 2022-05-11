@@ -16,9 +16,9 @@ definition dep_rel_fun :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow
   (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
   where "dep_rel_fun R S \<equiv> (\<lambda>f g. \<forall>x y. R x y \<longrightarrow> S x y (f x) (g y))"
 
-definition no_dep_rel_fun ::
+definition rel_fun ::
   "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)"
-  where "no_dep_rel_fun R S \<equiv> dep_rel_fun R (\<lambda>x y. S)"
+  where "rel_fun R S \<equiv> dep_rel_fun R (\<lambda>x y. S)"
 
 definition rel_weak :: "bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
   where "rel_weak P R \<equiv> (\<lambda>a b. P \<longrightarrow> R a b)"
@@ -39,7 +39,7 @@ lemmas no_dep_rel_weak_fun_unfold = no_dep_rel_weak_fun_def[unfolded dep_rel_wea
 syntax
   "_rel_adj" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)"
     ("[_/ _/ \<Colon>/ _/| _]" [101, 101, 101, 101] 100)
-  "_no_dep_rel_fun" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow>
+  "_rel_fun" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow>
     ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("(_) \<Rrightarrow> (_)" [101, 100] 100)
   "_dep_rel_fun" :: "pttrn \<Rightarrow> pttrn \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
     (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 100] 100)
@@ -59,7 +59,7 @@ syntax
 
 translations
   "[x y \<Colon> R | P]" \<rightleftharpoons> "CONST rel_adj R (\<lambda>x y. P)"
-  "R \<Rrightarrow> S" \<rightleftharpoons> "CONST no_dep_rel_fun R S"
+  "R \<Rrightarrow> S" \<rightleftharpoons> "CONST no_dep_rel_fun R S"rel_fun
   "[x y \<Colon> R] \<Rrightarrow> S" \<rightleftharpoons> "CONST dep_rel_fun R (\<lambda>x y. S)"
   "[x y \<Colon> R | P] \<Rrightarrow> S" \<rightharpoonup> "CONST dep_rel_fun (CONST rel_adj R (\<lambda>x y. P)) (\<lambda>x y. S)"
   "[P \<longrightarrow> R]" \<rightleftharpoons> "CONST rel_weak P R"

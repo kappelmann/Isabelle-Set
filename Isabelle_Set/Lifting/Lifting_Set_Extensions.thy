@@ -1,5 +1,7 @@
-theory Set_Extension_T
-  imports Set_T Isabelle_Set.Set_Extension
+theory Lifting_Set_Extensions
+  imports
+    Lifting_Sets
+    Isabelle_Set.Set_Extension
 begin
 
 locale set_extension_lifting =
@@ -11,12 +13,12 @@ abbreviation "abs \<equiv> ext.Abs"
 abbreviation "rep \<equiv> ext.Rep"
 abbreviation "Abs \<equiv> ext.abs_image"
 
-abbreviation "T \<equiv> Iso_Rel Rep abs"
+abbreviation "rel \<equiv> Iso_Rel Rep abs"
 
-lemma z_property_T: "z_property T"
+lemma z_property: "z_property rel"
   using z_property_Iso_Rel .
 
-lemma bijection_ext: "bijection Rep Abs abs rep"
+lemma bijection: "bijection Rep Abs abs rep"
   apply (rule bijectionI)
   apply (rule ElementD)
   apply (rule Dep_fun_typeE[OF ext.Abs_type])
@@ -28,11 +30,11 @@ lemma bijection_ext: "bijection Rep Abs abs rep"
   apply (fact ext.Abs_Rep_inv)
   done
 
-lemma left_unique_T: "left_unique T"
-  using left_unique_Iso_Rel bijection_ext .
+lemma left_unique: "left_unique rel"
+  using left_unique_Iso_Rel_if_bijection bijection .
 
-lemma ext_tranfer_triple: "transfer_triple T abs rep"
-  using bijection_transfer_triple bijection_ext .
+lemma lifting_triple: "lifting_triple rel abs rep"
+  using lifting_triple_Iso_Rel_if_bijection bijection .
 
 end
 

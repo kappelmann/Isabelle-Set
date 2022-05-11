@@ -1,9 +1,12 @@
-theory Set_T
-  imports Basic_T HOTG.Bounded_Quantifiers
+theory Lifting_Sets
+  imports
+    HOTG.Bounded_Quantifiers
+    Lifting_Basic
 begin
 
 definition bijection :: "set \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
-  where "bijection A B f g \<equiv> (\<forall>x\<in>A. f x \<in> B) \<and> (\<forall>y\<in>B. g y \<in> A) \<and> (\<forall>x\<in>A. g (f x) = x) \<and> (\<forall>y\<in>B. f (g y) = y)"
+  where "bijection A B f g \<equiv>
+    (\<forall>x\<in>A. f x \<in> B) \<and> (\<forall>y\<in>B. g y \<in> A) \<and> (\<forall>x\<in>A. g (f x) = x) \<and> (\<forall>y\<in>B. f (g y) = y)"
 
 lemma bijectionI:
   assumes "\<And>x. x \<in> A \<Longrightarrow> f x \<in> B"
@@ -44,6 +47,8 @@ proof -
     using 1 2 by simp
 qed
 
+text \<open>Relator for bijective sets\<close>
+
 definition Iso_Rel :: "set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool"
   where "Iso_Rel A f x y \<equiv> x \<in> A \<and> f x = y"
 
@@ -56,17 +61,13 @@ lemma Iso_Rel_mem: "Iso_Rel A f x y \<Longrightarrow> x \<in> A"
 lemma Iso_Rel_map: "Iso_Rel A f x y \<Longrightarrow> f x = y"
   unfolding Iso_Rel_def by simp
 
-definition "left_unique R \<equiv> (\<forall>x x'. Eq_rep R x x' \<longrightarrow> x = x')"
-
-lemma left_uniqueI: "(\<And>x x'. Eq_rep R x x' \<Longrightarrow> x = x') \<Longrightarrow> left_unique R"
-  unfolding left_unique_def by blast
-
-lemma left_unique_Iso_Rel: "bijection A B f g \<Longrightarrow> left_unique (Iso_Rel A f)"
+lemma left_unique_Iso_Rel_if_bijection:
+  "bijection A B f g \<Longrightarrow> left_unique (Iso_Rel A f)"
 proof (rule left_uniqueI)
   fix x x'
   assume assms: "bijection A B f g" "Eq_rep (Iso_Rel A f) x x'"
   obtain y where 1: "Iso_Rel A f x y" "Iso_Rel A f x' y"
-    using Eq_repE' assms(2) .
+    using Eq_repE assms(2) .
   have 2: "f x = y"
     using Iso_Rel_map 1(1) .
   have 3: "f x' = y"
@@ -83,7 +84,7 @@ lemma z_property_Iso_Rel: "z_property (Iso_Rel A f)"
   apply (rule z_propertyI)
   unfolding Iso_Rel_def by simp
 
-lemma in_dom_Iso_Rel_if_mem: "in_dom (Iso_Rel A f) x = (x \<in> A)"
+lemma in_dom_Iso_Rel_iff_mem: "in_dom (Iso_Rel A f) x \<longleftrightarrow> (x \<in> A)"
 proof (rule iffI)
   assume in_dom_x: "in_dom (Iso_Rel A f) x"
   show "x \<in> A"
@@ -95,35 +96,36 @@ next
     using in_domI[of "Iso_Rel A f"] Iso_RelI x_in_A by blast
 qed
 
-lemma in_co_dom_Iso_Rel_if_ex: "in_co_dom (Iso_Rel A f) y = (\<exists>x\<in>A. f x = y)"
+lemma in_codom_Iso_Rel_iff_ex_mem:
+  "in_codom (Iso_Rel A f) y \<longleftrightarrow> (\<exists>x\<in>A. f x = y)"
 proof (rule iffI)
-  assume in_co_dom_y: "in_co_dom (Iso_Rel A f) y"
+  assume in_codom_y: "in_codom (Iso_Rel A f) y"
   obtain x where "Iso_Rel A f x y"
-    using in_co_domE in_co_dom_y .
+    using in_codomE in_codom_y .
   thus "\<exists>x \<in> A. f x = y"
     using Iso_Rel_mem Iso_Rel_map by blast
 next
   assume "\<exists>x \<in> A. f x = y"
-  thus "in_co_dom (Iso_Rel A f) y"
-    using in_co_domI[of "Iso_Rel A f", OF Iso_RelI] by blast
+  thus "in_codom (Iso_Rel A f) y"
+    using in_codomI[of "Iso_Rel A f", OF Iso_RelI] by blast
 qed
 
-lemma bijection_transfer_triple:
+lemma lifting_triple_Iso_Rel_if_bijection:
   assumes biject: "bijection A B f g"
-  shows "transfer_triple (Iso_Rel A f) f g"
-proof (rule transfer_tripleI)
+  shows "lifting_triple (Iso_Rel A f) f g"
+proof (rule lifting_tripleI)
   show "z_property (Iso_Rel A f)"
     using z_property_Iso_Rel .
 next
   fix x
   assume in_dom_x: "in_dom (Iso_Rel A f) x"
   show "Iso_Rel A f x (f x)"
-    using Iso_RelI in_dom_Iso_Rel_if_mem in_dom_x by blast
+    using Iso_RelI in_dom_Iso_Rel_iff_mem in_dom_x by blast
 next
   fix y
-  assume in_co_dom_y: "in_co_dom (Iso_Rel A f) y"
+  assume in_codom_y: "in_codom (Iso_Rel A f) y"
   obtain x where "Iso_Rel A f x y"
-    using in_co_domE in_co_dom_y .
+    using in_codomE in_codom_y .
   hence "x \<in> A" "f x = y"
     using Iso_Rel_mem Iso_Rel_map by blast+
   hence 1: "y \<in> B"
@@ -139,9 +141,9 @@ definition Eq_Rel :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool
 lemma Eq_RelI: "x \<in> A \<Longrightarrow> Eq_Rel A x x"
   unfolding Eq_Rel_def
   apply (rule Iso_RelI)
-  by (assumption, rule id_apply)
+  by (assumption, rule id_eq_self)
 
-lemma Eq_Rel_elem: "Eq_Rel A x y \<Longrightarrow> x \<in> A"
+lemma mem_if_Eq_Rel: "Eq_Rel A x y \<Longrightarrow> x \<in> A"
   unfolding Eq_Rel_def
   by (fact Iso_Rel_mem)
 
@@ -151,18 +153,19 @@ lemma Eq_Rel_eq: "Eq_Rel A x y \<Longrightarrow> x = y"
 
 lemma partial_equivalence_Eq_Rel: "partial_equivalence (Eq_Rel A)"
   apply (rule partial_equivalenceI)
-  using Eq_RelI Eq_Rel_elem Eq_Rel_eq by blast+
+  using Eq_RelI mem_if_Eq_Rel Eq_Rel_eq by blast+
 
 lemma bijection_id: "bijection A A id id"
   apply (rule bijectionI) by simp+
 
 lemma left_unique_Eq_Rel: "left_unique (Eq_Rel A)"
   unfolding Eq_Rel_def
-  using left_unique_Iso_Rel bijection_id .
+  using left_unique_Iso_Rel_if_bijection bijection_id .
 
-lemma id_transfer_triple: "transfer_triple (Eq_Rel A) id id"
+lemma lifting_triple_Eq_Rel_id: "lifting_triple (Eq_Rel A) id id"
   unfolding Eq_Rel_def
-  apply (rule bijection_transfer_triple)
+  apply (rule lifting_triple_Iso_Rel_if_bijection)
   using bijection_id .
+
 
 end

@@ -8,23 +8,23 @@ method_setup unfold =
   \<open>Attrib.thms >> (fn thms => fn ctxt =>
     SIMPLE_METHOD (FIRSTGOAL (rewrite_goal_tac ctxt thms)))\<close>
 
-method prove_rel_rep uses rel_def rep_def =
+method prove_lifting_triple_rel_rep_if_in_codom uses rel_def rep_def =
   (unfold rel_def rep_def, rule conjI, assumption, rule refl)
 
 method prove_rel_inj uses rel_def =
   (unfold rel_def, unfold_types)
 
-method prove_rel_abs uses rel_def rep_inv =
+method prove_lifting_triple_rel_abs_if_Eq_rep_self uses rel_def rep_inv =
   (unfold rel_def, erule conjE, erule HOL.subst, erule rep_inv)
 
-lemma Rat_Rel_Rep: "a \<in> Rat.abs_image \<Longrightarrow> Rat_Rel (Rat.Rep a) a"
-  by (prove_rel_rep rel_def: Rat_Rel_def rep_def: Rat.Rep_def)
+lemma Rat_lifting_triple_rel_rep_if_in_codom: "a \<in> Rat.abs_image \<Longrightarrow> Rat_Rel (Rat.Rep a) a"
+  by (prove_lifting_triple_rel_rep_if_in_codom rel_def: Rat_Rel_def rep_def: Rat.Rep_def)
 
 lemma Rat_Rel_inj: "Rat_Rel a b \<Longrightarrow> Rat_Rel a' b \<Longrightarrow> a = a'"
   by (prove_rel_inj rel_def: Rat_Rel_def)
 
-lemma Rat_Rel_Abs: "Rat_Rel a b \<Longrightarrow> Rat.Abs a = b"
-  by (prove_rel_abs rel_def: Rat_Rel_def rep_inv: Rat.Abs_Rep_inv)
+lemma Rat_lifting_triple_rel_abs_if_Eq_rep_self: "Rat_Rel a b \<Longrightarrow> Rat.Abs a = b"
+  by (prove_lifting_triple_rel_abs_if_Eq_rep_self rel_def: Rat_Rel_def rep_inv: Rat.Abs_Rep_inv)
 
 
 lemma Fun_typeE': "x \<in> A \<Longrightarrow> f : Element A \<Rightarrow> Element B \<Longrightarrow> f x \<in> B"
