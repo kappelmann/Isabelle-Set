@@ -41,9 +41,13 @@ session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
     Lists
     Type_Check_Tests
 
-session Transfer in "Transfer" = "Isabelle_Set" +
-   options
+session Lifting in "Lifting" = "Isabelle_Set" +
+  options
     [timeout = 20]
+  directories
+    "Basics"
+    "Basics/Binary_Relations"
+    "Galois_Connections"
   theories
-    Transfer_Test
+    LBinary_Relations
 

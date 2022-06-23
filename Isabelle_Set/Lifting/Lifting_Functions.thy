@@ -1,37 +1,45 @@
 theory Lifting_Functions
-  imports Lifting_Basic
+  imports Lifting_Triples
 begin
 
-definition dep_rel_fun ::
+definition Dep_Fun_Rel ::
     "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool"
-  where "dep_rel_fun T1 T2 f g \<equiv> (\<forall>x y. T1 x y \<longrightarrow> T2 x y (f x) (g y))"
+  where "Dep_Fun_Rel T1 T2 f g \<equiv> (\<forall>x y. T1 x y \<longrightarrow> T2 x y (f x) (g y))"
 
-definition rel_fun ::
+definition Fun_Rel ::
     "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool"
-  where "rel_fun T1 T2 \<equiv> dep_rel_fun T1 (\<lambda>_ _. T2)"
+  where "Fun_Rel T1 T2 \<equiv> Dep_Fun_Rel T1 (\<lambda>_ _. T2)"
 
 syntax
-  "_rel_fun" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow>
+  "_Fun_Rel" :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'c) \<Rightarrow>
     ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("(_) \<Rrightarrow> (_)" [101, 100] 100)
-  "_dep_rel_fun" :: "idt \<Rightarrow> idt \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
+  "_Dep_Fun_Rel" :: "idt \<Rightarrow> idt \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('c \<Rightarrow> 'd \<Rightarrow> bool) \<Rightarrow>
     (('a \<Rightarrow> 'c) \<Rightarrow> ('b \<Rightarrow> 'd) \<Rightarrow> bool)" ("[_/ _/ \<Colon>/ _] \<Rrightarrow> (_)" [101, 101, 101, 100] 100)
 translations
-  "R \<Rrightarrow> S" \<rightleftharpoons> "CONST rel_fun R S"
-  "[x y \<Colon> R] \<Rrightarrow> S" \<rightleftharpoons> "CONST dep_rel_fun R (\<lambda>x y. S)"
+  "R \<Rrightarrow> S" \<rightleftharpoons> "CONST Fun_Rel R S"
+  "[x y \<Colon> R] \<Rrightarrow> S" \<rightleftharpoons> "CONST Dep_Fun_Rel R (\<lambda>x y. S)"
 
-lemma dep_rel_funD: "\<lbrakk>([x y \<Colon> R] \<Rrightarrow> S x y) f g; R x y\<rbrakk> \<Longrightarrow> S x y (f x) (g y)"
-  unfolding dep_rel_fun_def by blast
+lemma Dep_Fun_RelI:
+  assumes "\<And>x y. R x y \<Longrightarrow> S x y (f x) (g y)"
+  shows "([x y \<Colon> R] \<Rrightarrow> S x y) f g"
+  unfolding Dep_Fun_Rel_def using assms by blast
 
-lemma dep_rel_funI: "(\<And>x y. R x y \<Longrightarrow> S x y (f x) (g y)) \<Longrightarrow> ([x y \<Colon> R] \<Rrightarrow> S x y) f g"
-  unfolding dep_rel_fun_def by blast
+lemma Dep_Fun_RelE:
+  assumes "([x y \<Colon> R] \<Rrightarrow> S x y) f g"
+  and "R x y"
+  obtains "S x y (f x) (g y)"
+  using assms unfolding Dep_Fun_Rel_def by blast
 
-lemma rel_funD: "(R \<Rrightarrow> S) f g \<Longrightarrow> R x y \<Longrightarrow> S (f x) (g y)"
-  unfolding rel_fun_def dep_rel_fun_def
-  by blast
+lemma Fun_RelI:
+  assumes "\<And>x y. R x y \<Longrightarrow> S (f x) (g y)"
+  shows "(R \<Rrightarrow> S) f g"
+  unfolding Fun_Rel_def using assms by (intro Dep_Fun_RelI)
 
-lemma rel_funI: "(\<And>x y. R x y \<Longrightarrow> S (f x) (g y)) \<Longrightarrow> (R \<Rrightarrow> S) f g"
-  unfolding rel_fun_def dep_rel_fun_def
-  by blast
+lemma Fun_RelE:
+  assumes "(R \<Rrightarrow> S) f g"
+  and "R x y"
+  shows "S (f x) (g y)"
+  using assms unfolding Fun_Rel_def by (rule Dep_Fun_RelE)
 
 definition rel_rest ::
     "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool)" ("[_ | _]" [102, 102])
@@ -81,7 +89,7 @@ proof (rule lifting_tripleI)
     apply (rule rel_restI)
     apply (fact T_x_y')
     apply (rule rel_restE[OF rels(1)])
-    unfolding rel_funD[OF rel_funD[OF eq], OF Eq_rep_self_if_in_dom[OF in_dom_T_x] Eq_abs_y_y'] .
+    unfolding Fun_RelD[OF Fun_RelD[OF eq], OF Eq_rep_self_if_in_dom[OF in_dom_T_x] Eq_abs_y_y'] .
 qed
 next
   fix x
@@ -99,7 +107,7 @@ next
     using Eq_absI T_x_abs_x T_x_y .
   show "[T | P] x (abs x)"
     apply (rule rel_restI)
-    using rel_funD[OF rel_funD[OF eq], OF Eq_rep_self_if_in_dom[OF in_dom_T_x] lifting_triple_Eq_abs_abs_if_rel_x_y]
+    using Fun_RelD[OF Fun_RelD[OF eq], OF Eq_rep_self_if_in_dom[OF in_dom_T_x] lifting_triple_Eq_abs_abs_if_rel_x_y]
       T_x_abs_x P_x_y
     by simp+
 next
@@ -118,7 +126,7 @@ next
     using Eq_repI T_rep_y_y T_x_y .
   show "[T | P] (rep y) y"
     apply (rule rel_restI)
-    using rel_funD[OF rel_funD[OF eq], OF lifting_triple_Eq_rep_rep_if_rel_y_x Eq_abs_self_if_in_codom[OF in_codom_T_y]]
+    using Fun_RelD[OF Fun_RelD[OF eq], OF lifting_triple_Eq_rep_rep_if_rel_y_x Eq_abs_self_if_in_codom[OF in_codom_T_y]]
       T_rep_y_y P_x_y
     by simp+
 qed
@@ -136,8 +144,8 @@ lemma z_property_fun_relI:
   and "z_property T2"
   shows "z_property (T1 \<Rrightarrow> T2)"
   apply (rule z_propertyI)
-  apply (rule rel_funI)
-  apply (drule rel_funD, assumption)+
+  apply (rule Fun_RelI)
+  apply (drule Fun_RelD, assumption)+
   using z_propertyD[OF assms(2)]
   by blast
 
@@ -154,20 +162,20 @@ lemma Eq_rep_appI:
   assumes lift_trip1: "lifting_triple T1 abs1 rep1"
   and lift_trip2: "\<And>x y. T1 x y \<Longrightarrow> lifting_triple (T2 x y) (abs2 y x) (rep2 x y)"
   and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
-  and Eq_fun: "Eq_rep (dep_rel_fun T1 T2) f f'"
+  and Eq_fun: "Eq_rep (Dep_Fun_Rel T1 T2) f f'"
   and Eq_arg: "Eq_rep T1 x x'"
   shows "Eq_rep (T2 x (abs1 x)) (f x) (f' x')"
 proof -
-  obtain g where rel_fun: "dep_rel_fun T1 T2 f g" "dep_rel_fun T1 T2 f' g"
+  obtain g where Fun_Rel: "Dep_Fun_Rel T1 T2 f g" "Dep_Fun_Rel T1 T2 f' g"
     using Eq_repE Eq_fun .
   obtain y where rel_arg: "T1 x y" "T1 x' y"
     using Eq_repE Eq_arg .
   have lifting_triple_Eq_abs_abs_if_rel_x_y: "Eq_abs T1 (abs1 x) y"
     using Eq_absI lifting_triple_rel_abs_if_in_dom lift_trip1 in_domI rel_arg(1, 1) .
   have rel_res: "T2 x y (f x) (g y)"
-    using dep_rel_funD rel_fun(1) rel_arg(1) .
+    using Dep_Fun_RelD Fun_Rel(1) rel_arg(1) .
   have rel_res': "T2 x' y (f' x') (g y)"
-    using dep_rel_funD rel_fun(2) rel_arg(2) .
+    using Dep_Fun_RelD Fun_Rel(2) rel_arg(2) .
   have Eq_rel1: "T2 x y = T2 x' y"
     using T2_resp rel_arg(1) Eq_arg Eq_abs_self_if_in_codom in_codomI rel_arg(1) .
   have Eq_rel2: "T2 x y = T2 x (abs1 x)"
@@ -181,20 +189,20 @@ lemma Eq_abs_appI:
   assumes lift_trip1: "lifting_triple T1 abs1 rep1"
   and lift_trip2: "\<And>x y. T1 x y \<Longrightarrow> lifting_triple (T2 x y) (abs2 y x) (rep2 x y)"
   and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
-  and Eq_fun: "Eq_abs (dep_rel_fun T1 T2) g g'"
+  and Eq_fun: "Eq_abs (Dep_Fun_Rel T1 T2) g g'"
   and Eq_arg: "Eq_abs T1 y y'"
   shows "Eq_abs (T2 (rep1 y) y) (g y) (g' y')"
 proof -
-  obtain f where rel_fun: "dep_rel_fun T1 T2 f g" "dep_rel_fun T1 T2 f g'"
+  obtain f where Fun_Rel: "Dep_Fun_Rel T1 T2 f g" "Dep_Fun_Rel T1 T2 f g'"
     using Eq_absE Eq_fun .
   obtain x where rel_arg: "T1 x y" "T1 x y'"
     using Eq_absE Eq_arg .
   have Eq_rep_x_rep_y: "Eq_rep T1 x (rep1 y)"
     using Eq_repI rel_arg(1) lifting_triple_rel_rep_if_in_codom lift_trip1 in_codomI rel_arg(1) .
   have rel_res: "T2 x y (f x) (g y)"
-    using dep_rel_funD rel_fun(1) rel_arg(1) .
+    using Dep_Fun_RelD Fun_Rel(1) rel_arg(1) .
   have rel_res': "T2 x y' (f x) (g' y')"
-    using dep_rel_funD rel_fun(2) rel_arg(2) .
+    using Dep_Fun_RelD Fun_Rel(2) rel_arg(2) .
   have Eq_rel1: "T2 x y = T2 x y'"
     using T2_resp rel_arg(1) Eq_rep_self_if_in_dom in_domI rel_arg(1) Eq_arg .
   have Eq_rel2: "T2 x y = T2 (rep1 y) y"
@@ -217,7 +225,7 @@ next
   have 1: "T x (abs x)"
     using lifting_triple_rel_abs_if_in_dom lift_trip in_dom_x .
   have 2: "Eq_abs T (abs x) (abs' x)"
-    using rel_funD Eq_abs Eq_rep_self_if_in_dom in_dom_x .
+    using Fun_RelD Eq_abs Eq_rep_self_if_in_dom in_dom_x .
   obtain x' where 3: "T x' (abs x)" "T x' (abs' x)"
     using Eq_absE 2 .
   show "T x (abs' x)"
@@ -228,7 +236,7 @@ next
   have 1: "T (rep y) y"
     using lifting_triple_rel_rep_if_in_codom lift_trip in_codom_y .
   have 2: "Eq_rep T (rep y) (rep' y)"
-    using rel_funD Eq_rep Eq_abs_self_if_in_codom in_codom_y .
+    using Fun_RelD Eq_rep Eq_abs_self_if_in_codom in_codom_y .
   obtain y' where 3: "T (rep y) y'" "T (rep' y) y'"
     using Eq_repE 2 .
   show "T (rep' y) y"
@@ -240,7 +248,7 @@ qed
    arguments. Intuitively, equivalent arguments map to equivalent transfer triples. In particular,
    this means, that the co-domain relation is fully determined by a single parameter since eg.
    \<forall>x y. T1 x y \<longrightarrow> T2 x y = T2 x (abs1 x). *)
-lemma lifting_triple_dep_rel_funI:
+lemma lifting_triple_Dep_Fun_RelI:
   assumes lift_trip1: "lifting_triple T1 abs1 rep1"
   and lift_trip2: "\<And>x y. T1 x y \<Longrightarrow> lifting_triple (T2 x y) (abs2 y x) (rep2 x y)"
   (* note swapped order of arguments for abs2 *)
@@ -249,10 +257,10 @@ lemma lifting_triple_dep_rel_funI:
     (Eq_abs (T2 x y) \<Rrightarrow> Eq_rep (T2 x y)) (rep2 x y) (rep2 x' y')"
   and abs2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow>
     (Eq_rep (T2 x y) \<Rrightarrow> Eq_abs (T2 x y)) (abs2 y x) (abs2 y' x')"
-  shows "lifting_triple (dep_rel_fun T1 T2) (dep_map_fun rep1 abs2) (dep_map_fun abs1 rep2)"
+  shows "lifting_triple (Dep_Fun_Rel T1 T2) (dep_map_fun rep1 abs2) (dep_map_fun abs1 rep2)"
 proof (rule lifting_tripleI)
-  show "z_property (dep_rel_fun T1 T2)"
-  proof (rule z_propertyI, rule dep_rel_funI, (drule dep_rel_funD, assumption)+)
+  show "z_property (Dep_Fun_Rel T1 T2)"
+  proof (rule z_propertyI, rule Dep_Fun_RelI, (drule Dep_Fun_RelD, assumption)+)
     fix f1 g1 f2 g2 x y
     assume rel: "T1 x y"
        and fun_rels: "T2 x y (f1 x) (g1 y)" "T2 x y (f2 x) (g1 y)" "T2 x y (f2 x) (g2 y)"
@@ -261,9 +269,9 @@ proof (rule lifting_tripleI)
   qed
 next
   fix f
-  assume in_dom_f: "in_dom (dep_rel_fun T1 T2) f"
-  show "dep_rel_fun T1 T2 f (dep_map_fun rep1 abs2 f)"
-  proof (rule dep_rel_funI)
+  assume in_dom_f: "in_dom (Dep_Fun_Rel T1 T2) f"
+  show "Dep_Fun_Rel T1 T2 f (dep_map_fun rep1 abs2 f)"
+  proof (rule Dep_Fun_RelI)
     fix x y
     assume rel: "T1 x y"
     have 1: "Eq_rep T1 x (rep1 y)"
@@ -287,9 +295,9 @@ next
   qed
 next
   fix g
-  assume in_codom_g: "in_codom (dep_rel_fun T1 T2) g"
-  show "dep_rel_fun T1 T2 (dep_map_fun abs1 rep2 g) g"
-  proof (rule dep_rel_funI)
+  assume in_codom_g: "in_codom (Dep_Fun_Rel T1 T2) g"
+  show "Dep_Fun_Rel T1 T2 (dep_map_fun abs1 rep2 g) g"
+  proof (rule Dep_Fun_RelI)
     fix x y
     assume rel: "T1 x y"
     have 1: "Eq_abs T1 y (abs1 x)"
@@ -314,18 +322,18 @@ next
   qed
 qed
 
-lemma lifting_triple_dep_rel_funI':
+lemma lifting_triple_Dep_Fun_RelI':
   assumes lift_trip1: "lifting_triple T1 abs1 rep1"
   and lift_trip2: "\<And>x y. T1 x y \<Longrightarrow> lifting_triple (T2 x y) abs2 rep2"
   (* note swapped order of arguments for abs2 *)
   and T2_resp: "\<And>x x' y y'. \<lbrakk>T1 x y; Eq_rep T1 x x'; Eq_abs T1 y y'\<rbrakk> \<Longrightarrow> T2 x y = T2 x' y'"
-  shows "lifting_triple (dep_rel_fun T1 T2) (map_fun rep1 abs2) (map_fun abs1 rep2)"
+  shows "lifting_triple (Dep_Fun_Rel T1 T2) (map_fun rep1 abs2) (map_fun abs1 rep2)"
   unfolding map_fun_def
-  apply (rule lifting_triple_dep_rel_funI)
+  apply (rule lifting_triple_Dep_Fun_RelI)
   apply (fact lift_trip1)
   apply (fact lift_trip2)
     apply (fact T2_resp)
-  unfolding rel_fun_def dep_rel_fun_def
+  unfolding Fun_Rel_def Dep_Fun_Rel_def
    apply (rule allI)+ apply (rule impI)
   apply (rule lifting_triple_Eq_rep_rep_if_rel)
   apply (rule lift_trip2)
@@ -343,24 +351,24 @@ lemma lifting_triple_dep_rel_funI':
   apply assumption+
   done
 
-lemma lifting_triple_rel_funI:
+lemma lifting_triple_Fun_RelI:
   assumes lift_trip1: "lifting_triple T1 abs1 rep1"
       and lift_trip2: "lifting_triple T2 abs2 rep2"
     shows "lifting_triple (T1 \<Rrightarrow> T2) (map_fun rep1 abs2) (map_fun abs1 rep2)"
-  unfolding rel_fun_def map_fun_def
-  apply (rule lifting_triple_dep_rel_funI)
+  unfolding Fun_Rel_def map_fun_def
+  apply (rule lifting_triple_Dep_Fun_RelI)
   apply (rule lift_trip1 lift_trip2 refl)+
-   apply (rule rel_funI)
+   apply (rule Fun_RelI)
   apply (rule lifting_triple_Eq_rep_rep_rep_if_Eq_abs[OF lift_trip2], assumption)
-   apply (rule rel_funI)
+   apply (rule Fun_RelI)
   apply (rule lifting_triple_Eq_abs_abs_abs_if_Eq_rep[OF lift_trip2], assumption)
   done
 
-lemma rel_inv_rel_fun_eq_rel_fun_rel_inv:
+lemma rel_inv_Fun_Rel_eq_Fun_Rel_rel_inv:
   "rel_inv (T1 \<Rrightarrow> T2) = rel_inv T1 \<Rrightarrow> rel_inv T2"
-  unfolding rel_inv_def rel_fun_def dep_rel_fun_def by blast
+  unfolding rel_inv_def Fun_Rel_def Dep_Fun_Rel_def by blast
 
-lemma Eq_rep_rel_fun_eq_rel_fun_Eq_repI:
+lemma Eq_rep_Fun_Rel_eq_Fun_Rel_Eq_repI:
   assumes "lifting_triple T1 abs1 rep1" and "lifting_triple T2 abs2 rep2"
   shows "Eq_rep (T1 \<Rrightarrow> T2) = Eq_rep T1 \<Rrightarrow> Eq_rep T2"
 proof ((rule ext)+, rule iffI)
@@ -369,14 +377,14 @@ proof ((rule ext)+, rule iffI)
   obtain h where h: "(T1 \<Rrightarrow> T2) f h" "(T1 \<Rrightarrow> T2) g h"
     using Eq_repE[OF prem1] by blast
   show "(Eq_rep T1 \<Rrightarrow> Eq_rep T2) f g"
-  proof (rule rel_funI)
+  proof (rule Fun_RelI)
     fix x y
     assume prem2: "Eq_rep T1 x y"
     obtain z where z: "T1 x z" "T1 y z"
       using Eq_repE[OF prem2] by blast
     show "Eq_rep T2 (f x) (g y)"
       apply (rule Eq_repI)
-      using rel_funD[OF h(1) z(1)] rel_funD[OF h(2) z(2)] .
+      using Fun_RelD[OF h(1) z(1)] Fun_RelD[OF h(2) z(2)] .
   qed
 next
   fix f g
@@ -387,11 +395,11 @@ next
     have 1: "Eq_rep T1 x (rep1 z)"
       using lifting_triple_Eq_rep_rep_if_rel assms(1) rel_arg .
     have 2: "Eq_rep T2 (f x) (g (rep1 z))"
-      using rel_funD prem1 1 .
+      using Fun_RelD prem1 1 .
     have 3: "Eq_rep T2 (f x) (g x)"
-      using rel_funD prem1 Eq_rep_self_if_in_dom in_domI rel_arg .
+      using Fun_RelD prem1 Eq_rep_self_if_in_dom in_domI rel_arg .
     have 4: "Eq_rep T2 (g x) (f (rep1 z))"
-      using  Eq_rep_sym rel_funD prem1 Eq_rep_sym 1 .
+      using  Eq_rep_sym Fun_RelD prem1 Eq_rep_sym 1 .
     have 5: "Eq_rep T2 (f x) (f (rep1 z))"
       using rel_if_rel_if_rel_if_partial_equivalence partial_equivalence_Eq_rep_if_z_property z_property_if_lifting_triple assms(2) 3 4 .
     have 6: "T2 (f (rep1 z)) (abs2 (f (rep1 z)))"
@@ -409,26 +417,26 @@ next
     have 2: "T2 (f x) (h z)"
       using 1 rel_arg .
     have 3: "Eq_rep T2 (f x) (g x)"
-      using rel_funD prem1 Eq_rep_self_if_in_dom in_domI rel_arg .
+      using Fun_RelD prem1 Eq_rep_self_if_in_dom in_domI rel_arg .
     have "T2 (g x) (h z)"
       apply (subst lifting_triple_Eq_rep_rel_comp_eq_self[OF assms(2), symmetric])
       using rel_compI Eq_rep_sym 3 2 .
   }
   note 2 = this
   show "Eq_rep (T1 \<Rrightarrow> T2) f g"
-    by (rule Eq_repI; rule rel_funI, fact 1 2)
+    by (rule Eq_repI; rule Fun_RelI, fact 1 2)
 qed
 
-lemma Eq_abs_rel_fun_eq_rel_fun_Eq_absI:
+lemma Eq_abs_Fun_Rel_eq_Fun_Rel_Eq_absI:
   assumes "lifting_triple T1 abs1 rep1" and "lifting_triple T2 abs2 rep2"
   shows "Eq_abs (T1 \<Rrightarrow> T2) = Eq_abs T1 \<Rrightarrow> Eq_abs T2"
 proof -
   have "Eq_abs (T1 \<Rrightarrow> T2) = Eq_rep (rel_inv (T1 \<Rrightarrow> T2))"
     apply (subst  Eq_rep_rel_inv_eq_Eq_abs) ..
   also have "... = Eq_rep (rel_inv T1 \<Rrightarrow> rel_inv T2)"
-    apply (subst rel_inv_rel_fun_eq_rel_fun_rel_inv) ..
+    apply (subst rel_inv_Fun_Rel_eq_Fun_Rel_rel_inv) ..
   also have "... = Eq_rep (rel_inv T1) \<Rrightarrow> Eq_rep (rel_inv T2)"
-    apply (subst Eq_rep_rel_fun_eq_rel_fun_Eq_repI[OF
+    apply (subst Eq_rep_Fun_Rel_eq_Fun_Rel_Eq_repI[OF
         lifting_triple_dual[OF assms(1)] lifting_triple_dual[OF assms(2)]]) ..
   also have "... = Eq_abs T1 \<Rrightarrow> Eq_abs T2"
     apply (subst  Eq_rep_rel_inv_eq_Eq_abs)+ ..
@@ -458,15 +466,15 @@ proof (rule z_propertyI)
 qed
 
 lemma rel_comp: "((S \<Rrightarrow> T) \<Rrightarrow> (R \<Rrightarrow> S) \<Rrightarrow> R \<Rrightarrow> T) (\<circ>) (\<circ>)"
-proof ((rule rel_funI)+, (subst comp_def)+)
+proof ((rule Fun_RelI)+, (subst comp_def)+)
   fix f f' g g' x x'
   assume rel_f: "(S \<Rrightarrow> T) f f'"
     and rel_g: "(R \<Rrightarrow> S) g g'"
     and rel_x: "R x x'"
   have rel_g_x: "S (g x) (g' x')"
-    using rel_funD rel_g rel_x .
+    using Fun_RelD rel_g rel_x .
   show "T (f (g x)) (f' (g' x'))"
-    using rel_funD rel_f rel_g_x .
+    using Fun_RelD rel_f rel_g_x .
 qed
 
 lemma z_property_if_rel_self:
@@ -480,29 +488,29 @@ proof (rule z_propertyI)
   have Eq_y'_y: "Eq_abs T y' y"
     using Eq_absI rels (3, 2) .
   show "T x y'"
-    apply (subst rel_funD[OF rel_funD[OF eq], OF  Eq_x_x Eq_y'_y])
+    apply (subst Fun_RelD[OF Fun_RelD[OF eq], OF  Eq_x_x Eq_y'_y])
     using rels(1) .
 qed
 
-lemma in_dom_rel_fun_iff_if_lifting_triples:
+lemma in_dom_Fun_Rel_iff_if_lifting_triples:
   assumes "lifting_triple T1 abs1 rep1" "lifting_triple T2 abs2 rep2"
   shows "in_dom (T1 \<Rrightarrow> T2) f \<longleftrightarrow> (\<forall>x1 x2. Eq_rep T1 x1 x2 \<longrightarrow> Eq_rep T2 (f x1) (f x2))"
   apply (subst Eq_rep_self_eq_in_dom[symmetric])
-  apply (subst Eq_rep_rel_fun_eq_rel_fun_Eq_repI[OF assms])
-  unfolding rel_fun_def dep_rel_fun_def ..
+  apply (subst Eq_rep_Fun_Rel_eq_Fun_Rel_Eq_repI[OF assms])
+  unfolding Fun_Rel_def Dep_Fun_Rel_def ..
 
-lemma in_dom_rel_fun_if_Eq_rep_if_lifting_triples:
+lemma in_dom_Fun_Rel_if_Eq_rep_if_lifting_triples:
   assumes "lifting_triple T1 abs1 rep1" "lifting_triple T2 abs2 rep2"
   and "\<And>x1 x2. Eq_rep T1 x1 x2 \<Longrightarrow> Eq_rep T2 (f x1) (f x2)"
   shows "in_dom (T1 \<Rrightarrow> T2) f"
-  using assms in_dom_rel_fun_iff_if_lifting_triples by fast
+  using assms in_dom_Fun_Rel_iff_if_lifting_triples by fast
 
-lemma in_dom_rel_fun_if_Eq_rep_if_lifting_triples':
+lemma in_dom_Fun_Rel_if_Eq_rep_if_lifting_triples':
   assumes "lifting_triple T1 abs1 rep1" "lifting_triple T2 abs2 rep2"
   and "left_unique T1"
   and "\<And>x. in_dom T1 x \<Longrightarrow> in_dom T2 (f x)"
   shows "in_dom (T1 \<Rrightarrow> T2) f"
-  apply (rule in_dom_rel_fun_if_Eq_rep_if_lifting_triples)
+  apply (rule in_dom_Fun_Rel_if_Eq_rep_if_lifting_triples)
     apply (fact assms)+
 proof -
   fix x1 x2

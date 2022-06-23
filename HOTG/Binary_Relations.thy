@@ -337,9 +337,9 @@ qed
 
 consts restrict :: "set \<Rightarrow> 'a \<Rightarrow> set"
 
-bundle hotg_restrict_syntax begin notation restrict (infixl "\<restriction>" 100) end
+bundle hotg_set_restrict_syntax begin notation restrict (infixl "\<restriction>" 100) end
 bundle no_hotg_set_restrict_syntax begin no_notation restrict (infixl "\<restriction>" 100) end
-unbundle hotg_restrict_syntax
+unbundle hotg_set_restrict_syntax
 
 overloading
   restrict_pred \<equiv> "restrict :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
