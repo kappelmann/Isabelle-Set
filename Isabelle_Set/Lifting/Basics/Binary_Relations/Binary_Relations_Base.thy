@@ -527,6 +527,16 @@ lemma transitive_onD:
   shows "R x z"
   using assms unfolding transitive_on_pred_def by blast
 
+lemma transitive_on_if_rel_comp_self_iff_rel:
+  assumes "\<And>x y. P x \<Longrightarrow> P y \<Longrightarrow> (R \<circ>\<circ> R) x y \<longleftrightarrow> R x y"
+  shows "transitive_on P R"
+proof (rule transitive_onI)
+  fix x y z assume "R x y" "R y z"
+  then have "(R \<circ>\<circ> R) x z" by (intro rel_compI)
+  moreover assume "P x" "P y" "P z"
+  ultimately show "R x z" by (simp only: assms)
+qed
+
 definition "transitive (R :: 'a \<Rightarrow> _) \<equiv> transitive_on (\<lambda>x :: 'a. True) R"
 
 lemma transitive_eq_transitive_on:
@@ -550,6 +560,12 @@ lemma transitive_on_if_transitive:
   shows "transitive_on P R"
   using assms by (intro transitive_onI) (blast dest: transitiveD)
 
+lemma transitive_if_rel_comp_self_eq_self:
+  assumes "R \<circ>\<circ> R = R"
+  shows "transitive R"
+  using assms unfolding transitive_eq_transitive_on
+    by (intro transitive_on_if_rel_comp_self_iff_rel) simp
+
 definition "partial_equivalence_on P R \<equiv> symmetric_on P R \<and> transitive_on P R"
 
 lemma partial_equivalence_onI:
@@ -562,6 +578,16 @@ lemma partial_equivalence_onE:
   assumes "partial_equivalence_on P R"
   obtains "symmetric_on P R" "transitive_on P R"
   using assms unfolding partial_equivalence_on_def by blast
+
+lemma partial_equivalence_on_rel_self_if_rel:
+  assumes "partial_equivalence_on P R"
+  and "P x" "P y"
+  and "R x y"
+  shows "R x x"
+proof -
+  from assms have "R y x" by (elim partial_equivalence_onE) (drule symmetric_onD)
+  with assms show "R x x" by (elim partial_equivalence_onE) (drule transitive_onD)
+qed
 
 definition "partial_equivalence (R :: 'a \<Rightarrow> _) \<equiv> partial_equivalence_on (\<lambda>x :: 'a. True) R"
 
@@ -590,6 +616,13 @@ lemma partial_equivalence_on_if_partial_equivalence:
   using assms
   by (elim partial_equivalenceE, intro partial_equivalence_onI)
     (blast intro: symmetric_on_if_symmetric transitive_on_if_transitive)+
+
+lemma reflexive_on_in_dom_if_partial_equivalence:
+  assumes "partial_equivalence R"
+  shows "reflexive_on (in_dom R) R"
+  using assms unfolding partial_equivalence_eq_partial_equivalence_on
+  by (intro reflexive_onI)
+    (blast dest: partial_equivalence_on_rel_self_if_rel elim: in_domE)
 
 lemma rel_comp_self_eq_self_if_partial_equivalence:
   assumes "partial_equivalence R"

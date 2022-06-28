@@ -45,6 +45,16 @@ lemma Eq_rep_self_if_in_dom:
 corollary Eq_rep_self_iff_in_dom: "Eq_rep R x x \<longleftrightarrow> in_dom R x"
   using in_dom_if_Eq_rep Eq_rep_self_if_in_dom by fast
 
+lemma in_dom_if_in_dom_Eq_rep:
+  assumes "in_dom (Eq_rep R) x"
+  shows "in_dom R x"
+  using assms by (elim in_domE) (intro in_dom_if_Eq_rep)
+
+lemma in_dom_if_in_codom_Eq_rep:
+  assumes "in_codom (Eq_rep R) x"
+  shows "in_dom R x"
+  using assms by (elim in_codomE) (intro in_dom_if_Eq_rep)
+
 definition Eq_abs :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'b \<Rightarrow> 'b \<Rightarrow> bool"
   where "Eq_abs R \<equiv> rel_inv R \<circ>\<circ> R"
 
@@ -102,6 +112,16 @@ lemma Eq_abs_self_if_in_codom:
 
 corollary Eq_abs_self_iff_in_codom: "Eq_abs R y y \<longleftrightarrow> in_codom R y"
   using in_codom_if_Eq_abs Eq_abs_self_if_in_codom by fast
+
+lemma in_codom_if_in_dom_Eq_abs:
+  assumes "in_dom (Eq_abs R) x"
+  shows "in_codom R x"
+  using assms by (elim in_domE) (intro in_codom_if_Eq_abs)
+
+lemma in_codom_if_in_codom_Eq_abs:
+  assumes "in_codom (Eq_abs R) x"
+  shows "in_codom R x"
+  using assms by (elim in_codomE) (intro in_codom_if_Eq_abs)
 
 lemma Eq_abs_rel_comp_Eq_rep_finer_iff:
   "(Eq_abs R1 \<circ>\<circ> Eq_rep R2) \<sqsubseteq> (Eq_rep R2 \<circ>\<circ> Eq_abs R1) \<longleftrightarrow>

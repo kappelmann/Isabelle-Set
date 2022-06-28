@@ -123,6 +123,29 @@ lemma lifting_triple_Eq_rep_rep_rep_if_Eq_abs:
   using assms
   by (intro lifting_triple_Eq_rep_rep_if_rel) (blast dest: lifting_triple_rel_rep_if_Eq_abs)+
 
+lemma lifting_triple_Eq_rep_rep_abs_self_if_in_dom:
+  assumes lift_trip: "lifting_triple R abs rep"
+  and "in_dom R x"
+  shows "(Eq_rep R) x (rep (abs x))"
+proof -
+  from assms have "R x (abs x)"
+    by (rule lifting_triple_rel_abs_self_if_in_dom)
+  with lift_trip show "(Eq_rep R) x (rep (abs x))"
+    by (rule lifting_triple_Eq_rep_rep_if_rel)
+qed
+
+lemma lifting_triple_Eq_abs_abs_rep_self_if_in_codom:
+  assumes lift_trip: "lifting_triple R abs rep"
+  and "in_codom R y"
+  shows "(Eq_abs R) (abs (rep y)) y"
+proof -
+  from assms have "R (rep y) y"
+    by (rule lifting_triple_rel_rep_self_if_in_codom)
+  with lift_trip show "Eq_abs R (abs (rep y)) y"
+    by (rule lifting_triple_Eq_abs_abs_if_rel)
+qed
+
+
 lemma lifting_triple_rel_comp_abs_abs_if_in_dom_rel_comp:
   assumes trans_trip1: "lifting_triple R1 abs1 rep1"
   and trans_trip2: "lifting_triple R2 abs2 rep2"
