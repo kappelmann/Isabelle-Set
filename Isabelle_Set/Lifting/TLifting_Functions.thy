@@ -14,12 +14,12 @@ lemma id_type[type]: "id : A \<Rightarrow> A"
   apply (rule fun_typeI)
   unfolding id_def .
 
-lemma map_fun_type':
+lemma fun_map_type':
   assumes rep_type: "f : a \<Rightarrow> b"
   and abs_type: "g : c \<Rightarrow> d"
   and f_type: "h : b \<Rightarrow> c"
-  shows "map_fun f g h : a \<Rightarrow> d"
-  unfolding map_fun_def dep_map_fun_def
+  shows "fun_map f g h : a \<Rightarrow> d"
+  unfolding fun_map_def dep_fun_map_def
   apply (rule Dep_fun_typeI)
   apply (rule fun_typeE[OF abs_type])
   apply (rule fun_typeE[OF f_type])
@@ -27,9 +27,9 @@ lemma map_fun_type':
   apply assumption
   done
 
-lemma map_fun_type[type]: "map_fun : (A \<Rightarrow> B) \<Rightarrow> (C \<Rightarrow> D) \<Rightarrow> (B \<Rightarrow> C) \<Rightarrow> A \<Rightarrow> D"
+lemma fun_map_type[type]: "fun_map : (A \<Rightarrow> B) \<Rightarrow> (C \<Rightarrow> D) \<Rightarrow> (B \<Rightarrow> C) \<Rightarrow> A \<Rightarrow> D"
   apply (rule fun_typeI, rule fun_typeI, rule fun_typeI)
-  apply (rule map_fun_type')
+  apply (rule fun_map_type')
   apply assumption+
   done
 

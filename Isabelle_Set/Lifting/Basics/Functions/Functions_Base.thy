@@ -1,5 +1,4 @@
-section \<open>Functions\<close>
-theory LFunctions
+theory Functions_Base
   imports HOL.HOL
 begin
 
@@ -25,18 +24,18 @@ lemma id_comp_eq [simp]: "id \<circ> f = f"
 lemma comp_id_eq [simp]: "f \<circ> id = f"
   by (rule ext) simp
 
-definition "dep_map_fun f g h x \<equiv> g x (f x) (h (f x))"
+definition "dep_fun_map f g h x \<equiv> g x (f x) (h (f x))"
 
-lemma dep_map_fun_eq: "dep_map_fun f g h x = g x (f x) (h (f x))"
-  unfolding dep_map_fun_def ..
+lemma dep_fun_map_eq: "dep_fun_map f g h x = g x (f x) (h (f x))"
+  unfolding dep_fun_map_def ..
 
-definition "map_fun f g h \<equiv> dep_map_fun f (\<lambda>_ _. g) h"
+definition "fun_map f g h \<equiv> dep_fun_map f (\<lambda>_ _. g) h"
 
-lemma map_fun_eq_comp: "map_fun f g h = g \<circ> h \<circ> f"
-  unfolding map_fun_def dep_map_fun_eq by fastforce
+lemma fun_map_eq_comp: "fun_map f g h = g \<circ> h \<circ> f"
+  unfolding fun_map_def dep_fun_map_eq by fastforce
 
-lemma map_fun_eq: "map_fun f g h x = g (h (f x))"
-  unfolding map_fun_eq_comp by simp
+lemma fun_map_eq: "fun_map f g h x = g (h (f x))"
+  unfolding fun_map_eq_comp by simp
 
 
 subsection \<open>Basic Properties\<close>

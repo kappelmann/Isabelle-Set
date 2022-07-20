@@ -78,18 +78,18 @@ schematic_goal "?T Int_Rep_add ?Int_Abs_add"
   done
 
 definition "Int_add \<equiv>
-  map_fun int_lifting.rep (map_fun int_lifting.rep int_lifting.abs) Int_Rep_add"
+  fun_map int_lifting.rep (fun_map int_lifting.rep int_lifting.abs) Int_Rep_add"
 
 lemma Int_add_type [type]: "Int_add : Int \<Rightarrow> Int \<Rightarrow> Int"
   unfolding Int_add_def
-  apply (rule fun_typeE[of "map_fun int_lifting.rep (map_fun int_lifting.rep int_lifting.abs)"])
-  apply (rule fun_typeE[of "map_fun int_lifting.rep"])
-  apply (rule fun_typeE[of "map_fun"])
-  apply (fact map_fun_type)
+  apply (rule fun_typeE[of "fun_map int_lifting.rep (fun_map int_lifting.rep int_lifting.abs)"])
+  apply (rule fun_typeE[of "fun_map int_lifting.rep"])
+  apply (rule fun_typeE[of "fun_map"])
+  apply (fact fun_map_type)
   apply (fact Int.Rep_type)
-  apply (rule fun_typeE[of "map_fun int_lifting.rep"])
-  apply (rule fun_typeE[of "map_fun"])
-  apply (fact map_fun_type)
+  apply (rule fun_typeE[of "fun_map int_lifting.rep"])
+  apply (rule fun_typeE[of "fun_map"])
+  apply (fact fun_map_type)
   apply (fact Int.Rep_type)
   apply (fact Int.Abs_type)
   apply (subst int_rep_translation)+
@@ -148,18 +148,18 @@ schematic_goal "?T Int_Rep_pow ?Int_Abs_pow"
   apply discharge_types
   done
 
-definition "Int_pow \<equiv> map_fun id (map_fun int_lifting.rep int_lifting.abs) Int_Rep_pow"
+definition "Int_pow \<equiv> map_funfun_mapp_funfun_mapfting.rep int_lifting.abs) Int_Rep_pow"
 
 lemma Int_pow_type [type]: "Int_pow : Nat \<Rightarrow> Int \<Rightarrow> Int"
   unfolding Int_pow_def
-  apply (rule fun_typeE[of "map_fun id (map_fun int_lifting.rep int_lifting.abs)"])
-  apply (rule fun_typeE[of "map_fun id"])
-  apply (rule fun_typeE[of "map_fun"])
-  apply (fact map_fun_type)
+  apply (rule fun_typeE[of "fun_map id (fun_map int_lifting.rep int_lifting.abs)"])
+  apply (rule fun_typeE[of "fun_map id"])
+  apply (rule fun_typeE[of "fun_map"])
+  apply (fact fun_map_type)
   apply (fact id_type)
-  apply (rule fun_typeE[of "map_fun int_lifting.rep"])
-  apply (rule fun_typeE[of "map_fun"])
-  apply (fact map_fun_type)
+  apply (rule fun_typeE[of "fun_map int_lifting.rep"])
+  apply (rule fun_typeE[of "fun_map"])
+  apply (fact fun_map_type)
   apply (fact Int.Rep_type)
   apply (fact Int.Abs_type)
   apply (subst int_rep_translation)+
@@ -217,7 +217,7 @@ schematic_goal "?T Int_Rep_divisable ?Int_Abs_divisable"
   done
 
 definition "Int_Abs_divisable \<equiv>
-  map_fun int_lifting.rep (map_fun int_lifting.rep id) Int_Rep_divisable"
+  fun_map int_lifting.rep (fun_map int_lifting.rep id) Int_Rep_divisable"
 
 definition "Int_Rep_div i j \<equiv> (THE k. Int_Rep_mul j k = i)"
 
@@ -239,8 +239,8 @@ lemma Int_Abs_divisable_parametric:
 schematic_goal "?T Int_Rep_div ?Int_Abs_div"
   apply (rule transfer_start[of
     "[_ i' \<Colon> Int_Rel] \<Rrightarrow> [Int_Rel | (\<lambda>_ j'. Int_Abs_divisable i' j')] \<Rrightarrow> Int_Rel"
-    "map_fun Int_rep (map_fun Int_rep Int_abs)"
-    "map_fun Int_abs (map_fun Int_abs Int_rep)"
+    "fun_map Int_rep (fun_map Int_rep Int_abs)"
+    "fun_map Int_abs (fun_map Int_abs Int_rep)"
     Int_Rep_div])
   apply (rule lifting_triple_dep_rel_funI')
     apply (fact int_lifting.lifting_triple)

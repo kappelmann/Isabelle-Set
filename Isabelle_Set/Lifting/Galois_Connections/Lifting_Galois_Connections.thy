@@ -1,77 +1,141 @@
 subsection \<open>Lifting With Galois Connections\<close>
 theory Lifting_Galois_Connections
   imports
-    Galois_Connections
-    Lifting_Relations_New
+    Galois_Relations
     Lifting_Triples
 begin
 
-definition "Galois_Rel L r x y \<equiv> L x (r y)"
+lemma TODOcomp:
+  assumes galois1: "galois_connection L1 R1 l1 r1"
+  and galois2: "galois_connection L2 R2 l2 r2"
+  (* and "\<And>x y. in_dom L1 x \<Longrightarrow> in_codom R2 y \<Longrightarrow> R1 (l1 x) (r2 y) \<longleftrightarrow> L2 (l1 x) (r2 y)" *)
+  (* and R1_l1_finer: "\<And>x x'. R1 (l1 x) (l1 x') \<Longrightarrow> L2 (l1 x) (l1 x')"
+  and L2_r2_finer: "\<And>z z'. L2 (r2 z) (r2 z') \<Longrightarrow> R1 (r2 z) (r2 z')" *)
+  defines "l \<equiv> l2 \<circ> l1" and "r \<equiv> r1 \<circ> r2"
+  and "L \<equiv> Galois_Comp_Left L1 R1 l1 r1 L2" and "R \<equiv> Galois_Comp_Right R1 L2 r2"
+  shows "galois_connection L R l r"
+proof (rule galois_connectionI)
+  show "monotone L R l"
+  proof (intro dep_monotoneI Galois_Comp_RightI')
+    fix x x'
+    assume "L x x'"
+    then obtain y y' where "L1 x (r1 y)" "L2 y y'" "R1 y' (l1 x')"
+      unfolding L_def by (elim Galois_Comp_LeftE')
+    from \<open>L1 x (r1 y)\<close> have "R1 (l1 x) y" sorry
+    with \<open>L2 y y'\<close> obtain y'' where "L2 (l1 x) y''" sorry
+    show "R (l x) (l x')" unfolding R_def
+    sorry
+    (* proof (intro Galois_Comp_RightI')
+      show "R2 (l x) (l2 y'')" sorry
+      show "R1 y'' (l1 (r1 y''))" sorry
+      (* L2 (l2 ?x') (l x') *)
+    qed *)
+  qed
+  show "galois_property L R l r"
+  proof (rule galois_propertyI)
+    fix x y
+    assume "in_dom L x" "in_codom R y"
+    then have "in_dom L1 x" "in_codom R1 (r2 y)"
+      unfolding L_def R_def
+      by (fastforce elim: in_dom_rel_interE in_codom_rel_interE intro: in_domI in_codomI)+
+    (* then obtain x' y' where "L x x'" "R y' y" by (blast elim: in_domE in_codomE)
+    then have "L1 x x'" "L2 (l1 x) (l1 x')" "R2 y' y" "R1 (r2 y') (r2 y)"
+      unfolding L_def R_def by (fastforce elim: rel_interE)+ *)
+    have "L x (r y) \<longleftrightarrow> L1 x (r y) \<and> L2 (l1 x) (l1 (r y))"
+      unfolding L_def by (fastforce elim: rel_interE intro: rel_interI)
+    have "R2 (l x) y \<and> R1 (r2 (l x)) (r2 y) \<longleftrightarrow> R (l x) y"
+      unfolding R_def by (fastforce elim: rel_interE intro: rel_interI)
+    also from galois1 \<open>in_dom L1 x\<close> \<open>in_codom R1 (r2 y)\<close>
+      have "... \<longleftrightarrow> R1 (l1 x) (r2 y)"
+      by (rule galois_property_left_rel_right_iff_right_rel_left)
+    also from \<open>in_dom L1 x\<close> \<open>in_codom R2 y\<close> have "... \<longleftrightarrow> L2 (l1 x) (r2 y)"
+      by (rule agree)
+    also from galois2 \<open>in_dom L2 (l1 x)\<close> \<open>in_codom R2 y\<close> have "... \<longleftrightarrow> R2 (l2 (l1 x)) y"
+      by (rule galois_property_left_rel_right_iff_right_rel_left)
+    also have "... \<longleftrightarrow> R2 ((l2 \<circ> l1) x) y" by simp
+    finally show "L1 x ((r1 \<circ> r2) y) \<longleftrightarrow> R2 ((l2 \<circ> l1) x) y" .
+    show "L x (r y) \<longleftrightarrow> R (l x) y" sorry
+  qed
+  (* from galois1 galois2 L2_r2_finer show "monotone R2 L1 (r1 \<circ> r2)"
+    by (intro monotone_compI galois_connection_monotone_right)of (intro Galois_Comp_RightI')
+      show "R2 (l x) (l2 y'')" sorry
+      show "R1 y'' (l1 (r1 y''))" sorry
+      (* L2 (l2 ?x') (l x') *)
+    qed *)
 
-lemma Galois_Rel_if_left_rel_right:
-  assumes "L x (r y)"
-  shows "(Galois_Rel L r) x y"
-  unfolding Galois_Rel_def using assms .
-
-lemma Galois_Rel_on_left_rel_right:
-  assumes "(Galois_Rel L r) x y"
-  shows "L x (r y)"
-  using assms unfolding Galois_Rel_def by blast
-
-corollary Galois_Rel_iff_left_rel_right: "(Galois_Rel L r) x y \<longleftrightarrow> L x (r y)"
-  using Galois_Rel_if_left_rel_right Galois_Rel_on_left_rel_right by (intro iffI)
-
-lemma galois_property_right_rel_left_if_Galois_Rel:
-  assumes "galois_property L R l r"
-  and "(Galois_Rel L r) x y"
-  shows "R (l x) y"
-  using assms
-  by (blast intro: galois_property_right_rel_left_if_left_rel_right
-    dest: Galois_Rel_on_left_rel_right)
-
-lemma galois_property_Galois_Rel_if_right_rel_left:
-  assumes "galois_property L R l r"
-  and "R (l x) y"
-  shows "(Galois_Rel L r) x y"
-  using assms
-  by (intro Galois_Rel_if_left_rel_right) (rule galois_property_left_rel_right_if_right_rel_left)
-
-corollary galois_property_Galois_Rel_iff_right_rel_left:
-  assumes "galois_property L R l r"
-  shows "(Galois_Rel L r) x y \<longleftrightarrow> R (l x) y"
-  using assms galois_property_right_rel_left_if_Galois_Rel
-    galois_property_Galois_Rel_if_right_rel_left
-  by (intro iffI)
-
-lemma galois_property_rel_inv_Galois_Rel_rel_inv_eq:
-  assumes "galois_property L R l r"
-  shows "rel_inv (Galois_Rel (rel_inv R) l) = Galois_Rel L r"
-proof (intro ext)
-  fix x y
-  have "rel_inv (Galois_Rel (rel_inv R) l) x y \<longleftrightarrow> (Galois_Rel (rel_inv R) l) y x"
-    by (simp only: rel_inv_iff_rel)
-  also have "... \<longleftrightarrow> (rel_inv R) y (l x)" by (fact Galois_Rel_iff_left_rel_right)
-  also have "... \<longleftrightarrow> R (l x) y" by (simp only: rel_inv_iff_rel)
-  also from assms have "... \<longleftrightarrow> L x (r y)"
-    by (rule galois_property_left_rel_right_iff_right_rel_left[symmetric])
-  also have "... \<longleftrightarrow> (Galois_Rel L r) x y" by (fact Galois_Rel_iff_left_rel_right[symmetric])
-  finally show "rel_inv (Galois_Rel (rel_inv R) l) x y \<longleftrightarrow> Galois_Rel L r x y" .
+  from galois1 show "has_fun_type (in_dom L1) (in_dom L2) l1"
+    by (intro has_fun_typeI)
+    (blast elim: in_domE dest: galois_connection_right_rel_left_left_if_left_rel
+      intro: in_domI R1_l1_finer)
+  from galois2 show "has_fun_type (in_codom R2) (in_codom R1) r2"
+    by (intro has_fun_typeI)
+    (blast elim: in_codomE dest: galois_connection_left_rel_right_right_if_right_rel
+      intro: in_codomI L2_r2_finer) *)
 qed
+(intro galois_property_if_galois_connection | fact)+
 
-lemma galois_connection_Galois_Rel_left_if_left_rel:
-  assumes "galois_connection L R l r"
-  and "L x x'"
-  shows "(Galois_Rel L r) x (l x')"
-  using assms by (intro Galois_Rel_if_left_rel_right)
-    (rule galois_connection_left_rel_right_left_if_left_rel)
-
-lemma galois_connection_Galois_Rel_right_if_right_rel:
-  assumes galois: "galois_connection L R l r"
-  and "R y y'"
-  shows "(Galois_Rel L r) (r y) y'"
-  using assms
-  by (intro Galois_Rel_if_left_rel_right)
-    (rule galois_connection_left_rel_right_right_if_right_rel)
+(*Too restrictive*)
+(* lemma TODO:
+  assumes galois1: "galois_connection L1 R1 l1 r1"
+  and galois2: "galois_connection L2 R2 l2 r2"
+  (* and "\<And>x y. in_dom L1 x \<Longrightarrow> in_codom R2 y \<Longrightarrow> R1 (l1 x) (r2 y) \<longleftrightarrow> L2 (l1 x) (r2 y)" *)
+  (* and R1_l1_finer: "\<And>x x'. R1 (l1 x) (l1 x') \<Longrightarrow> L2 (l1 x) (l1 x')"
+  (* and "galois_connection (rel_bimap l1 r2 L2) (rel_bimap l1 r2 R1) (r2 \<circ> l2) (l1 \<circ> r1)"*)
+  and L2_r2_finer: "\<And>z z'. L2 (r2 z) (r2 z') \<Longrightarrow> R1 (r2 z) (r2 z')" *)
+  defines "l \<equiv> l2 \<circ> l1" and "r \<equiv> r1 \<circ> r2"
+  defines "L \<equiv> L1 \<sqinter> rel_map l1 L2" and "R \<equiv> R2 \<sqinter> rel_map r2 R1"
+  shows "galois_connection L R l r"
+proof (rule galois_connectionI)
+  show "monotone L R l" unfolding L_def
+  proof (rule dep_monotoneI)
+    fix x x'
+    assume "(L1 \<sqinter> rel_map l1 L2) x x'"
+    then have "L1 x x'" "L2 (l1 x) (l1 x')" by (fastforce elim: rel_interE)+
+    then have "R2 (l x) (l x')" sorry
+    moreover have "rel_map r2 R1 (l x) (l x')" sorry
+    ultimately show "R (l x) (l x')" unfolding R_def l_def by (rule rel_interI)
+    (* assume "(L1 \<sqinter> rel_map (r \<circ> l) L1) x x'"
+    then have "L1 x x'" "L1 (r (l x)) (r (l x'))" by (fastforce elim: rel_interE)+
+    have "R2 (l2 (l1 x)) (l2 (l1 x'))" sorry
+    show "(R2 \<sqinter> rel_map (l \<circ> r) R2) (l x) (l x')" sorry *)
+  qed
+  show "galois_property L R l r"
+  proof (rule galois_propertyI)
+    fix x y
+    assume "in_dom L x" "in_codom R y"
+    then have "in_dom L1 x" "in_codom R1 (r2 y)"
+      unfolding L_def R_def
+      by (fastforce elim: in_dom_rel_interE in_codom_rel_interE intro: in_domI in_codomI)+
+    (* then obtain x' y' where "L x x'" "R y' y" by (blast elim: in_domE in_codomE)
+    then have "L1 x x'" "L2 (l1 x) (l1 x')" "R2 y' y" "R1 (r2 y') (r2 y)"
+      unfolding L_def R_def by (fastforce elim: rel_interE)+ *)
+    have "L x (r y) \<longleftrightarrow> L1 x (r y) \<and> L2 (l1 x) (l1 (r y))"
+      unfolding L_def by (fastforce elim: rel_interE intro: rel_interI)
+    have "R2 (l x) y \<and> R1 (r2 (l x)) (r2 y) \<longleftrightarrow> R (l x) y"
+      unfolding R_def by (fastforce elim: rel_interE intro: rel_interI)
+    also from galois1 \<open>in_dom L1 x\<close> \<open>in_codom R1 (r2 y)\<close>
+      have "... \<longleftrightarrow> R1 (l1 x) (r2 y)"
+      by (rule galois_property_left_rel_right_iff_right_rel_left)
+    also from \<open>in_dom L1 x\<close> \<open>in_codom R2 y\<close> have "... \<longleftrightarrow> L2 (l1 x) (r2 y)"
+      by (rule agree)
+    also from galois2 \<open>in_dom L2 (l1 x)\<close> \<open>in_codom R2 y\<close> have "... \<longleftrightarrow> R2 (l2 (l1 x)) y"
+      by (rule galois_property_left_rel_right_iff_right_rel_left)
+    also have "... \<longleftrightarrow> R2 ((l2 \<circ> l1) x) y" by simp
+    finally show "L1 x ((r1 \<circ> r2) y) \<longleftrightarrow> R2 ((l2 \<circ> l1) x) y" .
+    show "L x (r y) \<longleftrightarrow> R (l x) y" sorry
+  qed
+  (* from galois1 galois2 L2_r2_finer show "monotone R2 L1 (r1 \<circ> r2)"
+    by (intro monotone_compI galois_connection_monotone_right)
+  from galois1 show "has_fun_type (in_dom L1) (in_dom L2) l1"
+    by (intro has_fun_typeI)
+    (blast elim: in_domE dest: galois_connection_right_rel_left_left_if_left_rel
+      intro: in_domI R1_l1_finer)
+  from galois2 show "has_fun_type (in_codom R2) (in_codom R1) r2"
+    by (intro has_fun_typeI)
+    (blast elim: in_codomE dest: galois_connection_left_rel_right_right_if_right_rel
+      intro: in_codomI L2_r2_finer) *)
+qed
+(intro galois_property_if_galois_connection | fact)+ *)
 
 lemma galois_connection_on_Dep_Fun_RelI:
   assumes galois1: "galois_connection L1 R1 l1 r1"
@@ -87,7 +151,7 @@ lemma galois_connection_on_Dep_Fun_RelI:
     (* shows "True" *)
   shows "galois_connection
     ([x1 x2 \<Colon> L1] \<Rrightarrow> L2 x1 (l1 x2)) ([y1 y2 \<Colon> R1] \<Rrightarrow> R2 (r1 y1) y2)
-    (dep_map_fun r1 l2) (dep_map_fun l1 r2)"
+    (dep_fun_map r1 l2) (dep_fun_map l1 r2)"
     (is "galois_connection ?L ?R ?l ?r")
 proof (rule galois_connectionI)
   show "monotone ?L ?R ?l"
@@ -108,11 +172,11 @@ proof (rule galois_connectionI)
     from this \<open>L2 (r1 y1) y2 _ _\<close> have
       "R2 (r1 y1) y2 (l2 y2 (r1 y1) (f1 (r1 y1))) (l2 y2 (r1 y1) (f2 (r1 y2)))"
       by (rule galois_connection_right_rel_left_left_if_left_rel)
-    (*l2 contravar at pos 1; covar at pos 2*)
+    (*l2 covar at pos 1 and 2*)
     then have
       "R2 (r1 y1) y2 (l2 y1 (r1 y1) (f1 (r1 y1))) (l2 y2 (r1 y2) (f2 (r1 y2)))"
       sorry
-    then show "R2 (r1 y1) y2 (?l f1 y1) (?l f2 y2)" unfolding dep_map_fun_def .
+    then show "R2 (r1 y1) y2 (?l f1 y1) (?l f2 y2)" unfolding dep_fun_map_eq .
   qed
   show "monotone ?R ?L ?r"
   proof (intro dep_monotoneI Dep_Fun_RelI)
@@ -132,89 +196,40 @@ proof (rule galois_connectionI)
     from this \<open>R2 x1 (l1 x2) _ _\<close> have
       "L2 x1 (l1 x2) (r2 x1 (l1 x2) (f1 (l1 x1))) (r2 x1 (l1 x2) (f2 (l1 x2)))"
       by (rule galois_connection_left_rel_right_right_if_right_rel)
-    (*r2 contravar at pos 2; covar at pos 1*)
+    (*r2 covar at pos 1 and 2*)
     then have
       "L2 x1 (l1 x2) (r2 x1 (l1 x1) (f1 (l1 x1))) (r2 x2 (l1 x2) (f2 (l1 x2)))"
       sorry
-    then show "L2 x1 (l1 x2) (?r f1 x1) (?r f2 x2)" unfolding dep_map_fun_def .
+    then show "L2 x1 (l1 x2) (?r f1 x1) (?r f2 x2)" unfolding dep_fun_map_eq .
   qed
   show "galois_property ?L ?R ?l ?r"
   proof (intro galois_propertyI iffI Dep_Fun_RelI)
     fix f g y1 y2
-    assume "?L f (?r g)"
-    then have "\<And>x1 x2. L1 x1 x2 \<Longrightarrow> L2 x1 (l1 x2) (f x1) ((?r g) x2)"
-      by (blast elim: Dep_Fun_RelE)
-    then have L_Dep_Fun_Rel: "\<And>x1 x2. L1 x1 x2 \<Longrightarrow> L2 x1 (l1 x2) (f x1) (r2 x2 (l1 x2) (g (l1 x2)))"
-      by (simp only: dep_map_fun_eq)
-    assume "R1 y1 y2"
-    with galois1 have "(Galois_Rel L1 r1) (r1 y1) y2"
-      by (rule galois_connection_Galois_Rel_right_if_right_rel)
-    then have galois3:
-      "galois_connection (L2 (r1 y1) y2) (R2 (r1 y1) y2) (l2 y2 (r1 y1)) (r2 (r1 y1) y2)"
-      by (rule galois2)
-    from galois1 \<open>R1 y1 y2\<close> have "L1 (r1 y1) (r1 y2)"
-      by (rule galois_connection_left_rel_right_right_if_right_rel)
-    then have "L2 (r1 y1) (l1 (r1 y2)) (f (r1 y1)) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))"
-      by (rule L_Dep_Fun_Rel)
-    (*L2 covar at pos 2*)
-    then have "L2 (r1 y1) y2 (f (r1 y1)) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))"
-      sorry
-    with galois3 have
-      "R2 (r1 y1) y2 (l2 y2 (r1 y1) (f (r1 y1))) (l2 y2 (r1 y1) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2)))))"
-      by (rule galois_connection_right_rel_left_left_if_left_rel)
-    (*l2 contravar at pos 1*)
-    have "R2 (r1 y1) y2 (l2 y1 (r1 y1) (f (r1 y1))) (g y2)" sorry
-    then show "R2 (r1 y1) y2 (?l f y1) (g y2)"
-      by (simp only: dep_map_fun_eq)
-    (* also have "... \<longleftrightarrow> (\<forall>x1 x2. L1 x1 x2 \<longrightarrow> L2 x1 (l1 x2) (f x1) (r2 x2 (l1 x2) (g (l1 x2))))"
-      by (simp only: dep_map_fun_eq) *)
-    (* have "... \<longleftrightarrow> (\<forall>x1 x2. L1 x1 x2 \<longrightarrow> R2 x1 (l1 x2) (l2 ? ? (f x1)) (l2 ? ? (?r g) x2))" *)
-    (* have "True \<longleftrightarrow> (\<forall>y1 y2. R1 y1 y2 \<longrightarrow> R2 (r1 y1) y2 (l2 y1 (r1 y1) (f (r1 y1))) (g y2))"
-      sorry
-    also have "... \<longleftrightarrow> (\<forall>y1 y2. R1 y1 y2 \<longrightarrow> R2 (r1 y1) y2 ((?l f) y1) (g y2))"
-      by (simp only: dep_map_fun_eq)
-    show "?L f (?r g) \<longleftrightarrow> ?R (?l f) g"
-      sorry *)
-
-(*
-(l2 y2 (r1 y1) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))
-
-(g y2)
-
-(L1 => L2) f f'
-(R1 => R2) g' g
-
-L1 x1 x2 => L2 (f x1) (r2 g l1 x2)
-
-L1 (l1 r1 y2) y2 ==> L2 (g l1 r1 y2) (g y2)
-
-f x ==> r1 (f l1 x) ==> g x
-
-R1 y1 y2
-==>
-L1 (r1 y1) (r1 y2)                R2 (g' y1) (g y2)
-==>
-L2 (f r1 y1) (r2 g (l1 r1 y2))    L2 (f r1 y1) (f' r1 y2)
-<==>
-R2 (l2 f r1 y1) (g (l1 r1 y2))    R2 (g (l1 r1 y2))
-==>
-R2 (l2 f r1 y1) (g y2)
-
-
-(* <==>
-(Galois_Rel L2 r2) (f r1 y1) (g (l1 r1 y2)) *)
-
-(R1 \<Rightarrow> R2) g g <===> R1 y1 y2 ==> R2 (g y1) (g y2)
-(* L1 (r1 y1) (x2) *)
-(R2 \<Rightarrow> L2) r2 r2 <====> R2 y1'y2' ==> L2 (r2 y1') (r2 y2')
-
-
-(* (Galois_Rel L2 r2) (f r1 y1) (g y2)
-<==>
-L2 (f r1 y1) (r2 g y2)
-<==> *)
-R2 (l2 f r1 y1) (g y2)
-*)
+    assume "?L f (?r g)" "in_codom ?R g"
+    with \<open>monotone ?L ?R ?l\<close> have "?R (?l f) (?l (?r g))" by (elim dep_monotoneE)
+    moreover assume "R1 y1 y2"
+    ultimately have "R2 (r1 y1) y2 (?l f y1) (?l (?r g) y2)" by (rule Dep_Fun_RelD)
+    moreover have "R2 (r1 y1) y2 (?l (?r g) y2) (g y2)"
+    proof -
+      (*?R refl*)
+      have "?R g g" sorry
+      (*R1 refl*)
+      moreover have "R1 (l1 (r1 y2)) y2" sorry
+      ultimately have "R2 (r1 (l1 (r1 y2))) y2 (g (l1 (r1 y2))) (g y2)"
+        by (elim Dep_Fun_RelE)
+      (*R2 contravar at pos 1*)
+      then have "R2 (r1 y2) y2 (g (l1 (r1 y2))) (g y2)" sorry
+      then have "L2 (r1 y2) y2 (r2 (r1 y2) y2 (g (l1 (r1 y2)))) (r2 (r1 y2) y2 (g y2))"
+        sorry
+      moreover have "L2 (r1 y2) y2 (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2)))) (r2 (r1 y2) y2 (g (l1 (r1 y2))))"
+        sorry
+      ultimately have "L2 (r1 y2) y2 (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2)))) (r2 (r1 y2) y2 (g y2))" sorry
+      then have "R2 (r1 y2) y2 (l2 y2 (r1 y2) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))) (g y2)" sorry
+      then have "R2 (r1 y2) y2 (l2 y2 (r1 y2) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))) (g y2)" sorry
+      then have "R2 (r1 y1) y2 (l2 y2 (r1 y2) (r2 (r1 y2) (l1 (r1 y2)) (g (l1 (r1 y2))))) (g y2)" sorry
+      then show ?thesis unfolding dep_fun_map_eq .
+    qed
+    ultimately show "R2 (r1 y1) y2 (?l f y1) (g y2)" sorry
   qed
 qed
 
@@ -313,7 +328,6 @@ lemma galois_connection_if_lifting_triple:
   using assms
   by (intro galois_connectionI lifting_triple_monotone_Eq_rep_Eq_abs_abs
     lifting_triple_monotone_Eq_abs_Eq_rep_rep galois_property_if_lifting_triple)
-
 
 
 end

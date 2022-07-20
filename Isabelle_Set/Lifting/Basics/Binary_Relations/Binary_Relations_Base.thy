@@ -1,5 +1,5 @@
 theory Binary_Relations_Base
-  imports LFunctions
+  imports HOL.HOL
 begin
 
 subsection \<open>Basic Functions\<close>
@@ -10,8 +10,11 @@ bundle notation_rel_comp begin notation rel_comp (infixl "\<circ>\<circ>" 55) en
 bundle no_notation_rel_comp begin no_notation rel_comp (infixl "\<circ>\<circ>" 55) end
 unbundle notation_rel_comp
 
-lemma rel_compI: "\<lbrakk>R x y; S y z\<rbrakk> \<Longrightarrow> (R \<circ>\<circ> S) x z"
-  unfolding rel_comp_def by blast
+lemma rel_compI:
+  assumes "R x y"
+  and "S y z"
+  shows "(R \<circ>\<circ> S) x z"
+  using assms unfolding rel_comp_def by blast
 
 lemma rel_compE:
   assumes "(R \<circ>\<circ> S) x y"
@@ -52,7 +55,7 @@ lemma in_domI: "R x y \<Longrightarrow> in_dom R x"
 
 lemma in_domE:
   assumes "in_dom R x"
-  obtains y where " R x y"
+  obtains y where "R x y"
   using assms unfolding in_dom_def by blast
 
 lemma in_dom_if_in_dom_rel_comp:
@@ -68,7 +71,7 @@ lemma in_codomI: "R x y \<Longrightarrow> in_codom R y"
 
 lemma in_codomE:
   assumes "in_codom R y"
-  obtains x where " R x y"
+  obtains x where "R x y"
   using assms unfolding in_codom_def by blast
 
 lemma in_codom_if_in_codom_rel_comp:
@@ -85,6 +88,38 @@ proof -
     by (subst rel_inv_rel_inv_eq_self, rule refl)
   then show ?thesis using in_codom_rel_inv_iff_in_dom[symmetric] by simp
 qed
+
+definition in_field :: "('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> 'a \<Rightarrow> bool"
+  where "in_field R x \<equiv> in_dom R x \<or> in_codom R x"
+
+lemma in_field_if_in_dom:
+  assumes "in_dom R x"
+  shows "in_field R x"
+  unfolding in_field_def using assms by blast
+
+lemma in_field_if_in_codom:
+  assumes "in_codom R x"
+  shows "in_field R x"
+  unfolding in_field_def using assms by blast
+
+lemma in_fieldE:
+  assumes "in_field R x"
+  obtains x' where "R x x'" | x' where "R x' x"
+  using assms unfolding in_field_def by (blast elim: in_domE in_codomE)
+
+lemma in_fieldI:
+  assumes "R x y"
+  shows "in_field R x" "in_field R y"
+  using assms
+  by (blast intro: in_field_if_in_dom in_field_if_in_codom in_domI in_codomI)+
+
+lemma in_field_rel_inv_eq: "in_field (rel_inv R) = in_field R"
+  by (auto iff: rel_inv_iff_rel elim!: in_fieldE intro: in_fieldI in_domI in_codomI)
+
+lemma in_field_compE:
+  assumes "in_field (R \<circ>\<circ> S) x"
+  obtains "in_dom R x" | "in_codom S x"
+  using assms by (blast elim: in_fieldE rel_compE intro: in_domI in_codomI)
 
 consts restrict :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'c \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool"
 
@@ -137,6 +172,19 @@ lemma in_codom_restrictE:
   obtains x where "P x" "R x y"
   using assms by (elim in_codomE restrictE)
 
+definition "rel_bimap f g R x y \<equiv> R (f x) (g y)"
+
+lemma rel_bimap_eq [simp]: "rel_bimap f g R x y = R (f x) (g y)"
+  unfolding rel_bimap_def by simp
+
+definition "rel_map f R \<equiv> rel_bimap f f R"
+
+lemma rel_bimap_self_eq_rel_map: "rel_bimap f f R = rel_map f R"
+  unfolding rel_map_def by simp
+
+lemma rel_map_eq [simp]: "rel_map f R x y = R (f x) (f y)"
+  by (simp only: rel_bimap_self_eq_rel_map[symmetric] rel_bimap_eq)
+
 
 subsection \<open>Basic Properties\<close>
 
@@ -145,7 +193,7 @@ consts rel_injective_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'c \<Rightarrow> 
 overloading
   rel_injective_on_pred \<equiv> "rel_injective_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool"
 begin
-  definition "rel_injective_on_pred P R \<equiv> \<forall>x x' y. P x \<longrightarrow> P x' \<longrightarrow> R x y \<longrightarrow> R x' y \<longrightarrow> x = x'"
+  definition "rel_injective_on_pred P R \<equiv> \<forall>x x' y. P x \<and> P x' \<and> R x y \<and> R x' y \<longrightarrow> x = x'"
 end
 
 lemma rel_injective_onI:
@@ -183,12 +231,23 @@ lemma rel_injective_on_if_rel_injective:
   shows "rel_injective_on P R"
   using assms by (intro rel_injective_onI) (blast dest: rel_injectiveD)
 
+lemma rel_injective_if_rel_injective_on_in_dom:
+  assumes "rel_injective_on (in_dom R) R"
+  shows "rel_injective R"
+  using assms by (intro rel_injectiveI)
+  (blast dest: rel_injective_onD intro: in_domI)
+
+corollary rel_injective_on_in_dom_iff_rel_injective:
+  "rel_injective_on (in_dom R) R \<longleftrightarrow> rel_injective R"
+  using rel_injective_if_rel_injective_on_in_dom rel_injective_on_if_rel_injective
+  by blast
+
 consts right_unique_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'c \<Rightarrow> bool) \<Rightarrow> bool"
 
 overloading
   right_unique_on_pred \<equiv> "right_unique_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool"
 begin
-  definition "right_unique_on_pred P R \<equiv> \<forall>x y y'. P x \<longrightarrow> R x y \<longrightarrow> R x y' \<longrightarrow> y = y'"
+  definition "right_unique_on_pred P R \<equiv> \<forall>x y y'. P x \<and> R x y \<and> R x y' \<longrightarrow> y = y'"
 end
 
 lemma right_unique_onI:
@@ -226,6 +285,17 @@ lemma right_unique_on_if_right_unique:
   assumes "right_unique R"
   shows "right_unique_on P R"
   using assms by (intro right_unique_onI) (blast dest: right_uniqueD)
+
+lemma right_unique_if_right_unique_on_in_dom:
+  assumes "right_unique_on (in_dom R) R"
+  shows "right_unique R"
+  using assms by (intro right_uniqueI)
+  (blast dest: right_unique_onD intro: in_domI)
+
+corollary right_unique_on_in_dom_iff_right_unique:
+  "right_unique_on (in_dom R) R \<longleftrightarrow> right_unique R"
+  using right_unique_if_right_unique_on_in_dom right_unique_on_if_right_unique
+  by blast
 
 consts left_total_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'c \<Rightarrow> bool) \<Rightarrow> bool"
 
@@ -419,7 +489,7 @@ consts symmetric_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'b \<Rightarrow> bool
 overloading
   symmetric_on_pred \<equiv> "symmetric_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
 begin
-  definition "symmetric_on_pred P R \<equiv> \<forall>x y. P x \<longrightarrow> P y \<longrightarrow> R x y \<longrightarrow> R y x"
+  definition "symmetric_on_pred P R \<equiv> \<forall>x y. P x \<and> P y \<and> R x y \<longrightarrow> R y x"
 end
 
 lemma symmetric_onI:
@@ -462,12 +532,23 @@ lemma rel_inv_eq_self_if_symmetric:
   shows "rel_inv R = R"
   using assms by (blast intro: rel_invI dest: rel_invD symmetricD)
 
+lemma symmetric_if_symmetric_on_in_field:
+  assumes "symmetric_on (in_field R) R"
+  shows "symmetric R"
+  using assms by (intro symmetricI)
+  (blast dest: symmetric_onD intro: in_fieldI)
+
+corollary symmetric_on_in_field_iff_symmetric:
+  "symmetric_on (in_field R) R \<longleftrightarrow> symmetric R"
+  using symmetric_if_symmetric_on_in_field symmetric_on_if_symmetric
+  by blast
+
 consts antisymmetric_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool"
 
 overloading
   antisymmetric_on_pred \<equiv> "antisymmetric_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
 begin
-  definition "antisymmetric_on_pred P R \<equiv> \<forall>x y. P x \<longrightarrow> P y \<longrightarrow> R x y \<longrightarrow> R y x \<longrightarrow> x = y"
+  definition "antisymmetric_on_pred P R \<equiv> \<forall>x y. P x \<and> P y \<and> R x y \<and> R y x \<longrightarrow> x = y"
 end
 
 lemma antisymmetric_onI:
@@ -507,12 +588,23 @@ lemma antisymmetric_on_if_antisymmetric:
   shows "antisymmetric_on P R"
   using assms by (intro antisymmetric_onI) (blast dest: antisymmetricD)
 
+lemma antisymmetric_if_antisymmetric_on_in_field:
+  assumes "antisymmetric_on (in_field R) R"
+  shows "antisymmetric R"
+  using assms by (intro antisymmetricI)
+  (blast dest: antisymmetric_onD intro: in_fieldI)
+
+corollary antisymmetric_on_in_field_iff_antisymmetric:
+  "antisymmetric_on (in_field R) R \<longleftrightarrow> antisymmetric R"
+  using antisymmetric_if_antisymmetric_on_in_field antisymmetric_on_if_antisymmetric
+  by blast
+
 consts transitive_on :: "'a \<Rightarrow> ('b \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool"
 
 overloading
   transitive_on_pred \<equiv> "transitive_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
 begin
-  definition "transitive_on_pred P R \<equiv> \<forall>x y z. P x \<longrightarrow> P y \<longrightarrow> P z \<longrightarrow> R x y \<longrightarrow> R y z \<longrightarrow> R x z"
+  definition "transitive_on_pred P R \<equiv> \<forall>x y z. P x \<and> P y \<and> P z \<and> R x y \<and> R y z \<longrightarrow> R x z"
 end
 
 lemma transitive_onI:
@@ -566,27 +658,142 @@ lemma transitive_if_rel_comp_self_eq_self:
   using assms unfolding transitive_eq_transitive_on
     by (intro transitive_on_if_rel_comp_self_iff_rel) simp
 
-definition "partial_equivalence_on P R \<equiv> symmetric_on P R \<and> transitive_on P R"
+lemma transitive_if_transitive_on_in_field:
+  assumes "transitive_on (in_field R) R"
+  shows "transitive R"
+  using assms by (intro transitiveI)
+  (blast dest: transitive_onD intro: in_fieldI)
+
+corollary transitive_on_in_field_iff_transitive:
+  "transitive_on (in_field R) R \<longleftrightarrow> transitive R"
+  using transitive_if_transitive_on_in_field transitive_on_if_transitive
+  by blast
+
+definition "preorder_on P R \<equiv> reflexive_on P R \<and> transitive_on P R"
+
+lemma preorder_onI:
+  assumes "reflexive_on P R"
+  and "transitive_on P R"
+  shows "preorder_on P R"
+  unfolding preorder_on_def using assms by blast
+
+lemma preorder_onE:
+  assumes "preorder_on P R"
+  obtains "reflexive_on P R" "transitive_on P R"
+  using assms unfolding preorder_on_def by blast
+
+lemma transitive_if_preorder_on_in_field:
+  assumes "preorder_on (in_field R) R"
+  shows "transitive R"
+  using assms by (elim preorder_onE) (rule transitive_if_transitive_on_in_field)
+
+definition "preorder (R :: 'a \<Rightarrow> _) \<equiv> preorder_on (\<lambda>x :: 'a. True) R"
+
+lemma preorder_eq_preorder_on:
+  "preorder (R :: 'a \<Rightarrow> _) = preorder_on (\<lambda>x :: 'a. True) R"
+  unfolding preorder_def ..
+
+lemma preorderI:
+  assumes "reflexive R"
+  and "transitive R"
+  shows "preorder R"
+  unfolding preorder_eq_preorder_on using assms
+  by (intro preorder_onI reflexive_on_if_reflexive transitive_on_if_transitive)
+
+lemma preorderE:
+  assumes "preorder R"
+  obtains "reflexive R" "transitive R"
+  using assms unfolding preorder_eq_preorder_on by (elim preorder_onE)
+    (simp only: reflexive_eq_reflexive_on transitive_eq_transitive_on)
+
+lemma preorder_on_if_preorder:
+  fixes P :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> _"
+  assumes "preorder R"
+  shows "preorder_on P R"
+  using assms by (elim preorderE)
+    (intro preorder_onI reflexive_on_if_reflexive transitive_on_if_transitive)
+
+definition "partial_order_on P R \<equiv> preorder_on P R \<and> antisymmetric_on P R"
+
+lemma partial_order_onI:
+  assumes "preorder_on P R"
+  and "antisymmetric_on P R"
+  shows "partial_order_on P R"
+  unfolding partial_order_on_def using assms by blast
+
+lemma partial_order_onE:
+  assumes "partial_order_on P R"
+  obtains "preorder_on P R" "antisymmetric_on P R"
+  using assms unfolding partial_order_on_def by blast
+
+lemma transitive_if_partial_order_on_in_field:
+  assumes "partial_order_on (in_field R) R"
+  shows "transitive R"
+  using assms by (elim partial_order_onE) (rule transitive_if_preorder_on_in_field)
+
+lemma antisymmetric_if_preorder_on_in_field:
+  assumes "partial_order_on (in_field R) R"
+  shows "antisymmetric R"
+  using assms by (elim partial_order_onE)
+    (rule antisymmetric_if_antisymmetric_on_in_field)
+
+definition "partial_order (R :: 'a \<Rightarrow> _) \<equiv> partial_order_on (\<lambda>x :: 'a. True) R"
+
+lemma partial_order_eq_partial_order_on:
+  "partial_order (R :: 'a \<Rightarrow> _) = partial_order_on (\<lambda>x :: 'a. True) R"
+  unfolding partial_order_def ..
+
+lemma partial_orderI:
+  assumes "preorder R"
+  and "antisymmetric R"
+  shows "partial_order R"
+  unfolding partial_order_eq_partial_order_on using assms
+  by (intro partial_order_onI preorder_on_if_preorder antisymmetric_on_if_antisymmetric)
+
+lemma partial_orderE:
+  assumes "partial_order R"
+  obtains "preorder R" "antisymmetric R"
+  using assms unfolding partial_order_eq_partial_order_on by (elim partial_order_onE)
+    (simp only: preorder_eq_preorder_on antisymmetric_eq_antisymmetric_on)
+
+lemma partial_order_on_if_partial_order:
+  fixes P :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> _"
+  assumes "partial_order R"
+  shows "partial_order_on P R"
+  using assms by (elim partial_orderE)
+    (intro partial_order_onI preorder_on_if_preorder antisymmetric_on_if_antisymmetric)
+
+definition "partial_equivalence_on P R \<equiv> transitive_on P R \<and> symmetric_on P R"
 
 lemma partial_equivalence_onI:
-  assumes "symmetric_on P R"
-  and "transitive_on P R"
+  assumes "transitive_on P R"
+  and "symmetric_on P R"
   shows "partial_equivalence_on P R"
   unfolding partial_equivalence_on_def using assms by blast
 
 lemma partial_equivalence_onE:
   assumes "partial_equivalence_on P R"
-  obtains "symmetric_on P R" "transitive_on P R"
+  obtains "transitive_on P R" "symmetric_on P R"
   using assms unfolding partial_equivalence_on_def by blast
 
-lemma partial_equivalence_on_rel_self_if_rel:
-  assumes "partial_equivalence_on P R"
+lemma partial_equivalence_on_rel_self_if_rel_dom:
+  assumes "partial_equivalence_on (P :: 'a \<Rightarrow> bool) (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool)"
   and "P x" "P y"
   and "R x y"
   shows "R x x"
 proof -
   from assms have "R y x" by (elim partial_equivalence_onE) (drule symmetric_onD)
   with assms show "R x x" by (elim partial_equivalence_onE) (drule transitive_onD)
+qed
+
+lemma partial_equivalence_on_rel_self_if_rel_codom:
+  assumes "partial_equivalence_on (P :: 'a \<Rightarrow> bool) (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool)"
+  and "P x" "P y"
+  and "R x y"
+  shows "R y y"
+proof -
+  from assms have "R y x" by (elim partial_equivalence_onE) (drule symmetric_onD)
+  with assms show "R y y" by (elim partial_equivalence_onE) (drule transitive_onD)
 qed
 
 definition "partial_equivalence (R :: 'a \<Rightarrow> _) \<equiv> partial_equivalence_on (\<lambda>x :: 'a. True) R"
@@ -596,40 +803,52 @@ lemma partial_equivalence_eq_partial_equivalence_on:
   unfolding partial_equivalence_def ..
 
 lemma partial_equivalenceI:
-  assumes "symmetric R"
-  and "transitive R"
+  assumes "transitive R"
+  and "symmetric R"
   shows "partial_equivalence R"
   unfolding partial_equivalence_eq_partial_equivalence_on using assms
-  by (intro partial_equivalence_onI symmetric_on_if_symmetric transitive_on_if_transitive)
+  by (intro partial_equivalence_onI transitive_on_if_transitive symmetric_on_if_symmetric)
 
 lemma partial_equivalenceE:
   assumes "partial_equivalence R"
-  obtains "symmetric R" "transitive R"
+  obtains "transitive R" "symmetric R"
   using assms unfolding partial_equivalence_eq_partial_equivalence_on
-  by (blast intro: symmetricI transitiveI dest: symmetric_onD transitive_onD
-    elim: partial_equivalence_onE)
+  by (elim partial_equivalence_onE)
+    (simp only: transitive_eq_transitive_on symmetric_eq_symmetric_on)
 
 lemma partial_equivalence_on_if_partial_equivalence:
   fixes P :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> _"
   assumes "partial_equivalence R"
   shows "partial_equivalence_on P R"
-  using assms
-  by (elim partial_equivalenceE, intro partial_equivalence_onI)
-    (blast intro: symmetric_on_if_symmetric transitive_on_if_transitive)+
+  using assms by (elim partial_equivalenceE)
+    (intro partial_equivalence_onI transitive_on_if_transitive symmetric_on_if_symmetric)
 
-lemma reflexive_on_in_dom_if_partial_equivalence:
+lemma reflexive_on_in_field_if_partial_equivalence:
   assumes "partial_equivalence R"
-  shows "reflexive_on (in_dom R) R"
+  shows "reflexive_on (in_field R) R"
   using assms unfolding partial_equivalence_eq_partial_equivalence_on
-  by (intro reflexive_onI)
-    (blast dest: partial_equivalence_on_rel_self_if_rel elim: in_domE)
+  by (intro reflexive_onI) (blast elim: in_fieldE
+    intro: partial_equivalence_on_rel_self_if_rel_dom
+      partial_equivalence_on_rel_self_if_rel_codom)
 
-lemma rel_comp_self_eq_self_if_partial_equivalence:
+lemma partial_equivalence_rel_comp_self_eq_self:
   assumes "partial_equivalence R"
   shows "R \<circ>\<circ> R = R"
-  using assms
-  by (intro ext) (blast elim: partial_equivalenceE rel_compE intro: rel_compI
-    dest: transitiveD symmetricD)
+  using assms by (intro ext) (blast elim: partial_equivalenceE rel_compE
+    intro: rel_compI dest: transitiveD symmetricD)
+
+lemma partial_equivalence_if_partial_equivalence_on_in_field:
+  assumes "partial_equivalence_on (in_field R) R"
+  shows "partial_equivalence R"
+  using assms by (intro partial_equivalenceI)
+  (blast elim: partial_equivalence_onE
+    intro: transitive_if_transitive_on_in_field symmetric_if_symmetric_on_in_field)+
+
+corollary partial_equivalence_on_in_field_iff_partial_equivalence:
+  "partial_equivalence_on (in_field R) R \<longleftrightarrow> partial_equivalence R"
+  using partial_equivalence_if_partial_equivalence_on_in_field
+    partial_equivalence_on_if_partial_equivalence
+  by blast
 
 
 subsubsection \<open>Instantiations\<close>
@@ -637,15 +856,20 @@ subsubsection \<open>Instantiations\<close>
 lemma right_unique_eq: "right_unique (=)"
   by (rule right_uniqueI) blast
 
-lemma symmetric_eq: "symmetric (=)"
-  by (rule symmetricI) (rule sym)
+lemma reflexive_eq: "reflexive (=)"
+  by (rule reflexiveI) (rule refl)
 
 lemma transitive_eq: "transitive (=)"
   by (rule transitiveI) (rule trans)
 
+lemma preorder_eq: "preorder (=)"
+  using reflexive_eq transitive_eq by (rule preorderI)
+
+lemma symmetric_eq: "symmetric (=)"
+  by (rule symmetricI) (rule sym)
+
 lemma partial_equivalence_eq: "partial_equivalence (=)"
-  using symmetric_eq transitive_eq
-  by (rule partial_equivalenceI)
+  using transitive_eq symmetric_eq by (rule partial_equivalenceI)
 
 
 end

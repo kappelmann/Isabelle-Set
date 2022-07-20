@@ -1,6 +1,8 @@
 subsection \<open>Lifting Triples\<close>
 theory Lifting_Triples
-  imports Lifting_Relations
+  imports
+    Functions_Base
+    Lifting_Relations
 begin
 
 definition lifting_triple :: "('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
@@ -145,10 +147,9 @@ proof -
     by (rule lifting_triple_Eq_abs_abs_if_rel)
 qed
 
-
 lemma lifting_triple_rel_comp_abs_abs_if_in_dom_rel_comp:
-  assumes trans_trip1: "lifting_triple R1 abs1 rep1"
-  and trans_trip2: "lifting_triple R2 abs2 rep2"
+  assumes lift_trip1: "lifting_triple R1 abs1 rep1"
+  and lift_trip2: "lifting_triple R2 abs2 rep2"
   and finer: "(Eq_abs R1 \<circ>\<circ> Eq_rep R2) \<sqsubseteq> (Eq_rep R2 \<circ>\<circ> Eq_abs R1)"
   and in_dom_x: "in_dom (R1 \<circ>\<circ> R2) x"
   shows "(R1 \<circ>\<circ> R2) x ((abs2 \<circ> abs1) x)"
@@ -157,18 +158,18 @@ proof (rule rel_compI)
   then obtain z where z: "R1 x z" "R2 z y" by (rule rel_compE)
   then have "in_dom R1 x" by (intro in_domI)
   then show R1_x_abs_x: "R1 x (abs1 x)"
-    using trans_trip1 by (blast intro: lifting_triple_rel_abs_self_if_in_dom)
+    using lift_trip1 by (blast intro: lifting_triple_rel_abs_self_if_in_dom)
   then have "Eq_abs R1 z (abs1 x)" using z(1) by (intro Eq_absI)
   then have "Eq_abs R1 (abs1 x) z" using symmetric_Eq_abs by (fast dest: symmetricD)
   moreover from z(2) have "Eq_rep R2 z z" by (intro Eq_rep_self_if_in_dom in_domI)
   ultimately have "(Eq_abs R1 \<circ>\<circ> Eq_rep R2) (abs1 x) z" by (rule rel_compI)
   then have "(Eq_rep R2 \<circ>\<circ> Eq_abs R1) (abs1 x) z"
     using finer by (blast dest: finerD)
-  then obtain z' where "Eq_abs R1 z' z" "Eq_rep R2 (abs1 x) z'" by (elim rel_compE)
+  then obtain z' where "Eq_rep R2 (abs1 x) z'" by (elim rel_compE)
   then have "Eq_rep R2 (abs1 x) (abs1 x)"
     using in_dom_if_Eq_rep by (fast intro: Eq_rep_self_if_in_dom)
   then show "R2 (abs1 x) ((abs2 \<circ> abs1) x)"
-    unfolding comp_eq using trans_trip2
+    unfolding comp_eq using lift_trip2
     by (blast intro: lifting_triple_rel_abs_if_Eq_rep)
 qed
 
@@ -195,8 +196,8 @@ proof -
 qed
 
 lemma lifting_triple_compI:
-  assumes trans_trip1: "lifting_triple R1 abs1 rep1"
-  and trans_trip2: "lifting_triple R2 abs2 rep2"
+  assumes lift_trip1: "lifting_triple R1 abs1 rep1"
+  and lift_trip2: "lifting_triple R2 abs2 rep2"
   and finer: "(Eq_abs R1 \<circ>\<circ> Eq_rep R2) \<sqsubseteq> (Eq_rep R2 \<circ>\<circ> Eq_abs R1)"
   shows "lifting_triple (R1 \<circ>\<circ> R2) (abs2 \<circ> abs1) (rep1 \<circ> rep2)"
 proof (rule lifting_tripleI)

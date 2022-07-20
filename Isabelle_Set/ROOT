@@ -47,7 +47,9 @@ session Lifting in "Lifting" = "Isabelle_Set" +
   directories
     "Basics"
     "Basics/Binary_Relations"
+    "Basics/Functions"
     "Galois_Connections"
+    "Galois_Connections/Compositions"
   theories
     LBinary_Relations
 

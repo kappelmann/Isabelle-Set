@@ -533,8 +533,8 @@ qed
 
 lemma fun_lifting':
   assumes "lifting Eq_rep1 Eq_abs1 T1 Abs1 Rep1" and "lifting Eq_rep2 Eq_abs2 T2 Abs2 Rep2"
-  shows "lifting (Eq_rep1 ===> Eq_rep2) (Eq_abs1 ===> Eq_abs2) (T1 ===> T2) (map_fun Rep1 Abs2) (map_fun Abs1 Rep2)"
-  unfolding map_fun_def comp_def
+  shows "lifting (Eq_rep1 ===> Eq_rep2) (Eq_abs1 ===> Eq_abs2) (T1 ===> T2) (fun_map Rep1 Abs2) (fun_map Abs1 Rep2)"
+  unfolding fun_map_def comp_def
   using assms fun_lifting
   by blast
 

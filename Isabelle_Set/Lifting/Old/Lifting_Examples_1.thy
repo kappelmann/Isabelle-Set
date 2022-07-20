@@ -248,7 +248,7 @@ proof -
   qed
 next
   show "const True
-     ((Rat_Rel ===> Rat_Rel ===> Rat_Rel) rat_rep_add (map_fun Rat.Rep (map_fun Rat.Rep Rat.Abs) rat_rep_add))"
+     ((Rat_Rel ===> Rat_Rel ===> Rat_Rel) rat_rep_add (fun_map Rat.Rep (fun_map Rat.Rep Rat.Abs) rat_rep_add))"
   apply (subst const_def) ..
 qed
 
@@ -279,7 +279,7 @@ proof -
   qed
 next
   show "const True
-     ((Rat_Rel ===> Rat_Rel ===> Rat_Rel) rat_rep_add (map_fun Rat.Rep (map_fun Rat.Rep Rat.Abs) rat_rep_add))"
+     ((Rat_Rel ===> Rat_Rel ===> Rat_Rel) rat_rep_add (fun_map Rat.Rep (fun_map Rat.Rep Rat.Abs) rat_rep_add))"
   apply (subst const_def) ..
 qed
 

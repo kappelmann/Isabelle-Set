@@ -1,7 +1,8 @@
 section \<open>Relations for Lifting\<close>
 theory Lifting_Relations_New
   imports
-    LBinary_Relations
+    Binary_Relations_Base
+    Functions_Base
 begin
 
 definition "Fun_Rel f x y \<equiv> f x = y"
