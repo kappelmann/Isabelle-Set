@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsubsection \<open>Multiplication\<close>
 theory Nat_Mul
   imports Nat_Add

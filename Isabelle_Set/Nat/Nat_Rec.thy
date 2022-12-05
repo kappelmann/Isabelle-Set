@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Recursion\<close>
 theory Nat_Rec
   imports
@@ -8,7 +11,7 @@ begin
 text \<open>Recursion on Nat. Axiomatized, for now.\<close>
 
 axiomatization nat_rec :: "set \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> set)  \<Rightarrow> set" where
-  nat_rec_zero [simp, intro!]: "nat_rec 0 x\<^sub>0 f = x\<^sub>0" and
+  nat_rec_zero [iff]: "nat_rec 0 x\<^sub>0 f = x\<^sub>0" and
   nat_rec_succ [simp]: "n : Nat \<Longrightarrow> nat_rec (succ n) x\<^sub>0 f = f (nat_rec n x\<^sub>0 f)"
 
 lemma nat_rec_type [type]: "nat_rec: Nat \<Rightarrow> A \<Rightarrow> (A \<Rightarrow> A) \<Rightarrow> A"
@@ -23,7 +26,7 @@ definition "nat_rec' n x\<^sub>0 f \<equiv> snd (
   nat_rec n \<langle>0, x\<^sub>0\<rangle> (\<lambda>p. \<langle>succ (fst p), f (succ (fst p)) (snd p)\<rangle>)
 )"
 
-lemma nat_rec'_zero [simp, intro!]: "nat_rec' 0 x\<^sub>0 f = x\<^sub>0"
+lemma nat_rec'_zero [iff]: "nat_rec' 0 x\<^sub>0 f = x\<^sub>0"
   unfolding nat_rec'_def by simp
 
 lemma nat_rec'_succ [simp]:

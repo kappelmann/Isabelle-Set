@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Soft-Types for Sets\<close>
 theory Sets
 imports
@@ -13,13 +16,13 @@ abbreviation Set :: "set type"
 definition Element :: "set \<Rightarrow> set type"
   where [typedef]: "Element A \<equiv> type (\<lambda>x. x \<in> A)"
 
-lemma Element_covariant: "a : Element A \<Longrightarrow> A \<subseteq> B  \<Longrightarrow> a : Element B"
+lemma Element_covariant: "a : Element A \<Longrightarrow> A \<subseteq> B \<Longrightarrow> a : Element B"
   by unfold_types auto
 
 definition Subset :: "set \<Rightarrow> set type"
   where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
-lemma Subset_covariant: "a : Subset A \<Longrightarrow> A \<subseteq> B  \<Longrightarrow> a : Subset B"
+lemma Subset_covariant: "a : Subset A \<Longrightarrow> A \<subseteq> B \<Longrightarrow> a : Subset B"
   by unfold_types auto
 
 lemma mem_iff_Element: "a \<in> A \<longleftrightarrow> a : Element A" by unfold_types

@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Coproduct (\<Coprod>-types)\<close>
 text \<open>Aka binary disjoint union.\<close>
 theory Coproduct
@@ -25,8 +26,8 @@ lemma mem_coprodE:
 lemma
   inl_inj_iff [iff]: "inl x = inl y \<longleftrightarrow> x = y" and
   inr_inj_iff [iff]: "inr x = inr y \<longleftrightarrow> x = y" and
-  inl_ne_inr [simp, intro!]: "inl x \<noteq> inr y" and
-  inr_ne_inl [simp, intro!]: "inr x \<noteq> inl y"
+  inl_ne_inr [iff]: "inl x \<noteq> inr y" and
+  inr_ne_inl [iff]: "inr x \<noteq> inl y"
   unfolding inl_def inr_def by auto
 
 lemma inl_mem_coprod_iff [iff]: "inl a \<in> A \<Coprod> B \<longleftrightarrow> a \<in> A"
@@ -41,6 +42,12 @@ lemma
   shows coprod_rec_inl_eq [simp]: "coprod_rec l r (inl a) = l a"
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto
+
+lemma mono'_coprod_left: "mono' (\<lambda>A. A \<Coprod> B)"
+  by (intro mono'I) auto
+
+lemma mono'_coprod_right: "mono' (\<lambda>B. A \<Coprod> B)"
+  by (intro mono'I) auto
 
 
 end

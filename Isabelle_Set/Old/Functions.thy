@@ -516,7 +516,7 @@ lemma Dep_Function_ext:
   assumes "f : (x \<in> A) \<rightarrow> B x" "g : (x \<in> A) \<rightarrow> C x"
   and "\<And>x. x \<in> A \<Longrightarrow> f`x = g`x"
   shows "f = g"
-  by (rule subset_antisym; rule Dep_Function_subsetI) (insert assms, auto)
+  by (rule eq_if_subset_if_subset; rule Dep_Function_subsetI) (insert assms, auto)
 
 lemma lambda_ext:
   assumes "f : (x \<in> A) \<rightarrow> B x"

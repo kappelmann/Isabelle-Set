@@ -66,27 +66,27 @@ proof -
     note this nonneg_neg
   }
   note this[intro!]
-  show ?thesis by (intro Dep_fun_typeI, erule mem_Int_RepE; erule mem_Int_RepE)
+  show ?thesis by (intro Dep_fun_typeI, erule Int_RepE; erule Int_RepE)
     (auto simp: Int_Rep_zero_def)
 qed
 
 lemma Int_Rep_one_mul_eq [simp]: "x : Int_Rep \<Longrightarrow> Int_Rep_mul Int_Rep_one x = x"
   unfolding Int_Rep_one_def
-  by (elim mem_Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
+  by (elim Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
 
 lemma Int_Rep_mul_one_eq [simp]: "x : Int_Rep \<Longrightarrow> Int_Rep_mul x Int_Rep_one = x"
   unfolding Int_Rep_one_def
-  by (elim mem_Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
+  by (elim Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
 
 lemma Int_Rep_mul_assoc:
   assumes "x : Int_Rep" "y : Int_Rep" "z : Int_Rep"
   shows "Int_Rep_mul (Int_Rep_mul x y) z = Int_Rep_mul x (Int_Rep_mul y z)"
   (*TODO: ugly proof*)
   unfolding Int_Rep_mul_def
-  by (rule mem_Int_RepE[OF \<open>x : _\<close>];
-    rule mem_Int_RepE[OF \<open>y : _\<close>];
-    rule mem_Int_RepE[OF \<open>z : _\<close>])
-    (auto simp: Nat_mul_assoc Int_Rep_zero_def Nat_mul_eq_zero_iff)
+  by (rule Int_RepE[OF \<open>x : _\<close>];
+    rule Int_RepE[OF \<open>y : _\<close>];
+    rule Int_RepE[OF \<open>z : _\<close>])
+    (auto 0 2 simp: Nat_mul_assoc Int_Rep_zero_def Nat_mul_eq_zero_iff)
 
 
 end

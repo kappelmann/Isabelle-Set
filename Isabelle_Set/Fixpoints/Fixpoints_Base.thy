@@ -1,3 +1,5 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Basix Definitions\<close>
 theory Fixpoints_Base
   imports HOTG.Subset

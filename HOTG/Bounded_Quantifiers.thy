@@ -1,7 +1,9 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+\<^marker>\<open>creator "Larry Paulson"\<close>
 section \<open>Bounded Quantifiers\<close>
-
 theory Bounded_Quantifiers
-imports Basic
+  imports Order_Set
 begin
 
 definition ball :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
@@ -13,13 +15,25 @@ definition bex :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow
 definition bex1 :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
   where "bex1 A P \<equiv> \<exists>!x. x \<in> A \<and> P x"
 
-(*TODO: localise*)
+bundle hotg_bounded_quantifiers_syntax
+begin
 syntax
   "_ball"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ \<in> _./ _)" 10)
   "_ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
   "_bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
   "_bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
   "_bex1"  :: \<open>[idt, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
+end
+bundle no_hotg_bounded_quantifiers_syntax
+begin
+no_syntax
+  "_ball"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ \<in> _./ _)" 10)
+  "_ball2" :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_bex"   :: \<open>[idts, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ \<in> _./ _)" 10)
+  "_bex2"  :: \<open>[idts, set, bool] \<Rightarrow> bool\<close>
+  "_bex1"  :: \<open>[idt, set, bool] \<Rightarrow> bool\<close> ("(2\<exists>!_ \<in> _./ _)" 10)
+end
+unbundle hotg_bounded_quantifiers_syntax
 translations
   "\<forall>x xs \<in> A. P" \<rightharpoonup> "CONST ball A (\<lambda>x. _ball2 xs A P)"
   "_ball2 x A P" \<rightharpoonup> "\<forall>x \<in> A. P"
@@ -52,27 +66,29 @@ lemma ballE:
   obtains "\<And>x. x \<in> A \<Longrightarrow> P x"
   using assms unfolding ball_def by auto
 
-lemma ballE' [elim]: "\<lbrakk>\<forall>x \<in> A. P x; x \<notin> A \<Longrightarrow> Q; P x \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
-  unfolding ball_def by auto
+lemma ballE' [elim]:
+  assumes "\<forall>x \<in> A. P x"
+  obtains "x \<notin> A" | "P x"
+  using assms by (auto elim: ballE)
 
 (*LP: Trival rewrite rule: \<open>(\<forall>x \<in> A. P) \<longleftrightarrow> P\<close> holds only if A is nonempty!*)
-lemma ball_iff_ex_mem [simp]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
+lemma ball_iff_ex_mem [iff]: "(\<forall>x \<in> A. P) \<longleftrightarrow> ((\<exists>x. x \<in> A) \<longrightarrow> P)"
   by (simp add: ball_def)
 
 lemma ball_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<forall>x \<in> A. P x) \<longleftrightarrow> (\<forall>x \<in> A'. P' x)"
   by (simp add: ball_def)
 
-lemma ball_or_iff_ball_or [simp]: "(\<forall>x \<in> A. P x \<or> Q) \<longleftrightarrow> ((\<forall>x \<in> A. P x) \<or> Q)"
+lemma ball_or_iff_ball_or [iff]: "(\<forall>x \<in> A. P x \<or> Q) \<longleftrightarrow> ((\<forall>x \<in> A. P x) \<or> Q)"
   by auto
 
-lemma ball_or_iff_or_ball [simp]: "(\<forall>x \<in> A. P \<or> Q x) \<longleftrightarrow> (P \<or> (\<forall>x \<in> A. Q x))"
+lemma ball_or_iff_or_ball [iff]: "(\<forall>x \<in> A. P \<or> Q x) \<longleftrightarrow> (P \<or> (\<forall>x \<in> A. Q x))"
   by auto
 
-lemma ball_imp_iff_imp_ball [simp]: "(\<forall>x \<in> A. P \<longrightarrow> Q x) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x \<in> A. Q x))"
+lemma ball_imp_iff_imp_ball [iff]: "(\<forall>x \<in> A. P \<longrightarrow> Q x) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x \<in> A. Q x))"
   by auto
 
-lemma ball_empty [simp, intro!]: "\<forall>x \<in> {}. P x" by auto
+lemma ball_empty [iff]: "\<forall>x \<in> {}. P x" by auto
 
 lemma atomize_ball:
   "(\<And>x. x \<in> A \<Longrightarrow> P x) \<equiv> Trueprop (\<forall>x \<in> A. P x)"
@@ -105,7 +121,7 @@ lemma bex_and_iff_bex_and [simp]: "(\<exists>x \<in> A. P x \<and> Q) \<longleft
 lemma bex_and_iff_or_bex [simp]: "(\<exists>x \<in> A. P \<and> Q x) \<longleftrightarrow> (P \<and> (\<exists>x \<in> A. Q x))"
   by auto
 
-lemma not_bex_empty [simp, intro!]: "\<not>(\<exists>x \<in> {}. P x)" by auto
+lemma not_bex_empty [iff]: "\<not>(\<exists>x \<in> {}. P x)" by auto
 
 lemma ball_imp_iff_bex_imp [simp]: "(\<forall>x \<in> A. P x \<longrightarrow> Q) \<longleftrightarrow> ((\<exists>x \<in> A. P x) \<longrightarrow> Q)"
   by auto
@@ -141,14 +157,35 @@ lemma bex_if_bex1: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> 
 lemma ball_conj_distrib: "(\<forall>x \<in> A. P x \<and> Q x) \<longleftrightarrow> (\<forall>x \<in> A. P x) \<and> (\<forall>x \<in> A. Q x)"
   by auto
 
+lemma antimono'_ball_set: "antimono' (\<lambda>A. \<forall>x \<in> A. P x)"
+  by (intro antimono'I) auto
+
+lemma mono'_ball_pred: "mono' (\<lambda>P. \<forall>x \<in> A. P x)"
+  by (intro mono'I) auto
+
+lemma mono'_bex_set: "mono' (\<lambda>A. \<exists>x \<in> A. P x)"
+  by (intro mono'I) auto
+
+lemma mono'_bex_pred: "mono' (\<lambda>P. \<exists>x \<in> A. P x)"
+  by (intro mono'I) auto
+
 
 section \<open>Bounded definite description\<close>
 
 definition bthe :: "set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
   where "bthe A P \<equiv> The (\<lambda>x. x \<in> A \<and> P x)"
 
-(*TODO: localise*)
+
+bundle hotg_bounded_the_syntax
+begin
 syntax "_bthe" :: "[pttrn, set, bool] \<Rightarrow> set" ("(3THE _ \<in> _./ _)" [0, 0, 10] 10)
+end
+bundle no_hotg_bounded_the_syntax
+begin
+no_syntax "_bthe" :: "[pttrn, set, bool] \<Rightarrow> set" ("(3THE _ \<in> _./ _)" [0, 0, 10] 10)
+end
+unbundle hotg_bounded_the_syntax
+
 translations "THE x \<in> A. P" \<rightleftharpoons> "CONST bthe A (\<lambda>x. P)"
 
 lemma bthe_eqI [intro]:
@@ -162,5 +199,6 @@ lemma
   bthe_memI: "\<exists>!x \<in> A. P x \<Longrightarrow> (THE x \<in> A. P x) \<in> A" and
   btheI: "\<exists>!x \<in> A. P x \<Longrightarrow> P (THE x \<in> A. P x)"
   unfolding bex1_def bthe_def by (auto simp: theI'[of "\<lambda>x. x \<in> A \<and> P x"])
+
 
 end

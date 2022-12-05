@@ -1,17 +1,28 @@
-chapter "Higher-Order Tarski-Grothendieck (HOTG)."
+chapter_definition Set
+  description \<open>Isabelle/Set is a mathematical environment that aims to combine the flexibility
+of set theory and expressiveness of type theory. As a mathematical foundation, it is based on
+higher-order Tarski-Grothendieck set theory. On top of this, it adds an optional layer of soft types inside the object logic.\<close>
+
+chapter Set
 
 session HOTG = "HOL" +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
-    [timeout = 30]
+    [timeout = 60]
+  sessions
+    HOL_Basics
   directories
+    Binary_Relations
+    "Binary_Relations/Properties"
     Functions
+    Orders
   theories
-    Functions
+    SBinary_Relations
+    SFunctions
+    SOrders
     Axioms
     Basic
-    Binary_Relations
     Bounded_Quantifiers
     Comprehension
     Coproduct
@@ -20,6 +31,7 @@ session HOTG = "HOL" +
     Finite_Sets
     Foundation
     Mem_Trans
+    Order_Set
     Pairs
     Powerset
     Replacement

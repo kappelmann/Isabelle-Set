@@ -1,6 +1,7 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Composition\<close>
-theory Functions_Composition
-  imports Functions_Lambda
+theory SFunctions_Composition
+  imports SFunctions_Lambda
 begin
 
 lemma comp_mem_dep_functionsI:
@@ -16,13 +17,21 @@ proof
     ultimately show "p \<in> \<Sum>x \<in> A. (C (g`x))" by auto
   qed
 next
-  show "right_unique A (f \<circ> g)"
-    using assms by (auto intro!: right_unique_compI elim: mem_dep_functionsE)
+  show "set_right_unique_on A (f \<circ> g)"
+  proof (subst set_right_unique_on_set_iff_set_right_unique_on,
+    intro set_right_unique_on_compI)
+    let ?C = "rng g\<restriction>\<^bsub>\<lambda>x. x \<in> A\<^esub> \<inter> dom f"
+    from f_mem have "mem_of ?C \<le> mem_of B" by auto
+    moreover have "set_right_unique_on (mem_of B) f" using f_mem by blast
+    ultimately have "set_right_unique_on (mem_of ?C) f"
+      using antimono'D[OF antimono'_set_right_unique_on_pred] by auto
+    then show "set_right_unique_on ?C f" by simp
+  qed (insert g_mem, auto)
   from g_mem have "rng g \<subseteq> B" by auto
-  then show "left_total A (f \<circ> g)"
-    using assms
-    by (auto elim!: mem_dep_functionsE left_total_compI
-      left_total_contravariant_pred)
+  then show "set_left_total_on A (f \<circ> g)"
+    using assms by (subst set_left_total_on_set_iff_set_left_total_on,
+      intro set_left_total_on_compI)
+    auto
 qed
 
 lemma comp_eval_eq_if_mem_dep_functions [simp]:
@@ -38,26 +47,35 @@ proof -
    then show "(f \<circ> g)`x = f`(g`x)" using g_mem f_mem by auto
 qed
 
-lemma comp_id_eq [simp]:
+definition "set_id A \<equiv> \<lambda>x \<in> A. x"
+
+lemma set_id_eq [simp]: "set_id A = \<lambda>x \<in> A. x"
+  unfolding set_id_def by simp
+
+lemma set_id_mem_dep_functions [iff]: "set_id A \<in> (x \<in> A) \<rightarrow> {x}"
+  by auto
+
+lemma comp_set_id_eq [simp]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
-  shows "f \<circ> (\<lambda>x \<in> A. x) = f"
+  shows "f \<circ> set_id A = f"
 proof -
-  from assms have "f \<circ> (\<lambda>x \<in> A. x) \<in> (x \<in> A) \<rightarrow> (B((\<lambda>x \<in> A. x)`x))"
+  from assms have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow> (B((set_id A)`x))"
     by (elim comp_mem_dep_functionsI) auto
-  then have "f \<circ> (\<lambda>x \<in> A. x) \<in> (x \<in> A) \<rightarrow> (B x)"
+  then have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow> (B x)"
     by (rule mem_dep_functions_covariant_codom) auto
   from this assms show ?thesis
     by (rule dep_functions_ext, subst comp_eval_eq_if_mem_dep_functions) auto
 qed
 
-lemma id_comp_eq [simp]:
+lemma set_id_comp_eq [simp]:
   assumes "f \<in> A \<rightarrow> B"
-  shows "(\<lambda>x \<in> B. x) \<circ> f = f"
+  shows "set_id B \<circ> f = f"
 proof -
-  have "(\<lambda>x \<in> B. x) \<circ> f \<in> A \<rightarrow> B"
+  have "set_id B \<circ> f \<in> A \<rightarrow> B"
     by (rule comp_mem_dep_functionsI[OF _ assms]) auto
   from this assms show ?thesis
-    by (rule dep_functions_ext, subst comp_eval_eq_if_mem_dep_functions) auto
+    by (rule dep_functions_ext, subst comp_eval_eq_if_mem_dep_functions)
+    (auto intro: eval_lambda_eq)
 qed
 
 

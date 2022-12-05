@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
 theory Rewrite
   imports HOL.HOL
 begin

@@ -1,7 +1,9 @@
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Binary Relations\<close>
 theory TBinary_Relations
   imports
-    HOTG.Binary_Relations
+    HOTG.SBinary_Relations
     TPairs
 begin
 
@@ -46,46 +48,48 @@ lemma Dep_Bin_Rel_covariant_rng:
 subsection \<open>Predicates on Binary Relations\<close>
 
 overloading
-  injective_type \<equiv> "injective :: set type \<Rightarrow> set \<Rightarrow> bool"
+  set_injective_on_type \<equiv> "set_injective_on :: set type \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "injective_type (T :: set type) R \<equiv> injective (\<lambda>y. y : T) R"
+  definition "set_injective_on_type (T :: set type) R \<equiv>
+    set_injective_on (type_pred T) R"
 end
 
-lemma injective_type_iff_injective [iff]:
-  "injective (T :: set type) R \<longleftrightarrow> injective (\<lambda>y. y : T) R"
-  unfolding injective_type_def by simp
+lemma set_injective_on_type_iff_set_injective_on [iff]:
+  "set_injective_on (T :: set type) R \<longleftrightarrow> set_injective_on (type_pred T) R"
+  unfolding set_injective_on_type_def by simp
 
 overloading
-  right_unique_type \<equiv> "right_unique :: set type \<Rightarrow> set \<Rightarrow> bool"
+  set_right_unique_on_type \<equiv> "set_right_unique_on :: set type \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "right_unique_type (T :: set type) R \<equiv> right_unique (\<lambda>x. x : T) R"
+  definition "set_right_unique_on_type (T :: set type) R \<equiv>
+    set_right_unique_on (type_pred T) R"
 end
 
-lemma right_unique_type_iff_right_unique [iff]:
-  "right_unique (T :: set type) R \<longleftrightarrow> right_unique (\<lambda>x. x : T) R"
-  unfolding right_unique_type_def by simp
+lemma set_right_unique_on_type_iff_set_right_unique_on [iff]:
+  "set_right_unique_on (T :: set type) R \<longleftrightarrow> set_right_unique_on (type_pred T) R"
+  unfolding set_right_unique_on_type_def by simp
 
 overloading
-  left_total_type \<equiv> "left_total :: set type \<Rightarrow> set \<Rightarrow> bool"
+  set_left_total_on_type \<equiv> "set_left_total_on :: set type \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "left_total_type (T :: set type) R \<equiv> left_total (\<lambda>x. x : T) R"
+  definition "set_left_total_on_type (T :: set type) R \<equiv>
+    set_left_total_on (type_pred T) R"
 end
 
-lemma left_total_type_iff_left_total [iff]:
-  "left_total (T :: set type) R \<longleftrightarrow> left_total (\<lambda>x. x : T) R"
-  unfolding left_total_type_def by simp
+lemma set_left_total_on_type_iff_set_left_total_on [iff]:
+  "set_left_total_on (T :: set type) R \<longleftrightarrow> set_left_total_on (type_pred T) R"
+  unfolding set_left_total_on_type_def by simp
 
 overloading
-  surjective_type \<equiv> "surjective :: set type \<Rightarrow> set \<Rightarrow> bool"
+  set_surjective_at_type \<equiv> "set_surjective_at :: set type \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "surjective_type (T :: set type) R \<equiv> surjective (\<lambda>y. y : T) R"
+  definition "set_surjective_at_type (T :: set type) R \<equiv>
+    set_surjective_at (type_pred T) R"
 end
 
-lemma surjective_type_iff_surjective [iff]:
-  "surjective (T :: set type) R \<longleftrightarrow> surjective (\<lambda>y. y : T) R"
-  unfolding surjective_type_def by simp
-
-
+lemma set_surjective_at_type_iff_set_surjective_at [iff]:
+  "set_surjective_at (T :: set type) R \<longleftrightarrow> set_surjective_at (type_pred T) R"
+  unfolding set_surjective_at_type_def by simp
 
 
 subsection \<open>Functions on Binary Relations\<close>
@@ -98,35 +102,38 @@ lemma glue_type [type]: "glue : Collection (Dep_Bin_Rel A B) \<Rightarrow> Dep_B
   by unfold_types auto
 
 overloading
-  restrict_type \<equiv> "restrict :: set \<Rightarrow> set type \<Rightarrow> set"
+  set_restrict_left_type \<equiv> "set_restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
 begin
-  definition "restrict_type R (T :: set type) \<equiv> restrict R (\<lambda>x. x : T)"
+  definition "set_restrict_left_type R (T :: set type) \<equiv>
+    set_restrict_left R (type_pred T)"
 end
 
-lemma restrict_type_eq_restrict [simp]:
-  "restrict R (T :: set type) = restrict R (\<lambda>x. x : T)"
-  unfolding restrict_type_def by simp
+lemma set_restrict_left_type_eq_set_restrict_left [simp]:
+  "set_restrict_left R (T :: set type) = set_restrict_left R (type_pred T)"
+  unfolding set_restrict_left_type_def by simp
 
-lemma restrict_set_eq_restrict_type [simp]:
-  "restrict R S = restrict R (Element S)"
+lemma set_restrict_left_set_eq_set_restrict_left_type [simp]:
+  "set_restrict_left R S = set_restrict_left R (Element S)"
   by (auto iff: mem_iff_Element)
 
-lemma restrict_type [type]:
-  "restrict : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow> Dep_Bin_Rel (A & type P) B"
+lemma set_restrict_left_type [type]:
+  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
+    Dep_Bin_Rel (A & type P) B"
   by unfold_types force
 
-lemma restrict_set_type [type]:
-  "restrict : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow> Dep_Bin_Rel (A & Element A') B"
+lemma set_restrict_left_set_type [type]:
+  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow>
+    Dep_Bin_Rel (A & Element A') B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
-lemma restrict_type_type [type]:
-  "restrict : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
+lemma set_restrict_left_type_type [type]:
+  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
 lemma agree_type_iff_agree [iff]:
-  "agree (T :: set type) \<R> \<longleftrightarrow> agree (\<lambda>x. x : T) \<R>"
+  "agree (T :: set type) \<R> \<longleftrightarrow> agree (type_pred T) \<R>"
   unfolding agree_def by simp
 
 lemma dom_type [type]: "dom : Dep_Bin_Rel A B \<Rightarrow> Collection A"
@@ -138,32 +145,32 @@ lemma rng_type: "rng : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>
 lemma rng_type' [type]: "rng : Bin_Rel A B \<Rightarrow> Collection B"
   by (auto intro: CollectionI)
 
-lemma converse_type:
-  "converse : Dep_Bin_Rel A B \<Rightarrow> Bin_Rel (type (\<lambda>y. \<exists>x : A. y : B x)) A"
+lemma set_rel_inv_type:
+  "set_rel_inv : Dep_Bin_Rel A B \<Rightarrow> Bin_Rel (type (\<lambda>y. \<exists>x : A. y : B x)) A"
   by unfold_types force
 
-lemma converse_type' [type]: "converse : Bin_Rel A B \<Rightarrow> Bin_Rel B A"
+lemma set_rel_inv_type' [type]: "set_rel_inv : Bin_Rel A B \<Rightarrow> Bin_Rel B A"
   by unfold_types auto
 
-lemma Dep_Bin_Rel_mem_converseE [elim]:
+lemma Dep_Bin_Rel_mem_set_rel_invE [elim]:
   assumes "R : Dep_Bin_Rel A B"
-  and "p \<in> converse R"
+  and "p \<in> set_rel_inv R"
   obtains x y where "x : A" "y : B x" "\<langle>x, y\<rangle> \<in> R" "p = \<langle>y, x\<rangle>"
   using assms by auto
 
-lemma Dep_Bin_Rel_pair_mem_converse_iff [iff]:
-  "R : Dep_Bin_Rel A B \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
+lemma Dep_Bin_Rel_pair_mem_set_rel_inv_iff [iff]:
+  "R : Dep_Bin_Rel A B \<Longrightarrow> \<langle>a, b\<rangle> \<in> set_rel_inv R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
   by auto
 
-lemma Dep_Bin_Rel_converse_converse_eq_self [simp]:
-  "R : Dep_Bin_Rel A B \<Longrightarrow> converse (converse R) = R"
-  by (rule eqI) (auto simp: converse_converse_eq)
+lemma Dep_Bin_Rel_set_rel_inv_set_rel_inv_eq_self [simp]:
+  "R : Dep_Bin_Rel A B \<Longrightarrow> set_rel_inv (set_rel_inv R) = R"
+  by (rule eqI) (auto simp: set_rel_inv_inv_eq)
 
 lemma diag_type [type]: "diag : (A : Set) \<Rightarrow> Bin_Rel (Element A) (Element A)"
   by (auto intro: Dep_Bin_RelI)
 
-lemma comp_type [type]:
-  "comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
+lemma set_comp_type [type]:
+  "set_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
   by unfold_types auto
 
 

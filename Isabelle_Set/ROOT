@@ -1,4 +1,4 @@
-chapter "Higher-Order Tarski-Grothendieck (HOTG) Set Theory with Soft Types"
+chapter Set
 
 session Isabelle_Set = "HOL" +
   description
@@ -8,6 +8,7 @@ session Isabelle_Set = "HOL" +
     HOTG
     Auto2_HOTG
     Soft_Types
+    Transport
   directories
     "Fixpoints"
     "Functions"
@@ -15,6 +16,7 @@ session Isabelle_Set = "HOL" +
     "Integers/Rep"
     "Matrices"
     "Nat"
+    "Set_Extensions"
   theories
     Fixpoints
     TFunctions
@@ -25,7 +27,7 @@ session Isabelle_Set = "HOL" +
     Objects
     Ordinals
     Rings
-    Set_Extension
+    Set_Extensions
     Sets
     Strings
     Structures

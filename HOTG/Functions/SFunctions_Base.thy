@@ -1,8 +1,10 @@
-theory Functions_Base
-  imports Binary_Relations
-begin
-
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Evaluation of Functions\<close>
+theory SFunctions_Base
+  imports
+    SBinary_Relations_Right_Unique
+    SBinary_Relations_Left_Total
+begin
 
 definition "eval f x \<equiv> THE y. \<langle>x, y\<rangle> \<in> f"
 
@@ -11,14 +13,14 @@ bundle no_hotg_eval_syntax begin no_notation eval ("_`_" [999, 1000] 999) end
 unbundle hotg_eval_syntax
 
 lemma eval_eqI:
-  assumes "right_unique P f"
+  assumes "set_right_unique_on P f"
   and "P x"
   and "\<langle>x, y\<rangle> \<in> f"
   shows "f`x = y"
-  using assms unfolding eval_def by (auto dest: right_uniqueD)
+  using assms unfolding eval_def by (auto dest: set_right_unique_onD)
 
 lemma eval_eqI':
-  assumes "right_unique {x} f"
+  assumes "set_right_unique_on {x} f"
   and "\<langle>x, y\<rangle> \<in> f"
   shows "f`x = y"
   using assms by (auto intro: eval_eqI)
@@ -28,26 +30,25 @@ lemma pair_eval_mem_if_ex1_pair_mem:
   shows "\<langle>x, f`x\<rangle> \<in> f"
   using assms unfolding eval_def by (rule theI')
 
-lemma pair_eval_mem_if_mem_dom_right_unique:
-  assumes "right_unique {x} f"
+lemma pair_eval_mem_if_mem_dom_if_set_right_unique_on:
+  assumes "set_right_unique_on {x} f"
   and "x \<in> dom f"
   shows "\<langle>x, f`x\<rangle> \<in> f"
   using assms
-  by (intro pair_eval_mem_if_ex1_pair_mem) (auto dest: right_uniqueD)
+  by (intro pair_eval_mem_if_ex1_pair_mem) (auto dest: set_right_unique_onD)
 
 lemma eval_singleton_eq [simp]: "{\<langle>x, y\<rangle>}`x = y"
   by (rule eval_eqI) auto
 
-lemma eval_repl_eq [simp, intro!]: "x \<in> A \<Longrightarrow> {\<langle>a, f a\<rangle> | a \<in> A}`x = f x"
+lemma eval_repl_eq [iff]: "x \<in> A \<Longrightarrow> {\<langle>a, f a\<rangle> | a \<in> A}`x = f x"
   by (auto intro: eval_eqI)
 
-lemma extend_eval_eq [simp]:
-  "x \<notin> dom f \<Longrightarrow> (extend x y f)`x = y"
-  by (auto intro!: eval_eqI')
+lemma extend_eval_eq [simp]: "x \<notin> dom f \<Longrightarrow> (extend x y f)`x = y"
+  by (auto intro!: eval_eqI' set_right_unique_onI)
 
 lemma extend_eval_eq' [simp]:
   "x \<noteq> y \<Longrightarrow> (extend y z f)`x = f`x"
-  unfolding extend_def eval_def by simp
+  unfolding extend_def eval_def by (auto iff: mem_insert_iff)
 
 lemma bin_union_eval_eq_left_eval [simp]:
   "x \<notin> dom g \<Longrightarrow> (f \<union> g)`x = f`x"
@@ -59,32 +60,43 @@ lemma bin_union_eval_eq_right_eval [simp]:
 
 lemma restriction_eval_eq [simp]:
   assumes "P x"
-  shows "(f\<restriction>P)`x = f`x"
-  using assms unfolding eval_def restrict_pred_def by auto
+  shows "(f\<restriction>\<^bsub>P\<^esub>)`x = f`x"
+  using assms unfolding eval_def set_restrict_left_pred_def by auto
 
 lemma glue_eval_eqI:
-  assumes "\<And>f f'. f \<in> F \<Longrightarrow> f' \<in> F \<Longrightarrow> right_unique {x} (glue {f, f'})"
+  assumes "\<And>f f'. f \<in> F \<Longrightarrow> f' \<in> F \<Longrightarrow> set_right_unique_on {x} (glue {f, f'})"
   and "f \<in> F"
   and "x \<in> dom f"
   shows "(glue F)`x = f`x"
-proof (rule eval_eqI[where ?P="\<lambda>y. y \<in> {x}"], fold right_unique_set_def)
-  from assms(1) show "right_unique {x} (glue F)" by (auto intro: right_unique_glueI)
-  from assms(1)[OF assms(2) assms(2)] have "right_unique {x} f" by auto
+proof (rule eval_eqI[where ?P="mem_of {x}"], fold set_right_unique_on_set_def)
+  from assms(1) show "set_right_unique_on {x} (glue F)"
+    by (auto intro: set_right_unique_on_glueI)
+  from assms(1)[OF assms(2) assms(2)] have "set_right_unique_on {x} f" by auto
   with assms(3) have "\<langle>x, f`x\<rangle> \<in> f"
-    by (intro pair_eval_mem_if_mem_dom_right_unique)
+    by (intro pair_eval_mem_if_mem_dom_if_set_right_unique_on)
   with assms(2) show "\<langle>x, f`x\<rangle> \<in> (glue F)" by auto
 qed simp
 
-subsection \<open>Dependent Functions\<close>
+
+subsubsection \<open>Dependent Functions\<close>
 
 definition "dep_functions A B \<equiv>
-  {f \<in> powerset (\<Sum>x \<in> A. (B x)) | left_total A f \<and> right_unique A f}"
+  {f \<in> powerset (\<Sum>x \<in> A. B x) | set_left_total_on A f \<and> set_right_unique_on A f}"
 
 abbreviation "functions A B \<equiv> dep_functions A (\<lambda>_. B)"
 
-(*TODO: localise*)
+bundle hotg_functions_syntax
+begin
 syntax
   "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>" 55)
+end
+bundle no_hotg_functions_syntax
+begin
+no_syntax
+  "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>" 55)
+end
+unbundle hotg_functions_syntax
+
 translations
   "(x y \<in> A) \<rightarrow> B" \<rightharpoonup> "(x \<in> A)(y \<in> A) \<rightarrow> B"
   "(x \<in> A) args \<rightarrow> B" \<rightharpoonup> "(x \<in> A) \<rightarrow> args \<rightarrow> B"
@@ -93,14 +105,14 @@ translations
 
 lemma mem_dep_functionsI [intro]:
   assumes "f \<subseteq> (\<Sum>x \<in> A. (B x))"
-  and "left_total A f"
-  and "right_unique A f"
+  and "set_left_total_on A f"
+  and "set_right_unique_on A f"
   shows "f \<in> (x \<in> A) \<rightarrow> (B x)"
   using assms unfolding dep_functions_def by auto
 
-lemma mem_dep_functionsE:
+lemma mem_dep_functionsE [elim]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
-  obtains "f \<subseteq> \<Sum>x \<in> A. (B x)" "left_total A f" "right_unique A f"
+  obtains "f \<subseteq> \<Sum>x \<in> A. (B x)" "set_left_total_on A f" "set_right_unique_on A f"
   using assms unfolding dep_functions_def by blast
 
 lemma dep_functions_cong [cong]:
@@ -114,14 +126,14 @@ lemma mem_functions_if_mem_dep_functions:
 lemma dom_eq_if_mem_dep_functions [simp]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
   shows "dom f = A"
-  using assms by (elim mem_dep_functionsE, intro subset_antisym) auto
+  using assms by (elim mem_dep_functionsE, intro eq_if_subset_if_subset) auto
 
 lemma rng_subset_if_mem_dep_functions [simp]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
   shows "rng f \<subseteq> (\<Union>x \<in> A. B x)"
 proof -
   from assms have "f \<subseteq> \<Sum>x \<in> A. (B x)" by (elim mem_dep_functionsE)
-  then have "rng f \<subseteq> rng (\<Sum>x \<in> A. (B x))" by (rule rng_covariant)
+  then have "rng f \<subseteq> rng (\<Sum>x \<in> A. (B x))" by blast
   also have "... \<subseteq> (\<Union>x \<in> A. B x)" by simp
   finally show ?thesis .
 qed
@@ -130,7 +142,7 @@ lemma fst_snd_eq_pair_if_mem_dep_function [simp]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
   and "p \<in> f"
   shows "\<langle>fst p, snd p\<rangle> = p"
-  using assms by (auto elim: mem_dep_functionsE)
+  using assms by (auto elim!: mem_dep_functionsE)
 
 lemma pair_eval_mem_if_mem_if_mem_dep_functions [elim]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
@@ -138,10 +150,9 @@ lemma pair_eval_mem_if_mem_if_mem_dep_functions [elim]:
   shows "\<langle>x, f`x\<rangle> \<in> f"
 proof -
   from assms have "x \<in> dom f" by simp
-  then show ?thesis
-    using assms
+  then show ?thesis using assms
     by (elim mem_dep_functionsE mem_domE, intro pair_eval_mem_if_ex1_pair_mem)
-      (auto simp: right_uniqueD)
+    (auto dest: set_right_unique_onD)
 qed
 
 lemma pair_mem_iff_eval_eq_if_mem_dom_dep_function:
@@ -152,7 +163,7 @@ proof
   assume "\<langle>x, y\<rangle> \<in> f"
   moreover have "\<langle>x, f`x\<rangle> \<in> f" using assms by auto
   ultimately show "f`x = y" using assms
-    by (auto elim: mem_dep_functionsE simp: right_uniqueD)
+    by (auto dest: set_right_unique_onD)
 qed (insert assms, auto)
 
 lemma fst_mem_if_mem_dep_function:
@@ -174,7 +185,7 @@ lemma mem_codom_if_pair_mem_dep_function:
 lemma eval_mem_if_mem_if_mem_dep_functions [elim]:
   "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); x \<in> A\<rbrakk> \<Longrightarrow> f`x \<in> B x"
   using mem_codom_if_pair_mem_dep_function
-  by (fast dest: pair_eval_mem_if_mem_if_mem_dep_functions)
+  by (blast dest: pair_eval_mem_if_mem_if_mem_dep_functions)
 
 lemma eval_eq_if_pair_mem_dep_function [simp]:
   assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
@@ -201,7 +212,7 @@ proof -
   proof (intro hyp[of x y])
     from fst_mem_if_mem_dep_function[OF assms] show "x \<in> A" by simp
     from snd_mem_if_mem_dep_function[OF assms] show "y \<in> B x" by simp
-    from assms show "f`x = y" by (auto elim: mem_dep_functionsE)
+    from assms show "f`x = y" by auto
   qed fact
 qed
 
@@ -232,7 +243,7 @@ lemma eq_if_mem_if_mem_agree_if_mem_dep_functions:
   shows "f = g"
   using assms
 proof -
-  have "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<subseteq> \<Sum>x \<in> A. (B x)" by (auto dest!: mem_dep_functions)
+  have "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<subseteq> \<Sum>x \<in> A. (B x)" by (blast dest: mem_dep_functions)
   with assms show ?thesis by (intro eq_if_subset_dep_pairs_if_agree)
 qed
 
@@ -310,7 +321,7 @@ lemma empty_mem_dep_functions: "{} \<in> (x \<in> {}) \<rightarrow> (B x)" by si
 
 lemma eq_singleton_if_mem_functions_singleton [simp]:
   "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
-  by (auto elim!: mem_dep_functionsE left_totalE)
+  by auto
 
 lemma singleton_mem_functionsI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
   by auto

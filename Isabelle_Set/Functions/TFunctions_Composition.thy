@@ -1,23 +1,29 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Composition\<close>
 theory TFunctions_Composition
   imports TFunctions_Base
 begin
 
-lemma Dep_Function_comp_right_unique:
+unbundle no_comp_syntax
+unbundle no_restrict_syntax
+
+lemma Dep_Function_comp_set_right_unique_on:
   assumes f_type: "f : (x : B) \<rightarrow> (C x)"
   and g_type: "g : A \<rightarrow> B"
-  shows "right_unique A (f \<circ> g)"
+  shows "set_right_unique_on A (f \<circ> g)"
 proof -
-  have "right_unique (rng (g\<restriction>A)) f"
+  have "set_right_unique_on (rng g\<restriction>\<^bsub>A\<^esub> \<inter> dom f) f"
   proof -
-    from f_type have "right_unique B f"
-      by (blast dest: Dep_Function_right_unique)
-    moreover from g_type have "rng (g\<restriction>A) \<subseteq> dom (f\<restriction>B)" by (auto 0 3)
-    ultimately show ?thesis by (auto elim!: right_unique_contravariant_pred)
+    from f_type have "set_right_unique_on (type_pred B) f"
+      by (auto dest: Dep_Function_set_right_unique_on)
+    then have "set_right_unique_on (mem_of (rng g\<restriction>\<^bsub>A\<^esub> \<inter> dom f)) f"
+      using antimono'D[OF antimono'_set_right_unique_on_pred]
+      by (rule le_boolD'')
+      (insert g_type, auto intro!: le_predI elim!: mem_set_restrict_leftE)
+    then show ?thesis by simp
   qed
-  then show ?thesis
-    using assms by (auto intro: right_unique_compI
-      dest: Dep_Function_right_unique elim: right_unique_contravariant_pred)
+  then show ?thesis using assms by (auto intro!: set_right_unique_on_compI
+    dest: Dep_Function_set_right_unique_on)
 qed
 
 lemma Dep_Function_comp_eval_eq [simp]:
@@ -28,13 +34,14 @@ lemma Dep_Function_comp_eval_eq [simp]:
 proof (rule eval_eqI)
   show "x : A" by (fact x_type)
   from assms show "\<langle>x, f`(g`x)\<rangle> \<in> f \<circ> g" by auto
-qed (insert Dep_Function_comp_right_unique[OF assms(1-2)], auto)
+qed (insert Dep_Function_comp_set_right_unique_on[OF f_type g_type], auto)
 
-lemma comp_type_Dep_Function [type]:
+lemma set_comp_type_Dep_Function [type]:
   "(\<circ>) : ((x : B) \<rightarrow> C x) \<Rightarrow> (g : A \<rightarrow> B) \<Rightarrow> (x : A) \<rightarrow> C (g`x)"
 proof (intro Dep_fun_typeI Dep_FunctionI)
   fix f g assume "f : (x : B) \<rightarrow> C x" "g : A \<rightarrow> B"
-  then show "right_unique A (f \<circ> g)" by (rule Dep_Function_comp_right_unique)
+  then show "set_right_unique_on A (f \<circ> g)"
+    by (rule Dep_Function_comp_set_right_unique_on)
 qed auto
 
 lemma comp_type_CDep_Function [type]:
@@ -51,5 +58,6 @@ lemma Function_lambda_comp_lambda_eq [simp]:
   assumes "f : Element A \<Rightarrow> Element B"
   shows "(\<lambda>y \<in> B. g y) \<circ> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g (f x)"
   using assms by (intro eqI) auto
+
 
 end

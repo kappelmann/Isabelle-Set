@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Monoids\<close>
 theory Monoids
   imports Structures
@@ -58,7 +61,7 @@ lemma
     "\<And>x y z. \<lbrakk>M : Monoid A; x : A; y : A; z : A\<rbrakk> \<Longrightarrow>
       add M (add M x y) z = add M x (add M y z)"
   (* TODO: should be provable by type checker *)
-  unfolding Monoid_def by (auto dest!: Int_typeD1 Int_typeD2 has_typeD)
+  unfolding Monoid_def by (auto 7 0 dest!: Int_typeD1 Int_typeD2 has_typeD)
 
 
 subsection \<open>Direct sum\<close>
@@ -276,7 +279,7 @@ lemma
     "\<And>x y z. \<lbrakk>M : Mul_Monoid A; x : A; y : A; z : A\<rbrakk> \<Longrightarrow>
       mul M (mul M x y) z = mul M x (mul M y z)"
   (* TODO: should be provable by type checker *)
-  unfolding Mul_Monoid_def by (auto dest!: Int_typeD1 Int_typeD2 has_typeD)
+  unfolding Mul_Monoid_def by (auto 7 0 dest!: Int_typeD1 Int_typeD2 has_typeD)
 
 
 end

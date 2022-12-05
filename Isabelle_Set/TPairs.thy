@@ -1,3 +1,5 @@
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Dependent Pair Type (\<Sum>-type)\<close>
 theory TPairs
   imports Sets
@@ -5,8 +7,18 @@ begin
 
 definition [typedef]: "Dep_Pair A B \<equiv> type (\<lambda>p. (\<exists>x : A. \<exists>y : B x. p = \<langle>x, y\<rangle>))"
 
+bundle isa_set_dependent_pairs_syntax
+begin
 syntax
   "_Dep_Pair" :: \<open>[pttrn, set type, set \<Rightarrow> set type] \<Rightarrow> set\<close> ("\<Sum>_ : _./ _" [0, 0, 100])
+end
+bundle no_isa_set_dependent_pairs_syntax
+begin
+syntax
+  "_Dep_Pair" :: \<open>[pttrn, set type, set \<Rightarrow> set type] \<Rightarrow> set\<close> ("\<Sum>_ : _./ _" [0, 0, 100])
+end
+unbundle isa_set_dependent_pairs_syntax
+
 translations
   "\<Sum>x : A. B" \<rightleftharpoons> "CONST Dep_Pair A (\<lambda>x. B)"
 
@@ -92,7 +104,7 @@ text \<open>Splitting quantifiers:\<close>
 
 lemma tbex_Dep_Pair_iff_tbex_tbex [iff]:
   "(\<exists>p : \<Sum>x : A. (B x). P p) \<longleftrightarrow> (\<exists>x : A. \<exists>y : B x. P \<langle>x, y\<rangle>)"
-  by (auto intro!: tbexI)
+  by auto
 
 lemma tball_Dep_Pair_iff_tball_tball [iff]:
   "(\<forall>p : \<Sum>x : A. (B x). P p) \<longleftrightarrow> (\<forall>x : A. \<forall>y : B x. P \<langle>x, y\<rangle>)"

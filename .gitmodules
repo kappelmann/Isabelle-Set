@@ -1,0 +1,3 @@
+[submodule "Transport"]
+	path = Transport
+	url = git@github.com:kappelmann/transport-isabelle.git

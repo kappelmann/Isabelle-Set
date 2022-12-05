@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Natural number ranges\<close>
 theory Nat_Ranges
   imports Nat_Base
@@ -99,7 +100,7 @@ proof -
     by (rule eqI) (auto intro: Nat_lt_succ_if_le le_if_lt_succ)
   then show ?thesis
     using assms unfolding le_def lt_def nat_def
-    by (auto dest: ElementD mem_omega_if_mem_if_mem_omega)
+    by (auto 7 0 dest: ElementD mem_omega_if_mem_if_mem_omega)
 qed
 
 (*Note Kevin: should this be intro? should this be backward_derive? what should

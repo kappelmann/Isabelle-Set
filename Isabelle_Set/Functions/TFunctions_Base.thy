@@ -1,11 +1,10 @@
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 theory TFunctions_Base
   imports
-    HOTG.Functions
+    HOTG.SFunctions
     TBinary_Relations
 begin
-
-(*TODO: move somewhere else*)
-unbundle no_hol_ascii_syntax
 
 subsection \<open>Set-Function Type\<close>
 
@@ -15,7 +14,6 @@ definition [typedef]: "Dep_Function (A :: set type) (B :: set \<Rightarrow> set 
 
 abbreviation "Function A B \<equiv> Dep_Function A (\<lambda>_. B)"
 
-(*TODO: localise*)
 translations
   "(x y \<in> A) \<rightarrow> B" \<rightharpoonup> "(x \<in> A)(y \<in> A) \<rightarrow> B"
   "(x \<in> A) args \<rightarrow> B" \<rightharpoonup> "(x \<in> A) \<rightarrow> args \<rightarrow> B"
@@ -30,22 +28,22 @@ translations
   "A \<rightarrow> B" \<rightleftharpoons> "CONST Function A B"
 
 lemma Dep_FunctionI:
-  assumes "left_total A f"
-  and "right_unique A f"
+  assumes "set_left_total_on A f"
+  and "set_right_unique_on A f"
   and "\<And>x. x : A \<Longrightarrow> f`x : B x"
   shows "f : (x : A) \<rightarrow> B x"
-  by unfold_types (insert assms, auto dest: right_uniqueD)
+  by unfold_types (insert assms, auto dest: set_right_unique_onD)
 
-lemma Dep_Function_left_total:
+lemma Dep_Function_set_left_total_on:
   assumes "f : (x : A) \<rightarrow> B x"
-  shows "left_total A f"
+  shows "set_left_total_on A f"
   (*TODO: somehow, unfold_types would loop here*)
   using assms unfolding Dep_Function_def meaning_of_type
-  by (auto intro!: left_totalI)
+  by (auto intro!: set_left_total_onI)
 
-lemma Dep_Function_right_unique:
+lemma Dep_Function_set_right_unique_on:
   assumes "f : (x : A) \<rightarrow> B x"
-  shows "right_unique A f"
+  shows "set_right_unique_on A f"
   (*TODO: somehow, unfold_types would loop here*)
   using assms unfolding Dep_Function_def meaning_of_type
   by auto
@@ -68,7 +66,7 @@ lemma Dep_Function_eq_if_pair_mem_if_pair_mem:
   assumes "f : (x : A) \<rightarrow> B x" "x : A"
   and "\<langle>x, y\<rangle> \<in> f" "\<langle>x, y'\<rangle> \<in> f"
   shows "y = y'"
-  using assms by (auto dest: Dep_Function_right_unique right_uniqueD)
+  using assms by (auto dest: Dep_Function_set_right_unique_on set_right_unique_onD)
 
 lemma Dep_Function_eval_eq_if_pair_mem [simp]:
   assumes "f : (x : A) \<rightarrow> B x" "x : A"
@@ -96,7 +94,7 @@ lemma Dep_Function_cong [cong]:
   and "\<And>x y. x : A \<Longrightarrow> y : B x \<longleftrightarrow> y : B' x"
   shows "f : (x : A) \<rightarrow> B x \<longleftrightarrow> f : (x : A') \<rightarrow> B' x"
   using assms by (auto intro!: Dep_FunctionI
-    dest: Dep_Function_right_unique Dep_Function_left_total)
+    dest: Dep_Function_set_right_unique_on Dep_Function_set_left_total_on)
 
 lemma Dep_Function_mem_dom [simp]:
   assumes "f : (x : A) \<rightarrow> B x" "x : A"
@@ -136,8 +134,18 @@ definition [typedef]: "CDep_Function A B \<equiv> Dep_Function A B & Dep_Bin_Rel
 
 abbreviation "CFunction A B \<equiv> CDep_Function A (\<lambda>_. B)"
 
+bundle isa_set_clean_set_functions_syntax
+begin
 syntax
   "_clean_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>c" 55)
+end
+bundle no_isa_set_clean_set_functions_syntax
+begin
+syntax
+  "_clean_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>c" 55)
+end
+unbundle isa_set_clean_set_functions_syntax
+
 translations
   "(x y : A) \<rightarrow>c B" \<rightharpoonup> "(x : A)(y : A) \<rightarrow>c B"
   "(x : A) args \<rightarrow>c B" \<rightharpoonup> "(x : A) \<rightarrow>c args \<rightarrow>c B"
@@ -146,7 +154,7 @@ translations
 
 lemma mem_dep_functions_iff_CDep_Function:
   "(f \<in> (x \<in> A) \<rightarrow> (B x)) \<longleftrightarrow> (f : (x : Element A) \<rightarrow>c Element (B x))"
-  by unfold_types (auto intro!: mem_dep_functionsI left_totalI)
+  by unfold_types (auto intro!: mem_dep_functionsI set_left_total_onI)
 
 soft_type_translation
   "f \<in> (x \<in> A) \<rightarrow> (B x)" \<rightleftharpoons> "f : (x : Element A) \<rightarrow>c Element (B x)"
@@ -172,7 +180,7 @@ lemma CDep_Function_pair_memE [elim]:
   obtains x y where "x : A" "y : B x" "f`x = y" "p = \<langle>x, y\<rangle>"
 proof (rule Dep_Function_pair_memE)
   from assms have "f : Dep_Bin_Rel A B" by discharge_types
-  with assms show "p : \<Sum>x : A. (B x)" by auto
+  with assms show "p : \<Sum>x : A. (B x)" by blast
 qed auto
 
 lemma CDep_Function_covariant_codom:

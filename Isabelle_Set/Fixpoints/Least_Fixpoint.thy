@@ -1,3 +1,5 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Least Fixpoints Computation\<close>
 theory Least_Fixpoint
   imports Monotone_Operators
@@ -27,7 +29,7 @@ context
   assumes h_type: "h : Monop D"
 begin
 
-lemma lfp_subset [simp, intro!]: "lfp D h \<subseteq> D"
+lemma lfp_subset [iff]: "lfp D h \<subseteq> D"
   unfolding lfp_def by (insert h_type, unfold_types) (auto del: subsetCE)
 
 lemma lfp_subset_if_prefixpoint: "prefixpoint A h \<Longrightarrow> A \<subseteq> D \<Longrightarrow> lfp D h \<subseteq> A"
@@ -37,7 +39,7 @@ lemma subset_lfp_if_all_subset:
   "(\<And>X. X \<subseteq> D \<Longrightarrow> prefixpoint X h \<Longrightarrow> A \<subseteq> X) \<Longrightarrow> A \<subseteq> lfp D h"
   using Monop_prefixpoint[OF h_type] unfolding lfp_def by auto
 
-lemma prefixpoint_lfp [simp, intro!]: "prefixpoint (lfp D h) h"
+lemma prefixpoint_lfp [iff]: "prefixpoint (lfp D h) h"
 proof (rule prefixpointI, rule subset_lfp_if_all_subset)
   fix X assume "X \<subseteq> D" "prefixpoint X h"
   then have "lfp D h \<subseteq> X" by (intro lfp_subset_if_prefixpoint) auto
@@ -45,7 +47,7 @@ proof (rule prefixpointI, rule subset_lfp_if_all_subset)
   with \<open>prefixpoint X h\<close> show "h (lfp D h) \<subseteq> X" by blast
 qed
 
-lemma postfixpoint_lfp [simp, intro!]: "postfixpoint (lfp D h) h"
+lemma postfixpoint_lfp [iff]: "postfixpoint (lfp D h) h"
 proof (rule postfixpointI, rule lfp_subset_if_prefixpoint)
   have "h (lfp D h) \<subseteq> lfp D h" using prefixpoint_lfp by blast
   then have "h (h (lfp D h)) \<subseteq> h (lfp D h)"
@@ -53,7 +55,7 @@ proof (rule postfixpointI, rule lfp_subset_if_prefixpoint)
   then show "prefixpoint (h (lfp D h)) h" by blast
 qed discharge_types
 
-lemma fixpoint_lfp [simp, intro!]: "fixpoint (lfp D h) h"
+lemma fixpoint_lfp [iff]: "fixpoint (lfp D h) h"
   using fixpoint_iff_prefixpoint_and_postfixpoint by blast
 
 

@@ -4,7 +4,7 @@
 
 Isabelle/Set is a mathematical environment that aims to combine the flexibility of set theory and expressiveness of type theory.
 As a mathematical foundation, it is based on higher-order Tarski-Grothendieck set theory.
-On top of this, it builds an optional layer of soft types in the object logic.
+On top of this, it adds an optional layer of soft types inside the object logic.
 
 A soft type can simply be thought as a predicate verifying certain properties about the mathematical entity in question.
 These predicates can be arbitrarily complex, allowing simple assertions such as an entity being a member of a certain set (e.g. "n : Nat")
@@ -21,9 +21,12 @@ This code depends on:
 1. The [Isabelle repository](https://isabelle.in.tum.de/repos/isabelle):
    The file `ISABELLE_VERSION` specifies the exact mecurial revision,
    which will also be used in the automated builds.
-2  The [AFP mirror repository](https://github.com/isabelle-prover/mirror-afp-devel/):
+2. The [AFP mirror repository](https://github.com/isabelle-prover/mirror-afp-devel/):
    The file `AFP_VERSION` specifies the exact git revision,
    which will also be used in the automated builds.
+3. The [Isabelle/Transport](https://github.com/kappelmann/transport-isabelle) framework:
+   This dependency is registered as a git submodule.
+   Make sure to initialise and update submodules when you check out or update the repository.
 
 Instructions:
 1. Clone and prepare the correct Isabelle development version.
@@ -34,11 +37,9 @@ Instructions:
    [AFP-website](https://www.isa-afp.org/using.html).
 3. Clone and navigate into this repository:
   ```bash
-  git clone git@github.com:kappelmann/Isabelle-Set.git
+  git clone --recurse-submodules git@github.com:kappelmann/Isabelle-Set.git
   cd Isabelle_Set
   ```
-  If you are using git via https, replace the first command with
-  `git clone https://github.com/kappelmann/Isabelle-Set.git`
 4. Build the supporting Isabelle heap images:
   ```bash
   /<path_to_isabelle>/bin/isabelle build -vbRD .
@@ -46,6 +47,10 @@ Instructions:
 5. Build this development:
   ```
   /<path_to_isabelle>/bin/isabelle build -vD .
+  ```
+6. Open the development:
+  ```
+  /<path_to_isabelle>/bin/isabelle jedit -l HOL -d .
   ```
 
 ## Style Guide
@@ -68,6 +73,7 @@ File | Content
 `Soft_Types/Tests/Elaboration_Tests.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Soft_Types/Tests/Implicit_Arguments_Tests.thy` | Demonstrates automatic insertion of implicit arguments
 `Soft_Types/Tests/Isar_Integration_tests.thy` | Demonstrates automatic generation of typing assumptions in proof contexts.
+`Transport` | Recent work to transport definitions via Galois connections and equivalences ([source](https://github.com/kappelmann/transport-isabelle))
 `Isabelle_Set/{Sets,Binary_Relations,Function,Fixpoints}.thy` | Further set-theoretic concepts with soft types
 `Isabelle_Set/Structures.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle

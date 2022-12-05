@@ -1,14 +1,25 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Lambda Abstractions\<close>
-theory Functions_Lambda
-  imports Functions_Base
+theory SFunctions_Lambda
+  imports SFunctions_Base
 begin
 
 definition "lambda A f \<equiv> {\<langle>x, f x\<rangle> | x \<in> A}"
 
-(*TODO: localise*)
+bundle hotg_lambda_syntax
+begin
 syntax
   "_lam"  :: "[pttrns, set, set \<Rightarrow> set] \<Rightarrow> set" ("(2\<lambda>_ \<in> _./ _)" 60)
   "_lam2" :: "[pttrns, set, set \<Rightarrow> set] \<Rightarrow> set"
+end
+bundle no_hotg_lambda_syntax
+begin
+no_syntax
+  "_lam"  :: "[pttrns, set, set \<Rightarrow> set] \<Rightarrow> set" ("(2\<lambda>_ \<in> _./ _)" 60)
+  "_lam2" :: "[pttrns, set, set \<Rightarrow> set] \<Rightarrow> set"
+end
+unbundle hotg_lambda_syntax
+
 translations
   "\<lambda>x xs \<in> A. f" \<rightharpoonup> "CONST lambda A (\<lambda>x. _lam2 xs A f)"
   "_lam2 x A f" \<rightharpoonup> "\<lambda>x \<in> A. f"
@@ -26,10 +37,10 @@ lemma lambda_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x \<in> A \<Longrightarrow> f x = f' x\<rbrakk> \<Longrightarrow> (\<lambda>x \<in> A. f x) = \<lambda>x \<in> A'. f' x"
   unfolding lambda_def by auto
 
-lemma eval_lambda_eq [simp, intro!]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. f x)`a = f a"
+lemma eval_lambda_eq [simp]: "a \<in> A \<Longrightarrow> (\<lambda>x \<in> A. f x)`a = f a"
   unfolding lambda_def by auto
 
-lemma eval_lambda_uncurry_eq [simp, intro!]:
+lemma eval_lambda_uncurry_eq [simp]:
   assumes "x \<in> A" "y \<in> B x"
   shows "(\<lambda>p \<in> \<Sum>x \<in> A. (B x). uncurry f p)`\<langle>x, y\<rangle> = f x y"
   using assms by auto
@@ -49,9 +60,9 @@ lemma lambda_rng_eq [simp]: "rng (\<lambda>x \<in> A. f x) = {f x | x \<in> A}"
 
 lemma app_eq_if_mem_if_lambda_eq:
   "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
-  by (erule eqE) auto
+  by auto
 
-lemma lambda_mem_dep_functions [simp, intro!]: "(\<lambda>x \<in> A. f x) \<in> (x \<in> A) \<rightarrow> {f x}"
+lemma lambda_mem_dep_functions [iff]: "(\<lambda>x \<in> A. f x) \<in> (x \<in> A) \<rightarrow> {f x}"
   by auto
 
 lemma lambda_mem_dep_functions_contravariant:
@@ -92,6 +103,9 @@ proof
   let ?g="(\<lambda>x. f`x)"
   from assms show "f = (\<lambda>x \<in> A. (\<lambda>x. f`x) x)" by auto
 qed
+
+lemma mono'_lambda_set: "mono' (\<lambda>A. \<lambda>x \<in> A. f x)"
+  by (intro mono'I) auto
 
 
 end

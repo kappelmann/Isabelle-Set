@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section\<open>Ordinals\<close>
 theory Ordinals
   imports Least_Fixpoint
@@ -14,7 +17,7 @@ lemma OrdI: "mem_trans X \<Longrightarrow> (\<And>x. x \<in> X \<Longrightarrow>
 text \<open>Basic properties of ordinals:\<close>
 
 lemma Ord_if_mem_Ord [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
-  by unfold_types (unfold mem_trans_def, auto 5 0)
+  by unfold_types (unfold mem_trans_def, auto)
 
 lemma mem_trans_if_Ord: "x : Ord \<Longrightarrow> mem_trans x"
   by unfold_types
@@ -72,19 +75,19 @@ lemma mem_succE [elim]:
 
 text \<open>Simp rules\<close>
 
-lemma succ_empty_eq [simp, intro!]: "succ {} = {{}}"
+lemma succ_empty_eq [iff]: "succ {} = {{}}"
   unfolding succ_def by simp
 
-lemma succ_succ_empty_eq [simp, intro!]: "succ (succ {}) = {{}, {{}}}"
+lemma succ_succ_empty_eq [iff]: "succ (succ {}) = {{}, {{}}}"
   unfolding succ_def by auto
 
-lemma succ_ne_self [simp, intro!]: "succ x \<noteq> x"
+lemma succ_ne_self [iff]: "succ x \<noteq> x"
   unfolding succ_def by auto
 
-lemma succ_ne_empty [simp, intro!]: "succ x \<noteq> {}"
+lemma succ_ne_empty [iff]: "succ x \<noteq> {}"
   unfolding succ_def by auto
 
-lemma mem_succ_self [simp, intro!]: "x \<in> succ x"
+lemma mem_succ_self [iff]: "x \<in> succ x"
   unfolding succ_def by auto
 
 text \<open>Injectivity\<close>
@@ -95,7 +98,7 @@ proof (rule ccontr)
   have "x \<in> succ x" and "y \<in> succ y" by auto
   then have "x \<in> succ y" and "y \<in> succ x" by (auto simp only: succ_eq)
   with neq have "x \<in> y" and "y \<in> x" by auto
-  then show False using mem_asym by blast
+  then show False using not_mem_if_mem by blast
 qed
 
 lemma succ_ne_if_ne [intro!]: "x \<noteq> y \<Longrightarrow> succ x \<noteq> succ y"
@@ -121,10 +124,10 @@ bundle isa_set_omega_syntax begin notation omega ("\<omega>") end
 bundle no_isa_set_omega_syntax begin no_notation omega ("\<omega>") end
 unbundle isa_set_omega_syntax
 
-lemma fixpoint_omega [simp, intro!]: "fixpoint \<omega> omega_op"
+lemma fixpoint_omega [iff]: "fixpoint \<omega> omega_op"
   unfolding omega_def by auto
 
-lemma empty_mem_omega [simp, intro!]: "{} \<in> \<omega>"
+lemma empty_mem_omega [iff]: "{} \<in> \<omega>"
   by (subst fixpoint_omega[unfolded fixpoint_def omega_op_def, symmetric])
     simp
 
@@ -154,7 +157,7 @@ lemma eq_empty_or_empty_mem_if_mem_omegaE:
 lemma empty_mem_succ_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
   by (rule eq_empty_or_empty_mem_if_mem_omegaE) auto
 
-lemma mem_trans_omega [simp, intro!]: "mem_trans \<omega>"
+lemma mem_trans_omega [iff]: "mem_trans \<omega>"
   by (rule mem_transI, rule omega_induct) auto
 
 lemma mem_trans_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> mem_trans n"
@@ -187,7 +190,7 @@ lemma mem_if_succ_mem_succ_if_mem_omega:
   shows "m \<in> n"
 proof -
   have "mem_trans (succ n)" by (rule mem_trans_if_mem_omega) auto
-  from mem_transE[OF this] have "succ m \<subseteq> succ n" by auto
+  from mem_transD[OF this] have "succ m \<subseteq> succ n" by auto
   then have "m \<in> (n \<union> {n})" by auto
   with succ_m_mem show "m \<in> n" by auto
 qed

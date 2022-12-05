@@ -17,7 +17,7 @@ definition "list_op A L \<equiv> {nil} \<union> {cons x xs | \<langle>x, xs\<ran
 
 definition "list A \<equiv> lfp (univ A) (list_op A)"
 
-lemma nil_ne_cons [simp, intro!]: "nil \<noteq> cons x xs"
+lemma nil_ne_cons [iff]: "nil \<noteq> cons x xs"
   unfolding nil_def cons_def by simp
 
 lemma cons_inj [iff]: "cons x xs = cons y ys \<longleftrightarrow> (x = y \<and> xs = ys)"
@@ -30,6 +30,8 @@ lemma [type]: "nil : Element (univ A)"
 lemma [type]:
   "cons : Element (univ A) \<Rightarrow> Element (univ A) \<Rightarrow> Element (univ A)"
   unfolding cons_def by unfold_types auto
+lemma "A \<Longrightarrow> (A \<Longrightarrow> B) \<Longrightarrow> B"
+  by (rule Pure.meta_impE)
 
 lemma list_op_Monop [type]: "list_op : (A : Set) \<Rightarrow> Monop (univ A)"
   apply (intro Dep_fun_typeI)
@@ -43,9 +45,12 @@ lemma list_op_Monop [type]: "list_op : (A : Set) \<Rightarrow> Monop (univ A)"
   apply (intro Dep_fun_typeI)
   apply unfold_types
   apply (drule subset_if_mem_powerset)
-  apply (drule subset_pairs_subsetI[OF subset_univ])
-  apply (drule mem_if_mem_if_subset[of "A \<times> _" "univ A \<times> univ A" for A :: "set"])
-  apply simp
+  apply (drule mono'D[OF mono'_pairs_rng, simplified le_set_eq_subset])
+  apply (drule subsetD)
+    apply assumption
+  apply (tactic \<open>rotate_tac 2 1\<close>)
+  apply (drule subsetD[OF mono'D[OF mono'_pairs_dom,
+    simplified le_set_eq_subset, OF subset_univ]])
   apply discharge_types
   done
 
@@ -155,13 +160,13 @@ thm cons_append_eq
 
 lemma append_assoc [simp]:
   "append (append xs ys) zs = append xs (append ys zs)"
-  by (induction xs rule: list_induct) auto
+  by (induction xs rule: list_induct) (simp_all, auto)
 
 thm append_assoc
 
 lemma append_nil_eq [simp]:
   "append xs nil = xs"
-  by (induction xs rule: list_induct) auto
+  by (induction xs rule: list_induct) (simp_all, auto)
 
 
 subsection \<open>Rev\<close>
@@ -187,10 +192,10 @@ lemma rev_cons_eq [simp]: "rev (cons x xs) = append (rev xs) (cons x nil)"
   by (simp add: rev_def list_rec_cons)
 
 lemma rev_app_eq [simp]: "rev (append xs ys) = append (rev ys) (rev xs)"
-  by (induction xs rule: list_induct) auto
+  by (induction xs rule: list_induct) (simp_all, auto)
 
 lemma rev_rev_eq [simp]: "rev (rev xs) = xs"
-  by (induction xs rule: list_induct) auto
+  by (induction xs rule: list_induct) (simp_all, auto)
 
 
 end

@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Representation of Integers\<close>
 theory Integers_Rep_Base
 imports
@@ -6,6 +7,7 @@ imports
   TCoproduct
 begin
 
+unbundle no_HOL_groups_syntax
 
 text \<open>We construct the integers as a pair of a non-negative and a negative part.
 By using the set extension principle, we will ensure that \<open>\<nat> \<subseteq> \<int>\<close>.\<close>
@@ -43,8 +45,8 @@ lemma Int_Rep_neg_type [type]:
 lemma
   Int_Rep_nonneg_eq_iff [iff]: "Int_Rep_nonneg x = Int_Rep_nonneg y \<longleftrightarrow> x = y" and
   Int_Rep_neg_eq_iff [iff]: "Int_Rep_neg x = Int_Rep_neg y \<longleftrightarrow> x = y" and
-  Int_Rep_nonneg_ne_neg [simp, intro!]: "Int_Rep_nonneg x \<noteq> Int_Rep_neg y" and
-  Int_Rep_neg_ne_nonneg [simp, intro!]: "Int_Rep_neg x \<noteq> Int_Rep_nonneg y"
+  Int_Rep_nonneg_ne_neg [iff]: "Int_Rep_nonneg x \<noteq> Int_Rep_neg y" and
+  Int_Rep_neg_ne_nonneg [iff]: "Int_Rep_neg x \<noteq> Int_Rep_nonneg y"
   unfolding Int_Rep_nonneg_def Int_Rep_neg_def by auto
 
 definition "Int_Rep_rec \<equiv> coprod_rec"
@@ -59,7 +61,7 @@ lemma Int_Rep_rec_type [type]:
   "Int_Rep_rec : (Element \<nat> \<Rightarrow> X) \<Rightarrow> (Element (\<nat> \<setminus> {0}) \<Rightarrow> X) \<Rightarrow> Int_Rep \<Rightarrow> X"
   unfolding Int_Rep_rec_def Int_Rep_def by discharge_types
 
-lemma mem_Int_RepE [elim]:
+lemma Int_RepE [elim]:
   assumes "x : Int_Rep"
   obtains (nonneg) n where "n \<in> \<nat>" "x = Int_Rep_nonneg n"
     | (neg) n where "n \<in> \<nat> \<setminus> {0}" "x = Int_Rep_neg n"

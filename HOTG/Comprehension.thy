@@ -1,14 +1,26 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+\<^marker>\<open>creator "Larry Paulson"\<close>
 section \<open>Restricted Comprehension\<close>
 theory Comprehension
-  imports Finite_Sets
+  imports
+    Finite_Sets
+    Order_Set
 begin
 
 definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
 
-(*TODO: localise*)
-syntax
-  "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
+bundle hotg_collect_syntax
+begin
+syntax "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
+end
+bundle no_hotg_collect_syntax
+begin
+no_syntax "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
+end
+unbundle hotg_collect_syntax
+
 translations
   "{x \<in> A | P}" \<rightleftharpoons> "CONST collect A (\<lambda>x. P)"
 
@@ -17,8 +29,7 @@ translations
 lemma mem_collect_iff [iff]: "x \<in> {y \<in> A | P y} \<longleftrightarrow> x \<in> A \<and> P x"
   by (auto simp: collect_def)
 
-lemma mem_collectI [intro]: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x \<in> {y \<in> A | P y}"
-  by auto
+lemma mem_collectI [intro]: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x \<in> {y \<in> A | P y}" by auto
 
 lemma mem_collectD: "x \<in> {y \<in> A | P y} \<Longrightarrow> x \<in> A" by auto
 
@@ -37,7 +48,11 @@ lemma collect_insert_eq:
   "{x \<in> insert a B | P x} = (if P a then insert a {x \<in> B | P x} else {x \<in> B | P x})"
   by auto
 
-lemma collect_subset_if_subset: "A \<subseteq> B \<Longrightarrow> {x \<in> A | P x} \<subseteq> {x \<in> B | P x}"
-  by auto
+lemma mono'_collect_set: "mono' (\<lambda>A. {x \<in> A | P x})"
+  by (intro mono'I) auto
+
+lemma mono'_collect_pred: "mono' (\<lambda>P. {x \<in> A | P x})"
+  by (intro mono'I) auto
+
 
 end

@@ -61,7 +61,7 @@ lemma Int_Rep_succ_add_eq_succ_add:
   assumes "x : Int_Rep" "y : Int_Rep"
   shows "Int_Rep_add (Int_Rep_succ x) y = Int_Rep_succ (Int_Rep_add x y)"
 using \<open>x : Int_Rep\<close>
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   case (nonneg n)
   then show ?thesis by (simp add: Int_Rep_nonneg_succ_add_eq)
 next
@@ -86,9 +86,9 @@ next
       case True
       with neg succ have "Int_Rep_add (Int_Rep_succ x) y = y"
         using nat_one_def by simp
-      also from neg succ True have "... = Int_Rep_succ (Int_Rep_add x y)"
+      moreover from neg succ True have "... = Int_Rep_succ (Int_Rep_add x y)"
         by (simp add: Int_Rep_neg_succ_add_eq)
-      finally show ?thesis by (simp add: Int_Rep_neg_succ_add_eq)
+      ultimately show ?thesis by (simp add: Int_Rep_neg_succ_add_eq)
     qed
   qed auto
 qed
@@ -98,7 +98,7 @@ lemma Int_Rep_inv_add_inv_inv_eq_add [simp]:
   shows "Int_Rep_inv (Int_Rep_add (Int_Rep_inv x) (Int_Rep_inv y)) =
     Int_Rep_add x y" (is "?lhs = _")
 using \<open>x : Int_Rep\<close>
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   (*we first prove a generalised version for the nonnegative case*)
   {
     fix n y assume "n \<in> \<nat>"
@@ -195,7 +195,7 @@ lemma Int_Rep_add_succ_eq_succ_add:
   shows "Int_Rep_add x (Int_Rep_succ y) = Int_Rep_succ (Int_Rep_add x y)"
     (is "?lhs = _")
 using assms
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   {
     fix n y assume "n \<in> \<nat>" "y : Int_Rep"
     then have 1: "Int_Rep_add (Int_Rep_nonneg n) (Int_Rep_succ y) =
@@ -260,6 +260,8 @@ lemma Int_Rep_neg_add_neg_eq [simp]:
   using assms by (induction n rule: Nat_induct)
   (auto simp: Int_Rep_neg_succ_add_eq)
 
+unbundle no_HOL_order_syntax
+
 (*TODO: we could add more lemmas like the two above and simplify some proofs(?)*)
 lemma Int_Rep_nonneg_add_neg_eq [simp]:
   assumes "n : Nat" "m : Nat"
@@ -283,7 +285,7 @@ lemma Int_Rep_add_zero_eq [simp]:
   assumes "x : Int_Rep"
   shows "Int_Rep_add x Int_Rep_zero = x"
 using assms
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   let ?z = Int_Rep_zero
   {
     fix n assume "n \<in> \<nat>"
@@ -310,7 +312,7 @@ lemma Int_Rep_add_assoc:
   assumes "x : Int_Rep" "y : Int_Rep" "z : Int_Rep"
   shows "Int_Rep_add (Int_Rep_add x y) z = Int_Rep_add x (Int_Rep_add y z)"
 using \<open>x : Int_Rep\<close>
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   {
     fix n y z assume "n \<in> \<nat>" "y : Int_Rep" "z : Int_Rep"
     then have "Int_Rep_add (Int_Rep_add (Int_Rep_nonneg n) y) z =
@@ -366,7 +368,7 @@ lemma Int_Rep_add_comm:
   assumes "x : Int_Rep" "y : Int_Rep"
   shows "Int_Rep_add x y = Int_Rep_add y x"
 using \<open>x : Int_Rep\<close>
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   {
     fix n y assume "n \<in> \<nat>" "y : Int_Rep"
     then have "Int_Rep_add (Int_Rep_nonneg n) y = Int_Rep_add y (Int_Rep_nonneg n)"

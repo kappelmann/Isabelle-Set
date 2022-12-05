@@ -1,3 +1,5 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Monotone Operators\<close>
 theory Monotone_Operators
   imports

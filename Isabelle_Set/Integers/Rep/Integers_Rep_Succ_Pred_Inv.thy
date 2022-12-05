@@ -27,7 +27,7 @@ proof -
   }
   note this[intro]
   show ?thesis
-    unfolding Int_Rep_succ_def by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
+    unfolding Int_Rep_succ_def by (intro Dep_fun_typeI, elim Int_RepE) auto
 qed
 
 definition "Int_Rep_pred \<equiv> Int_Rep_rec
@@ -49,13 +49,13 @@ lemma Int_Rep_pred_nonneg_eq [simp]:
 lemma Int_Rep_pred_type [type]:
   "Int_Rep_pred : Int_Rep \<Rightarrow> Int_Rep"
   unfolding Int_Rep_pred_def nat_one_def
-  by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
+  by (intro Dep_fun_typeI, elim Int_RepE) auto
 
 lemma Int_Rep_pred_succ_eq [simp]:
   assumes "x : Int_Rep"
   shows "Int_Rep_pred (Int_Rep_succ x) = x"
 using assms
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   case (neg n)
   then show ?thesis by (cases "n = 1") auto
 qed simp
@@ -64,7 +64,7 @@ lemma Int_Rep_succ_pred_eq [simp]:
   assumes "x : Int_Rep"
   shows "Int_Rep_succ (Int_Rep_pred x) = x"
 using assms
-proof (cases x rule: mem_Int_RepE)
+proof (cases x rule: Int_RepE)
   case (nonneg n)
   then show ?thesis by (cases "n = 0") (auto simp: Int_Rep_zero_def[symmetric])
 next
@@ -77,7 +77,8 @@ definition "Int_Rep_inv \<equiv> Int_Rep_rec
   (\<lambda>n. (if n = 0 then Int_Rep_nonneg else Int_Rep_neg) n)
   Int_Rep_nonneg"
 
-lemma
+(*TODO: type checker challenge*)
+(* lemma
   assumes "n : Nat"
   shows "(if n = 0 then Int_Rep_nonneg n else Int_Rep_neg n) : Int_Rep"
 proof -
@@ -86,7 +87,7 @@ proof -
     then have "n : Element (\<nat> \<setminus> {0})" by (auto intro: ElementI)
   }
   then show ?thesis by auto
-qed
+qed *)
 
 lemma Int_Rep_inv_zero_eq [simp]: "Int_Rep_inv Int_Rep_zero = Int_Rep_zero"
   unfolding Int_Rep_inv_def Int_Rep_zero_def by simp
@@ -107,12 +108,12 @@ proof -
   }
   note this[dest]
   show ?thesis
-    unfolding Int_Rep_inv_def by (intro Dep_fun_typeI, elim mem_Int_RepE) auto
+    unfolding Int_Rep_inv_def by (intro Dep_fun_typeI, elim Int_RepE) auto
 qed
 
 lemma Int_Rep_inv_inv_eq [simp]:
   "x : Int_Rep \<Longrightarrow> Int_Rep_inv (Int_Rep_inv x) = x"
-  by (erule mem_Int_RepE, erule mem_natE) (auto simp: Int_Rep_zero_def[symmetric])
+  by (erule Int_RepE, erule mem_natE) (auto simp: Int_Rep_zero_def[symmetric])
 
 lemma Int_Rep_pred_inv_eq_inv_succ:
   assumes "x : Int_Rep"
@@ -134,7 +135,7 @@ proof -
   }
   note this[intro!]
   from assms show ?thesis
-    by (elim mem_Int_RepE)
+    by (elim Int_RepE)
     (auto elim: mem_natE simp: Int_Rep_zero_def[symmetric] nat_one_def)
 qed
 

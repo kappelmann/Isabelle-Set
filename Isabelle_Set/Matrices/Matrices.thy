@@ -2,8 +2,11 @@ section \<open>Matrices\<close>
 theory Matrices
   imports
     Nat
-    TFunctions
+    (* TFunctions *)
 begin
+
+unbundle no_HOL_groups_syntax
+unbundle no_HOL_order_syntax
 
 definition "matrices A m n \<equiv> ([0,\<dots>,m[ :: set) \<rightarrow> ([0,\<dots>,n[ :: set) \<rightarrow> A"
 

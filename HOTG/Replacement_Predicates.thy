@@ -1,7 +1,9 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+\<^marker>\<open>creator "Larry Paulson"\<close>
 section \<open>Replacement on Function-Like Predicates\<close>
-
 theory Replacement_Predicates
-imports Comprehension
+  imports Comprehension
 begin
 
 text \<open>Replacement based on function-like predicates, as formulated in first-order theories.\<close>
@@ -9,9 +11,18 @@ text \<open>Replacement based on function-like predicates, as formulated in firs
 definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
 
-(*TODO: localise*)
+bundle hotg_replacement_syntax
+begin
 syntax
   "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+end
+bundle no_hotg_replacement_syntax
+begin
+no_syntax
+  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+end
+unbundle hotg_replacement_syntax
+
 translations
   "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST replace A (\<lambda>x y. Q)"
 
@@ -55,17 +66,21 @@ lemma replaceI [intro!]:
 (*Elimination; may assume there is a unique y such that P x y, namely y = b.*)
 lemma replaceE:
   assumes "b \<in> {y | x \<in> A, P x y}"
-  obtains x where "x \<in> A" and "P x b" and "\<forall>y. P x y \<longrightarrow> y = b"
+  obtains x where "x \<in> A" and "P x b" and "\<And>y. P x y \<Longrightarrow> y = b"
   using assms by (rule mem_replace_iff[THEN iffD1, THEN bexE]) blast
 
 (*As above but without the (generally useless) third assumption*)
 lemma replaceE' [elim!]:
-  "\<lbrakk>b \<in> {y | x \<in> A, P x y}; \<And>x. \<lbrakk>x \<in> A; P x b\<rbrakk> \<Longrightarrow> R\<rbrakk> \<Longrightarrow> R"
-  by (erule replaceE) blast
+  assumes "b \<in> {y | x \<in> A, P x y}"
+  obtains x where "x \<in> A" "P x b"
+  using assms by (elim replaceE) blast
 
 lemma replace_cong [cong]:
   "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> {y | x \<in> A, P x y} = {y | x \<in> B, Q x y}"
   by (rule eqI') (simp add: mem_replace_iff)
+
+lemma mono'_replace_set: "mono' (\<lambda>A. {y | x \<in> A, P x y})"
+  by (intro mono'I) (auto elim!: replaceE)
 
 
 end

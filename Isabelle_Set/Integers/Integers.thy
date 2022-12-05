@@ -2,7 +2,8 @@ section \<open>Integers\<close>
 theory Integers
   imports
     Integers_Rep
-    Set_Extension
+    Set_Extensions
+    Transport.Transport
 begin
 
 subsection \<open>The Integers as a Subset of the Naturals\<close>
@@ -10,7 +11,7 @@ subsection \<open>The Integers as a Subset of the Naturals\<close>
 interpretation Int : set_extension \<nat> int_rep Int_Rep_nonneg
   by unfold_locales (auto intro: ElementI)
 
-abbreviation "int \<equiv> Int.abs_image"
+abbreviation "int \<equiv> Int.Abs"
 
 bundle isa_set_int_syntax begin notation int ("\<int>") end
 bundle no_isa_set_int_syntax begin no_notation int ("\<int>") end
@@ -19,26 +20,124 @@ unbundle isa_set_int_syntax
 
 abbreviation "Int \<equiv> Element \<int>"
 
-lemmas nat_subset_int [simp, intro!] = Int.subset_abs_image
+lemmas nat_subset_int [iff] = Int.subset_Abs
 
 corollary Int_if_Nat [derive]: "n : Nat \<Longrightarrow> n : Int"
-  using mem_if_mem_if_subset[OF nat_subset_int] by unfold_types
+  using subsetD[OF nat_subset_int] by unfold_types
 
 
 subsection \<open>Arithmetic operations lifted to Int\<close>
 
 text \<open>We lift constants/functions from @{term "Int_Rep"} to @{term "\<int>"}
-manually. This should be automated in the future using some technique similar
-to lifting in Isabelle/HOL.\<close>
+manually. This should be automated in the future.\<close>
 
-definition "int_nonneg n \<equiv> Int.Abs (Int_Rep_nonneg n)"
-definition "int_neg n \<equiv> Int.Abs (Int_Rep_neg n)"
-definition "int_succ i \<equiv> Int.Abs (Int_Rep_succ (Int.Rep i))"
-definition "int_pred i \<equiv> Int.Abs (Int_Rep_pred (Int.Rep i))"
-definition "int_inv i \<equiv> Int.Abs (Int_Rep_inv (Int.Rep i))"
-definition "int_add i j \<equiv> Int.Abs (Int_Rep_add (Int.Rep i) (Int.Rep j))"
-definition "int_sub i j \<equiv> Int.Abs (Int_Rep_sub (Int.Rep i) (Int.Rep j))"
-definition "int_mul i j \<equiv> Int.Abs (Int_Rep_mul (Int.Rep i) (Int.Rep j))"
+declare[[eta_contract]]
+
+context
+begin
+
+interpretation transport_Refl_Rel_Fun_Rel_rel
+  "(=\<^bsub>\<nat>\<^esub>) :: set \<Rightarrow> _" "(=\<^bsub>\<nat>\<^esub>) :: set \<Rightarrow> _" id id Int.L Int.R Int.l Int.r .
+
+lemma nat_int_fun_transport:
+  shows "((\<le>\<^bsub>L\<^esub>) \<equiv>\<^sub>o (\<le>\<^bsub>R\<^esub>)) l r"
+  and "preorder_on (in_field (\<le>\<^bsub>L\<^esub>)) (\<le>\<^bsub>L\<^esub>)" and "preorder_on (in_field (\<le>\<^bsub>R\<^esub>)) (\<le>\<^bsub>R\<^esub>)"
+  apply (tactic \<open>
+    ALLGOALS (match_tac @{context} @{thms "preordered_order_equivalenceI"})\<close>)
+  apply (tactic \<open>distinct_subgoals_tac\<close>)
+    apply (subst eq_restrict_set_eq_eq_restrict_pred)+
+    apply (fact order_functors_eq_restrict_id_order_equivalence)
+    apply (subst eq_restrict_set_eq_eq_restrict_pred)
+    apply (fact transitive_eq_restrict)
+    apply (fact Int.order_equivalence)
+    apply (subst eq_restrict_set_eq_eq_restrict_pred)
+    apply (fact transitive_eq_restrict)
+    apply (subst eq_restrict_set_eq_eq_restrict_pred)
+    apply (fact transitive_eq_restrict)
+  done
+
+lemma Int_Rep_nonneg_parametric: "Int_Rep_nonneg \<le>\<^bsub>L\<^esub> Int_Rep_nonneg"
+  unfolding rdfr.left_rel_eq_Refl_Rel
+  by (intro Refl_Rel_selfI rdfr.t.left_relI) fastforce
+
+schematic_goal "(galois_rel.Galois (?L :: (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool)
+  (?R :: (?'b1 \<Rightarrow> ?'b2) \<Rightarrow> (?'b1 \<Rightarrow> ?'b2) \<Rightarrow> bool) ?r) Int_Rep_nonneg ?int_nonneg"
+  apply (rule rdfr.Galois_left_if_left_rel_if_inflationary_on_in_fieldI)
+    apply (rule rdfr.order_equivalenceE)
+      apply (fact nat_int_fun_transport)
+      apply assumption
+    apply (rule rdfr.order_equivalenceE)
+      apply (fact nat_int_fun_transport)
+      apply (elim rel_equivalence_onE)
+        apply assumption
+    apply (fact Int_Rep_nonneg_parametric)
+  done
+
+end
+
+context
+  includes no_HOL_groups_syntax
+begin
+
+lemma Int_Rep_neg_parametric: "((=\<^bsub>\<nat> \<setminus> {0}\<^esub>) \<Rrightarrow> (=\<^bsub>int_rep\<^esub>)) Int_Rep_neg Int_Rep_neg"
+  (*TODO: in the future, this should be provable without unfolding the definition
+  using just the soft-type of Int_Rep @{thm "Int_Rep_neg_type"}*)
+  unfolding Int_Rep_neg_def int_rep_def
+  by (intro Dep_Fun_Rel_relI) auto
+
+schematic_goal "(galois_rel.Galois ((=\<^bsub>\<nat> \<setminus> {0}\<^esub> :: set \<Rightarrow> _) \<Rrightarrow> Int.L)\<^sup>\<oplus>
+  ((=\<^bsub>\<nat> \<setminus> {0}\<^esub> :: set \<Rightarrow> _) \<Rrightarrow> Int.R)\<^sup>\<oplus> ?r) Int_Rep_neg ?int_neg"
+  apply (subst transport_Dep_Fun_Rel_rel.left_rel_eq_Dep_Fun_Rel_rel[symmetric])+
+  apply (subst transport_Refl_Rel_Dep_Fun_Rel_rel.left_rel_eq_Refl_Rel[symmetric])+
+  apply (rule galois.Galois_left_if_left_rel_if_inflationary_on_in_fieldI)
+    prefer 3
+      apply (subst transport_Refl_Rel_Dep_Fun_Rel_rel.left_rel_eq_Refl_Rel)
+      apply (rule Refl_Rel_selfI)
+      apply (subst transport_Dep_Fun_Rel_rel.left_rel_eq_Dep_Fun_Rel_rel)
+      apply (fact Int_Rep_neg_parametric)
+    apply (rule order_functors.order_equivalenceE)
+      prefer 2 apply assumption
+    prefer 2
+      apply (rule rel_equivalence_onE)
+        prefer 2 apply assumption
+      apply (rule order_functors.order_equivalenceE)
+        prefer 2 apply assumption
+    (*Note: we are left with the same subgoal twice: find the appropriate order equivalence*)
+    apply (rule transport_Refl_Rel_Fun_Rel_rel.preordered_order_equivalenceI)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)+
+      apply (fact order_functors_eq_restrict_id_order_equivalence)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)+
+      apply (fact transitive_eq_restrict)
+      apply (fact transitive_eq_restrict)
+      apply (fact Int.order_equivalence)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)
+      apply (fact transitive_eq_restrict)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)
+      apply (fact transitive_eq_restrict)
+    apply (rule transport_Refl_Rel_Fun_Rel_rel.preordered_order_equivalenceI)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)+
+      apply (fact order_functors_eq_restrict_id_order_equivalence)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)
+      apply (fact transitive_eq_restrict)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)
+      apply (fact transitive_eq_restrict)
+      apply (fact Int.order_equivalence)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)
+      apply (fact transitive_eq_restrict)
+      apply (subst eq_restrict_set_eq_eq_restrict_pred)+
+      apply (fact transitive_eq_restrict)
+  done
+
+end
+
+definition "int_nonneg n \<equiv> Int.l (Int_Rep_nonneg n)"
+definition "int_neg n \<equiv> Int.l (Int_Rep_neg n)"
+definition "int_succ i \<equiv> Int.l (Int_Rep_succ (Int.r i))"
+definition "int_pred i \<equiv> Int.l (Int_Rep_pred (Int.r i))"
+definition "int_inv i \<equiv> Int.l (Int_Rep_inv (Int.r i))"
+definition "int_add i j \<equiv> Int.l (Int_Rep_add (Int.r i) (Int.r j))"
+definition "int_sub i j \<equiv> Int.l (Int_Rep_sub (Int.r i) (Int.r j))"
+definition "int_mul i j \<equiv> Int.l (Int_Rep_mul (Int.r i) (Int.r j))"
 
 (*TODO: automatic translation between @{term "Nat \<Coprod> Element (\<nat> \<setminus> {0})"}
 and @{term "Element (\<nat> \<Coprod> \<nat> \<setminus> {0})"} not working at the moment;
@@ -157,11 +256,11 @@ begin no_notation int_Mul_Monoid ("'(\<int>, *')") end
 
 unbundle isa_set_int_Mul_Monoid_syntax
 
-lemma int_mul_assoc:
+(* lemma int_mul_assoc:
   assumes "i : Int" "j : Int" "k : Int"
   shows "i * j * k = i * (j * k)"
   (* using assms Int_Rep_mul_assoc unfolding int_mul_def by simp *)
-oops
+oops *)
 
 lemma "(\<int>, *) : Mul_Monoid Int"
 \<comment> \<open>

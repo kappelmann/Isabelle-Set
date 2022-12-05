@@ -1,7 +1,7 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Basic Lemmas\<close>
-
 theory Basic
-imports Axioms
+  imports Axioms
 begin
 paragraph \<open>Summary\<close>
 text \<open>Here we derive a few preliminary lemmas following from the axioms that are
@@ -9,9 +9,9 @@ needed to formalise more complicated concepts.\<close>
 
 text \<open>The following are easier to work with variants of the axioms.\<close>
 
-lemma not_mem_emptyset [simp, intro!]: "x \<notin> {}" using emptyset by blast
+lemma not_mem_emptyset [iff]: "x \<notin> {}" using emptyset by blast
 
-lemma subset_antisym [intro]: "\<lbrakk>X \<subseteq> Y; Y \<subseteq> X\<rbrakk> \<Longrightarrow> X = Y"
+lemma eq_if_subset_if_subset [intro]: "\<lbrakk>X \<subseteq> Y; Y \<subseteq> X\<rbrakk> \<Longrightarrow> X = Y"
   by (fact Axioms.extensionality[rule_format])
 
 lemma mem_induction: "(\<And>X. (\<And>x. x \<in> X \<Longrightarrow> P x) \<Longrightarrow> P X) \<Longrightarrow> P X"

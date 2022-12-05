@@ -1,3 +1,5 @@
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsubsection \<open>Subtraction (truncated)\<close>
 theory Nat_Sub
   imports Nat_Add

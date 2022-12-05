@@ -62,7 +62,7 @@ lemma not_mem_domE:
   obtains "\<And>y. \<langle>x, y\<rangle> \<notin> R"
   using assms unfolding dom_def by force
 
-lemma dom_singleton_pair_eq [simp, intro!]: "dom {\<langle>x, y\<rangle>} = {x}"
+lemma dom_singleton_pair_eq [iff]: "dom {\<langle>x, y\<rangle>} = {x}"
   unfolding dom_def by auto
 
 
@@ -115,22 +115,22 @@ lemma mem_fld_snd: "\<langle>a, b\<rangle> \<in> R \<Longrightarrow> b \<in> fld
 
 subsection \<open>Basic equalities\<close>
 
-lemma dom_empty_eq [simp, intro!]: "dom {} = {}"
+lemma dom_empty_eq [iff]: "dom {} = {}"
   unfolding dom_def by auto
 
-lemma rng_empty_eq [simp, intro!]: "rng {} = {}"
+lemma rng_empty_eq [iff]: "rng {} = {}"
   unfolding rng_def by auto
 
 lemma dom_union_eq [simp]: "dom (\<Union>X) = \<Union>{dom x | x \<in> X}"
   unfolding dom_def by auto
 
-lemma dom_bin_bin_union_eq [simp, intro!]: "dom (R \<union> S) = dom R \<union> dom S"
+lemma dom_bin_bin_union_eq [iff]: "dom (R \<union> S) = dom R \<union> dom S"
   unfolding dom_def by auto
 
-lemma dom_collect_eq [simp, intro!]: "dom {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
+lemma dom_collect_eq [iff]: "dom {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
   unfolding dom_def by auto
 
-lemma rng_collect_eq [simp, intro!]: "rng {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
+lemma rng_collect_eq [iff]: "rng {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
   unfolding rng_def by auto
 
 lemma dom_insert_eq [simp]: "dom (cons \<langle>x, y\<rangle> A) = cons x (dom A)"
@@ -191,11 +191,11 @@ subsection \<open>Converse relations\<close>
 definition converse :: "set \<Rightarrow> set"
   where "converse R \<equiv> {\<langle>snd p, fst p\<rangle> | p \<in> R}"
 
-lemma converse_prod [simp, intro!]: "converse (A \<times> B) = B \<times> A"
-  unfolding converse_def by (rule subset_antisym) auto
+lemma converse_prod [iff]: "converse (A \<times> B) = B \<times> A"
+  unfolding converse_def by (rule eq_if_subset_if_subset) auto
 
-lemma converse_empty [simp, intro!]: "converse {} = {}"
-  unfolding converse_def by (rule subset_antisym) auto
+lemma converse_empty [iff]: "converse {} = {}"
+  unfolding converse_def by (rule eq_if_subset_if_subset) auto
 
 lemma dom_converse_eq_rng: "dom (converse R) = rng R"
   unfolding dom_def rng_def converse_def by auto

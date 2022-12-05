@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsubsection \<open>More inequalities\<close>
 theory Nat_Inequalities
 imports

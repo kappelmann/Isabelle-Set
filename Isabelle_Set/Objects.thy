@@ -1,8 +1,11 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Structure Objects\<close>
 theory Objects
-imports
-  TFunctions
-  Strings
+  imports
+    TFunctions
+    Strings
 begin
 
 text \<open>

@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Transitive Sets\<close>
 theory Mem_Trans
   imports Subset
@@ -9,8 +10,7 @@ lemma mem_transI [intro]: "(\<And>x. x \<in> X \<Longrightarrow> x \<subseteq> X
 lemma mem_transI': "(\<And>x y. x \<in> X \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> X) \<Longrightarrow> mem_trans X"
   by auto
 
-lemma mem_transE [elim]:
-  "mem_trans x \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
+lemma mem_transD [dest]: "mem_trans x \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
   unfolding mem_trans_def by auto
 
 

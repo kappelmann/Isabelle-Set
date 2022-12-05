@@ -11,9 +11,10 @@ lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
 bundle isa_set_nat_add_syntax begin notation nat_add (infixl "+" 65) end
 bundle no_isa_set_nat_add_syntax begin no_notation nat_add (infixl "+" 65) end
 
+unbundle no_HOL_groups_syntax
 unbundle isa_set_nat_add_syntax
 
-lemma zero_add_eq [simp, intro!]: "0 + n = n"
+lemma zero_add_eq [iff]: "0 + n = n"
   unfolding nat_add_def by simp
 
 lemma Nat_add_zero_eq [simp]: "n : Nat \<Longrightarrow> n + 0 = n"
@@ -75,6 +76,8 @@ corollary nat_pred_add_succ [simp]:
   "\<lbrakk>m : Nat; n : Nat; m \<noteq> 0\<rbrakk> \<Longrightarrow> pred m + succ n = m + n"
   by (auto simp only: Nat_add_comm[of m] Nat_add_comm[of "pred m"]
     intro: Nat_succ_add_pred_eq)
+
+unbundle no_HOL_order_syntax
 
 lemma Nat_le_add [intro]: "m : Nat \<Longrightarrow> n : Nat \<Longrightarrow> m \<le> m + n"
   by (induction m rule: Nat_induct) auto

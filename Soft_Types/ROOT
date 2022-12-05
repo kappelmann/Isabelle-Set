@@ -1,4 +1,4 @@
-chapter "Soft Types for HOL"
+chapter HOL
 
 session Soft_Types = "HOL" +
   description

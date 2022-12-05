@@ -1,8 +1,6 @@
-chapter \<open>Soft types for HOL\<close>
-
-text \<open>This theory introduces a generic notion of soft types based on HOL
-predicates. It contains the basic definitions and technical tool setup.\<close>
-
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+section \<open>Soft types for HOL\<close>
 theory Soft_Types_HOL
   imports
     HOL.HOL
@@ -14,11 +12,15 @@ theory Soft_Types_HOL
     "print_opaque_terms" "print_types" :: diag
 begin
 
+text \<open>This theory introduces a generic notion of soft types based on HOL
+predicates. It contains the basic definitions and technical tool setup.\<close>
+
+
 declare [[eta_contract=false]]
 
 text \<open>Remove conflicting HOL-specific syntax.\<close>
 
-bundle hol_ascii_syntax
+bundle HOL_ascii_syntax
 begin
 notation (ASCII)
   Not ("~ _" [40] 40) and
@@ -28,7 +30,7 @@ notation (ASCII)
   not_equal (infixl "~=" 50)
 syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 end
-bundle no_hol_ascii_syntax
+bundle no_HOL_ascii_syntax
 begin
 no_notation (ASCII)
   Not ("~ _" [40] 40) and
@@ -39,10 +41,10 @@ no_notation (ASCII)
 no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
 end
 
-unbundle no_hol_ascii_syntax
+unbundle no_HOL_ascii_syntax
 
 
-section \<open>Basic type judgments\<close>
+subsection \<open>Basic type judgments\<close>
 
 text \<open>Soft types are "just" predicates wrapped up in a constructor.\<close>
 
@@ -62,6 +64,8 @@ bundle no_soft_type_base_syntax
 begin no_notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and has_type (infix ":" 45) end
 
 unbundle soft_type_base_syntax
+
+abbreviation (input) "type_pred T x \<equiv> x : T"
 
 lemma has_typeI: "P x \<Longrightarrow> x : type P"
   unfolding meaning_of_type by assumption
@@ -87,7 +91,7 @@ lemma has_adjE:
   unfolding meaning_of_adj by auto
 
 
-section \<open>Type-Bounded quantifiers\<close>
+subsection \<open>Type-Bounded quantifiers\<close>
 
 definition tball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
   where "tball A P \<equiv> (\<forall>x. x : A \<longrightarrow> P x)"
@@ -126,7 +130,7 @@ lemma tballI [intro!]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow>
 
 lemma tballE [elim!]:
   assumes "\<forall>x : A. P x"
-  obtains "\<And>x. (x : A \<Longrightarrow> P x)"
+  obtains "\<And>x. x : A \<Longrightarrow> P x"
   using assms unfolding tball_def by auto
 
 lemma tballD [elim]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
@@ -185,7 +189,7 @@ lemma not_tbex_iff_tball_not [simp]: "(\<not>(\<exists>x : A. P x)) \<longleftri
   by auto
 
 
-section \<open>Low-level soft type methods\<close>
+subsection \<open>Low-level soft type methods\<close>
 
 (*FUTURE: Dedicated keyword setup for soft type declarations should go here*)
 
@@ -201,7 +205,7 @@ method unfold_types =
   |simp_all only: typedef meaning_of_type meaning_of_adj tball_def tbex_def)+
 
 
-section \<open>Dependent Function/Pi-Types (\<Pi>-Types)\<close>
+subsection \<open>Dependent Function/Pi-Types (\<Pi>-Types)\<close>
 
 text \<open>Dependent function soft type for HOL lambda terms.\<close>
 
@@ -238,7 +242,7 @@ lemma Dep_fun_covariant_codom:
   using assms unfolding Dep_fun_type_def meaning_of_type by auto
 
 
-section \<open>Intersection and Union Types\<close>
+subsection \<open>Intersection and Union Types\<close>
 
 definition [typedef]: "Int_type A B \<equiv> type (\<lambda>x. x : A \<and> x : B)"
 
@@ -284,7 +288,7 @@ lemma Union_typeE:
   obtains (left) "x : A" | (right) "x : B"
   using assms by (auto dest: Union_typeD)
 
-section \<open>The Any type\<close>
+subsection \<open>The Any type\<close>
 
 text \<open>Used, for example, to reflect rigid types back into the soft type system.\<close>
 
@@ -304,7 +308,7 @@ lemma tbex_Any_iff_ex [simp]: "(\<exists>x : Any. P x) \<longleftrightarrow> (\<
   by (auto intro: Any_typeI)
 
 
-section \<open>Type annotations\<close>
+subsection \<open>Type annotations\<close>
 
 definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a"
   where "with_type x A \<equiv> x"
@@ -322,7 +326,7 @@ tools to represent additional typing information in a term.
 \<close>
 
 
-section \<open>Tooling and automation\<close>
+subsection \<open>Tooling and automation\<close>
 
 declare atomize_conjL [symmetric, rulify]
   \<comment>\<open>Used in normalization of type judgments.\<close>
@@ -349,7 +353,7 @@ ML_file \<open>soft_type.ML\<close>
 ML_file \<open>soft_type_context.ML\<close>
 ML_file \<open>derivation.ML\<close>
 
-subsection \<open>Type derivation\<close>
+subsubsection \<open>Type derivation\<close>
 
 method_setup raw_discharge_type =
   \<open>Scan.optional (Scan.lift (Args.add -- Args.colon) |-- Scan.repeat Args.term) []
@@ -390,7 +394,7 @@ setup \<open>Isar_Integration.setup\<close>
 declare with_type_def [type_simp]
 
 
-section \<open>Basic declarations\<close>
+subsection \<open>Basic declarations\<close>
 
 declare Any_typeI [type]
 declare Dep_fun_typeI [backward_derive]

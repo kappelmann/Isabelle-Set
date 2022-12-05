@@ -1,3 +1,4 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Coproduct (\<Coprod>-types)\<close>
 theory TCoproduct
   imports
@@ -25,6 +26,10 @@ soft_type_translation
 lemma Element_coprod_iff_Coprod:
   "p : Element (A \<Coprod> B) \<longleftrightarrow> p : Element A \<Coprod> Element B"
   using mem_coprod_iff_Coprod by (auto iff: mem_iff_Element)
+
+context
+  includes no_hotg_coprod_syntax
+begin
 
 lemma CoprodE [elim]:
   assumes "x : A \<Coprod> B"
@@ -54,6 +59,8 @@ lemma type_if_inl_self_Coprod: "inl a : A \<Coprod> B \<Longrightarrow> a : A"
 
 lemma type_if_inr_self_Coprod: "inr b : A \<Coprod> B \<Longrightarrow> b : B"
   by auto
+
+end
 
 
 end

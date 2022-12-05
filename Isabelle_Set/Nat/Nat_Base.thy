@@ -1,6 +1,10 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Basics for natural numbers\<close>
 theory Nat_Base
 imports
+  HOL_Syntax_Bundles
   Ordinals
 begin
 
@@ -15,6 +19,8 @@ unbundle isa_set_nat_syntax
 definition "nat_zero \<equiv> {}"
 definition "nat_one \<equiv> succ nat_zero"
 
+unbundle no_HOL_groups_syntax
+
 bundle isa_set_nat_zero_syntax begin notation nat_zero ("0") end
 bundle no_isa_set_nat_zero_syntax begin no_notation nat_zero ("0") end
 
@@ -25,18 +31,18 @@ unbundle
   isa_set_nat_zero_syntax
   isa_set_nat_one_syntax
 
-lemmas fixpoint_nat [simp, intro!] = fixpoint_omega[folded nat_def nat_zero_def]
-  and zero_mem_nat [simp, intro!] = empty_mem_omega[folded nat_def nat_zero_def]
+lemmas fixpoint_nat [iff] = fixpoint_omega[folded nat_def nat_zero_def]
+  and zero_mem_nat [iff] = empty_mem_omega[folded nat_def nat_zero_def]
   and succ_mem_nat_if_mem [intro!] = succ_mem_omega_if_mem[folded nat_def]
   and mem_natE = mem_omegaE[folded nat_def nat_zero_def, case_names _ zero succ]
   and nat_induct [case_names zero succ, induct set: nat] =
     omega_induct[folded nat_def nat_zero_def]
-  and succ_ne_zero [simp, intro!] = Ordinals.succ_ne_empty[folded nat_zero_def]
+  and succ_ne_zero [iff] = Ordinals.succ_ne_empty[folded nat_zero_def]
 
-lemma nat_one_in_nat [simp, intro!]: "1 \<in> \<nat>"
+lemma nat_one_in_nat [iff]: "1 \<in> \<nat>"
   unfolding nat_one_def by auto
 
-lemma nat_zero_ne_one [simp, intro!]: "0 \<noteq> 1"
+lemma nat_zero_ne_one [iff]: "0 \<noteq> 1"
   unfolding nat_one_def by (fact succ_ne_self[symmetric])
 
 subsection \<open>\<nat> as a type\<close>
@@ -73,20 +79,22 @@ definition "lt m n \<equiv> m \<in> n"
 
 bundle isa_set_nat_lt_syntax begin notation lt (infix "<" 60) end
 bundle no_isa_set_nat_lt_syntax begin no_notation lt (infix "<" 60) end
+
+unbundle no_HOL_order_syntax
 unbundle isa_set_nat_lt_syntax
 
-lemmas lt_succ_self [simp, intro!] = mem_succ_self[folded lt_def]
+lemmas lt_succ_self [iff] = mem_succ_self[folded lt_def]
   and lt_succ_if_lt = mem_succ_if_mem[folded lt_def]
   and lt_succE = mem_succE [folded lt_def]
 
-lemma not_lt_zero [simp, intro!]: "\<not>(n < 0)"
+lemma not_lt_zero [iff]: "\<not>(n < 0)"
   unfolding nat_zero_def lt_def by simp
 
-lemma lt_irrefl [simp, intro!]: "\<not>(n < n)"
+lemma lt_irrefl [iff]: "\<not>(n < n)"
   unfolding nat_zero_def lt_def by simp
 
 lemma lt_asym: "m < n \<Longrightarrow> \<not>(n < m)"
-  unfolding lt_def by (fact mem_asym)
+  unfolding lt_def by (fact not_mem_if_mem)
 
 lemma ne_if_lt: "m < n \<Longrightarrow> m \<noteq> n"
   unfolding lt_def by (fact ne_if_mem)
@@ -136,7 +144,7 @@ lemma leE:
   obtains (lt) "m < n" | (eq) "m = n"
   using assms unfolding le_def by auto
 
-lemma le_self [simp, intro!]: "n \<le> n" unfolding le_def by simp
+lemma le_self [iff]: "n \<le> n" unfolding le_def by simp
 
 lemma Nat_le_trans [trans]: "\<lbrakk>n : Nat; l \<le> m; m \<le> n\<rbrakk> \<Longrightarrow> l \<le> n"
   unfolding le_def using Nat_lt_trans[of n l m] by auto
@@ -149,7 +157,7 @@ lemma Nat_le_if_succ_le: "n : Nat \<Longrightarrow> succ m \<le> n \<Longrightar
 
 lemma le_if_lt: "m < n \<Longrightarrow> m \<le> n" unfolding le_def by simp
 
-lemma not_succ_le_zero [simp, intro!]: "\<not>(succ n \<le> 0)"
+lemma not_succ_le_zero [iff]: "\<not>(succ n \<le> 0)"
   unfolding le_def nat_zero_def lt_def by simp
 
 lemma Nat_zero_le [simp]: "n : Nat \<Longrightarrow> 0 \<le> n"
@@ -286,7 +294,7 @@ lemma Nat_succ_pred_eq_if_ne_zero [simp]:
 
 subsubsection \<open>\<open>pred\<close> and \<open><\<close>\<close>
 
-lemma Nat_pred_lt_self_if_ne_zero [simp, intro!]:
+lemma Nat_pred_lt_self_if_ne_zero [iff]:
   "n : Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> pred n < n"
   by (rule NatE) auto
 
@@ -344,7 +352,7 @@ lemma Nat_lt_pred_if_lt_if_lt:
 
 subsubsection \<open>\<open>pred\<close> and \<open>\<le>\<close>\<close>
 
-lemma Nat_pred_le_self [simp, intro!]: "n : Nat \<Longrightarrow> pred n \<le> n"
+lemma Nat_pred_le_self [iff]: "n : Nat \<Longrightarrow> pred n \<le> n"
   by (rule NatE) (auto intro: le_succ_if_le)
 
 lemma Nat_pred_le_if_le: "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> pred m \<le> n"

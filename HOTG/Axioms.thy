@@ -1,12 +1,12 @@
+\<^marker>\<open>creator "Alexander Krauss"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Axioms of Tarski-Grothendieck Set Theory embedded in HOL.\<close>
-
 theory Axioms
-imports Setup
+  imports Setup
 begin
 paragraph \<open>Summary\<close>
-text \<open>We follow the axiomatisation as described in @{cite "brown_et_al:LIPIcs:2019:11064"}, who also
-describe the existence of a model if a 2-inaccessible cardinal exists.\<close>
-
+text \<open>We follow the axiomatisation as described in @{cite "brown_et_al:LIPIcs:2019:11064"},
+who also describe the existence of a model if a 2-inaccessible cardinal exists.\<close>
 
 text \<open>The primitive set type.\<close>
 typedecl set
@@ -23,8 +23,8 @@ where
   union: "\<forall>X x. mem x (union X) \<longleftrightarrow> (\<exists>Y. mem Y X \<and> mem x Y)" and
   replacement: "\<forall>X y. mem y (repl X F) \<longleftrightarrow> (\<exists>x. mem x X \<and> y = F x)"
 
-text \<open>Note: axioms @{thm mem_induction} and @{thm replacement} are axiom schemas in first-order
-logic. Moreover, @{thm replacement} takes a meta-level function \<open>F\<close>.}\<close>
+text \<open>Note: axioms @{thm mem_induction} and @{thm replacement} are axiom schemas
+in first-order logic. Moreover, @{thm replacement} takes a meta-level function \<open>F\<close>.}\<close>
 
 text \<open>Let us define some expected notation.\<close>
 
@@ -51,6 +51,7 @@ bundle no_hotg_union_syntax begin no_notation union ("\<Union>_" [90] 90) end
 
 unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax
 
+abbreviation (input) "mem_of A x \<equiv> x \<in> A"
 abbreviation "not_mem x y \<equiv> \<not>(x \<in> y)"
 
 bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end
@@ -76,8 +77,9 @@ where
   extensionality: "\<forall>X Y. X \<subseteq> Y \<longrightarrow> Y \<subseteq> X \<longrightarrow> X = Y" and
   powerset: "\<forall>A x. x \<in> powerset A \<longleftrightarrow> x \<subseteq> A"
 
-text \<open>Lastly, we want to axiomatise the existence of Grothendieck universes. This can be done in
-different ways. We again follow the approach from @{cite "brown_et_al:LIPIcs:2019:11064"}.\<close>
+text \<open>Lastly, we want to axiomatise the existence of Grothendieck universes.
+This can be done in different ways. We again follow the approach from
+@{cite "brown_et_al:LIPIcs:2019:11064"}.\<close>
 
 definition mem_trans :: \<open>set \<Rightarrow> bool\<close>
   where "mem_trans X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
@@ -92,12 +94,13 @@ definition ZF_closed :: \<open>set \<Rightarrow> bool\<close>
 text \<open>Note that @{const ZF_closed} is a second-order statement.\<close>
 
 text \<open>\<open>univ X\<close> is the smallest Grothendieck universe containing X.\<close>
+
 axiomatization
   univ :: \<open>set \<Rightarrow> set\<close>
 where
-  mem_univ [simp, intro!]: "X \<in> univ X" and
-  mem_trans_univ [simp, intro!]: "mem_trans (univ X)" and
-  ZF_closed_univ [simp, intro!]: "ZF_closed (univ X)" and
+  mem_univ [iff]: "X \<in> univ X" and
+  mem_trans_univ [iff]: "mem_trans (univ X)" and
+  ZF_closed_univ [iff]: "ZF_closed (univ X)" and
   univ_min: "\<lbrakk>X \<in> U; mem_trans U; ZF_closed U\<rbrakk> \<Longrightarrow> univ X \<subseteq> U"
 
 (* Bundles to switch basic hotg notations on and off *)

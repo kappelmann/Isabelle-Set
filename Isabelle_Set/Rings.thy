@@ -1,7 +1,8 @@
-chapter \<open>Rings\<close>
-
+\<^marker>\<open>creator "Josh Chen"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+subsection \<open>Rings\<close>
 theory Rings
-imports Monoids
+  imports Monoids
 begin
 
 definition [typeclass]: "Ring A \<equiv> Comm_Group A & Mul_Monoid A &

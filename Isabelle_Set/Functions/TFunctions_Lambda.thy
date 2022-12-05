@@ -1,7 +1,10 @@
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Lambda Abstractions\<close>
 theory TFunctions_Lambda
   imports TFunctions_Base
 begin
+
+unbundle no_restrict_syntax
 
 lemma lambda_type [type]:
   "lambda : (A : Set) \<Rightarrow> ((x : Element A) \<Rightarrow> B x) \<Rightarrow> (x : Element A) \<rightarrow>c B x"
@@ -20,9 +23,9 @@ lemma lambda_app_type [backward_derive]:
 lemma Dep_Function_restrict_eq_lambdaI:
   assumes "f : (x : A) \<rightarrow> B x"
   and "\<And>x. x \<in> A' \<Longrightarrow> x : A"
-  shows "f\<restriction>A' = (\<lambda>x \<in> A'. f`x)"
+  shows "f\<restriction>\<^bsub>A'\<^esub> = (\<lambda>x \<in> A'. f`x)"
 proof (rule eqI)
-  fix p assume "p \<in> f\<restriction>A'"
+  fix p assume "p \<in> f\<restriction>\<^bsub>A'\<^esub>"
   then obtain x y where "p = \<langle>x, y\<rangle>" "\<langle>x, y\<rangle> \<in> f" "x \<in> A'" by auto
   with assms show "p \<in> \<lambda>x \<in> A'. f`x"
     using lambda_pair_mem_if_mem[where ?a=x and ?f="eval f"] by auto
@@ -41,7 +44,7 @@ lemma Dep_Function_Element_lambda_subset_self [simp]:
   assumes "f : (x : Element A) \<rightarrow> B x"
   shows "(\<lambda>x \<in> A. f`x) \<subseteq> f"
 proof -
-  from assms have "(\<lambda>x \<in> A. f`x) = f\<restriction>A"
+  from assms have "(\<lambda>x \<in> A. f`x) = f\<restriction>\<^bsub>A\<^esub>"
     by (elim Dep_Function_restrict_eq_lambdaI[symmetric]) discharge_types
   then show ?thesis by simp
 qed
