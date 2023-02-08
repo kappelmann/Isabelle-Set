@@ -62,13 +62,13 @@ lemma app_eq_if_mem_if_lambda_eq:
   "\<lbrakk>(\<lambda>x \<in> A. f x) = \<lambda>x \<in> A. g x; a \<in> A\<rbrakk> \<Longrightarrow> f a = g a"
   by auto
 
-lemma lambda_mem_dep_functions [iff]: "(\<lambda>x \<in> A. f x) \<in> (x \<in> A) \<rightarrow> {f x}"
+lemma lambda_mem_dep_functions [iff]: "(\<lambda>x \<in> A. f x) \<in> (x \<in> A) \<rightarrow>s {f x}"
   by auto
 
 lemma lambda_mem_dep_functions_contravariant:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "A' \<subseteq> A"
-  shows "(\<lambda>a \<in> A'. f`a) \<in> (x \<in> A') \<rightarrow> (B x)"
+  shows "(\<lambda>a \<in> A'. f`a) \<in> (x \<in> A') \<rightarrow>s (B x)"
 proof
   show "(\<lambda>a \<in> A'. f`a) \<subseteq> \<Sum>x \<in> A'. (B x)"
   proof
@@ -80,24 +80,24 @@ proof
 qed auto
 
 lemma lambda_bin_inter_mem_dep_functionsI:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
-  shows "(\<lambda>x \<in> A \<inter> A'. f`x) \<in> (x \<in> A \<inter> A') \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
+  shows "(\<lambda>x \<in> A \<inter> A'. f`x) \<in> (x \<in> A \<inter> A') \<rightarrow>s (B x)"
   using assms by (rule lambda_mem_dep_functions_contravariant) auto
 
 lemma lambda_ext:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>a. a \<in> A \<Longrightarrow> g a = f`a"
   shows "(\<lambda>a \<in> A. g a) = f"
   using assms by (intro eqI) auto
 
-lemma lambda_eta [simp]: "f \<in> (x \<in> A) \<rightarrow> (B x) \<Longrightarrow> (\<lambda>x \<in> A. f`x) = f"
+lemma lambda_eta [simp]: "f \<in> (x \<in> A) \<rightarrow>s (B x) \<Longrightarrow> (\<lambda>x \<in> A. f`x) = f"
   by (rule dep_functions_ext,
     rule mem_dep_functions_covariant_codom[OF lambda_mem_dep_functions]) auto
 
-text \<open>Every element of @{term "(x \<in> A) \<rightarrow> (B x)"} may be expressed as a
+text \<open>Every element of @{term "(x \<in> A) \<rightarrow>s (B x)"} may be expressed as a
 lambda abstraction\<close>
 lemma eq_lambdaE_if_mem_dep_functions:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   obtains g where "f = (\<lambda>x \<in> A. g x)"
 proof
   let ?g="(\<lambda>x. f`x)"

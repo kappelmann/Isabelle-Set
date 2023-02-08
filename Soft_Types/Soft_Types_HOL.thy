@@ -15,9 +15,6 @@ begin
 text \<open>This theory introduces a generic notion of soft types based on HOL
 predicates. It contains the basic definitions and technical tool setup.\<close>
 
-
-declare [[eta_contract=false]]
-
 text \<open>Remove conflicting HOL-specific syntax.\<close>
 
 bundle HOL_ascii_syntax
@@ -99,12 +96,24 @@ definition tball :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow>
 definition tbex :: "'a type \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> bool"
   where "tbex A P \<equiv> (\<exists>x. x : A \<and> P x)"
 
-(*TODO: localise*)
+bundle soft_types_bounded_quantifiers_syntax
+begin
 syntax
   "_tball"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ : _./ _)" 10)
   "_tball2" :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
   "_tbex"   :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ : _./ _)" 10)
   "_tbex2"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
+end
+bundle no_soft_types_bounded_quantifiers_syntax
+begin
+no_syntax
+  "_tball"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<forall>_ : _./ _)" 10)
+  "_tball2" :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
+  "_tbex"   :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close> ("(2\<exists>_ : _./ _)" 10)
+  "_tbex2"  :: \<open>[idts, 'a type, bool] \<Rightarrow> bool\<close>
+end
+unbundle soft_types_bounded_quantifiers_syntax
+
 translations
   "\<forall>x xs : A. P" \<rightharpoonup> "CONST tball A (\<lambda>x. _tball2 xs A P)"
   "_tball2 x A P" \<rightharpoonup> "\<forall>x : A. P"
@@ -214,9 +223,18 @@ definition Dep_fun_type :: "'a type \<Rightarrow> ('a \<Rightarrow> 'b type) \<R
 
 abbreviation "Fun_type A B \<equiv> Dep_fun_type A (\<lambda>_. B)"
 
-(*TODO: bundle/localise notation*)
+bundle soft_types_functions_syntax
+begin
 syntax
   "_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
+end
+bundle no_soft_types_functions_syntax
+begin
+no_syntax
+  "_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<Rightarrow>" 50)
+end
+unbundle soft_types_functions_syntax
+
 translations
   "(x y : A) \<Rightarrow> B" \<rightharpoonup> "(x : A)(y : A) \<Rightarrow> B"
   "(x : A) args \<Rightarrow> B" \<rightleftharpoons> "(x : A) \<Rightarrow> args \<Rightarrow> B"

@@ -1,10 +1,10 @@
 \<^marker>\<open>creator "Josh Chen"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Binary Relations\<close>
-theory TBinary_Relations
+section \<open>Typed Set-Theoretic Binary Relations\<close>
+theory TSBinary_Relations
   imports
     HOTG.SBinary_Relations
-    TPairs
+    TSPairs
 begin
 
 subsection \<open>Dependent Binary Relations\<close>

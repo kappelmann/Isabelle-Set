@@ -2,26 +2,26 @@ section \<open>Matrices\<close>
 theory Matrices
   imports
     Nat
-    (* TFunctions *)
+    (* TSFunctions *)
 begin
 
 unbundle no_HOL_groups_syntax
 unbundle no_HOL_order_syntax
 
-definition "matrices A m n \<equiv> ([0,\<dots>,m[ :: set) \<rightarrow> ([0,\<dots>,n[ :: set) \<rightarrow> A"
+definition "matrices A m n \<equiv> ([0,\<dots>,m[ :: set) \<rightarrow>s ([0,\<dots>,n[ :: set) \<rightarrow>s A"
 
-definition [typedef]: "Matrix A m n \<equiv> Element [0,\<dots>,m[ \<rightarrow>c Element [0,\<dots>,n[ \<rightarrow>c A"
+definition [typedef]: "Matrix A m n \<equiv> Element [0,\<dots>,m[ \<rightarrow>cs Element [0,\<dots>,n[ \<rightarrow>cs A"
 
 lemma mem_matrices_iff_Matrix:
   "M \<in> matrices A m n \<longleftrightarrow> M : Matrix (Element A) m n"
   (is "?lhs \<longleftrightarrow> ?rhs")
 proof -
   have
-    "?lhs \<longleftrightarrow> M : Element [0,\<dots>,m[ \<rightarrow>c Element (([0,\<dots>,n[ :: set) \<rightarrow> A)"
+    "?lhs \<longleftrightarrow> M : Element [0,\<dots>,m[ \<rightarrow>cs Element (([0,\<dots>,n[ :: set) \<rightarrow>s A)"
     unfolding matrices_def by auto
   also have "...  \<longleftrightarrow> ?rhs"
   proof -
-    have "\<And>N. N : Element (([0,\<dots>,n[ :: set) \<rightarrow> A) \<longleftrightarrow> N : (Element [0,\<dots>,n[ \<rightarrow>c Element A)"
+    have "\<And>N. N : Element (([0,\<dots>,n[ :: set) \<rightarrow>s A) \<longleftrightarrow> N : (Element [0,\<dots>,n[ \<rightarrow>cs Element A)"
       by (subst mem_iff_Element[symmetric]) auto
     then show ?thesis
       unfolding Matrix_def by (auto elim: CDep_Function_covariant_codom)
@@ -34,12 +34,12 @@ soft_type_translation
   using mem_matrices_iff_Matrix by auto
 
 lemma Matrix_if_CDep_Function [derive]:
-  assumes "M : Element [0,\<dots>,m[ \<rightarrow>c Element [0,\<dots>,n[ \<rightarrow>c A"
+  assumes "M : Element [0,\<dots>,m[ \<rightarrow>cs Element [0,\<dots>,n[ \<rightarrow>cs A"
   shows "M : Matrix A m n"
   using assms Dep_Function_covariant_codom unfolding Matrix_def by auto
 
 lemma eval_type [type]:
-  "eval : Matrix A m n \<Rightarrow> (x : Element [0,\<dots>,m[) \<Rightarrow> Element [0,\<dots>,n[ \<rightarrow>c A"
+  "eval : Matrix A m n \<Rightarrow> (x : Element [0,\<dots>,m[) \<Rightarrow> Element [0,\<dots>,n[ \<rightarrow>cs A"
   unfolding Matrix_def by discharge_types
 
 lemma Matrix_eval_typeI:
@@ -178,20 +178,20 @@ proof -
   have 2 [derive]: "\<And>M. M : Matrix (Element C) m n \<Longrightarrow> M : Element (matrices C m n)"
     by (rule ElementI) discharge_types
   then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
-    Element (matrices C m n) \<rightarrow>c Element (matrices C m n) \<rightarrow>c
+    Element (matrices C m n) \<rightarrow>cs Element (matrices C m n) \<rightarrow>cs
       Matrix (Element C) m n"
     by discharge_types
   then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
-    Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow>c Matrix (Element C) m n"
+    Element (matrices C m n) \<rightarrow>s Element (matrices C m n) \<rightarrow>cs Matrix (Element C) m n"
     by (elim Dep_Function_if_CDep_Function)
   then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
-    Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
+    Element (matrices C m n) \<rightarrow>s Element (matrices C m n) \<rightarrow>s Matrix (Element C) m n"
     by (rule Dep_Function_covariant_codom, intro Dep_Function_if_CDep_Function)
   then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
-    Matrix (Element C) m n \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
+    Matrix (Element C) m n \<rightarrow>s Element (matrices C m n) \<rightarrow>s Matrix (Element C) m n"
     by (elim Dep_Function_contravariant_dom) discharge_types
   then have "\<lambda>M N \<in> matrices C m n. Matrix_add A m n M N :
-    Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n"
+    Matrix (Element C) m n \<rightarrow>s Matrix (Element C) m n \<rightarrow>s Matrix (Element C) m n"
     by (elim Dep_Function_covariant_codom[OF Dep_Function_contravariant_dom])
       simp_all
   (* TODO Kevin: why is this selector not simplified automatically? *)
@@ -321,19 +321,19 @@ proof -
   have 2 [derive]: "\<And>M. M : Matrix (Element C) n n \<Longrightarrow> M : Element (matrices C n n)"
     by (rule ElementI) discharge_types
   let ?f = "\<lambda>N \<in> matrices C n n. (\<lambda>O \<in> matrices C n n. Matrix_mul A M n n n N O)"
-  have "?f : Element (matrices C n n) \<rightarrow>c Element (matrices C n n) \<rightarrow>c
+  have "?f : Element (matrices C n n) \<rightarrow>cs Element (matrices C n n) \<rightarrow>cs
       Matrix (Element C) n n"
     by discharge_types
-  then have "?f : Element (matrices C n n) \<rightarrow> Element (matrices C n n) \<rightarrow>c
+  then have "?f : Element (matrices C n n) \<rightarrow>s Element (matrices C n n) \<rightarrow>cs
     Matrix (Element C) n n"
     by (elim Dep_Function_if_CDep_Function)
-  then have "?f : Element (matrices C n n) \<rightarrow> Element (matrices C n n) \<rightarrow>
+  then have "?f : Element (matrices C n n) \<rightarrow>s Element (matrices C n n) \<rightarrow>s
     Matrix (Element C) n n"
     by (rule Dep_Function_covariant_codom, intro Dep_Function_if_CDep_Function)
-  then have "?f : Matrix (Element C) n n \<rightarrow> Element (matrices C n n) \<rightarrow>
+  then have "?f : Matrix (Element C) n n \<rightarrow>s Element (matrices C n n) \<rightarrow>s
     Matrix (Element C) n n"
     by (elim Dep_Function_contravariant_dom) discharge_types
-  then have "?f : Matrix (Element C) n n \<rightarrow> Matrix (Element C) n n \<rightarrow>
+  then have "?f : Matrix (Element C) n n \<rightarrow>s Matrix (Element C) n n \<rightarrow>s
     Matrix (Element C) n n"
     by (elim Dep_Function_covariant_codom[OF Dep_Function_contravariant_dom])
       simp_all

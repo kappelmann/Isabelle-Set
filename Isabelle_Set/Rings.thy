@@ -29,4 +29,5 @@ lemma
   unfolding Ring_def
   by (auto dest!: Int_typeD1 Int_typeD2 has_typeD) fast
 
+
 end

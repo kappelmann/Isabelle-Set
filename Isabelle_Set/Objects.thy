@@ -4,7 +4,7 @@
 section \<open>Structure Objects\<close>
 theory Objects
   imports
-    TFunctions
+    TSFunctions
     Strings
 begin
 
@@ -14,7 +14,7 @@ We'd eventually want to have syntax like
     fixes A
     contains op id
     where
-      "op \<in> A \<rightarrow> A \<rightarrow> A"
+      "op \<in> A \<rightarrow>s A \<rightarrow>s A"
       "e \<in> A"
       "x \<in> A \<Longrightarrow> op `x `e = x"
       "x \<in> A \<Longrightarrow> op `e `x = x"
@@ -24,7 +24,7 @@ to define structure object types, which should generate
       (* "contains" part *)
       {@op, @id} \<subseteq> dom obj \<and>
       (* "where" part *)
-      obj@@op \<in> A \<rightarrow> A \<rightarrow> A \<and>
+      obj@@op \<in> A \<rightarrow>s A \<rightarrow>s A \<and>
       obj@@e \<in> A \<and>
       \<forall>x. x \<in> A \<longrightarrow> op `x `e = x \<and>
       \<forall>x. x \<in> A \<longrightarrow> op `e `x = x)

@@ -5,7 +5,7 @@ subsection \<open>Recursion\<close>
 theory Nat_Rec
   imports
     Nat_Ranges
-    TPairs
+    TSPairs
 begin
 
 text \<open>Recursion on Nat. Axiomatized, for now.\<close>

@@ -4,7 +4,7 @@ theory Integers_Rep_Base
 imports
   HOTG.Set_Difference
   Nat
-  TCoproduct
+  TSCoproduct
 begin
 
 unbundle no_HOL_groups_syntax

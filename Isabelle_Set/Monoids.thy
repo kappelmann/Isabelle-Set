@@ -103,10 +103,10 @@ lemma Add_pair_type [type]:
 proof (intro Dep_fun_typeI AddI, subst Add_pair_add_eq)
   fix A B AA AB assume h: "AA : Add (Element A)" "AB : Add (Element B)"
   let ?f = "\<lambda>\<langle>a1, b1\<rangle> \<in> A \<times> B. \<lambda>\<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>"
-  from h have "?f : Element (A \<times> B) \<rightarrow>c Element (A \<times> B) \<rightarrow>c Element (A \<times> B)"
+  from h have "?f : Element (A \<times> B) \<rightarrow>cs Element (A \<times> B) \<rightarrow>cs Element (A \<times> B)"
     by (auto iff: Element_dep_pairs_iff_Dep_Pair
       intro!: lambda_app_type Dep_fun_typeI, discharge_types)
-  then show "?f : Element (A \<times> B) \<rightarrow> (Element (A \<times> B) \<rightarrow> Element (A \<times> B))"
+  then show "?f : Element (A \<times> B) \<rightarrow>s (Element (A \<times> B) \<rightarrow>s Element (A \<times> B))"
     using Dep_Function_covariant_codom by auto
 qed
 
@@ -144,7 +144,7 @@ proof (intro Dep_fun_typeI MonoidI)
   have 1: "\<And>p. p : Element (A \<times> B) \<longleftrightarrow> p : Element A \<times> Element B"
     by unfold_types auto
   have "\<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>
-    : Element (A \<times> B) \<rightarrow>c Element (A \<times> B) \<rightarrow>c Element (A \<times> B)"
+    : Element (A \<times> B) \<rightarrow>cs Element (A \<times> B) \<rightarrow>cs Element (A \<times> B)"
     using [[type_derivation_depth=8]]
     apply (rule lambda_app_type)
     apply (rule Dep_fun_contravariant_dom[where ?A="Element A \<times> Element B"])
@@ -157,7 +157,7 @@ proof (intro Dep_fun_typeI MonoidI)
     apply (simp_all only: 1)
     done
   then have "\<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>
-    : Element (A \<times> B) \<rightarrow> Element (A \<times> B) \<rightarrow> Element (A \<times> B)"
+    : Element (A \<times> B) \<rightarrow>s Element (A \<times> B) \<rightarrow>s Element (A \<times> B)"
     by (auto intro: Dep_Function_if_CDep_Function CDep_Function_covariant_codom)
   show "?M : Add (Element (A \<times> B))"
     (*TODO: this should also work*)

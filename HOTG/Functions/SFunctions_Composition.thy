@@ -5,9 +5,9 @@ theory SFunctions_Composition
 begin
 
 lemma comp_mem_dep_functionsI:
-  assumes f_mem: "f \<in> (x \<in> B) \<rightarrow> (C x)"
-  and g_mem: "g \<in> A \<rightarrow> B"
-  shows "f \<circ> g \<in> (x \<in> A) \<rightarrow> (C (g`x))"
+  assumes f_mem: "f \<in> (x \<in> B) \<rightarrow>s (C x)"
+  and g_mem: "g \<in> A \<rightarrow>s B"
+  shows "f \<circ> g \<in> (x \<in> A) \<rightarrow>s (C (g`x))"
 proof
   show "f \<circ> g \<subseteq> \<Sum>x \<in> A. (C (g`x))"
   proof
@@ -35,12 +35,12 @@ next
 qed
 
 lemma comp_eval_eq_if_mem_dep_functions [simp]:
-  assumes f_mem: "f \<in> (x \<in> B) \<rightarrow> (C x)"
-  and g_mem: "g \<in> A \<rightarrow> B"
+  assumes f_mem: "f \<in> (x \<in> B) \<rightarrow>s (C x)"
+  and g_mem: "g \<in> A \<rightarrow>s B"
   and x_mem: "x \<in> A"
   shows "(f \<circ> g)`x = f`(g`x)"
 proof -
-  have "f \<circ> g \<in> (x \<in> A) \<rightarrow> (C (g`x))"
+  have "f \<circ> g \<in> (x \<in> A) \<rightarrow>s (C (g`x))"
     using f_mem g_mem comp_mem_dep_functionsI by auto
   with x_mem have "\<langle>x, (f \<circ> g)`x\<rangle> \<in> f \<circ> g"
     using pair_eval_mem_if_mem_if_mem_dep_functions by auto
@@ -52,26 +52,26 @@ definition "set_id A \<equiv> \<lambda>x \<in> A. x"
 lemma set_id_eq [simp]: "set_id A = \<lambda>x \<in> A. x"
   unfolding set_id_def by simp
 
-lemma set_id_mem_dep_functions [iff]: "set_id A \<in> (x \<in> A) \<rightarrow> {x}"
+lemma set_id_mem_dep_functions [iff]: "set_id A \<in> (x \<in> A) \<rightarrow>s {x}"
   by auto
 
 lemma comp_set_id_eq [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   shows "f \<circ> set_id A = f"
 proof -
-  from assms have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow> (B((set_id A)`x))"
+  from assms have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow>s (B((set_id A)`x))"
     by (elim comp_mem_dep_functionsI) auto
-  then have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow> (B x)"
+  then have "f \<circ> set_id A \<in> (x \<in> A) \<rightarrow>s (B x)"
     by (rule mem_dep_functions_covariant_codom) auto
   from this assms show ?thesis
     by (rule dep_functions_ext, subst comp_eval_eq_if_mem_dep_functions) auto
 qed
 
 lemma set_id_comp_eq [simp]:
-  assumes "f \<in> A \<rightarrow> B"
+  assumes "f \<in> A \<rightarrow>s B"
   shows "set_id B \<circ> f = f"
 proof -
-  have "set_id B \<circ> f \<in> A \<rightarrow> B"
+  have "set_id B \<circ> f \<in> A \<rightarrow>s B"
     by (rule comp_mem_dep_functionsI[OF _ assms]) auto
   from this assms show ?thesis
     by (rule dep_functions_ext, subst comp_eval_eq_if_mem_dep_functions)

@@ -41,9 +41,9 @@ proof (rule MonoidI)
   (* unfolding nat_Monoid_def by (rule AddI) simp *)
   proof (rule AddI)
     have select_add_eq: "(\<nat>, +)@@add = \<lambda>m n \<in> \<nat>. nat_add m n" by simp
-    have "(\<nat>, +)@@add : Nat \<rightarrow>c Nat \<rightarrow>c Nat"
+    have "(\<nat>, +)@@add : Nat \<rightarrow>cs Nat \<rightarrow>cs Nat"
       by (subst select_add_eq) discharge_types
-    then show "(\<nat>, +)@@add : Nat \<rightarrow> Nat \<rightarrow> Nat"
+    then show "(\<nat>, +)@@add : Nat \<rightarrow>s Nat \<rightarrow>s Nat"
       using Dep_Function_covariant_codom by auto
   qed
 next
@@ -76,9 +76,9 @@ proof (rule Mul_MonoidI)
   proof (rule MulI)
     have select_mul_eq: "(\<nat>, *)@@mul = \<lambda>m n \<in> \<nat>. nat_mul m n"
       unfolding nat_Mul_Monoid_def by simp
-    have "(\<nat>, *)@@mul : Nat \<rightarrow>c Nat \<rightarrow>c Nat"
+    have "(\<nat>, *)@@mul : Nat \<rightarrow>cs Nat \<rightarrow>cs Nat"
       by (subst select_mul_eq) discharge_types
-    show "(\<nat>, *)@@mul : Nat \<rightarrow> Nat \<rightarrow> Nat"
+    show "(\<nat>, *)@@mul : Nat \<rightarrow>s Nat \<rightarrow>s Nat"
       using Dep_Function_covariant_codom by auto
   qed
 next

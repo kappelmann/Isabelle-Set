@@ -1,9 +1,9 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Coproduct (\<Coprod>-types)\<close>
-theory TCoproduct
+section \<open>Set-Theoretic Coproduct (\<Coprod>-types)\<close>
+theory TSCoproduct
   imports
-    Sets
     HOTG.Coproduct
+    Sets
 begin
 
 definition [typedef]: "Coprod A B \<equiv>

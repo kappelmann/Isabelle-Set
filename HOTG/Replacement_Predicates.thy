@@ -14,15 +14,14 @@ definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarr
 bundle hotg_replacement_syntax
 begin
 syntax
-  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("{_ |/ _ \<in> _, _}")
 end
 bundle no_hotg_replacement_syntax
 begin
 no_syntax
-  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("(1{_ |/ _ \<in> _, _})")
+  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("{_ |/ _ \<in> _, _}")
 end
 unbundle hotg_replacement_syntax
-
 translations
   "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST replace A (\<lambda>x y. Q)"
 

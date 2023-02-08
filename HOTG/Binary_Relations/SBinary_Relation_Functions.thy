@@ -100,13 +100,13 @@ definition "set_restrict_right R P \<equiv> (set_restrict_left R\<inverse> P)\<i
 
 bundle hotg_restrict_syntax
 begin
-notation set_restrict_left ("(_)\<restriction>\<^bsub>(_)\<^esub>" [1000])
-notation set_restrict_right ("(_)\<upharpoonleft>\<^bsub>(_)\<^esub>" [1000])
+notation set_restrict_left ("(_)\<restriction>(\<^bsub>_\<^esub>)" [1000])
+notation set_restrict_right ("(_)\<upharpoonleft>(\<^bsub>_\<^esub>)" [1000])
 end
 bundle no_hotg_restrict_syntax
 begin
-no_notation set_restrict_left ("(_)\<restriction>\<^bsub>(_)\<^esub>" [1000])
-no_notation set_restrict_right ("(_)\<upharpoonleft>\<^bsub>(_)\<^esub>" [1000])
+no_notation set_restrict_left ("(_)\<restriction>(\<^bsub>_\<^esub>)" [1000])
+no_notation set_restrict_right ("(_)\<upharpoonleft>(\<^bsub>_\<^esub>)" [1000])
 end
 unbundle no_restrict_syntax
 unbundle hotg_restrict_syntax

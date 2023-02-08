@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Josh Chen"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Dependent Pair Type (\<Sum>-type)\<close>
-theory TPairs
+section \<open>Set-Theoretic Dependent Pair Type (\<Sum>-type)\<close>
+theory TSPairs
   imports Sets
 begin
 
@@ -14,7 +14,7 @@ syntax
 end
 bundle no_isa_set_dependent_pairs_syntax
 begin
-syntax
+no_syntax
   "_Dep_Pair" :: \<open>[pttrn, set type, set \<Rightarrow> set type] \<Rightarrow> set\<close> ("\<Sum>_ : _./ _" [0, 0, 100])
 end
 unbundle isa_set_dependent_pairs_syntax

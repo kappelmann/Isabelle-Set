@@ -3,11 +3,9 @@
 subsection \<open>Basic Setup\<close>
 theory Set_Extensions_Base
   imports
-    HOL_Basics.Restricted_Equality
-    HOL_Basics.Functions_Injective
-    HOL_Basics.Functions_Inverse
     HOTG.Set_Difference
     Sets
+    TFunctions
 begin
 
 text \<open>This theory defines a definitional principle for set extensions.
@@ -39,215 +37,111 @@ under the surface of the bijection in the end, and will not get in the way
 when reasoning about the newly defined set. Primitive operations on \<open>Abs\<close> will
 usually be transported from \<open>Rep\<close> using \<open>abs\<close>.\<close>
 
-(*TODO: move somewhere else*)
-overloading
-  injective_on_set \<equiv> "injective_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> bool"
-  injective_on_type \<equiv> "injective_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> bool"
-begin
-  definition "injective_on_set A (f :: set \<Rightarrow> 'a) \<equiv> injective_on (mem_of A) f"
-  definition "injective_on_type (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<equiv>
-    injective_on (type_pred T) f"
-end
-
-lemma injective_on_set_eq_injective_on_pred [simp]:
-  "(injective_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> bool) A = injective_on (mem_of A)"
-  unfolding injective_on_set_def by simp
-
-lemma injective_on_set_iff_injective_on_pred [iff]:
-  "injective_on (A :: set) (f :: set \<Rightarrow> 'a) \<longleftrightarrow> injective_on (mem_of A) f"
-  by simp
-
-lemma injective_on_type_eq_injective_on_pred [simp]:
-  "(injective_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> bool) T = injective_on (type_pred T)"
-  unfolding injective_on_type_def by simp
-
-lemma injective_on_type_iff_injective_on_pred [iff]:
-  "injective_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<longleftrightarrow> injective_on (type_pred T) f"
-  by simp
-
-overloading
-  inverse_on_set \<equiv> "inverse_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool"
-  inverse_on_type \<equiv> "inverse_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
-begin
-  definition "inverse_on_set A (f :: set \<Rightarrow> 'a) \<equiv> inverse_on (mem_of A) f"
-  definition "inverse_on_type (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<equiv>
-    inverse_on (type_pred T) f"
-end
-
-lemma inverse_on_set_eq_inverse_on_pred [simp]:
-  "(inverse_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool) A = inverse_on (mem_of A)"
-  unfolding inverse_on_set_def by simp
-
-lemma inverse_on_set_iff_inverse_on_pred [iff]:
-  "inverse_on (A :: set) (f :: set \<Rightarrow> 'a) g \<longleftrightarrow> inverse_on (mem_of A) f g"
-  by simp
-
-lemma inverse_on_type_eq_inverse_on_pred [simp]:
-  "(inverse_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool) T = inverse_on (type_pred T)"
-  unfolding inverse_on_type_def by simp
-
-lemma inverse_on_type_iff_inverse_on_pred [iff]:
-  "inverse_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) g \<longleftrightarrow> inverse_on (type_pred T) f g"
-  by simp
-
-overloading
-  restrict_left_set \<equiv> "restrict_left :: (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow>
-    (set \<Rightarrow> 'a \<Rightarrow> bool)"
-  restrict_left_type \<equiv> "restrict_left :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow>
-    ('a \<Rightarrow> 'b \<Rightarrow> bool)"
-begin
-  definition "restrict_left_set (R :: set \<Rightarrow> _) (A :: set) \<equiv> R\<restriction>\<^bsub>mem_of A\<^esub>"
-  definition "restrict_left_type (R :: 'a \<Rightarrow> _) (T :: 'a type) \<equiv> R\<restriction>\<^bsub>type_pred T\<^esub>"
-end
-
-lemma restrict_left_set_eq_restrict_left_pred [simp]:
-  "restrict_left (R :: set \<Rightarrow> _) (A :: set) = R\<restriction>\<^bsub>mem_of A\<^esub>"
-  unfolding restrict_left_set_def by simp
-
-lemma restrict_left_set_iff_restrict_left_pred [iff]:
-  "restrict_left (R :: set \<Rightarrow> _) (A :: set) x y \<longleftrightarrow> R\<restriction>\<^bsub>mem_of A\<^esub> x y"
-  by simp
-
-lemma restrict_left_type_eq_restrict_left_pred [simp]:
-  "restrict_left (R :: 'a \<Rightarrow> _) (T :: 'a type) = R\<restriction>\<^bsub>type_pred T\<^esub>"
-  unfolding restrict_left_type_def by simp
-
-lemma restrict_left_type_iff_restrict_left_pred [iff]:
-  "restrict_left (R :: 'a \<Rightarrow> _) (T :: 'a type) x y \<longleftrightarrow> R\<restriction>\<^bsub>type_pred T\<^esub> x y"
-  by simp
-
-overloading
-  eq_restrict_set \<equiv> "eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool"
-  eq_restrict_type \<equiv> "eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool"
-begin
-  definition "eq_restrict_set (A :: set) \<equiv> (=\<^bsub>mem_of A\<^esub> :: set \<Rightarrow> _)"
-  definition "eq_restrict_type (T :: 'a type) \<equiv> (=\<^bsub>type_pred T\<^esub> :: 'a \<Rightarrow> _)"
-end
-
-lemma eq_restrict_set_eq_eq_restrict_pred [simp]:
-  "(eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) A = (=\<^bsub>mem_of A\<^esub>)"
-  unfolding eq_restrict_set_def by simp
-
-lemma eq_restrict_set_iff_eq_restrict_pred [iff]:
-  "(eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) A x y \<longleftrightarrow> x =\<^bsub>mem_of A\<^esub> y"
-  by simp
-
-lemma eq_restrict_type_eq_eq_restrict_pred [simp]:
-  "(eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool) T = (=\<^bsub>type_pred T\<^esub>)"
-  unfolding eq_restrict_type_def by simp
-
-lemma eq_restrict_type_iff_eq_restrict_pred [iff]:
-  "(eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool) T x y \<longleftrightarrow> x =\<^bsub>type_pred T\<^esub> y"
-  by simp
-
-
 locale set_extension =
   fixes Core Rep :: set and embed :: "set \<Rightarrow> set"
   assumes
-    embed_type: "embed : Element Core \<Rightarrow> Element Rep" and
+    embed_type [type]: "embed : Element Core \<Rightarrow> Element Rep" and
     embed_injective: "injective_on Core embed"
 begin
 
-definition "Abs \<equiv> Core \<union> {\<langle>Core, x\<rangle> | x \<in> (Rep \<setminus> {embed a | a \<in> Core})}"
+definition "Abs \<equiv> Core \<union> {\<langle>Core, x\<rangle> | x \<in> (Rep \<setminus> {embed c | c \<in> Core})}"
 
-lemma subset_Abs: "Core \<subseteq> Abs"
+lemma mem_AbsE:
+  assumes "y \<in> Abs"
+  obtains "y \<in> Core"
+    | x where "x \<in> Rep" "x \<notin> {embed c | c \<in> Core}" "y = \<langle>Core, x\<rangle>"
+  using assms unfolding Abs_def by auto
+
+lemma Core_subset_Abs: "Core \<subseteq> Abs"
   unfolding Abs_def by auto
 
 definition "l x \<equiv>
-  if (\<exists>z \<in> Core. embed z = x) then (THE z. z \<in> Core \<and> embed z = x) else \<langle>Core, x\<rangle>"
+  if (\<exists>c \<in> Core. embed c = x) then (THE c. c \<in> Core \<and> embed c = x) else \<langle>Core, x\<rangle>"
+
+lemma left_embed_eq_if_mem_Core [simp]:
+  assumes "c \<in> Core"
+  shows "l (embed c) = c"
+proof -
+  from assms embed_injective have "(THE c'. c' \<in> Core \<and> embed c' = embed c) = c"
+    by (intro the_equality) (auto dest: injective_onD)
+  with assms show ?thesis unfolding l_def by auto
+qed
+
+corollary left_embed_mem_Core_if_mem_Core [intro]:
+  assumes "c \<in> Core"
+  shows "l (embed c) \<in> Core"
+  using assms by simp
+
+lemma left_mem_CoreE [elim]:
+  assumes "l x \<in> Core"
+  obtains c where "c \<in> Core" "x = embed c"
+  using assms unfolding l_def by (auto split: if_splits)
+
+corollary left_mem_Core_iff: "l x \<in> Core \<longleftrightarrow> (\<exists>c \<in> Core. embed c = x)"
+  by auto
+
+lemma left_eq_pairI:
+  assumes "\<And>c. c \<in> Core \<Longrightarrow> embed c \<noteq> x"
+  shows "l x = \<langle>Core, x\<rangle>"
+  unfolding l_def using assms by auto
 
 definition "r y \<equiv> if y \<in> Core then embed y else snd y"
+
+lemma right_eq_embed_if_mem_Core [simp]:
+  assumes "c \<in> Core"
+  shows "r c = embed c"
+  unfolding r_def using assms by simp
+
+lemma right_eq_snd [simp]:
+  assumes "y \<notin> Core"
+  shows "r y = snd y"
+  using assms unfolding r_def by simp
+
+lemma right_pair_Core_eq_snd [simp]: "r \<langle>Core, y\<rangle> = y"
+  by simp
 
 lemma left_type [type]: "l : Element Rep \<Rightarrow> Element Abs"
 proof unfold_types
   fix x assume "x \<in> Rep"
   show "l x \<in> Abs"
-  proof (cases "\<exists>z \<in> Core. embed z = x")
+  proof (cases "\<exists>c \<in> Core. x = embed c")
     case True
-    then obtain z where z_props: "z \<in> Core \<and> embed z = x" by auto
-    with embed_injective have uniq: "\<And>z'. z' \<in> Core \<and> embed z' = x \<Longrightarrow> z' = z"
-      by (auto dest: injective_onD)
-    with z_props have "(THE z. z \<in> Core \<and> embed z = x) = z" by (rule the_equality)
-    with True have "l x = z" unfolding l_def by simp
-    with z_props show "l x \<in> Abs" unfolding Abs_def by simp
+    with Core_subset_Abs show "l x \<in> Abs" by auto
   next
     case False
-    with \<open>x \<in> Rep\<close> have "x \<in> Rep \<setminus> {embed a | a \<in> Core}" by auto
-    with False show ?thesis unfolding Abs_def l_def by auto
+    then show ?thesis unfolding Abs_def l_def by auto
   qed
 qed
 
 lemma right_type [type]: "r : Element Abs \<Rightarrow> Element Rep"
-proof unfold_types
-  fix y assume "y \<in> Abs"
-  show "r y \<in> Rep"
-  proof (cases "y \<in> Core")
-    case True
-    then have "r y = embed y" unfolding r_def by simp
-    with embed_type True show ?thesis by simp
-  next
-    case False
-    with \<open>y \<in> Abs\<close> obtain x where "x \<in> Rep" "y = \<langle>Core, x\<rangle>"
-      unfolding Abs_def by auto
-    with False have "r y = x" unfolding r_def by simp
-    with \<open>x \<in> Rep\<close> show ?thesis by simp
-  qed
-qed
+  by unfold_types (auto elim: mem_AbsE)
 
-lemma inverse_on_Abs_right_left [iff]: "inverse_on Abs r l"
+lemma inverse_on_Abs_right_left: "inverse_on Abs r l"
 proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
-  fix x assume "x \<in> Abs"
-  then show "l (r x) = x"
-  proof (cases "x \<in> Core")
-    case True
-    then have "l (r x) = l (embed x)" unfolding r_def by simp
-    also from True have "... = (THE z. z \<in> Core \<and> embed z = embed x)"
-      unfolding l_def by auto
-    also have "... = x"
-    proof (rule the_equality)
-      show "x \<in> Core \<and> embed x = embed x" by simp
-      from True embed_injective show "\<And>z. z \<in> Core \<and> embed z = embed x \<Longrightarrow> z = x"
-        by (auto dest: injective_onD)
-    qed
-    finally show "l (r x) = x" .
-  next
+  fix y assume "y \<in> Abs"
+  show "l (r y) = y"
+  proof (cases "y \<in> Core")
     case False
-    with \<open>x \<in> Abs\<close> obtain y where y_props: "y \<in> Rep" "y \<notin> {embed a | a \<in> Core}"
-      and x_eq: "x = \<langle>Core, y\<rangle>"
-      unfolding Abs_def by auto
-    from False have "l (r x) = l (snd x)" unfolding r_def by simp
-    also from x_eq have "... = l y" by simp
-    also from y_props have "... = \<langle>Core, y\<rangle>" unfolding l_def by auto
-    also from x_eq have "... = x" ..
-    finally show "l (r x) = x" .
-  qed
+    with \<open>y \<in> Abs\<close> obtain x where x_props: "x \<in> Rep" "x \<notin> {embed c | c \<in> Core}"
+      and y_eq: "y = \<langle>Core, x\<rangle>" by (blast elim: mem_AbsE)
+    with False have "l (r y) = l x" by simp
+    also from x_props have "... = \<langle>Core, x\<rangle>" by (intro left_eq_pairI) blast
+    also from y_eq have "... = y" ..
+    finally show "l (r y) = y" .
+  qed simp
 qed
 
-lemma inverse_on_Rep_left_right [iff]: "inverse_on Rep l r"
+lemma inverse_on_Rep_left_right: "inverse_on Rep l r"
 proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
   fix x assume "x \<in> Rep"
-  then show "r (l x) = x"
-  proof (cases "\<exists>z \<in> Core. embed z = x")
-    case True
-    then obtain z where z_props: "z \<in> Core \<and> embed z = x" by auto
-    with True have "r (l x) = r (THE z. z \<in> Core \<and> embed z = x)"
-      unfolding l_def by simp
-    also have "... = r z"
-    proof (subst the_equality)
-      from z_props embed_injective show "\<And>z'. z' \<in> Core \<and> embed z' = x \<Longrightarrow> z' = z"
-        by (auto dest: injective_onD)
-    qed (auto intro!: z_props)
-    also from z_props have "... = embed z" unfolding r_def by simp
-    also from z_props have "... = x" by simp
-    finally show "r (l x) = x" .
-  next
+  show "r (l x) = x"
+  proof (cases "\<exists>c \<in> Core. x = embed c")
     case False
     then have "r (l x) = r \<langle>Core, x\<rangle>" unfolding l_def by auto
-    also have "... = x" unfolding r_def by simp
+    also have "... = x" by simp
     finally show "r (l x) = x" .
-  qed
+  qed auto
 qed
-
 
 end
 

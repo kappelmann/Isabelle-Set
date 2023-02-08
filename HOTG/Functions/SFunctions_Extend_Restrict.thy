@@ -5,9 +5,9 @@ theory SFunctions_Extend_Restrict
 begin
 
 lemma extend_mem_dep_functionsI:
-  assumes f_dep_fun: "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes f_dep_fun: "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "x \<notin> A"
-  shows "extend x y f \<in> (x' \<in> insert x A) \<rightarrow> (if x' = x then {y} else B x')"
+  shows "extend x y f \<in> (x' \<in> insert x A) \<rightarrow>s (if x' = x then {y} else B x')"
     (is "?lhs \<in> dep_functions ?rhs_dom ?rhs_fun")
 proof
   show "set_left_total_on (insert x A) (extend x y f)"
@@ -24,21 +24,21 @@ proof
 qed (insert assms, auto elim!: mem_dep_functionE)
 
 lemma extend_mem_dep_functionsI':
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "x \<notin> A"
   and "y \<in> B x"
-  shows "extend x y f \<in> (x \<in> insert x A) \<rightarrow> (B x)"
+  shows "extend x y f \<in> (x \<in> insert x A) \<rightarrow>s (B x)"
 proof (rule mem_dep_functions_covariant_codom)
-  show "extend x y f \<in> (x' \<in> insert x A) \<rightarrow> (if x' = x then {y} else B x')"
+  show "extend x y f \<in> (x' \<in> insert x A) \<rightarrow>s (if x' = x then {y} else B x')"
     by (fact extend_mem_dep_functionsI[OF assms(1-2)])
 qed (insert assms, auto)
 
 lemma extend_mem_functionsI:
-  assumes "f \<in> A \<rightarrow> B"
+  assumes "f \<in> A \<rightarrow>s B"
   and "x \<notin> A"
   shows "extend x y f \<in> functions (insert x A) (insert y B)"
 proof (rule mem_dep_functions_covariant_codom)
-  show "extend x y f \<in> (x' \<in> insert x A) \<rightarrow> (if x' = x then {y} else B)"
+  show "extend x y f \<in> (x' \<in> insert x A) \<rightarrow>s (if x' = x then {y} else B)"
     by (fact extend_mem_dep_functionsI[OF assms])
 qed (insert assms, auto)
 
@@ -47,9 +47,9 @@ subsection \<open>Gluing\<close>
 
 lemma glue_mem_dep_functionsI:
   fixes F defines "D \<equiv> \<Union>f \<in> F. dom f"
-  assumes all_fun: "\<And>f. f \<in> F \<Longrightarrow> \<exists>A. f \<in> (x \<in> A) \<rightarrow> B x"
+  assumes all_fun: "\<And>f. f \<in> F \<Longrightarrow> \<exists>A. f \<in> (x \<in> A) \<rightarrow>s B x"
   and F_right_unique: "set_right_unique_on D (glue F)"
-  shows "glue F \<in> (x \<in> D) \<rightarrow> B x"
+  shows "glue F \<in> (x \<in> D) \<rightarrow>s B x"
 proof (rule mem_dep_functionsI)
   show "set_left_total_on D (glue F)" unfolding D_def by auto
   show "glue F \<subseteq> \<Sum>x \<in> D. (B x)"
@@ -58,10 +58,10 @@ proof (rule mem_dep_functionsI)
 qed (fact F_right_unique)
 
 lemma glue_upair_mem_dep_functionsI:
-  assumes f_dep_fun: "f \<in> (x \<in> A) \<rightarrow> B x"
-  and g_dep_fun: "g \<in> (x \<in> A') \<rightarrow> B x"
+  assumes f_dep_fun: "f \<in> (x \<in> A) \<rightarrow>s B x"
+  and g_dep_fun: "g \<in> (x \<in> A') \<rightarrow>s B x"
   and agree_fg: "agree (A \<inter> A') {f, g}"
-  shows "glue {f, g} \<in> (x \<in> A \<union> A') \<rightarrow> B x"
+  shows "glue {f, g} \<in> (x \<in> A \<union> A') \<rightarrow>s B x"
 proof -
   have "(\<Union>f \<in> {f, g}. dom f) = (\<Union>f \<in> {f}. dom f) \<union> (\<Union>f \<in> {g}. dom f)"
     by (rule eqI) (auto simp only: idx_union_bin_union_dom_eq_bin_union_idx_union)
@@ -90,20 +90,20 @@ subsection \<open>Restriction\<close>
 
 lemma restrict_left_mem_dep_functions_if_mem_dep_functions_if_agree:
   assumes "agree A F"
-  and "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  and "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "f \<in> F"
   and "g \<in> F"
-  shows "g\<restriction>\<^bsub>A\<^esub> \<in> (x \<in> A) \<rightarrow> (B x)"
+  shows "g\<restriction>\<^bsub>A\<^esub> \<in> (x \<in> A) \<rightarrow>s (B x)"
 proof -
   from assms have "g\<restriction>\<^bsub>A\<^esub>  = f\<restriction>\<^bsub>A\<^esub>"
     by (auto elim: set_restrict_left_eq_set_restrict_left_if_agree)
-  also have "... = f" using \<open>f \<in> (x \<in> A) \<rightarrow> (B x)\<close> by auto
-  finally show ?thesis using \<open>f \<in> (x \<in> A) \<rightarrow> (B x)\<close> by simp
+  also have "... = f" using \<open>f \<in> (x \<in> A) \<rightarrow>s (B x)\<close> by auto
+  finally show ?thesis using \<open>f \<in> (x \<in> A) \<rightarrow>s (B x)\<close> by simp
 qed
 
 lemma restrict_left_mem_dep_functions_collectI:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
-  shows "f\<restriction>\<^bsub>P\<^esub> \<in> (x \<in> {x \<in> A | P x}) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
+  shows "f\<restriction>\<^bsub>P\<^esub> \<in> (x \<in> {x \<in> A | P x}) \<rightarrow>s (B x)"
 proof (rule mem_dep_functionsI)
   have "set_right_unique_on A f = set_right_unique_on (mem_of A) f" by simp
   also have "... \<le> set_right_unique_on (mem_of A \<sqinter> P) f"

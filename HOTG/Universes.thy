@@ -91,10 +91,10 @@ lemma univ_closed_pairs [intro!]: "X \<subseteq> univ A \<Longrightarrow> Y \<su
 lemma univ_closed_dep_functions [intro!]:
   assumes "A \<in> univ U"
   and "\<And>x. x \<in> A \<Longrightarrow> B x \<in> univ U"
-  shows "((x \<in> A) \<rightarrow> (B x)) \<in> univ U"
+  shows "((x \<in> A) \<rightarrow>s (B x)) \<in> univ U"
 proof -
   let ?P = "powerset (\<Sum>x \<in> A. B x)"
-  have "((x \<in> A) \<rightarrow> (B x)) \<subseteq> ?P" by auto
+  have "((x \<in> A) \<rightarrow>s (B x)) \<subseteq> ?P" by auto
   moreover have "?P \<in> univ U" using assms by auto
   ultimately show ?thesis by (auto intro: mem_univ_trans)
 qed

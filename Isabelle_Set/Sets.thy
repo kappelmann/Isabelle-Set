@@ -3,9 +3,9 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Soft-Types for Sets\<close>
 theory Sets
-imports
-  Soft_Types.Soft_Types_HOL
-  HOTG.Pairs
+  imports
+    Soft_Types.Soft_Types_HOL
+    HOTG.Pairs
 begin
 
 subsection \<open>Sets, Elements, and Subsets\<close>

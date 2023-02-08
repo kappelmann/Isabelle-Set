@@ -10,11 +10,11 @@ begin
 
 bundle hotg_repl_syntax
 begin
-syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
+syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 bundle no_hotg_repl_syntax
 begin
-no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("(1{_ |/ _ \<in> _})")
+no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 unbundle hotg_repl_syntax
 

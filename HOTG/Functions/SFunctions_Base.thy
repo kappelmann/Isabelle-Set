@@ -8,8 +8,8 @@ begin
 
 definition "eval f x \<equiv> THE y. \<langle>x, y\<rangle> \<in> f"
 
-bundle hotg_eval_syntax begin notation eval ("_`_" [999, 1000] 999) end
-bundle no_hotg_eval_syntax begin no_notation eval ("_`_" [999, 1000] 999) end
+bundle hotg_eval_syntax begin notation eval ("(_`_)" [999, 1000] 999) end
+bundle no_hotg_eval_syntax begin no_notation eval ("(_`_)" [999, 1000] 999) end
 unbundle hotg_eval_syntax
 
 lemma eval_eqI:
@@ -88,48 +88,48 @@ abbreviation "functions A B \<equiv> dep_functions A (\<lambda>_. B)"
 bundle hotg_functions_syntax
 begin
 syntax
-  "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>" 55)
+  "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>s" 55)
 end
 bundle no_hotg_functions_syntax
 begin
 no_syntax
-  "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>" 55)
+  "_set_functions_telescope" :: "logic \<Rightarrow> logic \<Rightarrow> logic"  (infixr "\<rightarrow>s" 55)
 end
 unbundle hotg_functions_syntax
 
 translations
-  "(x y \<in> A) \<rightarrow> B" \<rightharpoonup> "(x \<in> A)(y \<in> A) \<rightarrow> B"
-  "(x \<in> A) args \<rightarrow> B" \<rightharpoonup> "(x \<in> A) \<rightarrow> args \<rightarrow> B"
-  "(x \<in> A) \<rightarrow> B" \<rightleftharpoons> "CONST dep_functions A (\<lambda>x. B)"
-  "A \<rightarrow> B" \<rightleftharpoons> "CONST functions A B"
+  "(x y \<in> A) \<rightarrow>s B" \<rightharpoonup> "(x \<in> A)(y \<in> A) \<rightarrow>s B"
+  "(x \<in> A) args \<rightarrow>s B" \<rightharpoonup> "(x \<in> A) \<rightarrow>s args \<rightarrow>s B"
+  "(x \<in> A) \<rightarrow>s B" \<rightleftharpoons> "CONST dep_functions A (\<lambda>x. B)"
+  "A \<rightarrow>s B" \<rightleftharpoons> "CONST functions A B"
 
 lemma mem_dep_functionsI [intro]:
   assumes "f \<subseteq> (\<Sum>x \<in> A. (B x))"
   and "set_left_total_on A f"
   and "set_right_unique_on A f"
-  shows "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  shows "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   using assms unfolding dep_functions_def by auto
 
 lemma mem_dep_functionsE [elim]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   obtains "f \<subseteq> \<Sum>x \<in> A. (B x)" "set_left_total_on A f" "set_right_unique_on A f"
   using assms unfolding dep_functions_def by blast
 
 lemma dep_functions_cong [cong]:
-  "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> (x \<in> A) \<rightarrow> (B x) = (x \<in> A') \<rightarrow> (B' x)"
+  "\<lbrakk>A = A'; \<And>x. x \<in> A' \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> (x \<in> A) \<rightarrow>s (B x) = (x \<in> A') \<rightarrow>s (B' x)"
   unfolding dep_functions_def by simp
 
 lemma mem_functions_if_mem_dep_functions:
-  "f \<in> (x \<in> A) \<rightarrow> (B x) \<Longrightarrow> f \<in> (A \<rightarrow> (\<Union>x \<in> A. B x))"
+  "f \<in> (x \<in> A) \<rightarrow>s (B x) \<Longrightarrow> f \<in> (A \<rightarrow>s (\<Union>x \<in> A. B x))"
   unfolding dep_functions_def by auto
 
 lemma dom_eq_if_mem_dep_functions [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   shows "dom f = A"
   using assms by (elim mem_dep_functionsE, intro eq_if_subset_if_subset) auto
 
 lemma rng_subset_if_mem_dep_functions [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   shows "rng f \<subseteq> (\<Union>x \<in> A. B x)"
 proof -
   from assms have "f \<subseteq> \<Sum>x \<in> A. (B x)" by (elim mem_dep_functionsE)
@@ -139,13 +139,13 @@ proof -
 qed
 
 lemma fst_snd_eq_pair_if_mem_dep_function [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "p \<in> f"
   shows "\<langle>fst p, snd p\<rangle> = p"
   using assms by (auto elim!: mem_dep_functionsE)
 
 lemma pair_eval_mem_if_mem_if_mem_dep_functions [elim]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "x \<in> A"
   shows "\<langle>x, f`x\<rangle> \<in> f"
 proof -
@@ -156,7 +156,7 @@ proof -
 qed
 
 lemma pair_mem_iff_eval_eq_if_mem_dom_dep_function:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "x \<in> A"
   shows "\<langle>x, y\<rangle> \<in> f \<longleftrightarrow> f`x = y"
 proof
@@ -167,41 +167,41 @@ proof
 qed (insert assms, auto)
 
 lemma fst_mem_if_mem_dep_function:
-  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
+  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow>s (B x); p \<in> f\<rbrakk> \<Longrightarrow> fst p \<in> A"
   by (auto elim!: mem_dep_functionsE)
 
 lemma snd_mem_if_mem_dep_function:
-  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); p \<in> f\<rbrakk> \<Longrightarrow> snd p \<in> B (fst p)"
+  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow>s (B x); p \<in> f\<rbrakk> \<Longrightarrow> snd p \<in> B (fst p)"
   by (auto elim!: mem_dep_functionsE)
 
 lemma mem_dom_if_pair_mem_dep_function:
-  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> x \<in> A"
+  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow>s (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> x \<in> A"
   using fst_mem_if_mem_dep_function[where ?p="\<langle>x, y\<rangle>"] by auto
 
 lemma mem_codom_if_pair_mem_dep_function:
-  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y \<in> B x"
+  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow>s (B x); \<langle>x, y\<rangle> \<in> f\<rbrakk> \<Longrightarrow> y \<in> B x"
   using snd_mem_if_mem_dep_function[where ?p="\<langle>x, y\<rangle>"] by auto
 
 lemma eval_mem_if_mem_if_mem_dep_functions [elim]:
-  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow> (B x); x \<in> A\<rbrakk> \<Longrightarrow> f`x \<in> B x"
+  "\<lbrakk>f \<in> (x \<in> A) \<rightarrow>s (B x); x \<in> A\<rbrakk> \<Longrightarrow> f`x \<in> B x"
   using mem_codom_if_pair_mem_dep_function
   by (blast dest: pair_eval_mem_if_mem_if_mem_dep_functions)
 
 lemma eval_eq_if_pair_mem_dep_function [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<langle>x, y\<rangle> \<in> f"
   shows "f`x = y"
   using assms fst_mem_if_mem_dep_function[OF assms]
     by (auto iff: pair_mem_iff_eval_eq_if_mem_dom_dep_function)
 
 lemma mem_dom_dep_functionE:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "x \<in> A"
   obtains y where "f`x = y" "y \<in> B x"
   using assms eval_mem_if_mem_if_mem_dep_functions by auto
 
 lemma mem_dep_functionE [elim]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "p \<in> f"
   obtains x y where "p = \<langle>x, y\<rangle>" "x \<in> A" "y \<in> B x" "f`x = y"
 proof -
@@ -217,26 +217,26 @@ proof -
 qed
 
 lemma repl_eval_eq_dep_function [simp]:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   shows "{\<langle>x, f`x\<rangle> | x \<in> A} = f"
   using assms by (intro eqI) auto
 
 text \<open>Note: functions are not contravariant on their domain.\<close>
 lemma mem_dep_functions_covariant_codom:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>x. x \<in> A \<Longrightarrow> f`x \<in> B x \<Longrightarrow> f`x \<in> B' x"
-  shows "f \<in> (x \<in> A) \<rightarrow> (B' x)"
+  shows "f \<in> (x \<in> A) \<rightarrow>s (B' x)"
   by (rule mem_dep_functionsE[OF assms(1)], intro mem_dep_functionsI)
     (insert assms, auto)
 
 corollary mem_dep_functions_covariant_codom_subset:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
-  shows "f \<in> (x \<in> A) \<rightarrow> (B' x)"
+  shows "f \<in> (x \<in> A) \<rightarrow>s (B' x)"
   using assms(2) by (intro mem_dep_functions_covariant_codom[OF assms(1)]) auto
 
 lemma eq_if_mem_if_mem_agree_if_mem_dep_functions:
-  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "agree A F"
   and "f \<in> F"
   and "g \<in> F"
@@ -248,7 +248,7 @@ proof -
 qed
 
 lemma subset_if_agree_if_mem_dep_functions:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "f \<in> F"
   and "agree A F"
   and "g \<in> F"
@@ -257,7 +257,7 @@ lemma subset_if_agree_if_mem_dep_functions:
   by (elim mem_dep_functionsE subset_if_agree_if_subset_dep_pairs) auto
 
 lemma agree_if_eval_eq_if_mem_dep_functions:
-  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>f g x. f \<in> F \<Longrightarrow> g \<in> F \<Longrightarrow> x \<in> A \<Longrightarrow> f`x = g`x"
   shows "agree A F"
 proof (subst agree_set_iff_agree, rule agreeI)
@@ -265,20 +265,20 @@ proof (subst agree_set_iff_agree, rule agreeI)
   then have "y = f`x" using assms(1) by auto
   also have "... = g`x" by (fact assms(2)[OF hyps])
   finally have y_eq: "y = g`x" .
-  from assms(1)[OF \<open>g \<in> F\<close>] obtain B where "g \<in> (x \<in> A) \<rightarrow> (B x)" by blast
+  from assms(1)[OF \<open>g \<in> F\<close>] obtain B where "g \<in> (x \<in> A) \<rightarrow>s (B x)" by blast
   with y_eq pair_mem_iff_eval_eq_if_mem_dom_dep_function \<open>x \<in> A\<close>
     show "\<langle>x, y\<rangle> \<in> g" by blast
 qed
 
 lemma eq_if_agree_if_mem_dep_functions:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)" "g \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)" "g \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "agree A {f, g}"
   shows "f = g"
   using assms
   by (intro eq_if_mem_if_mem_agree_if_mem_dep_functions[of "{f, g}"]) auto
 
 lemma dep_functions_ext:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)" "g \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)" "g \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>x. x \<in> A \<Longrightarrow> f`x = g`x"
   shows "f = g"
   using assms
@@ -287,7 +287,7 @@ lemma dep_functions_ext:
       agree_if_eval_eq_if_mem_dep_functions[unfolded agree_set_iff_agree])
 
 lemma dep_functions_eval_eqI:
-  assumes "f \<in> (x \<in> A) \<rightarrow> (B x)" "g \<in> (x \<in> A') \<rightarrow> (B' x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)" "g \<in> (x \<in> A') \<rightarrow>s (B' x)"
   and "f \<subseteq> g"
   and "x \<in> A \<inter> A'"
   shows "f`x = g`x"
@@ -297,8 +297,8 @@ proof -
 qed
 
 lemma dep_functions_eq_if_subset:
-  assumes f_mem: "f \<in> (x \<in> A) \<rightarrow> (B x)"
-  and g_mem: "g \<in> (x \<in> A) \<rightarrow> (B' x)"
+  assumes f_mem: "f \<in> (x \<in> A) \<rightarrow>s (B x)"
+  and g_mem: "g \<in> (x \<in> A) \<rightarrow>s (B' x)"
   and "f \<subseteq> g"
   shows "f = g"
 proof (rule eqI)
@@ -310,33 +310,33 @@ proof (rule eqI)
 qed (insert assms, auto)
 
 lemma ex_dom_mem_dep_functions_iff:
-  "(\<exists>A. f \<in> (x \<in> A) \<rightarrow> (B x)) \<longleftrightarrow> f \<in> (x \<in> dom f) \<rightarrow> (B x)"
+  "(\<exists>A. f \<in> (x \<in> A) \<rightarrow>s (B x)) \<longleftrightarrow> f \<in> (x \<in> dom f) \<rightarrow>s (B x)"
   by auto
 
 lemma mem_dep_functions_empty_dom_iff_eq_empty [iff]:
-  "(f \<in> (x \<in> {}) \<rightarrow> (B x)) \<longleftrightarrow> f = {}"
+  "(f \<in> (x \<in> {}) \<rightarrow>s (B x)) \<longleftrightarrow> f = {}"
   by auto
 
-lemma empty_mem_dep_functions: "{} \<in> (x \<in> {}) \<rightarrow> (B x)" by simp
+lemma empty_mem_dep_functions: "{} \<in> (x \<in> {}) \<rightarrow>s (B x)" by simp
 
 lemma eq_singleton_if_mem_functions_singleton [simp]:
-  "f \<in> {a} \<rightarrow> {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
+  "f \<in> {a} \<rightarrow>s {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
   by auto
 
-lemma singleton_mem_functionsI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow> B"
+lemma singleton_mem_functionsI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow>s B"
   by auto
 
 lemma mem_dep_functions_collectI:
-  assumes f_mem: "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  assumes f_mem: "f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>x. x \<in> A \<Longrightarrow> P x (f`x)"
-  shows "f \<in> (x \<in> A) \<rightarrow> {y \<in> B x | P x y}"
+  shows "f \<in> (x \<in> A) \<rightarrow>s {y \<in> B x | P x y}"
   by (rule mem_dep_functions_covariant_codom) (insert assms, auto)
 
 lemma mem_dep_functions_collectD:
-  assumes "f \<in> (x \<in> A) \<rightarrow> {y \<in> B x | P x y}"
-  shows "f \<in> (x \<in> A) \<rightarrow> (B x)" and "\<And>x. x \<in> A \<Longrightarrow> P x (f`x)"
+  assumes "f \<in> (x \<in> A) \<rightarrow>s {y \<in> B x | P x y}"
+  shows "f \<in> (x \<in> A) \<rightarrow>s (B x)" and "\<And>x. x \<in> A \<Longrightarrow> P x (f`x)"
 proof -
-  from assms show "f \<in> (x \<in> A) \<rightarrow> (B x)"
+  from assms show "f \<in> (x \<in> A) \<rightarrow>s (B x)"
     by (rule mem_dep_functions_covariant_codom_subset) auto
   fix x assume "x \<in> A"
   with assms show "P x (f`x)"

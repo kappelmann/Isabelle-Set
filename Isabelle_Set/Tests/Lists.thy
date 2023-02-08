@@ -2,7 +2,7 @@ section \<open>Lists\<close>
 theory Lists
 imports
   Isabelle_Set.Least_Fixpoint
-  Isabelle_Set.TFunctions
+  Isabelle_Set.TSFunctions
 begin
 text \<open>This theory aims to replicate the example from "Programming and Proving in
 Isabelle/HOL". Compared to HOL, many conveniences are missing, but the reasoning

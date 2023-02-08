@@ -4,7 +4,8 @@
 section \<open>Basics for natural numbers\<close>
 theory Nat_Base
 imports
-  HOL_Syntax_Bundles
+  HOL_Basics.HOL_Syntax_Bundles_Groups
+  HOL_Basics.HOL_Syntax_Bundles_Orders
   Ordinals
 begin
 

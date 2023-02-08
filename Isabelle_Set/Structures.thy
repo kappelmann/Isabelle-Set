@@ -57,15 +57,15 @@ unbundle isa_set_one_implicit_syntax
 
 subsection \<open>Additive structures\<close>
 
-definition [typeclass]: "Add A \<equiv> type (\<lambda>P. P @@ add : A \<rightarrow> A \<rightarrow> A)"
+definition [typeclass]: "Add A \<equiv> type (\<lambda>P. P @@ add : A \<rightarrow>s A \<rightarrow>s A)"
 
 \<comment>\<open>Show declared type classes\<close>
 ML \<open>Type_Classes.get_type_classes @{context}\<close>
 
-lemma AddI: "P @@ add : A \<rightarrow> A \<rightarrow> A \<Longrightarrow> P : Add A"
+lemma AddI: "P @@ add : A \<rightarrow>s A \<rightarrow>s A \<Longrightarrow> P : Add A"
   unfolding Add_def by unfold_types
 
-lemma Add_add_type [derive]: "P : Add A \<Longrightarrow> P @@ add : A \<rightarrow> A \<rightarrow> A"
+lemma Add_add_type [derive]: "P : Add A \<Longrightarrow> P @@ add : A \<rightarrow>s A \<rightarrow>s A"
   unfolding Add_def by unfold_types
 
 definition "add P x y \<equiv> (P @@ add)`x`y"
@@ -90,12 +90,12 @@ unbundle isa_set_add_implicit_syntax
 subsection \<open>Multiplicative structures\<close>
 
 definition [typeclass]:
-  "Mul A \<equiv> type (\<lambda>M. M @@ mul : A \<rightarrow> A \<rightarrow> A)"
+  "Mul A \<equiv> type (\<lambda>M. M @@ mul : A \<rightarrow>s A \<rightarrow>s A)"
 
-lemma MulI: "M @@ mul : A \<rightarrow> A \<rightarrow> A \<Longrightarrow> M : Mul A"
+lemma MulI: "M @@ mul : A \<rightarrow>s A \<rightarrow>s A \<Longrightarrow> M : Mul A"
   unfolding Mul_def by unfold_types
 
-lemma Mul_mul_type [derive]: "M : Mul A \<Longrightarrow> M @@ mul : A \<rightarrow> A \<rightarrow> A"
+lemma Mul_mul_type [derive]: "M : Mul A \<Longrightarrow> M @@ mul : A \<rightarrow>s A \<rightarrow>s A"
   unfolding Mul_def by unfold_types
 
 definition "mul M x y \<equiv> (M @@ mul)`x`y"
@@ -118,12 +118,12 @@ unbundle isa_set_mul_implicit_syntax
 
 subsection \<open>Structures with additive inverses\<close>
 
-definition [typeclass]: "Inv A \<equiv> type (\<lambda>I. I @@ inv : A \<rightarrow> A)"
+definition [typeclass]: "Inv A \<equiv> type (\<lambda>I. I @@ inv : A \<rightarrow>s A)"
 
-lemma InvI: "I @@ inv : A \<rightarrow> A \<Longrightarrow> I : Inv A"
+lemma InvI: "I @@ inv : A \<rightarrow>s A \<Longrightarrow> I : Inv A"
   unfolding Inv_def by unfold_types
 
-lemma Inv_inv_type [derive]: "I : Inv A \<Longrightarrow> I @@ inv : A \<rightarrow> A"
+lemma Inv_inv_type [derive]: "I : Inv A \<Longrightarrow> I @@ inv : A \<rightarrow>s A"
   unfolding Inv_def by unfold_types
 
 definition "inv I x = (I @@ inv)`x"

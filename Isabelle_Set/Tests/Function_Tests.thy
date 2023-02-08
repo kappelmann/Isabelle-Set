@@ -1,6 +1,6 @@
 theory Function_Tests
 imports
-  "Isabelle_Set.TFunctions"
+  "Isabelle_Set.TSFunctions"
   "Isabelle_Set.Strings"
 begin
 

@@ -10,7 +10,7 @@ subsection \<open>Evaluation of Functions\<close>
 
 definition "eval S x \<equiv> THE y. \<langle>x, y\<rangle> \<in> S"
 
-bundle isa_set_eval_syntax begin notation eval ("_`_" [999, 1000] 999) end
+bundle isa_set_eval_syntax begin notation eval ("(_`_)" [999, 1000] 999) end
 bundle no_isa_set_eval_syntax begin no_notation eval ("_`_" [999, 1000] 999) end
 unbundle isa_set_eval_syntax
 

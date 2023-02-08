@@ -1,16 +1,16 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 subsection \<open>Restriction\<close>
-theory TFunctions_Extend_Restrict
-  imports TFunctions_Base
+theory TSFunctions_Extend_Restrict
+  imports TSFunctions_Base
 begin
 
 unbundle no_restrict_syntax
 
 lemma restrict_Dep_Function_type [type]:
-  "set_restrict_left : ((x : A) \<rightarrow> B x) \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
-    ((x : (A & type P)) \<rightarrow> B x) "
+  "set_restrict_left : ((x : A) \<rightarrow>s B x) \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
+    ((x : (A & type P)) \<rightarrow>s B x) "
 proof (intro Dep_fun_typeI Dep_FunctionI)
-  fix f P assume f_type: "f : (x : A) \<rightarrow> B x"
+  fix f P assume f_type: "f : (x : A) \<rightarrow>s B x"
   let ?A' = "A & type P"
   have "type_pred ?A' = (\<lambda>x. x : A \<and> P x)" by unfold_types
   with f_type show "set_left_total_on ?A' f\<restriction>\<^bsub>P\<^esub>"
@@ -42,11 +42,11 @@ lemma restrict_Dep_Function_type_type [type]:
   by unfold_types force
 
 lemma restrict_CDep_Function_if_Dep_Function [derive]:
-  assumes "f : (x : A) \<rightarrow> B x"
-  shows "f\<restriction>\<^bsub>A\<^esub> : (x : A) \<rightarrow>c B x"
+  assumes "f : (x : A) \<rightarrow>s B x"
+  shows "f\<restriction>\<^bsub>A\<^esub> : (x : A) \<rightarrow>cs B x"
 proof (rule CDep_FunctionI)
-  have "f\<restriction>\<^bsub>A\<^esub> : (x : A & A) \<rightarrow> B x" by discharge_types
-  then show "f\<restriction>\<^bsub>A\<^esub> : (x : A) \<rightarrow> B x"
+  have "f\<restriction>\<^bsub>A\<^esub> : (x : A & A) \<rightarrow>s B x" by discharge_types
+  then show "f\<restriction>\<^bsub>A\<^esub> : (x : A) \<rightarrow>s B x"
     by (elim Dep_Function_contravariant_dom) discharge_types
   show "f\<restriction>\<^bsub>A\<^esub> : Dep_Bin_Rel A B"
   proof (rule Dep_Bin_RelI)

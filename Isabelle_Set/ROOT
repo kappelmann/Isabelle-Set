@@ -10,8 +10,11 @@ session Isabelle_Set = "HOL" +
     Soft_Types
     Transport
   directories
+    "Binary_Relations"
     "Fixpoints"
     "Functions"
+    "Functions/TFunctions"
+    "Functions/TSFunctions"
     "Integers"
     "Integers/Rep"
     "Matrices"
@@ -19,7 +22,7 @@ session Isabelle_Set = "HOL" +
     "Set_Extensions"
   theories
     Fixpoints
-    TFunctions
+    TSFunctions
     Integers
     Matrices
     Nat
@@ -31,9 +34,9 @@ session Isabelle_Set = "HOL" +
     Sets
     Strings
     Structures
-    TBinary_Relations
-    TCoproduct
-    TPairs
+    TSBinary_Relations
+    TSCoproduct
+    TSPairs
 
 session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
   options [timeout = 20]
