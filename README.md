@@ -27,6 +27,8 @@ This code depends on:
 3. The [Isabelle/Transport](https://github.com/kappelmann/transport-isabelle) framework:
    This dependency is registered as a git submodule.
    Make sure to initialise and update submodules when you check out or update the repository.
+4. The [E\_Unification](https://github.com/kappelmann/e-unification-isabelle) and [Logger](https://github.com/kappelmann/logger-isabelle) framework:
+   These dependencies are also registered as git submodules.
 
 Instructions:
 1. Clone and prepare the correct Isabelle development version.
@@ -60,7 +62,7 @@ As a continuous effort, we make use of and iterate on the recently developed
 
 ## Entry points
 
-The whole development is still in a very experimental state.
+The development is in a very experimental state.
 Here are some good entry points for reading the sources:
 
 File | Content
@@ -73,11 +75,12 @@ File | Content
 `Soft_Types/Tests/Elaboration_Tests.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.
 `Soft_Types/Tests/Implicit_Arguments_Tests.thy` | Demonstrates automatic insertion of implicit arguments
 `Soft_Types/Tests/Isar_Integration_tests.thy` | Demonstrates automatic generation of typing assumptions in proof contexts.
-`Transport` | Recent work to transport definitions via Galois connections and equivalences ([source](https://github.com/kappelmann/transport-isabelle))
 `Isabelle_Set/{Sets,Binary_Relations,Function,Fixpoints}.thy` | Further set-theoretic concepts with soft types
 `Isabelle_Set/Structures.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
 `Isabelle_Set/Integer.thy` | Application of the set extension principle to construct `ℤ ⊇ ℕ`
+`Transport` | Recent work to transport definitions via Galois connections and equivalences ([source](https://github.com/kappelmann/transport-isabelle))
+`E_Unification` | A E-Unification framework for Isabelle ([source](https://github.com/kappelmann/e-unification-isabell://github.com/kappelmann/e-unification-isabellee))
 
 ## Automated builds
 
