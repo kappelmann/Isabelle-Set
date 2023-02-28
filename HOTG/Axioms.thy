@@ -6,7 +6,7 @@ theory Axioms
 begin
 paragraph \<open>Summary\<close>
 text \<open>We follow the axiomatisation as described in
-\<^cite>\<open>"brown_et_al:LIPIcs:2019:11064"\<close>, who also describe the existence of a model
+@{cite "brown_et_al:LIPIcs:2019:11064"}, who also describe the existence of a model
 if a 2-inaccessible cardinal exists.\<close>
 
 text \<open>The primitive set type.\<close>
@@ -80,7 +80,7 @@ where
 
 text \<open>Lastly, we want to axiomatise the existence of Grothendieck universes.
 This can be done in different ways. We again follow the approach from
-\<^cite>\<open>"brown_et_al:LIPIcs:2019:11064"\<close>.\<close>
+@{cite "brown_et_al:LIPIcs:2019:11064"}.\<close>
 
 definition mem_trans :: \<open>set \<Rightarrow> bool\<close>
   where "mem_trans X \<equiv> (\<forall>x. x \<in> X \<longrightarrow> x \<subseteq> X)"
