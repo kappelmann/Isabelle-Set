@@ -11,14 +11,14 @@ jobs:
           submodules: recursive
 
       - name: Cache Isabelle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.isabelle
             ~/Isabelle
             ~/AFP/thys
           key: v1-Isabelle-${{ hashFiles('ISABELLE_VERSION') }}-${{ hashFiles('AFP_VERSION') }}-${{ hashFiles('.github/workflows/prepare_isabelle.sh') }}
-          restore-keys: v1-Isabelle-
+          restore-keys: v3-Isabelle-
 
       - name: Prepare Isabelle
         run: $GITHUB_WORKSPACE/.github/workflows/prepare_isabelle.sh
