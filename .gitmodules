@@ -3,7 +3,7 @@
 	url = git@github.com:kappelmann/transport-isabelle.git
 [submodule "Logger"]
 	path = Logger
-	url = https://github.com/kappelmann/logger-isabelle
+	url = git@github.com:kappelmann/logger-isabelle.git
 [submodule "E_Unification"]
 	path = E_Unification
-	url = https://github.com/kappelmann/e-unification-isabelle
+	url = git@github.com:kappelmann/e-unification-isabelle.git
