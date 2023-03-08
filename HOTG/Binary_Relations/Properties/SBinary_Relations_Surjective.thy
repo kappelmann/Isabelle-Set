@@ -30,13 +30,13 @@ lemma set_surjective_atE [elim]:
   obtains x where "\<langle>x, y\<rangle> \<in> R"
   using assms unfolding set_surjective_at_pred_def by blast
 
-lemma antimono'_set_surjective_at_pred:
-  "antimono' (\<lambda>P. set_surjective_at (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) fastforce
+lemma antimono_set_surjective_at_pred:
+  "antimono (\<lambda>P. set_surjective_at (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) fastforce
 
-lemma mono'_set_surjective_at_set:
-  "mono' (\<lambda>R. set_surjective_at (P :: set \<Rightarrow> bool) R)"
-  by (intro mono'I) fastforce
+lemma mono_set_surjective_at_set:
+  "mono (\<lambda>R. set_surjective_at (P :: set \<Rightarrow> bool) R)"
+  by (intro monoI) fastforce
 
 lemma subset_rng_if_set_surjective_at [simp]:
   "set_surjective_at B R \<Longrightarrow> B \<subseteq> rng R"

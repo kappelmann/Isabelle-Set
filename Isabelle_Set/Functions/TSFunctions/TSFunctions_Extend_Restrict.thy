@@ -18,10 +18,10 @@ proof (intro Dep_fun_typeI Dep_FunctionI)
   from f_type have "set_right_unique_on (type_pred A) f"
     by (auto dest: Dep_Function_set_right_unique_on)
   then have "set_right_unique_on (type_pred A) f\<restriction>\<^bsub>P\<^esub>"
-    using antimono'D[OF antimono'_set_right_unique_on_set]
+    using antimonoD[OF antimono_set_right_unique_on_set]
     by (rule le_boolD'') auto
   then have "set_right_unique_on (type_pred ?A') f\<restriction>\<^bsub>P\<^esub>"
-    using antimono'D[OF antimono'_set_right_unique_on_pred]
+    using antimonoD[OF antimono_set_right_unique_on_pred]
     by (rule le_boolD'') (auto dest: Int_typeD1)
   then show "set_right_unique_on ?A' f\<restriction>\<^bsub>P\<^esub>" by simp
   fix x assume "x : A & type P"

@@ -94,10 +94,10 @@ lemma diff_idx_inter_eq_idx_inter:
 lemma collect_diff: "{x \<in> (A \<setminus> B) | P x} = {x \<in> A | P x} \<setminus> {x \<in> B | P x}"
   by (rule eq_if_subset_if_subset) auto
 
-lemma mono'_diff_left: "mono' (\<lambda>A. A \<setminus> B)"
-  by (intro mono'I) auto
+lemma mono_diff_left: "mono (\<lambda>A. A \<setminus> B)"
+  by (intro monoI) auto
 
-lemma antimono'_diff_right: "antimono' (\<lambda>B. A \<setminus> B)"
-  by (intro antimono'I) auto
+lemma antimono_diff_right: "antimono (\<lambda>B. A \<setminus> B)"
+  by (intro antimonoI) auto
 
 end

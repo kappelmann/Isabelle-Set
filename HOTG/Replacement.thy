@@ -63,8 +63,8 @@ lemma ball_repl_iff_ball [iff]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<lon
 lemma bex_repl_iff_bex [iff]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
   by auto
 
-lemma mono'_repl_set: "mono' (\<lambda>A. {f x | x \<in> A})"
-  by (intro mono'I) auto
+lemma mono_repl_set: "mono (\<lambda>A. {f x | x \<in> A})"
+  by (intro monoI) auto
 
 
 end

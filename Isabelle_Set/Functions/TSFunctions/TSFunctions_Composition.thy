@@ -17,7 +17,7 @@ proof -
     from f_type have "set_right_unique_on (type_pred B) f"
       by (auto dest: Dep_Function_set_right_unique_on)
     then have "set_right_unique_on (mem_of (rng g\<restriction>\<^bsub>A\<^esub> \<inter> dom f)) f"
-      using antimono'D[OF antimono'_set_right_unique_on_pred]
+      using antimonoD[OF antimono_set_right_unique_on_pred]
       by (rule le_boolD'')
       (insert g_type, auto intro!: le_predI elim!: mem_set_restrict_leftE)
     then show ?thesis by simp

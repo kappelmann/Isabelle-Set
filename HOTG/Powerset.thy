@@ -19,7 +19,7 @@ lemma mem_powerset_self [iff]: "A \<in> powerset A"
 lemma mem_powerset_empty_iff_eq_empty [iff]: "x \<in> powerset {} \<longleftrightarrow> x = {}"
   by auto
 
-lemma mono'_powerset: "mono' powerset"
-  by (intro mono'I) auto
+lemma mono_powerset: "mono powerset"
+  by (intro monoI) auto
 
 end

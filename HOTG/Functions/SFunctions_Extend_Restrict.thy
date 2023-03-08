@@ -107,9 +107,9 @@ lemma restrict_left_mem_dep_functions_collectI:
 proof (rule mem_dep_functionsI)
   have "set_right_unique_on A f = set_right_unique_on (mem_of A) f" by simp
   also have "... \<le> set_right_unique_on (mem_of A \<sqinter> P) f"
-    by (rule antimono'D[OF antimono'_set_right_unique_on_pred]) auto
+    by (rule antimonoD[OF antimono_set_right_unique_on_pred]) auto
   also have "... \<le> set_right_unique_on (mem_of A \<sqinter> P) f\<restriction>\<^bsub>P\<^esub>"
-    by (rule antimono'D[OF antimono'_set_right_unique_on_set]) auto
+    by (rule antimonoD[OF antimono_set_right_unique_on_set]) auto
   also have "... = set_right_unique_on {x \<in> A | P x} f\<restriction>\<^bsub>P\<^esub>"
     unfolding inf_apply by simp
   finally have "set_right_unique_on A f \<le> set_right_unique_on {x \<in> A | P x} f\<restriction>\<^bsub>P\<^esub>" .

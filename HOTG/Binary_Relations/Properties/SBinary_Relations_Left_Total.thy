@@ -30,13 +30,13 @@ lemma set_left_total_onE [elim]:
   obtains "x \<in> dom R"
   using assms unfolding set_left_total_on_pred_def by blast
 
-lemma antimono'_set_left_total_on_pred:
-  "antimono' (\<lambda>P. set_left_total_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) fastforce
+lemma antimono_set_left_total_on_pred:
+  "antimono (\<lambda>P. set_left_total_on (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) fastforce
 
-lemma mono'_set_left_total_on_set:
-  "mono' (\<lambda>R. set_left_total_on (P :: set \<Rightarrow> bool) R)"
-  by (intro mono'I) fastforce
+lemma mono_set_left_total_on_set:
+  "mono (\<lambda>R. set_left_total_on (P :: set \<Rightarrow> bool) R)"
+  by (intro monoI) fastforce
 
 lemma set_left_total_on_set_iff_subset_dom [iff]:
   "set_left_total_on A R \<longleftrightarrow> A \<subseteq> dom R"

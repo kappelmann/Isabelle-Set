@@ -61,8 +61,8 @@ lemma subset_inter_if_all_mem_subset_if_ne_empty:
   "\<lbrakk>A \<noteq> {}; \<And>x. x \<in> A \<Longrightarrow> C \<subseteq> x\<rbrakk> \<Longrightarrow> C \<subseteq> \<Inter>A"
   using subset_inter_iff_all_mem_subset_if_ne_empty by auto
 
-lemma mono'_union: "mono' union"
-  by (intro mono'I) auto
+lemma mono_union: "mono union"
+  by (intro monoI) auto
 
 lemma antimono_inter: "A \<noteq> {} \<Longrightarrow> A \<subseteq> A' \<Longrightarrow> \<Inter>A' \<subseteq> \<Inter>A"
   by auto
@@ -307,11 +307,11 @@ lemma bin_union_subset_bin_union_if_subset': "A \<subseteq> B \<Longrightarrow> 
 lemma bin_union_eq_empty_iff [iff]: "(A \<union> B = {}) \<longleftrightarrow> (A = {} \<and> B = {})"
   by auto
 
-lemma mono'_bin_union_left: "mono' (\<lambda>A. A \<union> B)"
-  by (intro mono'I) auto
+lemma mono_bin_union_left: "mono (\<lambda>A. A \<union> B)"
+  by (intro monoI) auto
 
-lemma mono'_bin_union_right: "mono' (\<lambda>B. A \<union> B)"
-  by (intro mono'I) auto
+lemma mono_bin_union_right: "mono (\<lambda>B. A \<union> B)"
+  by (intro monoI) auto
 
 
 paragraph \<open>Binary Intersection\<close>
@@ -400,11 +400,11 @@ lemma bin_inter_bin_union_swap3:
  "(A \<inter> B) \<union> (B \<inter> C) \<union> (C \<inter> A) = (A \<union> B) \<inter> (B \<union> C) \<inter> (C \<union> A)"
   by auto
 
-lemma mono'_bin_inter_left: "mono' (\<lambda>A. A \<inter> B)"
-  by (intro mono'I) auto
+lemma mono_bin_inter_left: "mono (\<lambda>A. A \<inter> B)"
+  by (intro monoI) auto
 
-lemma mono'_bin_inter_right: "mono' (\<lambda>B. A \<inter> B)"
-  by (intro mono'I) auto
+lemma mono_bin_inter_right: "mono (\<lambda>B. A \<inter> B)"
+  by (intro monoI) auto
 
 
 paragraph\<open>Comprehension\<close>

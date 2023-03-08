@@ -22,8 +22,8 @@ instance by (standard) auto
 
 end
 
-lemma mono'_mem_of: "mono' mem_of"
-  by (intro mono'I) auto
+lemma mono_mem_of: "mono mem_of"
+  by (intro monoI) auto
 
 lemma le_boolD': "P \<le> Q \<Longrightarrow> P \<Longrightarrow> Q" by (rule le_boolE)
 

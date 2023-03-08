@@ -63,8 +63,8 @@ lemma ball_insert_iff_and_ball [iff]:
   "(\<forall>x \<in> insert a A. P x) \<longleftrightarrow> (P a \<and> (\<forall>x \<in> A. P x))"
   by auto
 
-lemma mono'_insert_set: "mono' (insert x)"
-  by (intro mono'I) auto
+lemma mono_insert_set: "mono (insert x)"
+  by (intro monoI) auto
 
 
 subsection \<open>Subsets\<close>

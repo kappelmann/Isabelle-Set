@@ -42,8 +42,8 @@ lemma set_rel_inv_empty_eq [simp]: "{}\<inverse> = {}"
 lemma set_rel_inv_inv_eq: "R\<inverse>\<inverse> = {p \<in> R | \<exists>x y. p = \<langle>x, y\<rangle>}"
   by auto
 
-lemma mono'_set_rel_inv: "mono' set_rel_inv"
-  by (intro mono'I) auto
+lemma mono_set_rel_inv: "mono set_rel_inv"
+  by (intro monoI) auto
 
 
 subsubsection \<open>Extensions and Restricts\<close>
@@ -69,8 +69,8 @@ lemma extend_eq_self_if_pair_mem [simp]: "\<langle>x, y\<rangle> \<in> R \<Longr
 lemma insert_pair_eq_extend: "insert \<langle>x, y\<rangle> R = extend x y R"
   by (auto intro: mem_extendI')
 
-lemma mono'_extend_set: "mono' (extend x y)"
-  by (intro mono'I) (auto intro: mem_extendI')
+lemma mono_extend_set: "mono (extend x y)"
+  by (intro monoI) (auto intro: mem_extendI')
 
 
 definition "glue \<R> \<equiv> \<Union>\<R>"
@@ -90,8 +90,8 @@ lemma glue_empty_eq [simp]: "glue {} = {}" by auto
 
 lemma glue_singleton_eq [simp]: "glue {R} = R" by auto
 
-lemma mono'_glue: "mono' glue"
-  by (intro mono'I) auto
+lemma mono_glue: "mono glue"
+  by (intro monoI) auto
 
 
 consts set_restrict_left :: "set \<Rightarrow> 'a \<Rightarrow> set"
@@ -169,11 +169,11 @@ lemma set_restrict_left_set_restrict_left_eq_set_restrict_left [simp]:
   shows "(R\<restriction>\<^bsub>P\<^esub>)\<restriction>\<^bsub>P\<^esub> = R\<restriction>\<^bsub>P\<^esub>"
   by auto
 
-lemma mono'_set_restrict_left_set: "mono' (\<lambda>R. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
-  by (intro mono'I) auto
+lemma mono_set_restrict_left_set: "mono (\<lambda>R. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
+  by (intro monoI) auto
 
-lemma mono'_set_restrict_left_pred: "mono' (\<lambda>P. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
-  by (intro mono'I) auto
+lemma mono_set_restrict_left_pred: "mono (\<lambda>P. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
+  by (intro monoI) auto
 
 
 definition "agree P \<R> \<equiv> \<forall>R R' \<in> \<R>. R\<restriction>\<^bsub>P\<^esub> = R'\<restriction>\<^bsub>P\<^esub>"
@@ -198,11 +198,11 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-lemma antimono'_agree_pred: "antimono' (\<lambda>P. agree (P :: set \<Rightarrow> bool) \<R>)"
-  by (intro antimono'I) (auto dest: agreeD)
+lemma antimono_agree_pred: "antimono (\<lambda>P. agree (P :: set \<Rightarrow> bool) \<R>)"
+  by (intro antimonoI) (auto dest: agreeD)
 
-lemma antimono'_agree_set: "antimono' (\<lambda>\<R>. agree (P :: set \<Rightarrow> bool) \<R>)"
-  by (intro antimono'I) (auto dest: agreeD)
+lemma antimono_agree_set: "antimono (\<lambda>\<R>. agree (P :: set \<Rightarrow> bool) \<R>)"
+  by (intro antimonoI) (auto dest: agreeD)
 
 lemma set_restrict_left_eq_set_restrict_left_if_agree:
   fixes P :: "set \<Rightarrow> bool"
@@ -250,8 +250,8 @@ lemma mem_domE [elim!]:
   obtains y where "\<langle>x, y\<rangle> \<in> R"
   using assms unfolding dom_def by blast
 
-lemma mono'_dom: "mono' dom"
-  by (intro mono'I) auto
+lemma mono_dom: "mono dom"
+  by (intro monoI) auto
 
 lemma dom_empty_eq [simp]: "dom {} = {}"
   by auto
@@ -303,8 +303,8 @@ lemma mem_rngE [elim!]:
   obtains x where "\<langle>x, y\<rangle> \<in> R"
   using assms unfolding rng_def by blast
 
-lemma mono'_rng: "mono' rng"
-  by (intro mono'I) auto
+lemma mono_rng: "mono rng"
+  by (intro monoI) auto
 
 lemma rng_empty_eq [simp]: "rng {} = {}"
   by auto
@@ -359,11 +359,11 @@ lemma dep_pairs_comp_pairs_eq:
 lemma set_comp_assoc: "T \<circ> S \<circ> R = (T \<circ> S) \<circ> R"
   by auto
 
-lemma mono'_set_comp_left: "mono' (\<lambda>R. R \<circ> S)"
-  by (intro mono'I) auto
+lemma mono_set_comp_left: "mono (\<lambda>R. R \<circ> S)"
+  by (intro monoI) auto
 
-lemma mono'_set_comp_right: "mono' (\<lambda>S. R \<circ> S)"
-  by (intro mono'I) auto
+lemma mono_set_comp_right: "mono (\<lambda>S. R \<circ> S)"
+  by (intro monoI) auto
 
 
 subsubsection \<open>Diagonal\<close>
@@ -378,8 +378,8 @@ lemma mem_diagE [elim!]:
   obtains a where "a \<in> A" "p = \<langle>a, a\<rangle>"
   using assms unfolding diag_def by auto
 
-lemma mono'_diag: "mono' diag"
-  by (intro mono'I) auto
+lemma mono_diag: "mono diag"
+  by (intro monoI) auto
 
 
 end

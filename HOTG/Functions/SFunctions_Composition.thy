@@ -24,7 +24,7 @@ next
     from f_mem have "mem_of ?C \<le> mem_of B" by auto
     moreover have "set_right_unique_on (mem_of B) f" using f_mem by blast
     ultimately have "set_right_unique_on (mem_of ?C) f"
-      using antimono'D[OF antimono'_set_right_unique_on_pred] by auto
+      using antimonoD[OF antimono_set_right_unique_on_pred] by auto
     then show "set_right_unique_on ?C f" by simp
   qed (insert g_mem, auto)
   from g_mem have "rng g \<subseteq> B" by auto

@@ -48,11 +48,11 @@ lemma collect_insert_eq:
   "{x \<in> insert a B | P x} = (if P a then insert a {x \<in> B | P x} else {x \<in> B | P x})"
   by auto
 
-lemma mono'_collect_set: "mono' (\<lambda>A. {x \<in> A | P x})"
-  by (intro mono'I) auto
+lemma mono_collect_set: "mono (\<lambda>A. {x \<in> A | P x})"
+  by (intro monoI) auto
 
-lemma mono'_collect_pred: "mono' (\<lambda>P. {x \<in> A | P x})"
-  by (intro mono'I) auto
+lemma mono_collect_pred: "mono (\<lambda>P. {x \<in> A | P x})"
+  by (intro monoI) auto
 
 
 end

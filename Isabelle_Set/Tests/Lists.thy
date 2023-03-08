@@ -45,11 +45,11 @@ lemma list_op_Monop [type]: "list_op : (A : Set) \<Rightarrow> Monop (univ A)"
   apply (intro Dep_fun_typeI)
   apply unfold_types
   apply (drule subset_if_mem_powerset)
-  apply (drule mono'D[OF mono'_pairs_rng, simplified le_set_eq_subset])
+  apply (drule monoD[OF mono_pairs_rng, simplified le_set_eq_subset])
   apply (drule subsetD)
     apply assumption
   apply (tactic \<open>rotate_tac 2 1\<close>)
-  apply (drule subsetD[OF mono'D[OF mono'_pairs_dom,
+  apply (drule subsetD[OF monoD[OF mono_pairs_dom,
     simplified le_set_eq_subset, OF subset_univ]])
   apply discharge_types
   done

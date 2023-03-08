@@ -32,13 +32,13 @@ lemma set_right_unique_onD:
   shows "y = y'"
   using assms unfolding set_right_unique_on_pred_def by blast
 
-lemma antimono'_set_right_unique_on_pred:
-  "antimono' (\<lambda>P. set_right_unique_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) (auto dest: set_right_unique_onD)
+lemma antimono_set_right_unique_on_pred:
+  "antimono (\<lambda>P. set_right_unique_on (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) (auto dest: set_right_unique_onD)
 
-lemma antimono'_set_right_unique_on_set:
-  "antimono' (\<lambda>R. set_right_unique_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) (auto dest: set_right_unique_onD)
+lemma antimono_set_right_unique_on_set:
+  "antimono (\<lambda>R. set_right_unique_on (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) (auto dest: set_right_unique_onD)
 
 lemma set_right_unique_on_glueI:
   fixes P :: "set \<Rightarrow> bool"

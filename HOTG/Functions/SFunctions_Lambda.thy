@@ -104,8 +104,8 @@ proof
   from assms show "f = (\<lambda>x \<in> A. (\<lambda>x. f`x) x)" by auto
 qed
 
-lemma mono'_lambda_set: "mono' (\<lambda>A. \<lambda>x \<in> A. f x)"
-  by (intro mono'I) auto
+lemma mono_lambda_set: "mono (\<lambda>A. \<lambda>x \<in> A. f x)"
+  by (intro monoI) auto
 
 
 end

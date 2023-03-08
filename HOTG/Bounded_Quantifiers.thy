@@ -157,17 +157,17 @@ lemma bex_if_bex1: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> 
 lemma ball_conj_distrib: "(\<forall>x \<in> A. P x \<and> Q x) \<longleftrightarrow> (\<forall>x \<in> A. P x) \<and> (\<forall>x \<in> A. Q x)"
   by auto
 
-lemma antimono'_ball_set: "antimono' (\<lambda>A. \<forall>x \<in> A. P x)"
-  by (intro antimono'I) auto
+lemma antimono_ball_set: "antimono (\<lambda>A. \<forall>x \<in> A. P x)"
+  by (intro antimonoI) auto
 
-lemma mono'_ball_pred: "mono' (\<lambda>P. \<forall>x \<in> A. P x)"
-  by (intro mono'I) auto
+lemma mono_ball_pred: "mono (\<lambda>P. \<forall>x \<in> A. P x)"
+  by (intro monoI) auto
 
-lemma mono'_bex_set: "mono' (\<lambda>A. \<exists>x \<in> A. P x)"
-  by (intro mono'I) auto
+lemma mono_bex_set: "mono (\<lambda>A. \<exists>x \<in> A. P x)"
+  by (intro monoI) auto
 
-lemma mono'_bex_pred: "mono' (\<lambda>P. \<exists>x \<in> A. P x)"
-  by (intro mono'I) auto
+lemma mono_bex_pred: "mono (\<lambda>P. \<exists>x \<in> A. P x)"
+  by (intro monoI) auto
 
 
 section \<open>Bounded definite description\<close>

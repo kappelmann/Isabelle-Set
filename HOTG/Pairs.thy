@@ -162,11 +162,11 @@ lemma mono_dep_pairs_rng:
   shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. (B' x))"
   using assms by (intro mono_dep_pairs) auto
 
-lemma mono'_pairs_dom: "mono' (\<lambda>A. A \<times> B)"
-  by (intro mono'I) auto
+lemma mono_pairs_dom: "mono (\<lambda>A. A \<times> B)"
+  by (intro monoI) auto
 
-lemma mono'_pairs_rng: "mono' (\<lambda>B. A \<times> B)"
-  by (intro mono'I) auto
+lemma mono_pairs_rng: "mono (\<lambda>B. A \<times> B)"
+  by (intro monoI) auto
 
 
 subsection \<open>Functions on Dependent Pairs\<close>

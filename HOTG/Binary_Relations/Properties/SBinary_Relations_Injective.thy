@@ -33,13 +33,13 @@ lemma set_injective_onD:
   shows "x = x'"
   using assms unfolding set_injective_on_pred_def by blast
 
-lemma antimono'_set_injective_on_pred:
-  "antimono' (\<lambda>P. set_injective_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) (auto dest: set_injective_onD)
+lemma antimono_set_injective_on_pred:
+  "antimono (\<lambda>P. set_injective_on (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) (auto dest: set_injective_onD)
 
-lemma antimono'_set_injective_on_set:
-  "antimono' (\<lambda>R. set_injective_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimono'I) (auto dest: set_injective_onD)
+lemma antimono_set_injective_on_set:
+  "antimono (\<lambda>R. set_injective_on (P :: set \<Rightarrow> bool) R)"
+  by (intro antimonoI) (auto dest: set_injective_onD)
 
 lemma set_injective_on_compI:
   fixes P :: "set \<Rightarrow> bool"
