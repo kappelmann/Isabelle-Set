@@ -1,9 +1,9 @@
-[submodule "Transport"]
-	path = Transport
-	url = git@github.com:kappelmann/transport-isabelle.git
 [submodule "Logger"]
 	path = Logger
 	url = git@github.com:kappelmann/logger-isabelle.git
 [submodule "ML_Unification"]
 	path = ML_Unification
 	url = git@github.com:kappelmann/ml-unification-isabelle.git
+[submodule "Transport"]
+	path = Transport
+	url = git@github.com:kappelmann/transport-isabelle.git
