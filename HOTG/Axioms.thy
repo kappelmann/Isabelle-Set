@@ -5,9 +5,8 @@ theory Axioms
   imports Setup
 begin
 paragraph \<open>Summary\<close>
-text \<open>We follow the axiomatisation as described in
-@{cite "brown_et_al:LIPIcs:2019:11064"}, who also describe the existence of a model
-if a 2-inaccessible cardinal exists.\<close>
+text \<open>We follow the axiomatisation as described in \<^cite>\<open>"brown_et_al:LIPIcs:2019:11064"\<close>,
+who also describe the existence of a model if a 2-inaccessible cardinal exists.\<close>
 
 text \<open>The primitive set type.\<close>
 typedecl set

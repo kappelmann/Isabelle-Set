@@ -27,13 +27,13 @@ This code depends on:
 3. The [Isabelle/Transport](https://github.com/kappelmann/transport-isabelle) framework:
    This dependency is registered as a git submodule.
    Make sure to initialise and update submodules when you check out or update the repository.
-4. The [E\_Unification](https://github.com/kappelmann/e-unification-isabelle) and [Logger](https://github.com/kappelmann/logger-isabelle) framework:
-   These dependencies are also registered as git submodules.
+4. The [ML\_Unification](https://github.com/kappelmann/ml-unification-isabelle) framework:
+   This dependency is also registered as a git submodule.
 
 Instructions:
 1. Clone and prepare the correct Isabelle development version.
    Instructions can be found in the
-   [README_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY).
+   [README\_REPOSITORY](https://isabelle.in.tum.de/repos/isabelle/file/tip/README_REPOSITORY).
 2. Clone and add the correct AFP version.
    Instructions can be found on the
    [AFP-website](https://www.isa-afp.org/using.html).
