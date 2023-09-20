@@ -2,7 +2,7 @@
 section \<open>Typed Functions\<close>
 theory TFunctions
   imports
-    HOL_Basics.LFunctions
+    Transport.LFunctions
     HOTG.Axioms
     Soft_Types.Soft_Types_HOL
 begin

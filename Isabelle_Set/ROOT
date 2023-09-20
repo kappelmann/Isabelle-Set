@@ -24,6 +24,7 @@ session Isabelle_Set = "HOL" +
     Fixpoints
     TSFunctions
     Integers
+    Integers_Transport
     Matrices
     Nat
     Monoids
@@ -37,6 +38,8 @@ session Isabelle_Set = "HOL" +
     TSBinary_Relations
     TSCoproduct
     TSPairs
+  document_files
+    "root.bib"
 
 session Isabelle_Set_Test in "Tests" = "Isabelle_Set" +
   options [timeout = 20]

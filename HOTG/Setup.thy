@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Setup for Higher-Order Tarski-Grothendieck Set Theory.\<close>
 theory Setup
-  imports HOL_Basics.HOL_Syntax_Bundles_Base
+  imports Transport.HOL_Syntax_Bundles_Base
 begin
 
 text \<open>Remove conflicting HOL-specific syntax.\<close>

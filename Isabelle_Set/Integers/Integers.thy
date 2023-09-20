@@ -3,7 +3,6 @@ theory Integers
   imports
     Integers_Rep
     Set_Extensions
-    Transport.Transport
 begin
 
 unbundle no_HOL_groups_syntax
@@ -31,7 +30,7 @@ corollary Int_if_Nat [derive]: "n : Nat \<Longrightarrow> n : Int"
 subsection \<open>Arithmetic operations lifted to Int\<close>
 
 text \<open>We lift constants/functions from @{term "Int_Rep"} to @{term "\<int>"}
-manually. This should be automated in the future.\<close>
+manually. This should be automated in the future; cf. @{file Integers_Transport.thy}.\<close>
 
 definition "int_nonneg n \<equiv> Int.l (Int_Rep_nonneg n)"
 definition "int_neg n \<equiv> Int.l (Int_Rep_neg n)"

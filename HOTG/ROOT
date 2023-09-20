@@ -11,7 +11,7 @@ session HOTG = "HOL" +
   options
     [timeout = 60]
   sessions
-    HOL_Basics
+    Transport
   directories
     Binary_Relations
     "Binary_Relations/Properties"

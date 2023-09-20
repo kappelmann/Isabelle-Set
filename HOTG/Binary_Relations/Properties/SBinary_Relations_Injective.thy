@@ -2,7 +2,7 @@
 subsection \<open>Injective\<close>
 theory SBinary_Relations_Injective
   imports
-    HOL_Basics.Functions_Monotone
+    Transport.Functions_Monotone
     SBinary_Relation_Functions
 begin
 

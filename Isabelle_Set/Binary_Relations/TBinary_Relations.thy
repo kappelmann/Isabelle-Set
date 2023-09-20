@@ -2,7 +2,7 @@
 section \<open>Typed Binary Relations\<close>
 theory TBinary_Relations
   imports
-    HOL_Basics.Restricted_Equality
+    Transport.Restricted_Equality
     HOTG.Axioms
     Soft_Types.Soft_Types_HOL
 begin
