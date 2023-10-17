@@ -1,6 +1,0 @@
-[submodule "ML_Unification"]
-	path = ML_Unification
-	url = git@github.com:kappelmann/ml-unification-isabelle.git
-[submodule "Transport"]
-	path = Transport
-	url = git@github.com:kappelmann/transport-isabelle.git
