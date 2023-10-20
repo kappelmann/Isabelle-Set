@@ -21,8 +21,8 @@ session HOTG = "HOL" +
     SBinary_Relations
     SFunctions
     SOrders
-    Axioms
     Arithmetics
+    Axioms
     Basic
     Bounded_Quantifiers
     Comprehension
