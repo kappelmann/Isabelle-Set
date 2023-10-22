@@ -24,11 +24,6 @@ This code depends on:
 2. The [AFP mirror repository](https://github.com/isabelle-prover/mirror-afp-devel/):
    The file `AFP_VERSION` specifies the exact git revision,
    which will also be used in the automated builds.
-3. The [Isabelle/Transport](https://github.com/kappelmann/transport-isabelle) framework:
-   This dependency is registered as a git submodule.
-   Make sure to initialise and update submodules when you check out or update the repository.
-4. The [ML\_Unification](https://github.com/kappelmann/ml-unification-isabelle) framework:
-   This dependency is also registered as a git submodule.
 
 Instructions:
 1. Clone and prepare the correct Isabelle development version.
@@ -79,8 +74,6 @@ File | Content
 `Isabelle_Set/Structures.thy` | Basic syntax for structures
 `Isabelle_Set/Set_Extension.thy` | Definitional set extension principle
 `Isabelle_Set/Integer.thy` | Application of the set extension principle to construct `ℤ ⊇ ℕ`
-`Transport` | Recent work to transport definitions via Galois connections and equivalences ([source](https://github.com/kappelmann/transport-isabelle))
-`E_Unification` | A E-Unification framework for Isabelle ([source](https://github.com/kappelmann/e-unification-isabell://github.com/kappelmann/e-unification-isabellee))
 
 ## Automated builds
 

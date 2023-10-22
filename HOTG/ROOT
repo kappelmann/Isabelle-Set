@@ -13,15 +13,16 @@ session HOTG = "HOL" +
   sessions
     Transport
   directories
+    Arithmetics
     Binary_Relations
     "Binary_Relations/Properties"
     Functions
     Orders
   theories
+    Arithmetics
     SBinary_Relations
     SFunctions
     SOrders
-    Arithmetics
     Axioms
     Basic
     Bounded_Quantifiers
