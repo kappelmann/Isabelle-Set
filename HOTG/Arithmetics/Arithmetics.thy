@@ -77,11 +77,11 @@ lemma adduct_eq: "adduct x y = x \<union> {y}"
 lemma add_one_eq_adduct: "x + {{}} = adduct x x"
   by (simp add: add_eq_union_lift adduct_eq)
 
-lemma lift_elem_add: "lift x {z} = {x + z}"
+lemma lift_elem_eq_add: "lift x {z} = {x + z}"
   unfolding lift_def by simp
 
 lemma lift_elem_1: "lift x {z} = {x \<union> lift x z}"
-  by (auto simp:lift_elem_add  add_eq_union_lift)
+  by (auto simp:lift_elem_eq_add  add_eq_union_lift)
 
 lemma lift_elem_2: "lift x (y \<union> {z}) = lift x y \<union> {x \<union> lift x z}"
   unfolding lift_bin_union_distrib by (simp add: lift_elem_1)
@@ -137,9 +137,8 @@ definition "Less X Y \<equiv> X \<in> TC Y"
 lemma less_eq_TC: "Less X Y = (X \<in> TC Y)"
   by (simp add: Less_def)
 
-(*this is an important implication*)
-(*if A \<Longrightarrow> B, I want A, but I can prove B*)
-lemma less_not_in: "Less X Y \<Longrightarrow> \<not> (X \<subseteq> Y)"
+(*this is an important lemma*)
+lemma less_not_in: "Less X Y \<Longrightarrow> \<not> (Y \<subseteq> X)"
   sorry
 
 lemma add_sub_in_add: 
@@ -154,7 +153,7 @@ proof-
   then show ?thesis sorry
 qed
 
-lemma less_sub_less: "y \<in> Y \<Longrightarrow> ( Y \<subseteq> X \<Longrightarrow> y \<subseteq> X) "
+lemma less_sub_less: "y \<in> Y \<Longrightarrow> (Y \<subseteq> X \<Longrightarrow> y \<subseteq> X) "
   sorry
 
 lemma less_sub_less_conposi: "y \<in> Y \<Longrightarrow> (\<not>(y \<subseteq> X) \<Longrightarrow> \<not>(Y \<subseteq> X)) "
