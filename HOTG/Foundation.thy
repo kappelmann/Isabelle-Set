@@ -76,12 +76,8 @@ lemma mem_double_induct:
   assumes "\<And>X Y. \<lbrakk>\<And>x. x \<in> X \<Longrightarrow> P x Y; \<And>y. y \<in> Y \<Longrightarrow> P X y\<rbrakk> \<Longrightarrow> P X Y"
   shows "P X Y"
 proof (induction X arbitrary: Y rule: mem_induction)
-  fix X Y assume IH1: "\<And>x Y. x \<in> X \<Longrightarrow> P x Y"
-  show "P X Y"
-  proof (induction Y rule: mem_induction)
-    fix Y assume "\<And>y. y \<in> Y \<Longrightarrow> P X y"
-    with IH1 show "P X Y" by (rule assms)
-  qed
+  case (mem X)
+  then show ?case by (induction Y rule: mem_induction) (auto intro: assms)
 qed
 
 lemma insert_ne_self [iff]: "insert x A \<noteq> x"

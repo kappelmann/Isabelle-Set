@@ -14,7 +14,7 @@ lemma not_mem_emptyset [iff]: "x \<notin> {}" using emptyset by blast
 lemma eq_if_subset_if_subset [intro]: "\<lbrakk>X \<subseteq> Y; Y \<subseteq> X\<rbrakk> \<Longrightarrow> X = Y"
   by (fact Axioms.extensionality[rule_format])
 
-lemma mem_induction: "(\<And>X. (\<And>x. x \<in> X \<Longrightarrow> P x) \<Longrightarrow> P X) \<Longrightarrow> P X"
+lemma mem_induction [case_names mem]: "(\<And>X. (\<And>x. x \<in> X \<Longrightarrow> P x) \<Longrightarrow> P X) \<Longrightarrow> P X"
   by (fact Axioms.mem_induction[rule_format])
 
 lemma mem_union_iff_mem_mem [iff]: "(x \<in> \<Union>X) \<longleftrightarrow> (\<exists>Y. Y \<in> X \<and> x \<in> Y)"
