@@ -489,28 +489,28 @@ lemma idx_inter_bin_inter_dom_eq_bin_inter_idx_inter:
   by (rule eq_if_subset_if_subset) auto
 
 (*Halmos, Naive Set Theory, page 35*)
-lemma bin_inter_idx_union_eq_union_bin_inter:
-  "B \<inter> (\<Union>i \<in> I. A i) = (\<Union>i \<in> I. B \<inter> A i)"
+lemma idx_union_bin_inter_eq_bin_inter_idx_union [simp]:
+  "(\<Union>i \<in> I. A \<inter> B i) = A \<inter> (\<Union>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_idx_inter_eq_inter_bin_union:
-  "I \<noteq> {} \<Longrightarrow> B \<union> (\<Inter>i \<in> I. A i) = (\<Inter>i \<in> I. B \<union> A i)"
+lemma idx_inter_bin_union_eq_bin_union_idx_inter [simp]:
+  "I \<noteq> {} \<Longrightarrow> (\<Inter>i \<in> I. A \<union> B i) = A \<union> (\<Inter>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_inter_idx_union_eq_idx_union_bin_inter:
-  "(\<Union>i \<in> I. A i) \<inter> (\<Union>j \<in> J. B j) = (\<Union>i \<in> I. \<Union>j \<in> J. A i \<inter> B j)"
+lemma idx_union_idx_union_bin_inter_eq_bin_inter_idx_union [simp]:
+  "(\<Union>i \<in> I. \<Union>j \<in> J. A i \<inter> B j) = (\<Union>i \<in> I. A i) \<inter> (\<Union>j \<in> J. B j)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_idx_inter_eq_idx_inter_bin_union:
+lemma idx_inter_idx_inter_bin_union_eq_bin_union_idx_inter [simp]:
   "\<lbrakk>I \<noteq> {}; J \<noteq> {}\<rbrakk> \<Longrightarrow>
-    (\<Inter>i \<in> I. A i) \<union> (\<Inter>j \<in> J. B j) = (\<Inter>i \<in> I. \<Inter>j \<in> J. A i \<union> B j)"
+    (\<Inter>i \<in> I. \<Inter>j \<in> J. A i \<union> B j) = (\<Inter>i \<in> I. A i) \<union> (\<Inter>j \<in> J. B j)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_union_bin_union_eq_bin_union_idx_union:
+lemma idx_union_bin_union_eq_bin_union_idx_union [simp]:
   "(\<Union>i \<in> I. A i \<union> B i) = (\<Union>i \<in> I. A i) \<union> (\<Union>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_inter_bin_inter_eq_bin_inter_idx_inter:
+lemma idx_inter_bin_inter_eq_bin_inter_idx_inter [simp]:
   "I \<noteq> {} \<Longrightarrow> (\<Inter>i \<in> I. A i \<inter> B i) = (\<Inter>i \<in> I. A i) \<inter> (\<Inter>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
