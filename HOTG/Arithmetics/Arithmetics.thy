@@ -1,6 +1,7 @@
 theory Arithmetics
   imports
     Functions_Restrict
+    Mem_Trans
     Union_Intersection
     Transport.HOL_Syntax_Bundles_Groups
     Transport.HOL_Syntax_Bundles_Orders
@@ -14,13 +15,44 @@ unbundle no_HOL_ascii_syntax
 unbundle no_HOL_groups_syntax
 unbundle no_HOL_order_syntax
 
+(*TODO Kevin: rename to binary_relation_restrict*)
+unbundle no_restrict_syntax
+
+unbundle no_HOL_groups_syntax
+
+abbreviation "zero_set \<equiv> {}"
+abbreviation "one_set \<equiv> {zero_set}"
+
+bundle hotg_set_zero_syntax begin notation zero_set ("0") end
+bundle no_hotg_set_zero_syntax begin no_notation zero_set ("0") end
+
+bundle hotg_set_one_syntax begin notation one_set ("1") end
+bundle no_hotg_set_one_syntax begin no_notation one_set ("1") end
+
+unbundle
+  hotg_set_zero_syntax
+  hotg_set_one_syntax
+
+
+overloading
+  fun_restrict_set \<equiv> "fun_restrict :: (set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> set \<Rightarrow> 'a"
+begin
+  definition "fun_restrict_set f X x \<equiv> if x \<in> X then f x else undefined"
+end
+
+lemma fun_restrict_set_eq_fun_restrict [simp]: "(f :: set \<Rightarrow> 'a)\<restriction>\<^bsub>X\<^esub> = f\<restriction>\<^bsub>mem_of X\<^esub>"
+  unfolding fun_restrict_set_def by auto
+
+axiomatization transrec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
+  where transrec_eq: "transrec f X = f ((transrec f)\<restriction>\<^bsub>X\<^esub>) X"
+
 definition "image f A \<equiv> {f x | x \<in> A}"
 
 lemma image_eq_repl [simp]: "image f A = {f x | x \<in> A}"
   unfolding image_def by simp
 
-axiomatization transrec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
-  where transrec_eq: "transrec f X = f (fun_restrict (transrec f) (mem_of X)) X"
+lemma repl_fun_restrict_mem_of_eq_repl [simp]: "{f\<restriction>\<^bsub>A\<^esub> x | x \<in> A} = {f x | x \<in> A}"
+  by simp
 
 paragraph\<open>Addition\<close>
 
@@ -65,7 +97,7 @@ definition "adduct x y \<equiv> x \<union> {y}"
 lemma adduct_eq: "adduct x y = x \<union> {y}"
   by (simp add: adduct_def)
 
-lemma add_one_eq_adduct_self: "x + {{}} = adduct x x"
+lemma add_one_eq_adduct_self: "x + 1 = adduct x x"
   by (simp add: add_eq_bin_union_lift adduct_eq)
 
 lemma lift_single_eq_single_add: "lift x {z} = {x + z}"
@@ -116,22 +148,20 @@ proof(induct Z rule: mem_induction)
     finally show ?case .
 qed
 
-definition "trans_closure \<equiv> transrec (\<lambda>f x. x \<union> \<Union>(image f x)) "
+definition "mem_trans_closure \<equiv> transrec (\<lambda>f x. x \<union> \<Union>(image f x))" 
 
-lemma trans_closure_eq_bin_union_repl:
-  "trans_closure X = X \<union> \<Union>{trans_closure u | u \<in> X}"
-  (*loops*)
-  (* by (auto simp: trans_closure_def transrec_eq) *)
-  oops
+lemma mem_trans_closure_eq_bin_union_repl:
+  "mem_trans_closure X = X \<union> \<Union>{mem_trans_closure x | x \<in> X}"
+  by (simp add: mem_trans_closure_def transrec_eq[where ?X=X])
 
-definition "lt X Y \<equiv> X \<in> trans_closure Y"
+lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
+  by (simp add: mem_trans_closure_eq_bin_union_repl[where ?X="{}"])
 
-bundle hotg_lt_syntax begin notation lt (infix "<" 60) end
-bundle no_hotg_lt_syntax begin no_notation lt (infix "<" 60) end
-unbundle hotg_lt_syntax
-
-lemma lt_iff_mem_trans_closure: "X < Y \<longleftrightarrow> X \<in> trans_closure Y"
-  unfolding lt_def by simp
+(*TODO Kevin: rename mem_trans to mem_trans_closed*)
+lemma mem_trans_mem_trans_closure: "mem_trans (mem_trans_closure X)"
+  apply (rule mem_transI')
+  apply (simp add: mem_trans_closure_eq_bin_union_repl[where ?X=X])
+  sorry
 
 lemma add_mem_add_if_mem:
   assumes "y \<in> z"
@@ -154,36 +184,52 @@ proof-
   then show ?thesis .
 qed
 
+definition "lt X Y \<equiv> X \<in> mem_trans_closure Y"
+
+bundle hotg_lt_syntax begin notation lt (infix "<" 60) end
+bundle no_hotg_lt_syntax begin no_notation lt (infix "<" 60) end
+unbundle hotg_lt_syntax
+
+lemma lt_iff_mem_trans_closure: "X < Y \<longleftrightarrow> X \<in> mem_trans_closure Y"
+  unfolding lt_def by simp
+
 (*
 lemma not_subset_if_lt: "X < Y \<Longrightarrow> \<not>(Y \<subseteq> X)"
   sorry
 *)
 
-lemma less_sub_less: 
+lemma lt_if_lt_if_mem: 
   assumes "y \<in> Y" "Y < X"
   shows "y < X"
-  sorry
+  using assms unfolding lt_iff_mem_trans_closure
+  using mem_trans_mem_trans_closure by auto
 
-lemma add_more_not_less: "\<not> X + Y < X"
-proof (induction Y arbitrary: X rule: mem_induction)
-  case (mem Y)
-  have "\<And>y. y \<in> Y \<Longrightarrow> \<not>(X + y < X)" by (simp add: mem)
-  have step:"\<And>y. y \<in> Y \<Longrightarrow> X + y \<in> X + Y" 
-    by (simp add: add_mem_add_if_mem)
-  have "\<not> X + Y < X"
-  proof(rule ccontr)
-    assume "\<not>\<not>X + Y < X"
-    then have "X + Y < X" by simp
-    then have "\<And>x. x  \<in> X + Y \<Longrightarrow> x < X" 
-      by(auto simp: less_sub_less)
-    then have "\<And>y . y \<in> Y  \<Longrightarrow> X + y < X"
-      by (auto simp: step)
-    then show False sorry
+lemma not_lt_self [iff]: "\<not>(X < X)"
+  apply (rule notI)
+  apply (subst (asm) lt_iff_mem_trans_closure)
+  sorry (*look at Foundation.thy*)
+
+lemma add_more_not_less: "\<not>(X + Y < X)"
+proof (rule notI)
+  assume "X + Y < X"
+  then show False
+  proof (induction Y arbitrary: X rule: mem_induction)
+    case (mem Y)
+    (* moreover have "\<And>y. y \<in> Y \<Longrightarrow> X + y \<in> X + Y" 
+      by (simp add: add_mem_add_if_mem) *)
+    then show ?case
+    proof (cases "Y = {}")
+      case False
+      then obtain y where "y \<in> Y" by blast
+      with add_mem_add_if_mem have "X + y \<in> X + Y" by simp
+      then have "X + y < X"
+        using lt_if_lt_if_mem add_mem_add_if_mem sorry
+      then show ?thesis sorry
+    qed simp
   qed
-  then show ?case .
 qed
 
-lemma trans_closure_inter_lift_eq_zero :"trans_closure x \<inter> lift x y = {}"
+lemma trans_closure_inter_lift_eq_zero :"mem_trans_closure x \<inter> lift x y = {}"
   sorry
 
 lemma assoc_lift: "lift X (lift Y Z) = lift (X + Y) Z" 
@@ -198,7 +244,7 @@ proof-
   then show ?thesis by simp
 qed
 
-find_theorems name:"eli"
+find_theorems (100) name:"antis"
 paragraph\<open>Proposition 3.4\<close>
 
 lemma elim_union: "A \<union> B = A \<union> C \<Longrightarrow> B = C"
@@ -207,18 +253,25 @@ proof(induction A rule: mem_induction)
   then show ?case sorry
 qed
 
+
+(*
+Subset.subsetI: (\<And>x. x \<in> ?A \<Longrightarrow> x \<in> ?B) \<Longrightarrow> ?A \<subseteq> ?B
+Basic.eq_if_subset_if_subset: ?X \<subseteq> ?Y \<Longrightarrow> ?Y \<subseteq> ?X \<Longrightarrow> ?X = ?Y
+*)
 lemma lift_eq_iff_eq: "lift X Y = lift X Z \<longleftrightarrow> Y = Z"
 proof (rule iffI)
   assume "lift X Y = lift X Z"
-  thus "Y = Z"
-  proof(induction Y rule:mem_induction)
-    case (mem X)
-    then show ?case sorry
+  then show "Y = Z"
+  proof(induction Y arbitrary: Z rule: mem_induction)
+    case (mem Y) show ?case
+    proof (rule eq_if_subset_if_subset)
+      show "Y \<subseteq> Z" sorry
+      show "Z \<subseteq> Y" sorry
+    qed
   qed
 next
   assume "Y = Z"
-  thus "lift X Y = lift X Z"
-    by auto
+  thus "lift X Y = lift X Z" by auto
 qed
 
 lemma add_eq_iff_eq: "X + Y = X + Z \<longleftrightarrow> Y = Z"
@@ -240,6 +293,7 @@ next
     by auto
 qed
 
+(*TODO*)
 lemma add_mem_add_iif_mem: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
 proof (rule iffI)
   assume left:"X + Y \<in> X + Z"
@@ -273,8 +327,8 @@ lemma mul_eq_union_repl_lift_mul: "X * Y = \<Union>{lift (X * y) X | y \<in> Y}"
   by (auto simp:mul_def transrec_eq)
 
 lemma elts_multE:
-  assumes "mem z (X * Y)"
-  obtains u v where "mem u x" "mem v y" "z = x * v + u"
+  assumes "z \<in> (X * Y)"
+  obtains u v where "u \<in> x" "v \<in> y" "z = x * v + u"
   sorry
 
 lemma mul_zero_eq_zero: "x * {} = {}"
@@ -283,11 +337,12 @@ lemma mul_zero_eq_zero: "x * {} = {}"
 lemma mul_one_same: "x * {{}} = x"
   unfolding mul_def by (auto simp: transrec_eq)
 
-lemma mul_set_one_eq_lift: "X * {{{}}} = lift X X"
+lemma mul_set_one_eq_lift: "X * {1} = lift X X"
 proof-
-  have 1:"X * Y = \<Union>{lift (X * y) X | y \<in> Y }" 
+  have 1:"\<And>Y.  X * Y = \<Union>{lift (X * y) X | y \<in> Y }" 
     by (simp add:mul_def transrec_eq)
-  have "X * {{{}}} = \<Union>{lift (X * y) X | y \<in> {{{}}} }" sorry
+  have "X * {1} = \<Union>{lift (X * y) X | y \<in> {1}}"
+    by (simp add: mul_eq_union_repl_lift_mul[where ?Y="{1}"])
   also have "... = \<Union>{lift (X * {{}}) X }" by auto
   also have "... = \<Union>{lift X X}"
     by (simp add: mul_one_same)
@@ -296,18 +351,19 @@ proof-
     then show ?thesis by simp
   qed
 
+
+(*Union to union lemma is needed*)
 lemma mul_two_eq_add: "X * {{{}}, {}} = X + X"
 proof-
   have 1:"X * Y = \<Union>{lift (X * y) X | y \<in> Y }" 
     by (simp add:mul_def transrec_eq)
-  have "X * {{{}}, {}} = \<Union>{lift (X * y) X | y \<in> {{{}}, {}} }" sorry
+  have "X * {{{}}, {}} = \<Union>{lift (X * y) X | y \<in> {{{}}, {}} }" 
+    by (simp add: mul_eq_union_repl_lift_mul[where ?Y="{1,0}"])
   also have "... = (lift (X*{{}}) X) \<union> (lift (X*{}) X)" by auto
   also have "... = lift X X \<union> lift {} X" by (simp add: mul_one_same mul_zero_eq_zero)
   also have "... = X \<union> lift X X" by auto
   also have "... = X + X" by (simp add: add_eq_bin_union_lift)
   finally show ?thesis .
 qed
-
-
 
 end
