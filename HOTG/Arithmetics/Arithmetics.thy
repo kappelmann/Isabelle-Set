@@ -247,6 +247,8 @@ qed
 find_theorems (100) name:"antis"
 paragraph\<open>Proposition 3.4\<close>
 
+
+(*B and C should have empty intersection with A*)
 lemma elim_union: "A \<union> B = A \<union> C \<Longrightarrow> B = C"
 proof(induction A rule: mem_induction)
   case (mem A)
