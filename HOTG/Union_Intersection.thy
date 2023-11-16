@@ -259,10 +259,10 @@ lemma bin_union_empty_eq [iff]: "A \<union> {} = A"
 lemma singleton_bin_union_absorb [simp]: "a \<in> A \<Longrightarrow> {a} \<union> A = A"
   by auto
 
-lemma singleton_bin_union_eq_insert: "{x} \<union> A = insert x A"
+lemma singleton_bin_union_eq_insert[simp]: "{x} \<union> A = insert x A"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_singleton_eq_insert: "A \<union> {x} = insert x A"
+lemma bin_union_singleton_eq_insert[simp]: "A \<union> {x} = insert x A"
   using singleton_bin_union_eq_insert by (subst bin_union_comm)
 
 lemma mem_singleton_bin_union [iff]: "a \<in> {a} \<union> B" by auto
