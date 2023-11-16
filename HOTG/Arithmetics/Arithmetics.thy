@@ -51,128 +51,23 @@ definition "image f A \<equiv> {f x | x \<in> A}"
 lemma image_eq_repl [simp]: "image f A = {f x | x \<in> A}"
   unfolding image_def by simp
 
-lemma repl_fun_restrict_mem_of_eq_repl [simp]: "{f\<restriction>\<^bsub>A\<^esub> x | x \<in> A} = {f x | x \<in> A}"
+lemma repl_fun_restrict_mem_eq_repl [simp]: "{f\<restriction>\<^bsub>A\<^esub> x | x \<in> A} = {f x | x \<in> A}"
   by simp
 
-paragraph\<open>Addition\<close>
 
-definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
+paragraph \<open>Transitive Closure\<close>
 
-bundle hotg_add_syntax begin notation add (infixl "+" 65) end
-bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
-unbundle hotg_add_syntax
-
-lemma add_eq_bin_union_image_add: "X + Y = X \<union> image ((+) X) Y"
-  unfolding add_def by (simp add: transrec_eq)
-
-definition "lift X \<equiv> image ((+) X)"
-
-lemma lift_eq_image_add: "lift X = image ((+) X)"
-  unfolding lift_def by simp
-
-lemma add_eq_bin_union_lift: "X + Y = X \<union> lift X Y"
-  unfolding lift_eq_image_add by (subst add_eq_bin_union_image_add) simp
-
-lemma lift_bin_union_eq_lift_bin_union_lift: "lift X (A \<union> B) = lift X A \<union> lift X B"
-  by (auto simp: lift_eq_image_add)
-
-lemma lift_union_eq_union_image_lift: "lift X (\<Union>Y) = \<Union>(image (lift X) Y)"
-  by (auto simp: lift_eq_image_add)
-
-lemma idx_union_add_eq_add_idx_union:
-  "Y \<noteq> {} \<Longrightarrow> (\<Union>y \<in> Y. X + f y) = X + (\<Union>y \<in> Y. f y)"
-  by (simp add: lift_union_eq_union_image_lift add_eq_bin_union_lift)
-
-lemma lift_zero_eq_zero [simp]: "lift X {} = {}"
-  by (auto simp: lift_eq_image_add)
-
-lemma add_zero_eq_self [simp]: "x + {} = x"
-  unfolding add_eq_bin_union_lift by simp
-
-lemma lift_one_eq_single_self [simp]: "lift x {{}} = {x}"
-  unfolding lift_def by simp
-
-definition "adduct x y \<equiv> x \<union> {y}"
-
-lemma adduct_eq: "adduct x y = x \<union> {y}"
-  by (simp add: adduct_def)
-
-lemma add_one_eq_adduct_self: "x + 1 = adduct x x"
-  by (simp add: add_eq_bin_union_lift adduct_eq)
-
-lemma lift_single_eq_single_add: "lift x {z} = {x + z}"
-  unfolding lift_def by simp
-
-lemma lift_single_eq_single_bin_union_lift: "lift x {z} = {x \<union> lift x z}"
-  by (simp only: lift_single_eq_single_add add_eq_bin_union_lift)
-
-lemma lift_bin_union_single_eq_lift_bin_union:
-  "lift x (y \<union> {z}) = lift x y \<union> {x \<union> lift x z}"
-  by (simp only: lift_single_eq_single_bin_union_lift lift_bin_union_eq_lift_bin_union_lift)
-
-lemma add_adduct_eq_adduct_add: "x + (adduct y z) = adduct (x + y) (x + z)"
-  by (auto simp: adduct_eq lift_bin_union_single_eq_lift_bin_union add_eq_bin_union_lift)
-
-paragraph\<open>Proposition 3.3\<close>
-
-lemma zero_add_eq_self [simp]: "{} + X = X"
-proof (induct X rule: mem_induction)
-  case (mem X)
-  have "{} + X = lift {} X" by (simp add: add_eq_bin_union_lift)
-  also from mem have "... = X" by (simp add: lift_eq_image_add)
-  finally show ?case .
-qed
-
-corollary lift_zero_eq_self [simp]: "lift {} X = X"
-  by (simp add: lift_eq_image_add)
-
-lemma add_eq_zero_iff_and_eq_zero: "X + Y = 0 \<longleftrightarrow> X = 0 \<and> Y = 0"
-proof safe
-    assume add_zero:"X + Y = 0"
-    show "X = 0" 
-    proof-
-      have "X + Y = X \<union> lift X Y" by(simp add:add_eq_bin_union_lift)
-      then have "X \<union> lift X Y = 0" by (simp add:add_zero)
-      then show ?thesis by simp
-    qed 
-  then show "Y = 0" if "X + Y = 0"
-    using that by auto
-qed auto
-
-theorem assoc_add: "(X + Y) + Z = X + (Y + Z)"
-proof(induct Z rule: mem_induction)
-  case (mem Z)
-  from add_eq_bin_union_lift have "(X + Y) + Z = (X + Y) \<union> (lift (X + Y) Z)" by simp
-  also from lift_eq_image_add have "... = (X + Y) \<union> {(X + Y) + z | z \<in> Z}" by simp
-  also from add_eq_bin_union_lift have "... = X \<union> (lift X Y) \<union> {(X + Y) + z | z \<in> Z}" by simp
-  also from mem have "... = X \<union> (lift X Y) \<union> {X + (Y + z) | z \<in> Z}" by simp
-  also have "... = X \<union> lift X (Y + Z)"
-  proof-
-    have "lift X (Y + Z) = lift X (Y \<union> lift Y Z)"
-      by (simp add: add_eq_bin_union_lift)
-    also have "... = (lift X Y) \<union> lift X (lift Y Z)"
-      by (simp add: lift_bin_union_eq_lift_bin_union_lift)
-    also have "... = (lift X Y) \<union> {X + (Y + z) | z \<in> Z}"
-      by (simp add: lift_eq_image_add)
-    finally have "lift X (Y + Z) = (lift X Y) \<union> {X + (Y + z) | z \<in> Z}" .
-    then show ?thesis by auto
-  qed
-    also from add_eq_bin_union_lift have "... = X + (Y + Z)" by simp
-    finally show ?case .
-qed
-
-definition "mem_trans_closure \<equiv> transrec (\<lambda>f x. x \<union> \<Union>(image f x))" 
+definition "mem_trans_closure \<equiv> transrec (\<lambda>f x. x \<union> \<Union>(image f x))"
 
 lemma mem_trans_closure_eq_bin_union_repl:
   "mem_trans_closure X = X \<union> \<Union>{mem_trans_closure x | x \<in> X}"
   by (simp add: mem_trans_closure_def transrec_eq[where ?X=X])
 
-lemma subset_mem_trans_closure:"X \<subseteq> mem_trans_closure X"
+lemma subset_mem_trans_closure: "X \<subseteq> mem_trans_closure X"
   by (auto simp:mem_trans_closure_eq_bin_union_repl[where ?X= X])
 
-lemma not_in_mem_trans_closure_not_in_set: 
- "\<not> (X \<in> mem_trans_closure Y) \<Longrightarrow> \<not> (X \<in>  Y)"
-  by (auto simp:subset_mem_trans_closure not_mem_if_subset_if_not_mem)
+corollary mem_mem_trans_closure_if_mem: "X \<in> Y \<Longrightarrow> X \<in> mem_trans_closure Y"
+  using subset_mem_trans_closure by blast
 
 lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
   by (simp add: mem_trans_closure_eq_bin_union_repl[where ?X="{}"])
@@ -195,32 +90,12 @@ proof (induction X rule: mem_induction)
     next
       case memtmem
       then obtain z where "x \<in> mem_trans_closure z" "z \<in> X" by auto
-      with \<open>y \<in> x\<close> mem have "y \<in> mem_trans_closure z" by auto
-      with \<open>z \<in> X\<close> show ?thesis by (subst mem_trans_closure_eq_bin_union_repl) blast
+      with \<open>y \<in> x\<close> mem.IH \<open>z \<in> X\<close> show ?thesis by (subst mem_trans_closure_eq_bin_union_repl) blast
     qed
   qed
 qed
 
-lemma add_mem_add_if_mem:
-  assumes "y \<in> z"
-  shows "x + y \<in> x + z"
-proof-
-  have "lift x z = image ((+)x) z "
-    by (auto simp:lift_eq_image_add)
-  also have "... = {x + zz| zz \<in> z}" by simp
-  finally have lift_image:"lift x z =  {x + zz| zz \<in> z}" .
-  have add_lift:"x + z = x \<union> lift x z " 
-    by (simp add: add_eq_bin_union_lift)
-  then have add_image:"x + z = x \<union> {x + zz| zz \<in> z}"
-    by (auto simp: lift_image)
-  also have "{x + zz| zz \<in> z} \<subseteq> x \<union> {x + zz| zz \<in> z}" by auto
-  then have "{x + zz| zz \<in> z} \<subseteq> x + z" 
-    by (simp add: add_image)
-  have "y \<in> z \<Longrightarrow> x + y \<in> {x + zz| zz \<in> z}" by auto
-  then have "x + y \<in> x + z" 
-    by (auto simp: add_image assms)
-  then show ?thesis .
-qed
+paragraph \<open>Less-Than Order\<close>
 
 definition "lt X Y \<equiv> X \<in> mem_trans_closure Y"
 
@@ -231,154 +106,200 @@ unbundle hotg_lt_syntax
 lemma lt_iff_mem_trans_closure: "X < Y \<longleftrightarrow> X \<in> mem_trans_closure Y"
   unfolding lt_def by simp
 
-lemma lt_if_lt_if_mem: 
+lemma lt_if_lt_if_mem [trans]:
   assumes "y \<in> Y"
-  shows "Y < X \<Longrightarrow> y < X"
-  using assms unfolding lt_iff_mem_trans_closure
-  using mem_trans_mem_trans_closure by auto
+  and "Y < X"
+  shows "y < X"
+  using assms mem_trans_mem_trans_closure unfolding lt_iff_mem_trans_closure by auto
 
-lemma not_lt_self [iff]: "\<not>(X < X)"
+lemma not_mem_trans_closure [iff]: "X \<notin> mem_trans_closure X"
   apply (rule notI)
-  apply (subst (asm) lt_iff_mem_trans_closure)
   sorry (*look at Foundation.thy*)
 
-lemma add_more_not_less: "\<not>(X + Y < X)"
-proof (induction Y arbitrary: X rule: mem_induction)
-  case (mem Y)
-  then show ?case
+lemma not_lt_self [iff]: "\<not>(X < X)"
+  using lt_iff_mem_trans_closure by auto
+
+
+paragraph\<open>Addition\<close>
+
+definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
+
+bundle hotg_add_syntax begin notation add (infixl "+" 65) end
+bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
+unbundle hotg_add_syntax
+
+lemma add_eq_bin_union_image_add: "X + Y = X \<union> image ((+) X) Y"
+  unfolding add_def by (simp add: transrec_eq)
+
+lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
+  unfolding add_def by (simp add: transrec_eq)
+
+lemma mem_addE:
+  assumes "x \<in> (Y + Z)"
+  obtains "x \<in> Y" | z where "z \<in> Z" "x = Y + z"
+  using assms by (auto simp: add_eq_bin_union_image_add[of Y Z])
+
+definition "lift X \<equiv> image ((+) X)"
+
+lemma lift_eq_image_add: "lift X = image ((+) X)"
+  unfolding lift_def by simp
+
+lemma lift_eq_repl_add: "lift X Y = {X + y | y \<in> Y}"
+  using lift_eq_image_add by simp
+
+lemma add_eq_bin_union_lift: "X + Y = X \<union> lift X Y"
+  unfolding lift_eq_image_add by (subst add_eq_bin_union_image_add) simp
+
+lemma lift_bin_union_eq_lift_bin_union_lift: "lift X (A \<union> B) = lift X A \<union> lift X B"
+  by (auto simp: lift_eq_image_add)
+
+lemma lift_union_eq_union_repl_lift: "lift X (\<Union>Y) = \<Union>{lift X y | y \<in> Y}"
+  by (auto simp: lift_eq_image_add)
+
+lemma idx_union_add_eq_add_idx_union:
+  "Y \<noteq> {} \<Longrightarrow> (\<Union>y \<in> Y. X + f y) = X + (\<Union>y \<in> Y. f y)"
+  by (simp add: lift_union_eq_union_repl_lift add_eq_bin_union_lift)
+
+lemma lift_zero_eq_zero [simp]: "lift X {} = {}"
+  by (auto simp: lift_eq_image_add)
+
+lemma add_zero_eq_self [simp]: "X + {} = X"
+  unfolding add_eq_bin_union_lift by simp
+
+lemma lift_one_eq_singleton_self [simp]: "lift X 1 = {X}"
+  unfolding lift_def by simp
+
+definition "succ X \<equiv> X + 1"
+
+lemma succ_eq_add_one: "succ X = X + 1"
+  unfolding succ_def by simp
+
+lemma insert_self_eq_add_one: "insert X X = X + 1"
+  by (auto simp: add_eq_bin_union_lift succ_eq_add_one)
+
+lemma lift_singleton_eq_singleton_add: "lift X {Z} = {X + Z}"
+  unfolding lift_def by simp
+
+lemma lift_singleton_eq_singleton_bin_union_lift: "lift X {Z} = {X \<union> lift X Z}"
+  by (simp only: lift_singleton_eq_singleton_add add_eq_bin_union_lift)
+
+lemma lift_bin_union_singleton_eq_lift_bin_union:
+  "lift X (insert Y Z) = lift X Z \<union> {X \<union> lift X Y}"
+  by (simp flip: lift_singleton_eq_singleton_bin_union_lift lift_bin_union_eq_lift_bin_union_lift)
+
+lemma add_insert_eq_insert_add: "X + insert Y Z = insert (X + Y) (X + Z)"
+  by (auto simp: lift_bin_union_singleton_eq_lift_bin_union add_eq_bin_union_lift)
+
+
+paragraph\<open>Proposition 3.3\<close>
+
+lemma zero_add_eq_self [simp]: "{} + X = X"
+proof (induct X rule: mem_induction)
+  case (mem X)
+  have "{} + X = lift {} X" by (simp add: add_eq_bin_union_lift)
+  also from mem have "... = X" by (simp add: lift_eq_image_add)
+  finally show ?case .
+qed
+
+corollary lift_zero_eq_self [simp]: "lift {} X = X"
+  by (simp add: lift_eq_image_add)
+
+corollary add_eq_zeroE [elim]:
+  assumes "X + Y = 0"
+  obtains "X = 0" "Y = 0"
+  using assms by (auto simp: add_eq_bin_union_lift)
+
+corollary add_eq_zero_iff_and_eq_zero [iff]: "X + Y = 0 \<longleftrightarrow> X = 0 \<and> Y = 0" by auto
+
+lemma add_assoc: "(X + Y) + Z = X + (Y + Z)"
+proof(induct Z rule: mem_induction)
+  case (mem Z)
+  from add_eq_bin_union_lift have "(X + Y) + Z = (X + Y) \<union> (lift (X + Y) Z)" by simp
+  also from lift_eq_repl_add have "... = (X + Y) \<union> {(X + Y) + z | z \<in> Z}" by simp
+  also from add_eq_bin_union_lift have "... = X \<union> (lift X Y) \<union> {(X + Y) + z | z \<in> Z}" by simp
+  also from mem have "... = X \<union> (lift X Y) \<union> {X + (Y + z) | z \<in> Z}" by simp
+  also have "... = X \<union> lift X (Y + Z)"
+  proof-
+    have "lift X (Y + Z) = lift X (Y \<union> lift Y Z)"
+      by (simp add: add_eq_bin_union_lift)
+    also have "... = (lift X Y) \<union> lift X (lift Y Z)"
+      by (simp add: lift_bin_union_eq_lift_bin_union_lift)
+    also have "... = (lift X Y) \<union> {X + (Y + z) | z \<in> Z}"
+      by (simp add: lift_eq_repl_add)
+    finally have "lift X (Y + Z) = (lift X Y) \<union> {X + (Y + z) | z \<in> Z}" .
+    then show ?thesis by auto
+  qed
+    also from add_eq_bin_union_lift have "... = X + (Y + Z)" by simp
+    finally show ?case .
+qed
+
+lemma lift_lift_eq_lift_add: "lift X (lift Y Z) = lift (X + Y) Z"
+  by (simp add: lift_eq_image_add add_assoc)
+
+lemma add_succ_eq_succ_add: "X + succ Y = succ (X + Y)"
+  by (auto simp: succ_eq_add_one add_assoc)
+
+lemma add_mem_add_if_mem:
+  assumes "Y \<in> Z"
+  shows "X + Y \<in> X + Z"
+proof-
+  from assms have "X + Y \<in> {X + z| z \<in> Z}" by auto
+  then show ?thesis by (auto simp: lift_eq_repl_add[of X Z] add_eq_bin_union_lift)
+qed
+
+lemma not_add_lt_left [iff]: "\<not>(X + Y < X)"
+proof
+  assume "X + Y < X"
+  then show "False"
+  proof (induction Y rule: mem_induction)
+    case (mem Y)
+    then show ?case
     proof (cases "Y = {}")
       case False
-      then obtain y where sub:"y \<in> Y" by blast
-      with add_mem_add_if_mem have sub_in:"X + y \<in> X + Y" by simp
-      have IH:"\<not> (X + y < X)" by (auto simp: sub mem)
-      then have "X + y \<in> X + Y \<Longrightarrow> X + Y < X \<Longrightarrow> X + y < X" 
-        by (simp add: lt_if_lt_if_mem)
-      then have " X + Y < X \<Longrightarrow> X + y < X"
-        by (auto simp:sub_in)
-      then have "\<not> (X + y < X) \<Longrightarrow> \<not> (X + Y < X)"
-        by (auto simp: contrapos_np)
-      then show ?thesis by (simp add: IH)
+      then obtain y where sub: "y \<in> Y" by blast
+      with add_mem_add_if_mem mem have sub_in: "X + y \<in> X + Y" by auto
+      with mem have bla: "X + y < X" by (auto intro: lt_if_lt_if_mem)
+      with sub mem.IH show ?thesis by auto
     qed simp
   qed
-
-lemma add_more_not_in:"\<not> (X + Y \<in> X)"
-proof -
-  have "\<not> (X + Y < X)" by  (simp add:add_more_not_less)
-  then show ?thesis     
-    by (simp add: not_in_mem_trans_closure_not_in_set lt_iff_mem_trans_closure )
 qed
 
-lemma trans_closure_inter_lift_eq_empty :"mem_trans_closure X \<inter> lift X Y = {}"
-proof-
-  have "\<And>y. \<not>(X + y < X)" by (simp add:add_more_not_less)
-  then have "\<And>y. X + y \<notin> mem_trans_closure X" by (simp add:lt_iff_mem_trans_closure)
-  then have "{x|x\<in>mem_trans_closure X}  \<inter> {X + y| y\<in> Y} = {}"
-    by auto
-  then have "mem_trans_closure X \<inter> lift X Y = {}"
-    by (auto simp: lift_eq_image_add)
-  then show ?thesis by auto
-qed
+lemma not_add_mem_left [iff]: "\<not>(X + Y \<in> X)"
+  using subset_mem_trans_closure lt_iff_mem_trans_closure by auto
 
-lemma assoc_lift: "lift X (lift Y Z) = lift (X + Y) Z" 
-proof-
-  have "lift X (lift Y Z) = {X + (Y + z) | z \<in> Z}"
-    by (simp add: lift_eq_image_add)
-  also have "... =  {(X + Y) + z | z \<in> Z}"
-    by (simp add: assoc_add)
-  also have "... = lift (X + Y) Z"
-    by (simp add:lift_eq_image_add)
-  finally have "lift X (lift Y Z) = lift (X + Y) Z" .
-  then show ?thesis by simp
-qed
+lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<inter> lift X Y = {}"
+  by (auto simp: lift_eq_image_add simp flip: lt_iff_mem_trans_closure)
+
+lemma bin_inter_lift_self_eq_empty [simp]: "X \<inter> lift X Y = {}"
+  using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure by blast
+
+lemma lift_eq_lift_if_bin_union_lift_eq_bin_union_lift:
+  assumes "X \<union> lift X Y = X \<union> lift X Z"
+  shows "lift X Y = lift X Z"
+  using assms bin_inter_lift_self_eq_empty by blast
 
 paragraph\<open>Proposition 3.4\<close>
 
-(*
-Subset.subsetI: (\<And>x. x \<in> ?A \<Longrightarrow> x \<in> ?B) \<Longrightarrow> ?A \<subseteq> ?B
-Basic.eq_if_subset_if_subset: ?X \<subseteq> ?Y \<Longrightarrow> ?Y \<subseteq> ?X \<Longrightarrow> ?X = ?Y
-*)
-lemma self_inter_lift_eq_empty[simp]: "X \<inter> lift X Y = {}"
-proof-
-  have 1:"mem_trans_closure X \<inter> lift X Y = {}" 
-    by (simp add:trans_closure_inter_lift_eq_empty) 
-  then have "(X \<union> \<Union>{mem_trans_closure x | x \<in> X}) \<inter> lift X Y = {}" 
-    by (auto simp:mem_trans_closure_eq_bin_union_repl[where ?X = X])
-  then show ?thesis by auto
-  qed
-
-lemma disjoint_union_elim: assumes "A \<inter> B = {}" "A \<inter> C = {}" "A \<union> B = A \<union> C"
-  shows "B = C"
-  using assms by auto
-
-lemma lift_elim: 
-  assumes"X \<union> lift X Y = X \<union> lift X Z "
-  shows" lift X Y = lift X Z"
-  by (rule disjoint_union_elim[of X]) (simp_all add: assms)
-
-lemma lift_eq_iff_eq: "lift X Y = lift X Z \<longleftrightarrow> Y = Z"
-proof (rule iffI)
-  assume 1:"lift X Y = lift X Z"
-  then show "Y = Z"
-  proof(induction Y arbitrary: Z rule: mem_induction)
-    case (mem Y) show ?case
-    proof (rule eqI)
-        show "u \<in> Z" if "u \<in> Y" for u 
-        proof -
-          have "lift X Z = lift X Y"by (simp add:mem)
-          also have "... = {X + y |y \<in> Y}"by (simp add: lift_eq_image_add)
-          finally have lift_eq_image_different_var:"lift X Z = {X + y| y \<in> Y}".
-          have "X + u \<in> {X + y| y \<in> Y}" sorry
-          then have "X + u \<in> (lift X Z)" by (simp add: lift_eq_image_different_var)
-          then obtain v where "v \<in> Z" "X + u = X + v"
-            using lift_def by auto
-          then have "X \<union> lift X u  = X \<union> lift X v" 
-            by (simp add: add_eq_bin_union_lift)
-          then have "lift X u = lift X v" sorry
-          then have "u = v" sorry
-          then show ?thesis
-            using \<open>v \<in> Z\<close> by blast
-        qed
-      next
-        show "u \<in> Y" if "u \<in> Z" for u 
-        proof -
-          have "X + u \<in> (lift X Y)" sorry
-          then obtain v where "v \<in> Y" "X + u = X + v"
-            using lift_def by auto
-          then have "lift X u = lift X v" sorry
-          then have "u = v"sorry
-          then show ?thesis
-            using \<open>v \<in> Y\<close> by blast
-        qed
-    qed
-  qed
-qed auto
-
-
-
-lemma add_eq_iff_eq: "X + Y = X + Z \<longleftrightarrow> Y = Z"
-proof (rule iffI)
-  assume left:"X + Y = X + Z"
-  thus "Y = Z"
-  proof-
-    have "X + Y = X \<union> lift X Y" " X + Z = X \<union> lift X Z"
-      by (auto simp: add_eq_bin_union_lift)
-    then have 1:"X \<union> lift X Y  = X \<union> lift X Z"
-      by (simp add: left)
-    then have "lift X Y = lift X Z" 
-    proof-
-      have 2:"X \<union> lift X Y  = X \<union> lift X Z"  by (simp add:1)
-      also have "X \<inter> lift X Y = {}" "X \<inter> lift X Y = {}" 
-        by (auto simp:self_inter_lift_eq_empty)
-      then show ?thesis sorry
-    qed
-    then have "Y = Z" by (simp add:lift_eq_iff_eq)
-    then show ?thesis .
-  qed
-next
-  assume "Y = Z"
-  thus "X + Y = X + Z"
-    by auto
+lemma lift_right_inective:
+  assumes "lift X Y = lift X Z"
+  shows "Y = Z"
+using assms
+proof(induction Y arbitrary: Z rule: mem_induction)
+  case (mem Y)
+  {
+    fix U V u assume uvassms: "U \<in> {Y, Z}" "V \<in> {Y, Z}" "U \<noteq> V" "u \<in> U"
+    with mem have "X + u \<in> lift X V" by (auto simp: lift_eq_repl_add)
+    then obtain v where "v \<in> V" "X + u = X + v" using lift_eq_repl_add by auto
+    then have "X \<union> lift X u  = X \<union> lift X v" by (simp add: add_eq_bin_union_lift)
+    with bin_inter_lift_self_eq_empty have "lift X u = lift X v" by blast
+    with uvassms \<open>v \<in> V\<close> mem.IH have "u \<in> V" by auto
+  }
+  then show ?case by blast
 qed
+
+lemma add_right_inective: "X + Y = X + Z \<Longrightarrow> Y = Z"
+  by (subst (asm) add_eq_bin_union_lift)+
+  (fast dest: lift_eq_lift_if_bin_union_lift_eq_bin_union_lift lift_right_inective)
 
 lemma add_mem_add_iff_mem: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
 proof (rule iffI)
@@ -389,10 +310,9 @@ proof (rule iffI)
     also have "... = X \<union> lift X Z"
       by (auto simp: add_eq_bin_union_lift)
     finally have "X + Y \<in> X \<union> lift X Z" .
-    have add_more_not_less: "\<not> X + Y \<in> X"
-      by (auto simp: add_more_not_in)
+    have not_add_lt_left: "\<not> X + Y \<in> X"
+      by (auto simp: not_add_mem_left )
     with \<open>X + Y \<in> X \<union> lift X Z\<close> have "X + Y \<in> lift X Z" by auto
-
 (*X and lift X Y(Z) are disjoint *)
     then show ?thesis sorry
   qed
@@ -401,11 +321,6 @@ next
   thus "X + Y \<in> X + Z"
     by (simp add: add_mem_add_if_mem)
 qed
-
-lemma mem_plus_V_E:
-  assumes l: "l \<in> elts (x + y)"
-  obtains "l \<in> elts x" | z where "z \<in> elts y" "l = x + z"
-  sorry
 
 corollary add_less_cancel_left [iff]:
   "x + y \<subseteq> x + z \<longleftrightarrow> y \<subseteq> z"
@@ -431,28 +346,28 @@ lemma elts_multE:
 lemma mul_zero_eq_zero: "x * {} = {}"
   unfolding mul_def by (auto simp: transrec_eq)
 
-lemma mul_one_same: "x * {{}} = x"
+lemma mul_one_same: "x * 1 = x"
   unfolding mul_def by (auto simp: transrec_eq)
 
 lemma mul_set_one_eq_lift: "X * {1} = lift X X"
 proof-
-  have 1:"\<And>Y.  X * Y = \<Union>{lift (X * y) X | y \<in> Y }" 
+  have 1:"\<And>Y.  X * Y = \<Union>{lift (X * y) X | y \<in> Y }"
     by (simp add:mul_def transrec_eq)
   have "X * {1} = \<Union>{lift (X * y) X | y \<in> {1}}"
     by (simp add: mul_eq_union_repl_lift_mul[where ?Y="{1}"])
-  also have "... = \<Union>{lift (X * {{}}) X }" by auto
+  also have "... = \<Union>{lift (X * 1) X }" by auto
   also have "... = \<Union>{lift X X}"
     by (simp add: mul_one_same)
   also have "... = lift X X" by auto
-  finally have "X * {{{}}} = lift X X" .
+  finally have "X * {1} = lift X X" .
     then show ?thesis by simp
   qed
 
-lemma mul_two_eq_add: "X * {{{}}, {}} = X + X"
+lemma mul_two_eq_add: "X * {1, {}} = X + X"
 proof-
-  have "X * {{{}}, {}} = \<Union>{lift (X * y) X | y \<in> {{{}}, {}} }" 
+  have "X * {1, {}} = \<Union>{lift (X * y) X | y \<in> {1, {}} }"
     by (simp add: mul_eq_union_repl_lift_mul[where ?Y="{1,0}"])
-  also have "... = (lift (X*{{}}) X) \<union> (lift (X*{}) X)" by auto
+  also have "... = (lift (X*1) X) \<union> (lift (X*{}) X)" by auto
   also have "... = lift X X \<union> lift {} X" by (simp add: mul_one_same mul_zero_eq_zero)
   also have "... = X \<union> lift X X" by auto
   also have "... = X + X" by (simp add: add_eq_bin_union_lift)
