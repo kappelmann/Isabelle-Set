@@ -479,4 +479,84 @@ proof -
     using \<open>insert Y Y = Y + 1\<close> by simp
 qed
 
+lemma zero_mul_eq_zero [simp]: "0 * X = 0"
+proof (induction X rule:mem_induction)
+  case (mem X)
+  then show ?case 
+    by (subst mul_eq_union_repl_lift_mul) auto
+qed
+
+lemma one_mul_eq_one [simp]: "1 * X = X"
+proof (induction X rule:mem_induction)
+  case (mem X)
+  then show ?case
+    by (auto simp: mem mul_eq_union_repl_lift_mul[where ?Y = X])
+qed 
+
+lemma mul_bin_union_eq_bin_union_mul: "X * (Y \<union> Z) = (X * Y) \<union> (X * Z)"
+proof-
+  have "X * (Y \<union> Z) = \<Union>{lift (X * y) X | y \<in> (Y \<union> Z)}" 
+    by (subst mul_eq_union_repl_lift_mul) auto
+  also have "... = \<Union>{lift (X * y) X | y \<in> Y} \<union> \<Union>{lift (X * y) X | y \<in> Z}"
+    sorry
+  also have "... = (X * Y) \<union> \<Union>{lift (X * y) X | y \<in> Z}"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  also have "... = (X * Y) \<union> (X * Z)"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  finally show ?thesis .
+qed
+
+lemma mul_union_eq_union_mul: "X * \<Union>Y = \<Union>(X * Y)"
+proof-
+  have "X * (\<Union>Y) = \<Union>{lift (X * y) X | y \<in> (\<Union>Y)}" 
+    by (subst mul_eq_union_repl_lift_mul) auto
+  also have "... = \<Union>\<Union>{lift (X * y) X | y \<in> Y}"sorry
+  also have "... = \<Union>(X * Y)"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  finally show ?thesis .
+qed
+
+lemma unfolding_mul_union_eq_union_mul:
+"\<Union>{X * lift(Y * z) Y | z \<in> Z} = X * \<Union>{lift(Y * z) Y | z \<in> Z}"
+  sorry
+
+lemma mul_lift_eq_lift_mul_mul: "X * (lift Y Z) = lift (X * Y) (X * Z)"
+proof(induction Z rule:mem_induction)
+  case (mem Z)
+  have "X * (lift Y Z) = \<Union>{lift (X * z) X | z \<in> (lift Y Z)}"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  also have "... = \<Union>{lift (X * (Y + z)) X | z \<in> Z}" 
+    sorry
+  also have "... = \<Union>{lift (X * Y + X * z) X | z \<in> Z}"
+    sorry
+  also have "... = \<Union>{lift (X * Y) (lift  (X * z) X ) | z \<in> Z}"
+    by (auto simp: lift_lift_eq_lift_add)
+  also have "... = lift (X * Y) (\<Union>{ lift  (X * z) X  | z \<in> Z})"
+    by (auto simp: lift_union_eq_union_repl_lift)
+  also have "... = lift (X * Y) (X * Z)"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  finally show ?case .
+qed
+
+lemma mul_lift_distrib: "X * (Y + Z) = X * Y + X * Z"
+  by (auto simp: add_eq_bin_union_lift  mul_bin_union_eq_bin_union_mul mul_lift_eq_lift_mul_mul)
+
+lemma mul_assoc: "(X * Y) * Z = X * (Y * Z)"
+proof(induction Z rule:mem_induction)
+  case (mem Z)
+  have "(X * Y) * Z = \<Union>{lift ((X * Y) * z) (X * Y) | z \<in> Z}"
+    by (subst mul_eq_union_repl_lift_mul) auto
+  also have "... = \<Union>{lift (X * (Y * z)) (X * Y) | z \<in> Z}"
+    by (auto simp: mem)
+  also have "... = \<Union>{X * lift(Y * z) Y | z \<in> Z}"
+    by (auto simp: mul_lift_eq_lift_mul_mul)
+  also have "... = X * \<Union>{lift(Y * z) Y | z \<in> Z}"
+    by (auto simp: unfolding_mul_union_eq_union_mul)
+  also have "... = X * (Y * Z)" 
+    by (subst mul_eq_union_repl_lift_mul) auto
+  finally show ?case .
+qed
+
+
+
 end
