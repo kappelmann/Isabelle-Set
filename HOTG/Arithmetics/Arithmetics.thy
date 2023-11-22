@@ -5,6 +5,8 @@ theory Arithmetics
     Union_Intersection
     Transport.HOL_Syntax_Bundles_Groups
     Transport.HOL_Syntax_Bundles_Orders
+    Foundation
+    Axioms
 begin
 
 paragraph \<open>Summary\<close>
@@ -112,9 +114,32 @@ lemma lt_if_lt_if_mem [trans]:
   shows "y < X"
   using assms mem_trans_mem_trans_closure unfolding lt_iff_mem_trans_closure by auto
 
+find_theorems name:"not_mem_if_eq"
+
 lemma not_mem_trans_closure [iff]: "X \<notin> mem_trans_closure X"
-  apply (rule notI)
-  sorry (*look at Foundation.thy*)
+proof
+  assume "X \<in> mem_trans_closure X"
+  hence "X \<in> X \<union> \<Union>{mem_trans_closure x | x \<in> X}" 
+    by (simp add:mem_trans_closure_eq_bin_union_repl[where ?X =X])
+  then consider (self) "X \<in> X" | (union) "X \<in> \<Union>{mem_trans_closure x | x \<in> X}" by blast
+  then show False
+  proof cases
+    case union
+      then show ?thesis
+      proof (induction X rule: mem_induction)
+        case (mem X)
+        then obtain y where "y \<in> X" and "X \<in> mem_trans_closure y" by blast
+        then have "X < y" by (simp add:lt_iff_mem_trans_closure)
+        then have "y < y" using  \<open>y \<in> X\<close> by (auto simp:lt_if_lt_if_mem)
+        then have inTC:"y \<in> mem_trans_closure y" by (simp add: lt_iff_mem_trans_closure)
+        also have uni:"mem_trans_closure y = y \<union> \<Union>{mem_trans_closure yy | yy \<in> y}"
+          by (simp add:mem_trans_closure_eq_bin_union_repl[where ?X =y])
+        also have notself:"y \<notin> y" by (auto simp:not_mem_if_eq)
+        with uni inTC have "y \<in> X \<Longrightarrow>  y \<in> \<Union>{mem_trans_closure yy | yy \<in> y}" by auto
+        with mem show False sorry
+      qed
+  qed (auto simp:not_mem_if_eq)
+qed
 
 lemma not_lt_self [iff]: "\<not>(X < X)"
   using lt_iff_mem_trans_closure by auto
@@ -273,6 +298,9 @@ lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<i
 lemma bin_inter_lift_self_eq_empty [simp]: "X \<inter> lift X Y = {}"
   using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure by blast
 
+lemma bin_inter_lift_self_eq_empty_assoc [simp]: "lift X Y \<inter> X = {}"
+  using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure by blast
+
 lemma lift_eq_lift_if_bin_union_lift_eq_bin_union_lift:
   assumes "X \<union> lift X Y = X \<union> lift X Z"
   shows "lift X Y = lift X Z"
@@ -310,11 +338,14 @@ proof (rule iffI)
     also have "... = X \<union> lift X Z"
       by (auto simp: add_eq_bin_union_lift)
     finally have "X + Y \<in> X \<union> lift X Z" .
-    have not_add_lt_left: "\<not> X + Y \<in> X"
-      by (auto simp: not_add_mem_left )
+    have not_add_lt_left: "\<not> X + Y \<in> X" by auto
     with \<open>X + Y \<in> X \<union> lift X Z\<close> have "X + Y \<in> lift X Z" by auto
-(*X and lift X Y(Z) are disjoint *)
-    then show ?thesis sorry
+    have "lift X Z = {X + z| z \<in> Z}" by (simp add:lift_eq_image_add)
+    then have "X + Y \<in> {X + z| z \<in> Z}" using \<open>X + Y \<in> lift X Z\<close> by simp
+    then obtain z where sub: "z \<in> Z" "X + Y = X + z" by blast
+    then have "Y = z" by (auto simp: add_right_inective)
+    then have "Y \<in> Z" using sub by simp
+    then show ?thesis .
   qed
 next
   assume "Y \<in> Z"
@@ -322,9 +353,66 @@ next
     by (simp add: add_mem_add_if_mem)
 qed
 
+lemma kkk:
+  assumes "A \<subseteq> B \<union> C" "A \<inter> B = {}"
+  shows "A \<subseteq> C"
+proof
+  fix a
+  assume "a \<in> A"
+  with assms(1) have "a \<in> B \<union> C" by blast
+  then show "a \<in> C" 
+  proof
+    assume "a \<in> B"
+    with assms(2) and \<open>a \<in> A\<close> have "a \<in> {}" by blast
+    then show "a \<in> C" by simp
+  qed auto
+qed
+
+lemma  sss: "lift X Y \<subseteq> lift X Z \<longleftrightarrow> Y \<subseteq> Z"
+proof(rule iffI)
+  assume left:"lift X Y \<subseteq> lift X Z"
+  then have "{X + y|y \<in> Y} \<subseteq> {X + z|z \<in> Z}" 
+    by (auto simp: lift_eq_repl_add)
+  then show "Y \<subseteq> Z" sorry
+(*
+  proof
+    fix y assume "y \<in> Y"
+    then have "X + y \<in> {X + z|z \<in> Z}" 
+      using \<open>{X + y|y \<in> Y} \<subseteq> {X + z|z \<in> Z}\<close> by auto
+    then obtain z where "X + y = X + z" and "z \<in> Z" by auto
+    then have "y = z" by (auto simp:add_right_inective)
+    then have "y \<in> Y \<Longrightarrow> y \<in> Z " using \<open>z \<in> Z\<close> by simp
+    then show "Y \<subseteq> Z"  
+  qed
+*)
+qed (auto simp: lift_eq_image_add)
+
 corollary add_less_cancel_left [iff]:
-  "x + y \<subseteq> x + z \<longleftrightarrow> y \<subseteq> z"
-  sorry
+  "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
+proof(rule iffI)
+ assume left:"X + Y \<subseteq> X + Z"
+  thus "Y \<subseteq> Z" 
+  proof-
+    have "X + Y \<subseteq> X + Z"  by (simp add:left)
+    also have "... = X \<union> lift X Z"
+      by (auto simp: add_eq_bin_union_lift)
+    finally have "X + Y \<subseteq> X \<union> lift X Z" .
+    then have sub:"(lift X Y) \<subseteq> X \<union> (lift X Z)" 
+      by (auto simp: add_eq_bin_union_lift)
+    have "lift X Y \<inter> X = {}" by simp
+    with sub have "lift X Y \<subseteq> lift X Z"  by (auto simp:kkk)
+      then show ?thesis by (simp add:sss)
+    qed
+next
+  assume "Y \<subseteq> Z"
+  thus "X + Y \<subseteq> X + Z" 
+  proof-
+    have "lift X Y \<subseteq> lift X Z" using \<open>Y \<subseteq> Z\<close> by (simp add:sss)
+    then show ?thesis 
+      by (auto simp: add_eq_bin_union_lift)
+  qed
+qed
+
 
 
 paragraph\<open>Multiplication\<close>
@@ -372,6 +460,23 @@ proof-
   also have "... = X \<union> lift X X" by auto
   also have "... = X + X" by (simp add: add_eq_bin_union_lift)
   finally show ?thesis .
+qed
+
+lemma mul_insert_eq_bin_union_mul_lift: 
+  "X * (insert Y Z) = (X * Y) \<union> lift (X * Z) X"
+  sorry
+
+lemma  mul_mem_add_one_eq_mul_add:
+  "X * (Y + 1) = X * Y + X"
+proof -
+  have "insert Y Y = Y + 1"
+    by (simp add: insert_self_eq_add_one[where ?X = Y])
+  also have "X * (insert Y Y) = (X * Y) \<union> lift (X * Y) X"
+    by (simp add: mul_insert_eq_bin_union_mul_lift)
+  then have " X * (insert Y Y) = (X * Y) + X"
+    by (simp add: add_eq_bin_union_lift)
+  then show "X * (Y + 1) = (X * Y) + X"
+    using \<open>insert Y Y = Y + 1\<close> by simp
 qed
 
 end
