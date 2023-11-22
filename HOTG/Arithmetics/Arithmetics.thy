@@ -3,11 +3,22 @@ theory Arithmetics
     Functions_Restrict
     Mem_Trans
     Union_Intersection
-    Transport.HOL_Syntax_Bundles_Groups
-    Transport.HOL_Syntax_Bundles_Orders
     Foundation
     Axioms
+    Transport.HOL_Syntax_Bundles_Groups
+    Transport.HOL_Syntax_Bundles_Orders
+    Replacement_Predicates
 begin
+
+unbundle no_HOL_ascii_syntax
+
+lemma "{f x | x \<in> (X \<union> Y)} = {f x | x \<in> X} \<union> {f x | x \<in> Y}"
+  by blast
+
+lemma mem_unionI:
+  assumes "Y \<in> X"  "x \<in> Y"
+  shows "x \<in> \<Union>X" 
+  using assms by auto
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised arithmetics from
@@ -134,11 +145,11 @@ proof
         then have inTC:"y \<in> mem_trans_closure y" by (simp add: lt_iff_mem_trans_closure)
         also have uni:"mem_trans_closure y = y \<union> \<Union>{mem_trans_closure yy | yy \<in> y}"
           by (simp add:mem_trans_closure_eq_bin_union_repl[where ?X =y])
-        also have notself:"y \<notin> y" by (auto simp:not_mem_if_eq)
-        with uni inTC have "y \<in> X \<Longrightarrow>  y \<in> \<Union>{mem_trans_closure yy | yy \<in> y}" by auto
-        with mem show False sorry
+        also have notself:"y \<notin> y" by auto
+        with uni inTC have "y \<in> \<Union>{mem_trans_closure yy | yy \<in> y}" by auto
+        with mem \<open>y \<in> X\<close> show False by auto
       qed
-  qed (auto simp:not_mem_if_eq)
+  qed (auto)
 qed
 
 lemma not_lt_self [iff]: "\<not>(X < X)"
@@ -353,38 +364,20 @@ next
     by (simp add: add_mem_add_if_mem)
 qed
 
-lemma kkk:
-  assumes "A \<subseteq> B \<union> C" "A \<inter> B = {}"
-  shows "A \<subseteq> C"
-proof
-  fix a
-  assume "a \<in> A"
-  with assms(1) have "a \<in> B \<union> C" by blast
-  then show "a \<in> C" 
-  proof
-    assume "a \<in> B"
-    with assms(2) and \<open>a \<in> A\<close> have "a \<in> {}" by blast
-    then show "a \<in> C" by simp
-  qed auto
-qed
-
 lemma  sss: "lift X Y \<subseteq> lift X Z \<longleftrightarrow> Y \<subseteq> Z"
 proof(rule iffI)
   assume left:"lift X Y \<subseteq> lift X Z"
   then have "{X + y|y \<in> Y} \<subseteq> {X + z|z \<in> Z}" 
     by (auto simp: lift_eq_repl_add)
-  then show "Y \<subseteq> Z" sorry
-(*
-  proof
+  show "Y \<subseteq> Z" 
+  proof (rule subsetI)
     fix y assume "y \<in> Y"
     then have "X + y \<in> {X + z|z \<in> Z}" 
       using \<open>{X + y|y \<in> Y} \<subseteq> {X + z|z \<in> Z}\<close> by auto
     then obtain z where "X + y = X + z" and "z \<in> Z" by auto
     then have "y = z" by (auto simp:add_right_inective)
-    then have "y \<in> Y \<Longrightarrow> y \<in> Z " using \<open>z \<in> Z\<close> by simp
-    then show "Y \<subseteq> Z"  
+    then show "y \<in> Z " using \<open>z \<in> Z\<close> by simp
   qed
-*)
 qed (auto simp: lift_eq_image_add)
 
 corollary add_less_cancel_left [iff]:
@@ -400,7 +393,7 @@ proof(rule iffI)
     then have sub:"(lift X Y) \<subseteq> X \<union> (lift X Z)" 
       by (auto simp: add_eq_bin_union_lift)
     have "lift X Y \<inter> X = {}" by simp
-    with sub have "lift X Y \<subseteq> lift X Z"  by (auto simp:kkk)
+    with sub have "lift X Y \<subseteq> lift X Z" by blast
       then show ?thesis by (simp add:sss)
     qed
 next
@@ -428,8 +421,8 @@ lemma mul_eq_union_repl_lift_mul: "X * Y = \<Union>{lift (X * y) X | y \<in> Y}"
 
 lemma elts_multE:
   assumes "z \<in> (X * Y)"
-  obtains u v where "u \<in> x" "v \<in> y" "z = x * v + u"
-  sorry
+  obtains u v where "u \<in> X" "v \<in> Y" "z = X * v + u"
+ using mul_eq_union_repl_lift_mul[of X Y] assms lift_eq_image_add by auto
 
 lemma mul_zero_eq_zero: "x * {} = {}"
   unfolding mul_def by (auto simp: transrec_eq)
@@ -451,9 +444,9 @@ proof-
     then show ?thesis by simp
   qed
 
-lemma mul_two_eq_add: "X * {1, {}} = X + X"
+lemma mul_two_eq_add: "X * {1, 0} = X + X"
 proof-
-  have "X * {1, {}} = \<Union>{lift (X * y) X | y \<in> {1, {}} }"
+  have "X * {1, 0} = \<Union>{lift (X * y) X | y \<in> {1, 0} }"
     by (simp add: mul_eq_union_repl_lift_mul[where ?Y="{1,0}"])
   also have "... = (lift (X*1) X) \<union> (lift (X*{}) X)" by auto
   also have "... = lift X X \<union> lift {} X" by (simp add: mul_one_same mul_zero_eq_zero)
@@ -462,8 +455,13 @@ proof-
   finally show ?thesis .
 qed
 
+
+
+lemma insert_eq_bin_union_set: "insert x y = {x} \<union> y"
+  by simp
+
 lemma mul_insert_eq_bin_union_mul_lift: 
-  "X * (insert Y Z) = (X * Y) \<union> lift (X * Z) X"
+  "X * (insert Z Y) = (X * Y) \<union> lift (X * Z) X"
   sorry
 
 lemma  mul_mem_add_one_eq_mul_add:
@@ -498,7 +496,7 @@ proof-
   have "X * (Y \<union> Z) = \<Union>{lift (X * y) X | y \<in> (Y \<union> Z)}" 
     by (subst mul_eq_union_repl_lift_mul) auto
   also have "... = \<Union>{lift (X * y) X | y \<in> Y} \<union> \<Union>{lift (X * y) X | y \<in> Z}"
-    sorry
+    by blast
   also have "... = (X * Y) \<union> \<Union>{lift (X * y) X | y \<in> Z}"
     by (subst mul_eq_union_repl_lift_mul) auto
   also have "... = (X * Y) \<union> (X * Z)"
@@ -510,7 +508,8 @@ lemma mul_union_eq_union_mul: "X * \<Union>Y = \<Union>(X * Y)"
 proof-
   have "X * (\<Union>Y) = \<Union>{lift (X * y) X | y \<in> (\<Union>Y)}" 
     by (subst mul_eq_union_repl_lift_mul) auto
-  also have "... = \<Union>\<Union>{lift (X * y) X | y \<in> Y}"sorry
+  also have "... = \<Union>\<Union>{lift (X * y) X | y \<in> Y}"
+    sorry
   also have "... = \<Union>(X * Y)"
     by (subst mul_eq_union_repl_lift_mul) auto
   finally show ?thesis .
@@ -529,10 +528,8 @@ proof(induction Z rule:mem_induction)
     sorry
   also have "... = \<Union>{lift (X * Y + X * z) X | z \<in> Z}"
     sorry
-  also have "... = \<Union>{lift (X * Y) (lift  (X * z) X ) | z \<in> Z}"
-    by (auto simp: lift_lift_eq_lift_add)
   also have "... = lift (X * Y) (\<Union>{ lift  (X * z) X  | z \<in> Z})"
-    by (auto simp: lift_union_eq_union_repl_lift)
+    by (auto simp: lift_union_eq_union_repl_lift lift_lift_eq_lift_add)
   also have "... = lift (X * Y) (X * Z)"
     by (subst mul_eq_union_repl_lift_mul) auto
   finally show ?case .
@@ -546,17 +543,13 @@ proof(induction Z rule:mem_induction)
   case (mem Z)
   have "(X * Y) * Z = \<Union>{lift ((X * Y) * z) (X * Y) | z \<in> Z}"
     by (subst mul_eq_union_repl_lift_mul) auto
-  also have "... = \<Union>{lift (X * (Y * z)) (X * Y) | z \<in> Z}"
-    by (auto simp: mem)
   also have "... = \<Union>{X * lift(Y * z) Y | z \<in> Z}"
-    by (auto simp: mul_lift_eq_lift_mul_mul)
+    by (auto simp: mem mul_lift_eq_lift_mul_mul)
   also have "... = X * \<Union>{lift(Y * z) Y | z \<in> Z}"
     by (auto simp: unfolding_mul_union_eq_union_mul)
   also have "... = X * (Y * Z)" 
     by (subst mul_eq_union_repl_lift_mul) auto
   finally show ?case .
 qed
-
-
 
 end

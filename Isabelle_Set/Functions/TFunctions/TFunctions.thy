@@ -33,6 +33,21 @@ lemma injective_on_type_iff_injective_on_pred [iff]:
   by simp
 
 overloading
+  bijection_on_set \<equiv> "bijection_on :: set \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
+begin
+  definition "bijection_on_set A B (f :: set \<Rightarrow> set) (g :: set \<Rightarrow> set) \<equiv> 
+    bijection_on (mem_of A) (mem_of B) f g"
+end
+(*
+lemma bijection_on_set_eq_bijection_on_pred [simp]:
+  "(bijection_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> bool) A = bijection_on (mem_of A)"
+  unfolding bijection_on_set_def by simp
+
+lemma bijection_on_set_iff_bijection_on_pred [iff]:
+  "bijection_on (A :: set) (f :: set \<Rightarrow> 'a) \<longleftrightarrow> bijection_on (mem_of A) f"
+  by simp *)
+
+overloading
   inverse_on_set \<equiv> "inverse_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool"
   inverse_on_type \<equiv> "inverse_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
 begin
