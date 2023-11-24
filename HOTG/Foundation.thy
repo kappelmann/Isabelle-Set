@@ -4,7 +4,7 @@
 section \<open>Well-Foundedness of Sets\<close>
 theory Foundation
   imports
-    Mem_Trans
+    Mem_Transitive_Closed
     Union_Intersection
 begin
 
@@ -21,18 +21,17 @@ qed
 lemma empty_or_foundation: "X = {} \<or> (\<exists>Y \<in> X. \<forall>y \<in> Y. y \<notin> X)"
   using foundation_if_ne_empty by auto
 
-lemma empty_mem_if_mem_trans:
-  assumes "mem_trans X"
+lemma empty_mem_if_mem_trans_closed:
+  assumes "mem_trans_closed X"
   and "X \<noteq> {}"
   shows "{} \<in> X"
 proof (rule ccontr)
-  from foundation_if_ne_empty[OF \<open>X \<noteq> {}\<close>]
-    obtain A where "A \<in> X" and X_foundation: "\<forall>a \<in> A. a \<notin> X"
-    by auto
+  from foundation_if_ne_empty \<open>X \<noteq> {}\<close>
+    obtain A where "A \<in> X" and X_foundation: "\<forall>a \<in> A. a \<notin> X" by auto
   assume "{} \<notin> X"
   with \<open>A \<in> X\<close> have "A \<noteq> {}" by auto
   then obtain a where "a \<in> A" by auto
-  with mem_transD[OF \<open>mem_trans X\<close> \<open>A \<in> X\<close>] have "a \<in> X" by auto
+  with mem_trans_closedD[OF \<open>mem_trans_closed X\<close> \<open>A \<in> X\<close>] have "a \<in> X" by auto
   with X_foundation \<open>a \<in> A\<close> show False by auto
 qed
 
