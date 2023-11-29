@@ -24,11 +24,6 @@ translations
 lemma app_mem_repl_if_mem [intro]: "a \<in> A \<Longrightarrow> f a \<in> {f x | x \<in> A}"
   by auto
 
-(*LP: Useful for coinduction proofs*)
-lemma mem_repl_if_mem_if_eq_app [elim]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x | x \<in> A}"
-  by auto
-
-(*The converse of the above*)
 lemma bex_eq_app_if_mem_repl: "b \<in> {f x | x \<in> A} \<Longrightarrow> \<exists>a \<in> A. b = f a"
   by auto
 
