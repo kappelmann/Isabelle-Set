@@ -3,13 +3,13 @@ theory Set_Add
     Transport.HOL_Syntax_Bundles_Groups
     Less_Than
 begin
-
+(*
 (*TODO Kevin: fix in library*)
 lemma monoE [elim]:
   assumes "mono f"
   obtains "\<And>x y. x \<le> y \<Longrightarrow> f x \<le> f y"
   using assms by blast
-
+*)
 paragraph \<open>Summary\<close>
 text \<open>Translation of addition for sets from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
 
@@ -260,5 +260,7 @@ qed
 corollary add_subset_add_iff_subset: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_add_subset_add mono_add[of X] by (auto del: subsetI)
 
+corollary lift_subset_self [simp]: "lift x y \<subseteq> x \<longleftrightarrow> y = 0"
+  by (auto simp: lift_eq_repl_add bin_inter_eq_left_iff_subset)
 
 end
