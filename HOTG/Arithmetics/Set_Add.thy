@@ -3,13 +3,14 @@ theory Set_Add
     Transport.HOL_Syntax_Bundles_Groups
     Less_Than
 begin
-(*
+
 (*TODO Kevin: fix in library*)
 lemma monoE [elim]:
+  includes no_hotg_le_syntax
   assumes "mono f"
   obtains "\<And>x y. x \<le> y \<Longrightarrow> f x \<le> f y"
-  using assms by blast
-*)
+  using assms by auto
+
 paragraph \<open>Summary\<close>
 text \<open>Translation of addition for sets from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
 
@@ -62,12 +63,12 @@ lemma add_eq_bin_union_lift: "X + Y = X \<union> lift X Y"
 lemma lift_bin_union_eq_lift_bin_union_lift: "lift X (A \<union> B) = lift X A \<union> lift X B"
   by (auto simp: lift_eq_image_add)
 
-lemma lift_union_eq_union_repl_lift: "lift X (\<Union>Y) = \<Union>{lift X y | y \<in> Y}"
+lemma lift_union_eq_idx_union_lift: "lift X (\<Union>Y) = (\<Union>y \<in> Y. lift X y)"
   by (auto simp: lift_eq_image_add)
 
 lemma idx_union_add_eq_add_idx_union:
   "Y \<noteq> {} \<Longrightarrow> (\<Union>y \<in> Y. X + f y) = X + (\<Union>y \<in> Y. f y)"
-  by (simp add: lift_union_eq_union_repl_lift add_eq_bin_union_lift)
+  by (simp add: lift_union_eq_idx_union_lift add_eq_bin_union_lift)
 
 lemma lift_zero_eq_zero [simp]: "lift X 0 = 0"
   by (auto simp: lift_eq_image_add)
@@ -257,10 +258,11 @@ proof-
   then show ?thesis by (simp only: lift_subset_lift_iff_subset)
 qed
 
-corollary add_subset_add_iff_subset: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
+corollary add_subset_add_iff_subset [simp]: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_add_subset_add mono_add[of X] by (auto del: subsetI)
 
-corollary lift_subset_self [simp]: "lift x y \<subseteq> x \<longleftrightarrow> y = 0"
-  by (auto simp: lift_eq_repl_add bin_inter_eq_left_iff_subset)
+corollary lift_subset_left_iff_right_eq_zero [simp]: "lift X Y \<subseteq> X \<longleftrightarrow> Y = 0"
+  by (auto simp: lift_eq_repl_add)
+
 
 end
