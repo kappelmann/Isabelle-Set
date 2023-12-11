@@ -156,10 +156,16 @@ lemma idx_union_const [simp]: "(\<Union>y \<in> A. c) = (if A = {} then {} else 
 lemma idx_inter_const [simp]: "(\<Inter>y \<in> A. c) = (if A = {} then {} else c)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_union_repl [simp]: "(\<Union>y \<in> {f x | x \<in> A}. B y) = (\<Union>x \<in> A. B (f x))"
+lemma idx_union_repl_eq_idx_union [simp]: "(\<Union>y \<in> {f x | x \<in> A}. B y) = (\<Union>x \<in> A. B (f x))"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_inter_repl [simp]: "(\<Inter>x \<in> {f x | x \<in> A}. B x) = (\<Inter>a \<in> A. B(f a))"
+lemma idx_inter_repl_eq_idx_inter [simp]: "(\<Inter>x \<in> {f x | x \<in> A}. B x) = (\<Inter>a \<in> A. B (f a))"
+  by auto
+
+lemma idx_union_repl_eq_repl_union: "(\<Union>Y \<in> X. {f x | x \<in> Y}) = {f x | x \<in> \<Union>X}"
+  by auto
+
+lemma repl_inter_subset_idx_inter_repl: "{f x | x \<in> \<Inter>X} \<subseteq> (\<Inter>Y \<in> X. {f x | x \<in> Y})"
   by auto
 
 lemma idx_inter_union_eq_idx_inter_idx_inter:
@@ -517,6 +523,9 @@ lemma idx_inter_bin_inter_eq_bin_inter_idx_inter [simp]:
 lemma idx_union_bin_inter_subset_bin_inter_idx_union:
   "(\<Union>z \<in> I \<inter> J. A z) \<subseteq> (\<Union>z \<in> I. A z) \<inter> (\<Union>z \<in> J. A z)"
   by blast
+
+lemma idx_union_union_eq_idx_union_idx_union [simp]: "(\<Union>x \<in> \<Union>X. f x) = (\<Union>x \<in> X. \<Union>y \<in> x. f y)"
+  by auto
 
 
 end

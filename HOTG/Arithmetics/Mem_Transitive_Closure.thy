@@ -50,30 +50,30 @@ corollary injective_image_iff_injective [iff]: "injective (image f) \<longleftri
   using injective_image_if_injective injective_if_injective_image by blast
 
 
-definition "mem_trans_closure \<equiv> transrec (\<lambda>f X. X \<union> \<Union>(image f X))"
+definition "mem_trans_closure \<equiv> transrec (\<lambda>f X. X \<union> (\<Union>x \<in> X. f x))"
 
-lemma mem_trans_closure_eq_bin_union_repl:
-  "mem_trans_closure X = X \<union> \<Union>{mem_trans_closure x | x \<in> X}"
+lemma mem_trans_closure_eq_bin_union_idx_union:
+  "mem_trans_closure X = X \<union> (\<Union>x \<in> X. mem_trans_closure x)"
   by (simp add: mem_trans_closure_def transrec_eq[where ?X=X])
 
 corollary subset_mem_trans_closure_self: "X \<subseteq> mem_trans_closure X"
-  by (auto simp: mem_trans_closure_eq_bin_union_repl[where ?X= X])
+  by (auto simp: mem_trans_closure_eq_bin_union_idx_union[where ?X= X])
 
 corollary mem_mem_trans_closure_if_mem: "X \<in> Y \<Longrightarrow> X \<in> mem_trans_closure Y"
   using subset_mem_trans_closure_self by blast
 
-corollary mem_mem_trans_closure_if_mem_union:
-  assumes "X \<in> \<Union>{mem_trans_closure x | x \<in> Y}"
+corollary mem_mem_trans_closure_if_mem_idx_union:
+  assumes "X \<in> (\<Union>x \<in> Y. mem_trans_closure x)"
   shows "X \<in> mem_trans_closure Y"
-  using assms by (subst mem_trans_closure_eq_bin_union_repl) auto
+  using assms by (subst mem_trans_closure_eq_bin_union_idx_union) auto
 
 lemma mem_mem_trans_closureE [elim]:
   assumes "X \<in> mem_trans_closure Y"
   obtains (mem) "X \<in> Y" | (mem_trans_closure) y where "y \<in> Y" "X \<in> mem_trans_closure y"
-  using assms by (subst (asm) mem_trans_closure_eq_bin_union_repl) auto
+  using assms by (subst (asm) mem_trans_closure_eq_bin_union_idx_union) auto
 
 lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
-  by (simp add: mem_trans_closure_eq_bin_union_repl[where ?X="{}"])
+  by (simp add: mem_trans_closure_eq_bin_union_idx_union[where ?X="{}"])
 
 lemma mem_trans_closed_mem_trans_closure: "mem_trans_closed (mem_trans_closure X)"
 proof (induction X)
@@ -85,10 +85,10 @@ proof (induction X)
     proof (cases rule: mem_mem_trans_closureE)
       case mem
       moreover have "y \<in> mem_trans_closure x" using \<open>y \<in> x\<close> subset_mem_trans_closure_self by blast
-      ultimately show ?thesis by (subst mem_trans_closure_eq_bin_union_repl) blast
+      ultimately show ?thesis by (subst mem_trans_closure_eq_bin_union_idx_union) blast
     next
       case mem_trans_closure
-      with \<open>y \<in> x\<close> mem.IH show ?thesis by (subst mem_trans_closure_eq_bin_union_repl) blast
+      with \<open>y \<in> x\<close> mem.IH show ?thesis by (subst mem_trans_closure_eq_bin_union_idx_union) blast
     qed
   qed
 qed
@@ -102,5 +102,12 @@ proof
     with mem_trans_closed_mem_trans_closure show ?thesis by (induction X arbitrary: x) blast
   qed auto
 qed
+
+(*TODO Fang: prove this*)
+lemma mem_mem_trans_closure_trans:
+  assumes "X \<in> mem_trans_closure Y"
+  and "Y \<in> mem_trans_closure Z"
+  shows "X \<in> mem_trans_closure Z"
+  sorry
 
 end

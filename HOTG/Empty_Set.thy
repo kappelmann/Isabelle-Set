@@ -24,7 +24,7 @@ lemma ne_emptyE:
   using ex_mem_if_ne_empty[OF assms]
   by blast
 
-lemma mem_trans_empty [iff]: "mem_trans_closed {}"
+lemma mem_trans_closed_empty [iff]: "mem_trans_closed {}"
   unfolding mem_trans_closed_def by blast
 
 
