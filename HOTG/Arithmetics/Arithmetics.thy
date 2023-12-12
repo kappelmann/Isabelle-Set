@@ -107,6 +107,14 @@ proof (induction Z rule: mem_induction)
   finally show ?case .
 qed
 
+lemma not_empty_mem: 
+  assumes "X \<noteq> 0" "0 \<notin> X"
+  shows "\<exists>x \<in> X. x \<noteq> 0"
+proof (rule ccontr)
+  assume "\<not> (\<exists>x \<in> X. x \<noteq> 0)"
+  then show False using assms by auto
+qed
+
 lemma le_self_add: "X \<le> X + Y"
 proof (subst le_iff_mem_trans_closure_or_eq)
   show "X \<in> mem_trans_closure (X + Y) \<or> X = (X + Y)"
@@ -124,8 +132,8 @@ proof (subst le_iff_mem_trans_closure_or_eq)
           by (auto simp: mem_mem_trans_closure_if_mem)
       next
         case False
-        have "\<exists>y \<in> Y. y \<noteq> 0" using False \<open>Y \<noteq> 0\<close> sorry
-        then obtain y where sub:"y \<in> Y" "y \<noteq> 0" "X \<in> mem_trans_closure (X + y)" using mem by blast
+        then obtain y where sub:"y \<in> Y" "y \<noteq> 0" "X \<in> mem_trans_closure (X + y)" 
+          using False \<open>Y \<noteq> 0\<close>  mem by (auto simp:not_empty_mem)
         have "X + y \<in> X + Y"
           using sub by (subst add_eq_bin_union_repl_add) auto
         then show ?thesis using sub by (auto simp: mem_mem_trans_closure_trans  mem_mem_trans_closure_if_mem)
@@ -164,6 +172,35 @@ proof (cases "X = 0")
     qed (auto simp: le_iff_mem_trans_closure_or_eq)
   qed
 qed (auto simp: le_iff_mem_trans_closure_or_eq)
+
+lemma lt_mul_if_ne_zero: assumes "X \<noteq> 0" "Y \<noteq> 0" "Y \<noteq> 1" 
+  shows "X < X * Y"
+  sorry
+
+lemma six: assumes "A * X = A * Y + B" "B < A"
+  shows "B = 0"
+proof (cases "A = 0 \<or> X = 0")
+  case True
+  with assms show ?thesis 
+  proof (cases "A = 0")
+    case False
+    then have "A * Y + B = 0" using  \<open>A = 0 \<or> X = 0\<close> assms by auto
+    then show ?thesis 
+      by (auto simp: add_eq_zero_iff_and_eq_zero[of "A * Y" "B"])
+  qed auto
+next
+  case False
+  then have "A \<noteq> 0" "X \<noteq> 0" by auto
+  then show ?thesis
+  proof (cases"Y = 0")
+    case True
+    then show ?thesis 
+      using assms less_asym_TC lt_mul_if_ne_zero sorry
+  next
+    case False
+    then show ?thesis sorry
+  qed
+qed
 
 lemma sevenn: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"
   shows "X \<subseteq> Y"
