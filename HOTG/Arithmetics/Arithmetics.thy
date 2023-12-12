@@ -3,6 +3,7 @@ theory Arithmetics
     Set_Add
     Replacement
     Less_Than
+    Mem_transitive_Closure
 begin
 
 paragraph \<open>Summary\<close>
@@ -111,7 +112,26 @@ proof (subst le_iff_mem_trans_closure_or_eq)
   show "X \<in> mem_trans_closure (X + Y) \<or> X = (X + Y)"
   proof (cases "Y = 0")
     case False
-    then show ?thesis sorry
+    then have "X \<in> mem_trans_closure (X + Y)"
+    proof (induction Y)
+      case (mem Y)
+      then show ?case 
+      proof (cases"0 \<in> Y")
+        case True
+        have "X \<in> X + Y"
+          using True by (subst add_eq_bin_union_repl_add) auto
+        then show ?thesis 
+          by (auto simp: mem_mem_trans_closure_if_mem)
+      next
+        case False
+        have "\<exists>y \<in> Y. y \<noteq> 0" using False \<open>Y \<noteq> 0\<close> sorry
+        then obtain y where sub:"y \<in> Y" "y \<noteq> 0" "X \<in> mem_trans_closure (X + y)" using mem by blast
+        have "X + y \<in> X + Y"
+          using sub by (subst add_eq_bin_union_repl_add) auto
+        then show ?thesis using sub by (auto simp: mem_mem_trans_closure_trans  mem_mem_trans_closure_if_mem)
+      qed
+    qed
+    then show ?thesis by auto
   qed auto
 qed
 

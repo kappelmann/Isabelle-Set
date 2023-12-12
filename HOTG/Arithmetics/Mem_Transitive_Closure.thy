@@ -72,6 +72,10 @@ lemma mem_mem_trans_closureE [elim]:
   obtains (mem) "X \<in> Y" | (mem_trans_closure) y where "y \<in> Y" "X \<in> mem_trans_closure y"
   using assms by (subst (asm) mem_trans_closure_eq_bin_union_idx_union) auto
 
+lemma mem_eq_mem_trans_closure:
+"X \<in> mem_trans_closure Y \<longleftrightarrow>  X \<in> Y \<or> (X\<in> (\<Union>y \<in> Y. mem_trans_closure y))"
+  by (subst mem_trans_closure_eq_bin_union_idx_union) auto
+
 lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
   by (simp add: mem_trans_closure_eq_bin_union_idx_union[where ?X="{}"])
 
@@ -107,7 +111,25 @@ qed
 lemma mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> mem_trans_closure Z"
-  shows "X \<in> mem_trans_closure Z"
-  sorry
+shows "X \<in> mem_trans_closure Z"
+proof (rule ccontr)
+  assume con:"X \<notin> mem_trans_closure Z"
+  then show False 
+  proof -
+    have "X \<notin> Z \<and> (X\<notin> (\<Union>z \<in> Z. mem_trans_closure z))"
+      using con by (auto simp: mem_eq_mem_trans_closure)
+    with assms(1) have "Y \<notin> Z"
+      by auto
+    with assms(2) have "Y\<in> (\<Union>z \<in> Z. mem_trans_closure z)"
+      by (auto simp: mem_eq_mem_trans_closure)
+    then obtain yy where "yy \<in> Z" "Y \<in> mem_trans_closure yy" by blast
+    then have "yy \<in> mem_trans_closure Z" 
+      by (simp add: mem_mem_trans_closure_if_mem)
+    then have "Y \<notin> mem_trans_closure Z"
+      sorry
+    with assms show False by simp
+  qed
+qed
+
 
 end
