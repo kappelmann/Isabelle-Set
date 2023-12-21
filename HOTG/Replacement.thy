@@ -46,7 +46,7 @@ lemma repl_eq_empty [simp]: "{f x | x \<in> {}} = {}"
   by (rule eq_if_subset_if_subset) auto
 
 lemma repl_eq_empty_iff [iff]: "{f x | x \<in> A} = {} \<longleftrightarrow> A = {}"
-  by (auto dest: eqD intro!: eqI')
+  by auto
 
 lemma repl_subset_repl_if_subset_dom [intro!]:
   "A \<subseteq> B \<Longrightarrow> {g y | y \<in> A} \<subseteq> {g y | y \<in> B}"

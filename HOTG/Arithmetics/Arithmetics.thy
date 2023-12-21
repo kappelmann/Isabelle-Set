@@ -3,7 +3,7 @@ theory Arithmetics
     Set_Add
     Replacement
     Less_Than
-    Mem_transitive_Closure
+    Mem_Transitive_Closure
 begin
 
 paragraph \<open>Summary\<close>
@@ -148,8 +148,6 @@ lemma le_mul_if_ne_zero:
   shows "X \<le> X * Y"
 proof (cases "X = 0")
   case False
-  (*Note Fang: you have to pass the assumption about Y to the induction (otherwise, you won't
-    be able to use it for the new Y in the mem case below*)
   from assms show ?thesis
   proof (induction Y rule: mem_induction)
     case (mem Y)
@@ -175,6 +173,7 @@ qed (auto simp: le_iff_mem_trans_closure_or_eq)
 
 lemma lt_mul_if_ne_zero: assumes "X \<noteq> 0" "Y \<noteq> 0" "Y \<noteq> 1" 
   shows "X < X * Y"
+(*How to give a stronger conclusion by adding more restriction*)
   sorry
 
 lemma six: assumes "A * X = A * Y + B" "B < A"

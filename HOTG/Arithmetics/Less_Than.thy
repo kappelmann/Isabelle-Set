@@ -52,5 +52,8 @@ lemma le_trans [trans]:
   shows "X \<le> Z"
   using assms mem_mem_trans_closure_trans unfolding le_iff_mem_trans_closure_or_eq by auto
 
+definition "vle X Y \<equiv> \<exists>Z. X + Z = Y" 
+
+
 
 end

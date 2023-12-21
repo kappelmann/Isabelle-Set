@@ -72,8 +72,7 @@ lemma mem_mem_trans_closureE [elim]:
   obtains (mem) "X \<in> Y" | (mem_trans_closure) y where "y \<in> Y" "X \<in> mem_trans_closure y"
   using assms by (subst (asm) mem_trans_closure_eq_bin_union_idx_union) auto
 
-lemma mem_eq_mem_trans_closure:
-"X \<in> mem_trans_closure Y \<longleftrightarrow>  X \<in> Y \<or> (X\<in> (\<Union>y \<in> Y. mem_trans_closure y))"
+lemma mem_eq_mem_trans_closure:"X \<in> mem_trans_closure Y \<longleftrightarrow>  X \<in> Y \<or> (X\<in> (\<Union>y \<in> Y. mem_trans_closure y))"
   by (subst mem_trans_closure_eq_bin_union_idx_union) auto
 
 lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
@@ -107,6 +106,11 @@ proof
   qed auto
 qed
 
+lemma less_asym_TC: "\<lbrakk>x < y; y < x\<rbrakk> \<Longrightarrow> False"
+  sorry
+
+
+(*le_TC_t*)
 (*TODO Fang: prove this*)
 lemma mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
@@ -120,11 +124,11 @@ proof (rule ccontr)
       using con by (auto simp: mem_eq_mem_trans_closure)
     with assms(1) have "Y \<notin> Z"
       by auto
-    with assms(2) have "Y\<in> (\<Union>z \<in> Z. mem_trans_closure z)"
+    with assms have "Y\<in> (\<Union>z \<in> Z. mem_trans_closure z)"
       by (auto simp: mem_eq_mem_trans_closure)
     then obtain yy where "yy \<in> Z" "Y \<in> mem_trans_closure yy" by blast
-    then have "yy \<in> mem_trans_closure Z" 
-      by (simp add: mem_mem_trans_closure_if_mem)
+    then have "yy \<in> mem_trans_closure Z" "Y \<in> mem_trans_closure yy"
+      by (auto simp: mem_mem_trans_closure_if_mem)
     then have "Y \<notin> mem_trans_closure Z"
       sorry
     with assms show False by simp
