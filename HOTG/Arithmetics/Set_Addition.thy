@@ -1,12 +1,14 @@
-theory Set_Add
+\<^marker>\<open>creator "Linghan Fang"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+section \<open>Generalised Addition\<close>
+theory Set_Addition
   imports
-    Transport.HOL_Syntax_Bundles_Groups
     Less_Than
 begin
 
 (*TODO Kevin: fix in library*)
 lemma monoE [elim]:
-  includes no_hotg_le_syntax
+  includes no_hotg_le_syntax HOL_order_syntax
   assumes "mono f"
   obtains "\<And>x y. x \<le> y \<Longrightarrow> f x \<le> f y"
   using assms by auto
@@ -14,37 +16,11 @@ lemma monoE [elim]:
 paragraph \<open>Summary\<close>
 text \<open>Translation of addition for sets from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
 
-unbundle no_HOL_ascii_syntax
-unbundle no_HOL_groups_syntax
-unbundle no_HOL_order_syntax
-
-abbreviation "zero_set \<equiv> {}"
-abbreviation "one_set \<equiv> {zero_set}"
-abbreviation "two_set \<equiv> {zero_set, one_set}"
-
-bundle hotg_set_zero_syntax begin notation zero_set ("0") end
-bundle no_hotg_set_zero_syntax begin no_notation zero_set ("0") end
-
-bundle hotg_set_one_syntax begin notation one_set ("1") end
-bundle no_hotg_set_one_syntax begin no_notation one_set ("1") end
-
-bundle hotg_set_two_syntax begin notation two_set ("2") end
-bundle no_hotg_set_two_syntax begin no_notation two_set ("2") end
-
-unbundle
-  hotg_set_zero_syntax
-  hotg_set_one_syntax
-  hotg_set_two_syntax
-
-
 definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
 
 bundle hotg_add_syntax begin notation add (infixl "+" 65) end
 bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
 unbundle hotg_add_syntax
-
-lemma add_eq_bin_union_image_add: "X + Y = X \<union> image ((+) X) Y"
-  unfolding add_def by (simp add: transrec_eq)
 
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
   unfolding add_def by (simp add: transrec_eq)
@@ -58,7 +34,10 @@ lemma lift_eq_repl_add: "lift X Y = {X + y | y \<in> Y}"
   using lift_eq_image_add by simp
 
 lemma add_eq_bin_union_lift: "X + Y = X \<union> lift X Y"
-  unfolding lift_eq_image_add by (subst add_eq_bin_union_image_add) simp
+  unfolding lift_eq_image_add by (subst add_eq_bin_union_repl_add) simp
+
+corollary lift_subset_add: "lift X Y \<subseteq> X + Y"
+  using add_eq_bin_union_lift by auto
 
 lemma lift_bin_union_eq_lift_bin_union_lift: "lift X (A \<union> B) = lift X A \<union> lift X B"
   by (auto simp: lift_eq_image_add)
@@ -87,24 +66,17 @@ lemma succ_eq_add_one: "succ X = X + 1"
 lemma insert_self_eq_add_one: "insert X X = X + 1"
   by (auto simp: add_eq_bin_union_lift succ_eq_add_one)
 
-lemma lift_singleton_eq_singleton_add: "lift X {Z} = {X + Z}"
-  unfolding lift_def by simp
-
-lemma lift_singleton_eq_singleton_bin_union_lift: "lift X {Z} = {X \<union> lift X Z}"
-  by (simp only: lift_singleton_eq_singleton_add add_eq_bin_union_lift)
-
-lemma lift_bin_union_singleton_eq_lift_bin_union:
-  "lift X (insert Y Z) = lift X Z \<union> {X \<union> lift X Y}"
-  by (simp flip: lift_singleton_eq_singleton_bin_union_lift lift_bin_union_eq_lift_bin_union_lift)
+lemma lift_insert_eq_insert_add_lift: "lift X (insert Y Z) = insert (X + Y) (lift X Z)"
+  unfolding lift_def by (simp add: repl_insert_eq)
 
 lemma add_insert_eq_insert_add: "X + insert Y Z = insert (X + Y) (X + Z)"
-  by (auto simp: lift_bin_union_singleton_eq_lift_bin_union add_eq_bin_union_lift)
+  by (auto simp: lift_insert_eq_insert_add_lift add_eq_bin_union_lift)
 
 
 paragraph\<open>Proposition 3.3\<close>
 
 lemma zero_add_eq_self [simp]: "0 + X = X"
-proof (induct X)
+proof (induction X)
   case (mem X)
   have "0 + X = lift 0 X" by (simp add: add_eq_bin_union_lift)
   also from mem have "... = X" by (simp add: lift_eq_image_add)
@@ -123,7 +95,7 @@ corollary add_eq_zero_iff_and_eq_zero [iff]: "X + Y = 0 \<longleftrightarrow> X 
   using add_eq_zeroE by auto
 
 lemma add_assoc: "(X + Y) + Z = X + (Y + Z)"
-proof(induct Z)
+proof (induction Z)
   case (mem Z)
   from add_eq_bin_union_lift have "(X + Y) + Z = (X + Y) \<union> (lift (X + Y) Z)" by simp
   also from lift_eq_repl_add have "... = (X + Y) \<union> {(X + Y) + z | z \<in> Z}" by simp
@@ -148,13 +120,15 @@ lemma lift_lift_eq_lift_add: "lift X (lift Y Z) = lift (X + Y) Z"
 lemma add_succ_eq_succ_add: "X + succ Y = succ (X + Y)"
   by (auto simp: succ_eq_add_one add_assoc)
 
-lemma add_mem_add_if_mem:
-  assumes "Y \<in> Z"
-  shows "X + Y \<in> X + Z"
-proof-
-  from assms have "X + Y \<in> {X + z| z \<in> Z}" by auto
-  then show ?thesis by (auto simp: lift_eq_repl_add[of X Z] add_eq_bin_union_lift)
-qed
+lemma add_mem_lift_if_mem_right:
+  assumes "X \<in> Y"
+  shows "Z + X \<in> lift Z Y"
+  using assms by (auto simp: lift_eq_repl_add)
+
+corollary add_mem_add_if_mem_right:
+  assumes "X \<in> Y"
+  shows "Z + X \<in> Z + Y"
+  using assms add_mem_lift_if_mem_right lift_subset_add by blast
 
 lemma not_add_lt_left [iff]: "\<not>(X + Y < X)"
 proof
@@ -165,16 +139,22 @@ proof
     then show ?case
     proof (cases "Y = {}")
       case False
-      then obtain y where sub: "y \<in> Y" by blast
-      with add_mem_add_if_mem mem have sub_in: "X + y \<in> X + Y" by auto
-      with mem have bla: "X + y < X" by (auto intro: lt_if_lt_if_mem)
-      with sub mem.IH show ?thesis by auto
+      then obtain y where "y \<in> Y" by blast
+      with add_mem_add_if_mem_right have "X + y \<in> X + Y" by auto
+      with mem.prems have "X + y < X" by (auto intro: lt_if_lt_if_mem)
+      with \<open>y \<in> Y\<close> mem.IH show ?thesis by auto
     qed simp
   qed
 qed
 
-lemma not_add_mem_left [iff]: "\<not>(X + Y \<in> X)"
+lemma not_add_mem_left [iff]: "X + Y \<notin> X"
   using subset_mem_trans_closure_self lt_iff_mem_trans_closure by auto
+
+corollary add_subset_left_iff_right_eq_zero [iff]: "X + Y \<subseteq> X \<longleftrightarrow> Y = 0"
+  by (subst add_eq_bin_union_repl_add) auto
+
+corollary lift_subset_left_iff_right_eq_zero [iff]: "lift X Y \<subseteq> X \<longleftrightarrow> Y = 0"
+  by (auto simp: lift_eq_repl_add)
 
 lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<inter> lift X Y = {}"
   by (auto simp: lift_eq_image_add simp flip: lt_iff_mem_trans_closure)
@@ -182,13 +162,14 @@ lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<i
 lemma bin_inter_lift_self_eq_empty [simp]: "X \<inter> lift X Y = {}"
   using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure_self by blast
 
-lemma lift_bin_inter_self_eq_empty [simp]: "lift X Y \<inter> X = {}"
+corollary lift_bin_inter_self_eq_empty [simp]: "lift X Y \<inter> X = {}"
   using bin_inter_lift_self_eq_empty by blast
 
 lemma lift_eq_lift_if_bin_union_lift_eq_bin_union_lift:
   assumes "X \<union> lift X Y = X \<union> lift X Z"
   shows "lift X Y = lift X Z"
   using assms bin_inter_lift_self_eq_empty by blast
+
 
 paragraph\<open>Proposition 3.4\<close>
 
@@ -210,13 +191,22 @@ proof (rule injectiveI)
   qed
 qed
 
-lemma add_injective_right: "injective (add X)"
-  using lift_injective_right lift_eq_image_add  by auto
+corollary lift_eq_lift_if_eq_right: "lift X Y = lift X Z \<Longrightarrow> Y = Z"
+  using lift_injective_right by (blast dest: injectiveD)
 
-corollary add_eq_add_if_eq_right [dest, simp]: "X + Y = X + Z \<Longrightarrow> Y = Z"
+corollary lift_eq_lift_iff_eq_right [iff]: "lift X Y = lift X Z \<longleftrightarrow> Y = Z"
+  using lift_eq_lift_if_eq_right by auto
+
+lemma add_injective_right: "injective ((+) X)"
+  using lift_injective_right lift_eq_image_add by auto
+
+corollary add_eq_add_if_eq_right: "X + Y = X + Z \<Longrightarrow> Y = Z"
   using add_injective_right by (blast dest: injectiveD)
 
-lemma mem_if_add_mem_add:
+corollary add_eq_add_iff_eq_right [iff]: "X + Y = X + Z \<longleftrightarrow> Y = Z"
+  using add_eq_add_if_eq_right by auto
+
+lemma mem_if_add_mem_add_right:
   assumes "X + Y \<in> X + Z"
   shows "Y \<in> Z"
 proof -
@@ -227,8 +217,8 @@ proof -
   then show "Y \<in> Z" by blast
 qed
 
-corollary add_mem_add_iff_mem: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
-  using mem_if_add_mem_add add_mem_add_if_mem by blast
+corollary add_mem_add_iff_mem_right [iff]: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
+  using mem_if_add_mem_add_right add_mem_add_if_mem_right by blast
 
 lemma mono_lift: "mono (lift X)"
   by (auto simp: lift_eq_repl_add)
@@ -240,7 +230,7 @@ corollary lift_subset_lift_iff_subset: "lift X Y \<subseteq> lift X Z \<longleft
   using subset_if_lift_subset_lift mono_lift[of X] by (auto del: subsetI)
 
 lemma mono_add: "mono ((+) X)"
-proof (intro monoI[of "(+) X", simplified])
+proof (rule monoI[of "(+) X", simplified])
   fix Y Z assume "Y \<subseteq> Z"
   then have "lift X Y \<subseteq> lift X Z" by (simp only: lift_subset_lift_iff_subset)
   then show "X + Y \<subseteq> X + Z" by (auto simp: add_eq_bin_union_lift)
@@ -251,18 +241,70 @@ lemma subset_if_add_subset_add:
   shows "Y \<subseteq> Z"
 proof-
   have "X + Z = X \<union> lift X Z" by (simp only: add_eq_bin_union_lift)
-  with assms have "X + Y \<subseteq> X \<union> lift X Z" by simp
-  then have "lift X Y \<subseteq> X \<union> (lift X Z)" by (auto simp: add_eq_bin_union_lift)
-  moreover have "lift X Y \<inter> X = {}" by simp
+  with assms have "lift X Y \<subseteq> X \<union> lift X Z" by (auto simp: add_eq_bin_union_lift)
+  moreover have "lift X Y \<inter> X = {}" by (fact lift_bin_inter_self_eq_empty)
   ultimately have "lift X Y \<subseteq> lift X Z" by blast
-  then show ?thesis by (simp only: lift_subset_lift_iff_subset)
+  with lift_subset_lift_iff_subset show ?thesis by simp
 qed
 
-corollary add_subset_add_iff_subset [simp]: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
+corollary add_subset_add_iff_subset [iff]: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_add_subset_add mono_add[of X] by (auto del: subsetI)
 
-corollary lift_subset_left_iff_right_eq_zero [simp]: "lift X Y \<subseteq> X \<longleftrightarrow> Y = 0"
-  by (auto simp: lift_eq_repl_add)
+lemma mem_trans_closure_add_eq_mem_trans_closure_bin_union:
+  "mem_trans_closure (X + Y) = mem_trans_closure X \<union> lift X (mem_trans_closure Y)"
+proof (induction Y)
+  case (mem Y)
+  have "mem_trans_closure (X + Y) = (X + Y) \<union> (\<Union>z \<in> X + Y. mem_trans_closure z)"
+    by (subst mem_trans_closure_eq_bin_union_idx_union) simp
+  also have "... = mem_trans_closure X \<union> lift X Y \<union> (\<Union>y \<in> Y. mem_trans_closure (X + y))"
+    (is "_ = ?unions \<union> _")
+    by (auto simp: lift_eq_repl_add idx_union_bin_union_dom_eq_bin_union_idx_union
+      add_eq_bin_union_lift[of X Y] mem_trans_closure_eq_bin_union_idx_union[of X])
+  also have "... = ?unions \<union> (\<Union>y \<in> Y. mem_trans_closure X \<union> lift X (mem_trans_closure y))"
+    using mem.IH by simp
+  also have "... = ?unions \<union> (\<Union>y \<in> Y. lift X (mem_trans_closure y))" by auto
+  also have "... = mem_trans_closure X \<union> lift X (Y \<union> (\<Union>y \<in> Y. mem_trans_closure y))"
+    by (simp add: lift_bin_union_eq_lift_bin_union_lift
+      lift_union_eq_idx_union_lift bin_union_assoc mem_trans_closure_eq_bin_union_idx_union[of X])
+  also have "... = mem_trans_closure X \<union> lift X (mem_trans_closure Y)"
+    by (simp flip: mem_trans_closure_eq_bin_union_idx_union)
+  finally show ?case .
+qed
+
+corollary lt_add_if_lt_left:
+  assumes "X < Y"
+  shows "X < Y + Z"
+  using assms mem_trans_closure_add_eq_mem_trans_closure_bin_union
+  by (auto simp: lt_iff_mem_trans_closure)
+
+corollary add_lt_add_if_lt_right:
+  assumes "X < Y"
+  shows "Z + X < Z + Y"
+  using assms mem_trans_closure_add_eq_mem_trans_closure_bin_union
+  by (auto simp: lt_iff_mem_trans_closure lift_eq_image_add)
+
+corollary lt_add_if_eq_add_if_lt:
+  assumes "x < X"
+  and "Y = Z + x"
+  shows "Y < Z + X"
+  using assms add_lt_add_if_lt_right by simp
+
+corollary lt_addE:
+  assumes "X < Y + Z"
+  obtains (lt_left) "X < Y" | (lt_eq) z where "z < Z" "X = Y + z"
+  using assms mem_trans_closure_add_eq_mem_trans_closure_bin_union
+  by (auto simp: lt_iff_mem_trans_closure lift_eq_image_add)
+
+corollary lt_add_iff_lt_or_lt_eq: "X < Y + Z \<longleftrightarrow> X < Y \<or> (\<exists>z. z < Z \<and> X = Y + z)"
+  by (blast intro: lt_add_if_lt_left add_lt_add_if_lt_right elim: lt_addE)
+
+lemma lt_add_self_if_ne_zero [simp]:
+  assumes "Y \<noteq> 0"
+  shows "X < X + Y"
+  using assms by (intro lt_add_if_eq_add_if_lt) auto
+
+corollary le_self_add [iff]: "X \<le> X + Y"
+  using lt_add_self_if_ne_zero le_iff_lt_or_eq by (cases "Y = 0") auto
 
 
 end

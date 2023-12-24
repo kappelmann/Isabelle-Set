@@ -7,8 +7,10 @@ begin
 lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   unfolding subset_def by simp
 
-lemma subsetD [dest, trans]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
+lemma subsetD [dest]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
   unfolding subset_def by blast
+
+lemma mem_if_subset_if_mem [trans]: "\<lbrakk>a \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> a \<in> B" by blast
 
 lemma subset_self [iff]: "A \<subseteq> A" by blast
 

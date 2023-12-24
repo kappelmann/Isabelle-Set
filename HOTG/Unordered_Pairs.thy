@@ -67,10 +67,11 @@ lemma mono_insert_set: "mono (insert x)"
   by (intro monoI) auto
 
 
-subsection \<open>Subsets\<close>
-
 lemma insert_subset_iff_mem_subset [iff]: "insert x A \<subseteq> B \<longleftrightarrow> x \<in> B \<and> A \<subseteq> B"
   by blast
+
+lemma repl_insert_eq: "{f x | x \<in> insert x A} = insert (f x) {f x | x \<in> A}"
+  by auto
 
 
 end

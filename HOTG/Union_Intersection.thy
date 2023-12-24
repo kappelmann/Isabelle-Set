@@ -319,6 +319,8 @@ lemma mono_bin_union_left: "mono (\<lambda>A. A \<union> B)"
 lemma mono_bin_union_right: "mono (\<lambda>B. A \<union> B)"
   by (intro monoI) auto
 
+lemma union_insert_eq_bin_union_union: "\<Union>(insert X Y) = X \<union> \<Union>Y" by auto
+
 
 paragraph \<open>Binary Intersection\<close>
 
@@ -412,6 +414,8 @@ lemma mono_bin_inter_left: "mono (\<lambda>A. A \<inter> B)"
 lemma mono_bin_inter_right: "mono (\<lambda>B. A \<inter> B)"
   by (intro monoI) auto
 
+lemma inter_insert_eq_bin_inter_inter: "Y \<noteq> {} \<Longrightarrow> \<Inter>(insert X Y) = X \<inter> \<Inter>Y" by auto
+
 
 paragraph\<open>Comprehension\<close>
 
@@ -449,6 +453,7 @@ lemma collect_or_eq_union_collect:
   "{x \<in> A | P x \<or> Q x} = {x \<in> A | P x} \<union> {x \<in> A | Q x}"
   by (rule eq_if_subset_if_subset) auto
 
+
 lemma union_bin_union_eq_bin_union_union: "\<Union>(A \<union> B) = \<Union>A \<union> \<Union>B"
   by (rule eq_if_subset_if_subset) auto
 
@@ -481,6 +486,14 @@ lemma bin_union_inter_subset_inter_bin_inter:
 lemma inter_bin_union_eq_bin_inter_inter:
   "\<lbrakk>A \<noteq> {}; B \<noteq> {}\<rbrakk> \<Longrightarrow> \<Inter>(A \<union> B) = \<Inter>A \<inter> \<Inter>B"
   by (rule eq_if_subset_if_subset) auto
+
+lemma idx_union_insert_dom_eq_bin_union_idx_union: "(\<Union>i \<in> insert A B. C i) = C A \<union> (\<Union>i \<in> B. C i)"
+  by auto
+
+lemma idx_inter_insert_dom_eq_bin_inter_idx_inter:
+  assumes "B \<noteq> {}"
+  shows "(\<Inter>i \<in> insert A B. C i) = C A \<inter> (\<Inter>i \<in> B. C i)"
+  using assms by auto
 
 lemma idx_union_bin_union_dom_eq_bin_union_idx_union:
   "(\<Union>i \<in> A \<union> B. C i) = (\<Union>i \<in> A. C i) \<union> (\<Union>i \<in> B. C i)"

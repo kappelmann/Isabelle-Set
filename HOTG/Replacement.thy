@@ -6,6 +6,8 @@ theory Replacement
   imports
     Bounded_Quantifiers
     Equality
+    Functions_Restrict
+    Transport.Functions_Injective
 begin
 
 bundle hotg_repl_syntax
@@ -60,6 +62,37 @@ lemma bex_repl_iff_bex [iff]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longl
 
 lemma mono_repl_set: "mono (\<lambda>A. {f x | x \<in> A})"
   by (intro monoI) auto
+
+
+subsection \<open>Image\<close>
+
+(*TODO Kevin: rename to binary_relation_restrict*)
+unbundle no_restrict_syntax
+
+definition "image f A \<equiv> {f x | x \<in> A}"
+
+lemma image_eq_repl [simp]: "image f A = repl A f"
+  unfolding image_def by simp
+
+lemma repl_fun_restrict_eq_repl [simp]: "{f\<restriction>\<^bsub>A\<^esub> x | x \<in> A} = {f x | x \<in> A}"
+  by simp
+
+lemma injective_image_if_injective:
+  assumes "injective f"
+  shows "injective (image f)"
+  by (intro injectiveI eqI) (use assms in \<open>auto dest: injectiveD\<close>)
+
+lemma injective_if_injective_image:
+  assumes "injective (image f)"
+  shows "injective f"
+proof (rule injectiveI)
+  fix X Y assume "f X = f Y"
+  then have "image f {X | _ \<in> powerset {}} = image f {Y | _ \<in> powerset {}}" by simp
+  with assms show "X = Y" by (blast dest: injectiveD)
+qed
+
+corollary injective_image_iff_injective [iff]: "injective (image f) \<longleftrightarrow> injective f"
+  using injective_image_if_injective injective_if_injective_image by blast
 
 
 end

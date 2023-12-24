@@ -15,6 +15,7 @@ begin
 no_syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
 end
 unbundle hotg_finite_sets_syntax
+unbundle no_HOL_ascii_syntax
 
 translations
   "{x, xs}" \<rightleftharpoons> "CONST insert x {xs}"
@@ -64,11 +65,7 @@ lemma upair_eq_insert_singleton [simp]: "upair x y = {x, y}"
 
 subsection \<open>Replacement\<close>
 
-lemma repl_singleton_eq [simp]: "{f x | x \<in> {a}} = {f a}"
-  by auto
-
-lemma repl_insert_eq: "{f x | x \<in> insert x A} = insert (f x) {f x | x \<in> A}"
-  by auto
+lemma repl_singleton_eq [simp]: "{f x | x \<in> {a}} = {f a}" by auto
 
 
 end
