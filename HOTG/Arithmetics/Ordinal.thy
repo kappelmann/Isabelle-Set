@@ -15,7 +15,7 @@ definition SOrd where "SOrd x \<equiv> Transset x \<and> (\<forall>y \<in>  x. T
 lemma Transset_empty [iff]: "Transset {}"
   by (auto simp: Transset_def)
 
-(*similar with x + 1*)
+(*similar with x + 1 and adduction*)
 definition SOsucc where "SOsucc x = insert x x"
 
 definition Oless_eq where "Oless_eq x y \<equiv> x \<subseteq> y"
@@ -74,7 +74,7 @@ proof (induction k rule: mem_induction)
 qed
 
 definition SLimit :: "set \<Rightarrow> bool"
-  where "SLimit i \<equiv> SOrd i \<and> {} \<in>  i \<and> (\<forall>y. y \<in> i \<longrightarrow> SOsucc y \<in>  i)"
+  where "SLimit i \<equiv> SOrd i \<and> {} \<in>  i \<and> (\<forall>y. y \<in> i \<longrightarrow> SOsucc y \<in> i)"
 
 lemma Ord_induct3 [consumes 1, case_names 0 succ Limit, induct type: set]:
   assumes a: "SOrd a"

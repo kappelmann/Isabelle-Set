@@ -79,15 +79,14 @@ proof (induction Y)
   qed auto
 qed
 
-
-(*TODO Fang: prove this*)
-lemma mem_mem_trans_closure_trans:
+lemma mem_mem_trans_closure_mem_trans:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> Z"
 shows "X \<in> mem_trans_closure Z"
   using assms by (auto simp:mem_mem_trans_closure_iff_mem_or_mem[of X Z])
 
-theorem mem_mem_trans_closure_transitivity:
+(*TODO Fang: prove this*)
+theorem mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> mem_trans_closure Z"
 shows "X \<in> mem_trans_closure Z"
@@ -102,7 +101,7 @@ proof (induction Z)
     case False
     then obtain zz where "zz \<in> Z" "X \<in> mem_trans_closure zz" using sub by auto
     then show ?thesis 
-      using assms mem_mem_trans_closure_trans sub by auto
+      using assms mem_mem_trans_closure_mem_trans sub by auto
   qed
 qed
 
