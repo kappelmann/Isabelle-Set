@@ -79,29 +79,31 @@ proof (induction Y)
   qed auto
 qed
 
+
 (*TODO Fang: prove this*)
 lemma mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
+  and "Y \<in> Z"
+shows "X \<in> mem_trans_closure Z"
+  using assms by (auto simp:mem_mem_trans_closure_iff_mem_or_mem[of X Z])
+
+theorem mem_mem_trans_closure_transitivity:
+  assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> mem_trans_closure Z"
-  shows "X \<in> mem_trans_closure Z"
-proof (rule ccontr)
-  assume con:"X \<notin> mem_trans_closure Z"
-  then show False
-  proof -
-    have "X \<notin> Z \<and> (X\<notin> (\<Union>z \<in> Z. mem_trans_closure z))"
-      using con by (auto simp: mem_mem_trans_closure_iff_mem_or_mem)
-    with assms(1) have "Y \<notin> Z"
-      by auto
-    with assms have "Y\<in> (\<Union>z \<in> Z. mem_trans_closure z)"
-      by (auto simp: mem_mem_trans_closure_iff_mem_or_mem)
-    then obtain yy where "yy \<in> Z" "Y \<in> mem_trans_closure yy" by blast
-    then have "yy \<in> mem_trans_closure Z" "Y \<in> mem_trans_closure yy"
-      by (auto simp: mem_mem_trans_closure_if_mem)
-    then have "Y \<notin> mem_trans_closure Z"
-      sorry
-    with assms show False by simp
+shows "X \<in> mem_trans_closure Z"
+proof (induction Z)
+  case (mem Z)
+  then have sub:"\<forall>x \<in> Z. X \<in> mem_trans_closure x" using mem by auto
+  show ?case 
+  proof(cases"Z = {}")
+    case True
+    then show ?thesis sorry
+  next
+    case False
+    then obtain zz where "zz \<in> Z" "X \<in> mem_trans_closure zz" using sub by auto
+    then show ?thesis 
+      using assms mem_mem_trans_closure_trans sub by auto
   qed
 qed
-
 
 end
