@@ -2,8 +2,8 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 theory Arithmetics
   imports
-    Set_Addition
-    Set_Multiplication
+    SAddition
+    SMultiplication
 begin
 
 paragraph \<open>Summary\<close>

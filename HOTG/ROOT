@@ -17,6 +17,7 @@ session HOTG = "HOL" +
     Binary_Relations
     "Binary_Relations/Properties"
     Functions
+    Mem_Transitive_Closed
     Orders
   theories
     Arithmetics
@@ -32,7 +33,7 @@ session HOTG = "HOL" +
     Equality
     Finite_Sets
     Foundation
-    Mem_Trans
+    Mem_Transitive_Closed
     Order_Set
     Pairs
     Powerset

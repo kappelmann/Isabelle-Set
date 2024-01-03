@@ -57,7 +57,7 @@ proof (induction X)
   qed
 qed
 
-lemma not_mem_trans_closure_self [iff]: "X \<notin> mem_trans_closure X"
+lemma not_mem_mem_trans_closure_self [iff]: "X \<notin> mem_trans_closure X"
 proof
   assume "X \<in> mem_trans_closure X"
   then show False
@@ -79,30 +79,26 @@ proof (induction Y)
   qed auto
 qed
 
-lemma mem_mem_trans_closure_mem_trans:
+lemma mem_mem_trans_closure_if_mem_if_mem_mem_trans_closure:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> Z"
-shows "X \<in> mem_trans_closure Z"
-  using assms by (auto simp:mem_mem_trans_closure_iff_mem_or_mem[of X Z])
+  shows "X \<in> mem_trans_closure Z"
+  using assms by (auto iff: mem_mem_trans_closure_iff_mem_or_mem[of X Z])
 
-(*TODO Fang: prove this*)
-theorem mem_mem_trans_closure_trans:
+lemma mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> mem_trans_closure Z"
-shows "X \<in> mem_trans_closure Z"
+  shows "X \<in> mem_trans_closure Z"
+using assms
 proof (induction Z)
   case (mem Z)
-  then have sub:"\<forall>x \<in> Z. X \<in> mem_trans_closure x" using mem by auto
-  show ?case 
-  proof(cases"Z = {}")
-    case True
-    then show ?thesis sorry
-  next
+  show ?case
+  proof (cases "Z = {}")
     case False
-    then obtain zz where "zz \<in> Z" "X \<in> mem_trans_closure zz" using sub by auto
-    then show ?thesis 
-      using assms mem_mem_trans_closure_mem_trans sub by auto
-  qed
+    with mem obtain z where "z \<in> Z" "X \<in> mem_trans_closure z" by auto
+    with mem show ?thesis using mem_mem_trans_closure_if_mem_if_mem_mem_trans_closure by auto
+  qed (use mem in simp)
 qed
+
 
 end

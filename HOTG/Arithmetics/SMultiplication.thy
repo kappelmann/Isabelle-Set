@@ -1,9 +1,9 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Generalised Multiplication\<close>
-theory Set_Multiplication
+theory SMultiplication
   imports
-    Set_Addition
+    SAddition
 begin
 
 paragraph \<open>Summary\<close>

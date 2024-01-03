@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Generalised Addition\<close>
-theory Set_Addition
+theory SAddition
   imports
     Less_Than
 begin

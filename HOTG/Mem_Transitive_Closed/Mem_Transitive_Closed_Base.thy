@@ -1,6 +1,6 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Transitive Sets\<close>
-theory Mem_Transitive_Closed
+theory Mem_Transitive_Closed_Base
   imports Subset
 begin
 
@@ -14,5 +14,8 @@ lemma mem_trans_closedD [dest]:
   assumes "mem_trans_closed x"
   shows "\<And>y. y \<in> x \<Longrightarrow> y \<subseteq> x"
   using assms unfolding mem_trans_closed_def by auto
+
+lemma mem_trans_closed_empty [iff]: "mem_trans_closed {}" by auto
+
 
 end

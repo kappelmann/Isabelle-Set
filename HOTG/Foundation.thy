@@ -4,7 +4,7 @@
 section \<open>Well-Foundedness of Sets\<close>
 theory Foundation
   imports
-    Mem_Transitive_Closed
+    Mem_Transitive_Closed_Base
     Union_Intersection
 begin
 
