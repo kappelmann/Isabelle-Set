@@ -4,10 +4,8 @@ theory TSFunctions_Extend_Restrict
   imports TSFunctions_Base
 begin
 
-unbundle no_restrict_syntax
-
 lemma restrict_Dep_Function_type [type]:
-  "set_restrict_left : ((x : A) \<rightarrow>s B x) \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
+  "restrict_left : ((x : A) \<rightarrow>s B x) \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
     ((x : (A & type P)) \<rightarrow>s B x) "
 proof (intro Dep_fun_typeI Dep_FunctionI)
   fix f P assume f_type: "f : (x : A) \<rightarrow>s B x"
@@ -31,13 +29,13 @@ proof (intro Dep_fun_typeI Dep_FunctionI)
 qed
 
 lemma restrict_Dep_Function_set_type [type]:
-  "set_restrict_left : Dep_Function A B \<Rightarrow> (A' : Set) \<Rightarrow>
+  "restrict_left : Dep_Function A B \<Rightarrow> (A' : Set) \<Rightarrow>
     Dep_Function (A & Element A') B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
 lemma restrict_Dep_Function_type_type [type]:
-  "set_restrict_left : Dep_Function A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Function (A & T) B"
+  "restrict_left : Dep_Function A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Function (A & T) B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 

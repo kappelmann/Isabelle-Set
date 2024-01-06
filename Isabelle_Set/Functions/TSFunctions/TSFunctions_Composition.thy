@@ -5,7 +5,6 @@ theory TSFunctions_Composition
 begin
 
 unbundle no_comp_syntax
-unbundle no_restrict_syntax
 
 lemma Dep_Function_comp_set_right_unique_on:
   assumes f_type: "f : (x : B) \<rightarrow>s (C x)"

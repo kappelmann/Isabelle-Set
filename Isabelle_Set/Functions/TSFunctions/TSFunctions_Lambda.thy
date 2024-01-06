@@ -4,8 +4,6 @@ theory TSFunctions_Lambda
   imports TSFunctions_Base
 begin
 
-unbundle no_restrict_syntax
-
 lemma lambda_type [type]:
   "lambda : (A : Set) \<Rightarrow> ((x : Element A) \<Rightarrow> B x) \<Rightarrow> (x : Element A) \<rightarrow>cs B x"
   by unfold_types auto
@@ -29,7 +27,7 @@ proof (rule eqI)
   then obtain x y where "p = \<langle>x, y\<rangle>" "\<langle>x, y\<rangle> \<in> f" "x \<in> A'" by auto
   with assms show "p \<in> \<lambda>x \<in> A'. f`x"
     using lambda_pair_mem_if_mem[where ?a=x and ?f="eval f"] by auto
-qed (insert assms, auto)
+qed (use assms in \<open>auto\<close>)
 
 lemma Dep_Function_lambda_bin_inter_type:
   assumes "f : (x : Element A) \<rightarrow>s B x"

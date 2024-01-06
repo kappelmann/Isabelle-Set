@@ -260,7 +260,7 @@ lemma agree_if_eval_eq_if_mem_dep_functions:
   assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow>s (B x)"
   and "\<And>f g x. f \<in> F \<Longrightarrow> g \<in> F \<Longrightarrow> x \<in> A \<Longrightarrow> f`x = g`x"
   shows "agree A F"
-proof (subst agree_set_iff_agree, rule agreeI)
+proof (subst agree_set_set_iff_agree_set, rule agreeI)
   fix x y f g assume hyps: "f \<in> F" "g \<in> F" "x \<in> A" and "\<langle>x, y\<rangle> \<in> f"
   then have "y = f`x" using assms(1) by auto
   also have "... = g`x" by (fact assms(2)[OF hyps])
@@ -284,7 +284,7 @@ lemma dep_functions_ext:
   using assms
   by (intro eq_if_agree_if_mem_dep_functions)
     (auto intro:
-      agree_if_eval_eq_if_mem_dep_functions[unfolded agree_set_iff_agree])
+      agree_if_eval_eq_if_mem_dep_functions[unfolded agree_set_set_iff_agree_set])
 
 lemma dep_functions_eval_eqI:
   assumes "f \<in> (x \<in> A) \<rightarrow>s (B x)" "g \<in> (x \<in> A') \<rightarrow>s (B' x)"

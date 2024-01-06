@@ -35,7 +35,7 @@ lemma injective_on_type_iff_injective_on_pred [iff]:
 overloading
   bijection_on_set \<equiv> "bijection_on :: set \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool"
 begin
-  definition "bijection_on_set A B (f :: set \<Rightarrow> set) (g :: set \<Rightarrow> set) \<equiv> 
+  definition "bijection_on_set A B (f :: set \<Rightarrow> set) (g :: set \<Rightarrow> set) \<equiv>
     bijection_on (mem_of A) (mem_of B) f g"
 end
 (*
@@ -70,32 +70,6 @@ lemma inverse_on_type_eq_inverse_on_pred [simp]:
 
 lemma inverse_on_type_iff_inverse_on_pred [iff]:
   "inverse_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) g \<longleftrightarrow> inverse_on (type_pred T) f g"
-  by simp
-
-overloading
-  restrict_left_set \<equiv> "restrict_left :: (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow>
-    (set \<Rightarrow> 'a \<Rightarrow> bool)"
-  restrict_left_type \<equiv> "restrict_left :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow>
-    ('a \<Rightarrow> 'b \<Rightarrow> bool)"
-begin
-  definition "restrict_left_set (R :: set \<Rightarrow> _) (A :: set) \<equiv> R\<restriction>\<^bsub>mem_of A\<^esub>"
-  definition "restrict_left_type (R :: 'a \<Rightarrow> _) (T :: 'a type) \<equiv> R\<restriction>\<^bsub>type_pred T\<^esub>"
-end
-
-lemma restrict_left_set_eq_restrict_left_pred [simp]:
-  "restrict_left (R :: set \<Rightarrow> _) (A :: set) = R\<restriction>\<^bsub>mem_of A\<^esub>"
-  unfolding restrict_left_set_def by simp
-
-lemma restrict_left_set_iff_restrict_left_pred [iff]:
-  "restrict_left (R :: set \<Rightarrow> _) (A :: set) x y \<longleftrightarrow> R\<restriction>\<^bsub>mem_of A\<^esub> x y"
-  by simp
-
-lemma restrict_left_type_eq_restrict_left_pred [simp]:
-  "restrict_left (R :: 'a \<Rightarrow> _) (T :: 'a type) = R\<restriction>\<^bsub>type_pred T\<^esub>"
-  unfolding restrict_left_type_def by simp
-
-lemma restrict_left_type_iff_restrict_left_pred [iff]:
-  "restrict_left (R :: 'a \<Rightarrow> _) (T :: 'a type) x y \<longleftrightarrow> R\<restriction>\<^bsub>type_pred T\<^esub> x y"
   by simp
 
 

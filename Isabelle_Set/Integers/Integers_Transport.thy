@@ -145,7 +145,7 @@ lemma app_eq_Int_Rep_zero_type:
 lemma app_eq_Int_Rep_parametric [trp_in_dom]:
   "((R \<Rrightarrow> Int.L) \<Rrightarrow> R \<Rrightarrow> (\<longleftrightarrow>)) app_eq_Int_Rep_zero app_eq_Int_Rep_zero"
   unfolding app_eq_Int_Rep_zero_def
-  by (intro Dep_Fun_Rel_relI) (auto elim!: eq_restrictE)
+  by (intro Dep_Fun_Rel_relI) force
 
 trp_term app_eq_int_zero
   where x = "app_eq_Int_Rep_zero :: (set \<Rightarrow> set) \<Rightarrow> _"

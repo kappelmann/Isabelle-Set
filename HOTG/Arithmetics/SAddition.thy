@@ -6,13 +6,6 @@ theory SAddition
     Less_Than
 begin
 
-(*TODO Kevin: fix in library*)
-lemma monoE [elim]:
-  includes no_hotg_le_syntax HOL_order_syntax
-  assumes "mono f"
-  obtains "\<And>x y. x \<le> y \<Longrightarrow> f x \<le> f y"
-  using assms by auto
-
 paragraph \<open>Summary\<close>
 text \<open>Translation of addition for sets from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
 

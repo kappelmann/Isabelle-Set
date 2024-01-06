@@ -102,39 +102,44 @@ lemma glue_type [type]: "glue : Collection (Dep_Bin_Rel A B) \<Rightarrow> Dep_B
   by unfold_types auto
 
 overloading
-  set_restrict_left_type \<equiv> "set_restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
+  set_restrict_left_type \<equiv> "restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
+  set_restrict_right_type \<equiv> "restrict_right :: set \<Rightarrow> set type \<Rightarrow> set"
 begin
-  definition "set_restrict_left_type R (T :: set type) \<equiv>
-    set_restrict_left R (type_pred T)"
+  definition "set_restrict_left_type (R :: set) (T :: set type) \<equiv> restrict_left R (type_pred T)"
+  definition "set_restrict_right_type (R :: set) (T :: set type) \<equiv> restrict_right R (type_pred T)"
 end
 
 lemma set_restrict_left_type_eq_set_restrict_left [simp]:
-  "set_restrict_left R (T :: set type) = set_restrict_left R (type_pred T)"
+  "restrict_left (R :: set) (T :: set type) = restrict_left R (type_pred T)"
   unfolding set_restrict_left_type_def by simp
 
-lemma set_restrict_left_set_eq_set_restrict_left_type [simp]:
-  "set_restrict_left R S = set_restrict_left R (Element S)"
-  by (auto iff: mem_iff_Element)
-
 lemma set_restrict_left_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
-    Dep_Bin_Rel (A & type P) B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow> Dep_Bin_Rel (A & type P) B"
   by unfold_types force
 
 lemma set_restrict_left_set_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow>
-    Dep_Bin_Rel (A & Element A') B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow> Dep_Bin_Rel (A & Element A') B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
 lemma set_restrict_left_type_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
-lemma agree_type_iff_agree [iff]:
-  "agree (T :: set type) \<R> \<longleftrightarrow> agree (type_pred T) \<R>"
-  unfolding agree_def by simp
+overloading
+  agree_type_set \<equiv> "agree :: set type \<Rightarrow> set \<Rightarrow> bool"
+begin
+  definition "(agree_type_set (T :: set type) :: set \<Rightarrow> _) \<equiv> agree (type_pred T)"
+end
+
+lemma agree_type_set_eq_agree_set [simp]:
+  "(agree (T :: set type) :: set \<Rightarrow> _) = agree (type_pred T)"
+  unfolding agree_type_set_def by simp
+
+lemma agree_type_set_iff_agree_set [iff]:
+  "agree (T :: set type) (\<R> :: set) \<longleftrightarrow> agree (type_pred T) \<R>"
+  by simp
 
 lemma dom_type [type]: "dom : Dep_Bin_Rel A B \<Rightarrow> Collection A"
   by (auto intro: CollectionI)

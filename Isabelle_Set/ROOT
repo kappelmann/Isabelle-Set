@@ -1,11 +1,10 @@
 chapter Set
 
-session Isabelle_Set = "HOL" +
+session Isabelle_Set = HOTG +
   description
     \<open>Isabelle/Set - A softly-typed Tarski-Grothendieck set theory environment embedded in HOL.\<close>
   options [timeout = 360]
   sessions
-    HOTG
     Auto2_HOTG
     Soft_Types
     Transport

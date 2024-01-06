@@ -93,35 +93,23 @@ lemma glue_singleton_eq [simp]: "glue {R} = R" by auto
 lemma mono_glue: "mono glue"
   by (intro monoI) auto
 
-
-consts set_restrict_left :: "set \<Rightarrow> 'a \<Rightarrow> set"
-
-definition "set_restrict_right R P \<equiv> (set_restrict_left R\<inverse> P)\<inverse>"
-
-bundle hotg_restrict_syntax
-begin
-notation set_restrict_left ("(_)\<restriction>(\<^bsub>_\<^esub>)" [1000])
-notation set_restrict_right ("(_)\<upharpoonleft>(\<^bsub>_\<^esub>)" [1000])
-end
-bundle no_hotg_restrict_syntax
-begin
-no_notation set_restrict_left ("(_)\<restriction>(\<^bsub>_\<^esub>)" [1000])
-no_notation set_restrict_right ("(_)\<upharpoonleft>(\<^bsub>_\<^esub>)" [1000])
-end
-unbundle no_restrict_syntax
-unbundle hotg_restrict_syntax
-
 overloading
-  set_restrict_left_pred \<equiv> "set_restrict_left :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
-  set_restrict_left_set \<equiv> "set_restrict_left :: set \<Rightarrow> set \<Rightarrow> set"
+  set_restrict_left_pred \<equiv> "restrict_left :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
+  set_restrict_left_set \<equiv> "restrict_left :: set \<Rightarrow> set \<Rightarrow> set"
+  set_restrict_right_pred \<equiv> "restrict_right :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set"
+  set_restrict_right_set \<equiv> "restrict_right :: set \<Rightarrow> set \<Rightarrow> set"
 begin
   definition "set_restrict_left_pred R P \<equiv> {p \<in> R | \<exists>x y. P x \<and> p = \<langle>x, y\<rangle>}"
-  definition "set_restrict_left_set R A \<equiv> set_restrict_left R (mem_of A)"
+  definition "set_restrict_left_set (R :: set) A \<equiv> restrict_left R (mem_of A)"
+  definition "set_restrict_right_pred R P \<equiv> {p \<in> R | \<exists>x y. P y \<and> p = \<langle>x, y\<rangle>}"
+  definition "set_restrict_right_set (R :: set) A \<equiv> restrict_right R (mem_of A)"
 end
 
-lemma set_restrict_left_set_eq_set_restrict_left [simp]:
-  "R\<restriction>\<^bsub>A\<^esub> = R\<restriction>\<^bsub>mem_of A\<^esub>"
+lemma set_restrict_left_set_eq_set_restrict_left [simp]: "(R :: set)\<restriction>\<^bsub>A :: set\<^esub> = R\<restriction>\<^bsub>mem_of A\<^esub>"
   unfolding set_restrict_left_set_def by simp
+
+lemma set_restrict_right_set_eq_set_restrict_right [simp]: "(R :: set)\<upharpoonleft>\<^bsub>A :: set\<^esub> = R\<upharpoonleft>\<^bsub>mem_of A\<^esub>"
+  unfolding set_restrict_right_set_def by simp
 
 lemma mem_set_restrict_leftI [intro!]:
   assumes "\<langle>x, y\<rangle> \<in> R"
@@ -138,12 +126,12 @@ lemma mem_set_restrict_rightI [intro!]:
   assumes "\<langle>x, y\<rangle> \<in> R"
   and "P y"
   shows "\<langle>x, y\<rangle> \<in> R\<upharpoonleft>\<^bsub>P\<^esub>"
-  using assms unfolding set_restrict_right_def by blast
+  using assms unfolding set_restrict_right_pred_def by blast
 
 lemma mem_set_restrict_rightE [elim]:
   assumes "p \<in> R\<upharpoonleft>\<^bsub>P\<^esub>"
   obtains x y where "p = \<langle>x, y\<rangle>" "P y" "\<langle>x, y\<rangle> \<in> R"
-  using assms unfolding set_restrict_right_def by blast
+  using assms unfolding set_restrict_right_pred_def by blast
 
 lemma set_restrict_left_empty_eq [simp]: "{}\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub> = {}" by auto
 
@@ -164,27 +152,38 @@ lemma set_restrict_left_subset_dep_pairs_if_subset_dep_pairs [intro]:
   shows "R\<restriction>\<^bsub>P\<^esub> \<subseteq> \<Sum>x \<in> {x \<in> A | P x}. B x"
   using assms by auto
 
-lemma set_restrict_left_set_restrict_left_eq_set_restrict_left [simp]:
-  fixes P P' :: "set \<Rightarrow> bool"
+lemma set_restrict_left_restrict_left_eq_restrict_left [simp]:
+  fixes R :: set and P :: "set \<Rightarrow> bool"
   shows "(R\<restriction>\<^bsub>P\<^esub>)\<restriction>\<^bsub>P\<^esub> = R\<restriction>\<^bsub>P\<^esub>"
   by auto
 
-lemma mono_set_restrict_left_set: "mono (\<lambda>R. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
+lemma mono_set_restrict_left_set: "mono (\<lambda>R :: set. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
   by (intro monoI) auto
 
-lemma mono_set_restrict_left_pred: "mono (\<lambda>P. R\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
+lemma mono_set_restrict_left_pred: "mono (\<lambda>P. (R :: set)\<restriction>\<^bsub>P :: set \<Rightarrow> bool\<^esub>)"
   by (intro monoI) auto
 
 
-definition "agree P \<R> \<equiv> \<forall>R R' \<in> \<R>. R\<restriction>\<^bsub>P\<^esub> = R'\<restriction>\<^bsub>P\<^esub>"
+consts agree :: "'a \<Rightarrow> 'b \<Rightarrow> bool"
 
-lemma agree_set_iff_agree [iff]: "agree A \<R> \<longleftrightarrow> agree (mem_of A) \<R>"
-  unfolding agree_def by simp
+overloading
+  agree_pred_set \<equiv> "agree :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  agree_set_set \<equiv> "agree :: set \<Rightarrow> set \<Rightarrow> bool"
+begin
+  definition "agree_pred_set (P :: set \<Rightarrow> bool) \<R> \<equiv> \<forall>R R' \<in> \<R>. R\<restriction>\<^bsub>P\<^esub> = R'\<restriction>\<^bsub>P\<^esub>"
+  definition "(agree_set_set (A :: set) :: set \<Rightarrow> _) \<equiv> agree (mem_of A)"
+end
+
+lemma agree_set_set_eq_agree_set [simp]: "(agree (A :: set) :: set \<Rightarrow> _) = agree (mem_of A)"
+  unfolding agree_set_set_def by simp
+
+lemma agree_set_set_iff_agree_set [iff]: "agree (A :: set) (\<R> :: set) \<longleftrightarrow> agree (mem_of A) \<R>"
+  by simp
 
 lemma agreeI [intro]:
   assumes "\<And>x y R R'. P x \<Longrightarrow> R \<in> \<R> \<Longrightarrow> R' \<in> \<R> \<Longrightarrow> \<langle>x, y\<rangle> \<in> R \<Longrightarrow> \<langle>x, y\<rangle> \<in> R'"
   shows "agree P \<R>"
-  using assms unfolding agree_def by blast
+  using assms unfolding agree_pred_set_def by blast
 
 lemma agreeD:
   assumes "agree P \<R>"
@@ -194,14 +193,14 @@ lemma agreeD:
   shows "\<langle>x, y\<rangle> \<in> R'"
 proof -
   from assms(2, 5) have "\<langle>x, y\<rangle> \<in> R\<restriction>\<^bsub>P\<^esub>" by (intro mem_set_restrict_leftI)
-  moreover from assms(1, 3-4) have "... = R'\<restriction>\<^bsub>P\<^esub>" unfolding agree_def by blast
+  moreover from assms(1, 3-4) have "... = R'\<restriction>\<^bsub>P\<^esub>" unfolding agree_pred_set_def by blast
   ultimately show ?thesis by auto
 qed
 
-lemma antimono_agree_pred: "antimono (\<lambda>P. agree (P :: set \<Rightarrow> bool) \<R>)"
+lemma antimono_agree_pred: "antimono (\<lambda>P. agree (P :: set \<Rightarrow> bool) (\<R> :: set))"
   by (intro antimonoI) (auto dest: agreeD)
 
-lemma antimono_agree_set: "antimono (\<lambda>\<R>. agree (P :: set \<Rightarrow> bool) \<R>)"
+lemma antimono_agree_set: "antimono (\<lambda>\<R>. agree (P :: set \<Rightarrow> bool) (\<R> :: set))"
   by (intro antimonoI) (auto dest: agreeD)
 
 lemma set_restrict_left_eq_set_restrict_left_if_agree:

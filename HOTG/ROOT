@@ -5,13 +5,11 @@ higher-order Tarski-Grothendieck set theory. On top of this, it adds an optional
 
 chapter Set
 
-session HOTG = "HOL" +
+session HOTG = Transport +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
     [timeout = 60]
-  sessions
-    Transport
   directories
     Arithmetics
     Binary_Relations

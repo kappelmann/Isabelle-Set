@@ -59,7 +59,7 @@ lemmas list_fold =
     folded list_def, unfolded fixpoint_def]
 
 lemma nil_type [type]: "nil : Element (list A)"
-  by (subst list_fold[symmetric]) (unfold_types, unfold list_op_def, simp)
+  by (subst list_fold[symmetric]) (unfold_types, unfold list_op_def, auto)
 
 lemma cons_type [type]: "cons : Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
   by (subst (2) list_fold[symmetric]) (unfold_types, unfold list_op_def, auto)

@@ -9,21 +9,21 @@ begin
 text \<open>The class of ordinal numbers is defined abstractly, as the \<in>-transitive sets
 whose members are also \<in>-transitive.\<close>
 
-definition [typedef]: "Ord \<equiv> type (\<lambda>x. mem_trans x \<and> (\<forall>y \<in> x. mem_trans y))"
+definition [typedef]: "Ord \<equiv> type (\<lambda>x. mem_trans_closed x \<and> (\<forall>y \<in> x. mem_trans_closed y))"
 
-lemma OrdI: "mem_trans X \<Longrightarrow> (\<And>x. x \<in> X \<Longrightarrow> mem_trans x) \<Longrightarrow> X : Ord"
+lemma OrdI: "mem_trans_closed X \<Longrightarrow> (\<And>x. x \<in> X \<Longrightarrow> mem_trans_closed x) \<Longrightarrow> X : Ord"
   by unfold_types auto
 
 text \<open>Basic properties of ordinals:\<close>
 
 lemma Ord_if_mem_Ord [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y : Ord"
-  by unfold_types (unfold mem_trans_def, auto)
+  by unfold_types (unfold mem_trans_closed_def, auto)
 
-lemma mem_trans_if_Ord: "x : Ord \<Longrightarrow> mem_trans x"
+lemma mem_trans_closed_if_Ord: "x : Ord \<Longrightarrow> mem_trans_closed x"
   by unfold_types
 
 lemma subset_if_mem_Ord [elim]: "x : Ord \<Longrightarrow> y \<in> x \<Longrightarrow> y \<subseteq> x"
-  by unfold_types (fastforce simp: mem_trans_def)
+  by unfold_types (fastforce simp: mem_trans_closed_def)
 
 lemma Subset_if_Element_Ord [derive]:
   "x : Ord \<Longrightarrow> y : Element x \<Longrightarrow> y : Subset x"
@@ -66,7 +66,7 @@ subsection \<open>Successor ordinals\<close>
 definition succ where "succ x \<equiv> x \<union> {x}"
 
 lemma succ_type [type]: "succ : Ord \<Rightarrow> Ord"
-  unfolding succ_def by unfold_types (unfold mem_trans_def, auto 5 0)
+  unfolding succ_def by unfold_types (unfold mem_trans_closed_def, auto 5 0)
 
 lemma mem_succE [elim]:
   assumes "x \<in> succ y"
@@ -129,7 +129,7 @@ lemma fixpoint_omega [iff]: "fixpoint \<omega> omega_op"
 
 lemma empty_mem_omega [iff]: "{} \<in> \<omega>"
   by (subst fixpoint_omega[unfolded fixpoint_def omega_op_def, symmetric])
-    simp
+  auto
 
 lemma succ_mem_omega_if_mem [intro!]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   by (subst fixpoint_omega[unfolded fixpoint_def omega_op_def, symmetric])
@@ -157,26 +157,26 @@ lemma eq_empty_or_empty_mem_if_mem_omegaE:
 lemma empty_mem_succ_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> {} \<in> succ n"
   by (rule eq_empty_or_empty_mem_if_mem_omegaE) auto
 
-lemma mem_trans_omega [iff]: "mem_trans \<omega>"
-  by (rule mem_transI, rule omega_induct) auto
+lemma mem_trans_closed_omega [iff]: "mem_trans_closed \<omega>"
+  by (rule mem_trans_closedI, rule omega_induct) auto
 
-lemma mem_trans_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> mem_trans n"
-  by (induction n rule: omega_induct) (auto simp: mem_trans_def)
+lemma mem_trans_closed_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> mem_trans_closed n"
+  by (induction n rule: omega_induct) (auto simp: mem_trans_closed_def)
 
 lemma omega_Ord [type]: "\<omega> : Ord"
-  by (rule OrdI) (auto elim: mem_trans_if_mem_omega)
+  by (rule OrdI) (auto elim: mem_trans_closed_if_mem_omega)
 
 lemma Ord_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> n : Ord"
   by (fact Ord_if_mem_Ord[OF omega_Ord])
 
-lemma mem_trans_if_mem_omega' [trans]: "\<lbrakk>n \<in> \<omega>; k \<in> m; m \<in> n\<rbrakk> \<Longrightarrow> k \<in> n"
-  using mem_trans_if_mem_omega[unfolded mem_trans_def] by auto
+lemma mem_trans_if_mem_omega: "\<lbrakk>n \<in> \<omega>; k \<in> m; m \<in> n\<rbrakk> \<Longrightarrow> k \<in> n"
+  using mem_trans_closed_if_mem_omega[unfolded mem_trans_closed_def] by auto
 
 lemma mem_if_succ_mem_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> succ m \<in> n \<Longrightarrow> m \<in> n"
-  using mem_trans_if_mem_omega'[of n m "succ m"] by auto
+  using mem_trans_if_mem_omega[of n m "succ m"] by auto
 
 lemma subset_omega_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> n \<subseteq> \<omega>"
-  using mem_trans_omega[unfolded mem_trans_def] by blast
+  using mem_trans_closed_omega[unfolded mem_trans_closed_def] by blast
 
 lemma mem_omega_if_mem_if_mem_omega: "x \<in> \<omega> \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> \<omega>"
   using subset_omega_if_mem_omega by auto
@@ -189,8 +189,8 @@ lemma mem_if_succ_mem_succ_if_mem_omega:
   assumes "n \<in> \<omega>" and succ_m_mem: "succ m \<in> succ n"
   shows "m \<in> n"
 proof -
-  have "mem_trans (succ n)" by (rule mem_trans_if_mem_omega) auto
-  from mem_transD[OF this] have "succ m \<subseteq> succ n" by auto
+  have "mem_trans_closed (succ n)" by (rule mem_trans_closed_if_mem_omega) auto
+  from mem_trans_closedD[OF this] have "succ m \<subseteq> succ n" by auto
   then have "m \<in> (n \<union> {n})" by auto
   with succ_m_mem show "m \<in> n" by auto
 qed

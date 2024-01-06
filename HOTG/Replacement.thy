@@ -66,15 +66,12 @@ lemma mono_repl_set: "mono (\<lambda>A. {f x | x \<in> A})"
 
 subsection \<open>Image\<close>
 
-(*TODO Kevin: rename to binary_relation_restrict*)
-unbundle no_restrict_syntax
-
 definition "image f A \<equiv> {f x | x \<in> A}"
 
 lemma image_eq_repl [simp]: "image f A = repl A f"
   unfolding image_def by simp
 
-lemma repl_fun_restrict_eq_repl [simp]: "{f\<restriction>\<^bsub>A\<^esub> x | x \<in> A} = {f x | x \<in> A}"
+lemma repl_fun_restrict_eq_repl [simp]: "{fun_restrict f A x | x \<in> A} = {f x | x \<in> A}"
   by simp
 
 lemma injective_image_if_injective:
