@@ -76,6 +76,8 @@ lemma ordinal_induct [consumes 1, case_names step]:
   by (induction X rule: mem_induction) auto
 
 
+
+
 subsection \<open>Limit Ordinals\<close>
 
 definition "limit X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
@@ -92,14 +94,28 @@ lemma limitE:
   obtains "ordinal X" "0 \<in> X" "\<And>x. x \<in> X \<Longrightarrow> succ x \<in> X"
   using assms unfolding limit_def by auto
 
+lemma Limit_eq_Sup_self [simp]: "limit i \<Longrightarrow> \<Union>i = i"
+  sorry
+
+lemma ordinal_cases [cases type: set, case_names 0 succ limit]:
+  assumes "ordinal k"
+  obtains "k = 0" | l where "ordinal l" "succ l = k" | "limit k"
+  sorry
+
+lemma elts_succ [simp]: "{xx | xx \<in> (succ x)} = insert x {xx | xx \<in> x}"
+  by (simp add: succ_eq_insert)
+
+lemma image_ident [simp]: "image (\<lambda>x. x) Y = Y"
+  by auto
+
 lemma ordinal_induct3 [consumes 1, case_names zero succ limit, induct type: set]:
   assumes a: "ordinal X"
-  and P: "P 0" "\<And>x. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
+  and P: "P 0" "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
     "\<And>X. \<lbrakk>limit X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>x \<in> X. x)"
   shows "P X"
 using a
 proof (induction X rule: ordinal_induct)
-  case (step x)
+  case (step X)
   then show ?case sorry
 qed
 

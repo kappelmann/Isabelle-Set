@@ -59,6 +59,9 @@ lemma succ_eq_add_one: "succ X = X + 1"
 lemma insert_self_eq_add_one: "insert X X = X + 1"
   by (auto simp: add_eq_bin_union_lift succ_eq_add_one)
 
+lemma succ_eq_insert: "succ X  = insert X X"
+  by (simp add:succ_def  insert_self_eq_add_one[of X])
+
 lemma lift_insert_eq_insert_add_lift: "lift X (insert Y Z) = insert (X + Y) (lift X Z)"
   unfolding lift_def by (simp add: repl_insert_eq)
 

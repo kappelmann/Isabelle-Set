@@ -4,6 +4,7 @@ section \<open>Generalised Multiplication\<close>
 theory SMultiplication
   imports
     SAddition
+
 begin
 
 paragraph \<open>Summary\<close>
@@ -16,6 +17,7 @@ bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
 bundle no_hotg_mul_syntax begin no_notation mul (infixl "*" 70) end
 unbundle hotg_mul_syntax
 
+(*error*)
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
   by (auto simp: mul_def transrec_eq)
 
