@@ -4,7 +4,7 @@ section \<open>Generalised Multiplication\<close>
 theory SMultiplication
   imports
     SAddition
-
+    Ordinals
 begin
 
 paragraph \<open>Summary\<close>
@@ -19,7 +19,7 @@ unbundle hotg_mul_syntax
 
 (*error*)
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
-  by (auto simp: mul_def transrec_eq)
+  by (simp add: mul_def transrec_eq)
 
 corollary mul_eq_idx_union_repl_mul_add: "X * Y = (\<Union>y \<in> Y. {X * y + x | x \<in> X})"
   using mul_eq_idx_union_lift_mul[of X Y] lift_eq_repl_add by simp
@@ -173,7 +173,10 @@ next
       using assms antisymmetric_le lt_mul_if_ne_zero sorry
   next
     case False
-    then show ?thesis sorry
+    have "B=0" if "ordinal \<alpha>" 
+          (*"x \<in> (Vset \<alpha>)" "y \<in> elts (Vset \<alpha>)"*) for \<alpha>
+      using that assms
+    proof (induction rule: ordinal_induct3)
   qed
 qed
 
