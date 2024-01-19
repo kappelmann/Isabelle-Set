@@ -4,7 +4,6 @@ theory Arithmetics
   imports
     SAddition
     SMultiplication
-
     Cardinals
 begin
 

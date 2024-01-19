@@ -77,7 +77,6 @@ lemma ordinal_induct [consumes 1, case_names step]:
 
 
 
-
 subsection \<open>Limit Ordinals\<close>
 
 definition "limit X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
@@ -95,7 +94,6 @@ lemma limitE:
   using assms unfolding limit_def by auto
 
 lemma Limit_eq_Sup_self: "limit X \<Longrightarrow> \<Union>X = X"
-
   sorry
 
 lemma ordinal_cases [cases type: set, case_names 0 succ limit]:
@@ -123,8 +121,8 @@ proof (induction X rule: ordinal_induct)
     with P(1) show ?thesis by simp
   next
     case (succ l)
-    from succ step succ_eq_insert have "P (succ l)" by (intro P(2)) auto   
-    with succ show ?thesis by simp 
+    from succ step succ_eq_insert have "P (succ l)" by (intro P(2)) auto
+    with succ show ?thesis by simp
   next
     case limit
     then show ?thesis sorry

@@ -1,112 +1,157 @@
 theory Cardinals
-  imports 
+  imports
     SAddition
     Coproduct
     Ordinals
     Transport.Functions_Bijection
     Transport.Equivalence_Relations
+    Transport.Functions_Surjective
 begin
-term "bijection_on (mem_of X) (mem_of Y) f g"
+
+(*TODO Kevin: bundle notation defined in this theory*)
+
+unbundle no_HOL_groups_syntax no_HOL_ascii_syntax
 
 definition "equipollent X Y \<equiv> \<exists>f g. bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
 
-notation equipollent (infixl "\<approx>" 50)
+bundle hotg_equipollent_syntax begin notation equipollent (infixl "\<approx>" 50) end
+bundle no_hotg_equipollent_syntax begin no_notation equipollent (infixl "\<approx>" 50) end
+unbundle hotg_equipollent_syntax
 
-lemma equipollentI [intro]: 
+lemma equipollentI [intro]:
   assumes "bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
   shows "X \<approx> Y"
   using assms by (auto simp: equipollent_def)
 
-lemma equipollentE [elim]: 
-  assumes "X \<approx> Y" 
+lemma equipollentE [elim]:
+  assumes "X \<approx> Y"
   obtains f g where "bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
   using assms by (auto simp: equipollent_def)
 
-find_theorems "bijection_on ?X ?X"
-
-lemma reflexive_equipollent: "reflexive equipollent"
+lemma reflexive_equipollent: "reflexive (\<approx>)"
   using bijection_on_self_id by auto
 
-lemma equivalence_rel_equipollent: "equivalence_rel equipollent"
+lemma symmetric_equipollent: "symmetric (\<approx>)"
+  by (intro symmetricI) (auto dest: bijection_on_right_left_if_bijection_on_left_right)
+
+context
+  fixes P :: "'a \<Rightarrow> bool" and P' :: "'b \<Rightarrow> bool" and P'' :: "'c \<Rightarrow> bool"
+  and f :: "'a \<Rightarrow> 'b" and g :: "'b \<Rightarrow> 'a" and f' :: "'b \<Rightarrow> 'c" and g' :: "'c \<Rightarrow> 'b"
+begin
+
+lemma do_we_need_this_hmm:
+  assumes "injective_on P f"
+  and "surjective_at P' f"
+  and "([P] \<Rrightarrow>\<^sub>m P') f"
+  obtains h where "bijection_on P P' f h"
+  oops
+
+lemma inverse_on_compI:
+  assumes "inverse_on P f g"
+  and "inverse_on P' f' g'"
+  and "([P] \<Rrightarrow>\<^sub>m P') f"
+  shows "inverse_on P (f' \<circ> f) (g \<circ> g')"
+  oops
+
+lemma bijection_on_compI:
+  assumes "bijection_on P P' f g"
+  and "bijection_on P' P'' f' g'"
+  shows "bijection_on P P'' (f' \<circ> f) (g \<circ> g')"
+  using assms
+  apply (intro bijection_onI)
+  apply (rule dep_mono_wrt_pred_comp_dep_mono_wrt_pred_compI')
+  apply (elim bijection_onE)
+  apply assumption
+  apply (elim bijection_onE)
+  apply assumption
+  apply (rule dep_mono_wrt_pred_comp_dep_mono_wrt_pred_compI')
+  apply (elim bijection_onE)
+  apply assumption
+  apply (elim bijection_onE)
+  apply assumption
   sorry
 
-lemma eqpoll_sym: 
-  assumes "A \<approx> B " shows "B \<approx> A"
-  using bijection_on_right_left_if_bijection_on_left_right[of "mem_of A" "mem_of B"]
-   equipollentE[of A B]  equipollentI[of B A] sorry
+end
 
-lemma eqpoll_trans [trans]: "\<lbrakk>A \<approx> B; B \<approx> C\<rbrakk> \<Longrightarrow> A \<approx> C"
-  unfolding equipollent_def
-(*about inverse_on P (kf) (gl)*)
-  sorry
+lemma transitive_equipollent: "transitive (\<approx>)"
+  by (intro transitiveI) (fastforce dest: bijection_on_compI)
 
-(*transitive, symmetric, preorder, equivalence relation*)
+lemma partial_equivalence_rel_equipollent: "partial_equivalence_rel (\<approx>)"
+  by (intro partial_equivalence_relI transitive_equipollent symmetric_equipollent)
+
+lemma equivalence_rel_equipollent: "equivalence_rel (\<approx>)"
+  by (intro equivalence_relI partial_equivalence_rel_equipollent reflexive_equipollent)
+
+(* preorder*)
 
 definition "cardinality (X :: set) \<equiv> (LEAST Y. ordinal Y \<and> X \<approx> Y)"
+
+bundle hotg_cardinality_syntax begin notation cardinality ("|_|") end
+bundle no_hotg_cardinality_syntax begin no_notation cardinality ("|_|") end
+unbundle hotg_cardinality_syntax
 
 lemma Least_eq_Least_if_iff:
   assumes "\<And>Z. P Z \<longleftrightarrow> Q Z"
   shows "(LEAST Z. P Z) = (LEAST Z. Q Z)"
   using assms by simp
 
-lemma gcardinal_cong:
-  assumes "X \<approx> Y" shows "cardinality X = cardinality Y"
-proof -
-  have "Y \<approx> X" using assms by (simp add: eqpoll_sym)
-  then have left:"\<And>Z. (X \<approx> Z) \<longrightarrow> (Y \<approx> Z)" by (auto simp: eqpoll_trans)
-  also have right:"\<And>Z. (Y \<approx> Z) \<longrightarrow> (X \<approx> Z)" using assms by (auto simp: eqpoll_trans)
-  with left have "\<And>Z. (X \<approx> Z) \<longleftrightarrow> (Y \<approx> Z)" by auto
-  then have "(LEAST Z. ordinal Z \<and> X \<approx> Z) = (LEAST Z. ordinal Z \<and> Y \<approx> Z)"
-      using Least_eq_Least_if_iff by auto
-  then show ?thesis by (auto simp: cardinality_def)
-qed
+lemma cardinality_eq_if_equipollent:
+  assumes "X \<approx> Y"
+  shows "|X| = |Y|"
+  unfolding cardinality_def using assms transitive_equipollent symmetric_equipollent
+  by (intro Least_eq_Least_if_iff) (blast dest: symmetricD)
 
-lemma cardinal_eqpoll: "(cardinality X) \<approx> X"
-  unfolding cardinality_def
-(*new type needed*)
+lemma cardinal_equipollent_self: "|X| \<approx> X"
+  (*TODO: prove me later; needs order_types*)
   sorry
+
+lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
+  by (intro cardinality_eq_if_equipollent cardinal_equipollent_self)
 
 definition "cardinal_add \<kappa> \<mu> \<equiv> cardinality (\<kappa> \<Coprod> \<mu>)"
 
-lemma inl_nonzero [simp]:"inl x \<noteq> {}"
-  by (auto simp:inl_def)
+bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 65) end
+bundle no_hotg_cardinal_add_syntax begin no_notation cardinal_add (infixl "\<oplus>" 65) end
+unbundle hotg_cardinal_add_syntax
+
+(* lemma inl_nonzero [simp]:"inl x \<noteq> {}"
+  by (auto simp: inl_def)
 
 lemma inr_nonzero [simp]:"inr x \<noteq> {}"
-  by (auto simp:inr_def)
+  by (auto simp:inr_def) *)
 
-definition is_sum :: "set \<Rightarrow> bool"
-  where "is_sum z = (\<exists>X. z = inl X \<or> z = inr X)"
-
-definition sum_case  :: "(set \<Rightarrow> 'a) \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
-  where
-  "sum_case f g a \<equiv>
-    THE z. (\<forall>x. a = inl x \<longrightarrow> z = f x) \<and> (\<forall>y. a = inr y \<longrightarrow> z = g y) \<and> (\<not> is_sum a \<longrightarrow> z = undefined)"
 (*why intersection*)
 
-lemma card_lift: "cardinality (lift X Y) = cardinality Y"
-proof (rule gcardinal_cong)
-  have "bijection_on (mem_of (lift X Y)) (mem_of Y) (f :: set \<Rightarrow> set) g" sorry
-  then show "((lift X Y)) \<approx>  Y" 
-    by (simp add: equipollentI)
+lemma card_lift: "|lift X Y| = |Y|"
+proof (intro cardinality_eq_if_equipollent equipollentI)
+  let ?f = undefined
+  show "bijection_on (mem_of (lift X Y)) (mem_of Y) ?f ((+) X)"
+    apply (intro bijection_onI)
+    defer
+    apply (intro dep_mono_wrt_predI)
+    apply (fact add_mem_lift_if_mem_right)
+    defer
+    apply (intro inverse_onI)
+    sorry
 qed
 
 lemma cardinal_disjoint_sup:
-  assumes "X \<inter> Y = 0" shows "cardinality (X \<union> Y) = cardinal_add (cardinality X) (cardinality Y)"
+  assumes "X \<inter> Y = {}"
+  shows "|X \<union> Y| = cardinal_add |X| |Y|"
 proof-
-  have "(X \<union> Y)  \<approx> (cardinal_add X Y)" 
-    unfolding equipollent_def
-  proof(rule exI)
+  have "X \<union> Y \<approx> X \<Coprod> Y"
+  proof -
     let ?f = "\<lambda>z. if z \<in> X then inl z else inr z"
-    let ?g = "sum_case id id"
-    show " \<exists>g. bijection_on (\<lambda>x. x \<in> X \<union> Y) (\<lambda>x. x \<in> cardinal_add X Y) ?f g" sorry
-  qed 
-  then show ?thesis sorry 
+    let ?g = "coprod_rec id id"
+    have "bijection_on (\<lambda>x. x \<in> X \<union> Y) (\<lambda>x. x \<in> X \<Coprod> Y) ?f ?g" sorry
+    then show ?thesis by blast
+  qed
+  then show ?thesis sorry
 qed
 
 lemma vcard_add: "cardinality (X + Y) = cardinal_add (cardinality X) (cardinality Y)"
   using card_lift [of X Y] bin_inter_lift_self_eq_empty [of X]
   by (simp add: add_eq_bin_union_lift cardinal_disjoint_sup)
-
 
 (*
   have "bijection_on ((mem_of ({ X + y | y \<in> Y })) (mem_of (lift X Y))) f g"
