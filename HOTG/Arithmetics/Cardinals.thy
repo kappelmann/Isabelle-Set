@@ -50,8 +50,8 @@ lemma inverse_on_compI:
   assumes "inverse_on P f g"
   and "inverse_on P' f' g'"
   and "([P] \<Rrightarrow>\<^sub>m P') f"
-  shows "inverse_on P (f' \<circ> f) (g \<circ> g')"
-  oops
+shows "inverse_on P (f' \<circ> f) (g \<circ> g')"
+  using assms by (intro inverse_onI) (auto simp: inverse_onD)
 
 lemma bijection_on_compI:
   assumes "bijection_on P P' f g"
@@ -68,7 +68,11 @@ lemma bijection_on_compI:
   apply (elim bijection_onE)
   apply assumption
   apply (elim bijection_onE)
-  apply assumption
+    apply assumption
+   apply (elim bijection_onE)
+   apply (auto intro: inverse_on_compI)
+  apply (elim bijection_onE)
+(*dk why dont work*)
   sorry
 
 end
@@ -114,6 +118,48 @@ bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 6
 bundle no_hotg_cardinal_add_syntax begin no_notation cardinal_add (infixl "\<oplus>" 65) end
 unbundle hotg_cardinal_add_syntax
 
+
+
+lemma coprod_commutative_eqpoll:"X \<Coprod> Y \<approx> Y \<Coprod> X"
+proof (intro equipollentI)
+  have mono:"([(\<lambda>x. x \<in> X \<Coprod> Y)] \<Rrightarrow>\<^sub>m (\<lambda>x. x \<in> Y \<Coprod> X)) (coprod_rec inr inl)"
+   "([(\<lambda>x. x \<in> Y \<Coprod> X)] \<Rrightarrow>\<^sub>m (\<lambda>x. x \<in> X \<Coprod> Y)) (coprod_rec inr inl)"
+     apply(rule mem_coprodE)
+       apply(rule dep_mono_wrt_predE)
+         apply auto
+    sorry
+  also have inv:"inverse_on (\<lambda>x. x \<in> X \<Coprod> Y) (coprod_rec inr inl) (coprod_rec inr inl)"
+            "inverse_on (\<lambda>x. x \<in> Y \<Coprod> X) (coprod_rec inr inl) (coprod_rec inr inl)"
+    by (auto simp: inverse_onD)
+  then show "bijection_on (\<lambda>x. x \<in> X \<Coprod> Y) (\<lambda>x. x \<in> Y \<Coprod> X) (coprod_rec inr inl) (coprod_rec inr inl)"
+    using mono inv by auto
+qed 
+
+lemma cardinal_add_commutative:"X \<oplus> Y = Y \<oplus> X"
+  by (auto simp: cardinal_add_def coprod_commutative_eqpoll cardinality_eq_if_equipollent)
+
+find_theorems name:"dep_mono_wrt_predI"
+
+lemma coprod_zero_eqpoll: "0 \<Coprod> X \<approx> X"
+proof -
+  have invP:"inverse_on (mem_of {inr b | b \<in> X}) snd inr" "inverse_on (mem_of X) inr snd"
+    by (auto simp: inverse_on_pred_def inr_def)
+  then have "bijection_on (mem_of {inr b | b \<in> X}) (mem_of X) snd inr"
+    by (intro bijection_onI)(auto simp:inr_def invP)
+  then show ?thesis 
+    by (auto simp:coprod_def)
+qed
+
+lemma coprod_assoc_eqpoll: "(X \<Coprod> Y) \<Coprod> Z \<approx> X \<Coprod> (Y \<Coprod> Z)"
+proof (intro equipollentI)
+   show "bijection_on (\<lambda>x. x \<in> X \<Coprod> Y \<Coprod> Z) (\<lambda>x. x \<in> X \<Coprod> (Y \<Coprod> Z)) 
+(coprod_rec (coprod_rec inl (\<lambda>x. inr (inl x)))  inr)  
+(coprod_rec (\<lambda>x. inl (inl x)) (coprod_rec (\<lambda>x. inl (inr x)) inr))" sorry
+qed
+
+lemma cardinal_add_assoc_eq:"(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
+  sorry
+
 (* lemma inl_nonzero [simp]:"inl x \<noteq> {}"
   by (auto simp: inl_def)
 
@@ -137,7 +183,7 @@ qed
 
 lemma cardinal_disjoint_sup:
   assumes "X \<inter> Y = {}"
-  shows "|X \<union> Y| = cardinal_add |X| |Y|"
+  shows "|X \<union> Y| = |X| \<oplus> |Y|"
 proof-
   have "X \<union> Y \<approx> X \<Coprod> Y"
   proof -
