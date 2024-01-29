@@ -38,7 +38,7 @@ lemma inr_mem_coprod_iff [iff]: "inr b \<in> A \<Coprod> B \<longleftrightarrow>
 
 definition "coprod_rec l r x = (if fst x = {} then l (snd x) else r (snd x))"
 
-lemma
+lemma coprod_rec_eq:
   shows coprod_rec_inl_eq [simp]: "coprod_rec l r (inl a) = l a"
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto

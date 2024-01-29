@@ -90,7 +90,10 @@ corollary add_eq_zeroE:
 corollary add_eq_zero_iff_and_eq_zero [iff]: "X + Y = 0 \<longleftrightarrow> X = 0 \<and> Y = 0"
   using add_eq_zeroE by auto
 
+text \<open>Next, we prove that addition is associative:\<close>
+
 lemma add_assoc: "(X + Y) + Z = X + (Y + Z)"
+text \<open>The proof is by induction in @{term Z}.\<close>
 proof (induction Z)
   case (mem Z)
   from add_eq_bin_union_lift have "(X + Y) + Z = (X + Y) \<union> (lift (X + Y) Z)" by simp
