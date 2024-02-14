@@ -34,6 +34,11 @@ lemma reflexive_equipollent: "reflexive (\<approx>)"
 lemma symmetric_equipollent: "symmetric (\<approx>)"
   by (intro symmetricI) (auto dest: bijection_on_right_left_if_bijection_on_left_right)
 
+lemma fdsf:"X \<approx> X"
+  using bijection_on_self_id by auto
+
+
+
 (* lemma do_we_need_this_hmm:
   assumes "injective_on P f"
   and "surjective_at P' f"
@@ -93,6 +98,10 @@ lemma cardinal_equipollent_self: "|X| \<approx> X"
   (*TODO: prove me later; needs order_types*)
   sorry
 
+lemma cardinal_equipollent_self_re: "X \<approx> |X|"
+  (*TODO: prove me later; needs order_types*)
+  sorry
+
 lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
   by (intro cardinality_eq_if_equipollent cardinal_equipollent_self)
 
@@ -123,21 +132,32 @@ corollary zero_cardinal_add_eq_cardinality_self: "0 \<oplus> X = |X|"
 
 lemma coprod_assoc_eqpoll: "(X \<Coprod> Y) \<Coprod> Z \<approx> X \<Coprod> (Y \<Coprod> Z)"
 proof (intro equipollentI)
-   show "bijection_on (\<lambda>x. x \<in> X \<Coprod> Y \<Coprod> Z) (\<lambda>x. x \<in> X \<Coprod> (Y \<Coprod> Z))
-      (coprod_rec (coprod_rec inl (\<lambda>x. inr (inl x)))  inr)
-      (coprod_rec (\<lambda>x. inl (inl x)) (coprod_rec (\<lambda>x. inl (inr x)) inr))" sorry
+   show "bijection_on (\<lambda>x. x \<in> (X \<Coprod> Y) \<Coprod> Z) (\<lambda>x. x \<in> X \<Coprod> (Y \<Coprod> Z))
+      (coprod_rec (coprod_rec inl (\<lambda>x. inr (inl x)))  (inr \<circ> inr))
+      (coprod_rec (\<lambda>x. inl (inl x)) (coprod_rec (\<lambda>x. inl (inr x)) inr))"
+     by (intro bijection_onI  inverse_onI dep_mono_wrt_predI) auto  
 qed
 
-lemma cardinal_add_assoc_eq:"(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
+lemma dadss:
+  assumes "f X = f Y \<longleftrightarrow> X = Y"
+  shows "equipollent (f X) X"
+  apply (intro equipollentI[where ?g = "f"])
+  apply (intro bijection_onI)
+     defer
+     defer
+     apply (intro inverse_onI)
+     defer
+     apply (intro inverse_onI)
+     defer                                   
+     apply (intro dep_mono_wrt_predI)
+     defer
+     apply (intro dep_mono_wrt_predI)
   sorry
 
-(* lemma inl_nonzero [simp]:"inl x \<noteq> {}"
-  by (auto simp: inl_def)
+lemma card_lift_eq_card_id: "|lift X Y| = |Y|"
+  by (auto simp: dadss cardinality_eq_if_equipollent)
 
-lemma inr_nonzero [simp]:"inr x \<noteq> {}"
-  by (auto simp:inr_def) *)
-
-(*why intersection*)
+(*have a function replacing X by zero or give up this way*)
 
 lemma card_lift: "|lift X Y| = |Y|"
 proof (intro cardinality_eq_if_equipollent equipollentI)
@@ -164,11 +184,69 @@ proof -
   then show ?thesis by blast
 qed
 
+
 lemma equipollent_coprod_if_equipollent:
   assumes "X \<approx> X'"
   and "Y \<approx> Y'"
-  shows "X \<Coprod> Y \<approx> X' \<Coprod> Y'"
-  sorry
+shows "X \<Coprod> Y \<approx> X' \<Coprod> Y'"
+proof -
+  obtain fX gX where A:"bijection_on (mem_of X) (mem_of X') (fX :: set \<Rightarrow> set) gX"
+    using assms by (auto dest: equipollentE)
+  obtain fY gY where B:"bijection_on (mem_of Y) (mem_of Y') (fY :: set \<Rightarrow> set) gY"
+    using assms by (auto dest: equipollentE)
+  also have C:"bijection_on (mem_of X') (mem_of X) (gX :: set \<Rightarrow> set) fX"
+            "bijection_on (mem_of Y') (mem_of Y) (gY :: set \<Rightarrow> set) fY"
+    using A B by (auto simp: bijection_on_right_left_if_bijection_on_left_right)
+  then have Loop:"\<forall>y \<in> Y. gY (fY y) = y" 
+    "\<forall>y' \<in> Y'. fY (gY y') = y'"
+"\<forall>x \<in> X. gX (fX x) = x"
+"\<forall>x' \<in> X'. fX (gX x') = x'"
+    using A B C by (auto simp: bijection_on_left_right_eq_self )
+  let ?f = "coprod_rec (inl \<circ> fX) (inr \<circ> fY)"
+  let ?g = "coprod_rec (inl \<circ> gX) (inr \<circ> gY)"
+  have "bijection_on (mem_of (X \<Coprod> Y)) (mem_of (X' \<Coprod> Y')) ?f ?g"
+ (*by (intro bijection_onI  inverse_onI dep_mono_wrt_predI) (auto simp: Bi) *)
+     apply (intro bijection_onI)
+        defer
+        defer
+       apply  (intro inverse_onI)
+        apply (rule mem_coprodE)
+     defer
+     defer
+          defer
+       apply  (intro inverse_onI)
+        apply (rule mem_coprodE)
+             apply (auto)
+          defer
+     defer
+        apply (intro dep_mono_wrt_predI) 
+     apply (rule mem_coprodE)
+          defer
+     defer
+     defer
+        apply (intro dep_mono_wrt_predI) 
+            apply (rule mem_coprodE)
+    apply auto
+     sorry
+
+(*    apply (elim bijection_onE[where ?f = "fX" and ?g = "gX"]) 
+    apply (elim bijection_onE[where ?f = "fY" and ?g = "gY"])*)
+  then show ?thesis by auto
+qed
+
+lemma cardinal_add_assoc_eq:"(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
+proof -
+  have A:"|(X \<Coprod> Y)| \<Coprod> Z  \<approx> (X \<Coprod> Y) \<Coprod> Z"
+    by (auto simp:equipollent_coprod_if_equipollent  cardinal_equipollent_self fdsf)
+  have B:"(X \<Coprod> Y) \<Coprod> Z \<approx> X \<Coprod> (Y \<Coprod> Z)"
+    by (simp add: coprod_assoc_eqpoll)
+  have C:"X \<Coprod> (Y \<Coprod> Z) \<approx> X \<Coprod> |Y \<Coprod> Z|"
+    by (auto simp:equipollent_coprod_if_equipollent fdsf cardinal_equipollent_self_re)
+  have "|(X \<Coprod> Y)| \<Coprod> Z \<approx> X \<Coprod> |Y \<Coprod> Z|" 
+  using A B C sorry (* transitive_equipollent *)
+  then show ?thesis by (auto simp: cardinality_eq_if_equipollent cardinal_add_eq_cardinality_coprod)
+qed
+
 
 lemma cardinal_disjoint_sup:
   assumes "X \<inter> Y = {}"

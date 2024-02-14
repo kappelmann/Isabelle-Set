@@ -43,6 +43,7 @@ lemma coprod_rec_eq:
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto
 
+
 lemma mono_coprod_left: "mono (\<lambda>A. A \<Coprod> B)"
   by (intro monoI) auto
 
