@@ -17,7 +17,6 @@ bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
 bundle no_hotg_mul_syntax begin no_notation mul (infixl "*" 70) end
 unbundle hotg_mul_syntax
 
-(*error*)
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
   by (simp add: mul_def transrec_eq)
 
@@ -147,12 +146,13 @@ proof (cases "X = 0")
   qed
 qed simp
 
+paragraph\<open>Lemma 4.6\<close>
+
 lemma lt_mul_if_ne_zero: assumes "X \<noteq> 0" "Y \<noteq> 0" "Y \<noteq> 1"
   shows "X < X * Y"
-(*How to give a stronger conclusion by adding more restriction*)
   sorry
 
-lemma six: assumes "A * X = A * Y + B" "B < A"
+lemma zero_if_multi_eq_multi_add: assumes "A * X = A * Y + B" "B < A"
   shows "B = 0"
 proof (cases "A = 0 \<or> X = 0")
   case True
@@ -169,22 +169,19 @@ next
   then show ?thesis
   proof (cases"Y = 0")
     case True
-    then show ?thesis
-      using assms antisymmetric_le lt_mul_if_ne_zero sorry
+    then show ?thesis sorry
   next
     case False
-    have "B=0" if "ordinal \<alpha>" 
-          (*"x \<in> (Vset \<alpha>)" "y \<in> elts (Vset \<alpha>)"*) for \<alpha>
-      using that assms
-    proof (induction rule: ordinal_induct3)
-  qed
-qed
+    then show ?thesis sorry
+        qed
+      qed
 
-lemma sevenn: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"
+paragraph\<open>Lemma 4.7\<close>
+lemma subset_if_mul_add_subset_mul_add: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"
   shows "X \<subseteq> Y"
   sorry
 
-lemma seven: assumes "R < A" "S < A" "A * X + R = A * Y + S"
+lemma eq_if_mul_add_eq_mul_add: assumes "R < A" "S < A" "A * X + R = A * Y + S"
   shows "X = Y" "R = S"
   sorry
 
@@ -199,7 +196,7 @@ proof (rule eqI)
   from asm obtain rr where RR: "x = A * Y + rr" "rr \<in> mem_trans_closure A"
     using lift_eq_repl_add by auto
   with R have "A * X + r = A * Y + rr" "r < A" "rr < A" by (auto simp: lt_iff_mem_trans_closure)
-  then have "X = Y" "r = rr" using seven[of r _ rr X _] by auto
+  then have "X = Y" "r = rr" using eq_if_mul_add_eq_mul_add[of r _ rr X _] by auto
   then show "x \<in> 0" by (simp add: assms)
 qed simp
 

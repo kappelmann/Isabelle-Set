@@ -35,14 +35,6 @@ lemma reflexive_equipollent: "reflexive (\<approx>)"
 lemma symmetric_equipollent: "symmetric (\<approx>)"
   by (intro symmetricI) (auto dest: bijection_on_right_left_if_bijection_on_left_right)
 
-(* lemma do_we_need_this_hmm:
-  assumes "injective_on P f"
-  and "surjective_at P' f"
-  and "([P] \<Rrightarrow>\<^sub>m P') f"
-  obtains h where "bijection_on P P' f h"
-  oops
- *)
-
 lemma inverse_on_compI:
   fixes P :: "'a \<Rightarrow> bool" and P' :: "'b \<Rightarrow> bool"
   and f :: "'a \<Rightarrow> 'b" and g :: "'b \<Rightarrow> 'a" and f' :: "'b \<Rightarrow> 'c" and g' :: "'c \<Rightarrow> 'b"
@@ -129,20 +121,18 @@ proof (intro equipollentI)
       (coprod_rec (coprod_rec inl (inr \<circ> inl)) (inr \<circ> inr))
       (coprod_rec (inl \<circ> inl) (coprod_rec (inl \<circ> inr) inr))"
      by (intro bijection_onI inverse_onI dep_mono_wrt_predI) auto
-qed
+ qed
 
-(*TODO: delete me later*)
-(* lemma aux: "z \<in> lift X Y \<Longrightarrow> \<exists>!y. y \<in> Y \<and> z = X + y"
-  by (auto simp: lift_eq_repl_add) *)
-
-(*TODO: prove the more general result here; statement here might not be 100% correct*)
-lemma
+lemma inverse_on_if_injectice:
   assumes "injective f"
   shows "\<exists>g. inverse_on (mem_of {f y | y \<in> Y}) g f"
-proof
+proof -
   let ?g = "\<lambda>z. THE y. y \<in> Y \<and> z = f y"
-  have "inverse_on (mem_of {f y | y \<in> Y}) ?g f"
-oops
+  have "\<forall>y \<in> Y. (?g \<circ> f) y = y"
+     using assms injectiveD by fastforce
+  then have "inverse_on (mem_of {f y | y \<in> Y}) ?g f" by force
+  then show ?thesis by auto
+qed 
 
 lemma card_lift_eq_card_right: "|lift X Y| = |Y|"
 proof (intro cardinality_eq_if_equipollent equipollentI)
@@ -200,27 +190,17 @@ lemma cardinal_disjoint_sup:
   assumes "X \<inter> Y = {}"
   shows "|X \<union> Y| = |X| \<oplus> |Y|"
 proof-
-  have a: "X \<Coprod> Y \<approx> |X| \<Coprod> |Y|"
+  have cardinalization: "X \<Coprod> Y \<approx> |X| \<Coprod> |Y|"
     using symmetric_equipollent equipollent_coprod_if_equipollent by (force dest: symmetricD)
   show ?thesis
     apply (subst cardinal_add_eq_cardinality_coprod)
     apply (intro cardinality_eq_if_equipollent)
     apply (rule transitiveD[OF transitive_equipollent])
-    apply (rule equipollent_bin_union_coprod_if_bin_inter_eq_empty)
-    apply (fact assms)
-    apply (rule a)
-    done
+     apply (rule equipollent_bin_union_coprod_if_bin_inter_eq_empty)
+      by (auto simp: assms cardinalization)
 qed
 
 lemma cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
   using card_lift_eq_card_right by (simp add: add_eq_bin_union_lift cardinal_disjoint_sup)
-
-(*
-  have "bijection_on ((mem_of ({ X + y | y \<in> Y })) (mem_of (lift X Y))) f g"
-    unfolding bij_betw_def
-    by (simp add: inj_on_def lift_def)
-  then show "elts (lift x y) \<approx> elts y"
-    using eqpoll_def eqpoll_sym by blast
-*)
 
 end

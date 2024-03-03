@@ -76,7 +76,6 @@ lemma ordinal_induct [consumes 1, case_names step]:
   by (induction X rule: mem_induction) auto
 
 
-
 subsection \<open>Limit Ordinals\<close>
 
 definition "limit X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
