@@ -3,12 +3,18 @@
 section \<open>Less-Than Order\<close>
 theory Less_Than
   imports
-    Transport.Binary_Relations_Antisymmetric
-    Transport.Binary_Relations_Reflexive
+    Transport.Partial_Orders
     Transport.HOL_Syntax_Bundles_Groups
     Transport.HOL_Syntax_Bundles_Orders
     Mem_Transitive_Closure
 begin
+
+paragraph \<open>Summary\<close>
+text \<open>We define less and less-than or equal on sets and show that the latter is a partial
+order.\<close>
+
+text \<open>TODO: We use the Von-Neumann encoding of natural numbers. See also
+\<^url>\<open>https://wikipedia.org/von-neumann-numerals\<close>.\<close>
 
 abbreviation "zero_set \<equiv> {}"
 abbreviation "one_set \<equiv> {zero_set}"
@@ -32,6 +38,8 @@ unbundle
   no_HOL_groups_syntax
 
 paragraph \<open>Less-Than Order\<close>
+
+text \<open>TODO: we follow the definition by Kirby.\<close>
 
 definition "lt X Y \<equiv> X \<in> mem_trans_closure Y"
 
@@ -69,6 +77,9 @@ lemma lt_trans [trans]:
   and "Y < Z"
   shows "X < Z"
   using assms unfolding lt_iff_mem_trans_closure by (rule mem_mem_trans_closure_trans)
+
+corollary transitive_lt: "transitive (<)"
+  using lt_trans by blast
 
 lemma not_lt_self [iff]: "\<not>(X < X)"
   unfolding lt_iff_mem_trans_closure by auto
@@ -114,6 +125,12 @@ lemma le_trans [trans]:
   shows "X \<le> Z"
   using assms lt_trans unfolding le_iff_lt_or_eq by auto
 
+corollary transitive_le: "transitive (\<le>)"
+  using le_trans by blast
+
+corollary preorder_le: "preorder (\<le>)"
+  using reflexive_le transitive_le by blast
+
 lemma zero_le [iff]: "0 \<le> X" by (subst le_iff_lt_or_eq) auto
 
 lemma lt_mem_leE:
@@ -157,6 +174,9 @@ lemma not_lt_if_le: "X \<le> Y \<Longrightarrow> \<not>(Y < X)"
 lemma antisymmetric_le: "antisymmetric (\<le>)"
   unfolding le_iff_lt_or_eq using lt_trans by auto
 
+corollary partial_order_le: "partial_order (\<le>)"
+  using preorder_le antisymmetric_le by blast
+
 lemma ne_if_lt:
   assumes "X < Y"
   shows "X \<noteq> Y"
@@ -176,6 +196,9 @@ lemma le_if_eq: "X = Y \<Longrightarrow> X \<le> Y"
 
 lemma not_lt_if_not_le_or_eq: "\<not>(X < Y) \<longleftrightarrow> \<not>(X \<le> Y) \<or> X = Y"
   unfolding le_iff_lt_or_eq by auto
+
+text \<open>The following sets up automation for goals involving the @{term "(\<le>)"}
+and @{term "(<)"} relations.\<close>
 
 local_setup \<open>
   HOL_Order_Tac.declare_order {

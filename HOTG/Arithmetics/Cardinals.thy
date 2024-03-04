@@ -1,6 +1,5 @@
 theory Cardinals
   imports
-    SAddition
     Coproduct
     Ordinals
     Transport.Functions_Bijection
@@ -10,6 +9,18 @@ begin
 
 (*TODO Kevin: bundle notation defined in this theory*)
 (*TODO Kevin: tag bijection_onE as elim in AFP*)
+
+(*TODO Kevin: move to library*)
+lemma inverse_on_if_THE_eq_if_injectice:
+  assumes "injective f"
+  shows "inverse f (\<lambda>z. THE y. z = f y)"
+  using assms injectiveD by fastforce
+
+lemma inverse_on_if_injectice:
+  assumes "injective f"
+  obtains g where "inverse f g"
+  using assms inverse_on_if_THE_eq_if_injectice by blast
+
 
 unbundle no_HOL_groups_syntax no_HOL_ascii_syntax
 
@@ -123,22 +134,11 @@ proof (intro equipollentI)
      by (intro bijection_onI inverse_onI dep_mono_wrt_predI) auto
  qed
 
-lemma inverse_on_if_injectice:
-  assumes "injective f"
-  shows "\<exists>g. inverse_on (mem_of {f y | y \<in> Y}) g f"
-proof -
-  let ?g = "\<lambda>z. THE y. y \<in> Y \<and> z = f y"
-  have "\<forall>y \<in> Y. (?g \<circ> f) y = y"
-     using assms injectiveD by fastforce
-  then have "inverse_on (mem_of {f y | y \<in> Y}) ?g f" by force
-  then show ?thesis by auto
-qed 
-
-lemma card_lift_eq_card_right: "|lift X Y| = |Y|"
+lemma cardinality_lift_eq_cardinality_right: "|lift X Y| = |Y|"
 proof (intro cardinality_eq_if_equipollent equipollentI)
   let ?f = "\<lambda>z. THE y. y \<in> Y \<and> z = X + y"
   let ?g = "((+) X)"
-  show "bijection_on (mem_of (lift X Y)) (mem_of Y) ?f ?g"
+  from inverse_on_if_injectice show "bijection_on (mem_of (lift X Y)) (mem_of Y) ?f ?g"
     by (intro bijection_onI dep_mono_wrt_predI)
     (auto intro: the1I2 simp: lift_eq_repl_add)
 qed
@@ -173,7 +173,7 @@ proof -
   then show ?thesis by auto
 qed
 
-lemma cardinal_add_assoc_eq: "(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
+lemma cardinal_add_assoc: "(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
 proof -
   have "|(X \<Coprod> Y)| \<Coprod> Z \<approx> (X \<Coprod> Y) \<Coprod> Z"
     using reflexive_equipollent by (blast intro: equipollent_coprod_if_equipollent dest: reflexiveD)
@@ -186,13 +186,17 @@ proof -
     by (auto intro: cardinality_eq_if_equipollent simp: cardinal_add_eq_cardinality_coprod)
 qed
 
-lemma cardinal_disjoint_sup:
+lemma cardinality_bin_union_eq_cardinal_add_if_bin_inter_eq_empty:
   assumes "X \<inter> Y = {}"
   shows "|X \<union> Y| = |X| \<oplus> |Y|"
-proof-
+proof -
   have cardinalization: "X \<Coprod> Y \<approx> |X| \<Coprod> |Y|"
     using symmetric_equipollent equipollent_coprod_if_equipollent by (force dest: symmetricD)
-  show ?thesis
+  from assms have "X \<union> Y \<approx> X \<Coprod> Y" by (intro equipollent_bin_union_coprod_if_bin_inter_eq_empty) auto
+  moreover have "... \<approx> |X| \<Coprod> |Y|" sorry
+  ultimately have "X \<union> Y \<approx> |X| \<Coprod> |Y|" using transitiveD[OF transitive_equipollent] by blast
+  from cardinal_add_eq_cardinality_coprod have "|X| \<oplus> |Y| = ||X| \<Coprod> |Y||" by simp
+  show "|X \<union> Y| = |X| \<oplus> |Y|"
     apply (subst cardinal_add_eq_cardinality_coprod)
     apply (intro cardinality_eq_if_equipollent)
     apply (rule transitiveD[OF transitive_equipollent])
@@ -200,7 +204,8 @@ proof-
       by (auto simp: assms cardinalization)
 qed
 
-lemma cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
-  using card_lift_eq_card_right by (simp add: add_eq_bin_union_lift cardinal_disjoint_sup)
+theorem cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
+  using cardinality_lift_eq_cardinality_right
+  by (simp add: add_eq_bin_union_lift cardinality_bin_union_eq_cardinal_add_if_bin_inter_eq_empty)
 
 end

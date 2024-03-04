@@ -1,13 +1,13 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
+\<^marker>\<open>creator "Linghan Fang"\<close>
 section \<open>Transfinite Recursion\<close>
 theory Transfinite_Recursion
   imports
     Functions_Restrict
 begin
 
-section \<open>
-
-\<close>
+paragraph \<open>Summary\<close>
+text \<open>TODO summary\<close>
 
 (*TODO: migrate definition from HOL*)
 axiomatization transrec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"

@@ -177,6 +177,7 @@ next
       qed
 
 paragraph\<open>Lemma 4.7\<close>
+
 lemma subset_if_mul_add_subset_mul_add: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"
   shows "X \<subseteq> Y"
   sorry

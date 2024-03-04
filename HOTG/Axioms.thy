@@ -24,7 +24,7 @@ where
   replacement: "\<forall>X y. mem y (repl X f) \<longleftrightarrow> (\<exists>x. mem x X \<and> y = f x)"
 
 text \<open>Note: axioms @{thm mem_induction} and @{thm replacement} are axiom schemas
-in first-order logic. Moreover, @{thm replacement} takes a meta-level function \<open>F\<close>.}\<close>
+in first-order logic. Moreover, @{thm replacement} takes a meta-level function \<open>F\<close>.\<close>
 
 text \<open>Let us define some expected notation.\<close>
 

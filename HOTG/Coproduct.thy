@@ -1,5 +1,5 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Coproduct (\<Coprod>-types)\<close>
+section \<open>Coproduct (\<open>\<Coprod>\<close>-types)\<close>
 text \<open>Aka binary disjoint union.\<close>
 theory Coproduct
   imports Pairs

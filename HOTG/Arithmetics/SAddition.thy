@@ -6,7 +6,8 @@ theory SAddition
     Less_Than
 begin
 paragraph \<open>Summary\<close>
-text \<open>Translation of addition for sets from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
+text \<open>Translation of general set addition from \<^cite>\<open>kirby_set_arithemtics\<close>
+and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is associative but not commutative.\<close>
 
 text \<open>Define the generalized addition operation for sets.\<close>
 definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
@@ -15,43 +16,35 @@ bundle hotg_add_syntax begin notation add (infixl "+" 65) end
 bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
 unbundle hotg_add_syntax
 
-text \<open>Demonstrate that addition equals binary union with a set replacement operation.\<close>
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
   unfolding add_def by (simp add: transrec_eq)
 
-text \<open>Introduce the lift operation as adding a set to each element of another set.\<close>
+text \<open>The lift operation is the recursive operation in the definition of addition.\<close>
+
 definition "lift X \<equiv> image ((+) X)"
 
-text \<open>Show the equivalence of lift to image addition.\<close>
 lemma lift_eq_image_add: "lift X = image ((+) X)"
   unfolding lift_def by simp
 
-text \<open>Express lift operation in terms of set replacement.\<close>
 lemma lift_eq_repl_add: "lift X Y = {X + y | y \<in> Y}"
   using lift_eq_image_add by simp
 
-text \<open>Establish that addition can be represented as a union of a set with its lifted version.\<close>
 lemma add_eq_bin_union_lift: "X + Y = X \<union> lift X Y"
   unfolding lift_eq_image_add by (subst add_eq_bin_union_repl_add) simp
 
-text \<open>Demonstrate that the "lift" operation is a subset of the addition operation.\<close>
 corollary lift_subset_add: "lift X Y \<subseteq> X + Y"
   using add_eq_bin_union_lift by auto
 
-text \<open>Show that "lifting" over a binary union of sets is equivalent to the union of lifting each set individually.\<close>
 lemma lift_bin_union_eq_lift_bin_union_lift: "lift X (A \<union> B) = lift X A \<union> lift X B"
   by (auto simp: lift_eq_image_add)
 
-text \<open>Prove that lifting a union of sets is the same as the union of lifting each set within the union.\<close>
 lemma lift_union_eq_idx_union_lift: "lift X (\<Union>Y) = (\<Union>y \<in> Y. lift X y)"
   by (auto simp: lift_eq_image_add)
 
-text \<open>Establish that adding a set to the union of a function's image is equivalent to the union of adding the set to each image of the function.\<close>
 lemma idx_union_add_eq_add_idx_union:
   "Y \<noteq> {} \<Longrightarrow> (\<Union>y \<in> Y. X + f y) = X + (\<Union>y \<in> Y. f y)"
   by (simp add: lift_union_eq_idx_union_lift add_eq_bin_union_lift)
 
-text \<open>Show that lifting zero (the empty set) by any set results in zero, reinforcing the identity property of addition.\<close>
 lemma lift_zero_eq_zero [simp]: "lift X 0 = 0"
   by (auto simp: lift_eq_image_add)
 
@@ -118,7 +111,6 @@ corollary add_eq_zero_iff_and_eq_zero [iff]: "X + Y = 0 \<longleftrightarrow> X 
 
 text \<open>Next, we prove that addition is associative:\<close>
 
-
 lemma add_assoc: "(X + Y) + Z = X + (Y + Z)"
 text \<open>We prove the associativity of addition by induction on Z.\<close>
 proof (induction Z)
@@ -132,7 +124,7 @@ proof (induction Z)
   text \<open>By applying our induction hypothesis, we simplify the inner additions, aligning them with our goal's structure.\<close>
   also from mem have "... = X \<union> (lift X Y) \<union> {X + (Y + z) | z \<in> Z}" by simp
   text \<open>Finally, we show that this structure matches X + (Y + Z), concluding our proof of associativity.\<close>
-  also have "... = X \<union> lift X (Y + Z)" 
+  also have "... = X \<union> lift X (Y + Z)"
   proof-
     text \<open>Apply the definition of lift to the addition of Y and Z, showcasing how addition distributes over union within the lifting process.\<close>
     from add_eq_bin_union_lift have "lift X (Y + Z) = lift X (Y \<union> lift Y Z)" by simp

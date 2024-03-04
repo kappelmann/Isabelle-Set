@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Alexander Krauss"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 \<^marker>\<open>creator "Larry Paulson"\<close>
-section \<open>Pairs (\<Sigma>-types)\<close>
+section \<open>Pairs (\<open>\<Sigma>\<close>-types)\<close>
 theory Pairs
   imports
     Foundation

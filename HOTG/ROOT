@@ -44,3 +44,4 @@ session HOTG = Transport +
     Unordered_Pairs
   document_files
     "root.bib"
+    "root.tex"
