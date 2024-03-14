@@ -6,7 +6,13 @@ theory Mem_Transitive_Closure
     Foundation
     Transfinite_Recursion
 begin
+paragraph \<open>Summary\<close>
+text \<open>Translation of transitive closure from HOL-Library and \<^cite>\<open>ZFC_in_HOL_AFP\<close>.
+It illustrates that it is mem\_trans\_closed and transitive.\<close>
 
+paragraph \<open>Mem-Trans-Closure\<close>
+text\<open>Transitive closure with respect to membership is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>
+ $\in$-inductively by $MTC(X) = X \cup \{MTC(u) | u \in X\}$.\<close>
 definition "mem_trans_closure \<equiv> transrec (\<lambda>f X. X \<union> (\<Union>x \<in> X. f x))"
 
 lemma mem_trans_closure_eq_bin_union_idx_union:
@@ -39,6 +45,7 @@ lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
 lemma mem_trans_closure_eq_empty_iff_eq_empty [iff]: "mem_trans_closure X = {} \<longleftrightarrow> X = {}"
   using subset_mem_trans_closure_self by auto
 
+text\<open>The lemma demonstrates MTC of X is mem\_trans\_closed.\<close>
 lemma mem_trans_closed_mem_trans_closure: "mem_trans_closed (mem_trans_closure X)"
 proof (induction X)
   case (mem X)
@@ -57,6 +64,7 @@ proof (induction X)
   qed
 qed
 
+text\<open>The lemma demonstrates X is not a member of MTC(X).\<close>
 lemma not_mem_mem_trans_closure_self [iff]: "X \<notin> mem_trans_closure X"
 proof
   assume "X \<in> mem_trans_closure X"
@@ -85,6 +93,7 @@ lemma mem_mem_trans_closure_if_mem_if_mem_mem_trans_closure:
   shows "X \<in> mem_trans_closure Z"
   using assms by (auto iff: mem_mem_trans_closure_iff_mem_or_mem[of X Z])
 
+text\<open>The lemma demonstrates the transitivity of MTC.\<close>
 lemma mem_mem_trans_closure_trans:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> mem_trans_closure Z"

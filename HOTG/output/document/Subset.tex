@@ -1,0 +1,409 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Subset}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsection{Subset%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Subset\isanewline
+\ \ \isakeyword{imports}\ Basic\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subsetI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbang}{\kern0pt}{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharparenleft}{\kern0pt}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymLongrightarrow}\ x\ {\isasymin}\ B{\isacharparenright}{\kern0pt}\ {\isasymLongrightarrow}\ A\ {\isasymsubseteq}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subsetD\ {\isacharbrackleft}{\kern0pt}dest{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}A\ {\isasymsubseteq}\ B{\isacharsemicolon}{\kern0pt}\ a\ {\isasymin}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\ a\ {\isasymin}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem\ {\isacharbrackleft}{\kern0pt}trans{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}a\ {\isasymin}\ A{\isacharsemicolon}{\kern0pt}\ A\ {\isasymsubseteq}\ B{\isasymrbrakk}\ {\isasymLongrightarrow}\ a\ {\isasymin}\ B{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}self\ {\isacharbrackleft}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymsubseteq}\ A{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ empty{\isacharunderscore}{\kern0pt}subset\ {\isacharbrackleft}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isasymsubseteq}\ A{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}empty{\isacharunderscore}{\kern0pt}iff\ {\isacharbrackleft}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymsubseteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isasymlongleftrightarrow}\ A\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ not{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}not{\isacharunderscore}{\kern0pt}mem\ {\isacharbrackleft}{\kern0pt}trans{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}a\ {\isasymnotin}\ B{\isacharsemicolon}{\kern0pt}\ A\ {\isasymsubseteq}\ B{\isasymrbrakk}\ {\isasymLongrightarrow}\ a\ {\isasymnotin}\ A{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}subset\ {\isacharbrackleft}{\kern0pt}trans{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}A\ {\isasymsubseteq}\ B{\isacharsemicolon}{\kern0pt}\ B\ {\isasymsubseteq}\ C{\isasymrbrakk}\ {\isasymLongrightarrow}\ A\ {\isasymsubseteq}\ C{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subsetCE\ {\isacharbrackleft}{\kern0pt}elim{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}A\ {\isasymsubseteq}\ B{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ {\isachardoublequoteopen}a\ {\isasymnotin}\ A{\isachardoublequoteclose}\ {\isacharbar}{\kern0pt}\ {\isachardoublequoteopen}a\ {\isasymin}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Strict Subsets%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}ssubset\ A\ B\ {\isasymequiv}\ A\ {\isasymsubseteq}\ B\ {\isasymand}\ A\ {\isasymnoteq}\ B{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{bundle}\isamarkupfalse%
+\ hotg{\isacharunderscore}{\kern0pt}ssubset{\isacharunderscore}{\kern0pt}syntax\ \isakeyword{begin}\ \isacommand{notation}\isamarkupfalse%
+\ ssubset\ {\isacharparenleft}{\kern0pt}\isakeyword{infixl}\ {\isachardoublequoteopen}{\isasymsubset}{\isachardoublequoteclose}\ {\isadigit{5}}{\isadigit{0}}{\isacharparenright}{\kern0pt}\ \isacommand{end}\isamarkupfalse%
+\isanewline
+\isacommand{bundle}\isamarkupfalse%
+\ no{\isacharunderscore}{\kern0pt}hotg{\isacharunderscore}{\kern0pt}xsubset{\isacharunderscore}{\kern0pt}syntax\ \isakeyword{begin}\ \isacommand{no{\isacharunderscore}{\kern0pt}notation}\isamarkupfalse%
+\ ssubset\ {\isacharparenleft}{\kern0pt}\isakeyword{infixl}\ {\isachardoublequoteopen}{\isasymsubset}{\isachardoublequoteclose}\ {\isadigit{5}}{\isadigit{0}}{\isacharparenright}{\kern0pt}\ \isacommand{end}\isamarkupfalse%
+\isanewline
+\isacommand{unbundle}\isamarkupfalse%
+\ hotg{\isacharunderscore}{\kern0pt}ssubset{\isacharunderscore}{\kern0pt}syntax\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ssubsetI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}A\ {\isasymsubseteq}\ B{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ B{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}A\ {\isasymsubset}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ ssubset{\isacharunderscore}{\kern0pt}def\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ssubsetE\ {\isacharbrackleft}{\kern0pt}elim{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}A\ {\isasymsubset}\ B{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ {\isachardoublequoteopen}A\ {\isasymsubseteq}\ B{\isachardoublequoteclose}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ ssubset{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Subset.thy%:%
+%:%11=2%:%
+%:%27=3%:%
+%:%28=3%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%35=5%:%
+%:%38=6%:%
+%:%39=7%:%
+%:%40=7%:%
+%:%43=8%:%
+%:%47=8%:%
+%:%48=8%:%
+%:%49=8%:%
+%:%54=8%:%
+%:%57=9%:%
+%:%58=10%:%
+%:%59=10%:%
+%:%62=11%:%
+%:%66=11%:%
+%:%67=11%:%
+%:%68=11%:%
+%:%73=11%:%
+%:%76=12%:%
+%:%77=13%:%
+%:%78=13%:%
+%:%80=13%:%
+%:%84=13%:%
+%:%85=13%:%
+%:%92=13%:%
+%:%93=14%:%
+%:%94=15%:%
+%:%95=15%:%
+%:%97=15%:%
+%:%101=15%:%
+%:%102=15%:%
+%:%109=15%:%
+%:%110=16%:%
+%:%111=17%:%
+%:%112=17%:%
+%:%114=17%:%
+%:%118=17%:%
+%:%119=17%:%
+%:%126=17%:%
+%:%127=18%:%
+%:%128=19%:%
+%:%129=19%:%
+%:%131=19%:%
+%:%135=19%:%
+%:%136=19%:%
+%:%143=19%:%
+%:%144=20%:%
+%:%145=21%:%
+%:%146=21%:%
+%:%149=22%:%
+%:%153=22%:%
+%:%154=22%:%
+%:%159=22%:%
+%:%162=23%:%
+%:%163=24%:%
+%:%164=24%:%
+%:%167=25%:%
+%:%171=25%:%
+%:%172=25%:%
+%:%177=25%:%
+%:%180=26%:%
+%:%181=27%:%
+%:%182=27%:%
+%:%183=28%:%
+%:%184=29%:%
+%:%187=30%:%
+%:%191=30%:%
+%:%192=30%:%
+%:%193=30%:%
+%:%207=32%:%
+%:%217=34%:%
+%:%218=34%:%
+%:%219=35%:%
+%:%220=36%:%
+%:%221=36%:%
+%:%222=36%:%
+%:%223=36%:%
+%:%224=37%:%
+%:%225=37%:%
+%:%226=37%:%
+%:%227=37%:%
+%:%228=38%:%
+%:%229=38%:%
+%:%230=39%:%
+%:%231=40%:%
+%:%232=40%:%
+%:%233=41%:%
+%:%234=42%:%
+%:%235=43%:%
+%:%238=44%:%
+%:%242=44%:%
+%:%243=44%:%
+%:%244=44%:%
+%:%245=44%:%
+%:%250=44%:%
+%:%253=45%:%
+%:%254=46%:%
+%:%255=46%:%
+%:%256=47%:%
+%:%257=48%:%
+%:%260=49%:%
+%:%264=49%:%
+%:%265=49%:%
+%:%266=49%:%
+%:%267=49%:%
+%:%272=49%:%
+%:%275=50%:%
+%:%276=51%:%
+%:%279=52%:%
+%:%284=53%:%

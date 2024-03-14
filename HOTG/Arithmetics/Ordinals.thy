@@ -9,8 +9,14 @@ begin
 unbundle no_HOL_groups_syntax
 
 paragraph \<open>Summary\<close>
-text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.\<close>
+text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
+We give the definition of ordinals and limit ordinals. In addition,
+two ordinal inductions are demonstrated.\<close>
 
+paragraph \<open>Ordinals\<close>
+
+text \<open>We follow the definition from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
+X is an ordinal if it is mem\_trans\_closed and same for its elements.\<close>
 definition "ordinal X \<equiv> mem_trans_closed X \<and> (\<forall>x \<in> X. mem_trans_closed x)"
 
 lemma ordinal_mem_trans_closedE:
@@ -68,6 +74,8 @@ lemma ordinal_if_mem_if_ordinal: "\<lbrakk>ordinal X; Y \<in> X\<rbrakk>  \<Long
 
 lemma union_succ_eq_self_if_ordinal [simp]: "ordinal \<beta> \<Longrightarrow> \<Union>(succ \<beta>) = \<beta>" by auto
 
+text\<open>This lemma proves that a property P holds for all ordinals using ordinal induction 
+and is used to prove set multiplication theorems.\<close>
 lemma ordinal_induct [consumes 1, case_names step]:
   assumes "ordinal X"
   and "\<And>X. \<lbrakk>ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P X"
@@ -76,8 +84,11 @@ lemma ordinal_induct [consumes 1, case_names step]:
   by (induction X rule: mem_induction) auto
 
 
-subsection \<open>Limit Ordinals\<close>
+paragraph \<open>Limit Ordinals\<close>
 
+text \<open>We follow the definition from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
+A limit ordinal is an ordinal number greater than zero that is not a successor ordinal.
+Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Limit_ordinal\<close>. \<close>
 definition "limit X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
 
 lemma limitI:
@@ -92,6 +103,7 @@ lemma limitE:
   obtains "ordinal X" "0 \<in> X" "\<And>x. x \<in> X \<Longrightarrow> succ x \<in> X"
   using assms unfolding limit_def by auto
 
+text\<open>In order to get the second induction, we still have some lemmas to prove.\<close>
 lemma Limit_eq_Sup_self: "limit X \<Longrightarrow> \<Union>X = X"
   sorry
 
@@ -106,6 +118,7 @@ lemma elts_succ [simp]: "{xx | xx \<in> (succ x)} = insert x {xx | xx \<in> x}"
 lemma image_ident: "image id Y = Y"
   by auto
 
+text\<open>Introducing this induction is intend to prove set multiplication theorems.\<close>
 lemma ordinal_induct3 [consumes 1, case_names zero succ limit, induct type: set]:
   assumes a: "ordinal X"
   and P: "P 0" "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"

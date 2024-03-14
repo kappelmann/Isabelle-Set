@@ -1,0 +1,142 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{SBinary{\isacharunderscore}{\kern0pt}Relations{\isacharunderscore}{\kern0pt}Irreflexive}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Irreflexive%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ SBinary{\isacharunderscore}{\kern0pt}Relations{\isacharunderscore}{\kern0pt}Irreflexive\isanewline
+\ \ \isakeyword{imports}\isanewline
+\ \ \ \ Pairs\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}irreflexive\ D\ R\ {\isasymequiv}\ {\isasymforall}x\ {\isasymin}\ D{\isachardot}{\kern0pt}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ x{\isasymrangle}\ {\isasymnotin}\ R{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ irreflexiveI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ D\ {\isasymLongrightarrow}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ x{\isasymrangle}\ {\isasymnotin}\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}irreflexive\ D\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ irreflexive{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ irreflexiveD{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}irreflexive\ D\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}x\ {\isasymin}\ D{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymlangle}x{\isacharcomma}{\kern0pt}\ x{\isasymrangle}\ {\isasymnotin}\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ irreflexive{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Binary_Relations/Properties/SBinary_Relations_Irreflexive.thy%:%
+%:%11=2%:%
+%:%27=3%:%
+%:%28=3%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%31=6%:%
+%:%36=6%:%
+%:%39=7%:%
+%:%40=8%:%
+%:%41=8%:%
+%:%42=9%:%
+%:%43=10%:%
+%:%44=10%:%
+%:%45=11%:%
+%:%46=12%:%
+%:%49=13%:%
+%:%53=13%:%
+%:%54=13%:%
+%:%55=13%:%
+%:%56=13%:%
+%:%61=13%:%
+%:%64=14%:%
+%:%65=15%:%
+%:%66=15%:%
+%:%67=16%:%
+%:%68=17%:%
+%:%69=18%:%
+%:%72=19%:%
+%:%76=19%:%
+%:%77=19%:%
+%:%78=19%:%
+%:%79=19%:%
+%:%84=19%:%
+%:%87=20%:%
+%:%90=21%:%
+%:%95=22%:%

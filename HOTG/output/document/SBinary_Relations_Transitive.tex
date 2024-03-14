@@ -1,0 +1,146 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{SBinary{\isacharunderscore}{\kern0pt}Relations{\isacharunderscore}{\kern0pt}Transitive}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Transitive%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ SBinary{\isacharunderscore}{\kern0pt}Relations{\isacharunderscore}{\kern0pt}Transitive\isanewline
+\ \ \isakeyword{imports}\isanewline
+\ \ \ \ Pairs\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}transitive\ D\ R\ {\isasymequiv}\ {\isasymforall}x\ y\ z\ {\isasymin}\ D{\isachardot}{\kern0pt}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ y{\isasymrangle}\ {\isasymin}\ R\ {\isasymand}\ {\isasymlangle}y{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R\ {\isasymlongrightarrow}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ transitiveI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\isanewline
+\ \ \ \ {\isachardoublequoteopen}{\isasymAnd}x\ y\ z{\isachardot}{\kern0pt}\ x\ {\isasymin}\ D\ {\isasymLongrightarrow}\ y\ {\isasymin}\ D\ {\isasymLongrightarrow}\ z\ {\isasymin}\ D\ {\isasymLongrightarrow}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ y{\isasymrangle}\ {\isasymin}\ R\ {\isasymLongrightarrow}\ {\isasymlangle}y{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R\ {\isasymLongrightarrow}\ {\isasymlangle}x{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}transitive\ D\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ transitive{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ transitiveD{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}transitive\ D\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}x\ {\isasymin}\ D{\isachardoublequoteclose}\ {\isachardoublequoteopen}y\ {\isasymin}\ D{\isachardoublequoteclose}\ {\isachardoublequoteopen}z\ {\isasymin}\ D{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymlangle}x{\isacharcomma}{\kern0pt}\ y{\isasymrangle}\ {\isasymin}\ R{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymlangle}y{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymlangle}x{\isacharcomma}{\kern0pt}\ z{\isasymrangle}\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ transitive{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Binary_Relations/Properties/SBinary_Relations_Transitive.thy%:%
+%:%11=2%:%
+%:%27=3%:%
+%:%28=3%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%31=6%:%
+%:%36=6%:%
+%:%39=7%:%
+%:%40=8%:%
+%:%41=8%:%
+%:%42=9%:%
+%:%43=10%:%
+%:%44=10%:%
+%:%45=11%:%
+%:%46=12%:%
+%:%47=13%:%
+%:%50=14%:%
+%:%54=14%:%
+%:%55=14%:%
+%:%56=14%:%
+%:%57=14%:%
+%:%62=14%:%
+%:%65=15%:%
+%:%66=16%:%
+%:%67=16%:%
+%:%68=17%:%
+%:%69=18%:%
+%:%70=19%:%
+%:%71=20%:%
+%:%74=21%:%
+%:%78=21%:%
+%:%79=21%:%
+%:%80=21%:%
+%:%81=21%:%
+%:%86=21%:%
+%:%89=22%:%
+%:%92=23%:%
+%:%97=24%:%

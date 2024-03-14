@@ -1,0 +1,865 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Ordinals}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+\isanewline
+%
+\isamarkupsection{Ordinals%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Ordinals\isanewline
+\ \ \isakeyword{imports}\isanewline
+\ \ \ \ Mem{\isacharunderscore}{\kern0pt}Transitive{\isacharunderscore}{\kern0pt}Closed\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{unbundle}\isamarkupfalse%
+\ no{\isacharunderscore}{\kern0pt}HOL{\isacharunderscore}{\kern0pt}groups{\isacharunderscore}{\kern0pt}syntax%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupparagraph{Summary%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+Translation of ordinals from \url{https://www.isa-afp.org/entries/ZFC_in_HOL.html}.
+We give the definition of ordinals and limit ordinals. In addition,
+two ordinal inductions are demonstrated.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupparagraph{Ordinals%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+We follow the definition from \url{https://www.isa-afp.org/entries/ZFC_in_HOL.html}.
+X is an ordinal if it is mem\_trans\_closed and same for its elements.%
+\end{isamarkuptext}\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}ordinal\ X\ {\isasymequiv}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X\ {\isasymand}\ {\isacharparenleft}{\kern0pt}{\isasymforall}x\ {\isasymin}\ X{\isachardot}{\kern0pt}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedE{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{context}\isamarkupfalse%
+\isanewline
+\ \ \isakeyword{notes}\ ordinal{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedE{\isacharbrackleft}{\kern0pt}elim{\isacharbang}{\kern0pt}{\isacharbrackright}{\kern0pt}\ ordinal{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedI{\isacharbrackleft}{\kern0pt}intro{\isacharbang}{\kern0pt}{\isacharbrackright}{\kern0pt}\isanewline
+\isakeyword{begin}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}zero\ {\isacharbrackleft}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ {\isadigit{0}}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}one\ {\isacharbrackleft}{\kern0pt}iff{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ {\isadigit{1}}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}succI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ {\isacharparenleft}{\kern0pt}succ\ x{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ simp\ flip{\isacharcolon}{\kern0pt}\ insert{\isacharunderscore}{\kern0pt}self{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}one\ simp{\isacharcolon}{\kern0pt}\ succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}one{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}unionI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ ordinal\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ {\isacharparenleft}{\kern0pt}{\isasymUnion}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}interI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ ordinal\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ {\isacharparenleft}{\kern0pt}{\isasymInter}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}bin{\isacharunderscore}{\kern0pt}unionI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}ordinal\ Y{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ {\isacharparenleft}{\kern0pt}X\ {\isasymunion}\ Y{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}bin{\isacharunderscore}{\kern0pt}interI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}ordinal\ Y{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}ordinal\ {\isacharparenleft}{\kern0pt}X\ {\isasyminter}\ Y{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ subset{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ordinal{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ X\ {\isasymLongrightarrow}\ Y\ {\isasymin}\ X\ {\isasymLongrightarrow}\ Y\ {\isasymsubseteq}\ X{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ordinal{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ Y\ {\isasymin}\ Z{\isacharsemicolon}{\kern0pt}\ Z\ {\isasymin}\ X{\isasymrbrakk}\ \ {\isasymLongrightarrow}\ Y\ {\isasymin}\ X{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ordinal{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ Y\ {\isasymin}\ X{\isasymrbrakk}\ \ {\isasymLongrightarrow}\ ordinal\ Y{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ union{\isacharunderscore}{\kern0pt}succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}self{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ordinal\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ {\isasymbeta}\ {\isasymLongrightarrow}\ {\isasymUnion}{\isacharparenleft}{\kern0pt}succ\ {\isasymbeta}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ {\isasymbeta}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+This lemma proves that a property P holds for all ordinals using ordinal induction.。%
+\end{isamarkuptext}\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}induct\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ step{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ {\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ P\ x{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ ordinal{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ordinal\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}induction\ X\ rule{\isacharcolon}{\kern0pt}\ mem{\isacharunderscore}{\kern0pt}induction{\isacharparenright}{\kern0pt}\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupparagraph{Limit Ordinals%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+We follow the definition from \url{https://www.isa-afp.org/entries/ZFC_in_HOL.html}.
+A limit ordinal is an ordinal number greater than zero that is not a successor ordinal.
+Further details can be found in \url{https://en.wikipedia.org/wiki/Limit_ordinal}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}limit\ X\ {\isasymequiv}\ ordinal\ X\ {\isasymand}\ {\isadigit{0}}\ {\isasymin}\ X\ {\isasymand}\ {\isacharparenleft}{\kern0pt}{\isasymforall}x\ {\isasymin}\ X{\isachardot}{\kern0pt}\ succ\ x\ {\isasymin}\ X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ limitI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isadigit{0}}\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ succ\ x\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}limit\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ limit{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ limitE{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}limit\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isadigit{0}}\ {\isasymin}\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ succ\ x\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ limit{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+In order to get the second induction, we still have some lemmas to prove.%
+\end{isamarkuptext}\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Limit{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}Sup{\isacharunderscore}{\kern0pt}self{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}limit\ X\ {\isasymLongrightarrow}\ {\isasymUnion}X\ {\isacharequal}{\kern0pt}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{sorry}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}cases\ {\isacharbrackleft}{\kern0pt}cases\ type{\isacharcolon}{\kern0pt}\ set{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ {\isadigit{0}}\ succ\ limit{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ k{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ {\isachardoublequoteopen}k\ {\isacharequal}{\kern0pt}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isacharbar}{\kern0pt}\ l\ \isakeyword{where}\ {\isachardoublequoteopen}ordinal\ l{\isachardoublequoteclose}\ {\isachardoublequoteopen}succ\ l\ {\isacharequal}{\kern0pt}\ k{\isachardoublequoteclose}\ {\isacharbar}{\kern0pt}\ {\isachardoublequoteopen}limit\ k{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{sorry}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ elts{\isacharunderscore}{\kern0pt}succ\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharbraceleft}{\kern0pt}xx\ {\isacharbar}{\kern0pt}\ xx\ {\isasymin}\ {\isacharparenleft}{\kern0pt}succ\ x{\isacharparenright}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ insert\ x\ {\isacharbraceleft}{\kern0pt}xx\ {\isacharbar}{\kern0pt}\ xx\ {\isasymin}\ x{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}insert{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ image{\isacharunderscore}{\kern0pt}ident{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}image\ id\ Y\ {\isacharequal}{\kern0pt}\ Y{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Introducing this induction is intend to prove set multiplication theorems.%
+\end{isamarkuptext}\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ ordinal{\isacharunderscore}{\kern0pt}induct{\isadigit{3}}\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ zero\ succ\ limit{\isacharcomma}{\kern0pt}\ induct\ type{\isacharcolon}{\kern0pt}\ set{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ a{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ P{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}P\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ P\ X{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}succ\ X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}limit\ X{\isacharsemicolon}{\kern0pt}\ {\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ P\ x{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}{\isasymUnion}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ a\isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}induction\ X\ rule{\isacharcolon}{\kern0pt}\ ordinal{\isacharunderscore}{\kern0pt}induct{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isacommand{case}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}step\ X{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ rule{\isacharcolon}{\kern0pt}\ ordinal{\isacharunderscore}{\kern0pt}cases{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isacommand{case}\isamarkupfalse%
+\ {\isadigit{0}}\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ P{\isacharparenleft}{\kern0pt}{\isadigit{1}}{\isacharparenright}{\kern0pt}\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{case}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}succ\ l{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ succ\ step\ succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}insert\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isacharparenleft}{\kern0pt}succ\ l{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}intro\ P{\isacharparenleft}{\kern0pt}{\isadigit{2}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ auto\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ succ\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{case}\isamarkupfalse%
+\ limit\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isacommand{sorry}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{end}\isamarkupfalse%
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Arithmetics/Ordinals.thy%:%
+%:%10=1%:%
+%:%12=3%:%
+%:%28=4%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%31=6%:%
+%:%32=7%:%
+%:%37=7%:%
+%:%40=8%:%
+%:%41=9%:%
+%:%42=9%:%
+%:%49=11%:%
+%:%61=12%:%
+%:%62=13%:%
+%:%63=14%:%
+%:%72=16%:%
+%:%84=18%:%
+%:%85=19%:%
+%:%87=20%:%
+%:%88=20%:%
+%:%89=21%:%
+%:%90=22%:%
+%:%91=22%:%
+%:%92=23%:%
+%:%93=24%:%
+%:%96=25%:%
+%:%100=25%:%
+%:%101=25%:%
+%:%102=25%:%
+%:%103=25%:%
+%:%108=25%:%
+%:%111=26%:%
+%:%112=27%:%
+%:%113=27%:%
+%:%114=28%:%
+%:%115=29%:%
+%:%116=30%:%
+%:%119=31%:%
+%:%123=31%:%
+%:%124=31%:%
+%:%125=31%:%
+%:%126=31%:%
+%:%131=31%:%
+%:%134=32%:%
+%:%135=33%:%
+%:%136=33%:%
+%:%137=34%:%
+%:%138=35%:%
+%:%139=36%:%
+%:%140=37%:%
+%:%141=37%:%
+%:%143=37%:%
+%:%147=37%:%
+%:%148=37%:%
+%:%155=37%:%
+%:%156=38%:%
+%:%157=39%:%
+%:%158=39%:%
+%:%160=39%:%
+%:%164=39%:%
+%:%165=39%:%
+%:%172=39%:%
+%:%173=40%:%
+%:%174=41%:%
+%:%175=41%:%
+%:%176=42%:%
+%:%177=43%:%
+%:%180=44%:%
+%:%184=44%:%
+%:%185=44%:%
+%:%186=44%:%
+%:%191=44%:%
+%:%194=45%:%
+%:%195=46%:%
+%:%196=46%:%
+%:%197=47%:%
+%:%198=48%:%
+%:%201=49%:%
+%:%205=49%:%
+%:%206=49%:%
+%:%207=49%:%
+%:%212=49%:%
+%:%215=50%:%
+%:%216=51%:%
+%:%217=51%:%
+%:%218=52%:%
+%:%219=53%:%
+%:%222=54%:%
+%:%226=54%:%
+%:%227=54%:%
+%:%228=54%:%
+%:%233=54%:%
+%:%236=55%:%
+%:%237=56%:%
+%:%238=56%:%
+%:%239=57%:%
+%:%240=58%:%
+%:%241=59%:%
+%:%244=60%:%
+%:%248=60%:%
+%:%249=60%:%
+%:%250=60%:%
+%:%255=60%:%
+%:%258=61%:%
+%:%259=62%:%
+%:%260=62%:%
+%:%261=63%:%
+%:%262=64%:%
+%:%263=65%:%
+%:%266=66%:%
+%:%270=66%:%
+%:%271=66%:%
+%:%272=66%:%
+%:%277=66%:%
+%:%280=67%:%
+%:%281=68%:%
+%:%282=68%:%
+%:%284=68%:%
+%:%288=68%:%
+%:%289=68%:%
+%:%296=68%:%
+%:%297=69%:%
+%:%298=70%:%
+%:%299=70%:%
+%:%301=70%:%
+%:%305=70%:%
+%:%306=70%:%
+%:%313=70%:%
+%:%314=71%:%
+%:%315=72%:%
+%:%316=72%:%
+%:%319=73%:%
+%:%323=73%:%
+%:%324=73%:%
+%:%329=73%:%
+%:%332=74%:%
+%:%333=75%:%
+%:%334=75%:%
+%:%336=75%:%
+%:%340=75%:%
+%:%341=75%:%
+%:%350=77%:%
+%:%352=78%:%
+%:%353=78%:%
+%:%354=79%:%
+%:%355=80%:%
+%:%356=81%:%
+%:%359=82%:%
+%:%363=82%:%
+%:%364=82%:%
+%:%365=83%:%
+%:%366=83%:%
+%:%380=86%:%
+%:%392=88%:%
+%:%393=89%:%
+%:%394=90%:%
+%:%396=91%:%
+%:%397=91%:%
+%:%398=92%:%
+%:%399=93%:%
+%:%400=93%:%
+%:%401=94%:%
+%:%402=95%:%
+%:%403=96%:%
+%:%404=97%:%
+%:%407=98%:%
+%:%411=98%:%
+%:%412=98%:%
+%:%413=98%:%
+%:%414=98%:%
+%:%419=98%:%
+%:%422=99%:%
+%:%423=100%:%
+%:%424=100%:%
+%:%425=101%:%
+%:%426=102%:%
+%:%429=103%:%
+%:%433=103%:%
+%:%434=103%:%
+%:%435=103%:%
+%:%436=103%:%
+%:%445=105%:%
+%:%447=106%:%
+%:%448=106%:%
+%:%451=107%:%
+%:%455=107%:%
+%:%461=107%:%
+%:%464=108%:%
+%:%465=109%:%
+%:%466=109%:%
+%:%467=110%:%
+%:%468=111%:%
+%:%471=112%:%
+%:%475=112%:%
+%:%481=112%:%
+%:%484=113%:%
+%:%485=114%:%
+%:%486=114%:%
+%:%489=115%:%
+%:%493=115%:%
+%:%494=115%:%
+%:%499=115%:%
+%:%502=116%:%
+%:%503=117%:%
+%:%504=117%:%
+%:%507=118%:%
+%:%511=118%:%
+%:%512=118%:%
+%:%521=120%:%
+%:%523=121%:%
+%:%524=121%:%
+%:%525=122%:%
+%:%526=123%:%
+%:%527=124%:%
+%:%528=125%:%
+%:%535=126%:%
+%:%536=126%:%
+%:%537=127%:%
+%:%538=127%:%
+%:%539=128%:%
+%:%540=128%:%
+%:%541=129%:%
+%:%542=129%:%
+%:%543=129%:%
+%:%544=130%:%
+%:%545=130%:%
+%:%546=131%:%
+%:%547=131%:%
+%:%548=132%:%
+%:%549=132%:%
+%:%550=132%:%
+%:%551=132%:%
+%:%552=133%:%
+%:%553=133%:%
+%:%554=134%:%
+%:%555=134%:%
+%:%556=135%:%
+%:%557=135%:%
+%:%558=135%:%
+%:%559=135%:%
+%:%560=136%:%
+%:%561=136%:%
+%:%562=136%:%
+%:%563=136%:%
+%:%564=137%:%
+%:%565=137%:%
+%:%566=138%:%
+%:%567=138%:%
+%:%568=139%:%
+%:%569=139%:%
+%:%570=139%:%
+%:%571=139%:%
+%:%572=140%:%
+%:%573=140%:%
+%:%574=141%:%
+%:%580=141%:%
+%:%583=142%:%
+%:%584=143%:%
+%:%585=143%:%
+%:%588=144%:%
+%:%593=145%:%

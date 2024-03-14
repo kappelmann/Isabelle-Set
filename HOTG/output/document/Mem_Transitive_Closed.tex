@@ -1,0 +1,267 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Mem{\isacharunderscore}{\kern0pt}Transitive{\isacharunderscore}{\kern0pt}Closed}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isanewline
+\isacommand{theory}\isamarkupfalse%
+\ Mem{\isacharunderscore}{\kern0pt}Transitive{\isacharunderscore}{\kern0pt}Closed\isanewline
+\ \ \isakeyword{imports}\isanewline
+\ \ \ \ Mem{\isacharunderscore}{\kern0pt}Transitive{\isacharunderscore}{\kern0pt}Closed{\isacharunderscore}{\kern0pt}Base\isanewline
+\ \ \ \ SAddition\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}succI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}succ\ X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ succ{\isacharunderscore}{\kern0pt}def\ \isacommand{using}\isamarkupfalse%
+\ assms\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ simp\ flip{\isacharcolon}{\kern0pt}\ insert{\isacharunderscore}{\kern0pt}self{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}one{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}unionI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}{\isasymUnion}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}intro\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedI{\isacharparenright}{\kern0pt}\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}interI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}{\isasymInter}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}intro\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closedI{\isacharparenright}{\kern0pt}\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}bin{\isacharunderscore}{\kern0pt}unionI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ Y{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}X\ {\isasymunion}\ Y{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}bin{\isacharunderscore}{\kern0pt}interI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ Y{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}X\ {\isasyminter}\ Y{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed{\isacharunderscore}{\kern0pt}powersetI{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X\ {\isasymLongrightarrow}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharparenleft}{\kern0pt}powerset\ X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ union{\isacharunderscore}{\kern0pt}succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}self{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X\ {\isasymLongrightarrow}\ {\isasymUnion}{\isacharparenleft}{\kern0pt}succ\ X{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ simp\ flip{\isacharcolon}{\kern0pt}\ insert{\isacharunderscore}{\kern0pt}self{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}one\ simp{\isacharcolon}{\kern0pt}\ succ{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}one{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Mem_Transitive_Closed/Mem_Transitive_Closed.thy%:%
+%:%10=1%:%
+%:%11=2%:%
+%:%12=2%:%
+%:%13=3%:%
+%:%14=4%:%
+%:%15=5%:%
+%:%16=6%:%
+%:%21=6%:%
+%:%24=7%:%
+%:%25=8%:%
+%:%26=8%:%
+%:%27=9%:%
+%:%28=10%:%
+%:%31=11%:%
+%:%35=11%:%
+%:%36=11%:%
+%:%37=11%:%
+%:%38=12%:%
+%:%39=12%:%
+%:%44=12%:%
+%:%47=13%:%
+%:%48=14%:%
+%:%49=14%:%
+%:%50=15%:%
+%:%51=16%:%
+%:%54=17%:%
+%:%58=17%:%
+%:%59=17%:%
+%:%60=17%:%
+%:%65=17%:%
+%:%68=18%:%
+%:%69=19%:%
+%:%70=19%:%
+%:%71=20%:%
+%:%72=21%:%
+%:%75=22%:%
+%:%79=22%:%
+%:%80=22%:%
+%:%81=22%:%
+%:%86=22%:%
+%:%89=23%:%
+%:%90=24%:%
+%:%91=24%:%
+%:%92=25%:%
+%:%93=26%:%
+%:%94=27%:%
+%:%97=28%:%
+%:%101=28%:%
+%:%102=28%:%
+%:%103=28%:%
+%:%108=28%:%
+%:%111=29%:%
+%:%112=30%:%
+%:%113=30%:%
+%:%114=31%:%
+%:%115=32%:%
+%:%116=33%:%
+%:%119=34%:%
+%:%123=34%:%
+%:%124=34%:%
+%:%125=34%:%
+%:%130=34%:%
+%:%133=35%:%
+%:%134=36%:%
+%:%135=36%:%
+%:%138=37%:%
+%:%142=37%:%
+%:%143=37%:%
+%:%148=37%:%
+%:%151=38%:%
+%:%152=39%:%
+%:%153=39%:%
+%:%156=40%:%
+%:%160=40%:%
+%:%161=40%:%
+%:%166=40%:%
+%:%169=41%:%
+%:%172=42%:%
+%:%177=43%:%

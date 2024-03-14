@@ -1,0 +1,209 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Equality}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsection{Set Equality%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Equality\isanewline
+\ \ \isakeyword{imports}\ Subset\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ eqI\ {\isacharbrackleft}{\kern0pt}intro{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharparenleft}{\kern0pt}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymLongrightarrow}\ x\ {\isasymin}\ B{\isacharparenright}{\kern0pt}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\kern0pt}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ B\ {\isasymLongrightarrow}\ x\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ {\isasymLongrightarrow}\ A\ {\isacharequal}{\kern0pt}\ B{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ eqI{\isacharprime}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharparenleft}{\kern0pt}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymlongleftrightarrow}\ x\ {\isasymin}\ B{\isacharparenright}{\kern0pt}\ {\isasymLongrightarrow}\ A\ {\isacharequal}{\kern0pt}\ B{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ eqE{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymlbrakk}A\ {\isacharequal}{\kern0pt}\ B{\isacharsemicolon}{\kern0pt}\ {\isasymlbrakk}A\ {\isasymsubseteq}\ B\ {\isacharsemicolon}{\kern0pt}\ B\ {\isasymsubseteq}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\ P{\isasymrbrakk}\ {\isasymLongrightarrow}\ P{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ eqD\ {\isacharbrackleft}{\kern0pt}dest{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isacharequal}{\kern0pt}\ B\ {\isasymLongrightarrow}\ {\isacharparenleft}{\kern0pt}{\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymlongleftrightarrow}\ x\ {\isasymin}\ B{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ne{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}ex{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}not{\isacharunderscore}{\kern0pt}mem{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymand}\ x\ {\isasymnotin}\ B\ {\isasymLongrightarrow}\ A\ {\isasymnoteq}\ B{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ neD{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ B\ {\isasymLongrightarrow}\ {\isasymexists}x{\isachardot}{\kern0pt}\ {\isacharparenleft}{\kern0pt}x\ {\isasymin}\ A\ {\isasymand}\ x\ {\isasymnotin}\ B{\isacharparenright}{\kern0pt}\ {\isasymor}\ {\isacharparenleft}{\kern0pt}x\ {\isasymnotin}\ A\ {\isasymand}\ x\ {\isasymin}\ B{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/HOTG/Equality.thy%:%
+%:%11=2%:%
+%:%27=3%:%
+%:%28=3%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%35=5%:%
+%:%38=6%:%
+%:%39=7%:%
+%:%40=7%:%
+%:%43=8%:%
+%:%47=8%:%
+%:%48=8%:%
+%:%53=8%:%
+%:%56=9%:%
+%:%57=10%:%
+%:%58=10%:%
+%:%60=10%:%
+%:%64=10%:%
+%:%65=10%:%
+%:%72=10%:%
+%:%73=11%:%
+%:%74=12%:%
+%:%75=12%:%
+%:%77=12%:%
+%:%81=12%:%
+%:%82=12%:%
+%:%89=12%:%
+%:%90=13%:%
+%:%91=14%:%
+%:%92=14%:%
+%:%94=14%:%
+%:%98=14%:%
+%:%99=14%:%
+%:%106=14%:%
+%:%107=15%:%
+%:%108=16%:%
+%:%109=16%:%
+%:%111=16%:%
+%:%115=16%:%
+%:%116=16%:%
+%:%123=16%:%
+%:%124=17%:%
+%:%125=18%:%
+%:%126=18%:%
+%:%128=18%:%
+%:%132=18%:%
+%:%133=18%:%
+%:%140=18%:%
+%:%143=19%:%
+%:%148=20%:%
