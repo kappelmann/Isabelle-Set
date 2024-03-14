@@ -1,0 +1,158 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Rings}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+\isanewline
+%
+\isamarkupsubsection{Rings%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Rings\isanewline
+\ \ \isakeyword{imports}\ Monoids\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isacharbrackleft}{\kern0pt}typeclass{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}Ring\ A\ {\isasymequiv}\ Comm{\isacharunderscore}{\kern0pt}Group\ A\ {\isacharampersand}{\kern0pt}\ Mul{\isacharunderscore}{\kern0pt}Monoid\ A\ {\isacharampersand}{\kern0pt}\isanewline
+\ \ type\ {\isacharparenleft}{\kern0pt}{\isasymlambda}R{\isachardot}{\kern0pt}\isanewline
+\ \ \ \ {\isacharparenleft}{\kern0pt}{\isasymforall}x\ y\ z\ {\isacharcolon}{\kern0pt}\ A{\isachardot}{\kern0pt}\ mul\ R\ x\ {\isacharparenleft}{\kern0pt}add\ R\ y\ z{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ y{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isasymand}\isanewline
+\ \ \ \ {\isacharparenleft}{\kern0pt}{\isasymforall}x\ y\ z\ {\isacharcolon}{\kern0pt}\ A{\isachardot}{\kern0pt}\ mul\ R\ {\isacharparenleft}{\kern0pt}add\ R\ x\ y{\isacharparenright}{\kern0pt}\ z\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ y\ z{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ RingI{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}R\ {\isacharcolon}{\kern0pt}\ Comm{\isacharunderscore}{\kern0pt}Group\ A{\isachardoublequoteclose}\ {\isachardoublequoteopen}R\ {\isacharcolon}{\kern0pt}\ Mul{\isacharunderscore}{\kern0pt}Monoid\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}x\ y\ z{\isachardot}{\kern0pt}\ {\isasymlbrakk}x\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ y\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ z\ {\isacharcolon}{\kern0pt}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\isanewline
+\ \ \ \ mul\ R\ x\ {\isacharparenleft}{\kern0pt}add\ R\ y\ z{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ y{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}x\ y\ z{\isachardot}{\kern0pt}\ {\isasymlbrakk}x\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ y\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ z\ {\isacharcolon}{\kern0pt}\ A{\isasymrbrakk}\ {\isasymLongrightarrow}\isanewline
+\ \ \ \ mul\ R\ {\isacharparenleft}{\kern0pt}add\ R\ x\ y{\isacharparenright}{\kern0pt}\ z\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ y\ z{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}R\ {\isacharcolon}{\kern0pt}\ Ring\ A{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ Ring{\isacharunderscore}{\kern0pt}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ intro{\isacharcolon}{\kern0pt}\ has{\isacharunderscore}{\kern0pt}typeI\ assms{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\isanewline
+\ \ \isakeyword{shows}\ Ring{\isacharunderscore}{\kern0pt}Comm{\isacharunderscore}{\kern0pt}Group\ {\isacharbrackleft}{\kern0pt}derive{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}R\ {\isacharcolon}{\kern0pt}\ Ring\ A\ {\isasymLongrightarrow}\ R\ {\isacharcolon}{\kern0pt}\ Comm{\isacharunderscore}{\kern0pt}Group\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ Ring{\isacharunderscore}{\kern0pt}Mul{\isacharunderscore}{\kern0pt}Monoid\ {\isacharbrackleft}{\kern0pt}derive{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}R\ {\isacharcolon}{\kern0pt}\ Ring\ A\ {\isasymLongrightarrow}\ R\ {\isacharcolon}{\kern0pt}\ Mul{\isacharunderscore}{\kern0pt}Monoid\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ Ring{\isacharunderscore}{\kern0pt}mul{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}eq{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymAnd}x\ y\ z{\isachardot}{\kern0pt}\ {\isasymlbrakk}R\ {\isacharcolon}{\kern0pt}\ Ring\ A{\isacharsemicolon}{\kern0pt}\ x\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ y\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ z\ {\isacharcolon}{\kern0pt}\ A{\isasymrbrakk}\isanewline
+\ \ \ \ {\isasymLongrightarrow}\ mul\ R\ x\ {\isacharparenleft}{\kern0pt}add\ R\ y\ z{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ y{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{and}\ Ring{\isacharunderscore}{\kern0pt}add{\isacharunderscore}{\kern0pt}mul{\isacharunderscore}{\kern0pt}eq{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymAnd}x\ y\ z{\isachardot}{\kern0pt}\ {\isasymlbrakk}R\ {\isacharcolon}{\kern0pt}\ Ring\ A{\isacharsemicolon}{\kern0pt}\ x\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ y\ {\isacharcolon}{\kern0pt}\ A{\isacharsemicolon}{\kern0pt}\ z\ {\isacharcolon}{\kern0pt}\ A{\isasymrbrakk}\isanewline
+\ \ \ \ {\isasymLongrightarrow}\ mul\ R\ {\isacharparenleft}{\kern0pt}add\ R\ x\ y{\isacharparenright}{\kern0pt}\ z\ {\isacharequal}{\kern0pt}\ add\ R\ {\isacharparenleft}{\kern0pt}mul\ R\ x\ z{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}mul\ R\ y\ z{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ Ring{\isacharunderscore}{\kern0pt}def\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ dest{\isacharbang}{\kern0pt}{\isacharcolon}{\kern0pt}\ Int{\isacharunderscore}{\kern0pt}typeD{\isadigit{1}}\ Int{\isacharunderscore}{\kern0pt}typeD{\isadigit{2}}\ has{\isacharunderscore}{\kern0pt}typeD{\isacharparenright}{\kern0pt}\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/Documents/github/Isabelle-Set/Isabelle_Set/Rings.thy%:%
+%:%10=1%:%
+%:%12=3%:%
+%:%28=4%:%
+%:%29=4%:%
+%:%30=5%:%
+%:%31=6%:%
+%:%36=6%:%
+%:%39=7%:%
+%:%40=8%:%
+%:%41=8%:%
+%:%44=11%:%
+%:%45=12%:%
+%:%46=13%:%
+%:%47=13%:%
+%:%48=14%:%
+%:%49=15%:%
+%:%50=16%:%
+%:%51=17%:%
+%:%52=18%:%
+%:%53=19%:%
+%:%56=20%:%
+%:%60=20%:%
+%:%61=20%:%
+%:%62=20%:%
+%:%67=20%:%
+%:%70=21%:%
+%:%71=22%:%
+%:%72=22%:%
+%:%73=23%:%
+%:%74=24%:%
+%:%75=25%:%
+%:%76=26%:%
+%:%77=27%:%
+%:%78=28%:%
+%:%81=29%:%
+%:%85=29%:%
+%:%86=29%:%
+%:%87=30%:%
+%:%88=30%:%
+%:%93=30%:%
+%:%96=31%:%
+%:%99=32%:%
+%:%104=33%:%

@@ -7,7 +7,9 @@ theory Transfinite_Recursion
 begin
 
 paragraph \<open>Summary\<close>
-text \<open>TODO summary\<close>
+text \<open>Translation of transfinite induction from \<^url>\<open>https://en.wikipedia.org/wiki/Transfinite_induction\<close>.
+We give the axiomatization of transfinite induction.\<close>
+
 
 (*TODO: migrate definition from HOL*)
 axiomatization transrec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
