@@ -1,11 +1,11 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 theory Functions_Restrict
-  imports Basic
+  imports Basic Replacement
 begin
 
 paragraph \<open>Summary\<close>
-text \<open>The input is within the restricted domain of function \<open>f\<close>; otherwise, 
-out of the restriction returns undefined.\<close>
+text \<open>If the input \<open>x\<close> is within the restricted domain, then \<open>f x\<close> is returned; otherwise, 
+returns \<open>undefined\<close>.\<close>
 
 consts fun_restrict :: "('a \<Rightarrow> 'b) \<Rightarrow> 'c \<Rightarrow> 'a \<Rightarrow> 'b"
 
@@ -30,12 +30,12 @@ begin
 
 lemma fun_restrict_eq [simp]:
   assumes "P x"
-  shows "f\<restriction>\<^bsub>P\<^esub> x = f x"
+  shows "fun_restrict f P x = f x"
   using assms unfolding fun_restrict_pred_def by auto
 
 lemma fun_restrict_eq_if_not [simp]:
   assumes "\<not>(P x)"
-  shows "f\<restriction>\<^bsub>P\<^esub> x = undefined"
+  shows "fun_restrict f P x = undefined"
   using assms unfolding fun_restrict_pred_def by auto
 
 end
@@ -50,5 +50,8 @@ lemma fun_restrict_set_eq_fun_restrict [simp]:
   "fun_restrict (f :: set \<Rightarrow> 'a) X = fun_restrict f (mem_of X)"
   unfolding fun_restrict_set_def by auto
 
+lemma repl_fun_restrict_eq_repl [simp]: "{fun_restrict f A x | x \<in> A} = {f x | x \<in> A}" 
+  by simp 
+ 
 
 end

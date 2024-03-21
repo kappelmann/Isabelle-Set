@@ -7,8 +7,7 @@ theory Mem_Transitive_Closure
     Transfinite_Recursion
 begin
 paragraph \<open>Summary\<close>
-text \<open>
-The transitive closure of a set @{term "X ::set"} is the set that contains as its members
+text \<open>The transitive closure of a set @{term "X ::set"} is the set that contains as its members
 all sets that are transitively contained in @{term "X ::set"}.
 In particular, each such set is transitively closed.
 

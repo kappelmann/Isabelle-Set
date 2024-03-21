@@ -60,12 +60,12 @@
 \begin{isamarkuptext}%
 Translation of ordinals from \url{https://www.isa-afp.org/entries/ZFC_in_HOL.html}.
 We give the definition of ordinals and limit ordinals. In addition,
-two ordinal inductions are demonstrated.
+two ordinal inductions are proven.
 
-And we use the Von Neumann encoding of natural numbers. The von Neumann integers
-are defined inductively. The von Neumann integer \isa{{\isadigit{0}}} is defined to be the empty set, 
-and there are no smaller von Neumann integers. The von Neumann integer \isa{N} is then the set of 
-all von Neumann integers less than \isa{N}. Further details can be found in
+And we use the Von Neumann encoding of natural numbers. The Von Neumann numbers
+are defined inductively. The Von Neumann number \isa{{\isadigit{0}}} is defined to be the empty set, 
+and there are no smaller Von Neumann numbers. The Von Neumann number \isa{N} is then the set of 
+all Von Neumann numbers less than \isa{N}. Further details can be found in
 \url{https://planetmath.org/vonneumanninteger}.%
 \end{isamarkuptext}\isamarkuptrue%
 %
@@ -87,8 +87,8 @@ all von Neumann integers less than \isa{N}. Further details can be found in
 \endisadelimdocument
 %
 \begin{isamarkuptext}%
-We follow the definition from \cite{ZFC_in_HOL_AFP}, \url{https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy\#L601}.
- \isa{X} is an ordinal if it is \isa{mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closure} and same for its elements.%
+We follow the definition from \cite{ZFC_in_HOL_AFP},
+ \url{https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy\#L601}.%
 \end{isamarkuptext}\isamarkuptrue%
 \isacommand{definition}\isamarkupfalse%
 \ {\isachardoublequoteopen}ordinal\ X\ {\isasymequiv}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ X\ {\isasymand}\ {\isacharparenleft}{\kern0pt}{\isasymforall}x\ {\isasymin}\ X{\isachardot}{\kern0pt}\ mem{\isacharunderscore}{\kern0pt}trans{\isacharunderscore}{\kern0pt}closed\ x{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
@@ -353,11 +353,10 @@ We follow the definition from \cite{ZFC_in_HOL_AFP}, \url{https://foss.heptapod.
 \endisadelimproof
 %
 \begin{isamarkuptext}%
-This lemma proves that a property \isa{P} holds for all ordinals using ordinal induction 
-and is used to prove set multiplication theorems.%
+Membership ordinal induction:%
 \end{isamarkuptext}\isamarkuptrue%
 \isacommand{lemma}\isamarkupfalse%
-\ ordinal{\isacharunderscore}{\kern0pt}induct\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ step{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ ordinal{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}induct\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ step{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
 \ \ \isakeyword{assumes}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
 \ \ \isakeyword{and}\ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ {\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ P\ x{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ X{\isachardoublequoteclose}\isanewline
 \ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ X{\isachardoublequoteclose}\isanewline
@@ -396,7 +395,8 @@ and is used to prove set multiplication theorems.%
 \endisadelimdocument
 %
 \begin{isamarkuptext}%
-We follow the definition from \cite{ZFC_in_HOL_AFP}, \url{https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy\#L939}.
+We follow the definition from \cite{ZFC_in_HOL_AFP},
+\url{https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy\#L939}.
 A limit ordinal \isa{X} is an ordinal number greater than \isa{{\isadigit{0}}} that is not a successor ordinal.
 Further details can be found in \url{https://en.wikipedia.org/wiki/Limit_ordinal}.%
 \end{isamarkuptext}\isamarkuptrue%
@@ -449,7 +449,7 @@ Further details can be found in \url{https://en.wikipedia.org/wiki/Limit_ordinal
 \endisadelimproof
 %
 \begin{isamarkuptext}%
-In order to get the second induction, we still have some lemmas to prove.%
+For the second induction theorem, some lemmas are left unproven.%
 \end{isamarkuptext}\isamarkuptrue%
 \isacommand{lemma}\isamarkupfalse%
 \ Limit{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}Sup{\isacharunderscore}{\kern0pt}self{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}limit\ X\ {\isasymLongrightarrow}\ {\isasymUnion}X\ {\isacharequal}{\kern0pt}\ X{\isachardoublequoteclose}\isanewline
@@ -525,10 +525,10 @@ In order to get the second induction, we still have some lemmas to prove.%
 \endisadelimproof
 %
 \begin{isamarkuptext}%
-Introducing this induction is intend to prove set multiplication theorems.%
+Standard ordinal induction:%
 \end{isamarkuptext}\isamarkuptrue%
 \isacommand{lemma}\isamarkupfalse%
-\ ordinal{\isacharunderscore}{\kern0pt}induct{\isadigit{3}}\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ zero\ succ\ limit{\isacharcomma}{\kern0pt}\ induct\ type{\isacharcolon}{\kern0pt}\ set{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ ordinal{\isacharunderscore}{\kern0pt}induct\ {\isacharbrackleft}{\kern0pt}consumes\ {\isadigit{1}}{\isacharcomma}{\kern0pt}\ case{\isacharunderscore}{\kern0pt}names\ zero\ succ\ limit{\isacharcomma}{\kern0pt}\ induct\ type{\isacharcolon}{\kern0pt}\ set{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
 \ \ \isakeyword{assumes}\ a{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}ordinal\ X{\isachardoublequoteclose}\isanewline
 \ \ \isakeyword{and}\ P{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}P\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}ordinal\ X{\isacharsemicolon}{\kern0pt}\ P\ X{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}succ\ X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
 \ \ \ \ {\isachardoublequoteopen}{\isasymAnd}X{\isachardot}{\kern0pt}\ {\isasymlbrakk}limit\ X{\isacharsemicolon}{\kern0pt}\ {\isasymAnd}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ X\ {\isasymLongrightarrow}\ P\ x{\isasymrbrakk}\ {\isasymLongrightarrow}\ P\ {\isacharparenleft}{\kern0pt}{\isasymUnion}X{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
@@ -542,7 +542,7 @@ Introducing this induction is intend to prove set multiplication theorems.%
 \isacommand{using}\isamarkupfalse%
 \ a\isanewline
 \isacommand{proof}\isamarkupfalse%
-\ {\isacharparenleft}{\kern0pt}induction\ X\ rule{\isacharcolon}{\kern0pt}\ ordinal{\isacharunderscore}{\kern0pt}induct{\isacharparenright}{\kern0pt}\isanewline
+\ {\isacharparenleft}{\kern0pt}induction\ X\ rule{\isacharcolon}{\kern0pt}\ ordinal{\isacharunderscore}{\kern0pt}mem{\isacharunderscore}{\kern0pt}induct{\isacharparenright}{\kern0pt}\isanewline
 \ \ \isacommand{case}\isamarkupfalse%
 \ {\isacharparenleft}{\kern0pt}step\ X{\isacharparenright}{\kern0pt}\isanewline
 \ \ \isacommand{then}\isamarkupfalse%
@@ -571,7 +571,11 @@ Introducing this induction is intend to prove set multiplication theorems.%
 \ \ \isacommand{next}\isamarkupfalse%
 \isanewline
 \ \ \ \ \isacommand{case}\isamarkupfalse%
-\ limit\isanewline
+\ limit%
+\begin{isamarkuptext}%
+Missing proof see 
+\url{https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy\#L991}.%
+\end{isamarkuptext}\isamarkuptrue%
 \ \ \ \ \isacommand{then}\isamarkupfalse%
 \ \isacommand{show}\isamarkupfalse%
 \ {\isacharquery}{\kern0pt}thesis\ \isacommand{sorry}\isamarkupfalse%
@@ -757,18 +761,18 @@ Introducing this induction is intend to prove set multiplication theorems.%
 %:%346=82%:%
 %:%347=82%:%
 %:%356=84%:%
-%:%357=85%:%
-%:%359=87%:%
+%:%358=86%:%
+%:%359=86%:%
 %:%360=87%:%
 %:%361=88%:%
 %:%362=89%:%
-%:%363=90%:%
-%:%366=91%:%
-%:%370=91%:%
+%:%365=90%:%
+%:%369=90%:%
+%:%370=90%:%
 %:%371=91%:%
-%:%372=92%:%
-%:%373=92%:%
-%:%387=95%:%
+%:%372=91%:%
+%:%386=94%:%
+%:%398=96%:%
 %:%399=97%:%
 %:%400=98%:%
 %:%401=99%:%
@@ -864,16 +868,18 @@ Introducing this induction is intend to prove set multiplication theorems.%
 %:%572=149%:%
 %:%573=150%:%
 %:%574=150%:%
-%:%575=151%:%
 %:%576=151%:%
-%:%577=151%:%
-%:%578=151%:%
-%:%579=152%:%
-%:%580=152%:%
+%:%577=152%:%
+%:%579=153%:%
+%:%580=153%:%
 %:%581=153%:%
-%:%587=153%:%
-%:%590=154%:%
+%:%582=153%:%
+%:%583=154%:%
+%:%584=154%:%
+%:%585=155%:%
 %:%591=155%:%
-%:%592=155%:%
-%:%595=156%:%
-%:%600=157%:%
+%:%594=156%:%
+%:%595=157%:%
+%:%596=157%:%
+%:%599=158%:%
+%:%604=159%:%

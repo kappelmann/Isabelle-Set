@@ -9,11 +9,10 @@ begin
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set multiplication for sets from \<^cite>\<open>kirby_set_arithemtics\<close>
-and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication is associative.\<close>
+and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication is associative,
+but it is not commutative (not proven here).\<close>
 
-paragraph\<open>Set-Multiplication\<close>
-
-text \<open>we define the generalised set multiplication recursively for sets from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+text \<open>We take the definition from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
 
 definition "mul X \<equiv> transrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
 
@@ -31,6 +30,8 @@ paragraph\<open>Lemma 4.2 from \<^cite>\<open>kirby_set_arithemtics\<close>\<clo
 
 lemma mul_zero_eq_zero [simp]: "X * 0 = 0"
   by (subst mul_eq_idx_union_lift_mul) simp
+
+text\<open>\<open>1\<close> is the right identity of set multiplication.\<close>
 
 lemma mul_one_eq_self [simp]: "X * 1 = X"
   by (auto simp: mul_eq_idx_union_lift_mul[where ?Y=1])
@@ -84,7 +85,7 @@ paragraph\<open>Proposition 4.3 from \<^cite>\<open>kirby_set_arithemtics\<close
 lemma zero_mul_eq_zero [simp]: "0 * X = 0"
   by (induction X, subst mul_eq_idx_union_lift_mul) auto
 
-text\<open>\<open>1\<close> is the left identity of set addition.\<close>
+text\<open>\<open>1\<close> is also the left identity of set multiplication.\<close>
 
 lemma one_mul_eq [simp]: "1 * X = X"
   by (induction X, subst mul_eq_idx_union_lift_mul) auto
@@ -155,9 +156,10 @@ qed simp
 
 paragraph\<open>Lemma 4.6 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-lemma lt_mul_if_ne_zero: assumes "X \<noteq> 0" "Y \<noteq> 0" "Y \<noteq> 1"
-  shows "X < X * Y"
-  sorry
+text\<open>This Lemma employs standard ordinal induction,
+and due to the complexity of the proof, a complete demonstration
+is not provided. Missing proof see 
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L992\<close>.\<close>
 
 lemma zero_if_multi_eq_multi_add: assumes "A * X = A * Y + B" "B < A"
   shows "B = 0"
@@ -184,6 +186,10 @@ next
       qed
 
 paragraph\<open>Lemma 4.7 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
+
+text\<open>Given the intricate nature of the lemma proof, a full exposition is omitted.
+ Missing proof see 
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1166\<close>.\<close>
 
 lemma subset_if_mul_add_subset_mul_add: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"
   shows "X \<subseteq> Y"

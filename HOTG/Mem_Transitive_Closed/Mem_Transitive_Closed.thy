@@ -2,8 +2,10 @@
 theory Mem_Transitive_Closed
   imports
     Mem_Transitive_Closed_Base
+    Union_Intersection
     SAddition
 begin
+
 
 lemma mem_trans_closed_succI [intro]:
   assumes "mem_trans_closed X"
@@ -38,6 +40,5 @@ lemma mem_trans_closed_powersetI: "mem_trans_closed X \<Longrightarrow> mem_tran
 
 lemma union_succ_eq_self_if_mem_trans_closed [simp]: "mem_trans_closed X \<Longrightarrow> \<Union>(succ X) = X"
   by (auto simp flip: insert_self_eq_add_one simp: succ_eq_add_one)
-
 
 end

@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{isabelle,isabellesym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{isabelle,isabellesym}
+
+% this should be the last package used
+\usepackage{pdfsetup}
+
+% urls in roman style, theory text in math-similar italics
+\urlstyle{rm}
+\isabellestyle{it}
+
+
+\begin{document}
+
+\title{HOTG}
+\author{Kevin Kappelmann}
+\maketitle
+
+\begin{abstract}
+In this work, we present the formalization of generalized set addition and multiplication within
+ the Isabelle-Set framework, drawing upon foundational insights from Kirby's article. We extend 
+this foundation by incorporating transfinite recursion and functions restriction for the inductive
+ definition of set arithmetic operations, thereby clarifying their fundamental properties. 
+Specifically, we confirm the satisfaction of the associative law for both set addition and
+ multiplication. Additionally, we demonstrate the compatibility between set and ordinal addition. 
+The integration of concepts such as cardinals, ordinals, member transitive closure, and comparison
+ operators from ZFC_in_HOL_AFP enhances our framework, making the comparison of sets feasible and 
+laying the groundwork for theorem proving. 
+\end{abstract}
+
+\tableofcontents
+
+% include generated text of all theories
+\input{session}
+
+\bibliographystyle{abbrv}
+\bibliography{root}
+
+\end{document}

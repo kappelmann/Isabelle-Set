@@ -11,6 +11,8 @@ and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is ass
 monotone and injective in the second argument,
 but it is not commutative (not proven here).\<close>
 
+text \<open>We take the definition from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+
 definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
 
 bundle hotg_add_syntax begin notation add (infixl "+" 65) end
@@ -20,7 +22,6 @@ unbundle hotg_add_syntax
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
   unfolding add_def by (simp add: transrec_eq)
 
-(*@{const lift}*)
 text \<open>The lift operation is from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
 
 definition "lift X \<equiv> image ((+) X)"
@@ -168,7 +169,7 @@ lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<i
   by (auto simp: lift_eq_image_add simp flip: lt_iff_mem_trans_closure)
 
 text \<open>The next lemma shows that \<open>X\<close> and @{term "lift X Y"} are disjoint, 
-showing that @{term "X + Y"} can be split into two disjoint parts.\<close>
+implying that @{term "X + Y"} can be split into two disjoint parts.\<close>
 
 lemma bin_inter_lift_self_eq_empty [simp]: "X \<inter> lift X Y = {}"
   using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure_self by blast
@@ -231,7 +232,7 @@ qed
 corollary add_mem_add_iff_mem_right [iff]: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
   using mem_if_add_mem_add_right add_mem_add_if_mem_right by blast
 
-text \<open>The lemma demonstrates the monotonicity of @{const lift} \<open>X\<close> .\<close>
+text \<open>Next we show some monotonicity lemmas for addition and lift.\<close>
 
 lemma mono_lift: "mono (lift X)"
   by (auto simp: lift_eq_repl_add)
@@ -241,8 +242,6 @@ lemma subset_if_lift_subset_lift: "lift X Y \<subseteq> lift X Z \<Longrightarro
 
 corollary lift_subset_lift_iff_subset: "lift X Y \<subseteq> lift X Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_lift_subset_lift mono_lift[of X] by (auto del: subsetI)
-
-text \<open>The lemma demonstrates the monotonicity of @{const add} \<open>X\<close>.\<close>
 
 lemma mono_add: "mono ((+) X)"
 proof (rule monoI[of "(+) X", simplified])

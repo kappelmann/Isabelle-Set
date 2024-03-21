@@ -1,3 +1,6 @@
+\<^marker>\<open>creator "Linghan Fang"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+section \<open>Cardinals\<close>
 theory Cardinals
   imports
     Coproduct
@@ -33,9 +36,8 @@ unbundle no_HOL_groups_syntax no_HOL_ascii_syntax
 
 paragraph \<open>Equipollence\<close>
 
-text\<open>Equipollence is defined from HOL-Library. 
-Two sets \<open>X\<close> and \<open>Y\<close> are said to be equipollent if there
-exist two bijections \<open>f\<close> and \<open>g\<close> between them.\<close>
+text\<open>Two sets \<open>X\<close> and \<open>Y\<close> are said to be equipollent if there
+exists a bijection between \<open>f\<close> and \<open>g\<close>.\<close>
 
 definition "equipollent X Y \<equiv> \<exists>f g. bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
 
@@ -68,7 +70,7 @@ lemma inverse_on_compI:
   shows "inverse_on P (f' \<circ> f) (g \<circ> g')"
   using assms by (intro inverse_onI) (auto dest!: inverse_onD)
 
-text\<open>The lemma demonstrates that the composition of two bijections results in another bijection.\<close>
+text\<open>The lemma shows that the composition of two bijections results in another bijection.\<close>
 
 lemma bijection_on_compI:
   fixes P :: "'a \<Rightarrow> bool" and P' :: "'b \<Rightarrow> bool" and P'' :: "'c \<Rightarrow> bool"
@@ -94,11 +96,11 @@ lemma equivalence_rel_equipollent: "equivalence_rel (\<approx>)"
 
 paragraph \<open>Cardinality\<close>
 
-text\<open>The @{term "cardinality"} is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.
-The  @{term "cardinality"} of a set \<open>X\<close> is defined as the
-smallest ordinal number \<open>\<alpha>\<close> such that there 
-exists a bijection between \<open>X\<close> and the well-ordered set corresponding to \<open>\<alpha>\<close>.
-Further details can be found in \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
+text\<open>Cardinality is defined as in \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.
+The cardinality of a set \<open>X\<close> is defined as the smallest ordinal number \<open>\<alpha>\<close> such that there 
+exists a bijection between \<open>X\<close> and \<open>\<alpha>\<close>.
+Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
 
 definition "cardinality (X :: set) \<equiv> (LEAST Y. ordinal Y \<and> X \<approx> Y)"
 
@@ -117,8 +119,9 @@ lemma cardinality_eq_if_equipollent:
   unfolding cardinality_def using assms transitive_equipollent symmetric_equipollent
   by (intro Least_eq_Least_if_iff) (blast dest: symmetricD)
 
-text\<open>This lemma demonstrates the set \<open>X\<close> is equipollent with @{term "cardinality"} of \<open>X\<close>.
-New order types are necessary to prove it.\<close>
+text\<open>The next lemma shows that \<open>X\<close> is equipollent with @{term "cardinality"} of \<open>X\<close>.
+Order types are necessary to prove it. See
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1829\<close>.\<close>
 
 lemma cardinal_equipollent_self [iff]: "|X| \<approx> X"
   sorry
@@ -128,9 +131,7 @@ lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
 
 paragraph \<open>Cardinal Addition\<close>
 
-text\<open>Cardinal\_add is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, 
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L2022\<close>.
-The cardinal sum of \<open>\<kappa>\<close> and \<open>\<mu>\<close> is the cardinality of disjoint union of them.\<close>
+text\<open>Cardinal addition is the cardinality of the disjoint union of two sets.\<close>
 
 definition "cardinal_add \<kappa> \<mu> \<equiv> |\<kappa> \<Coprod> \<mu>|"
 
@@ -153,7 +154,7 @@ lemma coprod_zero_eqpoll: "{} \<Coprod> X \<approx> X"
   by (intro equipollentI[where ?f="coprod_rec inr id" and ?g="inr"] bijection_onI inverse_onI)
   auto
 
-text\<open>The corallary demonstrates that \<open>0\<close> is the left identity in cardinal addition.\<close>
+text\<open>\<open>0\<close> is the left neutral element for cardinal addition.\<close>
 
 corollary zero_cardinal_add_eq_cardinality_self: "0 \<oplus> X = |X|"
   unfolding cardinal_add_eq_cardinality_coprod
@@ -243,11 +244,13 @@ proof -
         qed
       qed
 
-text\<open>This is a profound theorem that shows the @{term "cardinality"} of the set sum between two sets is 
-the cardinal sum of the @{term "cardinality"} of two sets.\<close>
+text\<open>The next theorem shows that set addition is compatible with cardinality addition.\<close>
 
 theorem cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
   using cardinality_lift_eq_cardinality_right
   by (simp add: add_eq_bin_union_lift cardinality_bin_union_eq_cardinal_add_if_bin_inter_eq_empty)
 
+text\<open>A similar theorem shows that set multiplication is compatible with cardinality multiplication,
+but it is not proven here. See 
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1431\<close>.\<close>
 end

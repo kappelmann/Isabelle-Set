@@ -6,7 +6,6 @@ theory Replacement
   imports
     Bounded_Quantifiers
     Equality
-    Functions_Restrict
     Transport.Functions_Injective
 begin
 
@@ -70,9 +69,6 @@ definition "image f A \<equiv> {f x | x \<in> A}"
 
 lemma image_eq_repl [simp]: "image f A = repl A f"
   unfolding image_def by simp
-
-lemma repl_fun_restrict_eq_repl [simp]: "{fun_restrict f A x | x \<in> A} = {f x | x \<in> A}"
-  by simp
 
 lemma injective_image_if_injective:
   assumes "injective f"
