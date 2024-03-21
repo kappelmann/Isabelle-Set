@@ -18,13 +18,6 @@ It illustrates that equipollence is an equivalence relationship and
 cardinal addition is commutative and associative. Finally, we derive
 the connection between set addition and cardinal addition.\<close>
 
-paragraph \<open>Main Definitions\<close>
-text \<open>
-\<^item> equipollent
-\<^item> cardinality
-\<^item> cardinal\_add
-\<close>
-
 (*TODO Kevin: move to library*)
 lemma inverse_on_if_THE_eq_if_injectice:
   assumes "injective f"
@@ -101,8 +94,8 @@ lemma equivalence_rel_equipollent: "equivalence_rel (\<approx>)"
 
 paragraph \<open>Cardinality\<close>
 
-text\<open>Cardinality is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.
- The cardinality of a set \<open>X\<close> is defined as the
+text\<open>The @{term "cardinality"} is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.
+The  @{term "cardinality"} of a set \<open>X\<close> is defined as the
 smallest ordinal number \<open>\<alpha>\<close> such that there 
 exists a bijection between \<open>X\<close> and the well-ordered set corresponding to \<open>\<alpha>\<close>.
 Further details can be found in \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
@@ -124,7 +117,7 @@ lemma cardinality_eq_if_equipollent:
   unfolding cardinality_def using assms transitive_equipollent symmetric_equipollent
   by (intro Least_eq_Least_if_iff) (blast dest: symmetricD)
 
-text\<open>This lemma demonstrates the set \<open>X\<close> is equipollent with the cardinality of \<open>X\<close>.
+text\<open>This lemma demonstrates the set \<open>X\<close> is equipollent with @{term "cardinality"} of \<open>X\<close>.
 New order types are necessary to prove it.\<close>
 
 lemma cardinal_equipollent_self [iff]: "|X| \<approx> X"
@@ -250,8 +243,8 @@ proof -
         qed
       qed
 
-text\<open>This is a profound theorem that shows the cardinality of the set sum between two sets is 
-the cardinal sum of the cardinality of two sets.\<close>
+text\<open>This is a profound theorem that shows the @{term "cardinality"} of the set sum between two sets is 
+the cardinal sum of the @{term "cardinality"} of two sets.\<close>
 
 theorem cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
   using cardinality_lift_eq_cardinality_right
