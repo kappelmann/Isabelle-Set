@@ -7,11 +7,8 @@ theory Transfinite_Recursion
 begin
 
 paragraph \<open>Summary\<close>
-text \<open>Translation of transfinite induction from \<^url>\<open>https://en.wikipedia.org/wiki/Transfinite_induction\<close>.
-We give the axiomatization of transfinite induction.\<close>
+text \<open>We give the axiomatization of transfinite recursion from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy#L1151\<close>.\<close>
 
-
-(*TODO: migrate definition from HOL*)
 axiomatization transrec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a"
   where transrec_eq: "transrec f X = f (fun_restrict (transrec f) X) X"
 

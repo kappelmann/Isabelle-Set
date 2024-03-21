@@ -13,6 +13,7 @@ begin
 paragraph \<open>Summary\<close>
 text \<open>Translation of equipollence, cardinality and cardinal addition 
 from HOL-Library and \<^cite>\<open>ZFC_in_HOL_AFP\<close>.
+
 It illustrates that equipollence is an equivalence relationship and
 cardinal addition is commutative and associative. Finally, we derive
 the connection between set addition and cardinal addition.\<close>
@@ -39,8 +40,10 @@ unbundle no_HOL_groups_syntax no_HOL_ascii_syntax
 
 paragraph \<open>Equipollence\<close>
 
-text\<open>Equipollence is defined from HOL-Library. Two sets X and Y are said to be equipollent if there 
-exist two bijections f and g between them.\<close>
+text\<open>Equipollence is defined from HOL-Library. 
+Two sets \<open>X\<close> and \<open>Y\<close> are said to be equipollent if there
+exist two bijections \<open>f\<close> and \<open>g\<close> between them.\<close>
+
 definition "equipollent X Y \<equiv> \<exists>f g. bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
 
 bundle hotg_equipollent_syntax begin notation equipollent (infixl "\<approx>" 50) end
@@ -57,11 +60,9 @@ lemma equipollentE [elim]:
   obtains f g where "bijection_on (mem_of X) (mem_of Y) (f :: set \<Rightarrow> set) g"
   using assms by (auto simp: equipollent_def)
 
-text\<open>The lemma demonstrates the reflexivity of equipollence.\<close>
 lemma reflexive_equipollent: "reflexive (\<approx>)"
   using bijection_on_self_id by auto
 
-text\<open>The lemma demonstrates the symmetry of equipollence.\<close>
 lemma symmetric_equipollent: "symmetric (\<approx>)"
   by (intro symmetricI) (auto dest: bijection_on_right_left_if_bijection_on_left_right)
 
@@ -75,6 +76,7 @@ lemma inverse_on_compI:
   using assms by (intro inverse_onI) (auto dest!: inverse_onD)
 
 text\<open>The lemma demonstrates that the composition of two bijections results in another bijection.\<close>
+
 lemma bijection_on_compI:
   fixes P :: "'a \<Rightarrow> bool" and P' :: "'b \<Rightarrow> bool" and P'' :: "'c \<Rightarrow> bool"
   and f :: "'a \<Rightarrow> 'b" and g :: "'b \<Rightarrow> 'a" and f' :: "'b \<Rightarrow> 'c" and g' :: "'c \<Rightarrow> 'b"
@@ -85,28 +87,26 @@ lemma bijection_on_compI:
   (auto intro: dep_mono_wrt_pred_comp_dep_mono_wrt_pred_compI' inverse_on_compI
     elim!: bijection_onE)
 
-text\<open>The lemma demonstrates the transitivity of equipollence.\<close>
 lemma transitive_equipollent: "transitive (\<approx>)"
   by (intro transitiveI) (blast intro: bijection_on_compI)
 
-text\<open>The lemma demonstrates equipollence is a preorder.\<close>
 lemma preorder_equipollent: "preorder (\<approx>)"
   by (intro preorderI transitive_equipollent reflexive_equipollent)
 
-text\<open>The lemma demonstrates equipollence is a partial equivalence relationship.\<close>
 lemma partial_equivalence_rel_equipollent: "partial_equivalence_rel (\<approx>)"
   by (intro partial_equivalence_relI transitive_equipollent symmetric_equipollent)
 
-text\<open>The lemma demonstrates equipollence is an equivalence relationship.\<close>
 lemma equivalence_rel_equipollent: "equivalence_rel (\<approx>)"
   by (intro equivalence_relI partial_equivalence_rel_equipollent reflexive_equipollent)
 
 paragraph \<open>Cardinality\<close>
 
-text\<open>Cardinality is defined from\<^cite>\<open>ZFC_in_HOL_AFP\<close>. The cardinality of a set X is defined as the 
-smallest ordinal number $\alpha$ such that there 
-exists a bijection between X and the well-ordered set corresponding to $\alpha$.
-Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
+text\<open>Cardinality is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.
+ The cardinality of a set \<open>X\<close> is defined as the
+smallest ordinal number \<open>\<alpha>\<close> such that there 
+exists a bijection between \<open>X\<close> and the well-ordered set corresponding to \<open>\<alpha>\<close>.
+Further details can be found in \<^cite>\<open>ZFC_in_HOL_AFP\<close>, \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
+
 definition "cardinality (X :: set) \<equiv> (LEAST Y. ordinal Y \<and> X \<approx> Y)"
 
 bundle hotg_cardinality_syntax begin notation cardinality ("|_|") end
@@ -124,11 +124,10 @@ lemma cardinality_eq_if_equipollent:
   unfolding cardinality_def using assms transitive_equipollent symmetric_equipollent
   by (intro Least_eq_Least_if_iff) (blast dest: symmetricD)
 
-text\<open>This lemma demonstrates the set X is equipollent with the cardinality of X.
-New order types are necessary to prove it. And this is a very useful lemma that can be used 
-in many lemmas.\<close>
+text\<open>This lemma demonstrates the set \<open>X\<close> is equipollent with the cardinality of \<open>X\<close>.
+New order types are necessary to prove it.\<close>
+
 lemma cardinal_equipollent_self [iff]: "|X| \<approx> X"
-  (*TODO: prove me later; needs order_types*)
   sorry
 
 lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
@@ -136,8 +135,10 @@ lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
 
 paragraph \<open>Cardinal Addition\<close>
 
-text\<open>Cardinal\_add is defined from\<^cite>\<open>ZFC_in_HOL_AFP\<close>.
-The cardinal sum of $\kappa$ and $\mu$ is the cardinality of disjoint union of two sets.\<close>
+text\<open>Cardinal\_add is defined from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, 
+\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L2022\<close>.
+The cardinal sum of \<open>\<kappa>\<close> and \<open>\<mu>\<close> is the cardinality of disjoint union of them.\<close>
+
 definition "cardinal_add \<kappa> \<mu> \<equiv> |\<kappa> \<Coprod> \<mu>|"
 
 bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 65) end
@@ -151,7 +152,6 @@ lemma equipollent_coprod_self_commute: "X \<Coprod> Y \<approx> Y \<Coprod> X"
   by (intro equipollentI[where ?f="coprod_rec inr inl" and ?g="coprod_rec inr inl"])
   (fastforce dest: inverse_onD)
 
-text\<open>The lemma demonstrates the commutativity of cardinal addition.\<close>
 lemma cardinal_add_comm: "X \<oplus> Y = Y \<oplus> X"
   unfolding cardinal_add_eq_cardinality_coprod
   by (intro cardinality_eq_if_equipollent cardinality_eq_if_equipollent equipollent_coprod_self_commute)
@@ -160,7 +160,8 @@ lemma coprod_zero_eqpoll: "{} \<Coprod> X \<approx> X"
   by (intro equipollentI[where ?f="coprod_rec inr id" and ?g="inr"] bijection_onI inverse_onI)
   auto
 
-text\<open>The corallary demonstrates that 0 is a left identity in cardinal addition.\<close>
+text\<open>The corallary demonstrates that \<open>0\<close> is the left identity in cardinal addition.\<close>
+
 corollary zero_cardinal_add_eq_cardinality_self: "0 \<oplus> X = |X|"
   unfolding cardinal_add_eq_cardinality_coprod
   by (intro cardinality_eq_if_equipollent coprod_zero_eqpoll)
@@ -212,7 +213,6 @@ proof -
   then show ?thesis by auto
 qed
 
-text\<open>The lemma demonstrates the associativity of cardinal addition.\<close>
 lemma cardinal_add_assoc: "(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
 proof -
   have "|(X \<Coprod> Y)| \<Coprod> Z \<approx> (X \<Coprod> Y) \<Coprod> Z"
@@ -250,8 +250,9 @@ proof -
         qed
       qed
 
-  text\<open>This is a profound theorem that shows the cardinality of the set sum between two sets is 
+text\<open>This is a profound theorem that shows the cardinality of the set sum between two sets is 
 the cardinal sum of the cardinality of two sets.\<close>
+
 theorem cardinality_add_eq_cardinal_add: "|X + Y| = |X| \<oplus> |Y|"
   using cardinality_lift_eq_cardinality_right
   by (simp add: add_eq_bin_union_lift cardinality_bin_union_eq_cardinal_add_if_bin_inter_eq_empty)

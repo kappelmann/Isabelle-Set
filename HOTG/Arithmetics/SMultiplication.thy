@@ -13,9 +13,8 @@ and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication 
 
 paragraph\<open>Set-Multiplication\<close>
 
-text \<open>we define the generalised set multiplication recursively for sets from \<^cite>\<open>kirby_set_arithemtics\<close>.
-$mul\ X\ Y =\ \bigcup_\{lift_{X*u} |\ u \in\ Y\}$
-TODO explain transrec\<close>
+text \<open>we define the generalised set multiplication recursively for sets from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+
 definition "mul X \<equiv> transrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
 
 bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
@@ -85,7 +84,8 @@ paragraph\<open>Proposition 4.3 from \<^cite>\<open>kirby_set_arithemtics\<close
 lemma zero_mul_eq_zero [simp]: "0 * X = 0"
   by (induction X, subst mul_eq_idx_union_lift_mul) auto
 
-text\<open>1 is left identity of set addition.\<close>
+text\<open>\<open>1\<close> is the left identity of set addition.\<close>
+
 lemma one_mul_eq [simp]: "1 * X = X"
   by (induction X, subst mul_eq_idx_union_lift_mul) auto
 
@@ -112,6 +112,7 @@ lemma mul_add_eq_mul_add_mul: "X * (Y + Z) = X * Y + X * Z"
   by (simp only: add_eq_bin_union_lift mul_bin_union_eq_bin_union_mul mul_lift_eq_lift_mul_mul)
 
 text \<open>The lemma demonstrates the associativity of set multiplication.\<close>
+
 lemma mul_assoc: "(X * Y) * Z = X * (Y * Z)"
 proof (induction Z rule: mem_induction)
   case (mem Z)
@@ -122,12 +123,6 @@ proof (induction Z rule: mem_induction)
   also have "... = X * (Y * Z)" by (simp flip: mul_eq_idx_union_lift_mul)
   finally show ?case .
 qed
-
-text\<open>The following lemmas can prove a profound theorem 
-set mul version "cardinality\_add\_eq\_cardinal\_add" that 
-shows the cardinality of the set mul between two sets is 
-the cardinal mul of the cardinality of two sets.
-But cardinal mul is not defined yet.\<close>
 
 paragraph\<open>Lemma 4.5 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 

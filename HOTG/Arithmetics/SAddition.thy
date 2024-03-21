@@ -7,14 +7,10 @@ theory SAddition
 begin
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_set_arithemtics\<close>
-and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is associative,
- monotonic, and injective but not commutative.\<close>
+and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is associative and
+monotone and injective in the second argument,
+but it is not commutative (not proven here).\<close>
 
-paragraph\<open>Set-Addition\<close>
-
-text \<open>we define the generalised set addition recursively for sets from \<^cite>\<open>kirby_set_arithemtics\<close>.
-$add\ X\ Y =\ X \cup \{\ X +\ y |\ y \in\ Y\}$
-TODO explain transrec\<close>
 definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
 
 bundle hotg_add_syntax begin notation add (infixl "+" 65) end
@@ -24,7 +20,9 @@ unbundle hotg_add_syntax
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
   unfolding add_def by (simp add: transrec_eq)
 
-text \<open>The lift operation lift X Y is $\{\ X +\ y |\ y \in\ Y\}$ from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+(*@{const lift}*)
+text \<open>The lift operation is from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+
 definition "lift X \<equiv> image ((+) X)"
 
 lemma lift_eq_image_add: "lift X = image ((+) X)"
@@ -54,14 +52,14 @@ lemma idx_union_add_eq_add_idx_union:
 lemma lift_zero_eq_zero [simp]: "lift X 0 = 0"
   by (auto simp: lift_eq_image_add)
 
-text\<open>0 is right identity of set addition.\<close>
+text\<open>\<open>0\<close> is the right identity of set addition.\<close>
+
 lemma add_zero_eq_self [simp]: "X + 0 = X"
   unfolding add_eq_bin_union_lift by simp
 
 lemma lift_one_eq_singleton_self [simp]: "lift X 1 = {X}"
   unfolding lift_def by simp
 
-text\<open>$succ X = X \cup \{X\}$ It is different from natural number succ.\<close>
 definition "succ X \<equiv> X + 1"
 
 lemma succ_eq_add_one: "succ X = X + 1"
@@ -70,7 +68,7 @@ lemma succ_eq_add_one: "succ X = X + 1"
 lemma insert_self_eq_add_one: "insert X X = X + 1"
   by (auto simp: add_eq_bin_union_lift succ_eq_add_one)
 
-lemma succ_eq_insert: "succ X  = insert X X"
+lemma succ_eq_insert: "succ X = insert X X"
   by (simp add:succ_def  insert_self_eq_add_one[of X])
 
 lemma lift_insert_eq_insert_add_lift: "lift X (insert Y Z) = insert (X + Y) (lift X Z)"
@@ -82,7 +80,8 @@ lemma add_insert_eq_insert_add: "X + insert Y Z = insert (X + Y) (X + Z)"
 
 paragraph\<open>Proposition 3.3 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>0 is left identity of set addition. It is proved by mem\_induction.\<close>
+text\<open>\<open>0\<close> is the left identity of set addition.\<close>
+
 lemma zero_add_eq_self [simp]: "0 + X = X"
 proof (induction X)
   case (mem X)
@@ -102,7 +101,8 @@ corollary add_eq_zeroE:
 corollary add_eq_zero_iff_and_eq_zero [iff]: "X + Y = 0 \<longleftrightarrow> X = 0 \<and> Y = 0"
   using add_eq_zeroE by auto
 
-text \<open>The lemma demonstrates the associativity of set addition.\<close>
+text \<open>The next lemma demonstrates the associativity of set addition.\<close>
+
 lemma add_assoc: "(X + Y) + Z = X + (Y + Z)"
 proof (induction Z)
   case (mem Z)
@@ -167,9 +167,9 @@ corollary lift_subset_left_iff_right_eq_zero [iff]: "lift X Y \<subseteq> X \<lo
 lemma mem_trans_closure_bin_inter_lift_eq_empty [simp]: "mem_trans_closure X \<inter> lift X Y = {}"
   by (auto simp: lift_eq_image_add simp flip: lt_iff_mem_trans_closure)
 
-text \<open>The lemma demonstrates the intersection of X and lift X Y for any Y is empty set, 
-which shows X + Y can be divided by two disjoint part.
-Elimination law is based on it.\<close>
+text \<open>The next lemma shows that \<open>X\<close> and @{term "lift X Y"} are disjoint, 
+showing that @{term "X + Y"} can be split into two disjoint parts.\<close>
+
 lemma bin_inter_lift_self_eq_empty [simp]: "X \<inter> lift X Y = {}"
   using mem_trans_closure_bin_inter_lift_eq_empty subset_mem_trans_closure_self by blast
 
@@ -184,7 +184,6 @@ lemma lift_eq_lift_if_bin_union_lift_eq_bin_union_lift:
 
 paragraph\<open>Proposition 3.4 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>Based on mem\_induction demonstrates lift X is injective.\<close>
 lemma lift_injective_right: "injective (lift X)"
 proof (rule injectiveI)
   fix Y Z assume "lift X Y = lift X Z"
@@ -209,7 +208,6 @@ corollary lift_eq_lift_if_eq_right: "lift X Y = lift X Z \<Longrightarrow> Y = Z
 corollary lift_eq_lift_iff_eq_right [iff]: "lift X Y = lift X Z \<longleftrightarrow> Y = Z"
   using lift_eq_lift_if_eq_right by auto
 
-text\<open>Similarly, add X is injective.\<close>
 lemma add_injective_right: "injective ((+) X)"
   using lift_injective_right lift_eq_image_add by auto
 
@@ -233,7 +231,8 @@ qed
 corollary add_mem_add_iff_mem_right [iff]: "X + Y \<in> X + Z \<longleftrightarrow> Y \<in> Z"
   using mem_if_add_mem_add_right add_mem_add_if_mem_right by blast
 
-text \<open>The lemma demonstrates the monotonicity of lift X.\<close>
+text \<open>The lemma demonstrates the monotonicity of @{const lift} \<open>X\<close> .\<close>
+
 lemma mono_lift: "mono (lift X)"
   by (auto simp: lift_eq_repl_add)
 
@@ -243,7 +242,8 @@ lemma subset_if_lift_subset_lift: "lift X Y \<subseteq> lift X Z \<Longrightarro
 corollary lift_subset_lift_iff_subset: "lift X Y \<subseteq> lift X Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_lift_subset_lift mono_lift[of X] by (auto del: subsetI)
 
-text \<open>The lemma demonstrates the monotonicity of add X.\<close>
+text \<open>The lemma demonstrates the monotonicity of @{const add} \<open>X\<close>.\<close>
+
 lemma mono_add: "mono ((+) X)"
 proof (rule monoI[of "(+) X", simplified])
   fix Y Z assume "Y \<subseteq> Z"
@@ -265,7 +265,9 @@ qed
 corollary add_subset_add_iff_subset [iff]: "X + Y \<subseteq> X + Z \<longleftrightarrow> Y \<subseteq> Z"
   using subset_if_add_subset_add mono_add[of X] by (auto del: subsetI)
 
-text \<open>Transitive closure of addition is the union of the closures of its operands.\<close>
+text \<open>The transitive closure of addition can be split into two smaller
+closures depending on its arguments.\<close>
+
 lemma mem_trans_closure_add_eq_mem_trans_closure_bin_union:
   "mem_trans_closure (X + Y) = mem_trans_closure X \<union> lift X (mem_trans_closure Y)"
 proof (induction Y)

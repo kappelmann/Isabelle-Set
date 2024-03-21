@@ -3,6 +3,10 @@ theory Functions_Restrict
   imports Basic
 begin
 
+paragraph \<open>Summary\<close>
+text \<open>The input is within the restricted domain of function \<open>f\<close>; otherwise, 
+out of the restriction returns undefined.\<close>
+
 consts fun_restrict :: "('a \<Rightarrow> 'b) \<Rightarrow> 'c \<Rightarrow> 'a \<Rightarrow> 'b"
 
 overloading
