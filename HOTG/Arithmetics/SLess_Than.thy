@@ -1,52 +1,28 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Less-Than and Less-Than or Equal Orders\<close>
-theory Less_Than
+theory SLess_Than
   imports
-    Transport.Partial_Orders
-    Transport.HOL_Syntax_Bundles_Groups
-    Transport.HOL_Syntax_Bundles_Orders
     Mem_Transitive_Closure
+    Transport.HOL_Syntax_Bundles_Orders
 begin
 
 paragraph \<open>Summary\<close>
-text \<open>We define less and less-than or equal on sets and then
-show that less is a preoder and the latter is a partial order.
+text \<open>We define less and less-than or equal on sets and show that the latter is a partial order.\<close>
 
-A set \<open>X\<close> is smaller than a set \<open>Y\<close> if \<open>X\<close> is contained in the transitive
-closure of \<open>Y\<close>; cf. @{term mem_trans_closure}.\<close>
-
-abbreviation "zero_set \<equiv> {}"
-abbreviation "one_set \<equiv> {zero_set}"
-abbreviation "two_set \<equiv> {zero_set, one_set}"
-
-bundle hotg_set_zero_syntax begin notation zero_set ("0") end
-bundle no_hotg_set_zero_syntax begin no_notation zero_set ("0") end
-
-bundle hotg_set_one_syntax begin notation one_set ("1") end
-bundle no_hotg_set_one_syntax begin no_notation one_set ("1") end
-
-bundle hotg_set_two_syntax begin notation two_set ("2") end
-bundle no_hotg_set_two_syntax begin no_notation two_set ("2") end
-
-unbundle
-  hotg_set_zero_syntax
-  hotg_set_one_syntax
-  hotg_set_two_syntax
-unbundle
-  no_HOL_ascii_syntax
-  no_HOL_groups_syntax
-
-paragraph \<open>Less-Than Order\<close>
+subsection \<open>Less-Than Order\<close>
 
 text \<open>We follow the definition by Kirby \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
+
+text \<open>A set \<open>X\<close> is smaller than a set \<open>Y\<close> if \<open>X\<close> is contained in the transitive closure of \<open>Y\<close>.\<close>
 
 definition "lt X Y \<equiv> X \<in> mem_trans_closure Y"
 
 bundle hotg_lt_syntax begin notation lt (infix "<" 50) end
 bundle no_hotg_lt_syntax begin no_notation lt (infix "<" 50) end
-unbundle hotg_lt_syntax
-unbundle no_HOL_order_syntax
+unbundle
+  hotg_lt_syntax
+  no_HOL_order_syntax
 
 lemma lt_iff_mem_trans_closure: "X < Y \<longleftrightarrow> X \<in> mem_trans_closure Y"
   unfolding lt_def by simp
@@ -86,17 +62,7 @@ text \<open>The lemma demonstrates the anti-reflexivity of less.\<close>
 lemma not_lt_self [iff]: "\<not>(X < X)"
   unfolding lt_iff_mem_trans_closure by auto
 
-lemma not_lt_zero [iff]: "\<not>(X < 0)"
-  unfolding lt_iff_mem_trans_closure by auto
-
-lemma zero_lt_if_ne_zero [iff]:
-  assumes "X \<noteq> 0"
-  shows "0 < X"
-  using assms mem_trans_closed_mem_trans_closure
-  by (intro lt_if_mem_trans_closure empty_mem_if_mem_trans_closed) auto
-
-
-paragraph \<open>Less-Than or Equal Order\<close>
+subsection \<open>Less-Than or Equal Order\<close>
 
 definition "le X Y \<equiv> X < Y \<or> X = Y"
 
@@ -132,8 +98,6 @@ corollary transitive_le: "transitive (\<le>)"
 
 corollary preorder_le: "preorder (\<le>)"
   using reflexive_le transitive_le by blast
-
-lemma zero_le [iff]: "0 \<le> X" by (subst le_iff_lt_or_eq) auto
 
 lemma lt_mem_leE:
   assumes "X < Y"
@@ -199,7 +163,7 @@ corollary lt_iff_le_and_ne: "X < Y \<longleftrightarrow> X \<le> Y \<and> X \<no
 lemma le_if_eq: "X = Y \<Longrightarrow> X \<le> Y"
   by simp
 
-lemma not_lt_if_not_le_or_eq: "\<not>(X < Y) \<longleftrightarrow> \<not>(X \<le> Y) \<or> X = Y"
+lemma not_lt_iff_not_le_or_eq: "\<not>(X < Y) \<longleftrightarrow> \<not>(X \<le> Y) \<or> X = Y"
   unfolding le_iff_lt_or_eq by auto
 
 text \<open>The following sets up automation for goals involving the @{term "(\<le>)"}
@@ -212,7 +176,7 @@ local_setup \<open>
       eqD2 = @{thm le_if_eq[OF sym]}, antisym = @{thm antisymmetricD[OF antisymmetric_le]},
       contr = @{thm notE}},
     conv_thms = {less_le = @{thm eq_reflection[OF lt_iff_le_and_ne]},
-      nless_le = @{thm eq_reflection[OF not_lt_if_not_le_or_eq]}}
+      nless_le = @{thm eq_reflection[OF not_lt_iff_not_le_or_eq]}}
   }
 \<close>
 

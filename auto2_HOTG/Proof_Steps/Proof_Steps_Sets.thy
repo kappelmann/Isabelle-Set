@@ -36,7 +36,7 @@ lemma ball_singleton [rewrite]: "(\<forall>x \<in> {x}. P x) = P x" by auto
 subsubsection \<open>Membership\<close>
 
 setup \<open>add_rewrite_rule @{thm Finite_Sets.singleton_mem_iff_eq}\<close>
-setup \<open>add_resolve_prfstep @{thm Basic.not_mem_emptyset}\<close>
+setup \<open>add_resolve_prfstep @{thm Basics.not_mem_emptyset}\<close>
 lemma ne_if_not_mem_if_mem [forward]: "x \<in> s \<Longrightarrow> y \<notin> s \<Longrightarrow> x \<noteq> y" by auto
 setup \<open>add_backward_prfstep @{thm Empty_Set.ex_mem_if_ne_empty}\<close>
 setup \<open>add_resolve_prfstep @{thm Axioms.mem_univ}\<close>

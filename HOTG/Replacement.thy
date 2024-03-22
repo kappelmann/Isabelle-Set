@@ -14,8 +14,7 @@ begin
 syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 bundle no_hotg_repl_syntax
-begin
-no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
+begin no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 unbundle hotg_repl_syntax
 
@@ -59,8 +58,8 @@ lemma ball_repl_iff_ball [iff]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<lon
 lemma bex_repl_iff_bex [iff]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
   by auto
 
-lemma mono_repl_set: "mono (\<lambda>A. {f x | x \<in> A})"
-  by (intro monoI) auto
+lemma mono_subset_subset_repl: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>A. {f x | x \<in> A})"
+  by auto
 
 
 subsection \<open>Image\<close>

@@ -1,8 +1,9 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Basic Lemmas\<close>
-theory Basic
+theory Basics
   imports Axioms
 begin
+
 paragraph \<open>Summary\<close>
 text \<open>Here we derive a few preliminary lemmas following from the axioms that are
 needed to formalise more complicated concepts.\<close>

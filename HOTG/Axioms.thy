@@ -51,7 +51,13 @@ bundle no_hotg_union_syntax begin no_notation union ("\<Union>_" [90] 90) end
 
 unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax
 
-abbreviation (input) "mem_of A x \<equiv> x \<in> A"
+definition "mem_of A x \<equiv> x \<in> A"
+lemma mem_of_eq: "mem_of = (\<lambda>A x. x \<in> A)" unfolding mem_of_def by simp
+lemma mem_of_iff [iff]: "mem_of A x \<longleftrightarrow> x \<in> A" unfolding mem_of_def by simp
+
+named_theorems set_to_HOL_simp
+declare mem_of_iff[symmetric, set_to_HOL_simp]
+
 abbreviation "not_mem x y \<equiv> \<not>(x \<in> y)"
 
 bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end

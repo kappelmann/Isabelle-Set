@@ -37,7 +37,7 @@ lemma Dep_Bin_Rel_covariant_dom:
   unfolding Dep_Bin_Rel_def
   by (elim Collection_covariant) (blast intro: Dep_Pair_covariant_fst)
 
-lemma Dep_Bin_Rel_covariant_rng:
+lemma Dep_Bin_Rel_covariant_codom:
   assumes "R : Dep_Bin_Rel A B"
   and "\<And>x y. x : A \<Longrightarrow> y : B x \<Longrightarrow> \<langle>x, y\<rangle> \<in> R \<Longrightarrow> y : B' x"
   shows "R : Dep_Bin_Rel A B'"
@@ -144,10 +144,10 @@ lemma agree_type_set_iff_agree_set [iff]:
 lemma dom_type [type]: "dom : Dep_Bin_Rel A B \<Rightarrow> Collection A"
   by (auto intro: CollectionI)
 
-lemma rng_type: "rng : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>y. \<exists>x : A. y : B x))"
+lemma codom_type: "codom : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>y. \<exists>x : A. y : B x))"
   by (auto intro!: CollectionI elim!: Dep_Bin_Rel_memE simp: meaning_of_type)
 
-lemma rng_type' [type]: "rng : Bin_Rel A B \<Rightarrow> Collection B"
+lemma codom_type' [type]: "codom : Bin_Rel A B \<Rightarrow> Collection B"
   by (auto intro: CollectionI)
 
 lemma set_rel_inv_type:
@@ -174,8 +174,8 @@ lemma Dep_Bin_Rel_set_rel_inv_set_rel_inv_eq_self [simp]:
 lemma diag_type [type]: "diag : (A : Set) \<Rightarrow> Bin_Rel (Element A) (Element A)"
   by (auto intro: Dep_Bin_RelI)
 
-lemma set_comp_type [type]:
-  "set_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
+lemma set_rel_comp_type [type]:
+  "set_rel_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
   by unfold_types auto
 
 

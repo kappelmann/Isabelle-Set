@@ -78,8 +78,7 @@ lemma replace_cong [cong]:
   "\<lbrakk>A = B; \<And>x y. x \<in> B \<Longrightarrow> P x y \<longleftrightarrow> Q x y\<rbrakk> \<Longrightarrow> {y | x \<in> A, P x y} = {y | x \<in> B, Q x y}"
   by (rule eqI') (simp add: mem_replace_iff)
 
-lemma mono_replace_set: "mono (\<lambda>A. {y | x \<in> A, P x y})"
-  by (intro monoI) (auto elim!: replaceE)
-
+lemma mono_subset_replace_set: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>A. {y | x \<in> A, P x y})"
+  by (intro dep_mono_wrt_relI Dep_Fun_Rel_relI) (auto elim!: replaceE)
 
 end

@@ -1,27 +1,24 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Ordinals\<close>
-theory Ordinals
+theory Ordinals_Base
   imports
     Mem_Transitive_Closed
-    SAddition
-    Less_Than
+    Transport.HOL_Syntax_Bundles_Groups
+    ML_Unification.Unify_Resolve_Tactics
 begin
-
-unbundle no_HOL_groups_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
-We give the definition of ordinals and limit ordinals. In addition,
-two ordinal inductions are proven.
+We define ordinals and limit ordinals. Two ordinal inductions are proven.
 
-And we use the Von Neumann encoding of natural numbers. The Von Neumann numbers
-are defined inductively. The Von Neumann number \<open>0\<close> is defined to be the empty set, 
-and there are no smaller Von Neumann numbers. The Von Neumann number \<open>N\<close> is then the set of 
-all Von Neumann numbers less than \<open>N\<close>. Further details can be found in
+We use the Von Neumann encoding of numbers. The Von Neumann numbers are defined inductively.
+The Von Neumann number \<open>0\<close> is defined to be the empty set,
+and there are no smaller Von Neumann numbers. The Von Neumann number \<open>n\<close> is then the set of
+all Von Neumann numbers less than \<open>n\<close>. Further details can be found in
 \<^url>\<open>https://planetmath.org/vonneumanninteger\<close>.\<close>
 
-paragraph \<open>Ordinals\<close>
+subsection \<open>Ordinals\<close>
 
 text \<open>We follow the definition from \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
  \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy#L601\<close>.\<close>
@@ -39,18 +36,43 @@ lemma ordinal_if_mem_trans_closedI:
   shows "ordinal X"
   using assms unfolding ordinal_def by auto
 
+abbreviation "set_zero \<equiv> {}"
+abbreviation "set_one \<equiv> {set_zero}"
+abbreviation "set_two \<equiv> {set_zero, set_one}"
+
+bundle hotg_set_zero_syntax begin notation set_zero ("0") end
+bundle no_hotg_set_zero_syntax begin no_notation set_zero ("0") end
+
+bundle hotg_set_one_syntax begin notation set_one ("1") end
+bundle no_hotg_set_one_syntax begin no_notation set_one ("1") end
+
+bundle hotg_set_two_syntax begin notation set_two ("2") end
+bundle no_hotg_set_two_syntax begin no_notation set_two ("2") end
+
+unbundle
+  hotg_set_zero_syntax
+  hotg_set_one_syntax
+  hotg_set_two_syntax
+  no_HOL_ascii_syntax
+  no_HOL_groups_syntax
+
 context
   notes ordinal_mem_trans_closedE[elim!] ordinal_if_mem_trans_closedI[intro!]
 begin
 
 lemma ordinal_zero [iff]: "ordinal 0" by auto
-
 lemma ordinal_one [iff]: "ordinal 1" by auto
+lemma ordinal_two [iff]: "ordinal 2" by auto
+
+
+definition "succ X \<equiv> insert X X"
+
+lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
 
 lemma ordinal_succI [intro]:
   assumes "ordinal x"
   shows "ordinal (succ x)"
-  using assms by (auto simp flip: insert_self_eq_add_one simp: succ_eq_add_one)
+  using assms by (auto simp: succ_eq_insert_self)
 
 lemma ordinal_unionI:
   assumes "\<And>x. x \<in> X \<Longrightarrow> ordinal x"
@@ -66,13 +88,13 @@ lemma ordinal_bin_unionI:
   assumes "ordinal X"
   and "ordinal Y"
   shows "ordinal (X \<union> Y)"
-  using assms by blast
+  by (urule ordinal_unionI[of "{X, Y}"]) (use assms in blast)
 
 lemma ordinal_bin_interI:
   assumes "ordinal X"
   and "ordinal Y"
   shows "ordinal (X \<inter> Y)"
-  using assms by blast
+  by (urule ordinal_interI[of "{X, Y}"]) (use assms in blast)
 
 lemma subset_if_mem_if_ordinal: "ordinal X \<Longrightarrow> Y \<in> X \<Longrightarrow> Y \<subseteq> X" by auto
 
@@ -81,7 +103,8 @@ lemma mem_trans_if_ordinal: "\<lbrakk>ordinal X; Y \<in> Z; Z \<in> X\<rbrakk>  
 lemma ordinal_if_mem_if_ordinal: "\<lbrakk>ordinal X; Y \<in> X\<rbrakk>  \<Longrightarrow> ordinal Y"
   by blast
 
-lemma union_succ_eq_self_if_ordinal [simp]: "ordinal \<beta> \<Longrightarrow> \<Union>(succ \<beta>) = \<beta>" by auto
+lemma union_succ_eq_self_if_ordinal [simp]: "ordinal \<beta> \<Longrightarrow> \<Union>(succ \<beta>) = \<beta>"
+  by (auto simp add: succ_eq_insert_self)
 
 text\<open>Membership ordinal induction:\<close>
 
@@ -93,39 +116,39 @@ lemma ordinal_mem_induct [consumes 1, case_names step]:
   by (induction X rule: mem_induction) auto
 
 
-paragraph \<open>Limit Ordinals\<close>
+subsection \<open>Limit Ordinals\<close>
 
 text \<open>We follow the definition from \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy#L939\<close>.
 A limit ordinal \<open>X\<close> is an ordinal number greater than \<open>0\<close> that is not a successor ordinal.
 Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Limit_ordinal\<close>.\<close>
 
-definition "limit X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
+definition "limit_ordinal X \<equiv> ordinal X \<and> 0 \<in> X \<and> (\<forall>x \<in> X. succ x \<in> X)"
 
-lemma limitI:
+lemma limit_ordinalI:
   assumes "ordinal X"
   and "0 \<in> X"
   and "\<And>x. x \<in> X \<Longrightarrow> succ x \<in> X"
-  shows "limit X"
-  using assms unfolding limit_def by auto
+  shows "limit_ordinal X"
+  using assms unfolding limit_ordinal_def by auto
 
-lemma limitE:
-  assumes "limit X"
+lemma limit_ordinalE:
+  assumes "limit_ordinal X"
   obtains "ordinal X" "0 \<in> X" "\<And>x. x \<in> X \<Longrightarrow> succ x \<in> X"
-  using assms unfolding limit_def by auto
+  using assms unfolding limit_ordinal_def by auto
 
-text\<open>For the second induction theorem, some lemmas are left unproven.\<close>
+text\<open>For the second induction theorem, some lemmas are left unproven as of now.\<close>
 
-lemma Limit_eq_Sup_self: "limit X \<Longrightarrow> \<Union>X = X"
+lemma union_eq_self_if_limit_ordinal: "limit_ordinal X \<Longrightarrow> \<Union>X = X"
   sorry
 
-lemma ordinal_cases [cases type: set, case_names 0 succ limit]:
+lemma ordinal_cases [cases type: set]:
   assumes "ordinal k"
-  obtains "k = 0" | l where "ordinal l" "succ l = k" | "limit k"
+  obtains (0) "k = 0" | (succ) l where "ordinal l" "succ l = k" | (limit) "limit_ordinal k"
   sorry
 
 lemma elts_succ [simp]: "{xx | xx \<in> (succ x)} = insert x {xx | xx \<in> x}"
-  by (simp add: succ_eq_insert)
+  by (simp add: succ_eq_insert_self)
 
 lemma image_ident: "image id Y = Y"
   by auto
@@ -133,11 +156,11 @@ lemma image_ident: "image id Y = Y"
 text\<open>Standard ordinal induction:\<close>
 
 lemma ordinal_induct [consumes 1, case_names zero succ limit, induct type: set]:
-  assumes a: "ordinal X"
+  assumes "ordinal X"
   and P: "P 0" "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
-    "\<And>X. \<lbrakk>limit X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
+    "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
   shows "P X"
-using a
+using \<open>ordinal X\<close>
 proof (induction X rule: ordinal_mem_induct)
   case (step X)
   then show ?case
@@ -146,11 +169,11 @@ proof (induction X rule: ordinal_mem_induct)
     with P(1) show ?thesis by simp
   next
     case (succ l)
-    from succ step succ_eq_insert have "P (succ l)" by (intro P(2)) auto
+    from succ step succ_eq_insert_self have "P (succ l)" by (intro P(2)) auto
     with succ show ?thesis by simp
   next
     case limit
-text\<open>Missing proof see 
+text\<open>For the missing proof, see
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_in_HOL.thy#L991\<close>.\<close>
     then show ?thesis sorry
   qed

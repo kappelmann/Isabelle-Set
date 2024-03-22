@@ -4,15 +4,12 @@ section \<open>Generalised Multiplication\<close>
 theory SMultiplication
   imports
     SAddition
-    Ordinals
 begin
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set multiplication for sets from \<^cite>\<open>kirby_set_arithemtics\<close>
 and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication is associative,
 but it is not commutative (not proven here).\<close>
-
-text \<open>We take the definition from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
 
 definition "mul X \<equiv> transrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
 
@@ -112,7 +109,7 @@ qed
 lemma mul_add_eq_mul_add_mul: "X * (Y + Z) = X * Y + X * Z"
   by (simp only: add_eq_bin_union_lift mul_bin_union_eq_bin_union_mul mul_lift_eq_lift_mul_mul)
 
-text \<open>The lemma demonstrates the associativity of set multiplication.\<close>
+text \<open>Set multiplication is associative:\<close>
 
 lemma mul_assoc: "(X * Y) * Z = X * (Y * Z)"
 proof (induction Z rule: mem_induction)
@@ -156,9 +153,8 @@ qed simp
 
 paragraph\<open>Lemma 4.6 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>This Lemma employs standard ordinal induction,
-and due to the complexity of the proof, a complete demonstration
-is not provided. Missing proof see 
+text\<open>The next lemma is rather complex and remains incomplete as of now. A complete proof
+can be found in \<^cite>\<open>kirby_set_arithemtics\<close> and
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L992\<close>.\<close>
 
 lemma zero_if_multi_eq_multi_add: assumes "A * X = A * Y + B" "B < A"
@@ -187,8 +183,7 @@ next
 
 paragraph\<open>Lemma 4.7 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>Given the intricate nature of the lemma proof, a full exposition is omitted.
- Missing proof see 
+text\<open>For the next missing proofs, see
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1166\<close>.\<close>
 
 lemma subset_if_mul_add_subset_mul_add: assumes "R < A" "S < A" "A * X + R \<subseteq> A * Y + S"

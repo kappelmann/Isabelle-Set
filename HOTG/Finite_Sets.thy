@@ -57,8 +57,7 @@ lemma upair_eq_singleton_iff [iff]: "{a, b} = {c} \<longleftrightarrow> a = c \<
 lemma singleton_eq_upair_iff [iff]: "{a} = {b, c} \<longleftrightarrow> b = a \<and> c = a"
   using upair_eq_singleton_iff by (auto dest: sym[of "{a}"])
 
-text \<open>@{term "upair x y"} and @{term "{x, y}"} are equal, and thus
-interchangeable in developments.\<close>
+text \<open>@{term "upair x y"} and @{term "{x, y}"} are equal and thus interchangeable in developments.\<close>
 lemma upair_eq_insert_singleton [simp]: "upair x y = {x, y}"
   unfolding upair_def by (rule eqI) auto
 

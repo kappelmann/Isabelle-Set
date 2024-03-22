@@ -192,7 +192,7 @@ proof -
   with assms have "f : (x : A) \<rightarrow>s B' x" by (elim Dep_Function_covariant_codom)
   from assms have "f : Dep_Bin_Rel A B" by discharge_types
   with assms have "f : Dep_Bin_Rel A B'"
-    by (elim Dep_Bin_Rel_covariant_rng) auto
+    by (elim Dep_Bin_Rel_covariant_codom) auto
   then show ?thesis by (intro CDep_FunctionI) discharge_types
 qed
 

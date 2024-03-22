@@ -51,8 +51,9 @@ overloading
   inverse_on_set \<equiv> "inverse_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool"
   inverse_on_type \<equiv> "inverse_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
 begin
-  definition "inverse_on_set A (f :: set \<Rightarrow> 'a) \<equiv> inverse_on (mem_of A) f"
-  definition "inverse_on_type (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<equiv>
+  definition "inverse_on_set (A :: set) (f :: set \<Rightarrow> 'a) :: ('a \<Rightarrow> set) \<Rightarrow> bool \<equiv>
+    inverse_on (mem_of A) f"
+  definition "inverse_on_type (T :: 'a type) (f :: 'a \<Rightarrow> 'b) :: ('b \<Rightarrow> 'a) \<Rightarrow> bool \<equiv>
     inverse_on (type_pred T) f"
 end
 
@@ -61,7 +62,7 @@ lemma inverse_on_set_eq_inverse_on_pred [simp]:
   unfolding inverse_on_set_def by simp
 
 lemma inverse_on_set_iff_inverse_on_pred [iff]:
-  "inverse_on (A :: set) (f :: set \<Rightarrow> 'a) g \<longleftrightarrow> inverse_on (mem_of A) f g"
+  "inverse_on (A :: set) (f :: set \<Rightarrow> 'a) (g :: 'a \<Rightarrow> set) \<longleftrightarrow> inverse_on (mem_of A) f g"
   by simp
 
 lemma inverse_on_type_eq_inverse_on_pred [simp]:
@@ -69,7 +70,7 @@ lemma inverse_on_type_eq_inverse_on_pred [simp]:
   unfolding inverse_on_type_def by simp
 
 lemma inverse_on_type_iff_inverse_on_pred [iff]:
-  "inverse_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) g \<longleftrightarrow> inverse_on (type_pred T) f g"
+  "inverse_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) (g :: 'b \<Rightarrow> 'a) \<longleftrightarrow> inverse_on (type_pred T) f g"
   by simp
 
 

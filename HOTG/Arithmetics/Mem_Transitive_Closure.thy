@@ -3,17 +3,16 @@
 section \<open>Transitive Closure With Respect To Membership\<close>
 theory Mem_Transitive_Closure
   imports
-    Foundation
     Transfinite_Recursion
 begin
+
 paragraph \<open>Summary\<close>
 text \<open>The transitive closure of a set @{term "X ::set"} is the set that contains as its members
 all sets that are transitively contained in @{term "X ::set"}.
 In particular, each such set is transitively closed.
 
-We follow the approach from \<^cite>\<open>ZFC_in_HOL_AFP\<close>, 
+We follow the approach from \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L410\<close>.\<close>
-
 
 definition "mem_trans_closure \<equiv> transrec (\<lambda>f X. X \<union> (\<Union>x \<in> X. f x))"
 
@@ -38,7 +37,7 @@ lemma mem_mem_trans_closureE [elim]:
   using assms by (subst (asm) mem_trans_closure_eq_bin_union_idx_union) auto
 
 lemma mem_mem_trans_closure_iff_mem_or_mem:
-  "X \<in> mem_trans_closure Y \<longleftrightarrow>  X \<in> Y \<or> (X \<in> (\<Union>y \<in> Y. mem_trans_closure y))"
+  "X \<in> mem_trans_closure Y \<longleftrightarrow> X \<in> Y \<or> (X \<in> (\<Union>y \<in> Y. mem_trans_closure y))"
   by (subst mem_trans_closure_eq_bin_union_idx_union) auto
 
 lemma mem_trans_closure_empty_eq_empty [simp]: "mem_trans_closure {} = {}"
@@ -76,15 +75,11 @@ proof
 qed
 
 lemma mem_trans_closure_le_if_le_if_mem_trans_closed:
-  "\<lbrakk>mem_trans_closed X;  Y \<le> X\<rbrakk> \<Longrightarrow> mem_trans_closure Y \<le> X"
+  "mem_trans_closed X \<Longrightarrow> Y \<subseteq> X \<Longrightarrow> mem_trans_closure Y \<subseteq> X"
 proof (induction Y)
   case (mem Y)
-  show ?case
-  proof (cases "Y = {}")
-    case False
-    with mem have "(\<Union>y \<in> Y. mem_trans_closure y) \<le> X" by auto
-    with mem.prems show ?thesis by (simp add: mem_trans_closure_eq_bin_union_idx_union[of Y])
-  qed auto
+  then show ?case
+    by (cases "Y = {}") (auto simp add: mem_trans_closure_eq_bin_union_idx_union[of Y])
 qed
 
 lemma mem_mem_trans_closure_if_mem_if_mem_mem_trans_closure:

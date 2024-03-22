@@ -14,6 +14,4 @@ theory SBinary_Relation_Properties
     SBinary_Relations_Transitive
 begin
 
-(*TODO Kevin: make all concepts overloadings from constants defined in Transport*)
-
 end

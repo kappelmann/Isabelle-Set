@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Powerset\<close>
 theory Powerset
-  imports Order_Set
+  imports Subset
 begin
 
 lemma mem_powerset_if_subset: "A \<subseteq> B \<Longrightarrow> A \<in> powerset B"
@@ -19,7 +19,6 @@ lemma mem_powerset_self [iff]: "A \<in> powerset A"
 lemma mem_powerset_empty_iff_eq_empty [iff]: "x \<in> powerset {} \<longleftrightarrow> x = {}"
   by auto
 
-lemma mono_powerset: "mono powerset"
-  by (intro monoI) auto
+lemma mono_subset_powerset: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) powerset" by auto
 
 end

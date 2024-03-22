@@ -5,6 +5,8 @@ theory Coproduct
   imports Pairs
 begin
 
+unbundle no_HOL_ascii_syntax
+
 definition "inl a = \<langle>{}, a\<rangle>"
 definition "inr b = \<langle>{{}}, b\<rangle>"
 definition "coprod A B \<equiv> {inl a | a \<in> A} \<union> {inr b | b \<in> B}"
@@ -43,12 +45,6 @@ lemma coprod_rec_eq:
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto
 
-
-lemma mono_coprod_left: "mono (\<lambda>A. A \<Coprod> B)"
-  by (intro monoI) auto
-
-lemma mono_coprod_right: "mono (\<lambda>B. A \<Coprod> B)"
-  by (intro monoI) auto
-
+lemma mono_subset_coprod: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<Coprod>)" by blast
 
 end

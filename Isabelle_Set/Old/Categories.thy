@@ -127,13 +127,13 @@ section \<open>The category of sets\<close>
 abbreviation (input) "Set_obj  \<equiv> V"
 abbreviation (input) "Set_hom  \<equiv> \<lambda>A B \<in> V. A \<rightarrow> B"
 abbreviation (input) "Set_id   \<equiv> \<lambda>A \<in> V. \<lambda>x \<in> A. x"
-abbreviation (input) "Set_comp \<equiv> \<lambda>A B C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
+abbreviation (input) "set_rel_comp \<equiv> \<lambda>A B C \<in> V. \<lambda>g \<in> B \<rightarrow> C. \<lambda>f \<in> A \<rightarrow> B. (g \<circ> f)"
 
 definition Set_cat ("\<S>et") where
   "\<S>et = object {
     \<langle>@obj, Set_obj\<rangle>,
     \<langle>@hom, Set_hom\<rangle>,
-    \<langle>@comp, Set_comp\<rangle>,
+    \<langle>@comp, Set_compset_rel_comp
     \<langle>@id, Set_id\<rangle>
   }"
 
@@ -141,7 +141,7 @@ definition Set_cat ("\<S>et") where
 lemma [simp]:
   shows Set_cat_obj:  "\<S>et @@ obj = Set_obj"
     and Set_cat_hom:  "\<S>et @@ hom = Set_hom"
-    and Set_cat_comp: "\<S>et @@ comp = Set_comp"
+    and Set_cat_comp: "\<S>et @@ comp = Seset_rel_comp
     and Set_cat_id:   "\<S>et @@ id = Set_id"
   unfolding Set_cat_def by auto
 

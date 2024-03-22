@@ -7,23 +7,21 @@ theory Universes
     SFunctions
 begin
 
-abbreviation V :: set where "V \<equiv> univ {}"
+unbundle no_HOL_ascii_syntax
 
 lemma
   assumes "ZF_closed U"
   and "X \<in> U"
   shows ZF_closed_union [elim!]: "\<Union>X \<in> U"
   and ZF_closed_powerset [elim!]: "powerset X \<in> U"
-  and ZF_closed_repl:
-    "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> {f x | x \<in> X} \<in> U"
+  and ZF_closed_repl: "(\<And>x. x \<in> X \<Longrightarrow> f x \<in> U) \<Longrightarrow> {f x | x \<in> X} \<in> U"
   using assms by (auto simp: ZF_closed_def)
 
 lemma
   assumes "A \<in> univ X"
   shows univ_closed_union [intro!]: "\<Union>A \<in> univ X"
   and univ_closed_powerset [intro!]: "powerset A \<in> univ X"
-  and univ_closed_repl [intro]:
-    "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> univ X) \<Longrightarrow> {f x | x \<in> A} \<in> univ X"
+  and univ_closed_repl [intro]: "(\<And>x. x \<in> A \<Longrightarrow> f x \<in> univ X) \<Longrightarrow> {f x | x \<in> A} \<in> univ X"
   using ZF_closed_univ[of X]
   by (auto simp only: assms ZF_closed_repl)
 
@@ -67,7 +65,7 @@ lemma univ_closed_extend [intro!]:
 
 lemma univ_closed_bin_union [intro!]:
   "\<lbrakk>x \<in> univ X; y \<in> univ X\<rbrakk> \<Longrightarrow> x \<union> y \<in> univ X"
-  unfolding bin_union_def by auto
+  unfolding bin_union_def by blast
 
 lemma univ_closed_singleton [intro!]: "x \<in> univ U \<Longrightarrow> {x} \<in> univ U"
   by auto

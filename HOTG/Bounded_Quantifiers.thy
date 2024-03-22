@@ -3,7 +3,9 @@
 \<^marker>\<open>creator "Larry Paulson"\<close>
 section \<open>Bounded Quantifiers\<close>
 theory Bounded_Quantifiers
-  imports Order_Set
+  imports
+    Subset
+    Transport.Functions_Monotone
 begin
 
 definition ball :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> bool\<close>
@@ -157,17 +159,11 @@ lemma bex_if_bex1: "\<exists>!x \<in> A. P x \<Longrightarrow> \<exists>x \<in> 
 lemma ball_conj_distrib: "(\<forall>x \<in> A. P x \<and> Q x) \<longleftrightarrow> (\<forall>x \<in> A. P x) \<and> (\<forall>x \<in> A. Q x)"
   by auto
 
-lemma antimono_ball_set: "antimono (\<lambda>A. \<forall>x \<in> A. P x)"
-  by (intro antimonoI) auto
+lemma mono_supset_ball: "((\<supseteq>) \<Rrightarrow>\<^sub>m (\<le>) \<Rrightarrow> (\<le>)) ball"
+  by (intro dep_mono_wrt_relI Dep_Fun_Rel_relI) fastforce
 
-lemma mono_ball_pred: "mono (\<lambda>P. \<forall>x \<in> A. P x)"
-  by (intro monoI) auto
-
-lemma mono_bex_set: "mono (\<lambda>A. \<exists>x \<in> A. P x)"
-  by (intro monoI) auto
-
-lemma mono_bex_pred: "mono (\<lambda>P. \<exists>x \<in> A. P x)"
-  by (intro monoI) auto
+lemma mono_subset_bex: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<le>) \<Rrightarrow> (\<le>)) bex"
+  by (intro dep_mono_wrt_relI Dep_Fun_Rel_relI) fastforce
 
 
 section \<open>Bounded definite description\<close>

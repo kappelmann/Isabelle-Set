@@ -68,43 +68,43 @@ lemma dom_singleton_pair_eq [iff]: "dom {\<langle>x, y\<rangle>} = {x}"
 
 subsection \<open>Range\<close>
 
-definition "rng R \<equiv> {snd p | p \<in> R}"
+definition "codom R \<equiv> {snd p | p \<in> R}"
 
-lemma snd_mem_rng_if_mem [intro]:
-  "r \<in> R \<Longrightarrow> snd r \<in> rng R"
-  unfolding rng_def by auto
+lemma snd_mem_codom_if_mem [intro]:
+  "r \<in> R \<Longrightarrow> snd r \<in> rng R"codom
+  unfolding codom_def by auto
 
-lemma mem_rngI [intro]: "\<langle>x, y\<rangle> \<in> R \<Longrightarrow> y \<in> rng R"
-  unfolding rng_def by auto
+lemma mem_codomI [intro]: "\<langle>x, y\<rangle> \<in> R \<Longrightarrow> y \<in> rng R"codom
+  unfolding codom_def by auto
 
-lemma Bin_Rel_ex_fst_mem_if_mem_rng [elim]:
-  assumes "y \<in> rng R" and "R : Bin_Rel"
+lemma Bin_Rel_ex_fst_mem_if_mem_codom [elim]:
+  assumes "y \<in> rng codomand "R : Bin_Rel"
   shows "\<exists>x. \<langle>x, y\<rangle> \<in> R"
 proof -
-  from \<open>y \<in> rng R\<close> obtain p where "p \<in> R" and "y = snd p"
-    unfolding rng_def by auto
+  from \<open>y \<in> rng R\<close> obtcodom p where "p \<in> R" and "y = snd p"
+    unfolding codom_def by auto
   with \<open>R : Bin_Rel\<close> have "\<langle>fst p, y\<rangle> \<in> R" by auto
   then show ?thesis by blast
 qed
 
-lemma Bin_Rel_subset_pairs_dom_rng:
+lemma Bin_Rel_subset_pairs_dom_codom:
   assumes "R : Bin_Rel"
-  shows "R \<subseteq> dom R \<times> rng R"
+  shows "R \<subseteq> dom R \<times> rng R"codom
 proof
   fix x assume "x \<in> R"
   from assms have x_eq: "x = \<langle>fst x, snd x\<rangle>" by auto
-  with \<open>x \<in> R\<close> show "x \<in> dom R \<times> rng R"
+  with \<open>x \<in> R\<close> show "x \<in> dom R \<times> rng R"codom
     by (subst x_eq, intro iffD2[OF mem_dep_pairs_iff]) auto
 qed
 
-lemma Bin_Rel_mem_rng_iff:
-  "R : Bin_Rel \<Longrightarrow> y \<in> rng R \<longleftrightarrow> (\<exists>x. \<langle>x, y\<rangle> \<in> R)"
+lemma Bin_Rel_mem_codom_iff:
+  "R : Bin_Rel \<Longrightarrow> y \<in> rng R \<longleftrightarrow> (\<exists>x. \<langle>x, y\<rangle> codom)"
   by auto
 
 
 subsection \<open>Field\<close>
 
-definition "fld R \<equiv> dom R \<union> rng R"
+definition "fld R \<equiv> dom R \<union> rng R"codom
 
 lemma mem_fld_fst: "\<langle>a, b\<rangle> \<in> R \<Longrightarrow> a \<in> fld R"
   unfolding fld_def by auto
@@ -118,8 +118,8 @@ subsection \<open>Basic equalities\<close>
 lemma dom_empty_eq [iff]: "dom {} = {}"
   unfolding dom_def by auto
 
-lemma rng_empty_eq [iff]: "rng {} = {}"
-  unfolding rng_def by auto
+lemma codom_empty_eq [iff]: "codom {} = {}"
+  unfolding codom_def by auto
 
 lemma dom_union_eq [simp]: "dom (\<Union>X) = \<Union>{dom x | x \<in> X}"
   unfolding dom_def by auto
@@ -130,14 +130,14 @@ lemma dom_bin_bin_union_eq [iff]: "dom (R \<union> S) = dom R \<union> dom S"
 lemma dom_collect_eq [iff]: "dom {\<langle>f x, g x\<rangle> | x \<in> A} = {f x | x \<in> A}"
   unfolding dom_def by auto
 
-lemma rng_collect_eq [iff]: "rng {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
-  unfolding rng_def by auto
+lemma codom_collect_eq [iff]: "codom {\<langle>f x, g x\<rangle> | x \<in> A} = {g x | x \<in> A}"
+  unfolding codom_def by auto
 
 lemma dom_insert_eq [simp]: "dom (cons \<langle>x, y\<rangle> A) = cons x (dom A)"
   unfolding dom_def by (auto simp add: repl_insert_eq)
 
-lemma rng_insert_eq [simp]: "rng (cons \<langle>x, y\<rangle> A) = cons y (rng A)"
-  unfolding rng_def by (auto simp add: repl_insert_eq)
+lemma codom_insert_eq [simp]: "codom (cons \<langle>x, y\<rangle> A) = cons y (rng A)"codom
+  unfolding codom_def by (auto simp add: repl_insert_eq)
 
 
 subsection \<open>Relations With Specified Domain and Range\<close>
@@ -147,7 +147,7 @@ definition [typedef]: "Relation A B \<equiv> Subset (A \<times> B)"
 lemma Relation_covariant_dom: "R : Relation A B \<Longrightarrow> A \<subseteq> A' \<Longrightarrow> R : Relation A' B"
   unfolding Relation_def using Subset_covariant by auto
 
-lemma Relation_covariant_rng: "R : Relation A B \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> R : Relation A B'"
+lemma Relation_covariant_codom: "R : Relation A B \<Longrightarrow> B \<subseteq> B' \<Longrightarrow> R : Relation A B'"
   unfolding Relation_def using Subset_covariant by auto
 
 lemma RelationI [derive]:
@@ -161,14 +161,14 @@ lemma Bin_Rel_if_Relation [derive]:
 (*Note the issue with standard typechecking blindly using soft type rules:
   loops occur if the following is declared [derive].*)
 lemma Relation_if_Bin_Rel:
-  "R : Bin_Rel \<Longrightarrow> R : Relation (dom R) (rng R)"
-  by (intro RelationI SubsetI Bin_Rel_subset_pairs_dom_rng)
+  "R : Bin_Rel \<Longrightarrow> R : Relation (dom R) (rng R)"codom
+  by (intro RelationI SubsetI Bin_Rel_subset_pairs_dom_codom)
 
 lemma dom_type [type]: "dom : Relation A B \<Rightarrow> Subset A"
   unfolding dom_def by unfold_types auto
 
-lemma rng_type [type]: "rng : Relation A B \<Rightarrow> Subset B"
-  unfolding rng_def by unfold_types auto
+lemma codom_type [type]: "codom : Relation A B \<Rightarrow> Subset B"
+  unfolding codom_def by unfold_types auto
 
 text \<open>Set model of \<^term>\<open>Relation A B\<close>.\<close>
 
@@ -197,8 +197,8 @@ lemma converse_prod [iff]: "converse (A \<times> B) = B \<times> A"
 lemma converse_empty [iff]: "converse {} = {}"
   unfolding converse_def by (rule eq_if_subset_if_subset) auto
 
-lemma dom_converse_eq_rng: "dom (converse R) = rng R"
-  unfolding dom_def rng_def converse_def by auto
+lemma dom_converse_eq_codom: "dom (converse R) = codom R"
+  unfolding dom_def codom_def converse_def by auto
 
 lemma Bin_Rel_pair_mem_converse_iff_mem [iff]:
   "R : Bin_Rel \<Longrightarrow> \<langle>a, b\<rangle> \<in> converse R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
@@ -234,7 +234,7 @@ lemma
 subsection \<open>Composition\<close>
 
 definition "rel_comp S R \<equiv>
-  {u \<in> dom R \<times> rng S | \<exists>z. \<langle>fst u, z\<rangle> \<in> R \<and> \<langle>z, snd u\<rangle> \<in> S}"
+  {u \<in> dom R \<times> rng S | \<exists>z.codomst u, z\<rangle> \<in> R \<and> \<langle>z, snd u\<rangle> \<in> S}"
 
 bundle isa_set_rel_comp_syntax begin notation rel_comp (infixr "\<circ>\<^sub>r" 60) end
 bundle no_isa_set_rel_comp_syntax begin no_notation rel_comp (infixr "\<circ>\<^sub>r" 60) end
@@ -247,10 +247,10 @@ lemma rel_comp_type [type]:
 
 lemma rel_comp_Relation_if_Bin_Rel [derive]:
   assumes "S : Bin_Rel" "R : Bin_Rel"
-  and "dom S : Subset (rng R)"
-  shows "S \<circ>\<^sub>r R : Relation (dom R) (rng S)"
+  and "dom S : Subset (codom R)"
+  shows "S \<circ>\<^sub>r R : Relation (dom R) (rng S)"codom
 proof -
-  have "S : Relation (rng R) (rng S)"
+  have "S : Relation (codom R) (codom S)"
     by (rule Relation_covariant_dom[OF Relation_if_Bin_Rel]) discharge_types
   then show ?thesis by (auto dest: Relation_if_Bin_Rel)
 qed

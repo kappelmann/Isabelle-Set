@@ -8,26 +8,26 @@ theory Foundation
     Union_Intersection
 begin
 
-lemma foundation_if_ne_empty: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. Y \<inter> X = {}"
+lemma bex_disjoint_if_ne_empty: "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. disjoint Y X"
   using Axioms.mem_induction[where ?P="\<lambda>x. x \<notin> X"] by blast
 
-lemma foundation_if_ne_empty': "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)"
+lemma bex_disjoint_if_ne_empty': "X \<noteq> {} \<Longrightarrow> \<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)"
 proof -
   assume "X \<noteq> {}"
-  with foundation_if_ne_empty obtain Y where "Y \<in> X" and "Y \<inter> X = {}" by auto
-  thus "\<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)" by auto
+  with bex_disjoint_if_ne_empty obtain Y where "Y \<in> X" "disjoint Y X" by auto
+  thus "\<exists>Y \<in> X. \<not>(\<exists>y \<in> Y. y \<in> X)" by blast
 qed
 
-lemma empty_or_foundation: "X = {} \<or> (\<exists>Y \<in> X. \<forall>y \<in> Y. y \<notin> X)"
-  using foundation_if_ne_empty by auto
+lemma empty_or_bex_disjoint: "X = {} \<or> (\<exists>Y \<in> X. disjoint Y X)"
+  using bex_disjoint_if_ne_empty by auto
 
-lemma empty_mem_if_mem_trans_closed:
+lemma empty_mem_if_mem_trans_closedI:
   assumes "mem_trans_closed X"
   and "X \<noteq> {}"
   shows "{} \<in> X"
 proof (rule ccontr)
-  from foundation_if_ne_empty \<open>X \<noteq> {}\<close>
-    obtain A where "A \<in> X" and X_foundation: "\<forall>a \<in> A. a \<notin> X" by auto
+  from bex_disjoint_if_ne_empty \<open>X \<noteq> {}\<close> obtain A where "A \<in> X" and X_foundation: "\<forall>a \<in> A. a \<notin> X"
+    by auto
   assume "{} \<notin> X"
   with \<open>A \<in> X\<close> have "A \<noteq> {}" by auto
   then obtain a where "a \<in> A" by auto
@@ -41,7 +41,7 @@ lemma not_mem_if_mem:
 proof (rule ccontr)
   presume "b \<in> a"
   consider (empty) "{a, b} = {}" | (ne_empty) "\<exists>c \<in> {a, b}. \<forall>d \<in> c. d \<notin> {a, b}"
-    using empty_or_foundation[of "{a, b}"] by simp
+    using empty_or_bex_disjoint[of "{a, b}"] by simp
   with \<open>b \<in> a\<close> assms show "False" by cases auto
 qed auto
 
@@ -64,7 +64,7 @@ proof
   assume "c \<in> a"
   let ?X = "{a, b, c}"
   have "?X \<noteq> {}" by simp
-  from foundation_if_ne_empty[OF this] obtain Y where "Y \<in> ?X" "Y \<inter> ?X = {}"
+  from bex_disjoint_if_ne_empty[OF this] obtain Y where "Y \<in> ?X" "Y \<inter> ?X = {}"
     by blast
   from \<open>Y \<in> ?X\<close> have "Y = a \<or> Y = b \<or> Y = c" by auto
   with assms \<open>c \<in> a\<close> have "a \<in> Y \<or> b \<in> Y \<or> c \<in> Y" by blast

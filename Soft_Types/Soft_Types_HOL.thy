@@ -3,7 +3,7 @@
 section \<open>Soft types for HOL\<close>
 theory Soft_Types_HOL
   imports
-    HOL.HOL
+    Transport.HOL_Syntax_Bundles_Base
     Implicit_Arguments
     "HOL-Eisbach.Eisbach"
   keywords
@@ -15,31 +15,7 @@ begin
 text \<open>This theory introduces a generic notion of soft types based on HOL
 predicates. It contains the basic definitions and technical tool setup.\<close>
 
-text \<open>Remove conflicting HOL-specific syntax.\<close>
-
-bundle HOL_ascii_syntax
-begin
-notation (ASCII)
-  Not ("~ _" [40] 40) and
-  conj (infixr "&" 35) and
-  disj (infixr "|" 30) and
-  implies (infixr "-->" 25) and
-  not_equal (infixl "~=" 50)
-syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
-end
-bundle no_HOL_ascii_syntax
-begin
-no_notation (ASCII)
-  Not ("~ _" [40] 40) and
-  conj (infixr "&" 35) and
-  disj (infixr "|" 30) and
-  implies (infixr "-->" 25) and
-  not_equal (infixl "~=" 50)
-no_syntax "_Let" :: "[letbinds, 'a] \<Rightarrow> 'a" ("(let (_)/ in (_))" 10)
-end
-
 unbundle no_HOL_ascii_syntax
-
 
 subsection \<open>Basic type judgments\<close>
 
