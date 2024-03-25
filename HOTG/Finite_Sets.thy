@@ -15,6 +15,7 @@ begin
 no_syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
 end
 unbundle hotg_finite_sets_syntax
+unbundle no_HOL_ascii_syntax
 
 translations
   "{x, xs}" \<rightleftharpoons> "CONST insert x {xs}"
@@ -56,19 +57,14 @@ lemma upair_eq_singleton_iff [iff]: "{a, b} = {c} \<longleftrightarrow> a = c \<
 lemma singleton_eq_upair_iff [iff]: "{a} = {b, c} \<longleftrightarrow> b = a \<and> c = a"
   using upair_eq_singleton_iff by (auto dest: sym[of "{a}"])
 
-text \<open>@{term "upair x y"} and @{term "{x, y}"} are equal, and thus
-interchangeable in developments.\<close>
+text \<open>@{term "upair x y"} and @{term "{x, y}"} are equal and thus interchangeable in developments.\<close>
 lemma upair_eq_insert_singleton [simp]: "upair x y = {x, y}"
   unfolding upair_def by (rule eqI) auto
 
 
 subsection \<open>Replacement\<close>
 
-lemma repl_singleton_eq [simp]: "{f x | x \<in> {a}} = {f a}"
-  by auto
-
-lemma repl_insert_eq: "{f x | x \<in> insert x A} = insert (f x) {f x | x \<in> A}"
-  by auto
+lemma repl_singleton_eq [simp]: "{f x | x \<in> {a}} = {f a}" by auto
 
 
 end

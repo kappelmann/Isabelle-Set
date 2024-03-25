@@ -8,28 +8,36 @@ theory TBinary_Relations
 begin
 
 overloading
-  eq_restrict_set \<equiv> "eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool"
-  eq_restrict_type \<equiv> "eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool"
+  rel_restrict_left_set \<equiv> "restrict_left :: (set \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> set \<Rightarrow> 'b \<Rightarrow> bool"
+  rel_restrict_left_type \<equiv> "restrict_left :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'a type \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool"
+  rel_restrict_right_set \<equiv> "restrict_right :: ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> 'a \<Rightarrow> set \<Rightarrow> bool"
+  rel_restrict_right_type \<equiv> "restrict_right :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> 'b type \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool"
 begin
-  definition "eq_restrict_set (A :: set) \<equiv> ((=\<^bsub>mem_of A\<^esub>) :: set \<Rightarrow> _)"
-  definition "eq_restrict_type (T :: 'a type) \<equiv> ((=\<^bsub>type_pred T\<^esub>) :: 'a \<Rightarrow> _)"
+  definition "rel_restrict_left_set (R :: set \<Rightarrow> 'b \<Rightarrow> bool) (S :: set) \<equiv>
+    restrict_left R (mem_of S)"
+  definition "rel_restrict_left_type (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'a type) \<equiv>
+    restrict_left R (type_pred T)"
+  definition "rel_restrict_right_set (R :: 'a \<Rightarrow> set \<Rightarrow> bool) (S :: set) \<equiv>
+    restrict_right R (mem_of S)"
+  definition "rel_restrict_right_type (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'b type) \<equiv>
+    restrict_right R (type_pred T)"
 end
 
-lemma eq_restrict_set_eq_eq_restrict_pred [simp]:
-  "(eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) A = (=\<^bsub>mem_of A\<^esub>)"
-  unfolding eq_restrict_set_def by simp
+lemma rel_restrict_left_set_eq_restrict_left [simp]:
+  "restrict_left (R :: set \<Rightarrow> 'b \<Rightarrow> bool) (S :: set) = restrict_left R (mem_of S)"
+  unfolding rel_restrict_left_set_def by simp
 
-lemma eq_restrict_set_iff_eq_restrict_pred [iff]:
-  "(eq_restrict :: set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) A x y \<longleftrightarrow> x =\<^bsub>mem_of A\<^esub> y"
-  by simp
+lemma rel_restrict_left_type_eq_restrict_left [simp]:
+  "restrict_left (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'a type) = restrict_left R (type_pred T)"
+  unfolding rel_restrict_left_type_def by simp
 
-lemma eq_restrict_type_eq_eq_restrict_pred [simp]:
-  "(eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool) T = (=\<^bsub>type_pred T\<^esub>)"
-  unfolding eq_restrict_type_def by simp
+lemma rel_restrict_right_type_eq_restrict_right [simp]:
+  "restrict_right (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'b type) = restrict_right R (type_pred T)"
+  unfolding rel_restrict_right_type_def by simp
 
-lemma eq_restrict_type_iff_eq_restrict_pred [iff]:
-  "(eq_restrict :: 'a type \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> bool) T x y \<longleftrightarrow> x =\<^bsub>type_pred T\<^esub> y"
-  by simp
+lemma rel_restrict_right_set_eq_restrict_right [simp]:
+  "restrict_right (R :: 'a \<Rightarrow> set \<Rightarrow> bool) (S :: set) = restrict_right R (mem_of S)"
+  unfolding rel_restrict_right_set_def by simp
 
 
 end

@@ -238,8 +238,8 @@ lemma Dep_FunctionI:
   shows "f : (x \<in> A) \<rightarrow> B x"
 proof -
   {
-    have f_subset: "f \<subseteq> (dom f) \<times> (rng f)"
-      by (rule Bin_Rel_subset_pairs_dom_rng) discharge_types
+    have f_subset: "f \<subseteq> (dom f) \<times> (rng f)"codom
+      by (rule Bin_Rel_subset_pairs_dom_codom) discharge_types
     fix p assume "p \<in> f"
     with f_subset obtain x y where "x \<in> A" and [simp]: "p = \<langle>x, y\<rangle>" by auto
     with \<open>p \<in> f\<close> have "f`x = y" by auto

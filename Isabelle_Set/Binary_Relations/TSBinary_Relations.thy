@@ -37,7 +37,7 @@ lemma Dep_Bin_Rel_covariant_dom:
   unfolding Dep_Bin_Rel_def
   by (elim Collection_covariant) (blast intro: Dep_Pair_covariant_fst)
 
-lemma Dep_Bin_Rel_covariant_rng:
+lemma Dep_Bin_Rel_covariant_codom:
   assumes "R : Dep_Bin_Rel A B"
   and "\<And>x y. x : A \<Longrightarrow> y : B x \<Longrightarrow> \<langle>x, y\<rangle> \<in> R \<Longrightarrow> y : B' x"
   shows "R : Dep_Bin_Rel A B'"
@@ -102,47 +102,52 @@ lemma glue_type [type]: "glue : Collection (Dep_Bin_Rel A B) \<Rightarrow> Dep_B
   by unfold_types auto
 
 overloading
-  set_restrict_left_type \<equiv> "set_restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
+  set_restrict_left_type \<equiv> "restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
+  set_restrict_right_type \<equiv> "restrict_right :: set \<Rightarrow> set type \<Rightarrow> set"
 begin
-  definition "set_restrict_left_type R (T :: set type) \<equiv>
-    set_restrict_left R (type_pred T)"
+  definition "set_restrict_left_type (R :: set) (T :: set type) \<equiv> restrict_left R (type_pred T)"
+  definition "set_restrict_right_type (R :: set) (T :: set type) \<equiv> restrict_right R (type_pred T)"
 end
 
 lemma set_restrict_left_type_eq_set_restrict_left [simp]:
-  "set_restrict_left R (T :: set type) = set_restrict_left R (type_pred T)"
+  "restrict_left (R :: set) (T :: set type) = restrict_left R (type_pred T)"
   unfolding set_restrict_left_type_def by simp
 
-lemma set_restrict_left_set_eq_set_restrict_left_type [simp]:
-  "set_restrict_left R S = set_restrict_left R (Element S)"
-  by (auto iff: mem_iff_Element)
-
 lemma set_restrict_left_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow>
-    Dep_Bin_Rel (A & type P) B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow> Dep_Bin_Rel (A & type P) B"
   by unfold_types force
 
 lemma set_restrict_left_set_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow>
-    Dep_Bin_Rel (A & Element A') B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow> Dep_Bin_Rel (A & Element A') B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
 lemma set_restrict_left_type_type [type]:
-  "set_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
+  "restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
   (*TODO: should be proved with lemma above*)
   by unfold_types force
 
-lemma agree_type_iff_agree [iff]:
-  "agree (T :: set type) \<R> \<longleftrightarrow> agree (type_pred T) \<R>"
-  unfolding agree_def by simp
+overloading
+  agree_type_set \<equiv> "agree :: set type \<Rightarrow> set \<Rightarrow> bool"
+begin
+  definition "(agree_type_set (T :: set type) :: set \<Rightarrow> _) \<equiv> agree (type_pred T)"
+end
+
+lemma agree_type_set_eq_agree_set [simp]:
+  "(agree (T :: set type) :: set \<Rightarrow> _) = agree (type_pred T)"
+  unfolding agree_type_set_def by simp
+
+lemma agree_type_set_iff_agree_set [iff]:
+  "agree (T :: set type) (\<R> :: set) \<longleftrightarrow> agree (type_pred T) \<R>"
+  by simp
 
 lemma dom_type [type]: "dom : Dep_Bin_Rel A B \<Rightarrow> Collection A"
   by (auto intro: CollectionI)
 
-lemma rng_type: "rng : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>y. \<exists>x : A. y : B x))"
+lemma codom_type: "codom : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>y. \<exists>x : A. y : B x))"
   by (auto intro!: CollectionI elim!: Dep_Bin_Rel_memE simp: meaning_of_type)
 
-lemma rng_type' [type]: "rng : Bin_Rel A B \<Rightarrow> Collection B"
+lemma codom_type' [type]: "codom : Bin_Rel A B \<Rightarrow> Collection B"
   by (auto intro: CollectionI)
 
 lemma set_rel_inv_type:
@@ -169,8 +174,8 @@ lemma Dep_Bin_Rel_set_rel_inv_set_rel_inv_eq_self [simp]:
 lemma diag_type [type]: "diag : (A : Set) \<Rightarrow> Bin_Rel (Element A) (Element A)"
   by (auto intro: Dep_Bin_RelI)
 
-lemma set_comp_type [type]:
-  "set_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
+lemma set_rel_comp_type [type]:
+  "set_rel_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
   by unfold_types auto
 
 

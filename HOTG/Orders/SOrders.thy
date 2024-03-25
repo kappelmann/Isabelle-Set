@@ -8,20 +8,44 @@ theory SOrders
     SBinary_Relations_Transitive
 begin
 
-definition "partial_order D R \<equiv>
-  reflexive D R \<and> transitive D R \<and> antisymmetric D R"
+definition "linear_order D R \<equiv> connected D R \<and> partial_order_on D R"
 
-definition "linear_order D R \<equiv> connected D R \<and> partial_order D R"
+lemma linear_orderI [intro]:
+  assumes "connected D R"
+  and "partial_order_on D R"
+  shows "linear_order D R"
+  using assms unfolding linear_order_def by auto
 
-definition "well_founded D R \<equiv>
-  \<forall>X. X \<subseteq> D \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<forall>x \<in> X. \<langle>x, a\<rangle> \<in> R \<longrightarrow> x = a)"
+lemma linear_orderE [elim]:
+  assumes "linear_order D R"
+  obtains "connected D R" "partial_order_on D R"
+  using assms unfolding linear_order_def by auto
 
-lemma well_foundedI:
-  assumes "\<And>X. \<lbrakk>X \<subseteq> D; X \<noteq> {}\<rbrakk> \<Longrightarrow> \<exists>a \<in> X. \<forall>x \<in> X. \<langle>x, a\<rangle> \<in> R \<longrightarrow> x = a"
+definition "well_founded D R \<equiv> \<forall>X. X \<subseteq> D \<and> X \<noteq> {} \<longrightarrow> (\<exists>a \<in> X. \<forall>x \<in> X. \<langle>x, a\<rangle> \<in> R \<longrightarrow> x = a)"
+
+lemma well_foundedI [intro]:
+  assumes "\<And>X. X \<subseteq> D \<Longrightarrow> X \<noteq> {} \<Longrightarrow> \<exists>a \<in> X. \<forall>x \<in> X. \<langle>x, a\<rangle> \<in> R \<longrightarrow> x = a"
   shows "well_founded D R"
   using assms unfolding well_founded_def by auto
 
+lemma well_foundedE [elim]:
+  assumes "well_founded D R"
+  and "X \<subseteq> D"
+  and "X \<noteq> {}"
+  obtains a where "a \<in> X" "\<And>x. x \<in> X \<Longrightarrow> \<langle>x, a\<rangle> \<in> R \<Longrightarrow> x = a"
+  using assms unfolding well_founded_def by (blast elim!: ballE)
+
 definition "well_order D R \<equiv> linear_order D R \<and> well_founded D R"
 
+lemma well_orderI [intro]:
+  assumes "linear_order D R"
+  and "well_founded D R"
+  shows "well_order D R"
+  using assms unfolding well_order_def by auto
+
+lemma well_orderE [elim]:
+  assumes "well_order D R"
+  obtains "linear_order D R" "well_founded D R"
+  using assms unfolding well_order_def by auto
 
 end

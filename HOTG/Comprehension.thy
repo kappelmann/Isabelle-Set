@@ -5,8 +5,9 @@ section \<open>Restricted Comprehension\<close>
 theory Comprehension
   imports
     Finite_Sets
-    Order_Set
 begin
+
+unbundle no_HOL_ascii_syntax
 
 definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
@@ -48,11 +49,7 @@ lemma collect_insert_eq:
   "{x \<in> insert a B | P x} = (if P a then insert a {x \<in> B | P x} else {x \<in> B | P x})"
   by auto
 
-lemma mono_collect_set: "mono (\<lambda>A. {x \<in> A | P x})"
-  by (intro monoI) auto
-
-lemma mono_collect_pred: "mono (\<lambda>P. {x \<in> A | P x})"
-  by (intro monoI) auto
-
+lemma mono_subset_le_collect_set: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<le>) \<Rrightarrow> (\<subseteq>)) collect"
+  by (intro dep_mono_wrt_relI) auto
 
 end

@@ -5,33 +5,37 @@ higher-order Tarski-Grothendieck set theory. On top of this, it adds an optional
 
 chapter Set
 
-session HOTG = "HOL" +
+session HOTG = Transport +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
-    [timeout = 60]
-  sessions
-    Transport
+    [timeout = 60,quick_and_dirty]
   directories
+    Arithmetics
     Binary_Relations
     "Binary_Relations/Properties"
+    Cardinals
     Functions
+    "Functions/Properties"
+    Mem_Transitive_Closed
     Orders
+    Ordinals
   theories
     SBinary_Relations
     SFunctions
     SOrders
     Axioms
-    Basic
+    Basics
     Bounded_Quantifiers
+    Cardinals
     Comprehension
     Coproduct
     Empty_Set
     Equality
     Finite_Sets
     Foundation
-    Mem_Trans
-    Order_Set
+    Mem_Transitive_Closed
+    SMultiplication
     Pairs
     Powerset
     Replacement
@@ -43,3 +47,4 @@ session HOTG = "HOL" +
     Unordered_Pairs
   document_files
     "root.bib"
+    "root.tex"

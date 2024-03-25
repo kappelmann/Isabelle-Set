@@ -3,57 +3,53 @@ subsection \<open>Surjective\<close>
 theory SBinary_Relations_Surjective
   imports
     SBinary_Relation_Functions
+    Transport.Binary_Relations_Surjective
 begin
-
-consts set_surjective_at :: "'a \<Rightarrow> set \<Rightarrow> bool"
 
 overloading
-  set_surjective_at_pred \<equiv> "set_surjective_at :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  set_surjective_at_set \<equiv> "set_surjective_at :: set \<Rightarrow> set \<Rightarrow> bool"
+  rel_surjective_at_set \<equiv> "rel_surjective_at :: set \<Rightarrow> ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool"
+  set_rel_surjective_at_pred \<equiv> "rel_surjective_at :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  set_rel_surjective_at_set \<equiv> "rel_surjective_at :: set \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "set_surjective_at_pred P R \<equiv> \<forall>y. P y \<longrightarrow> y \<in> rng R"
-  definition "set_surjective_at_set B R \<equiv> set_surjective_at (mem_of B) R"
+  definition "rel_surjective_at_set (A :: set) (R :: 'a \<Rightarrow> set \<Rightarrow> bool) \<equiv>
+    rel_surjective_at (mem_of A) R"
+  definition "set_rel_surjective_at_pred (P :: set \<Rightarrow> bool) (R :: set) \<equiv> rel_surjective_at P (rel R)"
+  definition "set_rel_surjective_at_set (A :: set) (R :: set) \<equiv> rel_surjective_at (mem_of A) R"
 end
 
-lemma set_surjective_at_set_iff_set_surjective_at [iff]:
-  "set_surjective_at B R \<longleftrightarrow> set_surjective_at (mem_of B) R"
-  unfolding set_surjective_at_set_def by simp
+lemma rel_surjective_at_set_eq_rel_surjective_at_pred [simp]:
+  "(rel_surjective_at (S :: set) :: ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool) = rel_surjective_at (mem_of S)"
+  unfolding rel_surjective_at_set_def by simp
 
-lemma set_surjective_atI [intro]:
-  assumes "\<And>y. P y \<Longrightarrow> y \<in> rng R"
-  shows "set_surjective_at P R"
-  unfolding set_surjective_at_pred_def using assms by blast
+lemma rel_surjective_at_set_eq_rel_surjective_at_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_surjective_at (S :: set) :: ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> rel_surjective_at P"
+  using assms by simp
 
-lemma set_surjective_atE [elim]:
-  assumes "set_surjective_at P R"
-  and "P y"
-  obtains x where "\<langle>x, y\<rangle> \<in> R"
-  using assms unfolding set_surjective_at_pred_def by blast
+lemma rel_surjective_at_set_iff_rel_surjective_at_pred [iff]:
+  "rel_surjective_at (S :: set) (R :: set \<Rightarrow> set \<Rightarrow> bool) \<longleftrightarrow> rel_surjective_at (mem_of S) R"
+  by simp
 
-lemma antimono_set_surjective_at_pred:
-  "antimono (\<lambda>P. set_surjective_at (P :: set \<Rightarrow> bool) R)"
-  by (intro antimonoI) fastforce
+lemma set_rel_surjective_at_pred_iff_rel_surjective_at_pred [iff]:
+  "rel_surjective_at (P :: set \<Rightarrow> bool) R \<longleftrightarrow> rel_surjective_at P (rel R)"
+  unfolding set_rel_surjective_at_pred_def by simp
 
-lemma mono_set_surjective_at_set:
-  "mono (\<lambda>R. set_surjective_at (P :: set \<Rightarrow> bool) R)"
-  by (intro monoI) fastforce
+lemma set_rel_surjective_at_pred_iff_rel_surjective_at_pred_uhint [uhint]:
+  assumes "R \<equiv> rel S"
+  shows "rel_surjective_at (P :: set \<Rightarrow> bool) S \<equiv> rel_surjective_at P R"
+  using assms by simp
 
-lemma subset_rng_if_set_surjective_at [simp]:
-  "set_surjective_at B R \<Longrightarrow> B \<subseteq> rng R"
-  by auto
+lemma set_rel_surjective_at_set_eq_set_rel_surjective_at_pred [simp]:
+  "(rel_surjective_at (S :: set) :: set \<Rightarrow> bool) = rel_surjective_at (mem_of S)"
+  unfolding set_rel_surjective_at_set_def by simp
 
-lemma set_surjective_at_compI:
-  fixes P :: "set \<Rightarrow> bool"
-  assumes surj_R: "set_surjective_at (dom S) R"
-  and surj_S: "set_surjective_at P S"
-  shows "set_surjective_at P (S \<circ> R)"
-proof
-  fix y assume "P y"
-  then obtain x where "\<langle>x, y\<rangle> \<in> S" using surj_S by auto
-  moreover then have "x \<in> dom S" by auto
-  moreover then obtain z where "\<langle>z, x\<rangle> \<in> R" using surj_R by auto
-  ultimately show "y \<in> rng (S \<circ> R)" by blast
-qed
+lemma set_rel_surjective_at_set_eq_set_rel_surjective_at_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_surjective_at (S :: set) :: set \<Rightarrow> bool \<equiv> rel_surjective_at P"
+  using assms by simp
 
+lemma set_rel_surjective_at_set_iff_set_rel_surjective_at_pred [iff]:
+  "rel_surjective_at (S :: set) (R :: set) \<longleftrightarrow> rel_surjective_at (mem_of S) R"
+  by simp
 
 end

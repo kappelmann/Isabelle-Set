@@ -6,6 +6,7 @@ theory Replacement
   imports
     Bounded_Quantifiers
     Equality
+    Transport.Functions_Injective
 begin
 
 bundle hotg_repl_syntax
@@ -13,8 +14,7 @@ begin
 syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 bundle no_hotg_repl_syntax
-begin
-no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
+begin no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
 unbundle hotg_repl_syntax
 
@@ -24,11 +24,6 @@ translations
 lemma app_mem_repl_if_mem [intro]: "a \<in> A \<Longrightarrow> f a \<in> {f x | x \<in> A}"
   by auto
 
-(*LP: Useful for coinduction proofs*)
-lemma mem_repl_if_mem_if_eq_app [elim]: "\<lbrakk>b = f a; a \<in> A\<rbrakk> \<Longrightarrow> b \<in> {f x | x \<in> A}"
-  by auto
-
-(*The converse of the above*)
 lemma bex_eq_app_if_mem_repl: "b \<in> {f x | x \<in> A} \<Longrightarrow> \<exists>a \<in> A. b = f a"
   by auto
 
@@ -51,7 +46,7 @@ lemma repl_eq_empty [simp]: "{f x | x \<in> {}} = {}"
   by (rule eq_if_subset_if_subset) auto
 
 lemma repl_eq_empty_iff [iff]: "{f x | x \<in> A} = {} \<longleftrightarrow> A = {}"
-  by (auto dest: eqD intro!: eqI')
+  by auto
 
 lemma repl_subset_repl_if_subset_dom [intro!]:
   "A \<subseteq> B \<Longrightarrow> {g y | y \<in> A} \<subseteq> {g y | y \<in> B}"
@@ -63,8 +58,33 @@ lemma ball_repl_iff_ball [iff]: "(\<forall>x \<in> {f x | x \<in> A}. P x) \<lon
 lemma bex_repl_iff_bex [iff]: "(\<exists>x \<in> {f x | x \<in> A}. P x) \<longleftrightarrow> (\<exists>x \<in> A. P (f x))"
   by auto
 
-lemma mono_repl_set: "mono (\<lambda>A. {f x | x \<in> A})"
-  by (intro monoI) auto
+lemma mono_subset_subset_repl: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>A. {f x | x \<in> A})"
+  by auto
+
+
+subsection \<open>Image\<close>
+
+definition "image f A \<equiv> {f x | x \<in> A}"
+
+lemma image_eq_repl [simp]: "image f A = repl A f"
+  unfolding image_def by simp
+
+lemma injective_image_if_injective:
+  assumes "injective f"
+  shows "injective (image f)"
+  by (intro injectiveI eqI) (use assms in \<open>auto dest: injectiveD\<close>)
+
+lemma injective_if_injective_image:
+  assumes "injective (image f)"
+  shows "injective f"
+proof (rule injectiveI)
+  fix X Y assume "f X = f Y"
+  then have "image f {X | _ \<in> powerset {}} = image f {Y | _ \<in> powerset {}}" by simp
+  with assms show "X = Y" by (blast dest: injectiveD)
+qed
+
+corollary injective_image_iff_injective [iff]: "injective (image f) \<longleftrightarrow> injective f"
+  using injective_image_if_injective injective_if_injective_image by blast
 
 
 end

@@ -27,6 +27,7 @@ definition "insert x A \<equiv> \<Union>(upair A (upair x x))"
 
 lemma mem_insert_leftI [intro]: "x \<in> insert x A"
   unfolding insert_def by auto
+
 lemma mem_insert_rightI [intro]: "y \<in> A \<Longrightarrow> y \<in> insert x A"
   unfolding insert_def by auto
 
@@ -63,14 +64,13 @@ lemma ball_insert_iff_and_ball [iff]:
   "(\<forall>x \<in> insert a A. P x) \<longleftrightarrow> (P a \<and> (\<forall>x \<in> A. P x))"
   by auto
 
-lemma mono_insert_set: "mono (insert x)"
-  by (intro monoI) auto
-
-
-subsection \<open>Subsets\<close>
+lemma mono_subset_subset_insert: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (insert x)"
+  by auto
 
 lemma insert_subset_iff_mem_subset [iff]: "insert x A \<subseteq> B \<longleftrightarrow> x \<in> B \<and> A \<subseteq> B"
   by blast
 
+lemma repl_insert_eq: "{f x | x \<in> insert x A} = insert (f x) {f x | x \<in> A}"
+  by auto
 
 end

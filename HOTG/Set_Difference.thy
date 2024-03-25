@@ -21,13 +21,13 @@ lemma not_mem_if_mem_diff: "a \<in> A \<setminus> B \<Longrightarrow> a \<notin>
 
 lemma diff_subset [iff]: "A \<setminus> B \<subseteq> A" by blast
 
-lemma subset_diff_if_inter_eq_empty_if_subset:
-  "C \<subseteq> A \<Longrightarrow> C \<inter> B = {} \<Longrightarrow> C \<subseteq> A \<setminus> B"
+lemma subset_diff_if_disjoint_if_subset:
+  "C \<subseteq> A \<Longrightarrow> disjoint C B \<Longrightarrow> C \<subseteq> A \<setminus> B"
   by blast
 
 lemma diff_self_eq [simp]: "A \<setminus> A = {}" by blast
 
-lemma diff_eq_left_if_inter_eq_empty: "A \<inter> B = {} \<Longrightarrow> A \<setminus> B = A" by auto
+lemma diff_eq_left_if_disjoint: "disjoint A B \<Longrightarrow> A \<setminus> B = A" by auto
 
 lemma empty_diff_eq [simp]: "{} \<setminus> A = {}" by blast
 
@@ -91,13 +91,10 @@ lemma diff_idx_inter_eq_idx_inter:
   shows "B \<setminus> (\<Inter>i\<in> I. A i) = (\<Union>i\<in> I. B \<setminus> A i)"
   using assms by (intro eq_if_subset_if_subset) auto
 
-lemma collect_diff: "{x \<in> (A \<setminus> B) | P x} = {x \<in> A | P x} \<setminus> {x \<in> B | P x}"
+lemma collect_diff_eq_diff_collect: "{x \<in> (A \<setminus> B) | P x} = {x \<in> A | P x} \<setminus> {x \<in> B | P x}"
   by (rule eq_if_subset_if_subset) auto
 
-lemma mono_diff_left: "mono (\<lambda>A. A \<setminus> B)"
-  by (intro monoI) auto
-
-lemma antimono_diff_right: "antimono (\<lambda>B. A \<setminus> B)"
-  by (intro antimonoI) auto
+lemma mono_subset_diff: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<supseteq>) \<Rrightarrow> (\<subseteq>)) (\<setminus>)"
+  by auto
 
 end

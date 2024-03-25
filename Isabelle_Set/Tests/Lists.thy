@@ -45,7 +45,7 @@ lemma list_op_Monop [type]: "list_op : (A : Set) \<Rightarrow> Monop (univ A)"
   apply (intro Dep_fun_typeI)
   apply unfold_types
   apply (drule subset_if_mem_powerset)
-  apply (drule monoD[OF mono_pairs_rng, simplified le_set_eq_subset])
+  apply (drule monoD[OF mono_pairs_codom, simplified le_set_eq_subset])
   apply (drule subsetD)
     apply assumption
   apply (tactic \<open>rotate_tac 2 1\<close>)
@@ -59,7 +59,7 @@ lemmas list_fold =
     folded list_def, unfolded fixpoint_def]
 
 lemma nil_type [type]: "nil : Element (list A)"
-  by (subst list_fold[symmetric]) (unfold_types, unfold list_op_def, simp)
+  by (subst list_fold[symmetric]) (unfold_types, unfold list_op_def, auto)
 
 lemma cons_type [type]: "cons : Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
   by (subst (2) list_fold[symmetric]) (unfold_types, unfold list_op_def, auto)

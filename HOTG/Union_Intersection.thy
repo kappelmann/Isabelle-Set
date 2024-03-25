@@ -21,9 +21,9 @@ lemma mem_inter_iff [iff]: "A \<in> \<Inter>C \<longleftrightarrow> C \<noteq> {
   hold when B \<in> C does not! This rule is analogous to "spec".*)
 lemma interD [dest]: "\<lbrakk>A \<in> \<Inter>C; B \<in> C\<rbrakk> \<Longrightarrow> A \<in> B" by auto
 
-lemma union_empty_eq [iff]: "\<Union>{} = {}" by auto
+lemma union_empty_eq [simp]: "\<Union>{} = {}" by auto
 
-lemma inter_empty_eq [iff]: "\<Inter>{} = {}" by auto
+lemma inter_empty_eq [simp]: "\<Inter>{} = {}" by auto
 
 lemma union_eq_empty_iff: "\<Union>A = {} \<longleftrightarrow> A = {} \<or> A = {{}}"
 proof
@@ -61,8 +61,7 @@ lemma subset_inter_if_all_mem_subset_if_ne_empty:
   "\<lbrakk>A \<noteq> {}; \<And>x. x \<in> A \<Longrightarrow> C \<subseteq> x\<rbrakk> \<Longrightarrow> C \<subseteq> \<Inter>A"
   using subset_inter_iff_all_mem_subset_if_ne_empty by auto
 
-lemma mono_union: "mono union"
-  by (intro monoI) auto
+lemma mono_subset_subset_union: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) union" by auto
 
 lemma antimono_inter: "A \<noteq> {} \<Longrightarrow> A \<subseteq> A' \<Longrightarrow> \<Inter>A' \<subseteq> \<Inter>A"
   by auto
@@ -156,10 +155,16 @@ lemma idx_union_const [simp]: "(\<Union>y \<in> A. c) = (if A = {} then {} else 
 lemma idx_inter_const [simp]: "(\<Inter>y \<in> A. c) = (if A = {} then {} else c)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_union_repl [simp]: "(\<Union>y \<in> {f x | x \<in> A}. B y) = (\<Union>x \<in> A. B (f x))"
+lemma idx_union_repl_eq_idx_union [simp]: "(\<Union>y \<in> {f x | x \<in> A}. B y) = (\<Union>x \<in> A. B (f x))"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_inter_repl [simp]: "(\<Inter>x \<in> {f x | x \<in> A}. B x) = (\<Inter>a \<in> A. B(f a))"
+lemma idx_inter_repl_eq_idx_inter [simp]: "(\<Inter>x \<in> {f x | x \<in> A}. B x) = (\<Inter>a \<in> A. B (f a))"
+  by auto
+
+lemma idx_union_repl_eq_repl_union: "(\<Union>Y \<in> X. {f x | x \<in> Y}) = {f x | x \<in> \<Union>X}"
+  by auto
+
+lemma repl_inter_subset_idx_inter_repl: "{f x | x \<in> \<Inter>X} \<subseteq> (\<Inter>Y \<in> X. {f x | x \<in> Y})"
   by auto
 
 lemma idx_inter_union_eq_idx_inter_idx_inter:
@@ -217,6 +222,17 @@ lemma mem_bin_inter_iff [iff]: "x \<in> A \<inter> B \<longleftrightarrow> x \<i
   unfolding bin_inter_def by auto
 
 
+definition "disjoint A B \<equiv> A \<inter> B = {}"
+
+lemma disjoint_iff_all_not_mem [iff]: "disjoint A B \<longleftrightarrow> (\<forall>a \<in> A. a \<notin> B)"
+  unfolding disjoint_def by auto
+
+lemma disjoint_iff_bin_inter_eq_empty: "disjoint A B \<longleftrightarrow> A \<inter> B = {}"
+  by auto
+
+lemma disjoint_union_iff: "disjoint (\<Union>C) A \<longleftrightarrow> (\<forall>B \<in> C. disjoint B A)"
+  by blast
+
 paragraph\<open>Binary Union\<close>
 
 lemma mem_bin_union_if_mem_left [elim?]: "c \<in> A \<Longrightarrow> c \<in> A \<union> B"
@@ -250,19 +266,19 @@ lemma bin_union_comm_left: "A \<union> (B \<union> C) = B \<union> (A \<union> C
 
 lemmas bin_union_AC_rules = bin_union_comm bin_union_assoc bin_union_comm_left
 
-lemma empty_bin_union_eq [iff]: "{} \<union> A = A"
+lemma empty_bin_union_eq [simp]: "{} \<union> A = A"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_empty_eq [iff]: "A \<union> {} = A"
+lemma bin_union_empty_eq [simp]: "A \<union> {} = A"
   by (rule eq_if_subset_if_subset) auto
 
 lemma singleton_bin_union_absorb [simp]: "a \<in> A \<Longrightarrow> {a} \<union> A = A"
   by auto
 
-lemma singleton_bin_union_eq_insert: "{x} \<union> A = insert x A"
+lemma singleton_bin_union_eq_insert[simp]: "{x} \<union> A = insert x A"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_singleton_eq_insert: "A \<union> {x} = insert x A"
+lemma bin_union_singleton_eq_insert[simp]: "A \<union> {x} = insert x A"
   using singleton_bin_union_eq_insert by (subst bin_union_comm)
 
 lemma mem_singleton_bin_union [iff]: "a \<in> {a} \<union> B" by auto
@@ -307,11 +323,14 @@ lemma bin_union_subset_bin_union_if_subset': "A \<subseteq> B \<Longrightarrow> 
 lemma bin_union_eq_empty_iff [iff]: "(A \<union> B = {}) \<longleftrightarrow> (A = {} \<and> B = {})"
   by auto
 
-lemma mono_bin_union_left: "mono (\<lambda>A. A \<union> B)"
-  by (intro monoI) auto
+lemma mono_subset_bin_union: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<union>)"
+  by auto
 
-lemma mono_bin_union_right: "mono (\<lambda>B. A \<union> B)"
-  by (intro monoI) auto
+lemma union_insert_eq_bin_union_union [simp]: "\<Union>(insert X Y) = X \<union> \<Union>Y" by auto
+
+lemma mem_of_bin_union_eq_mem_of_sup_mem_of [set_to_HOL_simp]:
+  "mem_of (A \<union> B) = mem_of A \<squnion> mem_of B"
+  by auto
 
 
 paragraph \<open>Binary Intersection\<close>
@@ -330,9 +349,6 @@ lemma mem_bin_interE [elim!]:
   obtains "c \<in> A" and "c \<in> B"
   using assms by simp
 
-lemma bin_inter_empty_iff [iff]: "A \<inter> B = {} \<longleftrightarrow> (\<forall>a \<in> A. a \<notin> B)"
-  by auto
-
 lemma bin_inter_comm: "A \<inter> B = B \<inter> A"
   by auto
 
@@ -344,10 +360,10 @@ lemma bin_inter_comm_left: "A \<inter> (B \<inter> C) = B \<inter> (A \<inter> C
 
 lemmas bin_inter_AC_rules = bin_inter_comm bin_inter_assoc bin_inter_comm_left
 
-lemma empty_bin_inter_eq_empty [iff]: "{} \<inter> B = {}"
+lemma empty_bin_inter_eq_empty [simp]: "{} \<inter> B = {}"
   by auto
 
-lemma bin_inter_empty_eq_empty [iff]: "A \<inter> {} = {}"
+lemma bin_inter_empty_eq_empty [simp]: "A \<inter> {} = {}"
   by auto
 
 lemma bin_inter_subset_iff [iff]: "C \<subseteq> A \<inter> B \<longleftrightarrow> C \<subseteq> A \<and> C \<subseteq> B"
@@ -362,10 +378,10 @@ lemma bin_inter_subset_right [iff]: "A \<inter> B \<subseteq> B"
 lemma subset_bin_inter_if_subset_if_subset: "\<lbrakk>C \<subseteq> A; C \<subseteq> B\<rbrakk> \<Longrightarrow> C \<subseteq> A \<inter> B"
   by blast
 
-lemma bin_inter_self_eq_self [iff]: "A \<inter> A = A"
+lemma bin_inter_self_eq_self [simp]: "A \<inter> A = A"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_inter_absorb [iff]: "A \<inter> (A \<inter> B) = A \<inter> B"
+lemma bin_inter_absorb [simp]: "A \<inter> (A \<inter> B) = A \<inter> B"
   by (rule eq_if_subset_if_subset) auto
 
 lemma bin_inter_eq_right_if_subset: "B \<subseteq> A \<Longrightarrow> A \<inter> B = B"
@@ -400,14 +416,17 @@ lemma bin_inter_bin_union_swap3:
  "(A \<inter> B) \<union> (B \<inter> C) \<union> (C \<inter> A) = (A \<union> B) \<inter> (B \<union> C) \<inter> (C \<union> A)"
   by auto
 
-lemma mono_bin_inter_left: "mono (\<lambda>A. A \<inter> B)"
-  by (intro monoI) auto
+lemma mono_subset_bin_inter: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<inter>)"
+  by auto
 
-lemma mono_bin_inter_right: "mono (\<lambda>B. A \<inter> B)"
-  by (intro monoI) auto
+lemma inter_insert_eq_bin_inter_inter [simp]: "Y \<noteq> {} \<Longrightarrow> \<Inter>(insert X Y) = X \<inter> \<Inter>Y" by auto
+
+lemma mem_of_bin_inter_eq_mem_of_inf_mem_of [set_to_HOL_simp]:
+  "mem_of (A \<inter> B) = mem_of A \<sqinter> mem_of B"
+  by auto
 
 
-paragraph\<open>Comprehension\<close>
+paragraph \<open>Comprehension\<close>
 
 lemma collect_eq_bin_inter [simp]: "{a \<in> A | a \<in> A'} = A \<inter> A'" by auto
 
@@ -419,7 +438,7 @@ lemma collect_bin_inter_eq:
   "{x \<in> A \<inter> B | P x} = {x \<in> A | P x} \<inter> {x \<in> B | P x}"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_inter_collect_absorb [iff]:
+lemma bin_inter_collect_absorb [simp]:
   "A \<inter> {x \<in> A | P x} = {x \<in> A | P x}"
   by (rule eq_if_subset_if_subset) auto
 
@@ -443,13 +462,11 @@ lemma collect_or_eq_union_collect:
   "{x \<in> A | P x \<or> Q x} = {x \<in> A | P x} \<union> {x \<in> A | Q x}"
   by (rule eq_if_subset_if_subset) auto
 
+
 lemma union_bin_union_eq_bin_union_union: "\<Union>(A \<union> B) = \<Union>A \<union> \<Union>B"
   by (rule eq_if_subset_if_subset) auto
 
 lemma union_bin_inter_subset_bin_inter_union: "\<Union>(A \<inter> B) \<subseteq> \<Union>A \<inter> \<Union>B"
-  by blast
-
-lemma union__disjoint_iff: "\<Union>C \<inter> A = {} \<longleftrightarrow> (\<forall>B \<in> C. B \<inter> A = {})"
   by blast
 
 lemma subset_idx_union_iff_eq:
@@ -476,6 +493,14 @@ lemma inter_bin_union_eq_bin_inter_inter:
   "\<lbrakk>A \<noteq> {}; B \<noteq> {}\<rbrakk> \<Longrightarrow> \<Inter>(A \<union> B) = \<Inter>A \<inter> \<Inter>B"
   by (rule eq_if_subset_if_subset) auto
 
+lemma idx_union_insert_dom_eq_bin_union_idx_union: "(\<Union>i \<in> insert A B. C i) = C A \<union> (\<Union>i \<in> B. C i)"
+  by auto
+
+lemma idx_inter_insert_dom_eq_bin_inter_idx_inter:
+  assumes "B \<noteq> {}"
+  shows "(\<Inter>i \<in> insert A B. C i) = C A \<inter> (\<Inter>i \<in> B. C i)"
+  using assms by auto
+
 lemma idx_union_bin_union_dom_eq_bin_union_idx_union:
   "(\<Union>i \<in> A \<union> B. C i) = (\<Union>i \<in> A. C i) \<union> (\<Union>i \<in> B. C i)"
   by (rule eq_if_subset_if_subset) auto
@@ -489,34 +514,37 @@ lemma idx_inter_bin_inter_dom_eq_bin_inter_idx_inter:
   by (rule eq_if_subset_if_subset) auto
 
 (*Halmos, Naive Set Theory, page 35*)
-lemma bin_inter_idx_union_eq_union_bin_inter:
-  "B \<inter> (\<Union>i \<in> I. A i) = (\<Union>i \<in> I. B \<inter> A i)"
+lemma idx_union_bin_inter_eq_bin_inter_idx_union [simp]:
+  "(\<Union>i \<in> I. A \<inter> B i) = A \<inter> (\<Union>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_idx_inter_eq_inter_bin_union:
-  "I \<noteq> {} \<Longrightarrow> B \<union> (\<Inter>i \<in> I. A i) = (\<Inter>i \<in> I. B \<union> A i)"
+lemma idx_inter_bin_union_eq_bin_union_idx_inter [simp]:
+  "I \<noteq> {} \<Longrightarrow> (\<Inter>i \<in> I. A \<union> B i) = A \<union> (\<Inter>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_inter_idx_union_eq_idx_union_bin_inter:
-  "(\<Union>i \<in> I. A i) \<inter> (\<Union>j \<in> J. B j) = (\<Union>i \<in> I. \<Union>j \<in> J. A i \<inter> B j)"
+lemma idx_union_idx_union_bin_inter_eq_bin_inter_idx_union [simp]:
+  "(\<Union>i \<in> I. \<Union>j \<in> J. A i \<inter> B j) = (\<Union>i \<in> I. A i) \<inter> (\<Union>j \<in> J. B j)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma bin_union_idx_inter_eq_idx_inter_bin_union:
+lemma idx_inter_idx_inter_bin_union_eq_bin_union_idx_inter [simp]:
   "\<lbrakk>I \<noteq> {}; J \<noteq> {}\<rbrakk> \<Longrightarrow>
-    (\<Inter>i \<in> I. A i) \<union> (\<Inter>j \<in> J. B j) = (\<Inter>i \<in> I. \<Inter>j \<in> J. A i \<union> B j)"
+    (\<Inter>i \<in> I. \<Inter>j \<in> J. A i \<union> B j) = (\<Inter>i \<in> I. A i) \<union> (\<Inter>j \<in> J. B j)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_union_bin_union_eq_bin_union_idx_union:
+lemma idx_union_bin_union_eq_bin_union_idx_union [simp]:
   "(\<Union>i \<in> I. A i \<union> B i) = (\<Union>i \<in> I. A i) \<union> (\<Union>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
-lemma idx_inter_bin_inter_eq_bin_inter_idx_inter:
+lemma idx_inter_bin_inter_eq_bin_inter_idx_inter [simp]:
   "I \<noteq> {} \<Longrightarrow> (\<Inter>i \<in> I. A i \<inter> B i) = (\<Inter>i \<in> I. A i) \<inter> (\<Inter>i \<in> I. B i)"
   by (rule eq_if_subset_if_subset) auto
 
 lemma idx_union_bin_inter_subset_bin_inter_idx_union:
   "(\<Union>z \<in> I \<inter> J. A z) \<subseteq> (\<Union>z \<in> I. A z) \<inter> (\<Union>z \<in> J. A z)"
   by blast
+
+lemma idx_union_union_eq_idx_union_idx_union [simp]: "(\<Union>x \<in> \<Union>X. f x) = (\<Union>x \<in> X. \<Union>y \<in> x. f y)"
+  by auto
 
 
 end

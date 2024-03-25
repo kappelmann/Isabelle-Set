@@ -14,5 +14,4 @@ theory SBinary_Relation_Properties
     SBinary_Relations_Transitive
 begin
 
-
 end

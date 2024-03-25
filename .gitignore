@@ -20,5 +20,6 @@
 *.cut
 *.code-workspace
 \#*.thy\#
+*.DS_Store
 
 .history/

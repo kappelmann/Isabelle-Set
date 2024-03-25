@@ -105,7 +105,7 @@ lemma Nat_zero_lt_succ [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
   by (rule empty_mem_succ_if_mem_omega) discharge_types
 
 lemma Nat_lt_trans [trans]: "\<lbrakk>n : Nat; l < m; m < n\<rbrakk> \<Longrightarrow> l < n"
-  unfolding lt_def nat_def by (rule mem_trans_if_mem_omega') discharge_types
+  unfolding lt_def nat_def by (rule mem_trans_if_mem_omega) discharge_types
 
 lemma Nat_lt_if_succ_lt: "n : Nat \<Longrightarrow> succ m < n \<Longrightarrow> m < n"
   unfolding lt_def nat_def

@@ -5,18 +5,17 @@ theory TSFunctions_Composition
 begin
 
 unbundle no_comp_syntax
-unbundle no_restrict_syntax
 
 lemma Dep_Function_comp_set_right_unique_on:
   assumes f_type: "f : (x : B) \<rightarrow>s (C x)"
   and g_type: "g : A \<rightarrow>s B"
   shows "set_right_unique_on A (f \<circ> g)"
 proof -
-  have "set_right_unique_on (rng g\<restriction>\<^bsub>A\<^esub> \<inter> dom f) f"
+  have "set_right_unique_on (codom g\<restriction>\<^bsub>A\<^esub> \<inter> dom f) f"
   proof -
     from f_type have "set_right_unique_on (type_pred B) f"
       by (auto dest: Dep_Function_set_right_unique_on)
-    then have "set_right_unique_on (mem_of (rng g\<restriction>\<^bsub>A\<^esub> \<inter> dom f)) f"
+    then have "set_right_unique_on (mem_of (codom g\<restriction>\<^bsub>A\<^esub> \<inter> dom f)) f"
       using antimonoD[OF antimono_set_right_unique_on_pred]
       by (rule le_boolD'')
       (insert g_type, auto intro!: le_predI elim!: mem_set_restrict_leftE)
@@ -36,7 +35,7 @@ proof (rule eval_eqI)
   from assms show "\<langle>x, f`(g`x)\<rangle> \<in> f \<circ> g" by auto
 qed (insert Dep_Function_comp_set_right_unique_on[OF f_type g_type], auto)
 
-lemma set_comp_type_Dep_Function [type]:
+lemma set_rel_comp_type_Dep_Function [type]:
   "(\<circ>) : ((x : B) \<rightarrow>s C x) \<Rightarrow> (g : A \<rightarrow>s B) \<Rightarrow> (x : A) \<rightarrow>s C (g`x)"
 proof (intro Dep_fun_typeI Dep_FunctionI)
   fix f g assume "f : (x : B) \<rightarrow>s C x" "g : A \<rightarrow>s B"

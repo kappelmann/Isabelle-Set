@@ -2,51 +2,104 @@
 subsection \<open>Injective\<close>
 theory SBinary_Relations_Injective
   imports
-    Transport.Functions_Monotone
     SBinary_Relation_Functions
+    Transport.Binary_Relations_Injective
 begin
 
-consts set_injective_on :: "'a \<Rightarrow> set \<Rightarrow> bool"
+term "rel_injective_on True False"
 
 overloading
-  set_injective_on_pred \<equiv> "set_injective_on :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
-  set_injective_on_set \<equiv> "set_injective_on :: set \<Rightarrow> set \<Rightarrow> bool"
+  rel_injective_on_set \<equiv> "rel_injective_on :: set \<Rightarrow> (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
+  set_rel_injective_on_pred \<equiv> "rel_injective_on :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  set_rel_injective_on_set \<equiv> "rel_injective_on :: set \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "set_injective_on_pred P R \<equiv>
-    \<forall>x x' y. P x \<and> P x' \<and> \<langle>x, y\<rangle> \<in> R \<and> \<langle>x', y\<rangle> \<in> R \<longrightarrow> x = x'"
-  definition "set_injective_on_set B R \<equiv> set_injective_on (mem_of B) R"
+  definition "rel_injective_on_set (A :: set) (R :: set \<Rightarrow> 'a \<Rightarrow> bool) \<equiv>
+    rel_injective_on (mem_of A) R"
+  definition "set_rel_injective_on_pred (P :: set \<Rightarrow> bool) (R :: set) \<equiv> rel_injective_on P (rel R)"
+  definition "set_rel_injective_on_set (A :: set) (R :: set) \<equiv> rel_injective_on (mem_of A) R"
 end
 
-lemma set_injective_on_set_iff_set_injective_on [iff]:
-  "set_injective_on B R \<longleftrightarrow> set_injective_on (mem_of B) R"
-  unfolding set_injective_on_set_def by simp
+lemma rel_injective_on_set_eq_rel_injective_on_pred [simp]:
+  "(rel_injective_on (S :: set) :: (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool) = rel_injective_on (mem_of S)"
+  unfolding rel_injective_on_set_def by simp
 
-lemma set_injective_onI [intro]:
-  assumes "\<And>x x' y. P x \<Longrightarrow> P x' \<Longrightarrow> \<langle>x, y\<rangle> \<in> R \<Longrightarrow> \<langle>x', y\<rangle> \<in> R \<Longrightarrow> x = x'"
-  shows "set_injective_on P R"
-  using assms unfolding set_injective_on_pred_def by blast
+lemma rel_injective_on_set_eq_rel_injective_on_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_injective_on (S :: set) :: (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool \<equiv> rel_injective_on P"
+  using assms by simp
 
-lemma set_injective_onD:
-  assumes "set_injective_on P R"
-  and "P x" "P x'"
-  and "\<langle>x, y\<rangle> \<in> R" "\<langle>x', y\<rangle> \<in> R"
-  shows "x = x'"
-  using assms unfolding set_injective_on_pred_def by blast
+lemma rel_injective_on_set_iff_rel_injective_on_pred [iff]:
+  "rel_injective_on (S :: set) (R :: set \<Rightarrow> 'a \<Rightarrow> bool) \<longleftrightarrow> rel_injective_on (mem_of S) R"
+  by simp
 
-lemma antimono_set_injective_on_pred:
-  "antimono (\<lambda>P. set_injective_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimonoI) (auto dest: set_injective_onD)
+lemma set_rel_injective_on_pred_iff_rel_injective_on_pred [iff]:
+  "rel_injective_on (P :: set \<Rightarrow> bool) R \<longleftrightarrow> rel_injective_on P (rel R)"
+  unfolding set_rel_injective_on_pred_def by simp
 
-lemma antimono_set_injective_on_set:
-  "antimono (\<lambda>R. set_injective_on (P :: set \<Rightarrow> bool) R)"
-  by (intro antimonoI) (auto dest: set_injective_onD)
+lemma set_rel_injective_on_pred_iff_rel_injective_on_pred_uhint [uhint]:
+  assumes "R \<equiv> rel S"
+  shows "rel_injective_on (P :: set \<Rightarrow> bool) S \<equiv> rel_injective_on P R"
+  using assms by simp
 
-lemma set_injective_on_compI:
-  fixes P :: "set \<Rightarrow> bool"
-  assumes "set_injective_on (dom R) R"
-  and "set_injective_on (rng R \<inter> dom S) S"
-  shows "set_injective_on P (S \<circ> R)"
-  using assms by (auto dest: set_injective_onD)
+lemma set_rel_injective_on_set_eq_set_rel_injective_on_pred [simp]:
+  "(rel_injective_on (S :: set) :: set \<Rightarrow> bool) = rel_injective_on (mem_of S)"
+  unfolding set_rel_injective_on_set_def by simp
+
+lemma set_rel_injective_on_set_eq_set_rel_injective_on_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_injective_on (S :: set) :: set \<Rightarrow> bool \<equiv> rel_injective_on P"
+  using assms by simp
+
+lemma set_rel_injective_on_set_iff_set_rel_injective_on_pred [iff]:
+  "rel_injective_on (S :: set) (R :: set) \<longleftrightarrow> rel_injective_on (mem_of S) R"
+  by simp
+
+
+overloading
+  rel_injective_at_set \<equiv> "rel_injective_at :: set \<Rightarrow> ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool"
+  set_rel_injective_at_pred \<equiv> "rel_injective_at :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  set_rel_injective_at_set \<equiv> "rel_injective_at :: set \<Rightarrow> set \<Rightarrow> bool"
+begin
+  definition "rel_injective_at_set (A :: set) (R :: 'a \<Rightarrow> set \<Rightarrow> bool) \<equiv>
+    rel_injective_at (mem_of A) R"
+  definition "set_rel_injective_at_pred (P :: set \<Rightarrow> bool) (R :: set) \<equiv> rel_injective_at P (rel R)"
+  definition "set_rel_injective_at_set (A :: set) (R :: set) \<equiv> rel_injective_at (mem_of A) R"
+end
+
+lemma rel_injective_at_set_eq_rel_injective_at_pred [simp]:
+  "(rel_injective_at (S :: set) :: ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool) = rel_injective_at (mem_of S)"
+  unfolding rel_injective_at_set_def by simp
+
+lemma rel_injective_at_set_eq_rel_injective_at_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_injective_at (S :: set) :: ('a \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> rel_injective_at P"
+  using assms by simp
+
+lemma rel_injective_at_set_iff_rel_injective_at_pred [iff]:
+  "rel_injective_at (S :: set) (R :: 'a \<Rightarrow> set \<Rightarrow> bool) \<longleftrightarrow> rel_injective_at (mem_of S) R"
+  by simp
+
+lemma set_rel_injective_at_pred_iff_rel_injective_at_pred [iff]:
+  "rel_injective_at (P :: set \<Rightarrow> bool) R \<longleftrightarrow> rel_injective_at P (rel R)"
+  unfolding set_rel_injective_at_pred_def by simp
+
+lemma set_rel_injective_at_pred_iff_rel_injective_at_pred_uhint [uhint]:
+  assumes "R \<equiv> rel S"
+  shows "rel_injective_at (P :: set \<Rightarrow> bool) S \<equiv> rel_injective_at P R"
+  using assms by simp
+
+lemma set_rel_injective_at_set_eq_set_rel_injective_at_pred [simp]:
+  "(rel_injective_at (S :: set) :: set \<Rightarrow> bool) = rel_injective_at (mem_of S)"
+  unfolding set_rel_injective_at_set_def by simp
+
+lemma set_rel_injective_at_set_eq_set_rel_injective_at_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of S"
+  shows "rel_injective_at (S :: set) :: set \<Rightarrow> bool \<equiv> rel_injective_at P"
+  using assms by simp
+
+lemma set_rel_injective_at_set_iff_set_rel_injective_at_pred [iff]:
+  "rel_injective_at (S :: set) (R :: set) \<longleftrightarrow> rel_injective_at (mem_of S) R"
+  by simp
 
 
 end

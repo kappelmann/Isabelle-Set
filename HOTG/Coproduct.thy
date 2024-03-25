@@ -1,9 +1,11 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Coproduct (\<Coprod>-types)\<close>
+section \<open>Coproduct (\<open>\<Coprod>\<close>-types)\<close>
 text \<open>Aka binary disjoint union.\<close>
 theory Coproduct
   imports Pairs
 begin
+
+unbundle no_HOL_ascii_syntax
 
 definition "inl a = \<langle>{}, a\<rangle>"
 definition "inr b = \<langle>{{}}, b\<rangle>"
@@ -38,16 +40,11 @@ lemma inr_mem_coprod_iff [iff]: "inr b \<in> A \<Coprod> B \<longleftrightarrow>
 
 definition "coprod_rec l r x = (if fst x = {} then l (snd x) else r (snd x))"
 
-lemma
+lemma coprod_rec_eq:
   shows coprod_rec_inl_eq [simp]: "coprod_rec l r (inl a) = l a"
   and coprod_rec_inr_eq [simp]: "coprod_rec l r (inr b) = r b"
   unfolding coprod_rec_def inl_def inr_def by auto
 
-lemma mono_coprod_left: "mono (\<lambda>A. A \<Coprod> B)"
-  by (intro monoI) auto
-
-lemma mono_coprod_right: "mono (\<lambda>B. A \<Coprod> B)"
-  by (intro monoI) auto
-
+lemma mono_subset_coprod: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<Coprod>)" by blast
 
 end

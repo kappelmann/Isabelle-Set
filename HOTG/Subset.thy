@@ -1,16 +1,29 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Subset\<close>
 theory Subset
-  imports Basic
+  imports
+    Basics
+    Transport.Partial_Orders
 begin
+
+abbreviation (input) "supset A B \<equiv> B \<subseteq> A"
+bundle hotg_supset_syntax begin notation supset (infix "\<supseteq>" 50) end
+bundle no_hotg_supset_syntax begin no_notation supset (infix "\<supseteq>" 50) end
+unbundle hotg_supset_syntax
 
 lemma subsetI [intro!]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   unfolding subset_def by simp
 
-lemma subsetD [dest, trans]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
+lemma subsetD [dest]: "\<lbrakk>A \<subseteq> B; a \<in> A\<rbrakk> \<Longrightarrow> a \<in> B"
   unfolding subset_def by blast
 
+corollary mono_subset_le_mem_of: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<le>)) mem_of" by auto
+
+lemma mem_if_subset_if_mem [trans]: "\<lbrakk>a \<in> A; A \<subseteq> B\<rbrakk> \<Longrightarrow> a \<in> B" by blast
+
 lemma subset_self [iff]: "A \<subseteq> A" by blast
+
+corollary reflexive_subset: "reflexive (\<subseteq>)" by auto
 
 lemma empty_subset [iff]: "{} \<subseteq> A" by blast
 
@@ -26,6 +39,19 @@ lemma subsetCE [elim]:
   assumes "A \<subseteq> B"
   obtains "a \<notin> A" | "a \<in> B"
   using assms by auto
+
+lemma transitive_subset: "transitive (\<subseteq>)" by blast
+
+corollary preorder_subset: "preorder (\<subseteq>)"
+  using reflexive_subset transitive_subset by blast
+
+lemma antisymmetric_subset: "antisymmetric (\<subseteq>)" by blast
+
+corollary partial_order_subset: "partial_order (\<subseteq>)"
+  using preorder_subset antisymmetric_subset by blast
+
+lemma subset_iff_mem_of_le_mem_of [set_to_HOL_simp]: "A \<subseteq> B \<longleftrightarrow> mem_of A \<le> mem_of B"
+  by auto
 
 subsection \<open>Strict Subsets\<close>
 
@@ -46,6 +72,22 @@ lemma ssubsetE [elim]:
   obtains "A \<subseteq> B" "A \<noteq> B"
   using assms unfolding ssubset_def by blast
 
+lemma ssubset_iff_subset_and_ne: "X \<subset> Y \<longleftrightarrow> X \<subseteq> Y \<and> X \<noteq> Y" by auto
 
+lemma subset_if_eq: "X = Y \<Longrightarrow> X \<subseteq> Y" by simp
+
+lemma not_ssubset_iff_not_subset_or_eq: "\<not>(X \<subset> Y) \<longleftrightarrow> \<not>(X \<subseteq> Y) \<or> X = Y" by blast
+
+local_setup \<open>
+  HOL_Order_Tac.declare_order {
+    ops = {eq = @{term \<open>(=) :: set \<Rightarrow> set \<Rightarrow> bool\<close>}, le = @{term \<open>(\<subseteq>)\<close>}, lt = @{term \<open>(\<subset>)\<close>}},
+    thms = {trans = @{thm subset_if_subset_if_subset}, refl = @{thm subset_self},
+      eqD1 = @{thm subset_if_eq},
+      eqD2 = @{thm subset_if_eq[OF sym]}, antisym = @{thm antisymmetricD[OF antisymmetric_subset]},
+      contr = @{thm notE}},
+    conv_thms = {less_le = @{thm eq_reflection[OF ssubset_iff_subset_and_ne]},
+      nless_le = @{thm eq_reflection[OF not_ssubset_iff_not_subset_or_eq]}}
+  }
+\<close>
 
 end
