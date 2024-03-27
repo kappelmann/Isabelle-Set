@@ -9,7 +9,7 @@ session HOTG = Transport +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
-    [timeout = 60,quick_and_dirty]
+    [timeout = 60,quick_and_dirty,threads=1]
   directories
     Arithmetics
     Binary_Relations
