@@ -4,6 +4,8 @@ imports
   Integers_Rep_Succ_Pred_Inv
 begin
 
+unbundle no_hotg_add_syntax
+
 definition "Int_Rep_add x y \<equiv> Int_Rep_rec
   (\<lambda>m. nat_rec m y Int_Rep_succ)
   (\<lambda>m. nat_rec m y Int_Rep_pred)
@@ -84,8 +86,7 @@ next
       finally show ?thesis .
     next
       case True
-      with neg succ have "Int_Rep_add (Int_Rep_succ x) y = y"
-        using nat_one_def by simp
+      with neg succ have "Int_Rep_add (Int_Rep_succ x) y = y" by simp
       moreover from neg succ True have "... = Int_Rep_succ (Int_Rep_add x y)"
         by (simp add: Int_Rep_neg_succ_add_eq)
       ultimately show ?thesis by (simp add: Int_Rep_neg_succ_add_eq)

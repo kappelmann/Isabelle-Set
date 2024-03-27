@@ -70,7 +70,7 @@ proof -
     proof -
       from succ.prems have "n < l" using Nat_lt_if_succ_le by auto
       then have "n - n < l - n" by (subst succ.IH) auto
-      then show ?thesis using Nat_zero_lt_iff_ne_zero by simp
+      then show ?thesis by simp
     qed
     moreover have "l - n < m - n"
     proof (rule succ.IH)
@@ -167,7 +167,7 @@ proof -
     proof (subst Nat_add_pred_eq)
       from \<open>succ n \<le> m\<close> have "n < m" using Nat_lt_if_succ_le by simp
       then have "n - n < m - n" by (intro Nat_sub_lt_sub_if_le_if_lt) auto
-      then show "m - n \<noteq> 0" using Nat_zero_lt_iff_ne_zero by simp
+      then show "m - n \<noteq> 0" by simp
     qed auto
     also have "... = l + (m - succ n)" using Nat_sub_succ_eq by simp
     finally show ?case .

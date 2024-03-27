@@ -63,7 +63,7 @@ proof (intro Dep_fun_typeI)+
       by (rule Dep_fun_contravariant_dom[where ?A="Element [1,\<dots>,succ n]"])
         (unfold_types, auto simp: range_incl_excl_def intro: lt_succ_if_lt)
     have "succ n : Element [1,\<dots>,succ n]"
-      unfolding nat_one_def by unfold_types auto
+      by unfold_types auto
     from succ.prems show ?case by auto
   qed simp
 qed

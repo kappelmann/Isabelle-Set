@@ -3,8 +3,13 @@
 section \<open>Generalised Addition\<close>
 theory SAddition
   imports
-    Ordinals_Order
+    SLess_Than
+    Ordinals_Base
 begin
+
+unbundle
+  no_HOL_groups_syntax
+  no_HOL_order_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_set_arithemtics\<close> and
@@ -59,7 +64,7 @@ lemma add_zero_eq_self [simp]: "X + 0 = X"
   unfolding add_eq_bin_union_lift by simp
 
 lemma lift_one_eq_singleton_self [simp]: "lift X 1 = {X}"
-  unfolding lift_eq_image_add by simp
+  unfolding lift_eq_image_add succ_eq_insert_self by simp
 
 text \<open>The successor operation aligns with addition.\<close>
 
@@ -124,7 +129,7 @@ lemma lift_lift_eq_lift_add: "lift X (lift Y Z) = lift (X + Y) Z"
   by (simp add: lift_eq_image_add add_assoc)
 
 lemma add_succ_eq_succ_add: "X + succ Y = succ (X + Y)"
-  by (auto simp: succ_eq_add_one add_assoc)
+  by (subst succ_eq_add_one, subst add_assoc[symmetric]) (simp flip: succ_eq_add_one)
 
 lemma add_mem_lift_if_mem_right:
   assumes "X \<in> Y"
@@ -310,13 +315,44 @@ corollary lt_addE:
 corollary lt_add_iff_lt_or_lt_eq: "X < Y + Z \<longleftrightarrow> X < Y \<or> (\<exists>z. z < Z \<and> X = Y + z)"
   by (blast intro: lt_add_if_lt_left add_lt_add_if_lt_right elim: lt_addE)
 
-lemma lt_add_self_if_ne_zero [simp]:
+lemma not_lt_zero [iff]: "\<not>(X < 0)"
+  unfolding lt_iff_mem_trans_closure by auto
+
+lemma not_succ_le_zero [iff]: "\<not>(succ n \<le> 0)"
+  by (auto elim: leE)
+
+lemma zero_lt_if_ne_zero [iff]:
+  assumes "X \<noteq> 0"
+  shows "0 < X"
+  using assms mem_trans_closed_mem_trans_closure
+  by (intro lt_if_mem_trans_closure empty_mem_if_mem_trans_closedI) auto
+
+lemma zero_le [iff]: "0 \<le> X" by (subst le_iff_lt_or_eq) auto
+
+lemma le_zero_iff_eq_zero [simp]: "n \<le> 0 \<longleftrightarrow> n = 0"
+  using le_iff_lt_or_eq by auto
+
+lemma lt_self_add_if_ne_zero [simp]:
   assumes "Y \<noteq> 0"
   shows "X < X + Y"
   using assms by (intro lt_add_if_eq_add_if_lt) auto
 
 corollary le_self_add [iff]: "X \<le> X + Y"
   using le_iff_lt_or_eq by (cases "Y = 0") auto
+
+lemma lt_succ_self [iff]: "X < succ X"
+  by (subst succ_eq_add_one) simp
+
+lemma lt_succ_if_lt: "X < Y \<Longrightarrow> X < succ Y"
+  by (subst succ_eq_add_one) (rule lt_add_if_lt_left)
+
+lemma le_succ_if_le:
+  assumes "X \<le> Y"
+  shows "X \<le> succ Y"
+  using assms by (rule le_trans) (auto intro: lt_succ_self simp: le_iff_lt_or_eq)
+
+lemma lt_if_add_lt: "X + Y < Z \<Longrightarrow> X < Z"
+  by (rule lt_if_lt_if_le) auto
 
 
 end

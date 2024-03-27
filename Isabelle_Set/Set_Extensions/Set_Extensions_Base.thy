@@ -5,7 +5,8 @@ theory Set_Extensions_Base
   imports
     HOTG.Set_Difference
     Sets
-    TFunctions
+    TSFunctions_Inverse
+    TSFunctions_Injective
 begin
 
 text \<open>This theory defines a definitional principle for set extensions.
@@ -117,8 +118,8 @@ lemma right_type [type]: "r : Element Abs \<Rightarrow> Element Rep"
   by unfold_types (auto elim: mem_AbsE)
 
 lemma inverse_on_Abs_right_left: "inverse_on Abs r l"
-proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
-  fix y assume "y \<in> Abs"
+proof (urule inverse_onI)
+  fix y presume "y \<in> Abs"
   show "l (r y) = y"
   proof (cases "y \<in> Core")
     case False
@@ -129,11 +130,11 @@ proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
     also from y_eq have "... = y" ..
     finally show "l (r y) = y" .
   qed simp
-qed
+qed simp
 
 lemma inverse_on_Rep_left_right: "inverse_on Rep l r"
-proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
-  fix x assume "x \<in> Rep"
+proof (urule inverse_onI)
+  fix x presume "x \<in> Rep"
   show "r (l x) = x"
   proof (cases "\<exists>c \<in> Core. x = embed c")
     case False
@@ -141,7 +142,7 @@ proof (subst inverse_on_set_iff_inverse_on_pred, rule inverse_onI)
     also have "... = x" by simp
     finally show "r (l x) = x" .
   qed auto
-qed
+qed simp
 
 end
 

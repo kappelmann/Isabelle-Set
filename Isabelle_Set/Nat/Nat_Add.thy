@@ -3,6 +3,8 @@ theory Nat_Add
   imports Nat_Rec
 begin
 
+unbundle no_hotg_add_syntax
+
 definition "nat_add m n \<equiv> nat_rec m n succ"
 
 lemma nat_add_type [type]: "nat_add : Nat \<Rightarrow> Nat \<Rightarrow> Nat"
@@ -43,10 +45,10 @@ lemma Nat_add_comm_left:
 lemmas Nat_add_AC_rules = Nat_add_comm Nat_add_assoc Nat_add_comm_left
 
 lemma Nat_one_add_eq_succ: "1 + n = succ n"
-  unfolding nat_one_def by (simp add: nat_add_def)
+  by (simp add: nat_add_def)
 
 lemma nat_add_one_eq_succ: "n : Nat \<Longrightarrow> n + 1 = succ n"
-  by (simp only: Nat_add_comm Nat_one_add_eq_succ)
+  by (simp only: Nat_add_comm[of n] Nat_one_add_eq_succ)
 
 lemma Nat_add_ne_zero_if_ne_zero_left:
   assumes "m : Nat"
@@ -83,13 +85,13 @@ lemma Nat_le_add [intro]: "m : Nat \<Longrightarrow> n : Nat \<Longrightarrow> m
   by (induction m rule: Nat_induct) auto
 
 lemma Nat_lt_add_if_ne_zero: "\<lbrakk>m : Nat; n : Nat; n \<noteq> 0\<rbrakk> \<Longrightarrow> m < m + n"
-  by (induction m rule: Nat_induct) (auto simp: Nat_zero_lt_iff_ne_zero)
+  by (induction m rule: Nat_induct) auto
 
 lemma Nat_lt_if_add_lt: "\<lbrakk>l : Nat; m : Nat; n: Nat; l + m < n\<rbrakk> \<Longrightarrow> l < n"
-  using Nat_lt_if_lt_if_le[OF _ Nat_le_add[of l m]] by auto
+  using lt_if_lt_if_le[OF Nat_le_add[of l m]] by auto
 
 lemma Nat_le_if_add_le: "\<lbrakk>l : Nat; m : Nat; n: Nat; l + m \<le> n\<rbrakk> \<Longrightarrow> l \<le> n"
-  using Nat_le_trans[OF _ Nat_le_add[of l m]] by auto
+  using le_trans[OF Nat_le_add[of l m]] by auto
 
 lemma Nat_lt_add_if_lt:
   assumes "m : Nat" "n : Nat"
@@ -98,7 +100,7 @@ lemma Nat_lt_add_if_lt:
 proof -
   note \<open>l < m\<close>
   moreover have "... \<le> m + n" by auto
-  ultimately show "l < m + n" using Nat_lt_if_le_if_lt by auto
+  ultimately show "l < m + n" using lt_if_le_if_lt by auto
 (*TODO: Transitivity rules have typing assumptions. Proof should more
   look like this:
   note \<open>l < m\<close>

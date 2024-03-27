@@ -11,10 +11,7 @@ imports
   Nat_Inequalities
 begin
 
-(*TODO: multiple notations are unbundled here; this is not optimal*)
-unbundle no_isa_set_add_implicit_syntax no_isa_set_mul_implicit_syntax
-  no_isa_set_zero_implicit_syntax no_isa_set_one_implicit_syntax
-
+unbundle no_HOL_groups_syntax
 
 subsubsection \<open>Algebraic Structures\<close>
 
@@ -30,7 +27,7 @@ unbundle isa_set_nat_Monoid_syntax
 (*TODO: The following should be automatically generated*)
 lemma nat_Monoid_simps [simp]:
   "(\<nat>, +) @@ zero = 0"
-  "(\<nat>, +) @@ add = \<lambda>x y \<in> \<nat>. nat_add x y"
+  "(\<nat>, +) @@ add = \<lambda>m n \<in> \<nat>. nat_add m n"
   unfolding nat_Monoid_def by simp_all
 
 lemma nat_Monoid: "(\<nat>, +) : Monoid Nat"
@@ -93,4 +90,3 @@ qed
 
 
 end
-

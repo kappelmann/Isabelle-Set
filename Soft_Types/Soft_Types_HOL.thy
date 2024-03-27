@@ -38,8 +38,6 @@ begin no_notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) a
 
 unbundle soft_type_base_syntax
 
-abbreviation (input) "type_pred T x \<equiv> x : T"
-
 lemma has_typeI: "P x \<Longrightarrow> x : type P"
   unfolding meaning_of_type by assumption
 
@@ -62,6 +60,11 @@ lemma
 lemma has_adjE:
   "\<lbrakk>x: P \<sqdot> T; \<lbrakk>P x; x : T\<rbrakk> \<Longrightarrow> Q\<rbrakk> \<Longrightarrow> Q"
   unfolding meaning_of_adj by auto
+
+definition "type_pred T x \<equiv> x : T"
+
+lemma type_pred_eq: "type_pred = (\<lambda>T x. x : T)" unfolding type_pred_def by simp
+lemma type_pred_iff [iff]: "type_pred T x \<longleftrightarrow> x : T" unfolding type_pred_def by simp
 
 
 subsection \<open>Type-Bounded quantifiers\<close>
@@ -113,28 +116,28 @@ simproc_setup defined_ball ("\<forall>x : A. P x \<longrightarrow> Q x") =
 lemma tballI [intro!]: "(\<And>x. x : A \<Longrightarrow> P x) \<Longrightarrow> \<forall>x : A. P x"
   unfolding tball_def by auto
 
-lemma tballE [elim!]:
+lemma tballE:
   assumes "\<forall>x : A. P x"
   obtains "\<And>x. x : A \<Longrightarrow> P x"
   using assms unfolding tball_def by auto
 
-lemma tballD [elim]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
+lemma tballD [dest]: "\<lbrakk>\<forall>x : A. P x; x : A\<rbrakk> \<Longrightarrow> P x"
   unfolding tball_def by auto
 
-lemma tball_iff_ex_has_type [simp]: "(\<forall>x : A. P) \<longleftrightarrow> ((\<exists>x. x : A) \<longrightarrow> P)"
+lemma tball_iff_ex_has_type [iff]: "(\<forall>x : A. P) \<longleftrightarrow> ((\<exists>x. x : A) \<longrightarrow> P)"
   by (simp add: tball_def)
 
 lemma tball_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x : A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<forall>x : A. P x) \<longleftrightarrow> (\<forall>x : A'. P' x)"
   by (simp add: tball_def)
 
-lemma tball_or_iff_tball_or [simp]: "(\<forall>x : A. P x \<or> Q) \<longleftrightarrow> ((\<forall>x : A. P x) \<or> Q)"
+lemma tball_or_iff_tball_or [iff]: "(\<forall>x : A. P x \<or> Q) \<longleftrightarrow> ((\<forall>x : A. P x) \<or> Q)"
   by auto
 
-lemma tball_or_iff_or_tball [simp]: "(\<forall>x : A. P \<or> Q x) \<longleftrightarrow> (P \<or> (\<forall>x : A. Q x))"
+lemma tball_or_iff_or_tball [iff]: "(\<forall>x : A. P \<or> Q x) \<longleftrightarrow> (P \<or> (\<forall>x : A. Q x))"
   by auto
 
-lemma tball_imp_iff_imp_tball [simp]: "(\<forall>x : A. P \<longrightarrow> Q x) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x : A. Q x))"
+lemma tball_imp_iff_imp_tball [iff]: "(\<forall>x : A. P \<longrightarrow> Q x) \<longleftrightarrow> (P \<longrightarrow> (\<forall>x : A. Q x))"
   by auto
 
 lemma atomize_tball: "(\<And>x. x : A \<Longrightarrow> P x) \<equiv> Trueprop (\<forall>x : A. P x)"
@@ -158,19 +161,19 @@ lemma tbex_cong [cong]:
   "\<lbrakk>A = A'; \<And>x. x : A' \<Longrightarrow> P x \<longleftrightarrow> P' x\<rbrakk> \<Longrightarrow> (\<exists>x : A. P x) \<longleftrightarrow> (\<exists>x : A'. P' x)"
   unfolding tbex_def by (simp cong: conj_cong)
 
-lemma tbex_and_iff_tbex_and [simp]: "(\<exists>x : A. P x \<and> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<and> Q)"
+lemma tbex_and_iff_tbex_and [iff]: "(\<exists>x : A. P x \<and> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<and> Q)"
   by auto
 
-lemma tbex_and_iff_or_tbex [simp]: "(\<exists>x : A. P \<and> Q x) \<longleftrightarrow> (P \<and> (\<exists>x : A. Q x))"
+lemma tbex_and_iff_or_tbex [iff]: "(\<exists>x : A. P \<and> Q x) \<longleftrightarrow> (P \<and> (\<exists>x : A. Q x))"
   by auto
 
-lemma tball_imp_iff_tbex_imp [simp]: "(\<forall>x : A. P x \<longrightarrow> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<longrightarrow> Q)"
+lemma tball_imp_iff_tbex_imp [iff]: "(\<forall>x : A. P x \<longrightarrow> Q) \<longleftrightarrow> ((\<exists>x : A. P x) \<longrightarrow> Q)"
   by auto
 
-lemma not_tball_iff_tbex_not [simp]: "(\<not>(\<forall>x : A. P x)) \<longleftrightarrow> (\<exists>x : A. \<not>P x)"
+lemma not_tball_iff_tbex_not [iff]: "(\<not>(\<forall>x : A. P x)) \<longleftrightarrow> (\<exists>x : A. \<not>P x)"
   by auto
 
-lemma not_tbex_iff_tball_not [simp]: "(\<not>(\<exists>x : A. P x)) \<longleftrightarrow> (\<forall>x : A. \<not>P x)"
+lemma not_tbex_iff_tball_not [iff]: "(\<not>(\<exists>x : A. P x)) \<longleftrightarrow> (\<forall>x : A. \<not>P x)"
   by auto
 
 
@@ -234,6 +237,12 @@ lemma Dep_fun_covariant_codom:
   and "\<And>x. x : A \<Longrightarrow> f x : B x \<Longrightarrow> f x : B' x"
   shows "f : (x : A) \<Rightarrow> B' x"
   using assms unfolding Dep_fun_type_def meaning_of_type by auto
+
+lemma Dep_fun_type_cong [cong]:
+  assumes "\<And>x. x : A \<longleftrightarrow> x : A'"
+  and "\<And>x y. x : A' \<Longrightarrow> y : B x \<longleftrightarrow> y : B' x"
+  shows "f : (x : A) \<Rightarrow> B x \<longleftrightarrow> f : (x : A') \<Rightarrow> B' x"
+  by unfold_types (use assms in auto)
 
 
 subsection \<open>Intersection and Union Types\<close>

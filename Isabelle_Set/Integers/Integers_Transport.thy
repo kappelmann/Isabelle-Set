@@ -73,7 +73,6 @@ trp_term int_zero' where x = Int_Rep_zero and L = Int.L and R = Int.R
 text \<open>Note the difference in definition between the blackbox and whitebox term\<close>
 print_statement int_zero_def int_zero'_def
 
-declare [[ML_map_context \<open>Logger.set_log_level Logger.root_logger 1000000\<close>]]
 trp_term lambdatest :: "'a \<Rightarrow> set" where x = "\<lambda>(_ :: 'a). Int_Rep_zero"
   !  (*invoking "!" opens the whitebox goal*)
   by trp_whitebox_prover

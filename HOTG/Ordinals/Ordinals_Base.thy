@@ -3,6 +3,7 @@
 section \<open>Ordinals\<close>
 theory Ordinals_Base
   imports
+    Foundation
     Mem_Transitive_Closed
     Transport.HOL_Syntax_Bundles_Groups
     ML_Unification.Unify_Resolve_Tactics
@@ -36,9 +37,16 @@ lemma ordinal_if_mem_trans_closedI:
   shows "ordinal X"
   using assms unfolding ordinal_def by auto
 
+definition "succ X \<equiv> insert X X"
+
+lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
+
+lemma succ_ne_self [iff]: "succ x \<noteq> x"
+  using succ_eq_insert_self by auto
+
 abbreviation "set_zero \<equiv> {}"
-abbreviation "set_one \<equiv> {set_zero}"
-abbreviation "set_two \<equiv> {set_zero, set_one}"
+abbreviation "set_one \<equiv> succ set_zero"
+abbreviation "set_two \<equiv> succ set_one"
 
 bundle hotg_set_zero_syntax begin notation set_zero ("0") end
 bundle no_hotg_set_zero_syntax begin no_notation set_zero ("0") end
@@ -60,19 +68,36 @@ context
   notes ordinal_mem_trans_closedE[elim!] ordinal_if_mem_trans_closedI[intro!]
 begin
 
-lemma ordinal_zero [iff]: "ordinal 0" by auto
-lemma ordinal_one [iff]: "ordinal 1" by auto
-lemma ordinal_two [iff]: "ordinal 2" by auto
-
-
-definition "succ X \<equiv> insert X X"
-
-lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
-
 lemma ordinal_succI [intro]:
   assumes "ordinal x"
   shows "ordinal (succ x)"
   using assms by (auto simp: succ_eq_insert_self)
+
+lemma ordinal_zero [iff]: "ordinal 0" by auto
+lemma ordinal_one [iff]: "ordinal 1" by (intro ordinal_succI) auto
+lemma ordinal_two [iff]: "ordinal 2" by (intro ordinal_succI) auto
+
+lemma succ_ne_zero [iff]: "succ x \<noteq> 0"
+  using succ_eq_insert_self by auto
+
+text \<open>Injectivity\<close>
+
+lemma mem_succE:
+  assumes "x \<in> succ y"
+  obtains "x \<in> y" | "x = y"
+  using assms succ_eq_insert_self by auto
+
+lemma succ_inj [dest]: "succ x = succ y \<Longrightarrow> x = y"
+proof (rule ccontr)
+  assume succ_eq: "succ x = succ y" and neq: "x \<noteq> y"
+  have "x \<in> succ x" and "y \<in> succ y" using succ_eq_insert_self by auto
+  then have "x \<in> succ y" and "y \<in> succ x" by (auto simp only: succ_eq)
+  with neq have "x \<in> y" and "y \<in> x" by (auto elim: mem_succE)
+  then show False using not_mem_if_mem by blast
+qed
+
+lemma succ_ne_if_ne [intro!]: "x \<noteq> y \<Longrightarrow> succ x \<noteq> succ y"
+  by auto
 
 lemma ordinal_unionI:
   assumes "\<And>x. x \<in> X \<Longrightarrow> ordinal x"
@@ -103,8 +128,11 @@ lemma mem_trans_if_ordinal: "\<lbrakk>ordinal X; Y \<in> Z; Z \<in> X\<rbrakk>  
 lemma ordinal_if_mem_if_ordinal: "\<lbrakk>ordinal X; Y \<in> X\<rbrakk>  \<Longrightarrow> ordinal Y"
   by blast
 
+lemma union_succ_eq_self_if_mem_trans_closed [simp]: "mem_trans_closed X \<Longrightarrow> \<Union>(succ X) = X"
+  by (auto simp: succ_eq_insert_self)
+
 lemma union_succ_eq_self_if_ordinal [simp]: "ordinal \<beta> \<Longrightarrow> \<Union>(succ \<beta>) = \<beta>"
-  by (auto simp add: succ_eq_insert_self)
+  using union_succ_eq_self_if_mem_trans_closed by auto
 
 text\<open>Membership ordinal induction:\<close>
 

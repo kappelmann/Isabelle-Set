@@ -31,8 +31,6 @@ abbreviation zero_implicit :: "set"
 bundle isa_set_zero_implicit_syntax begin notation zero_implicit ("0") end
 bundle no_isa_set_zero_implicit_syntax begin no_notation zero_implicit ("0") end
 
-unbundle isa_set_zero_implicit_syntax
-
 definition [typeclass]: "One A \<equiv> type (\<lambda>O. O @@ one : A)"
 
 lemma OneI: "O @@ one : A \<Longrightarrow> O : One A"
@@ -52,8 +50,6 @@ abbreviation one_implicit :: "set"
 bundle isa_set_one_implicit_syntax begin notation one_implicit ("1") end
 bundle no_isa_set_one_implicit_syntax begin no_notation one_implicit ("1") end
 
-unbundle isa_set_one_implicit_syntax
-
 
 subsection \<open>Additive structures\<close>
 
@@ -63,12 +59,12 @@ definition [typeclass]: "Add A \<equiv> type (\<lambda>P. P @@ add : A \<rightar
 ML \<open>Type_Classes.get_type_classes @{context}\<close>
 
 lemma AddI: "P @@ add : A \<rightarrow>s A \<rightarrow>s A \<Longrightarrow> P : Add A"
-  unfolding Add_def by unfold_types
+  unfolding Add_def by unfold_types auto
 
 lemma Add_add_type [derive]: "P : Add A \<Longrightarrow> P @@ add : A \<rightarrow>s A \<rightarrow>s A"
-  unfolding Add_def by unfold_types
+  unfolding Add_def by unfold_types auto
 
-definition "add P x y \<equiv> (P @@ add)`x`y"
+definition add where "add P x y \<equiv> (P @@ add)`x`y"
 
 lemma add_type [type]: "add : Add A \<Rightarrow> A \<Rightarrow> A \<Rightarrow> A"
   (*TODO: should not need an increase of the limit*)
@@ -78,13 +74,8 @@ lemma add_type [type]: "add : Add A \<Rightarrow> A \<Rightarrow> A \<Rightarrow
 abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
   where "add_implicit x y \<equiv> add \<implicit>P x y"
 
-bundle isa_set_add_implicit_syntax
-begin notation add_implicit  (infixl "+" 65) end
-
-bundle no_isa_set_add_implicit_syntax
-begin no_notation add_implicit  (infixl "+" 65) end
-
-unbundle isa_set_add_implicit_syntax
+bundle isa_set_add_implicit_syntax begin notation add_implicit  (infixl "+" 65) end
+bundle no_isa_set_add_implicit_syntax begin no_notation add_implicit  (infixl "+" 65) end
 
 
 subsection \<open>Multiplicative structures\<close>
@@ -93,10 +84,10 @@ definition [typeclass]:
   "Mul A \<equiv> type (\<lambda>M. M @@ mul : A \<rightarrow>s A \<rightarrow>s A)"
 
 lemma MulI: "M @@ mul : A \<rightarrow>s A \<rightarrow>s A \<Longrightarrow> M : Mul A"
-  unfolding Mul_def by unfold_types
+  unfolding Mul_def by unfold_types auto
 
 lemma Mul_mul_type [derive]: "M : Mul A \<Longrightarrow> M @@ mul : A \<rightarrow>s A \<rightarrow>s A"
-  unfolding Mul_def by unfold_types
+  unfolding Mul_def by unfold_types auto
 
 definition "mul M x y \<equiv> (M @@ mul)`x`y"
 
@@ -108,23 +99,19 @@ lemma mul_type [type]: "mul : Mul A \<Rightarrow> A \<Rightarrow> A \<Rightarrow
 abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
   where "mul_implicit x y \<equiv> mul \<implicit>T x y"
 
-bundle isa_set_mul_implicit_syntax
-begin notation mul_implicit  (infixl "*" 65) end
+bundle isa_set_mul_implicit_syntax begin notation mul_implicit  (infixl "*" 65) end
+bundle no_isa_set_mul_implicit_syntax begin no_notation mul_implicit  (infixl "*" 65) end
 
-bundle no_isa_set_mul_implicit_syntax
-begin no_notation mul_implicit  (infixl "*" 65) end
-
-unbundle isa_set_mul_implicit_syntax
 
 subsection \<open>Structures with additive inverses\<close>
 
 definition [typeclass]: "Inv A \<equiv> type (\<lambda>I. I @@ inv : A \<rightarrow>s A)"
 
 lemma InvI: "I @@ inv : A \<rightarrow>s A \<Longrightarrow> I : Inv A"
-  unfolding Inv_def by unfold_types
+  unfolding Inv_def by unfold_types auto
 
 lemma Inv_inv_type [derive]: "I : Inv A \<Longrightarrow> I @@ inv : A \<rightarrow>s A"
-  unfolding Inv_def by unfold_types
+  unfolding Inv_def by unfold_types auto
 
 definition "inv I x = (I @@ inv)`x"
 
@@ -133,11 +120,8 @@ lemma inv_type [type]: "inv : Inv A \<Rightarrow> A \<Rightarrow> A"
 
 abbreviation inv_implicit where "inv_implicit x \<equiv> inv \<implicit>I x"
 
-bundle isa_set_inv_implicit_syntax
-  begin notation inv_implicit  ("_\<inverse>" [1000]) end
-
-bundle no_isa_set_inv_implicit_syntax
-  begin no_notation inv_implicit  ("_\<inverse>" [1000]) end
+bundle isa_set_inv_implicit_syntax begin notation inv_implicit  ("_\<inverse>" [1000]) end
+bundle no_isa_set_inv_implicit_syntax begin no_notation inv_implicit  ("_\<inverse>" [1000]) end
 
 
 end

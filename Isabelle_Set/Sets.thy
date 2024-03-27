@@ -13,14 +13,12 @@ subsection \<open>Sets, Elements, and Subsets\<close>
 abbreviation Set :: "set type"
   where "Set \<equiv> Any"
 
-definition Element :: "set \<Rightarrow> set type"
-  where [typedef]: "Element A \<equiv> type (\<lambda>x. x \<in> A)"
+definition [typedef]: "Element A \<equiv> type (\<lambda>x. x \<in> A)"
 
 lemma Element_covariant: "a : Element A \<Longrightarrow> A \<subseteq> B \<Longrightarrow> a : Element B"
   by unfold_types auto
 
-definition Subset :: "set \<Rightarrow> set type"
-  where [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
+definition [typedef, type_simp]: "Subset A \<equiv> Element (powerset A)"
 
 lemma Subset_covariant: "a : Subset A \<Longrightarrow> A \<subseteq> B \<Longrightarrow> a : Subset B"
   by unfold_types auto

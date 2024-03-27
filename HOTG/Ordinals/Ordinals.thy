@@ -3,7 +3,6 @@
 theory Ordinals
   imports
     Ordinals_Base
-    Ordinals_Order
 begin
 
 

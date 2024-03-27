@@ -30,14 +30,5 @@ lemma mem_trans_closed_bin_interI:
 lemma mem_trans_closed_powersetI: "mem_trans_closed X \<Longrightarrow> mem_trans_closed (powerset X)"
   by auto
 
-(* lemma mem_trans_closed_succI [intro]:
-  assumes "mem_trans_closed X"
-  shows "mem_trans_closed (succ X)"
-  unfolding succ_def using assms
-  by (auto simp flip: insert_self_eq_add_one)
- *)
-
-(* lemma union_succ_eq_self_if_mem_trans_closed [simp]: "mem_trans_closed X \<Longrightarrow> \<Union>(succ X) = X"
-  by (auto simp flip: insert_self_eq_add_one simp: succ_eq_add_one) *)
 
 end

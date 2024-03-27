@@ -3,7 +3,6 @@ subsection \<open>Transport\<close>
 theory Set_Extensions_Transport
   imports
     Set_Extensions_Base
-    TBinary_Relations
     Transport.Transport_Bijections
 begin
 

@@ -26,8 +26,7 @@ lemma
     \<Longrightarrow> mul R x (add R y z) = add R (mul R x y) (mul R x z)"
   and Ring_add_mul_eq: "\<And>x y z. \<lbrakk>R : Ring A; x : A; y : A; z : A\<rbrakk>
     \<Longrightarrow> mul R (add R x y) z = add R (mul R x z) (mul R y z)"
-  unfolding Ring_def
-  by (auto dest!: Int_typeD1 Int_typeD2 has_typeD) fast
+  unfolding Ring_def by (auto 0 3 dest!: Int_typeD1 Int_typeD2 has_typeD)
 
 
 end

@@ -11,8 +11,7 @@ overloading
   set_reflexive_on_pred \<equiv> "reflexive_on :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
   set_reflexive_on_set \<equiv> "reflexive_on :: set \<Rightarrow> set \<Rightarrow> bool"
 begin
-  definition "reflexive_on_set (A :: set) (R :: set \<Rightarrow> set \<Rightarrow> bool) \<equiv>
-    reflexive_on (mem_of A) R"
+  definition "reflexive_on_set (A :: set) :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> reflexive_on (mem_of A)"
   definition "set_reflexive_on_pred (P :: set \<Rightarrow> bool) (R :: set) \<equiv> reflexive_on P (rel R)"
   definition "set_reflexive_on_set (A :: set) (R :: set) \<equiv> reflexive_on (mem_of A) R"
 end

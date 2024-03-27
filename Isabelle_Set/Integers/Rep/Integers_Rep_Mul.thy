@@ -71,12 +71,10 @@ proof -
 qed
 
 lemma Int_Rep_one_mul_eq [simp]: "x : Int_Rep \<Longrightarrow> Int_Rep_mul Int_Rep_one x = x"
-  unfolding Int_Rep_one_def
-  by (elim Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
+  unfolding Int_Rep_one_def by (elim Int_RepE) auto
 
 lemma Int_Rep_mul_one_eq [simp]: "x : Int_Rep \<Longrightarrow> Int_Rep_mul x Int_Rep_one = x"
-  unfolding Int_Rep_one_def
-  by (elim Int_RepE) (auto simp: nat_zero_ne_one[symmetric])
+  unfolding Int_Rep_one_def by (elim Int_RepE) auto
 
 lemma Int_Rep_mul_assoc:
   assumes "x : Int_Rep" "y : Int_Rep" "z : Int_Rep"

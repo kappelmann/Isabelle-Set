@@ -82,6 +82,13 @@ proof (induction Y)
     by (cases "Y = {}") (auto simp add: mem_trans_closure_eq_bin_union_idx_union[of Y])
 qed
 
+lemma mem_trans_closure_eq_self_if_mem_trans_closed [simp]:
+  assumes "mem_trans_closed X"
+  shows "mem_trans_closure X = X"
+  using assms
+  by (intro eq_if_subset_if_subset mem_trans_closure_le_if_le_if_mem_trans_closed subset_mem_trans_closure_self)
+  auto
+
 lemma mem_mem_trans_closure_if_mem_if_mem_mem_trans_closure:
   assumes "X \<in> mem_trans_closure Y"
   and "Y \<in> Z"

@@ -1,16 +1,41 @@
 \<^marker>\<open>creator "Josh Chen"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
+section \<open>Functions\<close>
 theory TSFunctions_Base
   imports
-    HOTG.SFunctions
-    TSBinary_Relations
+    HOTG.SFunctions_Base
+    Soft_Types.TFunctions_Base
+    TSBinary_Relations_Left_Total
+    TSBinary_Relations_Right_Unique
+    TSBinary_Relations_Base
 begin
+
+unbundle no_HOL_ascii_syntax
+
+subsection \<open>Restrictions\<close>
+
+overloading
+  set_fun_restrict_type \<equiv> "fun_restrict :: set \<Rightarrow> set type \<Rightarrow> set"
+begin
+  definition "(set_fun_restrict_type (f :: set) (T :: set type) :: set) \<equiv>
+    fun_restrict f (type_pred T)"
+end
+
+lemma set_fun_restrict_type_eq_set_fun_restrict [simp]:
+  "(fun_restrict (f :: set) (T :: set type) :: set) = fun_restrict f (type_pred T)"
+  unfolding set_fun_restrict_type_def by auto
+
+lemma set_fun_restrict_type_eq_set_fun_restrict_uhint [uhint]:
+  assumes "P \<equiv> type_pred T"
+  and "f \<equiv> g"
+  shows "fun_restrict (f :: set) (T :: set type) :: set \<equiv> fun_restrict g P"
+  using assms by simp
 
 subsection \<open>Set-Function Type\<close>
 
 text \<open>Functions might also contain elements outside their domain.\<close>
 definition [typedef]: "Dep_Function (A :: set type) (B :: set \<Rightarrow> set type) \<equiv>
-  type (\<lambda>f. \<forall>x : A. f`x : B x \<and> (\<exists>!y. \<langle>x, y\<rangle> \<in> f))"
+  type (\<lambda>f. left_total_on A f \<and> right_unique_on A f \<and> (eval f) : (x : A) \<Rightarrow> (B x))"
 
 abbreviation "Function A B \<equiv> Dep_Function A (\<lambda>_. B)"
 
@@ -22,61 +47,45 @@ translations
   "(x y : A) \<rightarrow>s B" \<rightharpoonup> "(x : A)(y : A) \<rightarrow>s B"
   "(x : A) args \<rightarrow>s B" \<rightharpoonup> "(x : A) \<rightarrow>s args \<rightarrow>s B"
   "(x : A) \<rightarrow>s B" \<rightleftharpoons> "CONST Dep_Function A (\<lambda>x. B)"
-  (*TODO: explicity type annotation necessary; could be fixed with additional
-    type-checking phase*)
+  (*TODO: explicity type annotation necessary; could be fixed with additional type-checking phase*)
   "(A :: set) \<rightarrow>s B" \<rightleftharpoons> "CONST functions A B"
   "A \<rightarrow>s B" \<rightleftharpoons> "CONST Function A B"
 
 lemma Dep_FunctionI:
-  assumes "set_left_total_on A f"
-  and "set_right_unique_on A f"
-  and "\<And>x. x : A \<Longrightarrow> f`x : B x"
+  assumes "left_total_on A f"
+  and "right_unique_on A f"
+  and "eval f : (x : A) \<Rightarrow> (B x)"
   shows "f : (x : A) \<rightarrow>s B x"
-  by unfold_types (insert assms, auto dest: set_right_unique_onD)
-
-lemma Dep_Function_set_left_total_on:
-  assumes "f : (x : A) \<rightarrow>s B x"
-  shows "set_left_total_on A f"
-  (*TODO: somehow, unfold_types would loop here*)
-  using assms unfolding Dep_Function_def meaning_of_type
-  by (auto intro!: set_left_total_onI)
-
-lemma Dep_Function_set_right_unique_on:
-  assumes "f : (x : A) \<rightarrow>s B x"
-  shows "set_right_unique_on A f"
-  (*TODO: somehow, unfold_types would loop here*)
-  using assms unfolding Dep_Function_def meaning_of_type
-  by auto
+  by unfold_types (use assms in auto)
 
 lemma Dep_FunctionE [elim]:
-  assumes "f : (x : A) \<rightarrow>s B x" "x : A"
-  obtains "f`x : B x" and "\<langle>x, f`x\<rangle> \<in> f"
-proof
-  from \<open>f : _\<close> show "f`x : B x" unfolding Dep_Function_def by unfold_types
-  from assms have "\<exists>!y. \<langle>x, y\<rangle> \<in> f" unfolding Dep_Function_def by unfold_types
-  with pair_eval_mem_if_ex1_pair_mem show "\<langle>x, f`x\<rangle> \<in> f" by auto
-qed
+  assumes "f : (x : A) \<rightarrow>s B x"
+  obtains "left_total_on A f" "right_unique_on A f" "eval f : (x : A) \<Rightarrow> (B x)"
+  using assms unfolding Dep_Function_def by auto
 
 lemma eval_type [type]: "eval : (f : (x : A) \<rightarrow>s B x) \<Rightarrow> (x : A) \<Rightarrow> B x" by auto
 
 lemma Dep_Function_ex1_pairI: "f : ((x : A) \<rightarrow>s B x) \<Longrightarrow> x : A \<Longrightarrow> \<exists>!y. \<langle>x, y\<rangle> \<in> f"
-  unfolding Dep_Function_def meaning_of_type by auto
+  by (blast dest: right_unique_onD)
 
 lemma Dep_Function_eq_if_pair_mem_if_pair_mem:
-  assumes "f : (x : A) \<rightarrow>s B x" "x : A"
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "x : A"
   and "\<langle>x, y\<rangle> \<in> f" "\<langle>x, y'\<rangle> \<in> f"
   shows "y = y'"
-  using assms by (auto dest: Dep_Function_set_right_unique_on set_right_unique_onD)
+  using assms by (blast dest: right_unique_onD)
 
 lemma Dep_Function_eval_eq_if_pair_mem [simp]:
-  assumes "f : (x : A) \<rightarrow>s B x" "x : A"
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "x : A"
   and "\<langle>x, y\<rangle> \<in> f"
   shows "f`x = y"
-  using assms by (auto dest: Dep_Function_eq_if_pair_mem_if_pair_mem[OF assms])
+  using assms by (intro Dep_Function_eq_if_pair_mem_if_pair_mem[symmetric])
+  (auto intro: pair_eval_mem_if_ex1_pair_mem dest: right_unique_onD)
 
 lemma Dep_Function_contravariant_dom:
   "\<lbrakk>f : (x : A) \<rightarrow>s B x; \<And>x. x : A' \<Longrightarrow> x : A\<rbrakk> \<Longrightarrow> f : (x : A') \<rightarrow>s B x"
-  unfolding Dep_Function_def by unfold_types auto
+  unfolding Dep_Function_def by unfold_types (auto 0 4 dest: right_unique_onD)
 
 lemma Dep_Function_covariant_codom:
   assumes "f : (x : A) \<rightarrow>s B x"
@@ -84,17 +93,32 @@ lemma Dep_Function_covariant_codom:
   shows "f : (x : A) \<rightarrow>s B' x"
   using assms unfolding Dep_Function_def meaning_of_type by auto
 
+lemma eval_eq_if_pair_mem_if_Dep_Function:
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "x : A"
+  and "\<langle>x, y\<rangle> \<in> f"
+  shows "f`x = y"
+  using assms by (auto dest: right_unique_onD)
+
+lemma pair_mem_if_eval_eq_if_Dep_Function:
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "x : A"
+  and "f`x = y"
+  shows "\<langle>x, y\<rangle> \<in> f"
+  using assms by (auto 0 4 dest: right_unique_onD)
+
 lemma Dep_Function_pair_mem_iff_eval_eq:
-  assumes "f : (x : A) \<rightarrow>s B x" "x : A"
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "x : A"
   shows "\<langle>x, y\<rangle> \<in> f \<longleftrightarrow> f`x = y"
-  using assms by auto
+  using assms eval_eq_if_pair_mem_if_Dep_Function pair_mem_if_eval_eq_if_Dep_Function by blast
 
 lemma Dep_Function_cong [cong]:
   assumes "\<And>x. x : A \<longleftrightarrow> x : A'"
-  and "\<And>x y. x : A \<Longrightarrow> y : B x \<longleftrightarrow> y : B' x"
+  and "\<And>x y. x : A' \<Longrightarrow> y : B x \<longleftrightarrow> y : B' x"
   shows "f : (x : A) \<rightarrow>s B x \<longleftrightarrow> f : (x : A') \<rightarrow>s B' x"
-  using assms by (auto intro!: Dep_FunctionI
-    dest: Dep_Function_set_right_unique_on Dep_Function_set_left_total_on)
+  using assms by (auto intro!: Dep_fun_typeI Dep_FunctionI left_total_onI intro: right_unique_onD
+    elim!: Dep_FunctionE)
 
 lemma Dep_Function_mem_dom [simp]:
   assumes "f : (x : A) \<rightarrow>s B x" "x : A"
@@ -107,24 +131,20 @@ lemma Dep_Function_pair_memE [elim]:
   obtains x y where "x : A" "y : B x" "f`x = y" "p = \<langle>x, y\<rangle>"
   using assms by auto
 
-lemma Dep_Function_pair_memE':
-  assumes "f : (x : A) \<rightarrow>s B x"
-  and "\<langle>x, y\<rangle> \<in> f"
-  obtains "x : A" "y : B x" "f`x = y" | "\<not>(x : A)"
-  using assms by (cases "x : A") auto
-
 lemma Dep_Function_repl_eval_subset [simp]:
   assumes "f : (x : Element A) \<rightarrow>s B x"
   shows "{\<langle>x, f`x\<rangle> | x \<in> A} \<subseteq> f"
-  using assms by auto
+  using assms by (auto elim!: Dep_FunctionE)
 
 lemma Dep_Function_eval_eqI:
-  assumes "f : (x : A) \<rightarrow>s B x" "g : (x : A') \<rightarrow>s B' x" "x : A & A'"
+  assumes "f : (x : A) \<rightarrow>s B x"
+  and "g : (x : A') \<rightarrow>s B' x"
+  and "x : A & A'"
   and "f \<subseteq> g"
   shows "f`x = g`x"
 proof -
-  from assms have "x : A" "x : A'" by (auto elim: Int_typeE)
-  with assms have "f`x : B x" "\<langle>x, f`x\<rangle> \<in> g" by auto
+  from assms have "x : A" "x : A'" by (auto elim!: Int_typeE)
+  with assms have "f`x : B x" "\<langle>x, f`x\<rangle> \<in> g" by (auto 0 5)
   then show "f`x = g`x" by auto
 qed
 
@@ -154,7 +174,8 @@ translations
 
 lemma mem_dep_functions_iff_CDep_Function:
   "(f \<in> (x \<in> A) \<rightarrow>s (B x)) \<longleftrightarrow> (f : (x : Element A) \<rightarrow>cs Element (B x))"
-  by unfold_types (auto intro!: mem_dep_functionsI set_left_total_onI)
+  by unfold_types (auto intro!: mem_dep_functionsI left_total_onI elim!: mem_dep_functionsE
+    simp: meaning_of_type intro!: right_unique_onI dest: right_unique_onD)
 
 soft_type_translation
   "f \<in> (x \<in> A) \<rightarrow>s (B x)" \<rightleftharpoons> "f : (x : Element A) \<rightarrow>cs Element (B x)"

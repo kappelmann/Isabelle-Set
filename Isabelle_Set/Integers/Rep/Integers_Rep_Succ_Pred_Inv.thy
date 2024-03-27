@@ -12,7 +12,7 @@ lemma Int_Rep_succ_nonneg_eq [simp]:
 
 lemma Int_Rep_succ_neg_one_eq [simp]:
   "Int_Rep_succ (Int_Rep_neg 1) = Int_Rep_zero"
-  unfolding Int_Rep_succ_def nat_one_def Int_Rep_zero_def by simp
+  unfolding Int_Rep_succ_def Int_Rep_zero_def by simp
 
 lemma Int_Rep_succ_neg_eq [simp]:
   "n \<noteq> 1 \<Longrightarrow> Int_Rep_succ (Int_Rep_neg n) = Int_Rep_neg (pred n)"
@@ -48,8 +48,7 @@ lemma Int_Rep_pred_nonneg_eq [simp]:
 
 lemma Int_Rep_pred_type [type]:
   "Int_Rep_pred : Int_Rep \<Rightarrow> Int_Rep"
-  unfolding Int_Rep_pred_def nat_one_def
-  by (intro Dep_fun_typeI, elim Int_RepE) auto
+  unfolding Int_Rep_pred_def by (intro Dep_fun_typeI, elim Int_RepE) auto
 
 lemma Int_Rep_pred_succ_eq [simp]:
   assumes "x : Int_Rep"
@@ -69,7 +68,7 @@ proof (cases x rule: Int_RepE)
   then show ?thesis by (cases "n = 0") (auto simp: Int_Rep_zero_def[symmetric])
 next
   case (neg n)
-  then have "succ n \<noteq> 1" unfolding nat_one_def by auto
+  then have "succ n \<noteq> 1" by auto
   with neg show ?thesis by auto
 qed
 
@@ -126,17 +125,16 @@ proof -
     proof (cases n rule: mem_natE)
       case zero
       then show ?thesis
-        by (simp add: nat_one_def[symmetric] Int_Rep_zero_def[symmetric])
+        by (simp add: Int_Rep_zero_def[symmetric])
     next
       case (succ n)
-      have "succ (succ n) \<noteq> 1" unfolding nat_one_def by auto
+      have "succ (succ n) \<noteq> 1" by auto
       with succ show ?thesis by simp
     qed
   }
   note this[intro!]
   from assms show ?thesis
-    by (elim Int_RepE)
-    (auto elim: mem_natE simp: Int_Rep_zero_def[symmetric] nat_one_def)
+    by (elim Int_RepE) (auto elim: mem_natE simp: Int_Rep_zero_def[symmetric])
 qed
 
 corollary Int_Rep_inv_pred_inv_eq_succ [simp]:

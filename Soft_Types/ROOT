@@ -8,8 +8,14 @@ session Soft_Types = "HOL" +
   sessions
     "HOL-Eisbach"
     Transport
+  directories
+    Binary_Relations
+    "Binary_Relations/Properties"
+    Functions
+    "Functions/Properties"
   theories
-    "Soft_Types_HOL"
+    TBinary_Relations
+    Soft_Types_HOL
 
 session Soft_Types_Tests in "Tests" = "Soft_Types" +
   options

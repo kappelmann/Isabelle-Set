@@ -17,31 +17,35 @@ session HOTG = Transport +
     Cardinals
     Functions
     "Functions/Properties"
-    Mem_Transitive_Closed
+    Mem_Transitive_Closure
     Orders
     Ordinals
   theories
+    SArithmetics
     SBinary_Relations
+    Cardinals
     SFunctions
+    Mem_Transitive_Closed
+    Mem_Transitive_Closure
     SOrders
+    Ordinals
     Axioms
     Basics
     Bounded_Quantifiers
-    Cardinals
     Comprehension
     Coproduct
     Empty_Set
     Equality
+    Equipollence
     Finite_Sets
     Foundation
-    Mem_Transitive_Closed
-    SMultiplication
     Pairs
     Powerset
     Replacement
     Replacement_Predicates
     Set_Difference
     Subset
+    Transfinite_Recursion
     Union_Intersection
     Universes
     Unordered_Pairs

@@ -1,12 +1,12 @@
 section \<open>Matrices\<close>
 theory Matrices
   imports
-    Nat
-    (* TSFunctions *)
+    Nat_Inequalities
+    Nat_Ranges
+    Monoids
 begin
 
-unbundle no_HOL_groups_syntax
-unbundle no_HOL_order_syntax
+unbundle no_HOL_groups_syntax no_HOL_order_syntax
 
 definition "matrices A m n \<equiv> ([0,\<dots>,m[ :: set) \<rightarrow>s ([0,\<dots>,n[ :: set) \<rightarrow>s A"
 
@@ -293,8 +293,7 @@ proof (intro Dep_fun_typeI)
       then have "n \<in> \<nat>" by (fact mem_nat_if_mem_range_incl_excl)
       have "pred n < m"
       proof -
-        from \<open>n \<in> [1,\<dots>,m]\<close> have "0 \<noteq> n" "n \<le> m"
-          unfolding nat_one_def by (auto elim: mem_rangeE)
+        from \<open>n \<in> [1,\<dots>,m]\<close> have "0 \<noteq> n" "n \<le> m" by (auto elim: mem_rangeE)
         then show ?thesis by (auto intro: Nat_pred_lt_if_le_if_ne_zero)
       qed
       then show "pred n \<in> [0,\<dots>,m[" by auto
@@ -381,7 +380,7 @@ proof (intro lambda_ext)
       qed
     next
       case (succ m)
-      then have "m < n" by (auto intro: Nat_lt_if_succ_lt)
+      then have "m < n" by (auto intro: lt_if_add_lt[of _ 1, folded succ_eq_add_one])
       with i_mem have "N`i`m : C" by (intro Matrix_eval_typeI) auto
       with succ.IH have
         IH: "nat_rec' (succ m) (zero A) ?f = (if m < j then zero A else N`i`j)"
@@ -391,7 +390,7 @@ proof (intro lambda_ext)
         case True
         (* Note Kevin: this is BAD *)
         from j_mem have "j : Nat" by auto
-        then have "m < j" using Nat_lt_if_succ_lt[OF _ \<open>succ m < j\<close>] by blast
+        then have "m < j" by (auto intro: lt_if_add_lt[of _ 1, folded succ_eq_add_one])
         moreover with True j_mem have "Matrix_one A M n n `(succ m) `j = zero A"
           by (intro Matrix_one_eq_zero) auto
         ultimately show ?thesis using IH mul_zero True by auto
@@ -407,7 +406,7 @@ proof (intro lambda_ext)
           from i_mem j_mem have "N`i`j : C" by (intro Matrix_eval_typeI) auto
           from lt j_mem have "Matrix_one A M n n `(succ m) `j = zero A"
             by (intro Matrix_one_eq_zero) auto
-          with f lt IH mul_zero show ?thesis using lt_asym by auto
+          with f lt IH mul_zero show ?thesis by auto
         next
           case eq
           with IH mul_one show ?thesis by auto
@@ -432,7 +431,7 @@ proof (intro lambda_ext)
       by (rule Nat_le_pred_if_lt) (insert j_mem n_eq_succ_m[symmetric], auto)
     then have "j \<le> m" by simp
     moreover from j_mem have "j : Nat" by auto
-    ultimately have "\<not> m < j" using Nat_lt_if_lt_if_le[of j j m] by auto
+    ultimately have "\<not> m < j" using lt_if_lt_if_le[of j j m] by auto
     then show ?thesis using n_eq_succ_m lem by auto
   qed
   (*remaining type assumptions as in Matrix_Add_type and Matrix_Mul_Type*)

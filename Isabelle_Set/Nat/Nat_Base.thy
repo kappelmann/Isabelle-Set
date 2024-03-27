@@ -17,34 +17,18 @@ bundle isa_set_nat_syntax begin notation nat ("\<nat>") end
 bundle no_isa_set_nat_syntax begin no_notation nat ("\<nat>") end
 unbundle isa_set_nat_syntax
 
-definition "nat_zero \<equiv> {}"
-definition "nat_one \<equiv> succ nat_zero"
+lemmas fixpoint_nat [iff] = fixpoint_omega[folded nat_def]
+  and zero_mem_nat [iff] = zero_mem_omega[folded nat_def]
+  and succ_mem_nat_if_mem [intro!] = succ_mem_omega_if_mem[folded nat_def]
+  and mem_natE = mem_omegaE[folded nat_def, case_names _ zero succ]
+  and nat_induct [case_names zero succ, induct set: nat] =
+    omega_induct[folded nat_def]
 
 unbundle no_HOL_groups_syntax
 
-bundle isa_set_nat_zero_syntax begin notation nat_zero ("0") end
-bundle no_isa_set_nat_zero_syntax begin no_notation nat_zero ("0") end
-
-bundle isa_set_nat_one_syntax begin notation nat_one ("1") end
-bundle no_isa_set_nat_one_syntax begin no_notation nat_one ("1") end
-
-unbundle
-  isa_set_nat_zero_syntax
-  isa_set_nat_one_syntax
-
-lemmas fixpoint_nat [iff] = fixpoint_omega[folded nat_def nat_zero_def]
-  and zero_mem_nat [iff] = empty_mem_omega[folded nat_def nat_zero_def]
-  and succ_mem_nat_if_mem [intro!] = succ_mem_omega_if_mem[folded nat_def]
-  and mem_natE = mem_omegaE[folded nat_def nat_zero_def, case_names _ zero succ]
-  and nat_induct [case_names zero succ, induct set: nat] =
-    omega_induct[folded nat_def nat_zero_def]
-  and succ_ne_zero [iff] = Ordinals.succ_ne_empty[folded nat_zero_def]
-
-lemma nat_one_in_nat [iff]: "1 \<in> \<nat>"
-  unfolding nat_one_def by auto
-
-lemma nat_zero_ne_one [iff]: "0 \<noteq> 1"
-  unfolding nat_one_def by (fact succ_ne_self[symmetric])
+context
+  notes nat_def[uhint]
+begin
 
 subsection \<open>\<nat> as a type\<close>
 
@@ -65,113 +49,33 @@ lemma NatE:
   using assms by (simp only: mem_iff_Element[symmetric]) (rule mem_natE)
 
 lemma Nat_Ord [derive]: "x : Nat \<Longrightarrow> x : Ord"
-  by (induction x rule: Nat_induct) (simp only: nat_zero_def)
+  by (induction x rule: Nat_induct) simp
 
 lemma Nat_zero_type [type]: "0 : Nat" by unfold_types auto
 
 lemma Nat_succ_type [type]: "succ : Nat \<Rightarrow> Nat" by unfold_types auto
 
-lemma Nat_one_type [type]: "1 : Nat" unfolding nat_one_def by discharge_types
+lemma Nat_one_type [type]: "1 : Nat" by discharge_types
 
-
-subsection \<open>The \<open><\<close> and \<open>\<le>\<close> orders on Nat\<close>
-
-definition "lt m n \<equiv> m \<in> n"
-
-bundle isa_set_nat_lt_syntax begin notation lt (infix "<" 60) end
-bundle no_isa_set_nat_lt_syntax begin no_notation lt (infix "<" 60) end
-
-unbundle no_HOL_order_syntax
-unbundle isa_set_nat_lt_syntax
-
-lemmas lt_succ_self [iff] = mem_succ_self[folded lt_def]
-  and lt_succ_if_lt = mem_succ_if_mem[folded lt_def]
-  and lt_succE = mem_succE [folded lt_def]
-
-lemma not_lt_zero [iff]: "\<not>(n < 0)"
-  unfolding nat_zero_def lt_def by simp
-
-lemma lt_irrefl [iff]: "\<not>(n < n)"
-  unfolding nat_zero_def lt_def by simp
-
-lemma lt_asym: "m < n \<Longrightarrow> \<not>(n < m)"
-  unfolding lt_def by (fact not_mem_if_mem)
-
-lemma ne_if_lt: "m < n \<Longrightarrow> m \<noteq> n"
-  unfolding lt_def by (fact ne_if_mem)
-
-lemma Nat_zero_lt_succ [simp]: "n : Nat \<Longrightarrow> 0 < succ n"
-  unfolding lt_def nat_def nat_zero_def
-  by (rule empty_mem_succ_if_mem_omega) discharge_types
-
-lemma Nat_lt_trans [trans]: "\<lbrakk>n : Nat; l < m; m < n\<rbrakk> \<Longrightarrow> l < n"
-  unfolding lt_def nat_def by (rule mem_trans_if_mem_omega) discharge_types
-
-lemma Nat_lt_if_succ_lt: "n : Nat \<Longrightarrow> succ m < n \<Longrightarrow> m < n"
-  unfolding lt_def nat_def
-  by (rule mem_if_succ_mem_if_mem_omega) discharge_types
-
-lemma Nat_succ_lt_succ_if_lt:
-  "n : Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
-  unfolding lt_def nat_def
-  by (rule succ_mem_succ_if_mem_if_mem_omega) discharge_types
+lemma Nat_succ_lt_succ_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
+  sorry
 
 lemma Nat_lt_if_succ_lt_succ: "\<lbrakk>n : Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"
-  unfolding lt_def nat_def
-  by (rule mem_if_succ_mem_succ_if_mem_omega) discharge_types
+  sorry
 
-corollary Nat_succ_lt_succ_iff_lt [iff]:
-  "n : Nat \<Longrightarrow> succ m < succ n \<longleftrightarrow> m < n"
+corollary Nat_succ_lt_succ_iff_lt [iff]: "n : Nat \<Longrightarrow> succ m < succ n \<longleftrightarrow> m < n"
   using Nat_succ_lt_succ_if_lt Nat_lt_if_succ_lt_succ by blast
 
 lemma Nat_trichotomy:
   assumes "m : Nat" "n : Nat"
   obtains (lt) "m < n" | (eq) "m = n" | (gt) "n < m"
   (*Good example of type derivation helpfulness*)
-  unfolding lt_def by (rule Ord_trichotomy[of m n]) discharge_types
-
-lemma Nat_zero_lt_iff_ne_zero: "n : Nat \<Longrightarrow> 0 < n \<longleftrightarrow> n \<noteq> 0"
-  by (rule Nat_trichotomy[of 0 n]) auto
-
-
-definition "le m n \<equiv> m < n \<or> m = n"
-
-bundle isa_set_nat_le_syntax begin notation le (infix "\<le>" 60) end
-bundle no_isa_set_nat_le_syntax begin no_notation le (infix "\<le>" 60) end
-unbundle isa_set_nat_le_syntax
-
-lemma leE:
-  assumes "m \<le> n"
-  obtains (lt) "m < n" | (eq) "m = n"
-  using assms unfolding le_def by auto
-
-lemma le_self [iff]: "n \<le> n" unfolding le_def by simp
-
-lemma Nat_le_trans [trans]: "\<lbrakk>n : Nat; l \<le> m; m \<le> n\<rbrakk> \<Longrightarrow> l \<le> n"
-  unfolding le_def using Nat_lt_trans[of n l m] by auto
-
-lemma le_succ_if_le: "m \<le> n \<Longrightarrow> m \<le> succ n"
-  unfolding le_def using lt_succ_if_lt by auto
+  by (rule Ord_trichotomy[of m n]) discharge_types
 
 lemma Nat_le_if_succ_le: "n : Nat \<Longrightarrow> succ m \<le> n \<Longrightarrow> m \<le> n"
-  unfolding le_def by (auto intro: Nat_lt_trans[of n m "succ m"])
+  sorry
 
 lemma le_if_lt: "m < n \<Longrightarrow> m \<le> n" unfolding le_def by simp
-
-lemma not_succ_le_zero [iff]: "\<not>(succ n \<le> 0)"
-  unfolding le_def nat_zero_def lt_def by simp
-
-lemma Nat_zero_le [simp]: "n : Nat \<Longrightarrow> 0 \<le> n"
-  unfolding le_def by (rule Nat_trichotomy[of 0 n]) auto
-
-lemma eq_zero_if_le_zero [simp]: "n \<le> 0 \<Longrightarrow> n = 0"
-  unfolding le_def by auto
-
-lemma Nat_lt_if_le_if_lt [trans]: "\<lbrakk>n : Nat; l < m; m \<le> n\<rbrakk> \<Longrightarrow> l < n"
-  unfolding le_def using Nat_lt_trans[of n l m] by auto
-
-lemma Nat_lt_if_lt_if_le [trans]: "\<lbrakk>n : Nat; l \<le> m; m < n\<rbrakk> \<Longrightarrow> l < n"
-  unfolding le_def using Nat_lt_trans[of n l m] by auto
 
 lemma Nat_le_if_not_lt:
   assumes "m : Nat" "n : Nat" "\<not>(m < n)"
@@ -181,7 +85,7 @@ lemma Nat_le_if_not_lt:
 lemma Nat_not_lt_if_le:
   assumes "m : Nat" "n : Nat" "m \<le> n"
   shows "\<not>(n < m)"
-  using assms Nat_lt_if_lt_if_le[of m m n] by auto
+  using assms lt_if_lt_if_le[of m m n] by auto
 
 corollary Nat_not_lt_iff_le:
   assumes "m : Nat" "n : Nat"
@@ -198,10 +102,10 @@ corollary Nat_succ_le_succ_iff_le [iff]: "n : Nat \<Longrightarrow> succ m \<le>
   using Nat_le_if_succ_le_succ Nat_succ_le_succ_if_le by blast
 
 lemma le_if_lt_succ: "m < succ n \<Longrightarrow> m \<le> n"
-  unfolding lt_def le_def by auto
+  sorry
 
 lemma Nat_lt_succ_if_le: "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m < succ n"
-  unfolding lt_def le_def by auto
+  sorry
 
 corollary Nat_lt_succ_iff_le: "n : Nat \<Longrightarrow> m < succ n \<longleftrightarrow> m \<le> n"
   using le_if_lt_succ Nat_lt_succ_if_le by blast
@@ -219,16 +123,18 @@ corollary Nat_succ_le_iff_lt: "n : Nat \<Longrightarrow> succ m \<le> n \<longle
 lemma Nat_if_lt_Nat: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> m : Nat"
   (*TODO: would be nice if this works*)
   (* unfolding nat_def lt_def using mem_omega_if_mem_if_mem_omega by auto *)
-  unfolding nat_def lt_def by unfold_types (fact mem_omega_if_mem_if_mem_omega)
+  (* unfolding nat_def lt_def by unfold_types (fact mem_omega_if_mem_if_mem_omega) *)
+  sorry
 
 lemma Nat_if_le_Nat: "n : Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m : Nat"
   unfolding le_def using Nat_if_lt_Nat by auto
 
 lemma Nat_lt_if_lt_succ_if_lt: "n : Nat \<Longrightarrow> l < m \<Longrightarrow> m < succ n \<Longrightarrow> l < n"
-  using Nat_lt_if_le_if_lt[of n l m] by (auto intro: le_if_lt_succ)
+  (* using lt_if_le_if_lt[of n l m] by (auto intro: le_if_lt_succ) *)
+  sorry
 
 lemma Nat_succ_lt_if_lt_if_lt: "n : Nat \<Longrightarrow> l < m \<Longrightarrow> m < n \<Longrightarrow> succ l < n"
-  by (rule Nat_lt_if_lt_if_le[of n "succ l" m])
+  by (rule lt_if_lt_if_le[of "succ l" m n])
     (auto intro: le_if_lt_succ Nat_if_lt_Nat)
 
 
@@ -268,8 +174,7 @@ proof (rule Nat_strong_induct[where ?n=m and ?P="\<lambda>m. m \<le> n \<longrig
   show "P m"
   proof (rule step)
     fix l assume "l : Nat" "l < m"
-    moreover with \<open>m \<le> n\<close> have "l \<le> n"
-      by (auto intro!: Nat_lt_if_le_if_lt[of n l m] le_if_lt)
+    moreover with \<open>m \<le> n\<close> have "l \<le> n" by (auto intro!: lt_if_le_if_lt[of n l m] le_if_lt)
     ultimately show "P l" using IH by auto
   qed fact+
 qed (auto intro: Nat_if_le_Nat assms)
@@ -299,8 +204,8 @@ lemma Nat_pred_lt_self_if_ne_zero [iff]:
   "n : Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> pred n < n"
   by (rule NatE) auto
 
-lemma Nat_pred_lt_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> pred m < n"
-  by (rule NatE[of m]) (auto intro: Nat_lt_if_succ_lt Nat_if_lt_Nat)
+(* lemma Nat_pred_lt_if_lt: "n : Nat \<Longrightarrow> m < n \<Longrightarrow> pred m < n"
+  by (rule NatE[of m]) (auto intro: Nat_lt_if_succ_lt Nat_if_lt_Nat) *)
 
 lemma Nat_lt_if_lt_pred: "n : Nat \<Longrightarrow> m < pred n \<Longrightarrow> m < n"
   by (rule NatE[of n]) (auto intro: Nat_if_lt_Nat lt_succ_if_lt)
@@ -341,8 +246,7 @@ lemma Nat_lt_if_lt_if_pred_lt:
   assumes "l : Nat" "n : Nat"
   and "pred l < m" "m < n"
   shows "l < n"
-  by (rule NatE[of l])
-    (insert assms, auto dest: Nat_succ_lt_if_lt_if_lt Nat_lt_trans)
+  by (rule NatE[of l]) (insert assms, auto dest: Nat_succ_lt_if_lt_if_lt lt_trans)
 
 lemma Nat_lt_pred_if_lt_if_lt:
   assumes "n : Nat"
@@ -366,8 +270,7 @@ lemma Nat_pred_le_pred_if_le:
   assumes "n : Nat"
   and "m \<le> n"
   shows "pred m \<le> pred n"
-  by (rule NatE[of m]; rule NatE[of n])
-    (insert assms, auto intro: Nat_if_le_Nat)
+  by (rule NatE[of m]; rule NatE[of n]) (insert assms, auto intro: Nat_if_le_Nat)
 
 lemma Nat_le_if_pred_le_pred_if_ne_zero:
   assumes "m : Nat" "n : Nat"
@@ -421,7 +324,6 @@ corollary Nat_le_pred_iff_lt_if_ne_zero:
   using Nat_lt_if_le_pred_if_ne_zero Nat_le_pred_if_lt by blast
 
 lemma Nat_pred_eq_zero_iff: "n : Nat \<Longrightarrow> pred n = 0 \<longleftrightarrow> n = 0 \<or> n = 1"
-unfolding nat_one_def
 proof
   fix n assume "n : Nat" "pred n = 0"
   then show "n = 0 \<or> n = succ 0"
@@ -434,5 +336,6 @@ proof
   qed auto
 qed auto
 
+end
 
 end

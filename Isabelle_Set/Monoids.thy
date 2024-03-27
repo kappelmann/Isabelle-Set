@@ -98,8 +98,7 @@ lemma Add_pair_add_eq [simp]:
 
 (* TODO: quite challenging for automatic type derivation *)
 lemma Add_pair_type [type]:
-  "Add_pair: (A : Set) \<Rightarrow> (B : Set) \<Rightarrow> Add (Element A) \<Rightarrow> Add (Element B)
-    \<Rightarrow> Add (Element (A \<times> B))"
+  "Add_pair: (A : Set) \<Rightarrow> (B : Set) \<Rightarrow> Add (Element A) \<Rightarrow> Add (Element B) \<Rightarrow> Add (Element (A \<times> B))"
 proof (intro Dep_fun_typeI AddI, subst Add_pair_add_eq)
   fix A B AA AB assume h: "AA : Add (Element A)" "AB : Add (Element B)"
   let ?f = "\<lambda>\<langle>a1, b1\<rangle> \<in> A \<times> B. \<lambda>\<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>"
@@ -118,15 +117,12 @@ definition "Monoid_pair A B MA MB \<equiv> object {
     \<langle>@add, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>\<rangle>
   }"
 
-lemma Monoid_pair_fields_eq [simp]:
-  "object_fields (Monoid_pair A B MA MB) = {@zero, @add}"
+lemma Monoid_pair_fields_eq [simp]: "object_fields (Monoid_pair A B MA MB) = {@zero, @add}"
   unfolding Monoid_pair_def by simp
 
 lemma [simp]:
-  shows Monoid_pair_zero_eq:
-    "(Monoid_pair A B MA MB) @@ zero = \<langle>zero MA, zero MB\<rangle>"
-  and Monoid_pair_add_eq:
-    "(Monoid_pair A B MA MB) @@ add =
+  shows Monoid_pair_zero_eq: "(Monoid_pair A B MA MB) @@ zero = \<langle>zero MA, zero MB\<rangle>"
+  and Monoid_pair_add_eq: "(Monoid_pair A B MA MB) @@ add =
       \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> \<in> A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>"
   unfolding Monoid_pair_def by auto
 

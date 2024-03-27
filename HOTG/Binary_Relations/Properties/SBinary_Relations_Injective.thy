@@ -6,8 +6,6 @@ theory SBinary_Relations_Injective
     Transport.Binary_Relations_Injective
 begin
 
-term "rel_injective_on True False"
-
 overloading
   rel_injective_on_set \<equiv> "rel_injective_on :: set \<Rightarrow> (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
   set_rel_injective_on_pred \<equiv> "rel_injective_on :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"

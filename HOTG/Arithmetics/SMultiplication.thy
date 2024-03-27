@@ -31,7 +31,7 @@ lemma mul_zero_eq_zero [simp]: "X * 0 = 0"
 text\<open>\<open>1\<close> is the right identity of set multiplication.\<close>
 
 lemma mul_one_eq_self [simp]: "X * 1 = X"
-  by (auto simp: mul_eq_idx_union_lift_mul[where ?Y=1])
+  by (subst mul_eq_idx_union_lift_mul) (auto simp: succ_eq_insert_self)
 
 lemma mul_singleton_one_eq_lift_self: "X * {1} = lift X X"
   by (auto simp: mul_eq_idx_union_lift_mul[where ?Y="{1}"])
@@ -40,7 +40,7 @@ lemma mul_two_eq_add_self: "X * 2 = X + X"
 proof -
   have "X * 2 = (\<Union>y \<in> 2. lift (X * y) X)" by (simp only: mul_eq_idx_union_lift_mul[where ?Y=2])
   also have "... = lift (X * 1) X \<union> lift (X * 0) X"
-    using idx_union_insert_dom_eq_bin_union_idx_union by auto
+    using idx_union_insert_dom_eq_bin_union_idx_union by (auto simp: succ_eq_insert_self)
   also have "... = X + X" by (auto simp: add_eq_bin_union_lift)
   finally show ?thesis .
 qed
@@ -65,7 +65,7 @@ qed
 lemma mul_succ_eq_mul_add [simp]: "X * succ Y = X * Y + X"
 proof -
   have "X * succ Y = X * (insert Y Y)"
-    by (simp only: insert_self_eq_add_one[where ?X = Y] succ_eq_add_one)
+    by (simp only: insert_self_eq_add_one[where ?X = Y] succ_eq_insert_self)
   also have "... = (X * Y) \<union> lift (X * Y) X" by (simp only: mul_insert_eq_mul_bin_union_lift_mul)
   also have " ... = (X * Y) + X" by (simp add: add_eq_bin_union_lift)
   finally show ?thesis .
@@ -135,7 +135,7 @@ proof (cases "X = 0")
     then show ?case
     proof (cases "Y = 1")
       case False
-      with mem obtain P where P: "P \<in> Y" "P \<noteq> 0" by blast
+      with mem obtain P where P: "P \<in> Y" "P \<noteq> 0" by (auto 5 0 simp: succ_eq_insert_self)
       from \<open>X \<noteq> 0\<close> obtain R where R: "R \<in> X" by auto
       from mem.IH have "X \<le> X * P" using P by auto
       also have "... \<le> X * P + R" by simp

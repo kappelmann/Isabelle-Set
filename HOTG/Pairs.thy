@@ -183,11 +183,11 @@ lemma mono_dep_pairs_codom:
   shows "(\<Sum>x \<in> A. B x) \<subseteq> (\<Sum>x \<in> A. (B' x))"
   using assms by (intro mono_dep_pairs) auto
 
-lemma mono_subset_pairs_dom: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>A. A \<times> B)"
-  by auto
+lemma mono_subset_pairs: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<times>)" by auto
 
-lemma mono_subset_pairs_codom: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>B. A \<times> B)"
-  by auto
+lemma mono_subset_pairs_dom: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>A. A \<times> B)" by auto
+
+lemma mono_subset_pairs_codom: "((\<subseteq>) \<Rrightarrow>\<^sub>m (\<subseteq>)) (\<lambda>B. A \<times> B)" by auto
 
 
 subsection \<open>Functions on Dependent Pairs\<close>

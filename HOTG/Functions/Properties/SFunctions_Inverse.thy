@@ -21,17 +21,34 @@ lemma inverse_on_set_eq_inverse_on_pred [simp]:
   "(inverse_on (A :: set) :: (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool) = inverse_on (mem_of A)"
   unfolding inverse_on_set_def by simp
 
+lemma inverse_on_set_eq_inverse_on_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of A"
+  shows "inverse_on (A :: set) :: (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool \<equiv> inverse_on P"
+  using assms by simp
+
 lemma inverse_on_set_iff_inverse_on_pred [iff]:
   "inverse_on (A :: set) (f :: set \<Rightarrow> 'a) (g :: 'a \<Rightarrow> set) \<longleftrightarrow> inverse_on (mem_of A) f g"
   by simp
 
 lemma set_inverse_on_pred_iff_inverse_on_pred [iff]:
-  "inverse_on (P :: set \<Rightarrow> bool) (f :: set) (g :: set) \<longleftrightarrow> inverse_on P (eval f) (eval g)"
+  "inverse_on (P :: set \<Rightarrow> bool) f g \<longleftrightarrow> inverse_on P (eval f) (eval g)"
   unfolding set_inverse_on_pred_def by simp
+
+lemma set_inverse_on_pred_iff_inverse_on_pred_uhint [uhint]:
+  assumes "f \<equiv> eval f'"
+  and "g \<equiv> eval g'"
+  and "P \<equiv> P'"
+  shows "inverse_on (P :: set \<Rightarrow> bool) f g \<equiv> inverse_on P' f' g'"
+  using assms by simp
 
 lemma set_inverse_on_set_eq_set_inverse_on_pred [simp]:
   "(inverse_on (A :: set) :: set \<Rightarrow> set \<Rightarrow> bool) = inverse_on (mem_of A)"
   unfolding set_inverse_on_set_def by simp
+
+lemma set_inverse_on_set_eq_set_inverse_on_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of A"
+  shows "inverse_on (A :: set) :: set \<Rightarrow> set \<Rightarrow> bool \<equiv> inverse_on P"
+  using assms by simp
 
 lemma set_inverse_on_set_iff_set_inverse_on_pred [iff]:
   "inverse_on (A :: set) (f :: set) (g :: set) \<longleftrightarrow> inverse_on (mem_of A) f g"

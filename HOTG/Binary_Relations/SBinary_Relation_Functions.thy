@@ -11,9 +11,9 @@ unbundle no_HOL_ascii_syntax
 
 definition "rel R x y \<equiv> \<langle>x, y\<rangle> \<in> R"
 
-lemma rel_of_eq: "rel = (\<lambda>R x y. \<langle>x, y\<rangle> \<in> R)" unfolding rel_def by simp
-lemma rel_of_iff [iff]: "rel R x y \<longleftrightarrow> \<langle>x, y\<rangle> \<in> R" unfolding rel_def by simp
-declare rel_of_iff[symmetric, set_to_HOL_simp]
+lemma rel_eq: "rel = (\<lambda>R x y. \<langle>x, y\<rangle> \<in> R)" unfolding rel_def by simp
+lemma rel_iff [iff]: "rel R x y \<longleftrightarrow> \<langle>x, y\<rangle> \<in> R" unfolding rel_def by simp
+declare rel_iff[symmetric, set_to_HOL_simp]
 
 subsubsection \<open>Domain, Codomain, and Field\<close>
 

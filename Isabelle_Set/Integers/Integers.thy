@@ -5,7 +5,7 @@ theory Integers
     Set_Extensions
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no_HOL_groups_syntax no_hotg_add_syntax
 
 subsection \<open>The Integers as a Subset of the Naturals\<close>
 

@@ -3,23 +3,23 @@ chapter Set
 session Isabelle_Set = HOTG +
   description
     \<open>Isabelle/Set - A softly-typed Tarski-Grothendieck set theory environment embedded in HOL.\<close>
-  options [timeout = 360]
+  options [timeout = 360,quick_and_dirty]
   sessions
     Auto2_HOTG
     Soft_Types
-    Transport
   directories
-    "Binary_Relations"
+    Binary_Relations
+    "Binary_Relations/Properties"
     "Fixpoints"
     "Functions"
-    "Functions/TFunctions"
-    "Functions/TSFunctions"
+    "Functions/Properties"
     "Integers"
     "Integers/Rep"
     "Matrices"
     "Nat"
     "Set_Extensions"
   theories
+    TSBinary_Relations
     Fixpoints
     TSFunctions
     Integers
@@ -34,7 +34,6 @@ session Isabelle_Set = HOTG +
     Sets
     Strings
     Structures
-    TSBinary_Relations
     TSCoproduct
     TSPairs
   document_files
