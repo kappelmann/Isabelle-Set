@@ -9,7 +9,7 @@ session HOTG = Transport +
   description
     \<open>Axioms and basic definitions for Tarski-Grothendieck set theory embedded in HOL.\<close>
   options
-    [timeout = 60,quick_and_dirty,threads=1]
+    [timeout = 60,quick_and_dirty]
   directories
     Arithmetics
     Binary_Relations
@@ -21,34 +21,35 @@ session HOTG = Transport +
     Orders
     Ordinals
   theories
-    SArithmetics
-    SBinary_Relations
-    Cardinals
-    SFunctions
-    Mem_Transitive_Closed
-    Mem_Transitive_Closure
-    SOrders
-    Ordinals
-    Axioms
-    Basics
-    Bounded_Quantifiers
-    Comprehension
-    Coproduct
-    Empty_Set
-    Equality
-    Equipollence
-    Finite_Sets
-    Foundation
-    Pairs
-    Powerset
-    Replacement
-    Replacement_Predicates
-    Set_Difference
-    Subset
-    Transfinite_Recursion
-    Union_Intersection
-    Universes
-    Unordered_Pairs
+    HOTG_Arithmetics
+    HOTG_Binary_Relations
+    HOTG_Cardinals
+    HOTG_Functions
+    HOTG_Mem_Transitive_Closed
+    HOTG_Mem_Transitive_Closure
+    HOTG_Orders
+    HOTG_Ordinals
+    HOTG_Axioms
+    HOTG_Basics
+    HOTG_Bounded_Quantifiers
+    HOTG_Comprehension
+    HOTG_Coproduct
+    HOTG_Definite_Description
+    HOTG_Empty_Set
+    HOTG_Equality
+    HOTG_Equipollence
+    HOTG_Finite_Sets
+    HOTG_Foundation
+    HOTG_Pairs
+    HOTG_Powerset
+    HOTG_Replacement
+    HOTG_Replacement_Predicates
+    HOTG_Set_Difference
+    HOTG_Subset
+    HOTG_Transfinite_Recursion
+    HOTG_Union_Intersection
+    HOTG_Universes
+    HOTG_Unordered_Pairs
   document_files
     "root.bib"
     "root.tex"
