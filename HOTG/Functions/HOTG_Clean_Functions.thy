@@ -104,18 +104,18 @@ lemma set_crel_dep_mono_wrt_predI':
   supply is_bin_rel_if_set_dep_bin_rel[uhint]
   using assms by (urule crel_dep_mono_wrt_predI')
 
+lemma set_crel_dep_mono_wrt_pred_if_mem_of_dom_le_if_set_rel_dep_mono_wrt_pred:
+  assumes "((x : A) \<rightarrow> B x) R"
+  and [uhint]: "is_bin_rel R"
+  and "mem_of (dom R) \<le> A"
+  shows "((x : A) \<rightarrow>\<^sub>c B x) R"
+  by (urule crel_dep_mono_wrt_predI) (urule assms)+
+
 lemma set_crel_mono_wrt_predI [intro]:
   assumes "(A \<rightarrow>\<^sub>c B) (rel R)"
   and "is_bin_rel R"
   shows "(A \<rightarrow>\<^sub>c B) R"
   using assms by (urule set_crel_dep_mono_wrt_predI)
-
-lemma set_crel_mono_wrt_predI':
-  assumes "left_total_on A R"
-  and "right_unique_on A R"
-  and "(A {\<times>} B) R"
-  shows "(A \<rightarrow>\<^sub>c B) (R :: set)"
-  using assms by (urule set_crel_dep_mono_wrt_predI')
 
 lemma set_crel_mono_wrt_predE:
   assumes "(A \<rightarrow>\<^sub>c B) R"
@@ -134,6 +134,20 @@ lemma set_crel_mono_wrt_pred_eq_crel_mono_wrt_pred_uhint [uhint]:
   and "R' \<equiv> rel R"
   shows "(A \<rightarrow>\<^sub>c B) R \<equiv> (A' \<rightarrow>\<^sub>c B') R'"
   by (urule set_crel_dep_mono_wrt_pred_eq_crel_dep_mono_wrt_pred_uhint) (use assms in auto)
+
+lemma set_crel_mono_wrt_predI':
+  assumes "left_total_on A R"
+  and "right_unique_on A R"
+  and "(A {\<times>} B) R"
+  shows "(A \<rightarrow>\<^sub>c B) (R :: set)"
+  using assms by (urule set_crel_dep_mono_wrt_predI')
+
+lemma set_crel_mono_wrt_pred_if_mem_of_dom_le_if_set_rel_mono_wrt_pred:
+  assumes "(A \<rightarrow> B) R"
+  and "is_bin_rel R"
+  and "mem_of (dom R) \<le> A"
+  shows "(A \<rightarrow>\<^sub>c B) R"
+  using assms by (urule set_crel_dep_mono_wrt_pred_if_mem_of_dom_le_if_set_rel_dep_mono_wrt_pred)
 
 lemma eq_collect_mk_pair_eval_dom_if_set_crel_dep_mono_wrt_pred:
   assumes "((x : A) \<rightarrow>\<^sub>c B x) R"
@@ -349,100 +363,5 @@ lemma set_set_crel_dep_mono_wrt_set_covariant_codom:
   shows "((x : A) \<rightarrow>\<^sub>c B x) \<subseteq> ((x : A) \<rightarrow>\<^sub>c B' x)"
   by (urule subsetI, urule set_crel_dep_mono_wrt_pred_covariant_codom)
   (use assms in blast)+
-
-(* lemma eq_if_mem_if_mem_agree_if_mem_dep_functions:
-  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "agree A F"
-  and "f \<in> F"
-  and "g \<in> F"
-  shows "f = g"
-  using assms
-proof -
-  have "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<subseteq> \<Sum>x \<in> A. (B x)" by (blast dest: mem_dep_functions)
-  with assms show ?thesis by (intro eq_if_subset_dep_pairs_if_agree_set)
-qed
-
-lemma subset_if_agree_set_if_mem_dep_functions:
-  assumes "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "f \<in> F"
-  and "agree A F"
-  and "g \<in> F"
-  shows "f \<subseteq> g"
-  using assms
-  by (elim mem_dep_functionsE subset_if_agree_set_if_subset_dep_pairs) auto
-
-lemma agree_set_if_eval_eq_if_mem_dep_functions:
-  assumes mem_dep_functions: "\<And>f. f \<in> F \<Longrightarrow> \<exists>B. f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "\<And>f g x. f \<in> F \<Longrightarrow> g \<in> F \<Longrightarrow> x \<in> A \<Longrightarrow> R`x = g`x"
-  shows "agree A F"
-proof (subst agree_set_set_iff_agree_set, rule agree_setI)
-  fix x y f g presume hyps: "f \<in> F" "g \<in> F" "x \<in> A" and "\<langle>x, y\<rangle> \<in> R"
-  then have "y = R`x" using mem_dep_functions by auto
-  also have "... = g`x" by (fact assms(2)[OF hyps])
-  finally have y_eq: "y = g`x" .
-  from mem_dep_functions[OF \<open>g \<in> F\<close>] obtain B where "g \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)" by blast
-  with y_eq pair_mem_iff_eval_eq_if_mem_dom_dep_function \<open>x \<in> A\<close> show "\<langle>x, y\<rangle> \<in> g" by blast
-qed simp_all
-
-lemma eq_if_agree_if_mem_dep_functions:
-  assumes "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)" "g \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "agree A {f, g}"
-  shows "f = g"
-  using assms
-  by (intro eq_if_mem_if_mem_agree_if_mem_dep_functions[of "{f, g}"]) auto
-
-lemma dep_functions_eval_eqI:
-  assumes "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "g \<in> (x \<in> A') \<rightarrow>\<^sub>cs (B' x)"
-  and "f \<subseteq> g"
-  and "x \<in> A \<inter> A'"
-  shows "R`x = g`x"
-  using assms by (auto dest: right_unique_onD)
-
-lemma dep_functions_eq_if_subset:
-  assumes f_mem: "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and g_mem: "g \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B' x)"
-  and "f \<subseteq> g"
-  shows "f = g"
-proof (rule eqI)
-  fix p assume "p \<in> g"
-  with g_mem obtain x y where [simp]: "p = \<langle>x, y\<rangle>" "g`x = y" "x \<in> A" by auto
-  with assms have [simp]: "R`x = g`x" by (intro dep_functions_eval_eqI) auto
-  show "p \<in> f" using f_mem by (auto iff: pair_mem_iff_eval_eq_if_mem_dom_dep_function)
-qed (use assms in auto)
-
-lemma ex_dom_mem_dep_functions_iff:
-  "(\<exists>A. f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)) \<longleftrightarrow> f \<in> (x \<in> dom R) \<rightarrow>\<^sub>cs (B x)"
-  by auto
-
-lemma mem_dep_functions_empty_dom_iff_eq_empty [iff]:
-  "(f \<in> (x \<in> {}) \<rightarrow>\<^sub>cs (B x)) \<longleftrightarrow> f = {}"
-  by auto
-
-lemma empty_mem_dep_functions: "{} \<in> (x \<in> {}) \<rightarrow>\<^sub>cs (B x)" by simp
-
-lemma eq_singleton_if_mem_functions_singleton [simp]:
-  "f \<in> {a} \<rightarrow>\<^sub>cs {b} \<Longrightarrow> f = {\<langle>a, b\<rangle>}"
-  by force
-
-lemma singleton_mem_functionsI [intro]: "y \<in> B \<Longrightarrow> {\<langle>x, y\<rangle>} \<in> {x} \<rightarrow>\<^sub>cs B"
-  by fastforce
-
-lemma mem_dep_functions_collectI:
-  assumes "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-  and "\<And>x. x \<in> A \<Longrightarrow> P x (R`x)"
-  shows "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs {y \<in> B x | P x y}"
-  by (rule mem_dep_functions_covariant_codom) (use assms in auto)
-
-lemma mem_dep_functions_collectE:
-  assumes "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs {y \<in> B x | P x y}"
-  obtains "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)" and "\<And>x. x \<in> A \<Longrightarrow> P x (R`x)"
-proof
-  from assms show "f \<in> (x \<in> A) \<rightarrow>\<^sub>cs (B x)"
-    by (rule mem_dep_functions_covariant_codom_subset) auto
-  fix x assume "x \<in> A"
-  with assms show "P x (R`x)"
-    by (auto dest: pair_eval_mem_if_mem_if_mem_dep_functions)
-qed *)
 
 end

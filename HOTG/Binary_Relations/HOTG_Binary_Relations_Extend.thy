@@ -110,7 +110,7 @@ lemma glue_bin_union_eq_glue_bin_union_glue [simp]: "glue (\<R> \<union> \<R>') 
 
 lemma mono_glue: "((\<subseteq>) \<Rightarrow> (\<subseteq>)) glue" by auto
 
-lemma is_bin_rel_glue_if_is_bin_rel_if_mem:
+lemma is_bin_rel_glue_if_is_bin_rel_if_mem [intro]:
   assumes "\<And>R. R \<in> \<R> \<Longrightarrow> is_bin_rel R"
   shows "is_bin_rel (glue \<R>)"
   using assms by (intro is_bin_relI) auto

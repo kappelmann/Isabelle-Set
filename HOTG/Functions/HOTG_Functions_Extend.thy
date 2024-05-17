@@ -64,44 +64,6 @@ proof -
   from assms show ?thesis by (urule crel_dep_mono_wrt_eq_sup_extend_if_rel_dep_mono_wrt_predI)
 qed
 
-context
-  fixes \<R> :: "set" and A :: "set \<Rightarrow> set" and D
-  defines "D \<equiv> \<Union>R \<in> \<R>. A R"
-begin
-
-lemma rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred:
-  assumes funs: "\<And>R. R \<in> \<R> \<Longrightarrow> ((x : A R) \<rightarrow> B x) R"
-  and runique: "right_unique_on D (glue \<R>)"
-  shows "((x : D) \<rightarrow> B x) (glue \<R>)"
-  (*TODO*)
-  sorry
-(* unfolding
-set_rel_dep_mono_wrt_set_eq_set_rel_dep_mono_wrt_pred
-set_rel_dep_mono_wrt_pred_iff_rel_dep_mono_wrt_pred
-rel_glue_eq_glue_has_inverse_on_rel *)
-(* proof -
-  (* have bla: "mem_of (\<Union>R \<in> \<R>. A R) = in_codom_on (has_inverse_on \<R> rel) *)
-    (* (\<lambda>R. mem_of (A (THE R'. rel R' = R)))" sorry *)
-
-  show ?thesis
-    unfolding rel_glue_eq_glue_has_inverse_on_rel[simp] D_def[simp]
-      mem_of_idx_union_eq_in_codom_on_has_inverse_on_if_mem_of_eq_app_rel[of dom in_dom, simp]
-      (* thm rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred[where ?A=A] *)
-set_rel_dep_mono_wrt_set_eq_set_rel_dep_mono_wrt_pred
-set_rel_dep_mono_wrt_pred_iff_rel_dep_mono_wrt_pred
-rel_glue_eq_glue_has_inverse_on_rel
-bla
-    apply (rule rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred)
-    apply (use assms in auto)
-qed *)
-
-(* lemma crel_dep_mono_wrt_pred_glue_if_right_unique_if_crel_dep_mono_wrt_pred:
-  assumes "\<And>R. \<R> R \<Longrightarrow> ((x : A R) \<rightarrow>\<^sub>c B x) R"
-  and "right_unique_on D (glue \<R>)"
-  shows "((x : D) \<rightarrow>\<^sub>c B x) (glue \<R>)"
-  using assms by (intro crel_dep_mono_wrt_predI rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred) fastforce+ *)
-end
-
 lemma set_crel_dep_mono_wrt_pred_sup_bin_union_if_eval_eq_if_set_crel_dep_mono_wrt_pred:
   assumes dep_funs: "((x : A) \<rightarrow>\<^sub>c B x) R" "((x : A') \<rightarrow>\<^sub>c B x) R'"
   and "\<And>x. A x \<Longrightarrow> A' x \<Longrightarrow> R`x = R'`x"
@@ -110,6 +72,43 @@ proof -
   from dep_funs have [simp]: "is_bin_rel R" "is_bin_rel R'" "is_bin_rel (R \<union> R')" by auto
   from assms show ?thesis by (urule crel_dep_mono_wrt_pred_sup_if_eval_eq_if_crel_dep_mono_wrt_pred)
 qed
+
+end
+
+context
+  fixes \<R> :: "set" and A :: "set \<Rightarrow> set" and D
+  defines "D \<equiv> \<Union>R \<in> \<R>. A R"
+begin
+
+text \<open>TODO: this should be provable from
+@{thm rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred} - but maybe requires
+Hilbert-Choice?  \<close>
+
+lemma set_rel_dep_mono_wrt_set_glue_if_right_unique_if_set_rel_dep_mono_wrt_set:
+  assumes funs: "\<And>R. R \<in> \<R> \<Longrightarrow> ((x : A R) \<rightarrow> B x) R"
+  and runique: "right_unique_on D (glue \<R>)"
+  shows "((x : D) \<rightarrow> B x) (glue \<R>)"
+proof (urule (rr) rel_dep_mono_wrt_predI dep_mono_wrt_predI left_total_onI)
+  note D_def[simp]
+  fix x assume "x \<in> D"
+  with funs obtain R where hyps: "R \<in> \<R>" "x \<in> A R" "((x : A R) \<rightarrow> B x) R" by auto
+  then have "R`x \<in> B x" by auto
+  moreover have "(glue \<R>)`x = R`x"
+  proof (rule glue_set_eval_eqI)
+    from hyps show "mem_of (A R) x" "R \<in> \<R>" by auto
+    then have "A R \<subseteq> D" by fastforce
+    with runique show "right_unique_on (mem_of (A R)) (glue \<R>)" by (blast dest: right_unique_onD)
+  qed (use hyps in \<open>auto elim: rel_dep_mono_wrt_pred_relE\<close>)
+  ultimately show "rel (glue \<R>)`x \<in> B x" by simp
+qed (use assms in \<open>(fastforce simp: D_def mem_of_eq)+\<close>)
+
+lemma crel_dep_mono_wrt_pred_glue_if_right_unique_if_crel_dep_mono_wrt_pred:
+  assumes "\<And>R. R \<in> \<R> \<Longrightarrow> ((x : A R) \<rightarrow>\<^sub>c B x) R"
+  and "right_unique_on D (glue \<R>)"
+  shows "((x : D) \<rightarrow>\<^sub>c B x) (glue \<R>)"
+  by (urule set_crel_dep_mono_wrt_pred_if_mem_of_dom_le_if_set_rel_dep_mono_wrt_pred,
+  urule set_rel_dep_mono_wrt_set_glue_if_right_unique_if_set_rel_dep_mono_wrt_set)
+  (use assms in \<open>auto simp: D_def mem_of_eq, fastforce\<close>)
 
 end
 
