@@ -4,7 +4,7 @@ session Soft_Types = "HOL" +
   description
     \<open>Soft-Types on top of Isabelle/HOL\<close>
   options
-    [timeout = 20, quick_and_dirty]
+    [timeout = 120]
   sessions
     "HOL-Eisbach"
     Transport
