@@ -126,7 +126,7 @@ struct
           val (fun_type, E1) =
             collect_constraints' ctxt Gamma s E
             |> ensure_function ctxt Gamma s
-          val (_, A, B) = Soft_Type.dest_Dep_fun_type fun_type
+          val (_, A, B) = Soft_Type.dest_Dep_fun fun_type
           val (u_st, E2) = collect_constraints' ctxt Gamma u E1
           val new_constraint = (Gamma, (u_st, A), ())
           val application_type = Term.subst_bound (u, B)
@@ -159,7 +159,7 @@ struct
 
    and ensure_function ctxt Gamma f (st, E) =
      case st of
-         Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ Abs _ => (st, E)
+         Const (\<^const_name>\<open>Dep_fun\<close>, _) $ _ $ Abs _ => (st, E)
        | _ =>
          let
            val fT = Term.fastype_of1 (map #3 Gamma, f)

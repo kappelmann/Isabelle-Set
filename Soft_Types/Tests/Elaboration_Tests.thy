@@ -17,9 +17,9 @@ experiment
   and nil :: "set \<Rightarrow> set"
   and cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes nil_type [type]: "nil : (A : Set) \<Rightarrow> Element (list A)"
-  and list_cons_type [type]: "cons : (A : Set) \<Rightarrow> Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
-  and append [type]: "append: (A : Set) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
+  assumes nil_type [type]: "nil \<Ztypecolon> (A : Set) \<Rightarrow> Element (list A)"
+  and list_cons_type [type]: "cons \<Ztypecolon> (A : Set) \<Rightarrow> Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
+  and append [type]: "append \<Ztypecolon> (A : Set) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
 
 begin
 
@@ -97,18 +97,18 @@ experiment
 
   and negint :: "set"
   and vinitneg :: "set \<Rightarrow> set \<Rightarrow> set"
-  assumes [type]: "vec: Set \<Rightarrow> Element nat \<Rightarrow> Set"
-  and [type]: "vnil : (A : Set) \<Rightarrow> Element (vec A 0)"
-  and [type]: "vcons: (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow>
+  assumes [type]: "vec \<Ztypecolon> Set \<Rightarrow> Element nat \<Rightarrow> Set"
+  and [type]: "vnil \<Ztypecolon> (A : Set) \<Rightarrow> Element (vec A 0)"
+  and [type]: "vcons \<Ztypecolon> (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow>
     Element A \<Rightarrow> Element (vec A n) \<Rightarrow> Element (vec A (succ n))"
-  and [type]: "add: Element nat \<Rightarrow> Element nat \<Rightarrow> Element nat"
-  and [type]: "succ: Element nat \<Rightarrow> Element nat"
-  and [type]: "0: Element nat"
-  and [type]: "vappend: (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow> (m : Element nat) \<Rightarrow>
+  and [type]: "add \<Ztypecolon> Element nat \<Rightarrow> Element nat \<Rightarrow> Element nat"
+  and [type]: "succ \<Ztypecolon> Element nat \<Rightarrow> Element nat"
+  and [type]: "0 \<Ztypecolon> Element nat"
+  and [type]: "vappend \<Ztypecolon> (A : Set) \<Rightarrow> (n : Element nat) \<Rightarrow> (m : Element nat) \<Rightarrow>
     Element (vec A n) \<Rightarrow> Element (vec A m) \<Rightarrow> Element (vec A (add n m))"
   and [type_simp]: "add (succ n) m = succ (add n m)"
 
-  and [type]: "vinitneg : (A : Set) \<Rightarrow> (x : Element negint) \<Rightarrow> Element (vec A x)"
+  and [type]: "vinitneg \<Ztypecolon> (A : Set) \<Rightarrow> (x : Element negint) \<Rightarrow> Element (vec A x)"
 begin
 
 text \<open>The base set of the vector and the dimensions are completely inferred:\<close>

@@ -1,14 +1,14 @@
 section \<open>Examples for the automatic type derivation procedure.\<close>
 theory Type_Check_Tests
   imports
-    "HOTG.Universes"
-    "Isabelle_Set.Sets"
+    HOTG.HOTG_Universes
+    Isabelle_Set.TSBasics
 begin
 
 text \<open>Proving that something is in some universe does not work because the
 needed lemmas @{thm "univ_closed_inl" "empty_mem_univ"} are stated using
 set-membership.\<close>
-lemma "inl {} : Element (univ {})"
+lemma "inl {} \<Ztypecolon> Element (univ {})"
   (* by discharge_types *)
 oops
 

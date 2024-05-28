@@ -4,17 +4,21 @@ session Soft_Types = "HOL" +
   description
     \<open>Soft-Types on top of Isabelle/HOL\<close>
   options
-    [timeout = 20]
+    [timeout = 20, quick_and_dirty]
   sessions
     "HOL-Eisbach"
     Transport
   directories
     Binary_Relations
+    "Binary_Relations/Functions"
     "Binary_Relations/Properties"
     Functions
     "Functions/Properties"
+    Predicates
   theories
     TBinary_Relations
+    TFunctions
+    TPredicates
     Soft_Types_HOL
 
 session Soft_Types_Tests in "Tests" = "Soft_Types" +

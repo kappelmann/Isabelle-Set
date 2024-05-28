@@ -281,6 +281,9 @@ lemma set_dep_bin_rel_bottom_dom_iff_eq_empty [iff]: "({\<Sum>}x : (\<bottom> ::
 lemma set_dep_bin_rel_bottom_codom_iff_eq_empty [iff]: "({\<Sum>}x : A. \<bottom>) R \<longleftrightarrow> R = {}"
   by (intro iffI) auto
 
+lemma mono_set_dep_bin_rel_dep_bin_rel_rel: "(({\<Sum>}x : A. B x :: set \<Rightarrow> bool) \<Rightarrow> {\<Sum>}x : A. B x) rel"
+  by auto
+
 definition "set_dep_bin_rel_set (A :: set) (B :: set \<Rightarrow> set) :: set \<Rightarrow> bool \<equiv>
   {\<Sum>}x : mem_of A. mem_of (B x)"
 adhoc_overloading dep_bin_rel set_dep_bin_rel_set

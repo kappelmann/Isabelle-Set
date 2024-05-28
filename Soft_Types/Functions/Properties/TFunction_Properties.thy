@@ -4,6 +4,7 @@ imports
   TFunctions_Bijection
   TFunctions_Injective
   TFunctions_Inverse
+  TFunctions_Monotone
   TFunctions_Surjective
 begin
 

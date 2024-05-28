@@ -5,14 +5,14 @@ session Isabelle_Set = HOTG +
     \<open>Isabelle/Set - A softly-typed Tarski-Grothendieck set theory environment embedded in HOL.\<close>
   options [timeout = 360,quick_and_dirty]
   sessions
-    Auto2_HOTG
     Soft_Types
   directories
     Binary_Relations
     "Binary_Relations/Properties"
     "Fixpoints"
     "Functions"
-    "Functions/Properties"
+    "Functions/Sets"
+    "Functions/Sets/Properties"
     "Integers"
     "Integers/Rep"
     "Matrices"
@@ -20,22 +20,22 @@ session Isabelle_Set = HOTG +
     "Set_Extensions"
   theories
     TSBinary_Relations
-    Fixpoints
+    TSFixpoints
     TSFunctions
-    Integers
-    Integers_Transport
-    Matrices
-    Nat
-    Monoids
-    Objects
-    Ordinals
-    Rings
+    TSIntegers
+    TSIntegers_Transport
+    TSMatrices
+    TSNat
     Set_Extensions
-    Sets
-    Strings
-    Structures
+    SObjects
+    SStrings
+    TSBasics
     TSCoproduct
+    TSMonoids
+    TSOrdinals
     TSPairs
+    TSRings
+    TSStructures
   document_files
     "root.bib"
 

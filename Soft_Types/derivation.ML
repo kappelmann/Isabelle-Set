@@ -38,7 +38,7 @@ fun warn ctxt msg = if Config.get ctxt debug then warning msg else ()
   Backderivation rules are applied backwards, yielding new proof obligations,
   and in theory may require all the power of general proof methods to derive
   their conclusions. Derivation rules whose premises are not simple type or
-  adjective judgments, e.g the introduction rule for the Dep_fun_type, are usually
+  adjective judgments, e.g the introduction rule for the Dep_fun, are usually
   backward rules.
 
   Josh: Backderivation rules should be declared sparingly and with caution;
@@ -244,8 +244,8 @@ val _ = Outer_Syntax.command \<^command_keyword>\<open>soft_type_translation\<cl
 *)
 fun Pi_derivation_rule thm =
   case Soft_Type.type_of_typing (Thm.concl_of thm) of
-    Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ _ =>
-      Pi_derivation_rule (thm RS @{thm Dep_fun_typeE})
+    Const (\<^const_name>\<open>Dep_fun\<close>, _) $ _ $ _ =>
+      Pi_derivation_rule (thm RS @{thm Dep_funD})
   | _ => thm
 
 (*
@@ -306,7 +306,7 @@ val _ =
   via `[type implicit: n]`.
 *)
 fun extract_param_names 0 _ = []
-  | extract_param_names i (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ _ $ Abs (n, _, b)) =
+  | extract_param_names i (Const (\<^const_name>\<open>Dep_fun\<close>, _) $ _ $ Abs (n, _, b)) =
       n :: extract_param_names (i - 1) b
   | extract_param_names i _ = replicate i ""
 
@@ -343,10 +343,6 @@ val derive_depth = Attrib.setup_config_int \<^binding>\<open>type_derivation_dep
 *)
 fun term_jdgmts_from_rule ctxt tm jdgmts rule =
   let
-    val probe = Config.get ctxt debug
-      andalso Term.aconv_untyped
-        (Const ("Nat.nat_add", dummyT) $ Free (":000", dummyT), tm)
-
     fun discharge_prems thms =
       let
         val in_jdgmts = member Thm.eq_thm_prop jdgmts
@@ -363,7 +359,6 @@ fun term_jdgmts_from_rule ctxt tm jdgmts rule =
       val inst =
         ((Soft_Type.term_of_jdgmt o Thm.concl_of) rule, tm)
         |> apply2 (Thm.cterm_of ctxt)
-        |> tap (if probe then @{print} else I)
         |> Thm.match
     in
       discharge_prems [Thm.instantiate inst rule]
@@ -561,7 +556,7 @@ fun full_discharge_types_tac add_facts add_tms ctxt =
         (* (TRY o (EqSubst.eqsubst_tac ctxt [0] [@{thm eta_contract_eq}])) THEN' *)
         raw_discharge_type_tac add_facts add_tms ctxt)))
 
-    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm Int_typeI}, @{thm has_adjI}])
+    val refine_tac = REPEAT o (resolve_tac ctxt [@{thm InterI}, @{thm has_adjI}])
 
     val backward_tac = resolve_tac ctxt
       (Named_Theorems.get ctxt \<^named_theorems>\<open>backderivation_rules\<close>)

@@ -49,10 +49,11 @@ lemma field_extend_eq [simp]: "field (extend x y R) = insert x (insert y (field 
 lemma mono_subset_extend_set: "((\<subseteq>) \<Rightarrow> (\<subseteq>)) (extend x y)" by fast
 
 lemma dep_mono_set_dep_bin_rel_extend:
-  "((x : A) \<Rightarrow> B x \<Rightarrow> ({\<Sum>}x : A'. B' x) \<Rightarrow> ({\<Sum>}x : A \<squnion> A'. (B \<squnion> B') x)) (extend :: _ \<Rightarrow> _ \<Rightarrow> set \<Rightarrow> _)"
+  "((x : A) \<Rightarrow> B x \<Rightarrow> ({\<Sum>}x : A'. B' x) \<Rightarrow> ({\<Sum>}x : A \<squnion> A'. (B \<squnion> B') x :: set \<Rightarrow> bool)) extend_set"
   by (urule (rr) dep_mono_wrt_predI set_dep_bin_relI dep_bin_relI) force+
 
-definition "has_inverse_on_set (A :: set) :: (set \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool \<equiv> has_inverse_on (mem_of A)"
+
+definition "has_inverse_on_set A :: (set \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool \<equiv> has_inverse_on (mem_of A)"
 adhoc_overloading has_inverse_on has_inverse_on_set
 
 lemma has_inverse_on_set_eq_has_inverse_on_pred [simp]:
@@ -65,7 +66,7 @@ lemma has_inverse_on_set_eq_has_inverse_on_pred_uhint [uhint]:
   using assms by simp
 
 lemma has_inverse_on_set_iff_has_inverse_on_pred_uhint [iff]:
-  "has_inverse_on_set A f y \<equiv> has_inverse_on (mem_of A) f y"
+  "has_inverse_on_set A f y \<longleftrightarrow> has_inverse_on (mem_of A) f y"
   by simp
 
 context
@@ -83,6 +84,7 @@ lemma has_inverse_on_bin_union_eq_has_inverse_on_sup_has_inverse_on [simp]:
   by (urule has_inverse_on_sup_eq_has_inverse_on_sup_has_inverse_on)
 
 end
+
 
 definition "glue_set (\<R> :: set) \<equiv> \<Union>\<R>"
 adhoc_overloading glue glue_set
@@ -136,5 +138,5 @@ proof (urule set_dep_bin_relI)
   from assms show "is_bin_rel (glue \<R>)" by (intro is_bin_rel_glue_if_is_bin_rel_if_mem) blast
 qed
 
-end
 
+end

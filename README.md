@@ -64,7 +64,6 @@ File | Content
 -----|--------
 `HOTG/Axioms` | Axiomatisation of Tarski-Grothendieck set theory embedded in higher-order logic (HOTG).
 `HOTG/*` | Basic set-theoretic results using HOTG.
-`auto2_HOTG/*` | Experimental setup of the [auto2](https://www.isa-afp.org/entries/Auto2_HOL.html) prover for HOTG.
 `Soft_Types/Soft_Types_HOL.thy` | Notion of soft type (based on HOL), types as predicates, function types, intersection types, etc.
 `Soft_Types/*.ML` | Infrastructure for soft types: elaboration, unification, context data, etc.
 `Soft_Types/Tests/Elaboration_Tests.thy` | Some examples of how soft type elaboration works, but mostly in the form of test cases.

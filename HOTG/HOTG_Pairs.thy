@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Alexander Krauss"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 \<^marker>\<open>creator "Larry Paulson"\<close>
-section \<open>Pairs (\<open>\<Sigma>\<close>-types)\<close>
+section \<open>Pairs (\<open>\<Sum>\<close>-types)\<close>
 theory HOTG_Pairs
   imports
     HOTG_Foundation
@@ -17,13 +17,13 @@ consts pair :: "'a \<Rightarrow> 'b \<Rightarrow> 'c"
 
 bundle pair_syntax
 begin
-syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [41, 41, 40] 51)
-notation pair (infixl "\<times>" 51)
+syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [52, 51, 51] 52)
+notation pair (infixr "\<times>" 51)
 end
 bundle no_pair_syntax
 begin
-no_syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [41, 41, 40] 51)
-no_notation pair (infixl "\<times>" 51)
+no_syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [52, 51, 51] 52)
+no_notation pair (infixr "\<times>" 51)
 end
 unbundle pair_syntax
 translations
@@ -98,7 +98,6 @@ lemma is_pairE [elim!]:
 
 lemma mk_pair_fst_snd_eq_if_is_pair [simp]: "is_pair p \<Longrightarrow> \<langle>fst p, snd p\<rangle> = p"
   by auto
-
 
 definition "set_dep_pair_pred A B p \<equiv> is_pair p \<and> A (fst p) \<and> B (fst p) (snd p)"
 adhoc_overloading dep_pair set_dep_pair_pred
@@ -280,11 +279,11 @@ definition "uncurry f p \<equiv> f (fst p) (snd p)"
 
 bundle hotg_uncurry_syntax
 begin
-syntax "_uncurry_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
+syntax "_tuple_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
 end
 bundle no_hotg_uncurry_syntax
 begin
-no_syntax "_uncurry_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
+no_syntax "_tuple_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
 end
 unbundle hotg_uncurry_syntax
 translations
@@ -304,6 +303,10 @@ lemma curry_uncurry_eq [simp]: "curry (uncurry f) = f"
 
 lemma uncurry_curry_eq_if_is_pair [simp]: "is_pair p \<Longrightarrow> uncurry (curry f) p = f p"
   by auto
+
+lemma mono_set_dep_pair_curry:
+  "(((p : \<Sum>x : A. (B x)) \<Rightarrow> C p) \<Rightarrow> (x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) curry"
+  by fastforce
 
 lemma mono_set_dep_pair_uncurry:
   "(((x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) \<Rightarrow> (p : \<Sum>x : A. (B x)) \<Rightarrow> C p) uncurry"

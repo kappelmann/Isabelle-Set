@@ -1,64 +1,60 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Set-Theoretic Coproduct (\<Coprod>-types)\<close>
+section \<open>Set-Theoretic \<Coprod>-type\<close>
 theory TSCoproduct
   imports
-    HOTG.Coproduct
-    Sets
+    HOTG.HOTG_Coproduct
+    TSBasics
 begin
 
-definition [typedef]: "Coprod A B \<equiv>
-  type (\<lambda>x. \<exists>a : A. x = inl a) \<bar> type (\<lambda>x. \<exists>b : B. x = inr b)"
+definition "set_coprod_type A B \<equiv> of_type A \<Coprod> of_type B"
+adhoc_overloading coprod set_coprod_type
 
-bundle isa_set_coprod_syntax begin notation Coprod (infixl "\<Coprod>" 70) end
-bundle no_isa_set_coprod_syntax begin no_notation Coprod (infixl "\<Coprod>" 70) end
+lemma set_coprod_type_eq_set_coprod_pred [simp]: "A \<Coprod> B = of_type A \<Coprod> of_type B"
+  unfolding set_coprod_type_def by simp
 
-unbundle isa_set_coprod_syntax
+lemma set_coprod_type_eq_set_coprod_pred_uhint [uhint]:
+  assumes "A' \<equiv> of_type A"
+  assumes "B' \<equiv> of_type B"
+  shows "A \<Coprod> B = A' \<Coprod> B'"
+  using assms by simp
 
-lemma mem_coprod_iff_Coprod:
-  "x \<in> (A \<Coprod> B) \<longleftrightarrow> x : (Element A \<Coprod> Element B)"
-  by unfold_types auto
+lemma set_coprod_type_iff_set_coprod_pred [iff]: "(A \<Coprod> B) x \<longleftrightarrow> (of_type A \<Coprod> of_type B) x"
+  by simp
+
+definition [typedef]: "Coprod (A :: set type) B \<equiv> type (A \<Coprod> B)"
+adhoc_overloading coprod Coprod
+
+lemma of_type_Coprod_eq_set_coprod_type [type_to_HOL_simp]:
+  "of_type (A \<Coprod> B) = (A \<Coprod> B)"
+  unfolding Coprod_def type_to_HOL_simp by simp
 
 soft_type_translation
-  "x \<in> (A \<Coprod> B)" \<rightleftharpoons> "x : (Element A \<Coprod> Element B)"
-  using mem_coprod_iff_Coprod by auto
+  "((A :: set type) \<Coprod> B) x" \<rightleftharpoons> "x \<Ztypecolon> A \<Coprod> B"
+  unfolding type_to_HOL_simp by simp
 
-(* TODO: this translation should be automatic whenever it is needed *)
-lemma Element_coprod_iff_Coprod:
-  "p : Element (A \<Coprod> B) \<longleftrightarrow> p : Element A \<Coprod> Element B"
-  using mem_coprod_iff_Coprod by (auto iff: mem_iff_Element)
+lemma mem_of_coprod_eq_of_type_Coprod_Element:
+  "mem_of (A \<Coprod> B) = of_type (Element A \<Coprod> Element B)"
+  unfolding type_to_HOL_simp by force
+
+soft_type_translation
+  "x \<in> A \<Coprod> B" \<rightleftharpoons> "x \<Ztypecolon> Element A \<Coprod> Element B"
+  unfolding type_to_HOL_simp by fastforce+
 
 context
-  includes no_hotg_coprod_syntax
+  notes type_to_HOL_simp[simp, symmetric, simp del]
 begin
 
 lemma CoprodE [elim]:
-  assumes "x : A \<Coprod> B"
-  obtains (inl) a where "a : A" "x = inl a" | (inr) b where "b : B" "x = inr b"
-  using assms unfolding Coprod_def
-  by (auto dest!: Union_typeD simp: meaning_of_type)
+  assumes "x \<Ztypecolon> A \<Coprod> B"
+  obtains (inl) a where "a \<Ztypecolon> A" "x = inl a" | (inr) b where "b \<Ztypecolon> B" "x = inr b"
+  using assms by (urule (e) set_coprodE) simp
 
-lemma inl_type [type]: "inl : A \<Rightarrow> (A \<Coprod> B)"
-  by unfold_types auto
+lemma inl_type [type]: "inl \<Ztypecolon> A \<Rightarrow> (A \<Coprod> B)" by (urule mono_set_coprod_inl)
 
-lemma inr_type [type]: "inr : B \<Rightarrow> (A \<Coprod> B)"
-  by unfold_types auto
+lemma inr_type [type]: "inr \<Ztypecolon> B \<Rightarrow> (A \<Coprod> B)" by (urule mono_set_coprod_inr)
 
-lemma Dep_Pair_covariant_left:
-  "x : A \<Coprod> B \<Longrightarrow> (\<And>x. x : A \<Longrightarrow> x : A') \<Longrightarrow> x : A' \<Coprod> B"
-  by auto
-
-lemma Dep_Pair_covariant_right:
-  "x : A \<Coprod> B \<Longrightarrow> (\<And>x. x : B \<Longrightarrow> x : B') \<Longrightarrow> x : A \<Coprod> B'"
-  by auto
-
-lemma coprod_rec_type [type]: "coprod_rec : (A \<Rightarrow> X) \<Rightarrow> (B \<Rightarrow> X) \<Rightarrow> (A \<Coprod> B) \<Rightarrow> X"
-  by unfold_types auto
-
-lemma type_if_inl_self_Coprod: "inl a : A \<Coprod> B \<Longrightarrow> a : A"
-  by auto
-
-lemma type_if_inr_self_Coprod: "inr b : A \<Coprod> B \<Longrightarrow> b : B"
-  by auto
+lemma coprod_rec_type [type]: "coprod_rec \<Ztypecolon> (A \<Rightarrow> X) \<Rightarrow> (B \<Rightarrow> X) \<Rightarrow> (A \<Coprod> B) \<Rightarrow> X"
+  by (urule mono_set_coprod_coprod_rec)
 
 end
 

@@ -22,7 +22,6 @@ struct
 structure Type_Class_Data = Generic_Data (
   type T = term Item_Net.T
   val empty = Item_Net.init Term.aconv single
-  val extend = I
   val merge = Item_Net.merge
 )
 

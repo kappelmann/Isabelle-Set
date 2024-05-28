@@ -43,7 +43,7 @@ corollary zero_cardinal_add_eq_cardinality_self: "0 \<oplus> X = |X|"
 
 lemma coprod_equipollent_assoc: "(X \<Coprod> Y) \<Coprod> Z \<approx> X \<Coprod> (Y \<Coprod> Z)"
 proof (rule equipollentI)
-   show "bijection_on ((X \<Coprod> Y) \<Coprod> Z) (X \<Coprod> (Y \<Coprod> Z))
+   show "bijection_on ((X \<Coprod> Y) \<Coprod> Z :: set) (X \<Coprod> (Y \<Coprod> Z))
       (coprod_rec (coprod_rec inl (inr \<circ> inl)) (inr \<circ> inr))
       (coprod_rec (inl \<circ> inl) (coprod_rec (inl \<circ> inr) inr))"
     by (urule (rr) bijection_onI dep_mono_wrt_predI inverse_onI) fastforce+
@@ -60,7 +60,7 @@ proof -
     by (elim equipollentE)
   let ?f = "coprod_rec (inl \<circ> fX) (inr \<circ> fY)"
   let ?g = "coprod_rec (inl \<circ> gX) (inr \<circ> gY)"
-  have "bijection_on (X \<Coprod> Y) (X' \<Coprod> Y') ?f ?g"
+  have "bijection_on (X \<Coprod> Y :: set) (X' \<Coprod> Y') ?f ?g"
     by (urule (rr) bijection_onI mono_wrt_predI inverse_onI)
     (use bijections in \<open>auto 0 4 simp: bijection_on_left_right_eq_self
       dest: bijection_on_right_left_if_bijection_on_left_right\<close>)

@@ -3,11 +3,13 @@
 subsection \<open>Basic Setup\<close>
 theory Set_Extensions_Base
   imports
-    HOTG.Set_Difference
-    Sets
-    TSFunctions_Inverse
-    TSFunctions_Injective
+    HOTG.HOTG_Functions_Inverse
+    HOTG.HOTG_Functions_Injective
+    HOTG.HOTG_Bounded_Definite_Description
+    TSBasics
 begin
+
+unbundle no_HOL_ascii_syntax
 
 text \<open>This theory defines a definitional principle for set extensions.
 
@@ -29,8 +31,8 @@ Formally, given
 
 we construct a set \<open>Abs\<close>, such that
 \<^item> @{term "Core \<subseteq> Abs"}
-\<^item> There are functions @{prop "l : Element Rep \<Rightarrow> Element Abs"} and
-  @{prop "r : Element Abs \<Rightarrow> Element Rep"} that are inverses of each other.
+\<^item> There are functions @{prop "l \<Ztypecolon> Element Rep \<Rightarrow> Element Abs"} and
+  @{prop "r \<Ztypecolon> Element Abs \<Rightarrow> Element Rep"} that are inverses of each other.
   In other words, there is a bijection between \<open>Rep\<close> and \<open>Abs\<close>.
 
 While the underlying construction involves case distinctions, this is hidden
@@ -41,7 +43,7 @@ usually be transported from \<open>Rep\<close> using \<open>abs\<close>.\<close>
 locale set_extension =
   fixes Core Rep :: set and embed :: "set \<Rightarrow> set"
   assumes
-    embed_type [type]: "embed : Element Core \<Rightarrow> Element Rep" and
+    embed_type [type]: "embed \<Ztypecolon> Element Core \<Rightarrow> Element Rep" and
     embed_injective: "injective_on Core embed"
 begin
 
@@ -56,15 +58,16 @@ lemma mem_AbsE:
 lemma Core_subset_Abs: "Core \<subseteq> Abs"
   unfolding Abs_def by auto
 
-definition "l x \<equiv>
-  if (\<exists>c \<in> Core. embed c = x) then (THE c. c \<in> Core \<and> embed c = x) else \<langle>Core, x\<rangle>"
+definition "l x \<equiv> if has_inverse_on Core embed x
+  then (THE c : Core. embed c = x)
+  else \<langle>Core, x\<rangle>"
 
 lemma left_embed_eq_if_mem_Core [simp]:
   assumes "c \<in> Core"
   shows "l (embed c) = c"
 proof -
-  from assms embed_injective have "(THE c'. c' \<in> Core \<and> embed c' = embed c) = c"
-    by (intro the_equality) (auto dest: injective_onD)
+  from assms embed_injective have "(THE c' : Core. embed c' = embed c) = c"
+    by (urule bthe_eqI where chained = insert) (auto dest: injective_onD)
   with assms show ?thesis unfolding l_def by auto
 qed
 
@@ -78,7 +81,7 @@ lemma left_mem_CoreE [elim]:
   obtains c where "c \<in> Core" "x = embed c"
   using assms unfolding l_def by (auto split: if_splits)
 
-corollary left_mem_Core_iff: "l x \<in> Core \<longleftrightarrow> (\<exists>c \<in> Core. embed c = x)"
+corollary left_mem_Core_iff: "l x \<in> Core \<longleftrightarrow> (\<exists>c : Core. embed c = x)"
   by auto
 
 lemma left_eq_pairI:
@@ -101,20 +104,20 @@ lemma right_eq_snd [simp]:
 lemma right_pair_Core_eq_snd [simp]: "r \<langle>Core, y\<rangle> = y"
   by simp
 
-lemma left_type [type]: "l : Element Rep \<Rightarrow> Element Abs"
-proof unfold_types
-  fix x assume "x \<in> Rep"
-  show "l x \<in> Abs"
-  proof (cases "\<exists>c \<in> Core. x = embed c")
+lemma left_type [type]: "l \<Ztypecolon> Element Rep \<Rightarrow> Element Abs"
+proof (intro Dep_funI)
+  fix x assume "x \<Ztypecolon> Element Rep"
+  show "l x \<Ztypecolon> Element Abs"
+  proof (intro ElementI, cases "has_inverse_on Core embed x")
     case True
     with Core_subset_Abs show "l x \<in> Abs" by auto
   next
     case False
-    then show ?thesis unfolding Abs_def l_def by auto
+    then show "l x \<in> Abs" unfolding Abs_def l_def by auto
   qed
 qed
 
-lemma right_type [type]: "r : Element Abs \<Rightarrow> Element Rep"
+lemma right_type [type]: "r \<Ztypecolon> Element Abs \<Rightarrow> Element Rep"
   by unfold_types (auto elim: mem_AbsE)
 
 lemma inverse_on_Abs_right_left: "inverse_on Abs r l"
@@ -136,7 +139,7 @@ lemma inverse_on_Rep_left_right: "inverse_on Rep l r"
 proof (urule inverse_onI)
   fix x presume "x \<in> Rep"
   show "r (l x) = x"
-  proof (cases "\<exists>c \<in> Core. x = embed c")
+  proof (cases "has_inverse_on Core embed x")
     case False
     then have "r (l x) = r \<langle>Core, x\<rangle>" unfolding l_def by auto
     also have "... = x" by simp

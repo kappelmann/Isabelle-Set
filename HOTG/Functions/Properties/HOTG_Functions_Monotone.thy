@@ -8,7 +8,7 @@ begin
 
 definition "dep_mono_wrt_set A B \<equiv> (x : mem_of A) \<Rightarrow> mem_of (B x)"
 adhoc_overloading dep_mono_wrt dep_mono_wrt_set
-definition "mono_wrt_set A B \<equiv> (mem_of A) \<Rightarrow> mem_of B"
+definition "mono_wrt_set A B \<equiv> mem_of A \<Rightarrow> mem_of B"
 adhoc_overloading mono_wrt mono_wrt_set
 
 lemma dep_mono_wrt_set_eq_dep_mono_wrt_pred [simp]:

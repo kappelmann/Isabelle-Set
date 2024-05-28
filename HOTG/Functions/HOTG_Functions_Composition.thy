@@ -36,6 +36,12 @@ lemma set_crel_dep_mono_wrt_pred_eval_comp_if_set_rel_dep_mono_wrt_pred_if_set_c
   by (urule crel_dep_mono_wrt_pred_eval_rel_comp_if_rel_dep_mono_wrt_pred_if_crel_dep_mono_wrt_pred)
   (use assms in auto)
 
+corollary mono_set_crel_mono_set_rel_mono_set_crel_mono_comp:
+  "((B \<rightarrow> C) \<Rightarrow> (A \<rightarrow>\<^sub>c B) \<Rightarrow> ((A :: set \<Rightarrow> bool) \<rightarrow>\<^sub>c C :: set \<Rightarrow> bool)) (\<circ>)"
+  using set_crel_dep_mono_wrt_pred_eval_comp_if_set_rel_dep_mono_wrt_pred_if_set_crel_dep_mono_wrt_pred
+  by (intro mono_wrt_predI) (auto simp: rel_mono_wrt_pred_eq_rel_dep_mono_wrt_pred
+    set_crel_mono_wrt_pred_eq_set_crel_dep_mono_wrt_pred)
+
 lemma comp_set_eval_eq_if_set_rel_dep_mono_wrt_pred_if_set_crel_dep_mono_wrt_predI [simp]:
   assumes "((x : A) \<rightarrow>\<^sub>c B x) (R :: set)"
   and "\<And>x. A x \<Longrightarrow> ((y : B x) \<rightarrow> C x y) R'"

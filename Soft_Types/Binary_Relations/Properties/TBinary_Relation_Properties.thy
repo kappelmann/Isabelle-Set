@@ -3,6 +3,7 @@ subsection \<open>Basic Properties\<close>
 theory TBinary_Relation_Properties
   imports
     TBinary_Relations_Antisymmetric
+    TBinary_Relations_Connected
     TBinary_Relations_Injective
     TBinary_Relations_Irreflexive
     TBinary_Relations_Left_Total

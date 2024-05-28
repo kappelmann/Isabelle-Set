@@ -2,122 +2,85 @@
 subsection \<open>Functions on Relations\<close>
 theory TSBinary_Relation_Functions
   imports
-    HOTG.SBinary_Relation_Functions
-    Soft_Types.TBinary_Relation_Functions
+    HOTG.HOTG_Binary_Relations_Extend
     TSBinary_Relations_Base
 begin
 
 unbundle no_HOL_ascii_syntax
 
-overloading
-  set_rel_restrict_left_type \<equiv> "rel_restrict_left :: set \<Rightarrow> set type \<Rightarrow> set"
-  set_rel_restrict_right_type \<equiv> "rel_restrict_right :: set \<Rightarrow> set type \<Rightarrow> set"
+lemma dom_type [type]: "dom \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> Collection A"
+  by unfold_types fastforce
+
+lemma codom_type [type]: "codom \<Ztypecolon> A {\<times>} B \<Rightarrow> Collection B"
+  by unfold_types fastforce
+
+lemma field_type [type]: "field \<Ztypecolon> A {\<times>} B \<Rightarrow> Collection (A \<bar> B)"
+  by unfold_types fastforce
+
+context
+  notes type_to_HOL_simp[simp, symmetric, simp del]
 begin
-  definition "set_rel_restrict_left_type (R :: set) (T :: set type) \<equiv>
-    rel_restrict_left R (type_pred T)"
-  definition "set_rel_restrict_right_type (R :: set) (T :: set type) \<equiv>
-    rel_restrict_right R (type_pred T)"
-end
+
+lemma rel_comp_set_type [type]: "rel_comp_set \<Ztypecolon> A {\<times>} B \<Rightarrow> B {\<times>} C \<Rightarrow> A {\<times>} C"
+  by (urule mono_bin_rel_bin_rel_bin_rel_rel_comp_set)
+
+lemma rel_inv_set_type [type]: "rel_inv_set \<Ztypecolon> A {\<times>} B \<Rightarrow> B {\<times>} A"
+  by (urule mono_bin_rel_rel_inv_set)
+
+definition "set_rel_restrict_left_type (R :: set) (T :: set type) \<equiv>
+  rel_restrict_left R (of_type T)"
+adhoc_overloading rel_restrict_left set_rel_restrict_left_type
 
 lemma set_rel_restrict_left_type_eq_set_rel_restrict_left_pred [simp]:
-  "(R :: set)\<restriction>\<^bsub>T :: set type\<^esub> = R\<restriction>\<^bsub>type_pred T\<^esub>"
+  "(R :: set)\<restriction>\<^bsub>T :: set type\<^esub> = R\<restriction>\<^bsub>of_type T\<^esub>"
   unfolding set_rel_restrict_left_type_def by simp
 
 lemma set_rel_restrict_left_type_eq_set_rel_restrict_left_pred_uhint [uhint]:
-  assumes "P \<equiv> type_pred T"
+  assumes "P \<equiv> of_type T"
   shows "(R :: set)\<restriction>\<^bsub>T :: set type\<^esub> \<equiv> R\<restriction>\<^bsub>P\<^esub>"
   using assms by simp
 
+lemma mono_pred_map_comp_type_set_rel_restrict_left_eq_mono_rel_restrict_left_pred [simp, type_to_HOL_simp]:
+  "((x : A) \<Rightarrow> pred_map (\<lambda>f. f \<circ> type) ((y : B x) \<Rightarrow> C x y)) rel_restrict_left
+  = ((x : A) \<Rightarrow> (y : (B x :: _ \<Rightarrow> bool)) \<Rightarrow> C x y) rel_restrict_left"
+  by (simp cong: dep_mono_wrt_pred_codom_iff_cong)
+
+definition "set_rel_restrict_right_type (R :: set) (T :: set type) \<equiv>
+  rel_restrict_right R (of_type T)"
+adhoc_overloading rel_restrict_right set_rel_restrict_right_type
+
 lemma set_rel_restrict_right_type_eq_set_rel_restrict_right_pred [simp]:
-  "(R :: set)\<upharpoonleft>\<^bsub>T :: set type\<^esub> = R\<upharpoonleft>\<^bsub>type_pred T\<^esub>"
+  "(R :: set)\<upharpoonleft>\<^bsub>T :: set type\<^esub> = R\<upharpoonleft>\<^bsub>of_type T\<^esub>"
   unfolding set_rel_restrict_right_type_def by simp
 
 lemma set_rel_restrict_right_type_eq_set_rel_restrict_right_pred_uhint [uhint]:
-  assumes "P \<equiv> type_pred T"
+  assumes "P \<equiv> of_type T"
   shows "(R :: set)\<upharpoonleft>\<^bsub>T :: set type\<^esub> \<equiv> R\<upharpoonleft>\<^bsub>P\<^esub>"
   using assms by simp
 
-lemma set_restrict_left_type [type]:
-  "rel_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (P : Set \<Rightarrow> Bool) \<Rightarrow> Dep_Bin_Rel (A & type P) B"
-  by unfold_types force
+lemma mono_pred_map_comp_type_set_rel_restrict_right_eq_mono_rel_restrict_right_pred [simp, type_to_HOL_simp]:
+  "((x : A) \<Rightarrow> pred_map (\<lambda>f. f \<circ> type) ((y : B x) \<Rightarrow> C x y)) rel_restrict_right
+  = ((x : A) \<Rightarrow> (y : (B x :: _ \<Rightarrow> bool)) \<Rightarrow> C x y) rel_restrict_right"
+  by (simp cong: dep_mono_wrt_pred_codom_iff_cong)
 
-lemma set_restrict_left_set_type [type]:
-  "rel_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (A' : Set) \<Rightarrow> Dep_Bin_Rel (A & Element A') B"
-  (*TODO: should be proved with lemma above*)
-  by unfold_types force
-
-lemma set_restrict_left_type_type [type]:
-  "rel_restrict_left : Dep_Bin_Rel A B \<Rightarrow> (T : Any) \<Rightarrow> Dep_Bin_Rel (A & T) B"
-  (*TODO: should be proved with lemma above*)
-  by unfold_types force
-
-(*TODO Kevin: restrict_right types + overloaded order constants*)
-
-lemma extend_type [type]:
-  "extend : (x : A) \<Rightarrow> B x \<Rightarrow> Dep_Bin_Rel A B \<Rightarrow> Dep_Bin_Rel A B"
-  by unfold_types auto
-
-lemma glue_type [type]: "glue : Collection (Dep_Bin_Rel A B) \<Rightarrow> Dep_Bin_Rel A B"
-  by unfold_types auto
-
-overloading
-  agree_type_set \<equiv> "agree :: set type \<Rightarrow> set \<Rightarrow> bool"
+context
+  notes dep_mono_wrt_type_eq_pred_map_dep_mono_wrt_pred_comp_type_if_iff[simp]
 begin
-  definition "(agree_type_set (T :: set type) :: set \<Rightarrow> _) \<equiv> agree (type_pred T)"
+
+lemma rel_restrict_left_Set_dep_bin_rel_type [type]:
+  "rel_restrict_left \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (A' : Any) \<Rightarrow> {\<Sum>}x : A & A'. B x"
+  by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict_left)
+
+lemma rel_restrict_right_Dep_bin_rel_type [type]:
+  "rel_restrict_right \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (B' : Any) \<Rightarrow> ({\<Sum>}x : A. B x & B')"
+  by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict_right)
+
+lemma extend_set_type [type]:
+  "extend_set \<Ztypecolon> (x : A) \<Rightarrow> B x \<Rightarrow> ({\<Sum>}x : A'. B' x) \<Rightarrow> ({\<Sum>}x : A \<bar> A'. (B x \<bar> B' x))"
+  by (urule dep_mono_set_dep_bin_rel_extend)
+
 end
 
-lemma agree_type_set_eq_agree_set [simp]:
-  "(agree (T :: set type) :: set \<Rightarrow> _) = agree (type_pred T)"
-  unfolding agree_type_set_def by simp
-
-lemma agree_type_set_eq_agree_set_uhint [uhint]:
-  assumes "P \<equiv> type_pred T"
-  shows "agree (T :: set type) :: set \<Rightarrow> bool \<equiv> agree P"
-  using assms by simp
-
-lemma agree_type_set_iff_agree_set [iff]:
-  "agree (T :: set type) (R :: set) \<longleftrightarrow> agree (type_pred T) R"
-  by simp
-
-lemma dom_type [type]: "dom : Dep_Bin_Rel A B \<Rightarrow> Collection A"
-  by (auto intro: CollectionI)
-
-lemma codom_type: "codom : Dep_Bin_Rel A B \<Rightarrow> Collection (type (\<lambda>y. \<exists>x : A. y : B x))"
-  by (auto intro!: CollectionI elim!: Dep_Bin_Rel_memE simp: meaning_of_type)
-
-lemma codom_type' [type]: "codom : Bin_Rel A B \<Rightarrow> Collection B"
-  by (auto intro: CollectionI)
-
-lemma set_rel_inv_type:
-  "set_rel_inv : Dep_Bin_Rel A B \<Rightarrow> Bin_Rel (type (\<lambda>y. \<exists>x : A. y : B x)) A"
-  by unfold_types force
-
-lemma set_rel_inv_type' [type]: "set_rel_inv : Bin_Rel A B \<Rightarrow> Bin_Rel B A"
-  by unfold_types auto
-
-lemma Dep_Bin_Rel_mem_set_rel_invE [elim]:
-  assumes "R : Dep_Bin_Rel A B"
-  and "p \<in> set_rel_inv R"
-  obtains x y where "x : A" "y : B x" "\<langle>x, y\<rangle> \<in> R" "p = \<langle>y, x\<rangle>"
-  using assms by auto
-
-lemma Dep_Bin_Rel_pair_mem_set_rel_inv_iff [iff]:
-  "R : Dep_Bin_Rel A B \<Longrightarrow> \<langle>a, b\<rangle> \<in> set_rel_inv R \<longleftrightarrow> \<langle>b, a\<rangle> \<in> R"
-  by auto
-
-lemma Dep_Bin_Rel_set_rel_inv_set_rel_inv_eq_self [simp]:
-  "R : Dep_Bin_Rel A B \<Longrightarrow> set_rel_inv (set_rel_inv R) = R"
-  by (rule eqI) (auto simp: set_rel_inv_inv_eq)
-
-lemma diag_type [type]: "diag : (A : Set) \<Rightarrow> Bin_Rel (Element A) (Element A)"
-  by (auto intro: Dep_Bin_RelI)
-
-lemma set_rel_comp_type [type]:
-  "set_rel_comp : (S : Bin_Rel B C) \<Rightarrow> (R : Bin_Rel A B) \<Rightarrow> Bin_Rel A C"
-  (*FIXME (Kevin)*)
-  (* by unfold_types auto *)
-  sorry
-
-
+end
 
 end

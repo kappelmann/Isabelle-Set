@@ -22,8 +22,8 @@ val typeT: typ -> typ
 (* Function types *)
 val is_Pi: term -> bool
 val Pi_const: typ -> typ -> term
-val dest_Dep_fun_type: term -> string * term * term
-val dest_Dep_fun_type_full: term -> term list * term
+val dest_Dep_fun: term -> string * term * term
+val dest_Dep_fun_full: term -> term list * term
 
 (* Typing judgments *)
 val is_typing: term -> bool
@@ -111,33 +111,33 @@ fun varify t =
 fun typeT T = Type (\<^type_name>\<open>type\<close>, [T])
 
 fun is_Pi st = case Term.head_of st of
-    Const (\<^const_name>\<open>Dep_fun_type\<close>, _) => true
+    Const (\<^const_name>\<open>Dep_fun\<close>, _) => true
   | _ => false
 
 fun Pi_const Ta Tb =
-  Const (\<^const_name>\<open>Dep_fun_type\<close>, typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb))
+  Const (\<^const_name>\<open>Dep_fun\<close>, typeT Ta --> (Ta --> typeT Tb) --> typeT (Ta --> Tb))
 
-fun dest_Dep_fun_type (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
-  | dest_Dep_fun_type t = raise TERM ("dest_Dep_fun_type", [t])
+fun dest_Dep_fun (Const (\<^const_name>\<open>Dep_fun\<close>, _) $ A $ Abs (x, _, B)) = (x, A, B)
+  | dest_Dep_fun t = raise TERM ("dest_Dep_fun", [t])
 
 (*Return list of argument soft types and result soft type*)
-fun dest_Dep_fun_type_full t =
+fun dest_Dep_fun_full t =
   let
-    fun dest (Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
+    fun dest (Const (\<^const_name>\<open>Dep_fun\<close>, _) $ A $ Abs (_, _, B)) = A :: dest B
       | dest t = [t]
   in
     (case t of
-      Const (\<^const_name>\<open>Dep_fun_type\<close>, _) $ A $ Abs (_, _, B) => A :: dest B
-    | _ => raise TERM ("dest_Dep_fun_type_full", [t]))
+      Const (\<^const_name>\<open>Dep_fun\<close>, _) $ A $ Abs (_, _, B) => A :: dest B
+    | _ => raise TERM ("dest_Dep_fun_full", [t]))
     |> split_last
   end
 
 fun is_typing t = case Term.head_of (dest_Trueprop t) of
-    Const (\<^const_name>\<open>has_type\<close>, _) => true
+    Const (\<^const_name>\<open>type_of\<close>, _) => true
   | _ => false
 
 fun is_adj t = case Term.head_of (dest_Trueprop t) of
-    Const (\<^const_name>\<open>has_type\<close>, _) => false
+    Const (\<^const_name>\<open>type_of\<close>, _) => false
   | Const (\<^const_name>\<open>HOL.eq\<close>, _) => false
   | Const (_, T as Type ("fun", _)) => (Term.body_type T = \<^typ>\<open>bool\<close>)
   | _ => false
@@ -150,11 +150,11 @@ fun is_jdgmt t = is_typing t orelse is_adj t
 
 fun mk_typing (t, ty) =
   let val T = fastype_of t in
-    Const (\<^const_name>\<open>has_type\<close>, T --> typeT T --> \<^typ>\<open>bool\<close>) $ t $ ty
+    Const (\<^const_name>\<open>type_of\<close>, T --> typeT T --> \<^typ>\<open>bool\<close>) $ t $ ty
   end
 
 fun dest_typing t = case dest_Trueprop t of
-    Const (\<^const_name>\<open>has_type\<close>, _) $ u $ ty => (u, ty)
+    Const (\<^const_name>\<open>type_of\<close>, _) $ u $ ty => (u, ty)
   | _ => raise TERM ("dest_typing", [t])
 
 fun dest_adj t = let val (adj, u) = Term.dest_comb (dest_Trueprop t) in (u, adj) end
@@ -175,7 +175,7 @@ val term_of_typing = #1 o dest_typing
 val type_of_typing = #2 o dest_typing
 
 
-fun Any T = Const (\<^const_name>\<open>Any_type\<close>, typeT T)
+fun Any T = Const (\<^const_name>\<open>Any\<close>, typeT T)
 
 fun mk_Any_fun T =
   let

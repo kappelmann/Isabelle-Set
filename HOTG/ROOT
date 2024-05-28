@@ -20,6 +20,7 @@ session HOTG = Transport +
     Mem_Transitive_Closure
     Orders
     Ordinals
+    Predicates
   theories
     HOTG_Arithmetics
     HOTG_Binary_Relations
@@ -29,12 +30,11 @@ session HOTG = Transport +
     HOTG_Mem_Transitive_Closure
     HOTG_Orders
     HOTG_Ordinals
+    HOTG_Predicates
     HOTG_Axioms
     HOTG_Basics
-    HOTG_Bounded_Quantifiers
     HOTG_Comprehension
     HOTG_Coproduct
-    HOTG_Definite_Description
     HOTG_Empty_Set
     HOTG_Equality
     HOTG_Equipollence

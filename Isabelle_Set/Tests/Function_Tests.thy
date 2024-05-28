@@ -1,10 +1,10 @@
 theory Function_Tests
-imports
-  "Isabelle_Set.TSFunctions"
-  "Isabelle_Set.Strings"
+  imports
+    Isabelle_Set.TSFunctions
+    Isabelle_Set.SStrings
 begin
 
-lemma beta_should_succeed: "x \<in> A \<Longrightarrow> (\<lambda>x \<in> A. \<langle>x, x\<rangle>)`x = \<langle>x, x\<rangle>" by simp
+lemma beta_should_succeed: "x \<in> A \<Longrightarrow> (\<lambda>x : A. \<langle>x, x\<rangle> :: set)`x = \<langle>x, x\<rangle>" by simp
 
 lemma graph_eval1: "{\<langle>x, y\<rangle>}`x = y" by simp
 

@@ -16,8 +16,8 @@ experiment
   and list :: "set \<Rightarrow> set"
   and nil :: "set \<Rightarrow> set"
   and cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  assumes nil_type[type]: "nil : (A : Set) \<Rightarrow> Element (list A)"
-  and list_cons_type[type]: "cons : (A : Set) \<Rightarrow> Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
+  assumes nil_type[type]: "nil \<Ztypecolon> (A : Set) \<Rightarrow> Element (list A)"
+  and list_cons_type[type]: "cons \<Ztypecolon> (A : Set) \<Rightarrow> Element A \<Rightarrow> Element (list A) \<Rightarrow> Element (list A)"
 begin
 
 declare[[auto_elaborate]]

@@ -180,7 +180,11 @@ lemma field_rel_comp_subset_dom_bin_union_codom: "field (R \<circ>\<circ> S) \<s
 end
 
 lemma mono_bin_rel_dep_bin_rel_bin_rel_idx_union_rel_comp_set:
-  "(A {\<times>} B \<Rightarrow> ({\<Sum>}x : B. C x) \<Rightarrow> A {\<times>} (\<Union>x \<in> B. C x)) ((\<circ>\<circ>) :: set \<Rightarrow> _)"
+  "(A {\<times>} B \<Rightarrow> ({\<Sum>}x : B. C x) \<Rightarrow> (A {\<times>} (\<Union>x \<in> B. C x) :: set \<Rightarrow> bool)) (\<circ>\<circ>)"
+  by (urule (rr) mono_wrt_predI set_bin_relI) force+
+
+lemma mono_bin_rel_bin_rel_bin_rel_rel_comp_set:
+  "((A :: set \<Rightarrow> bool) {\<times>} B \<Rightarrow> B {\<times>} C \<Rightarrow> (A {\<times>} C :: set \<Rightarrow> bool)) (\<circ>\<circ>)"
   by (urule (rr) mono_wrt_predI set_bin_relI) force+
 
 lemma set_pair_comp_dep_pair_eq_pair_idx_union [simp]:
@@ -215,10 +219,10 @@ lemma rel_rel_inv_eq_rel_inv_rel [simp, set_to_HOL_simp]: "rel R\<inverse> = (re
   by auto
 
 lemma mono_dep_bin_rel_idx_union_bin_rel_rel_inv:
-  "(({\<Sum>}x : A. B x) \<Rightarrow> (\<Union>x \<in> A. B x) {\<times>} A) (rel_inv :: set \<Rightarrow> _)"
+  "(({\<Sum>}x : A. B x) \<Rightarrow> ((\<Union>x \<in> A. B x) {\<times>} A :: set \<Rightarrow> bool)) rel_inv"
   by fast
 
-lemma mono_bin_rel_rel_inv_set: "((A :: set) {\<times>} B \<Rightarrow> B {\<times>} A) (rel_inv :: set \<Rightarrow> _)"
+lemma mono_bin_rel_rel_inv_set: "((A :: set \<Rightarrow> bool) {\<times>} B \<Rightarrow> (B {\<times>} A :: set \<Rightarrow> bool)) rel_inv"
   by force
 
 lemma mono_subset_rel_inv_set: "((\<subseteq>) \<Rightarrow> (\<subseteq>)) rel_inv" by fast
@@ -345,9 +349,8 @@ lemma set_rel_restrict_left_eq_self_if_set_dep_bin_rel [simp]:
 
 end
 
-
 lemma mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict_left:
-  "(({\<Sum>}x : A. B x) \<Rightarrow> (P : \<top>) \<Rightarrow> ({\<Sum>}x : A \<sqinter> P. B x)) (rel_restrict_left :: set \<Rightarrow> _)"
+  "(({\<Sum>}x : A. B x) \<Rightarrow> (P : \<top>) \<Rightarrow> ({\<Sum>}x : A \<sqinter> P. B x :: set \<Rightarrow> bool)) rel_restrict_left"
   by fast
 
 lemma mono_subset_rel_restrict_left: "((\<subseteq>) \<Rightarrow> (\<le>) \<Rrightarrow> (\<subseteq>)) rel_restrict_left" by fast
@@ -448,7 +451,7 @@ corollary set_rel_restrict_right_eq_self_if_mem_of_codom_le:
   by (urule rel_restrict_right_eq_self_if_in_codom_le) (use assms in fast)
 
 lemma mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict_right:
-  "(({\<Sum>}x : A. B x) \<Rightarrow> (P : \<top>) \<Rightarrow> ({\<Sum>}x : A. (B x) \<sqinter> P)) (rel_restrict_right :: set \<Rightarrow> _)"
+  "(({\<Sum>}x : A. B x) \<Rightarrow> (P : \<top>) \<Rightarrow> ({\<Sum>}x : A. (B x) \<sqinter> P :: set \<Rightarrow> bool)) rel_restrict_right"
   by fast
 
 lemma mono_subset_rel_restrict_right: "((\<subseteq>) \<Rightarrow> (\<le>) \<Rrightarrow> (\<subseteq>)) rel_restrict_right" by fast

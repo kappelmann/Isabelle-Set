@@ -1,14 +1,14 @@
 section \<open>Elaboration Tests\<close>
 theory Elaboration_Tests
-  imports "Isabelle_Set.Sets"
+  imports Isabelle_Set.TSPairs
 begin
 
 declare [[trace_soft_types]]
 
 ML \<open>
-  [\<^term>\<open>\<lambda>(x::set). pair\<close>]
+  [\<^term>\<open>\<lambda>(x::set). mk_pair\<close>]
   |> Elaboration.assert_result \<^context>
-    [\<^term>\<open>\<lambda>(x::set). pair\<close>]
+    [\<^term>\<open>\<lambda>(x::set). mk_pair\<close>]
 \<close>
 ML \<open> Elaboration.elaborate_terms \<^context> [
   \<^term>\<open>{{}}\<close>
@@ -22,11 +22,11 @@ ML \<open>
 
 (* This one is pretty underconstrained, since the type of y is not clear *)
 ML \<open> Elaboration.elaborate_terms \<^context> [
-  \<^term>\<open>\<lambda>y. pair {} y\<close>
+  \<^term>\<open>\<lambda>y. mk_pair {} y\<close>
 ]\<close>
 
 ML \<open> Elaboration.elaborate_terms \<^context> [
-  \<^term>\<open>\<lambda>x. pair x\<close>
+  \<^term>\<open>\<lambda>x. mk_pair x\<close>
 ]\<close>
 
 

@@ -4,7 +4,6 @@ theory HOTG_Functions_Evaluation
   imports
     HOTG_Binary_Relations_Right_Unique
     HOTG_Binary_Relations_Extend
-    HOTG_Functions_Base
     Transport.Binary_Relations_Function_Evaluation
 begin
 
@@ -91,11 +90,6 @@ lemma repl_eval_eq_if_mem [simp]:
   assumes "x \<in> A"
   shows "{\<langle>a, f a\<rangle> | a \<in> A}`x = f x"
   using assms by (auto intro: eval_eq_if_right_unique_onI)
-
-lemma set_id_eval_eq_if_mem [simp]:
-  assumes "x \<in> A"
-  shows "(set_id A)`x = x"
-  using assms by simp
 
 
 end

@@ -3,7 +3,7 @@
 section \<open>Cardinals\<close>
 theory HOTG_Cardinals_Base
   imports
-    HOTG_Definite_Description
+    HOTG_Bounded_Definite_Description
     HOTG_Equipollence
     HOTG_Ordinals_Base
 begin

@@ -9,20 +9,20 @@ begin
 overloading
   injective_on_type \<equiv> "injective_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> bool"
 begin
-  definition "injective_on_type (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> bool \<equiv> injective_on (type_pred T)"
+  definition "injective_on_type (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> bool \<equiv> injective_on (of_type T)"
 end
 
 lemma injective_on_type_eq_injective_on_pred [simp]:
-  "(injective_on (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> bool) = injective_on (type_pred T)"
+  "(injective_on (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> bool) = injective_on (of_type T)"
   unfolding injective_on_type_def by simp
 
 lemma injective_on_type_eq_injective_on_pred_uhint [uhint]:
-  assumes "P \<equiv> type_pred T"
+  assumes "P \<equiv> of_type T"
   shows "injective_on (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> bool \<equiv> injective_on P"
   using assms by simp
 
 lemma injective_on_type_iff_injective_on_pred [iff]:
-  "injective_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<longleftrightarrow> injective_on (type_pred T) f"
+  "injective_on (T :: 'a type) (f :: 'a \<Rightarrow> 'b) \<longleftrightarrow> injective_on (of_type T) f"
   by simp
 
 

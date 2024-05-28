@@ -6,11 +6,11 @@ begin
 notepad
 begin
   fix A :: bool
-  have "A : Bool" by simp
+  have "A \<Ztypecolon> Bool" by simp
 next
-  fix x f A B assume [type]: "x : A" "f : A \<Rightarrow> B"
-  have "x : A" by simp
-  have "f x : B" by simp
+  fix x f A B assume [type]: "x \<Ztypecolon> A" "f \<Ztypecolon> A \<Rightarrow> B"
+  have "x \<Ztypecolon> A" by simp
+  have "f x \<Ztypecolon> B" by simp
 end
 
 

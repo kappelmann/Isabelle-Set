@@ -15,7 +15,7 @@ lemma [TC]: "x \<in> carrier(Nat_Add) \<Longrightarrow> x \<in> carrier(Int_Add)
 
 schematic_goal
   "x \<in> carrier(Nat_Add) \<Longrightarrow> y \<in> carrier(Int_Add) \<Longrightarrow> add(?A, x, y) \<in> carrier(?A)"
-  by typecheck (*greedy instantiation leads to unprovable goal; can be solved
+  apply typecheck (*greedy instantiation leads to unprovable goal; can be solved
   by re-stating carrier lemma with subtyping judgements*)
   oops
 
@@ -50,6 +50,7 @@ lemma [TC]: "x \<in> int \<Longrightarrow> succ(x) \<in> int"
   sorry
 
 lemma "x \<in> int \<Longrightarrow> succ(x) \<in> pos_int"
-  by (typecheck | auto)+ (*no progress or unprovable goal*)
+  apply (typecheck | auto)+ (*no progress or unprovable goal*)
+  oops
 
 end

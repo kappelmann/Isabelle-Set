@@ -18,10 +18,10 @@ axiomatization Set :: "set type"
   and nil :: "set \<Rightarrow> set"
   and cons :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
   and append :: "set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set"
-  where nil_type [type implicit: 1]: "nil : (A : Set) \<Rightarrow> Element (list A)"
-  and cons_type [type implicit: 1]: "cons : (A : Set) \<Rightarrow> Element A \<Rightarrow>
+  where nil_type [type implicit: 1]: "nil \<Ztypecolon> (A : Set) \<Rightarrow> Element (list A)"
+  and cons_type [type implicit: 1]: "cons \<Ztypecolon> (A : Set) \<Rightarrow> Element A \<Rightarrow>
     Element (list A) \<Rightarrow> Element (list A)"
-  and append_type [type implicit: 1]: "append : (A : Set) \<Rightarrow> Element (list A) \<Rightarrow>
+  and append_type [type implicit: 1]: "append \<Ztypecolon> (A : Set) \<Rightarrow> Element (list A) \<Rightarrow>
     Element (list A) \<Rightarrow> Element (list A)"
 
 declare [[auto_elaborate]]

@@ -90,7 +90,7 @@ lemma set_rel_dep_mono_wrt_set_glue_if_right_unique_if_set_rel_dep_mono_wrt_set:
   shows "((x : D) \<rightarrow> B x) (glue \<R>)"
 proof (urule (rr) rel_dep_mono_wrt_predI dep_mono_wrt_predI left_total_onI)
   note D_def[simp]
-  fix x assume "x \<in> D"
+  fix x presume "x \<in> D"
   with funs obtain R where hyps: "R \<in> \<R>" "x \<in> A R" "((x : A R) \<rightarrow> B x) R" by auto
   then have "R`x \<in> B x" by auto
   moreover have "(glue \<R>)`x = R`x"
@@ -99,7 +99,7 @@ proof (urule (rr) rel_dep_mono_wrt_predI dep_mono_wrt_predI left_total_onI)
     then have "A R \<subseteq> D" by fastforce
     with runique show "right_unique_on (mem_of (A R)) (glue \<R>)" by (blast dest: right_unique_onD)
   qed (use hyps in \<open>auto elim: rel_dep_mono_wrt_pred_relE\<close>)
-  ultimately show "rel (glue \<R>)`x \<in> B x" by simp
+  ultimately show "mem_of (B x) (rel (glue \<R>)`x)" by simp
 qed (use assms in \<open>(fastforce simp: D_def mem_of_eq)+\<close>)
 
 lemma crel_dep_mono_wrt_pred_glue_if_right_unique_if_crel_dep_mono_wrt_pred:

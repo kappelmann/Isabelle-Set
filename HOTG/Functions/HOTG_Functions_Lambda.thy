@@ -17,8 +17,8 @@ lemma rel_lambda_set_eq_rel_lambda_pred [simp]: "rel_lambda_set A = rel_lambda_p
   unfolding rel_lambda_set_def by simp
 
 lemma rel_lambda_set_eq_rel_lambda_pred_uhint [uhint]:
-  assumes "A' = mem_of A"
-  shows "rel_lambda_set A \<equiv> rel_lambda_pred A'"
+  assumes "P = mem_of A"
+  shows "rel_lambda_set A \<equiv> rel_lambda_pred P"
   using assms by simp
 
 lemma rel_lambda_set_iff_rel_lambda_pred [iff]: "(\<lambda>x : A. f x) x y \<longleftrightarrow> (\<lambda>x : mem_of A. f x) x y"
@@ -112,17 +112,16 @@ lemma rel_restrict_left_set_eq_rel_lambda_if_subset_if_rel_dep_mono_wrt_set:
 end
 
 lemma mono_dep_mono_wrt_set_crel_dep_mono_wrt_set_rel_lambda:
-  "(((x : A) \<Rightarrow> B x) \<Rightarrow> ((x : A) \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)) (rel_lambda A :: (set \<Rightarrow> set) \<Rightarrow> set)"
-  by (urule (rr) mono_wrt_predI set_crel_dep_mono_wrt_predI') auto
+  "((A : (\<top> :: set \<Rightarrow> bool)) \<Rightarrow> ((x : A) \<Rightarrow> B x) \<Rightarrow> ((x : A) \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)) set_rel_lambda_set"
+  by (urule (rr) dep_mono_wrt_predI set_crel_dep_mono_wrt_predI') auto
 
 lemma set_rel_lambda_dep_pair_uncurry_eval_eqI [simp]:
   assumes "x \<in> A" "y \<in> B x"
   shows "((\<lambda>p : \<Sum>x : A. B x. uncurry f p) :: set)`\<langle>x, y\<rangle> = f x y"
   using assms by (intro eval_set_eq_if_right_unique_on_singletonI) auto
 
-(*FIXME: corresponding input does not parse (cf. theorem output)*)
 lemma set_rel_lambda_dep_pair_eq_rel_lambda_uncurry:
-  "((\<lambda>p : \<Sum>x : A. B x. f p) :: set) = (\<lambda>p : \<Sum>x : A. B x. (\<lambda>\<langle>a, b\<rangle>. f \<langle>a, b\<rangle>) p)"
+  "((\<lambda>p : \<Sum>x : A. B x. f p) :: set) = (\<lambda>\<langle>a, b\<rangle> : \<Sum>x : A. B x. f \<langle>a, b\<rangle>)"
   by (rule set_rel_lambda_cong) auto
 
 lemma mono_subset_rel_lambda: "((\<subseteq>) \<Rightarrow> (\<subseteq>)) (\<lambda>(A :: set). \<lambda>x : A. f x)" by fast

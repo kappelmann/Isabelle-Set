@@ -7,7 +7,7 @@ text \<open>Two uninterpreted constants that can inject identifiers into the pre
 syntax without introducing a variable.\<close>
 
 consts
-  implicit_arg :: "(prop\<Rightarrow>prop) \<Rightarrow> 'a::{}"
+  implicit_arg :: "(prop \<Rightarrow> prop) \<Rightarrow> 'a :: {}"
   implicit_dummy :: "prop"
 
 syntax
@@ -16,7 +16,7 @@ translations
   "\<implicit> x" \<rightleftharpoons> "CONST implicit_arg (\<lambda>x. CONST implicit_dummy)"
 
 
-abbreviation (input) wildcard :: "'a::{}" ("?")
+abbreviation (input) wildcard :: "'a :: {}" ("?")
   where "? \<equiv> implicit_arg (\<lambda>x. implicit_dummy)"
 
 text \<open>

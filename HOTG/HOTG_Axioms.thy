@@ -64,7 +64,7 @@ declare mem_of_iff[symmetric, set_to_HOL_simp]
 lemma mem_of_eq_mem_uhint [uhint]:
   assumes "x \<equiv> x'"
   and "A \<equiv> A'"
-  shows "mem_of A x = (x' \<in> A')"
+  shows "mem_of A x \<equiv> x' \<in> A'"
   using assms by simp
 
 abbreviation "not_mem x y \<equiv> \<not>(x \<in> y)"

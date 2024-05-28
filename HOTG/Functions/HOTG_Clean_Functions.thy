@@ -7,7 +7,7 @@ theory HOTG_Clean_Functions
     HOTG_Binary_Relation_Functions
     HOTG_Binary_Relations_Left_Total
     HOTG_Binary_Relations_Right_Unique
-    Transport.Binary_Relations_Clean_Function
+    Transport.Binary_Relations_Clean_Functions
 begin
 
 unbundle no_HOL_ascii_syntax
@@ -79,6 +79,11 @@ lemma set_crel_dep_mono_wrt_predE' [elim]:
   obtains "((x : A) \<rightarrow>\<^sub>c B x) (rel R)" "({\<Sum>}x : A. B x) R"
   using assms by (auto elim: set_crel_dep_mono_wrt_predE)
 
+lemma set_rel_dep_mono_wrt_pred_if_set_crel_dep_mono_wrt_pred:
+  assumes "((x : A) \<rightarrow>\<^sub>c B x) (R :: set)"
+  shows "((x : A) \<rightarrow> B x) R"
+  using assms by auto
+
 lemma set_crel_dep_mono_wrt_pred_eq_crel_dep_mono_wrt_pred_uhint [uhint]:
   assumes "is_bin_rel R"
   and "A \<equiv> A'"
@@ -126,6 +131,11 @@ lemma set_crel_mono_wrt_predE' [elim]:
   assumes "(A \<rightarrow>\<^sub>c B) R"
   obtains "(A \<rightarrow>\<^sub>c B) (rel R)" "(A {\<times>} B) R"
   using assms by (urule (e) set_crel_dep_mono_wrt_predE')
+
+lemma set_rel_mono_wrt_pred_if_set_crel_mono_wrt_pred:
+  assumes "(A \<rightarrow>\<^sub>c B) (R :: set)"
+  shows "(A \<rightarrow> B) R"
+  using assms by (urule set_rel_dep_mono_wrt_pred_if_set_crel_dep_mono_wrt_pred)
 
 lemma set_crel_mono_wrt_pred_eq_crel_mono_wrt_pred_uhint [uhint]:
   assumes "is_bin_rel R"
@@ -242,13 +252,15 @@ lemma set_crel_dep_mono_wrt_pred_bottom_iff_eq_empty [iff]:
 
 lemma mono_set_crel_dep_mono_wrt_pred_top_set_crel_dep_mono_wrt_pred_inf_rel_restrict_left:
   "(((x : A) \<rightarrow>\<^sub>c B x) \<Rightarrow> (A' : \<top>) \<Rightarrow> ((x : A \<sqinter> A') \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)) rel_restrict_left"
-  using mono_crel_dep_mono_wrt_pred_top_crel_dep_mono_wrt_pred_inf_rel_restrict_left
-proof (intro mono_wrt_predI dep_mono_wrt_predI)
-  fix R :: set and A' :: "set \<Rightarrow> bool" assume "((x : A) \<rightarrow>\<^sub>c B x) R" "\<top> A'"
-  with mono_crel_dep_mono_wrt_pred_top_crel_dep_mono_wrt_pred_inf_rel_restrict_left
-    have "((x : A \<sqinter> A') \<rightarrow>\<^sub>c B x) (rel R)\<restriction>\<^bsub>A'\<^esub>" by blast
-  then show "((x : A \<sqinter> A') \<rightarrow>\<^sub>c B x) R\<restriction>\<^bsub>A'\<^esub>" by auto
-qed
+  by (urule (rr) dep_mono_wrt_predI set_crel_dep_mono_wrt_predI'
+    (*TODO: should be solved by some type-checking automation*)
+    mono_right_unique_on_top_right_unique_on_inf_rel_restrict_left
+      [THEN dep_mono_wrt_predD, THEN dep_mono_wrt_predD]
+    mono_left_total_on_top_left_total_on_inf_rel_restrict_left
+      [THEN dep_mono_wrt_predD, THEN dep_mono_wrt_predD]
+    mono_dep_bin_rel_top_dep_bin_rel_inf_rel_restrict_left
+      [THEN mono_wrt_predD, THEN dep_mono_wrt_predD])
+  auto
 
 lemma mono_set_rel_dep_mono_wrt_pred_ge_set_crel_dep_mono_wrt_pred_rel_restrict_left:
   "(((x : A) \<rightarrow> B x) \<Rightarrow> (A' : (\<ge>) A) \<Rightarrow> ((x : A') \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)) rel_restrict_left"
@@ -358,10 +370,14 @@ corollary mem_of_crel_mono_wrt_set_iff_crel_mono_wrt_set [iff]: "R \<in> (A \<ri
 lemma crel_mono_wrt_set_eq_singleton_empty: "((x : {}) \<rightarrow>\<^sub>c B x) = {{}}"
   by (intro eqI') simp
 
+lemma mono_set_crel_mono_set_id: "((A : \<top>) \<Rightarrow> (A \<rightarrow>\<^sub>c A :: set \<Rightarrow> bool)) set_id"
+  by fastforce
+
 lemma set_set_crel_dep_mono_wrt_set_covariant_codom:
   assumes "\<And>x. x \<in> A \<Longrightarrow> B x \<subseteq> B' x"
   shows "((x : A) \<rightarrow>\<^sub>c B x) \<subseteq> ((x : A) \<rightarrow>\<^sub>c B' x)"
   by (urule subsetI, urule set_crel_dep_mono_wrt_pred_covariant_codom)
   (use assms in blast)+
+
 
 end
