@@ -3,8 +3,9 @@
 subsection \<open>Generalised Multiplication\<close>
 theory HOTG_Multiplication
   imports
-    HOTG_Addition HOTG_Additive_Order
-begin                 
+    HOTG_Addition
+    HOTG_Additively_Divides
+begin
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set multiplication for sets from \<^cite>\<open>kirby_set_arithemtics\<close>
@@ -153,29 +154,25 @@ qed simp
 
 paragraph\<open>Lemma 4.6 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>The next lemma is rather complex and remains incomplete as of now. A complete proof
-can be found in \<^cite>\<open>kirby_set_arithemtics\<close> and
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L992\<close>.\<close>
-
-lemma zero_if_multi_eq_multi_add_aux:
+lemma mul_eq_mul_add_ltE:
   assumes "A * X = A * Y + B" "0 < B" "B < A"
   obtains u f where "A * Y = A * u + f" "0 < f" "f < A" "u < X"
 proof -
   define \<phi> where "\<phi> x \<longleftrightarrow> (\<exists>r. 0 < r \<and> r < A \<and> A * x = A * Y + r)" for x
-  have "\<phi> X" using \<phi>_def assms by auto
-  then obtain X' where "\<phi> X'" "X' \<le> X" and X'_min: "\<And>x. x < X' \<Longrightarrow> \<not> \<phi> x" 
-    using minimal_satisfier_le by auto
-  from \<open>\<phi> X'\<close> obtain B' where "0 < B'" "B' < A" "A * X' = A * Y + B'" using \<phi>_def by auto
+  from assms have "\<phi> X" unfolding \<phi>_def by auto
+  then obtain X' where "\<phi> X'" "X' \<le> X" and X'_min: "\<And>x. x < X' \<Longrightarrow> \<not> \<phi> x"
+    using le_minimal_set_witnessE by auto
+  from \<open>\<phi> X'\<close> obtain B' where "0 < B'" "B' < A" "A * X' = A * Y + B'" unfolding \<phi>_def by auto
   then have "A * Y < A * X'" by auto
   then obtain p where "p \<in> A * X'" "A * Y \<le> p" by (auto elim: lt_mem_leE)
-  from \<open>p \<in> A * X'\<close> obtain u c where "u \<in> X'" "c \<in> A" "p = A * u + c" 
+  from \<open>p \<in> A * X'\<close> obtain u c where "u \<in> X'" "c \<in> A" "p = A * u + c"
     using mul_eq_idx_union_repl_mul_add[of A X'] by auto
   have "A * u \<noteq> A * Y"
   proof
     assume "A * u = A * Y"
     moreover have "lift (A * u) A \<subseteq> A * X'" using \<open>u \<in> X'\<close> mul_eq_idx_union_lift_mul by fast
     ultimately have "lift (A * Y) A \<subseteq> A * X'" by auto
-    then have "lift (A * Y) A \<subseteq> A * Y \<union> lift (A * Y) B'" 
+    then have "lift (A * Y) A \<subseteq> A * Y \<union> lift (A * Y) B'"
       using \<open>A * X' = A * Y + B'\<close> add_eq_bin_union_lift by blast
     then have "lift (A * Y) A \<subseteq> lift (A * Y) B'"
       using disjoint_lift_self_right disjoint_iff_all_not_mem by blast
@@ -183,11 +180,11 @@ proof -
     then show "False" using \<open>B' < A\<close> not_subset_if_lt by blast
   qed
   from \<open>A * Y \<le> p\<close> have "p \<notin> A * Y" using lt_if_mem not_lt_if_le by auto
-  then have "p \<in> lift (A * Y) B'" 
+  then have "p \<in> lift (A * Y) B'"
     using \<open>p \<in> A * X'\<close> \<open>A * X' = A * Y + B'\<close> add_eq_bin_union_lift by auto
   then obtain d where "d \<in> B'" "p = A * Y + d" using lift_eq_repl_add by auto
-  then consider "A * Y \<unlhd> A * u" | "A * u \<unlhd> A * Y" 
-    using \<open>p = A * u + c\<close> additively_divides_if_sums_equal by blast 
+  then consider "A * Y \<unlhd> A * u" | "A * u \<unlhd> A * Y"
+    using \<open>p = A * u + c\<close> additively_divides_or_additively_divides_if_add_eq_add by blast
   then show ?thesis
   proof cases
     case 1
@@ -198,36 +195,34 @@ proof -
     also have "d < A" using \<open>d \<in> B'\<close> lt_if_mem \<open>B' < A\<close> lt_trans by blast
     finally have "e < A" using lt_if_le_if_lt by auto
     have "e \<noteq> 0" using \<open>A * u = A * Y + e\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
-    then have "\<phi> u" using \<phi>_def \<open>e < A\<close> \<open>A * u = A * Y + e\<close> by blast
+    then have "\<phi> u" using \<open>e < A\<close> \<open>A * u = A * Y + e\<close> unfolding \<phi>_def by blast
     then have "False" using X'_min \<open>u \<in> X'\<close> lt_if_mem by auto
     then show ?thesis by blast
   next
     case 2
-    then obtain f where "A * Y = A * u + f" by (auto elim!: additively_dividesE) 
+    then obtain f where "A * Y = A * u + f" by fast
     then have "A * u + f + d = A * u + c" using \<open>p = A * Y + d\<close> \<open>p = A * u + c\<close> by auto
     then have "f + d = c" using add_assoc add_eq_add_if_eq_right by auto
-    then have "f < A" using le_self_add \<open>c \<in> A\<close> lt_if_mem_if_le by auto
+    then have "f < A" using \<open>c \<in> A\<close> lt_if_mem_if_le by auto
     have "f \<noteq> 0" using \<open>A * Y = A * u + f\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
     have "u < X" using \<open>u \<in> X'\<close> lt_if_mem \<open>X' \<le> X\<close> lt_if_le_if_lt by blast
     then show ?thesis using that \<open>A * Y = A * u + f\<close> \<open>f \<noteq> 0\<close> \<open>f < A\<close> \<open>u < X\<close> by auto
   qed
 qed
 
-lemma zero_if_multi_eq_multi_add:
+lemma eq_zero_if_lt_if_mul_eq_mul_add:
   assumes "A * X = A * Y + B" "B < A"
   shows "B = 0"
-  using assms 
+using assms
 proof (induction X arbitrary: Y B rule: lt_induct)
-  case (step X)
-  show ?case
+  case (step X) show ?case
   proof (rule ccontr)
     assume "B \<noteq> 0"
     then have "0 < B" by auto
-    from zero_if_multi_eq_multi_add_aux[OF step(2) \<open>0 < B\<close> \<open>B < A\<close>] obtain u f where 
-      "A * Y = A * u + f" "0 < f" "f < A" "u < X" by auto
-    from zero_if_multi_eq_multi_add_aux[OF this(1, 2, 3)] obtain v g where
-      "A * u = A * v + g" "0 < g" "g < A" "v < Y" by auto
-    then have "g = 0" using step.IH \<open>u < X\<close> by auto
+    with mul_eq_mul_add_ltE step obtain u f where "A * Y = A * u + f" "0 < f" "f < A" "u < X"
+      by blast
+    with mul_eq_mul_add_ltE obtain v g where "A * u = A * v + g" "0 < g" "g < A" "v < Y" by blast
+    with step.IH have "g = 0" using \<open>u < X\<close> by auto
     then show "False" using \<open>0 < g\<close> by auto
   qed
 qed

@@ -42,6 +42,16 @@ lemma mem_trans_closure_if_lt:
   shows "X \<in> mem_trans_closure Y"
   using assms unfolding lt_iff_mem_trans_closure by simp
 
+lemma not_subset_if_lt:
+  assumes "A < B"
+  shows "\<not>(B \<subseteq> A)"
+proof
+  assume "B \<subseteq> A"
+  with mem_trans_closure_if_lt have "A \<in> mem_trans_closure A"
+    using mem_trans_closure_subset_mem_trans_closure_if_subset assms by blast
+  then show "False" using not_mem_mem_trans_closure_self by blast
+qed
+
 corollary mem_if_lt_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X < S \<Longrightarrow> X \<in> S"
   using mem_trans_closure_if_lt mem_trans_closure_le_if_le_if_mem_trans_closed by blast
 
@@ -183,22 +193,22 @@ local_setup \<open>
   }
 \<close>
 
-lemma minimal_satisfier:
+lemma lt_minimal_set_witnessE:
   assumes "P a"
-  obtains m where "P m" "\<And>b. b < m \<Longrightarrow> \<not> P b"
+  obtains m where "P m" "\<And>b. b < m \<Longrightarrow> \<not>(P b)"
 proof -
-  have "\<exists>m. P m \<and> (\<forall>b. b < m \<longrightarrow> \<not> P b)"
+  have "\<exists>m : P. \<forall>b. b < m \<longrightarrow> \<not>(P b)"
   proof (rule ccontr)
-    assume no_minimal: "\<nexists>m. P m \<and> (\<forall>b. b < m \<longrightarrow> \<not> P b)"
-    have "\<forall>x. x \<le> X \<longrightarrow> \<not> P x" for X
+    assume no_minimal: "\<not>(\<exists>m : P. \<forall>b. b < m \<longrightarrow> \<not>(P b))"
+    have "\<forall>x. x \<le> X \<longrightarrow> \<not>(P x)" for X
     proof (induction X rule: mem_induction)
       case (mem X) show ?case
       proof (rule ccontr)
-        assume "\<not> (\<forall>x. x \<le> X \<longrightarrow> \<not> P x)"
+        assume "\<not>(\<forall>x. x \<le> X \<longrightarrow> \<not>(P x))"
         then obtain x where "x \<le> X" "P x" by auto
-        then obtain y where "y < x" "P y" using no_minimal by auto
+        with no_minimal obtain y where "y < x" "P y" by auto
         then obtain z where "z \<in> X" "y \<le> z" using lt_if_le_if_lt \<open>x \<le> X\<close> lt_mem_leE by blast
-        then show "False" using mem.IH \<open>P y\<close> by auto
+        with mem.IH \<open>P y\<close> show "False" by auto
       qed
     qed
     then show "False" using \<open>P a\<close> by auto
@@ -206,35 +216,26 @@ proof -
   then show ?thesis using that by blast
 qed
 
-corollary minimal_satisfier_le:
+corollary le_minimal_set_witnessE:
   assumes "P a"
-  obtains m where "P m" "m \<le> a" "\<And>b. b < m \<Longrightarrow> \<not> P b"
+  obtains m where "P m" "m \<le> a" "\<And>b. b < m \<Longrightarrow> \<not>(P b)"
 proof -
   define Q where "Q x \<longleftrightarrow> P x \<and> x \<le> a" for x
-  have "Q a" using assms Q_def by auto
-  then obtain m where "Q m" "\<And>b. b < m \<Longrightarrow> \<not> Q b" using minimal_satisfier by auto
-  then have "\<not> P b" if "b < m" for b using Q_def lt_if_lt_if_le that le_if_lt by auto
-  then show ?thesis using that \<open>Q m\<close> Q_def by auto
+  from assms have "Q a" unfolding Q_def by auto
+  then obtain m where "Q m" "\<And>b. b < m \<Longrightarrow> \<not>(Q b)" using lt_minimal_set_witnessE by auto
+  moreover then have "\<not>(P b)" if "b < m" for b
+    using that lt_if_lt_if_le le_if_lt unfolding Q_def by auto
+  ultimately show ?thesis using that unfolding Q_def by auto
 qed
 
 corollary lt_induct [case_names step]:
-  assumes "\<And>X. \<lbrakk>\<And>x. x < X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P X"
+  assumes "\<And>X. \<lbrakk>\<And>x. x < X \<Longrightarrow>(P x)\<rbrakk> \<Longrightarrow>(P X)"
   shows "P X"
 proof (rule ccontr)
-  assume "\<not> P X"
-  then obtain m where "\<not> P m" "\<And>y. y < m \<Longrightarrow> P y" 
-    using minimal_satisfier[where P="\<lambda>x. \<not> P x"] by auto
-  then show "False" using assms by auto
-qed
-
-lemma not_subset_if_lt:
-  assumes "A < B"
-  shows "\<not> B \<subseteq> A"
-proof
-  assume "B \<subseteq> A"
-  then have "A \<in> mem_trans_closure A" 
-    using mem_trans_closures_subset_if_subset assms mem_trans_closure_if_lt by blast
-  then show "False" using not_mem_mem_trans_closure_self by blast
+  assume "\<not>(P X)"
+  then obtain m where "\<not>(P m)" "\<And>y. y < m \<Longrightarrow> P y"
+    using lt_minimal_set_witnessE[where P="\<lambda>x. \<not>(P x)"] by auto
+  with assms show "False" by auto
 qed
 
 end

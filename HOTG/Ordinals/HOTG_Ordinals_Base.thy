@@ -3,9 +3,9 @@
 section \<open>Ordinals\<close>
 theory HOTG_Ordinals_Base
   imports
+    HOTG_Binary_Relations_Connected
     HOTG_Foundation
     Transport.HOL_Syntax_Bundles_Groups
-    HOTG_Binary_Relations_Connected
 begin
 
 paragraph \<open>Summary\<close>
@@ -165,7 +165,7 @@ lemma limit_ordinalE:
   obtains "ordinal X" "0 \<in> X" "\<And>x. x \<in> X \<Longrightarrow> succ x \<in> X"
   using assms unfolding limit_ordinal_def by auto
 
-lemma union_eq_self_if_limit_ordinal: 
+lemma union_eq_self_if_limit_ordinal:
   assumes limit: "limit_ordinal X"
   shows "\<Union>X = X"
 proof
@@ -178,8 +178,7 @@ next
   ultimately show "x \<in> \<Union>X" by blast
 qed
 
-lemma ordinal_mem_total_order:
-  shows "ordinal X \<Longrightarrow> ordinal Y \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
+lemma mem_or_eq_or_mem_if_ordinal_if_ordinal: "ordinal X \<Longrightarrow> ordinal Y \<Longrightarrow> X \<in> Y \<or> X = Y \<or> Y \<in> X"
 proof (induction X arbitrary: Y rule: ordinal_mem_induct)
   case step_X: (step X)
   show ?case using \<open>ordinal Y\<close>
@@ -193,56 +192,57 @@ proof (induction X arbitrary: Y rule: ordinal_mem_induct)
       then show ?thesis using mem_trans_if_ordinal \<open>ordinal X\<close> \<open>x \<in> X\<close> by auto
     next
       case y
-      have "X = y \<or> X \<in> y" using step_Y.IH[OF \<open>y \<in> Y\<close>] \<open>y \<notin> X\<close> by auto
+      have "X = y \<or> X \<in> y" using step_Y.IH \<open>y \<in> Y\<close> \<open>y \<notin> X\<close> by auto
       then show ?thesis using mem_trans_if_ordinal \<open>ordinal Y\<close> \<open>y \<in> Y\<close> by auto
-    qed (auto)
+    qed auto
   qed
 qed
 
-lemma ordinal_memE:
-  assumes "ordinal X" and "ordinal Y"
+lemma mem_eq_mem_if_ordinalE:
+  assumes "ordinal X" "ordinal Y"
   obtains "X \<in> Y" | "X = Y" | "Y \<in> X"
-  using ordinal_mem_total_order assms by (auto del: ordinal_mem_trans_closedE)
+  using mem_or_eq_or_mem_if_ordinal_if_ordinal assms by (auto del: ordinal_mem_trans_closedE)
 
-lemma membership_connected_ordinals:
-  shows "connected_on ordinal (\<in>)" 
-  by (auto elim: ordinal_memE del: ordinal_mem_trans_closedE)
+lemma connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
+  by (auto elim: mem_eq_mem_if_ordinalE del: ordinal_mem_trans_closedE)
 
 lemma ordinal_cases [cases type: set]:
   assumes ordinal: "ordinal k"
-  obtains (0) "k = 0" | (succ) l where "ordinal l" "succ l = k" | (limit) "limit_ordinal k"
+  obtains (zero) "k = 0" | (succ) l where "ordinal l" "succ l = k" | (limit) "limit_ordinal k"
 proof (cases "limit_ordinal k")
   case not_limit: False
   then show ?thesis
   proof (cases "0 \<in> k")
     case True
-    then obtain l where hl: "l \<in> k \<and> succ l \<notin> k" using not_limit ordinal by (fast intro!: limit_ordinalI)
+    then obtain l where hl: "l \<in> k \<and> succ l \<notin> k" using not_limit ordinal
+      by (fast intro!: limit_ordinalI)
     have succ_subset: "succ l \<subseteq> k" using mem_succE mem_trans_if_ordinal[OF ordinal] hl by blast
     from hl have "ordinal (succ l)" using ordinal ordinal_succI ordinal_if_mem_if_ordinal by auto
-    from ordinal_mem_total_order[OF this ordinal] have "succ l = k" using hl succ_subset by auto 
+    from mem_or_eq_or_mem_if_ordinal_if_ordinal[OF this ordinal] have "succ l = k"
+      using hl succ_subset by auto
     moreover have "ordinal l" using ordinal_if_mem_if_ordinal ordinal hl by blast
     ultimately show ?thesis using succ by auto
   next
     case False
-    then have "k = 0" using ordinal_mem_total_order[OF ordinal ordinal_zero] by blast
-    then show ?thesis using 0 by blast
+    then have "k = 0" using mem_or_eq_or_mem_if_ordinal_if_ordinal[OF ordinal] by blast
+    then show ?thesis using zero by blast
   qed
 qed
 
 text\<open>Standard ordinal induction:\<close>
 
 lemma ordinal_induct [consumes 1, case_names zero succ limit, induct type: set]:
-  assumes 
-    "ordinal X" and "P 0" and 
-    P_succ: "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)" and
-    P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
+  assumes "ordinal X"
+  and "P 0"
+  and P_succ: "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
+  and P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
   shows "P X"
 using \<open>ordinal X\<close>
 proof (induction X rule: ordinal_mem_induct)
   case (step X)
   then show ?case
   proof (cases rule: ordinal_cases)
-    case 0
+    case zero
     with \<open>P 0\<close> show ?thesis by simp
   next
     case (succ l)

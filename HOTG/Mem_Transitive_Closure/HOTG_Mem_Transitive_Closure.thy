@@ -83,11 +83,11 @@ proof (induction Y)
     by (cases "Y = {}") (auto simp add: mem_trans_closure_eq_bin_union_idx_union[of Y])
 qed
 
-lemma mem_trans_closures_subset_if_subset:
+lemma mem_trans_closure_subset_mem_trans_closure_if_subset:
   assumes "Y \<subseteq> X"
   shows "mem_trans_closure Y \<subseteq> mem_trans_closure X"
-    using mem_trans_closure_le_if_le_if_mem_trans_closed[OF mem_trans_closed_mem_trans_closure]
-    subset_mem_trans_closure_self[of X] assms by blast
+  using assms subset_mem_trans_closure_self mem_trans_closed_mem_trans_closure
+  by (intro mem_trans_closure_le_if_le_if_mem_trans_closed) auto
 
 lemma mem_trans_closure_eq_self_if_mem_trans_closed [simp]:
   assumes "mem_trans_closed X"
