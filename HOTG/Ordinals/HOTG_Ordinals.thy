@@ -3,6 +3,8 @@
 theory HOTG_Ordinals
   imports
     HOTG_Ordinals_Base
+    HOTG_Ordinals_Max
+    HOTG_Ranks
 begin
 
 

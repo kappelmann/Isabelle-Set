@@ -4,6 +4,7 @@ subsection \<open>Generalised Multiplication\<close>
 theory HOTG_Multiplication
   imports
     HOTG_Addition
+    HOTG_Additively_Divides
 begin
 
 paragraph \<open>Summary\<close>
@@ -153,31 +154,76 @@ qed simp
 
 paragraph\<open>Lemma 4.6 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>The next lemma is rather complex and remains incomplete as of now. A complete proof
-can be found in \<^cite>\<open>kirby_set_arithemtics\<close> and
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L992\<close>.\<close>
-
-lemma zero_if_multi_eq_multi_add: assumes "A * X = A * Y + B" "B < A"
-  shows "B = 0"
-proof (cases "A = 0 \<or> X = 0")
-  case True
-  with assms show ?thesis
-  proof (cases "A = 0")
-    case False
-    then have "A * Y + B = 0" using  \<open>A = 0 \<or> X = 0\<close> assms by auto
-    then show ?thesis
-      by (auto simp: add_eq_zero_iff_and_eq_zero[of "A * Y" "B"])
-  qed auto
-next
-  case False
-  then have "A \<noteq> 0" "X \<noteq> 0" by auto
+lemma mul_eq_mul_add_ltE:
+  assumes "A * X = A * Y + B" "0 < B" "B < A"
+  obtains u f where "A * Y = A * u + f" "0 < f" "f < A" "u < X"
+proof -
+  define \<phi> where "\<phi> x \<longleftrightarrow> (\<exists>r. 0 < r \<and> r < A \<and> A * x = A * Y + r)" for x
+  from assms have "\<phi> X" unfolding \<phi>_def by auto
+  then obtain X' where "\<phi> X'" "X' \<le> X" and X'_min: "\<And>x. x < X' \<Longrightarrow> \<not> \<phi> x"
+    using le_minimal_set_witnessE by auto
+  from \<open>\<phi> X'\<close> obtain B' where "0 < B'" "B' < A" "A * X' = A * Y + B'" unfolding \<phi>_def by auto
+  then have "A * Y < A * X'" by auto
+  then obtain p where "p \<in> A * X'" "A * Y \<le> p" by (auto elim: lt_mem_leE)
+  from \<open>p \<in> A * X'\<close> obtain u c where "u \<in> X'" "c \<in> A" "p = A * u + c"
+    using mul_eq_idx_union_repl_mul_add[of A X'] by auto
+  have "A * u \<noteq> A * Y"
+  proof
+    assume "A * u = A * Y"
+    moreover have "lift (A * u) A \<subseteq> A * X'" using \<open>u \<in> X'\<close> mul_eq_idx_union_lift_mul by fast
+    ultimately have "lift (A * Y) A \<subseteq> A * X'" by auto
+    then have "lift (A * Y) A \<subseteq> A * Y \<union> lift (A * Y) B'"
+      using \<open>A * X' = A * Y + B'\<close> add_eq_bin_union_lift by blast
+    then have "lift (A * Y) A \<subseteq> lift (A * Y) B'"
+      using disjoint_lift_self_right disjoint_iff_all_not_mem by blast
+    then have "A \<subseteq> B'" using subset_if_lift_subset_lift by blast
+    then show "False" using \<open>B' < A\<close> not_subset_if_lt by blast
+  qed
+  from \<open>A * Y \<le> p\<close> have "p \<notin> A * Y" using lt_if_mem not_lt_if_le by auto
+  then have "p \<in> lift (A * Y) B'"
+    using \<open>p \<in> A * X'\<close> \<open>A * X' = A * Y + B'\<close> add_eq_bin_union_lift by auto
+  then obtain d where "d \<in> B'" "p = A * Y + d" using lift_eq_repl_add by auto
+  then consider "A * Y \<unlhd> A * u" | "A * u \<unlhd> A * Y"
+    using \<open>p = A * u + c\<close> additively_divides_or_additively_divides_if_add_eq_add by blast
   then show ?thesis
-  proof (cases"Y = 0")
-    case True
-    then show ?thesis sorry
+  proof cases
+    case 1
+    then obtain e where "A * u = A * Y + e" by (auto elim!: additively_dividesE)
+    then have "A * Y + d = A * Y + e + c" using \<open>p = A * Y + d\<close> \<open>p = A * u + c\<close> by auto
+    then have "d = e + c" using add_assoc add_eq_add_if_eq_right by auto
+    then have "e \<le> d" using le_self_add by auto
+    also have "d < A" using \<open>d \<in> B'\<close> lt_if_mem \<open>B' < A\<close> lt_trans by blast
+    finally have "e < A" using lt_if_le_if_lt by auto
+    have "e \<noteq> 0" using \<open>A * u = A * Y + e\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
+    then have "\<phi> u" using \<open>e < A\<close> \<open>A * u = A * Y + e\<close> unfolding \<phi>_def by blast
+    then have "False" using X'_min \<open>u \<in> X'\<close> lt_if_mem by auto
+    then show ?thesis by blast
   next
-    case False
-    then show ?thesis sorry
+    case 2
+    then obtain f where "A * Y = A * u + f" by fast
+    then have "A * u + f + d = A * u + c" using \<open>p = A * Y + d\<close> \<open>p = A * u + c\<close> by auto
+    then have "f + d = c" using add_assoc add_eq_add_if_eq_right by auto
+    then have "f < A" using \<open>c \<in> A\<close> lt_if_mem_if_le by auto
+    have "f \<noteq> 0" using \<open>A * Y = A * u + f\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
+    have "u < X" using \<open>u \<in> X'\<close> lt_if_mem \<open>X' \<le> X\<close> lt_if_le_if_lt by blast
+    then show ?thesis using that \<open>A * Y = A * u + f\<close> \<open>f \<noteq> 0\<close> \<open>f < A\<close> \<open>u < X\<close> by auto
+  qed
+qed
+
+lemma eq_zero_if_lt_if_mul_eq_mul_add:
+  assumes "A * X = A * Y + B" "B < A"
+  shows "B = 0"
+using assms
+proof (induction X arbitrary: Y B rule: lt_induct)
+  case (step X) show ?case
+  proof (rule ccontr)
+    assume "B \<noteq> 0"
+    then have "0 < B" by auto
+    with mul_eq_mul_add_ltE step obtain u f where "A * Y = A * u + f" "0 < f" "f < A" "u < X"
+      by blast
+    with mul_eq_mul_add_ltE obtain v g where "A * u = A * v + g" "0 < g" "g < A" "v < Y" by blast
+    with step.IH have "g = 0" using \<open>u < X\<close> by auto
+    then show "False" using \<open>0 < g\<close> by auto
   qed
 qed
 
@@ -196,7 +242,22 @@ lemma eq_if_mul_add_eq_mul_add_if_lt:
   assumes "R < A" "S < A"
   and "A * X + R = A * Y + S"
   shows "X = Y" "R = S"
-  sorry
+proof (induction X rule: lt_induct)
+  case (step X)
+  have "X \<noteq> 0"
+  proof
+    assume "X = 0"
+    then have "A * Y + S < A" sorry
+    show "False" sorry
+  qed
+  {
+    case 1
+    then show ?case sorry
+  next
+    case 2
+    then show ?case sorry
+  }
+qed
 
 lemma bin_inter_lift_mul_mem_trans_closure_lift_mul_mem_trans_closure_eq_zero:
   assumes "X \<noteq> Y"
