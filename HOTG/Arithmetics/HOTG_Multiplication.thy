@@ -339,44 +339,13 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-(*
-
-lemma eq_if_mul_add_eq_mul_add_if_lt:
-  assumes "R < A" "S < A"
-  and "A * X + R = A * Y + S"
-  shows "X = Y \<and> R = S"
-  using assms
-proof (induction X arbitrary: Y R S rule: mem_induction)
-  case (mem X)
-  then show ?case
-  proof (cases "Y = 0")
-    case True
-    then have "A * X + R < A" using mem.prems by auto
-    have "X = 0"
-    proof (rule ccontr)
-      assume "X \<noteq> 0"
-      have "A \<le> A * X + R" 
-        using le_mul_if_ne_zero[OF \<open>X \<noteq> 0\<close>] le_self_add le_trans by auto
-      then show "False" using \<open>A * X + R < A\<close> by auto
-    qed
-    then have "R = S" using \<open>Y = 0\<close> \<open>A * X + R = A * Y + S\<close> by auto
-    then show ?thesis using \<open>X = 0\<close> \<open>Y = 0\<close> by auto
-  next
-    case False
-    have "X \<noteq> 0"
-    proof
-      assume "X = 0"
-      then have "A * Y + S < A" using mem.prems by auto
-      moreover have "A \<le> A * Y + S" 
-        using le_mul_if_ne_zero[OF \<open>Y \<noteq> 0\<close>] le_self_add le_trans by auto
-      ultimately show "False" by auto
-    qed
-    have "X \<subseteq> Y" using eq_if_mul_add_eq_mul_add_if_lt_aux mem by auto
-    then show ?thesis sorry
-  qed
+corollary eq_if_mul_eq_mul_if_nz:
+  assumes nz: "A \<noteq> 0" and eq: "A * X = A * Y"
+  shows "X = Y"
+proof -
+  from eq have "A * X + 0 = A * Y + 0" by auto
+  then show ?thesis using eq_if_mul_add_eq_mul_add_if_lt nz by blast
 qed
-
-*)
 
 lemma bin_inter_lift_mul_mem_trans_closure_lift_mul_mem_trans_closure_eq_zero:
   assumes "X \<noteq> Y"
@@ -392,6 +361,5 @@ proof (rule eqI)
   then have "X = Y" "r = rr" using eq_if_mul_add_eq_mul_add_if_lt[of r _ rr X _] by auto
   then show "x \<in> 0" by (simp add: assms)
 qed simp
-
 
 end
