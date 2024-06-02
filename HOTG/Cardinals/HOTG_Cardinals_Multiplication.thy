@@ -34,7 +34,7 @@ qed
 corollary cardinality_cartprod_equipollent_cartprod: "|X| \<times> |Y| \<approx> X \<times> Y"
   using cartprod_equipollent_if_equipollent by auto
 
-corollary cardinality_mul_eq_cartprod_cardinality: "|X| \<otimes> |Y| = |X \<times> Y|"
+corollary cardinality_mul_cardinality_eq_cardinality_cartprod: "|X| \<otimes> |Y| = |X \<times> Y|"
   using cardinal_mul_eq_cardinality_cartprod cardinality_cartprod_equipollent_cartprod 
   using cardinality_eq_if_equipollent by auto
 

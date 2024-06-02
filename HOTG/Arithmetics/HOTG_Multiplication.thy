@@ -240,7 +240,7 @@ lemma eq_if_mul_add_eq_mul_add_if_lt_aux:
   assumes "A * X + R = A * Y + S" "R < A" "S < A"
   assumes IH:
     "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> 
-    A * x + r = A * y + s \<Longrightarrow> x = y \<and> r = s"
+    A * x + r = A * y + s \<Longrightarrow> x = y"
   shows "X \<subseteq> Y"
 proof
   fix u assume "u \<in> X"
