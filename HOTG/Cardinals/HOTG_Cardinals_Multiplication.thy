@@ -31,11 +31,11 @@ proof -
   then show ?thesis by auto 
 qed
 
-corollary cardinality_cartprod_equipollent_cartprod: "|X| \<times> |Y| \<approx> X \<times> Y"
+corollary cartprod_cardinalities_equipollent_cartprod: "|X| \<times> |Y| \<approx> X \<times> Y"
   using cartprod_equipollent_if_equipollent by auto
 
 corollary cardinality_mul_cardinality_eq_cardinality_cartprod: "|X| \<otimes> |Y| = |X \<times> Y|"
-  using cardinal_mul_eq_cardinality_cartprod cardinality_cartprod_equipollent_cartprod 
+  using cardinal_mul_eq_cardinality_cartprod cartprod_cardinalities_equipollent_cartprod 
   using cardinality_eq_if_equipollent by auto
 
 end

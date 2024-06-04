@@ -27,9 +27,7 @@ theorem cardinality_add_eq_cardinal_add_cardinality: "|X + Y| = |X| \<oplus> |Y|
   using disjoint_lift_self_right by (auto simp add:
   cardinality_bin_union_eq_cardinal_add_cardinality_if_disjoint add_eq_bin_union_lift)
 
-text\<open>A similar theorem shows that set multiplication is compatible with cardinality multiplication,
-but it is not proven here. See
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1431\<close>.\<close>
+text\<open>A similar theorem shows that set multiplication is compatible with cardinality multiplication.\<close>
 
 lemma bijection_onto_image_if_injective_on:
   assumes "\<And>x x'. x \<in> X \<Longrightarrow> x' \<in> X \<Longrightarrow> f x = f x' \<Longrightarrow> x = x'"
@@ -43,7 +41,7 @@ proof
     moreover from this have "x = x'" if "P y x'" for x' using P_def that assms by auto
     ultimately have "P y (?g y)" using theI[of "P y"] by blast
     then show ?thesis using P_def by auto
-  qed                                   
+  qed 
   have inv': "?g (f x) = x" if "x \<in> X" for x
   proof -
     have "?g (f x) \<in> X \<and> f (?g (f x)) = f x" using that inv image_def by auto
@@ -72,8 +70,6 @@ proof -
   ultimately have "|X \<times> Y| = |X * Y|" using cardinality_eq_if_equipollent by auto
   then show ?thesis using cardinality_mul_cardinality_eq_cardinality_cartprod by auto
 qed
-
-term "mem_of"
 
 end
 
