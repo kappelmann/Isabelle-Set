@@ -102,7 +102,7 @@ proof -
     by (blast dest: symmetricD)
   finally have "X \<union> Y \<approx> |X| \<Coprod> |Y|" .
   with cardinality_eq_if_equipollent have "|X \<union> Y| = ||X| \<Coprod> |Y||" by auto
-  with cardinal_add_eq_cardinality_coprod show ?thesis by simp
+  with cardinal_add_eq_cardinality_coprod show ?thesis by auto
 qed
 
 end

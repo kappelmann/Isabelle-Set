@@ -5,8 +5,8 @@ theory HOTG_Multiplication
   imports
     HOTG_Addition
     HOTG_Additively_Divides
-    HOTG_Ranks
     HOTG_Ordinals_Max
+    HOTG_Ranks
 begin
 
 unbundle no_HOL_groups_syntax
@@ -16,14 +16,14 @@ text \<open>Translation of generalised set multiplication for sets from \<^cite>
 and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication is associative,
 but it is not commutative (not proven here).\<close>
 
-definition "mul X \<equiv> transrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
+definition "mul X \<equiv> transfrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
 
 bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
 bundle no_hotg_mul_syntax begin no_notation mul (infixl "*" 70) end
 unbundle hotg_mul_syntax
 
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
-  unfolding mul_def by (urule transrec_eq)
+  unfolding mul_def by (urule transfrec_eq)
 
 corollary mul_eq_idx_union_repl_mul_add: "X * Y = (\<Union>y \<in> Y. {X * y + x | x \<in> X})"
   using mul_eq_idx_union_lift_mul[of X Y] lift_eq_repl_add by simp
@@ -233,14 +233,10 @@ qed
 
 paragraph\<open>Lemma 4.7 from \<^cite>\<open>kirby_set_arithemtics\<close>\<close>
 
-text\<open>For the next missing proofs, see
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1166\<close>.\<close>
-
 lemma eq_if_mul_add_eq_mul_add_if_lt_aux:
   assumes "A * X + R = A * Y + S" "R < A" "S < A"
   assumes IH:
-    "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> 
-    A * x + r = A * y + s \<Longrightarrow> x = y"
+    "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> A * x + r = A * y + s \<Longrightarrow> x = y"
   shows "X \<subseteq> Y"
 proof
   fix u assume "u \<in> X"
@@ -257,7 +253,7 @@ proof
     then show "False" using \<open>S < A\<close> not_subset_if_lt by blast
   qed
   from \<open>R < A\<close> obtain R' where "R' \<in> A" "R \<le> R'" by (auto elim: lt_mem_leE)
-  have "A * u + R' \<in> A * X" 
+  have "A * u + R' \<in> A * X"
     using mul_eq_idx_union_repl_mul_add[of A X] \<open>R' \<in> A\<close> \<open>u \<in> X\<close> by auto
   moreover have "A * X \<subseteq> A * Y \<union> lift (A * Y) S"
     using \<open>A * X + R = A * Y + S\<close> add_eq_bin_union_lift by auto
@@ -290,7 +286,7 @@ proof
     qed
   next
     case 2
-    then obtain v e where "v \<in> Y" "e \<in> A" "A * u + R' = A * v + e" 
+    then obtain v e where "v \<in> Y" "e \<in> A" "A * u + R' = A * v + e"
       using mul_eq_idx_union_repl_mul_add[of A Y] by auto
     then have "u = v" using IH \<open>u \<in> X\<close> \<open>R' \<in> A\<close> lt_if_mem by blast
     then show ?thesis using \<open>v \<in> Y\<close> by blast
@@ -303,30 +299,28 @@ lemma eq_if_mul_add_eq_mul_add_if_lt:
   shows "X = Y \<and> R = S"
 proof -
   let ?\<alpha> = "max_ordinal (rank X) (rank Y)"
-  have "X = Y \<and> R = S" if "ordinal \<alpha>" "rank X \<le> \<alpha>" "rank Y \<le> \<alpha>" for \<alpha> 
-    using that assms
+  have "X = Y \<and> R = S" if "ordinal \<alpha>" "rank X \<le> \<alpha>" "rank Y \<le> \<alpha>" for \<alpha>
+  using that assms
   proof (induction \<alpha> arbitrary: X Y R S rule: ordinal_mem_induct)
     case (step \<alpha>)
     have "\<exists>\<beta>. \<beta> \<in> \<alpha> \<and> rank x \<le> \<beta> \<and> rank y \<le> \<beta>" if "x \<in> X" "y \<in> Y" for x y
     proof
       define \<beta> :: set where "\<beta> = max_ordinal (rank x) (rank y)"
-      have "rank x < \<alpha>" 
+      have "rank x < \<alpha>"
         using \<open>x \<in> X\<close> lt_if_mem rank_lt_rank_if_lt \<open>rank X \<le> \<alpha>\<close> lt_if_lt_if_le by fastforce
       moreover have "rank y < \<alpha>"
         using \<open>y \<in> Y\<close> lt_if_mem rank_lt_rank_if_lt \<open>rank Y \<le> \<alpha>\<close> lt_if_lt_if_le by fastforce
       ultimately have "\<beta> < \<alpha>" using \<beta>_def max_ordinal_lt_if_lt_if_lt by auto
-      then have "\<beta> \<in> \<alpha>" using \<open>ordinal \<alpha>\<close> 
+      then have "\<beta> \<in> \<alpha>" using \<open>ordinal \<alpha>\<close>
         using mem_if_lt_if_mem_trans_closed ordinal_mem_trans_closedE  by auto
-      then show "\<beta> \<in> \<alpha> \<and> rank x \<le> \<beta> \<and> rank y \<le> \<beta>" using \<beta>_def ordinal_rank 
-        le_max_ordinal_left_if_ordinal_if_ordinal le_max_ordinal_right_if_ordinal_if_ordinal by auto 
+      then show "\<beta> \<in> \<alpha> \<and> rank x \<le> \<beta> \<and> rank y \<le> \<beta>" using \<beta>_def ordinal_rank
+        le_max_ordinal_left_if_ordinal_if_ordinal le_max_ordinal_right_if_ordinal_if_ordinal by auto
     qed
-    then have IH': 
-        "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> 
-        A * x + r = A * y + s \<Longrightarrow> x = y \<and> r = s"
+    then have IH':
+      "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> A * x + r = A * y + s \<Longrightarrow> x = y \<and> r = s"
       using step.IH by blast
-    then have "X \<subseteq> Y" 
-      using eq_if_mul_add_eq_mul_add_if_lt_aux step.prems by auto
-    moreover have "Y \<subseteq> X" 
+    then have "X \<subseteq> Y" using eq_if_mul_add_eq_mul_add_if_lt_aux step.prems by auto
+    moreover have "Y \<subseteq> X"
       using eq_if_mul_add_eq_mul_add_if_lt_aux[OF \<open>A * X + R = A * Y + S\<close>[symmetric]]
       using \<open>S < A\<close> \<open>R < A\<close> IH' by force
     ultimately have "X = Y" by auto
@@ -339,8 +333,9 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-corollary eq_if_mul_eq_mul_if_nz:
-  assumes nz: "A \<noteq> 0" and eq: "A * X = A * Y"
+corollary eq_if_mul_eq_mul_if_ne_zero:
+  assumes nz: "A \<noteq> 0"
+  and eq: "A * X = A * Y"
   shows "X = Y"
 proof -
   from eq have "A * X + 0 = A * Y + 0" by auto

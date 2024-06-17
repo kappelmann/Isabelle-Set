@@ -1,5 +1,6 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Cardinals\<close>
 theory HOTG_Cardinals
   imports

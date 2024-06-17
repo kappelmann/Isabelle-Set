@@ -3,7 +3,6 @@
 subsection \<open>Generalised Addition\<close>
 theory HOTG_Addition
   imports
-    HOTG_Less_Than
     HOTG_Ordinals_Base
     HOTG_Transfinite_Recursion
 begin
@@ -17,7 +16,7 @@ text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_se
 \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is associative and
 monotone and injective in the second argument, but it is not commutative (not proven here).\<close>
 
-definition "add X \<equiv> transrec (\<lambda>addX Y. X \<union> image addX Y)"
+definition "add X \<equiv> transfrec (\<lambda>addX Y. X \<union> image addX Y)"
 
 bundle hotg_add_syntax begin notation add (infixl "+" 65) end
 bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
@@ -26,7 +25,7 @@ unbundle
   no_HOL_ascii_syntax
 
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
-  unfolding add_def supply transrec_eq[uhint] by (urule refl)
+  unfolding add_def supply transfrec_eq[uhint] by (urule refl)
 
 text \<open>The lift operation from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
 

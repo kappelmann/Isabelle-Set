@@ -12,11 +12,10 @@ text \<open>The transitive closure of a set @{term "X ::set"} is the set that co
 all sets that are transitively contained in @{term "X ::set"}.
 In particular, each such set is transitively closed.
 
-We follow the approach from \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L410\<close>.\<close>
+We follow the approach from \<^cite>\<open>ZFC_in_HOL_AFP\<close>.\<close>
 
-definition "is_mem_trans_closure_of X T 
-  \<longleftrightarrow> (mem_trans_closed T \<and> X \<subseteq> T \<and> (\<forall>Y : mem_trans_closed. X \<subseteq> Y \<longrightarrow> T \<subseteq> Y))"
+definition "is_mem_trans_closure_of X T
+  \<equiv> mem_trans_closed T \<and> X \<subseteq> T \<and> (\<forall>Y : mem_trans_closed. X \<subseteq> Y \<longrightarrow> T \<subseteq> Y)"
 
 definition "mem_trans_closure X = (THE T. is_mem_trans_closure_of X T)"
 
@@ -62,13 +61,12 @@ proof (intro is_mem_trans_closure_ofI)
       then show ?thesis using \<open>z \<in> X\<close> T_def by auto
     next
       case trans
-      then have "z \<subseteq> mem_trans_closure x" 
+      then have "z \<subseteq> mem_trans_closure x"
         using trans_closure_elems is_mem_trans_closure_ofE mem_trans_closedD by auto
       then show ?thesis using \<open>x \<in> X\<close> T_def by auto
     qed
   qed
-next
-  show "X \<subseteq> T" using T_def by auto
+next show "X \<subseteq> T" unfolding T_def by auto
 next
   fix Y assume hY: "mem_trans_closed Y" "X \<subseteq> Y"
   show "T \<subseteq> Y"
@@ -81,14 +79,14 @@ next
       then show ?thesis using \<open>X \<subseteq> Y\<close> by auto
     next
       case trans
-      then have "mem_trans_closure x \<subseteq> Y" 
+      then have "mem_trans_closure x \<subseteq> Y"
         using trans_closure_elems is_mem_trans_closure_ofE hY by blast
       then show ?thesis using trans by auto
     qed
   qed
 qed
 
-theorem is_mem_trans_closure_of_mem_trans_closure: 
+theorem is_mem_trans_closure_of_mem_trans_closure:
   shows "is_mem_trans_closure_of X (mem_trans_closure X)"
 proof (induction X rule: mem_induction)
   case (mem X)

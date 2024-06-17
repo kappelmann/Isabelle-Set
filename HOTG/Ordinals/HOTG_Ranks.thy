@@ -1,15 +1,18 @@
 \<^marker>\<open>creator "Niklas Krofta"\<close>
 theory HOTG_Ranks
-  imports HOTG_Ordinals_Base HOTG_Less_Than HOTG_Transfinite_Recursion
+  imports
+    HOTG_Ordinals_Base
+    HOTG_Less_Than
+    HOTG_Transfinite_Recursion
 begin
 
 unbundle no_HOL_order_syntax
 
 definition rank :: "set \<Rightarrow> set" where
-  "rank = transrec (\<lambda>rank X. (\<Union>x \<in> X. succ (rank x)))"
+  "rank = transfrec (\<lambda>rank X. (\<Union>x \<in> X. succ (rank x)))"
 
 lemma rank_eq_idx_union_succ_rank: "rank X = (\<Union>x \<in> X. succ (rank x))"
-  unfolding rank_def by (urule transrec_eq)
+  unfolding rank_def by (urule transfrec_eq)
 
 lemma ordinal_rank: "ordinal (rank X)"
 proof (induction X rule: mem_induction)
