@@ -5,6 +5,7 @@ theory HOTG_Cardinals
   imports
     HOTG_Cardinals_Base
     HOTG_Cardinals_Addition
+    HOTG_Cardinals_Multiplication
 begin
 
 

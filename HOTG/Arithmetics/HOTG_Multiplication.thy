@@ -5,7 +5,11 @@ theory HOTG_Multiplication
   imports
     HOTG_Addition
     HOTG_Additively_Divides
+    HOTG_Ranks
+    HOTG_Ordinals_Max
 begin
+
+unbundle no_HOL_groups_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set multiplication for sets from \<^cite>\<open>kirby_set_arithemtics\<close>
@@ -232,31 +236,115 @@ paragraph\<open>Lemma 4.7 from \<^cite>\<open>kirby_set_arithemtics\<close>\<clo
 text\<open>For the next missing proofs, see
 \<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/Kirby.thy#L1166\<close>.\<close>
 
-(* lemma subset_if_mul_add_subset_mul_add_if_lt:
-  assumes "R < A" "S < A"
-  and "A * X + R \<subseteq> A * Y + S"
+lemma eq_if_mul_add_eq_mul_add_if_lt_aux:
+  assumes "A * X + R = A * Y + S" "R < A" "S < A"
+  assumes IH:
+    "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> 
+    A * x + r = A * y + s \<Longrightarrow> x = y"
   shows "X \<subseteq> Y"
-  sorry *)
+proof
+  fix u assume "u \<in> X"
+  have "A * u \<noteq> A * Y"
+  proof
+    assume "A * u = A * Y"
+    moreover have "lift (A * u) A \<subseteq> A * X" using \<open>u \<in> X\<close> mul_eq_idx_union_lift_mul by fast
+    ultimately have "lift (A * Y) A \<subseteq> A * X" by auto
+    then have "lift (A * Y) A \<subseteq> A * Y \<union> lift (A * Y) S"
+      using \<open>A * X + R = A * Y + S\<close> add_eq_bin_union_lift by blast
+    then have "lift (A * Y) A \<subseteq> lift (A * Y) S"
+      using disjoint_lift_self_right disjoint_iff_all_not_mem by blast
+    then have "A \<subseteq> S" using subset_if_lift_subset_lift by blast
+    then show "False" using \<open>S < A\<close> not_subset_if_lt by blast
+  qed
+  from \<open>R < A\<close> obtain R' where "R' \<in> A" "R \<le> R'" by (auto elim: lt_mem_leE)
+  have "A * u + R' \<in> A * X" 
+    using mul_eq_idx_union_repl_mul_add[of A X] \<open>R' \<in> A\<close> \<open>u \<in> X\<close> by auto
+  moreover have "A * X \<subseteq> A * Y \<union> lift (A * Y) S"
+    using \<open>A * X + R = A * Y + S\<close> add_eq_bin_union_lift by auto
+  ultimately consider "A * u + R' \<in> lift (A * Y) S" | "A * u + R' \<in> A * Y" by auto
+  then show "u \<in> Y"
+  proof cases
+    case 1
+    then obtain t where "t \<in> S" "A * u + R' = A * Y + t" using lift_eq_repl_add by auto
+    show ?thesis using additively_divides_if_add_eq_addE[OF \<open>A * u + R' = A * Y + t\<close>]
+    proof cases
+      case 1
+      then obtain d where "A * u + d = A * Y" using additively_dividesE by auto
+      then have "A * u + R' = A * u + d + t" using \<open>A * u + R' = A * Y + t\<close> by auto
+      then have "R' = d + t" using add_assoc add_eq_add_if_eq_right by auto
+      then have "d < A" using \<open>R' \<in> A\<close> lt_if_mem_if_le by auto
+      moreover have "d \<noteq> 0" using \<open>A * u + d = A * Y\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
+      ultimately have "False" using \<open>A * u + d = A * Y\<close>[symmetric] eq_zero_if_lt_if_mul_eq_mul_add by auto
+      then show ?thesis by blast
+    next
+      case 2
+      then obtain c where "A * Y + c = A * u" using additively_dividesE by auto
+      then have "A * Y + c + R' = A * Y + t" using \<open>A * u + R' = A * Y + t\<close> by auto
+      then have "c + R' = t" using add_eq_add_if_eq_right add_assoc by auto
+      then have "c \<le> t" by auto
+      also have "t < A" using \<open>t \<in> S\<close> lt_if_mem \<open>S < A\<close> lt_trans by blast
+      finally have "c < A" using lt_if_le_if_lt by auto
+      moreover have "c \<noteq> 0" using \<open>A * Y + c = A * u\<close> add_zero_eq_self \<open>A * u \<noteq> A * Y\<close> by force
+      ultimately have "False" using \<open>A * Y + c = A * u\<close>[symmetric] eq_zero_if_lt_if_mul_eq_mul_add by auto
+      then show ?thesis by blast
+    qed
+  next
+    case 2
+    then obtain v e where "v \<in> Y" "e \<in> A" "A * u + R' = A * v + e" 
+      using mul_eq_idx_union_repl_mul_add[of A Y] by auto
+    then have "u = v" using IH \<open>u \<in> X\<close> \<open>R' \<in> A\<close> lt_if_mem by blast
+    then show ?thesis using \<open>v \<in> Y\<close> by blast
+  qed
+qed
 
 lemma eq_if_mul_add_eq_mul_add_if_lt:
   assumes "R < A" "S < A"
   and "A * X + R = A * Y + S"
-  shows "X = Y" "R = S"
-proof (induction X rule: lt_induct)
-  case (step X)
-  have "X \<noteq> 0"
-  proof
-    assume "X = 0"
-    then have "A * Y + S < A" sorry
-    show "False" sorry
+  shows "X = Y \<and> R = S"
+proof -
+  let ?\<alpha> = "max_ordinal (rank X) (rank Y)"
+  have "X = Y \<and> R = S" if "ordinal \<alpha>" "rank X \<le> \<alpha>" "rank Y \<le> \<alpha>" for \<alpha> 
+    using that assms
+  proof (induction \<alpha> arbitrary: X Y R S rule: ordinal_mem_induct)
+    case (step \<alpha>)
+    have "\<exists>\<beta>. \<beta> \<in> \<alpha> \<and> rank x \<le> \<beta> \<and> rank y \<le> \<beta>" if "x \<in> X" "y \<in> Y" for x y
+    proof
+      define \<beta> :: set where "\<beta> = max_ordinal (rank x) (rank y)"
+      have "rank x < \<alpha>" 
+        using \<open>x \<in> X\<close> lt_if_mem rank_lt_rank_if_lt \<open>rank X \<le> \<alpha>\<close> lt_if_lt_if_le by fastforce
+      moreover have "rank y < \<alpha>"
+        using \<open>y \<in> Y\<close> lt_if_mem rank_lt_rank_if_lt \<open>rank Y \<le> \<alpha>\<close> lt_if_lt_if_le by fastforce
+      ultimately have "\<beta> < \<alpha>" using \<beta>_def max_ordinal_lt_if_lt_if_lt by auto
+      then have "\<beta> \<in> \<alpha>" using \<open>ordinal \<alpha>\<close> 
+        using mem_if_lt_if_mem_trans_closed ordinal_mem_trans_closedE  by auto
+      then show "\<beta> \<in> \<alpha> \<and> rank x \<le> \<beta> \<and> rank y \<le> \<beta>" using \<beta>_def ordinal_rank 
+        le_max_ordinal_left_if_ordinal_if_ordinal le_max_ordinal_right_if_ordinal_if_ordinal by auto 
+    qed
+    then have IH': 
+        "\<And>x y r s. x \<in> X \<Longrightarrow> y \<in> Y \<Longrightarrow> r < A \<Longrightarrow> s < A \<Longrightarrow> 
+        A * x + r = A * y + s \<Longrightarrow> x = y \<and> r = s"
+      using step.IH by blast
+    then have "X \<subseteq> Y" 
+      using eq_if_mul_add_eq_mul_add_if_lt_aux step.prems by auto
+    moreover have "Y \<subseteq> X" 
+      using eq_if_mul_add_eq_mul_add_if_lt_aux[OF \<open>A * X + R = A * Y + S\<close>[symmetric]]
+      using \<open>S < A\<close> \<open>R < A\<close> IH' by force
+    ultimately have "X = Y" by auto
+    moreover from this have "R = S" using \<open>A * X + R = A * Y + S\<close> add_eq_add_if_eq_right by auto
+    ultimately show ?case by auto
   qed
-  {
-    case 1
-    then show ?case sorry
-  next
-    case 2
-    then show ?case sorry
-  }
+  moreover have "ordinal ?\<alpha> \<and> rank X \<le> ?\<alpha> \<and> rank Y \<le> ?\<alpha>"
+    using ordinal_rank ordinal_max_ordinal_if_ordinal_if_ordinal
+    using le_max_ordinal_left_if_ordinal_if_ordinal le_max_ordinal_right_if_ordinal_if_ordinal by auto
+  ultimately show ?thesis by auto
+qed
+
+corollary eq_if_mul_eq_mul_if_nz:
+  assumes nz: "A \<noteq> 0" and eq: "A * X = A * Y"
+  shows "X = Y"
+proof -
+  from eq have "A * X + 0 = A * Y + 0" by auto
+  then show ?thesis using eq_if_mul_add_eq_mul_add_if_lt nz by blast
 qed
 
 lemma bin_inter_lift_mul_mem_trans_closure_lift_mul_mem_trans_closure_eq_zero:
@@ -273,6 +361,5 @@ proof (rule eqI)
   then have "X = Y" "r = rr" using eq_if_mul_add_eq_mul_add_if_lt[of r _ rr X _] by auto
   then show "x \<in> 0" by (simp add: assms)
 qed simp
-
 
 end

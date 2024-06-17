@@ -5,6 +5,7 @@ theory HOTG_Addition
   imports
     HOTG_Less_Than
     HOTG_Ordinals_Base
+    HOTG_Transfinite_Recursion
 begin
 
 unbundle

@@ -1,6 +1,6 @@
 \<^marker>\<open>creator "Niklas Krofta"\<close>
 theory HOTG_Ranks
-  imports HOTG_Ordinals_Base HOTG_Less_Than
+  imports HOTG_Ordinals_Base HOTG_Less_Than HOTG_Transfinite_Recursion
 begin
 
 unbundle no_HOL_order_syntax
