@@ -5,6 +5,8 @@ theory HOTG_Less_Than
   imports
     HOTG_Mem_Transitive_Closure
     Transport.HOL_Syntax_Bundles_Orders
+    Transport.Binary_Relations_Least
+    Transport.Binary_Relations_Transitive_Closure
 begin
 
 paragraph \<open>Summary\<close>
@@ -155,6 +157,28 @@ lemma antisymmetric_le: "antisymmetric (\<le>)"
 
 corollary partial_order_le: "partial_order (\<le>)"
   using preorder_le antisymmetric_le by blast
+
+theorem trans_closure_mem_eq_lt [simp]: "trans_closure (\<in>) = (<)"
+proof -
+  have "trans_closure (\<in>) x y \<Longrightarrow> x < y" for x y
+    using trans_closure_le_if_le_if_transitive[where ?R="(\<in>)"] transitive_lt lt_if_mem by blast
+  moreover have "x < y \<Longrightarrow> trans_closure (\<in>) x y" for x y
+  proof (induction y rule: mem_induction)
+    case (mem y)
+    from \<open>x < y\<close> obtain z where "x \<le> z" "z \<in> y" using lt_mem_leE by blast
+    then show ?case
+    proof (cases rule: leE)
+      case lt
+      with \<open>z \<in> y\<close> mem.IH have "trans_closure (\<in>) x z" by blast
+      then show ?thesis using \<open>z \<in> y\<close> transitive_trans_closure[of "(\<in>)"]
+      by (blast dest: trans_closure_if_rel)
+    next
+      case eq
+      then show ?thesis using \<open>z \<in> y\<close> trans_closure_if_rel by auto
+    qed
+  qed
+  ultimately show ?thesis by fastforce
+qed
 
 text\<open>These next lemmas show some relationships between @{term "(<)"}, @{term "(\<le>)"} and
 @{term "(=)"}.\<close>

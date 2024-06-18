@@ -69,6 +69,10 @@ lemma has_inverse_on_set_iff_has_inverse_on_pred_uhint [iff]:
   "has_inverse_on_set A f y \<longleftrightarrow> has_inverse_on (mem_of A) f y"
   by simp
 
+lemma mem_of_repl_eq_has_inverse_on [simp, set_to_HOL_simp]:
+  "mem_of (repl A f) = has_inverse_on A f"
+  by (intro ext) auto
+
 context
   notes set_to_HOL_simp[simp]
 begin

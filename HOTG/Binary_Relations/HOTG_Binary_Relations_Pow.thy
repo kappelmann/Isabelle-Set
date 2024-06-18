@@ -2,7 +2,9 @@
 \<^marker>\<open>creator "Niklas Krofta"\<close>
 subsection \<open>Power of Relations\<close>
 theory HOTG_Binary_Relations_Pow
-  imports HOTG_Transfinite_Recursion
+  imports
+    HOTG_Transfinite_Recursion
+    Transport.Binary_Relations_Transitive_Closure
 begin
 
 paragraph \<open>Summary\<close>
@@ -30,5 +32,6 @@ lemma rel_powE:
   assumes "rel_pow R n x y"
   obtains (rel) "R x y" | (step) m z where "m \<in> n" "rel_pow R m x z" "R z y"
   using assms unfolding rel_pow_iff[where ?n=n] by blast
+
 
 end

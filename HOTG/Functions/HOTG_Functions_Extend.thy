@@ -82,7 +82,7 @@ begin
 
 text \<open>TODO: this should be provable from
 @{thm rel_dep_mono_wrt_pred_glue_if_right_unique_if_rel_dep_mono_wrt_pred} - but maybe requires
-Hilbert-Choice?  \<close>
+Hilbert-Choice?\<close>
 
 lemma set_rel_dep_mono_wrt_set_glue_if_right_unique_if_set_rel_dep_mono_wrt_set:
   assumes funs: "\<And>R. R \<in> \<R> \<Longrightarrow> ((x : A R) \<rightarrow> B x) R"

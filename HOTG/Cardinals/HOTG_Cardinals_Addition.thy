@@ -14,7 +14,7 @@ text \<open>Cardinal addition is the cardinality of the disjoint union of two se
 We show that cardinal addition is commutative and associative.
 We also derive the connection between set addition and cardinal addition.\<close>
 
-definition "cardinal_add \<kappa> \<mu> \<equiv> |\<kappa> \<Coprod> \<mu>|"
+definition "cardinal_add X Y \<equiv> |X \<Coprod> Y|"
 
 bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 65) end
 bundle no_hotg_cardinal_add_syntax begin no_notation cardinal_add (infixl "\<oplus>" 65) end
@@ -29,7 +29,7 @@ lemma coprod_equipollent_self_commute: "X \<Coprod> Y \<approx> Y \<Coprod> X"
 
 lemma cardinal_add_comm: "X \<oplus> Y = Y \<oplus> X"
   unfolding cardinal_add_eq_cardinality_coprod
-  by (intro cardinality_eq_if_equipollent cardinality_eq_if_equipollent coprod_equipollent_self_commute)
+  by (intro cardinality_eq_if_equipollent coprod_equipollent_self_commute)
 
 lemma empty_coprod_equipollent_self: "{} \<Coprod> X \<approx> X"
   by (intro equipollentI[where ?f="coprod_rec inr id" and ?g="inr"])
@@ -70,16 +70,9 @@ qed
 corollary cardinality_coprod_equipollent_coprod [iff]: "|X| \<Coprod> |Y| \<approx> X \<Coprod> Y"
   using coprod_equipollent_if_equipollent by auto
 
-lemma bin_union_equipollent_coprod_if_disjoint:
-  assumes "disjoint X Y"
-  shows "X \<union> Y \<approx> X \<Coprod> Y"
-proof -
-  let ?l = "\<lambda>z. if z \<in> X then inl z else inr z"
-  let ?r = "coprod_rec id id"
-  from assms have "bijection_on (mem_of (X \<union> Y)) (mem_of (X \<Coprod> Y)) ?l ?r"
-    by (intro bijection_onI mono_wrt_predI inverse_onI) auto
-  then show ?thesis by blast
-qed
+corollary cardinality_cardinal_add_eq_cardinal_add [simp]: "|X| \<oplus> |Y| = X \<oplus> Y"
+  unfolding cardinal_add_eq_cardinality_coprod
+  by (intro cardinality_eq_if_equipollent cardinality_coprod_equipollent_coprod)
 
 lemma cardinal_add_assoc: "(X \<oplus> Y) \<oplus> Z = X \<oplus> (Y \<oplus> Z)"
 proof -
@@ -93,16 +86,21 @@ proof -
     by (auto intro: cardinality_eq_if_equipollent simp: cardinal_add_eq_cardinality_coprod)
 qed
 
-lemma cardinality_bin_union_eq_cardinal_add_cardinality_if_disjoint:
+lemma bin_union_equipollent_coprod_if_disjoint:
   assumes "disjoint X Y"
-  shows "|X \<union> Y| = |X| \<oplus> |Y|"
+  shows "X \<union> Y \<approx> X \<Coprod> Y"
 proof -
-  from assms have "X \<union> Y \<approx> X \<Coprod> Y" by (intro bin_union_equipollent_coprod_if_disjoint) auto
-  also have "... \<approx> |X| \<Coprod> |Y|" using cardinality_coprod_equipollent_coprod symmetric_equipollent
-    by (blast dest: symmetricD)
-  finally have "X \<union> Y \<approx> |X| \<Coprod> |Y|" .
-  with cardinality_eq_if_equipollent have "|X \<union> Y| = ||X| \<Coprod> |Y||" by auto
-  with cardinal_add_eq_cardinality_coprod show ?thesis by auto
+  let ?l = "\<lambda>z. if z \<in> X then inl z else inr z"
+  let ?r = "coprod_rec id id"
+  from assms have "bijection_on (mem_of (X \<union> Y)) (mem_of (X \<Coprod> Y)) ?l ?r"
+    by (intro bijection_onI mono_wrt_predI inverse_onI) auto
+  then show ?thesis by blast
 qed
+
+corollary cardinality_bin_union_eq_cardinal_add_if_disjoint:
+  assumes "disjoint X Y"
+  shows "|X \<union> Y| = X \<oplus> Y"
+  unfolding cardinal_add_eq_cardinality_coprod using assms
+  by (intro cardinality_eq_if_equipollent bin_union_equipollent_coprod_if_disjoint)
 
 end

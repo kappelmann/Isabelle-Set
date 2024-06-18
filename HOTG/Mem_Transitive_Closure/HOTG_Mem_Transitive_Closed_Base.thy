@@ -15,6 +15,11 @@ lemma mem_trans_closedD [dest]:
   shows "\<And>y. y \<in> x \<Longrightarrow> y \<subseteq> x"
   using assms unfolding mem_trans_closed_def by auto
 
+lemma mem_trans_closedE:
+  assumes "mem_trans_closed x"
+  obtains "\<And>y. y \<in> x \<Longrightarrow> y \<subseteq> x"
+  using assms by blast
+
 lemma mem_trans_closed_empty [iff]: "mem_trans_closed {}" by auto
 
 

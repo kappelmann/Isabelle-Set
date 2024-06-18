@@ -3,7 +3,7 @@
 section \<open>Cardinals\<close>
 theory HOTG_Cardinals_Base
   imports
-    HOTG_Bounded_Definite_Description
+    Transport.Binary_Relations_Least
     HOTG_Equipollence
     HOTG_Ordinals_Base
 begin
@@ -17,16 +17,18 @@ The cardinality of a set \<open>X\<close> is the smallest ordinal number \<open>
 exists a bijection between \<open>X\<close> and \<open>\<alpha>\<close>.
 Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Cardinal_number\<close>.\<close>
 
-definition "least_wrt_rel R (P :: set \<Rightarrow> bool) = (THE x : P. \<forall>y : P. R x y)"
-
-text\<open>Cardinality is defined as in \<^cite>\<open>ZFC_in_HOL_AFP\<close>,
-\<^url>\<open>https://foss.heptapod.net/isa-afp/afp-devel/-/blob/06458dfa40c7b4aaaeb855a37ae77993cb4c8c18/thys/ZFC_in_HOL/ZFC_Cardinals.thy#L1785\<close>.\<close>
-
 definition "cardinality (X :: set) \<equiv> least_wrt_rel (\<subseteq>) (ordinal \<sqinter> ((\<approx>) X))"
 
 bundle hotg_cardinality_syntax begin notation cardinality ("|_|") end
 bundle no_hotg_cardinality_syntax begin no_notation cardinality ("|_|") end
 unbundle hotg_cardinality_syntax
+
+lemma cardinality_eq_if_equipollent_if_subset_if_ordinal:
+  assumes "ordinal Y"
+  and "\<And>Y'. ordinal Y' \<Longrightarrow> X \<approx> Y' \<Longrightarrow> Y \<subseteq> Y'"
+  and "X \<approx> Y"
+  shows "|X| = Y"
+  unfolding cardinality_def using assms by (intro least_wrt_rel_eq_if_antisymmetric_onI) auto
 
 lemma cardinality_eq_if_equipollent:
   assumes "X \<approx> Y"
@@ -44,5 +46,7 @@ lemma cardinality_equipollent_self [iff]: "|X| \<approx> X"
 lemma cardinality_cardinality_eq_cardinality [simp]: "||X|| = |X|"
   by (intro cardinality_eq_if_equipollent cardinality_equipollent_self)
 
+lemma cardinality_zero_eq_zero [simp]: "|0| = 0"
+  by (intro cardinality_eq_if_equipollent_if_subset_if_ordinal) auto
 
 end

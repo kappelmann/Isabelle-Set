@@ -2,9 +2,22 @@
 subsection \<open>Inverse\<close>
 theory HOTG_Functions_Inverse
   imports
+    HOTG_Bounded_Definite_Description
     HOTG_Functions_Evaluation
     Transport.Functions_Inverse
 begin
+
+definition "the_inverse_on_set A \<equiv> the_inverse_on (mem_of A)"
+adhoc_overloading the_inverse_on the_inverse_on_set
+
+lemma the_inverse_on_set_eq_the_inverse_on_pred [simp]:
+  "the_inverse_on A = the_inverse_on (mem_of A)"
+  unfolding the_inverse_on_set_def by simp
+
+lemma the_inverse_on_set_eq_the_inverse_on_pred_uhint [uhint]:
+  assumes "P \<equiv> mem_of A"
+  shows "the_inverse_on (A :: set) \<equiv> the_inverse_on P"
+  using assms by simp
 
 overloading
   inverse_on_set \<equiv> "inverse_on :: set \<Rightarrow> (set \<Rightarrow> 'a) \<Rightarrow> ('a \<Rightarrow> set) \<Rightarrow> bool"
