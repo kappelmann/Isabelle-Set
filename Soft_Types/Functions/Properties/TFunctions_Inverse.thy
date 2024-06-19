@@ -6,6 +6,18 @@ theory TFunctions_Inverse
     Transport.Functions_Inverse
 begin
 
+definition "the_inverse_on_type T \<equiv> the_inverse_on (of_type T)"
+adhoc_overloading the_inverse_on the_inverse_on_type
+
+lemma the_inverse_on_type_eq_the_inverse_on_pred [simp]:
+  "the_inverse_on T = the_inverse_on (of_type T)"
+  unfolding the_inverse_on_type_def by simp
+
+lemma the_inverse_on_type_eq_the_inverse_on_pred_uhint [uhint]:
+  assumes "P \<equiv> of_type T"
+  shows "the_inverse_on (T :: 'a type) \<equiv> the_inverse_on P"
+  using assms by simp
+
 overloading
   inverse_on_type \<equiv> "inverse_on :: 'a type \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
 begin
