@@ -5,8 +5,11 @@ theory HOTG_Ordinals_Base
   imports
     HOTG_Binary_Relations_Connected
     HOTG_Foundation
+    HOTG_Less_Than
     Transport.HOL_Syntax_Bundles_Groups
 begin
+
+unbundle no_HOL_order_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
@@ -203,8 +206,18 @@ lemma mem_eq_mem_if_ordinalE:
   obtains "X \<in> Y" | "X = Y" | "Y \<in> X"
   using mem_or_eq_or_mem_if_ordinal_if_ordinal assms by (auto del: ordinal_mem_trans_closedE)
 
-lemma connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
+lemma lt_eq_lt_if_ordinalE:
+  assumes "ordinal X" "ordinal Y"
+  obtains "X < Y" | "X = Y" | "Y < X"
+  using assms lt_if_mem 
+  by (cases rule: mem_eq_mem_if_ordinalE) (auto del: ordinal_mem_trans_closedE)
+
+corollary connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
   by (auto elim: mem_eq_mem_if_ordinalE del: ordinal_mem_trans_closedE)
+
+
+corollary connected_on_ordinal_lt: "connected_on ordinal (<)"
+  by (auto elim: lt_eq_lt_if_ordinalE del: ordinal_mem_trans_closedE)
 
 lemma ordinal_cases [cases type: set]:
   assumes ordinal: "ordinal k"
@@ -254,6 +267,25 @@ proof (induction X rule: ordinal_mem_induct)
     then show ?thesis using union_eq_self_if_limit_ordinal limit by auto
   qed
 qed
+
+lemma lt_iff_mem_if_ordinal:
+  assumes "ordinal X" "ordinal Y"
+  shows "X < Y \<longleftrightarrow> X \<in> Y"
+  using assms mem_if_lt_if_mem_trans_closed lt_if_mem by auto
+
+lemma le_iff_subset_if_ordinal:
+  assumes "ordinal X" "ordinal Y"
+  shows "X \<le> Y \<longleftrightarrow> X \<subseteq> Y"
+proof
+  show "X \<le> Y \<Longrightarrow> X \<subseteq> Y" using assms subset_if_le_if_mem_trans_closed by force
+next
+  show "X \<subseteq> Y \<Longrightarrow> X \<le> Y" using assms not_subset_if_lt by (cases rule: lt_eq_lt_if_ordinalE) auto
+qed
+
+lemma zero_le_if_ordinal:
+  assumes "ordinal X"
+  shows "0 \<le> X"
+  using assms ordinal_zero by (cases rule: mem_eq_mem_if_ordinalE) (auto simp: lt_if_mem le_if_lt)
 
 end
 

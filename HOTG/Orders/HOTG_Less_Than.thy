@@ -54,9 +54,6 @@ proof
   then show "False" using not_mem_mem_trans_closure_self by blast
 qed
 
-corollary mem_if_lt_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X < S \<Longrightarrow> X \<in> S"
-  using mem_trans_closure_if_lt mem_trans_closure_le_if_le_if_mem_trans_closed by blast
-
 lemma lt_if_lt_if_mem [trans]:
   assumes "x \<in> X"
   and "X < Y"
@@ -261,5 +258,11 @@ proof (rule ccontr)
     using lt_minimal_set_witnessE[where P="\<lambda>x. \<not>(P x)"] by auto
   with assms show "False" by auto
 qed
+
+lemma mem_if_lt_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X < S \<Longrightarrow> X \<in> S"
+  using mem_trans_closure_if_lt mem_trans_closure_le_if_le_if_mem_trans_closed by blast
+
+lemma subset_if_le_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X \<le> S \<Longrightarrow> X \<subseteq> S"
+  using mem_if_lt_if_mem_trans_closed by (fast elim: leE)
 
 end

@@ -92,6 +92,10 @@ where
   extensionality: "\<forall>X Y. X \<subseteq> Y \<longrightarrow> Y \<subseteq> X \<longrightarrow> X = Y" and
   powerset: "\<forall>A x. x \<in> powerset A \<longleftrightarrow> x \<subseteq> A"
 
+text \<open>The axiom of choice.\<close>
+axiomatization where
+  choice: "\<forall>\<S>. \<emptyset> \<notin> \<S> \<longrightarrow> (\<exists>\<CC>. \<forall>X. X \<in> \<S> \<longrightarrow> \<CC> X \<in> X)"
+
 text \<open>Lastly, we want to axiomatise the existence of Grothendieck universes.
 This can be done in different ways. We again follow the approach from
 \<^cite>\<open>"brown_et_al:LIPIcs:2019:11064"\<close>.\<close>
