@@ -9,12 +9,19 @@ begin
 
 unbundle no_HOL_order_syntax
 
+text \<open>The axiom of choice.\<close>
+axiomatization where
+  choice: "\<forall>\<S>. \<emptyset> \<notin> \<S> \<longrightarrow> (\<exists>\<CC>. \<forall>X : \<S>. \<CC> X \<in> X)"
+
 lemma choice_function_exists:
   assumes "\<emptyset> \<notin> \<S>"
   obtains \<CC> where "\<forall>X : \<S>. \<CC> X \<in> X"
   using assms choice by fastforce
 
-lemma some_ordinal_not_mem:
+lemma choice_iff: "\<emptyset> \<notin> \<S> \<longleftrightarrow> (\<exists>\<CC>. \<forall>X : \<S>. \<CC> X \<in> X)"
+  using choice by blast
+
+theorem some_ordinal_not_mem:
   fixes X :: set
   obtains \<alpha> where "ordinal \<alpha>" "\<alpha> \<notin> X"
 proof -
@@ -58,8 +65,7 @@ proof -
     using \<open>ordinal \<alpha>\<close> \<open>ordinal \<beta>\<close>
   proof (cases rule: mem_eq_mem_if_ordinalE)
     case 1
-    have "X \<setminus> {e \<gamma> | \<gamma> \<in> \<beta>} \<noteq> \<emptyset>"
-      using \<open>e \<alpha> \<noteq> \<Omega>\<close> \<open>e \<alpha> = e \<beta>\<close> e_eq[of \<beta>] by force
+    have "X \<setminus> {e \<gamma> | \<gamma> \<in> \<beta>} \<noteq> \<emptyset>" using \<open>e \<alpha> \<noteq> \<Omega>\<close> \<open>e \<alpha> = e \<beta>\<close> e_eq[of \<beta>] by force
     then have "e \<beta> \<in> X \<setminus> {e \<gamma> | \<gamma> \<in> \<beta>}" using e_mem_if_nonempty by auto
     then have "False" using \<open>\<alpha> \<in> \<beta>\<close> \<open>e \<alpha> = e \<beta>\<close> by blast
     then show ?thesis by blast
