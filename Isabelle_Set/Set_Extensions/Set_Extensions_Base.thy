@@ -59,17 +59,13 @@ lemma Core_subset_Abs: "Core \<subseteq> Abs"
   unfolding Abs_def by auto
 
 definition "l x \<equiv> if has_inverse_on Core embed x
-  then (THE c : Core. embed c = x)
+  then (the_inverse_on Core embed) x
   else \<langle>Core, x\<rangle>"
 
 lemma left_embed_eq_if_mem_Core [simp]:
   assumes "c \<in> Core"
   shows "l (embed c) = c"
-proof -
-  from assms embed_injective have "(THE c' : Core. embed c' = embed c) = c"
-    by (urule bthe_eqI where chained = insert) (auto dest: injective_onD)
-  with assms show ?thesis unfolding l_def by auto
-qed
+  unfolding l_def using assms embed_injective by auto
 
 corollary left_embed_mem_Core_if_mem_Core [intro]:
   assumes "c \<in> Core"
