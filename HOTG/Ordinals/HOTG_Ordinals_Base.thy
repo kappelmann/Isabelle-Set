@@ -289,4 +289,40 @@ lemma zero_le_if_ordinal:
 
 end
 
+lemma some_ordinal_not_mem:
+  fixes X :: set
+  obtains \<alpha> where "ordinal \<alpha>" "\<alpha> \<notin> X"
+proof -
+  (* Proof based on Burali-Forti paradox *)
+  have "\<not> (\<forall>\<alpha> : ordinal. \<alpha> \<in> X)"              
+  proof
+    assume "\<forall>\<alpha> : ordinal. \<alpha> \<in> X"
+    moreover define Ord where "Ord = {\<alpha> \<in> X | ordinal \<alpha>}"
+    ultimately have mem_Ord: "\<alpha> \<in> Ord \<longleftrightarrow> ordinal \<alpha>" for \<alpha> by blast
+    then have "mem_trans_closed Ord" using ordinal_if_mem_if_ordinal by force
+    moreover have "\<forall>\<alpha> : Ord. mem_trans_closed \<alpha>" 
+      using mem_Ord by (auto elim: ordinal_mem_trans_closedE)
+    ultimately have "ordinal Ord" by (auto intro: ordinal_if_mem_trans_closedI)
+    then have "Ord \<in> Ord" using mem_Ord by blast
+    then show "False" by blast
+  qed
+  then show ?thesis using that by blast
+qed
+
+lemma least_ordinal_with_prop_welldefined_if_witness:
+  assumes "P \<gamma>" and ordinal_if_P: "\<forall>\<alpha> : P. ordinal \<alpha>"
+  shows "is_least_wrt_rel (\<le>) P (least_wrt_rel (\<le>) P)"
+proof -
+  from \<open>P \<gamma>\<close> obtain \<alpha> where "P \<alpha>" and \<alpha>_minimal: "\<And>\<beta>. \<beta> < \<alpha> \<Longrightarrow> \<not> P \<beta>" 
+    using lt_minimal_set_witnessE by blast
+  have \<alpha>_least: "\<alpha> \<le> \<beta>" if "P \<beta>" for \<beta>
+  proof -
+    have "ordinal \<alpha>" "ordinal \<beta>" using \<open>P \<alpha>\<close> \<open>P \<beta>\<close> ordinal_if_P by auto
+    then show ?thesis using that \<alpha>_minimal by (cases rule: lt_eq_lt_if_ordinalE) auto
+  qed
+  then have "is_least_wrt_rel (\<le>) P \<alpha>" 
+    using \<open>P \<alpha>\<close> by (auto intro!: is_least_wrt_rel_if_antisymmetric_onI)
+  then show ?thesis using least_wrt_rel_eqI by force
+qed
+
 end

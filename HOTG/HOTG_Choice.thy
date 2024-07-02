@@ -21,26 +21,6 @@ lemma choice_function_exists:
 lemma choice_iff: "\<emptyset> \<notin> \<S> \<longleftrightarrow> (\<exists>\<CC>. \<forall>X : \<S>. \<CC> X \<in> X)"
   using choice by blast
 
-theorem some_ordinal_not_mem:
-  fixes X :: set
-  obtains \<alpha> where "ordinal \<alpha>" "\<alpha> \<notin> X"
-proof -
-  (* Proof based on Burali-Forti paradox *)
-  have "\<not> (\<forall>\<alpha> : ordinal. \<alpha> \<in> X)"              
-  proof
-    assume "\<forall>\<alpha> : ordinal. \<alpha> \<in> X"
-    moreover define Ord where "Ord = {\<alpha> \<in> X | ordinal \<alpha>}"
-    ultimately have mem_Ord: "\<alpha> \<in> Ord \<longleftrightarrow> ordinal \<alpha>" for \<alpha> by blast
-    then have "mem_trans_closed Ord" using ordinal_if_mem_if_ordinal by force
-    moreover have "\<forall>\<alpha> : Ord. mem_trans_closed \<alpha>" 
-      using mem_Ord by (auto elim: ordinal_mem_trans_closedE)
-    ultimately have "ordinal Ord" by (auto intro: ordinal_if_mem_trans_closedI)
-    then have "Ord \<in> Ord" using mem_Ord by blast
-    then show "False" by blast
-  qed
-  then show ?thesis using that by blast
-qed
-
 (* This requires the axiom of choice. It is, in fact, equivalent to the axiom of choice over ZF 
 since it implies the well ordering theorem. *)
 lemma equipollent_some_ordinal:
@@ -52,10 +32,10 @@ proof -
     using choice_function_exists[of "powerset X \<setminus> {\<emptyset>}"] by auto 
   then have \<CC>_mem: "\<CC> Y \<in> Y" if "Y \<subseteq> X" "Y \<noteq> \<emptyset>" for Y using that by auto
   define \<Omega> where "\<Omega> = X" (* "end of sequence" symbol *)
-  let ?R = "\<lambda>e \<alpha>. if X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>} \<noteq> \<emptyset> then \<CC> (X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>}) else \<Omega>"
-  define e where "e = transfrec ?R"
-  have e_eq: "e \<alpha> = ?R e \<alpha>" for \<alpha>
-    using transfrec_eq[of ?R \<alpha>] repl_fun_restrict_set_eq_repl e_def[symmetric] by auto
+  let ?step = "\<lambda>e \<alpha>. if X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>} \<noteq> \<emptyset> then \<CC> (X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>}) else \<Omega>"
+  define e where "e = transfrec ?step"
+  have e_eq: "e \<alpha> = ?step e \<alpha>" for \<alpha>
+    using transfrec_eq[of ?step \<alpha>] repl_fun_restrict_set_eq_repl e_def[symmetric] by auto
   have e_mem_if_nonempty: "e \<alpha> \<in> X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>}" if "X \<setminus> {e \<beta> | \<beta> \<in> \<alpha>} \<noteq> \<emptyset>" for \<alpha>
   proof -
     from that have "e \<alpha> = \<CC> (X \<setminus> {e \<gamma> | \<gamma> \<in> \<alpha>})" using e_eq[of \<alpha>] by auto
