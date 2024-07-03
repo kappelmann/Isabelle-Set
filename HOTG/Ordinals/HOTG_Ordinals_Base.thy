@@ -7,6 +7,7 @@ theory HOTG_Ordinals_Base
     HOTG_Foundation
     HOTG_Less_Than
     Transport.HOL_Syntax_Bundles_Groups
+    Transport.Functions_Inverse
 begin
 
 unbundle no_HOL_order_syntax
@@ -45,6 +46,10 @@ lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
 
 lemma succ_ne_self [iff]: "succ x \<noteq> x"
   using succ_eq_insert_self by auto
+
+lemma mem_succ: "x \<in> succ x" using succ_eq_insert_self by auto
+lemma lt_succ: "x < succ x" using mem_succ lt_if_mem by auto
+lemma le_succ: "x \<le> succ x" using lt_succ le_if_lt by auto
 
 abbreviation "set_zero \<equiv> {}"
 abbreviation "set_one \<equiv> succ set_zero"
@@ -101,6 +106,30 @@ qed
 
 lemma succ_ne_if_ne [intro!]: "x \<noteq> y \<Longrightarrow> succ x \<noteq> succ y"
   by auto
+
+corollary injective_succ: "injective succ" using succ_inj by auto
+
+definition pred :: "set \<Rightarrow> set" where
+"pred x = (if \<exists>y. x = succ y then the_inverse succ x else x)"
+
+lemma pred_succ_eq_self [simp]: "pred (succ x) = x"
+  unfolding pred_def using injective_succ by auto
+
+lemma pred_eq_self_if_not_succ: "\<nexists>y. x = succ y \<Longrightarrow> pred x = x"
+  unfolding pred_def by auto
+
+lemma pred_zero_eq [simp]: "pred 0 = 0" using pred_eq_self_if_not_succ succ_ne_zero[symmetric] 
+  by fastforce
+
+lemma pred_le: "pred x \<le> x" 
+proof (cases "\<exists>y. x = succ y")
+  case True
+  then have "succ (pred x) = x" using pred_succ_eq_self by auto
+  then show ?thesis using le_succ[of "pred x"] by auto
+next
+  case False
+  then show ?thesis using pred_eq_self_if_not_succ by auto
+qed
 
 lemma ordinal_unionI:
   assumes "\<And>x. x \<in> X \<Longrightarrow> ordinal x"
@@ -215,7 +244,6 @@ lemma lt_eq_lt_if_ordinalE:
 corollary connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
   by (auto elim: mem_eq_mem_if_ordinalE del: ordinal_mem_trans_closedE)
 
-
 corollary connected_on_ordinal_lt: "connected_on ordinal (<)"
   by (auto elim: lt_eq_lt_if_ordinalE del: ordinal_mem_trans_closedE)
 
@@ -248,7 +276,7 @@ lemma ordinal_induct [consumes 1, case_names zero succ limit, induct type: set]:
   assumes "ordinal X"
   and "P 0"
   and P_succ: "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
-  and P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
+  and P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P X"
   shows "P X"
 using \<open>ordinal X\<close>
 proof (induction X rule: ordinal_mem_induct)
@@ -263,13 +291,12 @@ proof (induction X rule: ordinal_mem_induct)
     with succ show ?thesis by simp
   next
     case limit
-    then have "P (\<Union>X)" using P_limit step.IH by auto
-    then show ?thesis using union_eq_self_if_limit_ordinal limit by auto
+    then show ?thesis using P_limit step.IH by blast
   qed
 qed
 
 lemma lt_iff_mem_if_ordinal:
-  assumes "ordinal X" "ordinal Y"
+  assumes "ordinal Y"
   shows "X < Y \<longleftrightarrow> X \<in> Y"
   using assms mem_if_lt_if_mem_trans_closed lt_if_mem by auto
 

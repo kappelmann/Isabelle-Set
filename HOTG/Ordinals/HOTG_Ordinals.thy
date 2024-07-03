@@ -5,6 +5,7 @@ theory HOTG_Ordinals
     HOTG_Ordinals_Base
     HOTG_Ordinals_Max
     HOTG_Ranks
+    HOTG_Natural_Numbers
 begin
 
 
