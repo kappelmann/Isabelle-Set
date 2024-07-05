@@ -4,6 +4,7 @@
 section \<open>Structured Set-Objects\<close>
 theory SObjects
   imports
+    HOTG.HOTG_Functions_Evaluation
     SStrings
 begin
 

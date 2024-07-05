@@ -1,50 +1,51 @@
-theory HOTG_Natural_Numbers
-  imports HOTG_Universes HOTG_Transfinite_Recursion
+\<^marker>\<open>creator "Niklas Krofta"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+theory HOTG_Ordinals_Omega
+  imports
+    HOTG_Transfinite_Recursion
+    HOTG_Universes
 begin
 
-unbundle no_HOL_order_syntax
-unbundle no_HOL_groups_syntax
+unbundle
+  no_HOL_ascii_syntax
+  no_HOL_groups_syntax
+  no_HOL_order_syntax
 
 definition omega :: set where
-"omega = least_wrt_rel (\<le>) limit_ordinal"
+  "omega = least_wrt_rel (\<le>) limit_ordinal"
 
 bundle hotg_omega_syntax begin notation omega ("\<omega>") end
-bundle no_hotg_omega_numbers_syntax begin no_notation omega ("\<omega>") end
-
+bundle no_hotg_omega_syntax begin no_notation omega ("\<omega>") end
 unbundle hotg_omega_syntax
 
-(* This proves the existence of limit ordinals. *)
-lemma limit_ordinal_ordinals_in_univ:
+text \<open>This proves the existence of limit ordinals.\<close>
+
+lemma limit_ordinal_collect_univ_ordinal:
   fixes X :: set
   defines "Ord\<^sub>U \<equiv> {\<alpha> \<in> univ X | ordinal \<alpha>}"
   shows "limit_ordinal Ord\<^sub>U"
 proof (intro limit_ordinalI)
   have "\<beta> \<in> Ord\<^sub>U" if "\<alpha> \<in> Ord\<^sub>U" "\<beta> \<in> \<alpha>" for \<alpha> \<beta>
-    using that  ordinal_if_mem_if_ordinal subset_univ_if_mem Ord\<^sub>U_def by blast
-  moreover have "\<forall>\<alpha> : Ord\<^sub>U. mem_trans_closed \<alpha>" 
+    using that ordinal_if_mem_if_ordinal subset_univ_if_mem Ord\<^sub>U_def by blast
+  moreover have "\<forall>\<alpha> : Ord\<^sub>U. mem_trans_closed \<alpha>"
     using Ord\<^sub>U_def by (blast elim: ordinal_mem_trans_closedE)
   ultimately show "ordinal Ord\<^sub>U" by (blast intro: ordinal_if_mem_trans_closedI)
-next
-  show "0 \<in> Ord\<^sub>U" using Ord\<^sub>U_def by auto
-next
-  fix \<alpha> assume "\<alpha> \<in> Ord\<^sub>U"
-  then show "succ \<alpha> \<in> Ord\<^sub>U" using Ord\<^sub>U_def by blast
-qed
+qed (unfold Ord\<^sub>U_def, auto)
 
 corollary
-  limit_ordinal_omega: "limit_ordinal \<omega>" and
-  omega_least_limit_ordinal: "\<forall>\<alpha> : limit_ordinal. \<omega> \<le> \<alpha>"
+  limit_ordinal_omega: "limit_ordinal \<omega>"
+  and is_least_wrt_le_limit_ordinal_omega: "is_least_wrt_rel (\<le>) limit_ordinal \<omega>"
 proof -
-  have "is_least_wrt_rel (\<le>) limit_ordinal \<omega>"
-    using least_ordinal_with_prop_welldefined_if_witness limit_ordinal_ordinals_in_univ 
+  show "is_least_wrt_rel (\<le>) limit_ordinal \<omega>"
+    using is_least_wrt_rel_least_wrt_rel_if_le_ordinal_if_pred limit_ordinal_collect_univ_ordinal
     unfolding omega_def by (auto elim: limit_ordinalE)
-  then show "limit_ordinal \<omega>" "\<forall>\<alpha> : limit_ordinal. \<omega> \<le> \<alpha>" by auto
+  then show "limit_ordinal \<omega>" by auto
 qed
 
 lemma
   ordinal_omega: "ordinal \<omega>" and
   zero_mem_omega [iff]: "0 \<in> \<omega>" and
-  omega_closed_succ [intro!]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
+  succ_mem_omega_if_mem [intro!]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   using limit_ordinal_omega by (auto elim: limit_ordinalE)
 
 lemma ordinal_if_mem_omega:
@@ -54,8 +55,8 @@ lemma ordinal_if_mem_omega:
 
 lemma not_limit_ordinal_if_mem_omega:
   assumes "n \<in> \<omega>"
-  shows "\<not> limit_ordinal n"
-  using omega_least_limit_ordinal assms lt_if_mem by fastforce
+  shows "\<not>(limit_ordinal n)"
+  using is_least_wrt_le_limit_ordinal_omega assms lt_if_mem by fastforce
 
 lemma mem_omegaE:
   assumes "n \<in> \<omega>"
@@ -71,18 +72,19 @@ proof -
   qed (auto simp: assms not_limit_ordinal_if_mem_omega that)
 qed
 
-lemma omega_induct [case_names empty succ, induct set: omega]:
+lemma omega_induct [case_names zero succ, induct set: omega]:
   assumes "n \<in> \<omega>"
-  assumes "P 0" and P_inductive: "\<And>m. \<lbrakk>m \<in> \<omega>; P m\<rbrakk> \<Longrightarrow> P (succ m)"
+  and "P 0"
+  and P_succ: "\<And>m. \<lbrakk>m \<in> \<omega>; P m\<rbrakk> \<Longrightarrow> P (succ m)"
   shows "P n"
 proof -
   have "n \<in> \<omega> \<Longrightarrow> P n" if "ordinal n" for n
     using \<open>ordinal n\<close>
   proof (induction rule: ordinal_induct)
     case (succ m)
-    have "m \<in> \<omega>" using \<open>succ m \<in> \<omega>\<close> succ_eq_insert_self ordinal_omega 
+    have "m \<in> \<omega>" using \<open>succ m \<in> \<omega>\<close> succ_eq_insert_self ordinal_omega
       by (auto elim: ordinal_mem_trans_closedE)
-    then show ?case using \<open>m \<in> \<omega> \<Longrightarrow> P m\<close> P_inductive by blast
+    then show ?case using \<open>m \<in> \<omega> \<Longrightarrow> P m\<close> P_succ by blast
   qed (auto simp: \<open>P 0\<close> not_limit_ordinal_if_mem_omega)
   moreover have "ordinal n" using \<open>n \<in> \<omega>\<close> ordinal_omega ordinal_if_mem_if_ordinal by blast
   ultimately show ?thesis using \<open>n \<in> \<omega>\<close> by blast
@@ -95,7 +97,7 @@ lemma eq_zero_or_zero_mem_if_mem_omegaE:
 proof (cases rule: mem_omegaE)
   case (succ m)
   then have "ordinal n" "n \<noteq> 0" using ordinal_if_mem_omega succ_ne_zero by auto
-  then show ?thesis using that 
+  then show ?thesis using that
     by (auto elim!: ordinal_mem_trans_closedE intro!: empty_mem_if_mem_trans_closedI)
 qed (auto simp: that)
 
@@ -125,8 +127,7 @@ lemma subset_omega_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> n \<subsete
 lemma mem_omega_if_mem_if_mem_omega: "x \<in> \<omega> \<Longrightarrow> y \<in> x \<Longrightarrow> y \<in> \<omega>"
   using subset_omega_if_mem_omega by auto
 
-lemma succ_mem_succ_if_mem_if_mem_omega:
-  "\<lbrakk>n \<in> \<omega>; m \<in> n\<rbrakk> \<Longrightarrow> succ m \<in> succ n"
+lemma succ_mem_succ_if_mem_if_mem_omega: "\<lbrakk>n \<in> \<omega>; m \<in> n\<rbrakk> \<Longrightarrow> succ m \<in> succ n"
   by (induction n rule: omega_induct) (use succ_eq_insert_self in auto)
 
 lemma mem_if_succ_mem_succ_if_mem_omega:
@@ -144,10 +145,10 @@ lemma succ_mem_succ_iff_mem_if_mem_omega [iff]:
   using succ_mem_succ_if_mem_if_mem_omega mem_if_succ_mem_succ_if_mem_omega
   by blast
 
-lemma omega_closed_pred: "n \<in> \<omega> \<Longrightarrow> pred n \<in> \<omega>"
-  by (cases rule: mem_omegaE) (auto simp: pred_succ_eq_self)
+lemma pred_mem_omega_if_mem_omega: "n \<in> \<omega> \<Longrightarrow> pred n \<in> \<omega>"
+  by (cases rule: mem_omegaE) auto
 
-lemma succ_pred_eq_self_if_nz_if_mem_omega:
+lemma succ_pred_eq_self_if_ne_zero_if_mem_omega:
   assumes "n \<in> \<omega>" "n \<noteq> 0"
   shows "succ (pred n) = n"
 proof -
@@ -156,27 +157,27 @@ proof -
   then show ?thesis using \<open>n = succ m\<close> by auto
 qed
 
-lemma pred_mem_if_nz_if_mem_omega:
+lemma pred_mem_if_ne_zero_if_mem_omega:
   assumes "n \<in> \<omega>" "n \<noteq> 0"
   shows "pred n \<in> n"
-  using succ_pred_eq_self_if_nz_if_mem_omega assms mem_succ by auto
+  using succ_pred_eq_self_if_ne_zero_if_mem_omega assms mem_succ by auto
 
-definition natrec :: "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" where
-"natrec a R = transfrec (\<lambda>f n. if n = 0 then a else R (f (pred n)))"
+definition omega_rec :: "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" where
+  "omega_rec a r = transfrec (\<lambda>f n. if n = 0 then a else r (f (pred n)))"
 
 lemma
-  natrec_zero: "natrec a R 0 = a" and
-  natrec_succ: "n \<in> \<omega> \<Longrightarrow> natrec a R (succ n) = R (natrec a R n)"
+  omega_rec_zero: "omega_rec a r 0 = a" and
+  omega_rec_succ: "n \<in> \<omega> \<Longrightarrow> omega_rec a r (succ n) = r (omega_rec a r n)"
 proof -
-  let ?f = "natrec a R"
-  let ?step = "\<lambda>f n. if n = 0 then a else R (f (pred n))"
-  have f_eq: "?f n = (if n = 0 then a else R (?f (pred n)))" if "n \<in> \<omega>" for n 
-    using transfrec_eq[of ?step n] unfolding natrec_def[symmetric] 
-    using pred_mem_if_nz_if_mem_omega that by auto
+  let ?f = "omega_rec a r"
+  let ?step = "\<lambda>f n. if n = 0 then a else r (f (pred n))"
+  have f_eq: "?f n = (if n = 0 then a else r (?f (pred n)))" if "n \<in> \<omega>" for n
+    using transfrec_eq[of ?step n] unfolding omega_rec_def[symmetric]
+    using pred_mem_if_ne_zero_if_mem_omega that by auto
   then show "?f 0 = a" by auto
   assume "n \<in> \<omega>"
-  then show "?f (succ n) = R (?f n)" 
-    using f_eq succ_ne_zero omega_closed_succ pred_succ_eq_self by auto
+  then show "?f (succ n) = r (?f n)"
+    using f_eq succ_ne_zero succ_mem_omega_if_mem pred_succ_eq_self by auto
 qed
 
 end

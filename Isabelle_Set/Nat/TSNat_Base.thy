@@ -4,14 +4,16 @@
 section \<open>Basics For Natural Numbers\<close>
 theory TSNat_Base
   imports
-    TSOrdinals
     HOTG.HOTG_Addition
-    HOTG.HOTG_Bounded_Definite_Description
+    TSOrdinals
 begin
 
 unbundle no_HOL_groups_syntax no_HOL_order_syntax
 
 text \<open>The basic results have already been shown for \<nat> = \<omega>.\<close>
+
+(*FIXME: most Nat results could be replaced with results from HOTG_Ordinals_Omega and
+generalised addition/subtraction from HOTG*)
 
 definition "nat \<equiv> \<omega>"
 
@@ -21,10 +23,9 @@ unbundle isa_set_nat_syntax
 
 lemmas
   zero_mem_nat [iff] = zero_mem_omega[folded nat_def]
-  and succ_mem_nat_if_mem [intro!] = omega_closed_succ[folded nat_def]
+  and succ_mem_nat_if_mem [intro!] = succ_mem_omega_if_mem[folded nat_def]
   and mem_natE = mem_omegaE[folded nat_def, case_names _ zero succ]
-  and nat_induct [case_names zero succ, induct set: nat] =
-    omega_induct[folded nat_def]
+  and nat_induct [case_names zero succ, induct set: nat] = omega_induct[folded nat_def]
 
 context
   notes nat_def[uhint]
@@ -77,8 +78,6 @@ lemma Nat_trichotomy:
 lemma Nat_le_if_succ_le: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> n \<Longrightarrow> m \<le> n"
   unfolding nat_def using le_succ le_trans by blast
 
-lemma le_if_lt: "m < n \<Longrightarrow> m \<le> n" unfolding le_def by simp
-
 lemma Nat_le_if_not_lt:
   assumes "m \<Ztypecolon> Nat" "n \<Ztypecolon> Nat" "\<not>(m < n)"
   shows "n \<le> m"
@@ -103,28 +102,6 @@ lemma Nat_le_if_succ_le_succ: "\<lbrakk>n \<Ztypecolon> Nat; succ m \<le> succ n
 corollary Nat_succ_le_succ_iff_le [iff]: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> succ n \<longleftrightarrow> m \<le> n"
   using Nat_le_if_succ_le_succ Nat_succ_le_succ_if_le by blast
 
-lemma le_if_lt_succ: 
-  assumes "m < succ n"
-  shows " m \<le> n"
-proof -
-  obtain k where "k \<in> succ n" "m \<le> k" using assms by (blast elim: lt_mem_leE)
-  then consider "k \<in> n" | "k = n" using succ_eq_insert_self by blast
-  then show ?thesis
-  proof cases
-    case 1
-    then show ?thesis using lt_if_mem le_if_lt le_trans \<open>m \<le> k\<close> by fastforce
-  next
-    case 2
-    then show ?thesis using \<open>m \<le> k\<close> by auto
-  qed
-qed
-
-lemma lt_succ_if_le: "m \<le> n \<Longrightarrow> m < succ n"
-  using lt_succ lt_if_lt_if_le by blast
-
-corollary lt_succ_iff_le: "m < succ n \<longleftrightarrow> m \<le> n"
-  using le_if_lt_succ lt_succ_if_le by blast
-
 lemma Nat_succ_le_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarrow> succ m \<le> n"
   using le_if_lt_succ by auto
 
@@ -140,7 +117,7 @@ lemma Nat_if_lt_Nat: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarr
   (* unfolding nat_def lt_def using mem_omega_if_mem_if_mem_omega by auto *)
   (* unfolding nat_def lt_def by unfold_types (fact mem_omega_if_mem_if_mem_omega) *)
   apply unfold_types
-  unfolding nat_def using lt_iff_mem_if_mem_omega mem_trans_closed_omega 
+  unfolding nat_def using lt_iff_mem_if_mem_omega mem_trans_closed_omega
     by (blast elim!: mem_trans_closedE)
 
 lemma Nat_if_le_Nat: "n \<Ztypecolon> Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<Ztypecolon> Nat"
@@ -200,17 +177,16 @@ subsection \<open>Truncated predecessor function\<close>
 
 lemma pred_type [type]: "pred \<Ztypecolon> Nat \<Rightarrow> Nat"
   apply unfold_types
-  using nat_def omega_closed_pred by auto
+  using nat_def pred_mem_omega_if_mem_omega by auto
 
 lemma Nat_succ_pred_eq_if_ne_zero [simp]:
   "n \<Ztypecolon> Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> succ (pred n) = n"
   apply unfold_types
-  unfolding nat_def using succ_pred_eq_self_if_nz_if_mem_omega by auto
+  unfolding nat_def using succ_pred_eq_self_if_ne_zero_if_mem_omega by auto
 
 subsubsection \<open>\<open>pred\<close> and \<open><\<close>\<close>
 
-lemma Nat_pred_lt_self_if_ne_zero [iff]:
-  "n \<Ztypecolon> Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> pred n < n"
+lemma Nat_pred_lt_self_if_ne_zero [iff]: "n \<Ztypecolon> Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> pred n < n"
   by (rule NatE) auto
 
 (* lemma Nat_pred_lt_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarrow> pred m < n"

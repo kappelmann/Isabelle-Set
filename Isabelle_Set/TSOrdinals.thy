@@ -4,13 +4,9 @@
 section \<open>Ordinals\<close>
 theory TSOrdinals
   imports
-    TSLeast_Fixpoints
-    HOTG.HOTG_Ordinals
-    HOTG.HOTG_Less_Than
-    HOTG.HOTG_Universes
+    HOTG.HOTG_Ordinals_Omega
+    TSBasics
 begin
-
-(*TODO: this file should be superseeded by HOTG_Ordinals but some lemmas are still only proven here*)
 
 unbundle no_HOL_ascii_syntax no_HOL_groups_syntax no_HOL_order_syntax
 
@@ -87,9 +83,6 @@ end
 
 lemma succ_type [type]: "succ \<Ztypecolon> Ord \<Rightarrow> Ord"
   by unfold_types auto
-
-lemma univ_closed_succ [intro!]: "x \<in> univ X \<Longrightarrow> succ x \<in> univ X"
-  unfolding succ_def by auto
 
 lemma omega_Ord [type]: "\<omega> \<Ztypecolon> Ord"
   using ordinal_omega by auto

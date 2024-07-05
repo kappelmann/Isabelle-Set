@@ -260,7 +260,12 @@ proof (rule ccontr)
 qed
 
 lemma mem_if_lt_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X < S \<Longrightarrow> X \<in> S"
-  using mem_trans_closure_if_lt mem_trans_closure_le_if_le_if_mem_trans_closed by blast
+  by (drule mem_trans_closure_if_lt) simp
+
+lemma lt_iff_mem_if_mem_trans_closed:
+  assumes "mem_trans_closed Y"
+  shows "X < Y \<longleftrightarrow> X \<in> Y"
+  using assms lt_iff_mem_trans_closure by auto
 
 lemma subset_if_le_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X \<le> S \<Longrightarrow> X \<subseteq> S"
   using mem_if_lt_if_mem_trans_closed by (fast elim: leE)

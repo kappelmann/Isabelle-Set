@@ -3,7 +3,9 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Strings\<close>
 theory SStrings
-  imports TSOrdinals
+  imports
+    HOTG.HOTG_Ordinals_Base
+    Soft_Types.Soft_Types_HOL
 begin
 
 text \<open>Alphanumeric characters are encoded as ordinals. Strings are ordered tuples of

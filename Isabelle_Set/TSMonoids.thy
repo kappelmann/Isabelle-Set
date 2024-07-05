@@ -5,9 +5,9 @@ section \<open>Monoids\<close>
 theory TSMonoids
   imports
     HOTG.HOTG_Functions_Lambda
-    TSStructures
-    TSPairs
     TSClean_Functions
+    TSPairs
+    TSStructures
 begin
 
 unbundle no_HOL_ascii_syntax
@@ -279,7 +279,7 @@ lemma
     "\<And>x y z. \<lbrakk>M \<Ztypecolon> Mul_Monoid A; x \<Ztypecolon> A; y \<Ztypecolon> A; z \<Ztypecolon> A\<rbrakk> \<Longrightarrow>
       mul M (mul M x y) z = mul M x (mul M y z)"
   (* TODO: should be provable by type checker *)
-  unfolding Mul_Monoid_def by (auto 7 0 dest!: InterD1 InterD2 simp: meaning_of_type)
+  unfolding Mul_Monoid_def by unfold_types auto
 
 
 end
