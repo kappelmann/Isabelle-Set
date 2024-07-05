@@ -5,8 +5,12 @@ theory HOTG_Ordinals_Base
   imports
     HOTG_Binary_Relations_Connected
     HOTG_Foundation
+    HOTG_Less_Than
     Transport.HOL_Syntax_Bundles_Groups
+    Transport.Functions_Inverse
 begin
+
+unbundle no_HOL_order_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
@@ -42,6 +46,10 @@ lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
 
 lemma succ_ne_self [iff]: "succ x \<noteq> x"
   using succ_eq_insert_self by auto
+
+lemma mem_succ: "x \<in> succ x" using succ_eq_insert_self by auto
+lemma lt_succ: "x < succ x" using mem_succ lt_if_mem by auto
+lemma le_succ: "x \<le> succ x" using lt_succ le_if_lt by auto
 
 abbreviation "set_zero \<equiv> {}"
 abbreviation "set_one \<equiv> succ set_zero"
@@ -98,6 +106,30 @@ qed
 
 lemma succ_ne_if_ne [intro!]: "x \<noteq> y \<Longrightarrow> succ x \<noteq> succ y"
   by auto
+
+corollary injective_succ: "injective succ" using succ_inj by auto
+
+definition pred :: "set \<Rightarrow> set" where
+"pred x = (if \<exists>y. x = succ y then the_inverse succ x else x)"
+
+lemma pred_succ_eq_self [simp]: "pred (succ x) = x"
+  unfolding pred_def using injective_succ by auto
+
+lemma pred_eq_self_if_not_succ: "\<nexists>y. x = succ y \<Longrightarrow> pred x = x"
+  unfolding pred_def by auto
+
+lemma pred_zero_eq [simp]: "pred 0 = 0" using pred_eq_self_if_not_succ succ_ne_zero[symmetric] 
+  by fastforce
+
+lemma pred_le: "pred x \<le> x" 
+proof (cases "\<exists>y. x = succ y")
+  case True
+  then have "succ (pred x) = x" using pred_succ_eq_self by auto
+  then show ?thesis using le_succ[of "pred x"] by auto
+next
+  case False
+  then show ?thesis using pred_eq_self_if_not_succ by auto
+qed
 
 lemma ordinal_unionI:
   assumes "\<And>x. x \<in> X \<Longrightarrow> ordinal x"
@@ -203,8 +235,17 @@ lemma mem_eq_mem_if_ordinalE:
   obtains "X \<in> Y" | "X = Y" | "Y \<in> X"
   using mem_or_eq_or_mem_if_ordinal_if_ordinal assms by (auto del: ordinal_mem_trans_closedE)
 
-lemma connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
+lemma lt_eq_lt_if_ordinalE:
+  assumes "ordinal X" "ordinal Y"
+  obtains "X < Y" | "X = Y" | "Y < X"
+  using assms lt_if_mem 
+  by (cases rule: mem_eq_mem_if_ordinalE) (auto del: ordinal_mem_trans_closedE)
+
+corollary connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
   by (auto elim: mem_eq_mem_if_ordinalE del: ordinal_mem_trans_closedE)
+
+corollary connected_on_ordinal_lt: "connected_on ordinal (<)"
+  by (auto elim: lt_eq_lt_if_ordinalE del: ordinal_mem_trans_closedE)
 
 lemma ordinal_cases [cases type: set]:
   assumes ordinal: "ordinal k"
@@ -235,7 +276,7 @@ lemma ordinal_induct [consumes 1, case_names zero succ limit, induct type: set]:
   assumes "ordinal X"
   and "P 0"
   and P_succ: "\<And>X. \<lbrakk>ordinal X; P X\<rbrakk> \<Longrightarrow> P (succ X)"
-  and P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P (\<Union>X)"
+  and P_limit: "\<And>X. \<lbrakk>limit_ordinal X; \<And>x. x \<in> X \<Longrightarrow> P x\<rbrakk> \<Longrightarrow> P X"
   shows "P X"
 using \<open>ordinal X\<close>
 proof (induction X rule: ordinal_mem_induct)
@@ -250,11 +291,65 @@ proof (induction X rule: ordinal_mem_induct)
     with succ show ?thesis by simp
   next
     case limit
-    then have "P (\<Union>X)" using P_limit step.IH by auto
-    then show ?thesis using union_eq_self_if_limit_ordinal limit by auto
+    then show ?thesis using P_limit step.IH by blast
   qed
 qed
 
+lemma lt_iff_mem_if_ordinal:
+  assumes "ordinal Y"
+  shows "X < Y \<longleftrightarrow> X \<in> Y"
+  using assms mem_if_lt_if_mem_trans_closed lt_if_mem by auto
+
+lemma le_iff_subset_if_ordinal:
+  assumes "ordinal X" "ordinal Y"
+  shows "X \<le> Y \<longleftrightarrow> X \<subseteq> Y"
+proof
+  show "X \<le> Y \<Longrightarrow> X \<subseteq> Y" using assms subset_if_le_if_mem_trans_closed by force
+next
+  show "X \<subseteq> Y \<Longrightarrow> X \<le> Y" using assms not_subset_if_lt by (cases rule: lt_eq_lt_if_ordinalE) auto
+qed
+
+lemma zero_le_if_ordinal:
+  assumes "ordinal X"
+  shows "0 \<le> X"
+  using assms ordinal_zero by (cases rule: mem_eq_mem_if_ordinalE) (auto simp: lt_if_mem le_if_lt)
+
 end
+
+lemma some_ordinal_not_mem:
+  fixes X :: set
+  obtains \<alpha> where "ordinal \<alpha>" "\<alpha> \<notin> X"
+proof -
+  (* Proof based on Burali-Forti paradox *)
+  have "\<not> (\<forall>\<alpha> : ordinal. \<alpha> \<in> X)"              
+  proof
+    assume "\<forall>\<alpha> : ordinal. \<alpha> \<in> X"
+    moreover define Ord where "Ord = {\<alpha> \<in> X | ordinal \<alpha>}"
+    ultimately have mem_Ord: "\<alpha> \<in> Ord \<longleftrightarrow> ordinal \<alpha>" for \<alpha> by blast
+    then have "mem_trans_closed Ord" using ordinal_if_mem_if_ordinal by force
+    moreover have "\<forall>\<alpha> : Ord. mem_trans_closed \<alpha>" 
+      using mem_Ord by (auto elim: ordinal_mem_trans_closedE)
+    ultimately have "ordinal Ord" by (auto intro: ordinal_if_mem_trans_closedI)
+    then have "Ord \<in> Ord" using mem_Ord by blast
+    then show "False" by blast
+  qed
+  then show ?thesis using that by blast
+qed
+
+lemma least_ordinal_with_prop_welldefined_if_witness:
+  assumes "P \<gamma>" and ordinal_if_P: "\<forall>\<alpha> : P. ordinal \<alpha>"
+  shows "is_least_wrt_rel (\<le>) P (least_wrt_rel (\<le>) P)"
+proof -
+  from \<open>P \<gamma>\<close> obtain \<alpha> where "P \<alpha>" and \<alpha>_minimal: "\<And>\<beta>. \<beta> < \<alpha> \<Longrightarrow> \<not> P \<beta>" 
+    using lt_minimal_set_witnessE by blast
+  have \<alpha>_least: "\<alpha> \<le> \<beta>" if "P \<beta>" for \<beta>
+  proof -
+    have "ordinal \<alpha>" "ordinal \<beta>" using \<open>P \<alpha>\<close> \<open>P \<beta>\<close> ordinal_if_P by auto
+    then show ?thesis using that \<alpha>_minimal by (cases rule: lt_eq_lt_if_ordinalE) auto
+  qed
+  then have "is_least_wrt_rel (\<le>) P \<alpha>" 
+    using \<open>P \<alpha>\<close> by (auto intro!: is_least_wrt_rel_if_antisymmetric_onI)
+  then show ?thesis using least_wrt_rel_eqI by force
+qed
 
 end

@@ -65,7 +65,7 @@ lemma Nat_mem_rangeI [intro]:
   and "l \<le> n" "n \<le> u"
   shows "n \<in> [l,\<dots>,u]"
   using assms unfolding range_incl_excl_def
-  by (auto intro: Nat_lt_succ_if_le Nat_if_le_Nat dest: Nat_if_le_Nat)
+  by (auto intro: lt_succ_if_le Nat_if_le_Nat dest: Nat_if_le_Nat)
 
 lemma mem_rangeE:
   assumes "n \<in> [l,\<dots>,u]"
@@ -99,7 +99,7 @@ lemma Nat_succ_eq_range_zero:
 proof -
   have "[0,\<dots>,n] = {i \<in> \<nat> | i \<le> n}"
     unfolding range_incl_excl_def
-    by (rule eqI) (auto intro: Nat_lt_succ_if_le le_if_lt_succ)
+    by (rule eqI) (auto intro: lt_succ_if_le le_if_lt_succ)
   with assms show ?thesis sorry
 qed
 

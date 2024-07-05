@@ -19,9 +19,9 @@ bundle isa_set_nat_syntax begin notation nat ("\<nat>") end
 bundle no_isa_set_nat_syntax begin no_notation nat ("\<nat>") end
 unbundle isa_set_nat_syntax
 
-lemmas fixpoint_nat [iff] = fixpoint_omega[folded nat_def]
-  and zero_mem_nat [iff] = zero_mem_omega[folded nat_def]
-  and succ_mem_nat_if_mem [intro!] = succ_mem_omega_if_mem[folded nat_def]
+lemmas
+  zero_mem_nat [iff] = zero_mem_omega[folded nat_def]
+  and succ_mem_nat_if_mem [intro!] = omega_closed_succ[folded nat_def]
   and mem_natE = mem_omegaE[folded nat_def, case_names _ zero succ]
   and nat_induct [case_names zero succ, induct set: nat] =
     omega_induct[folded nat_def]
@@ -58,10 +58,12 @@ lemma Nat_succ_type [type]: "succ \<Ztypecolon> Nat \<Rightarrow> Nat" by unfold
 lemma Nat_one_type [type]: "1 \<Ztypecolon> Nat" by discharge_types
 
 lemma Nat_succ_lt_succ_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarrow> succ m < succ n"
-  sorry
+  apply unfold_types
+  unfolding nat_def using lt_iff_mem_if_mem_omega by auto
 
 lemma Nat_lt_if_succ_lt_succ: "\<lbrakk>n \<Ztypecolon> Nat; succ m < succ n\<rbrakk> \<Longrightarrow> m < n"
-  sorry
+  apply unfold_types
+  unfolding nat_def using lt_iff_mem_if_mem_omega by auto
 
 corollary Nat_succ_lt_succ_iff_lt [iff]: "n \<Ztypecolon> Nat \<Longrightarrow> succ m < succ n \<longleftrightarrow> m < n"
   using Nat_succ_lt_succ_if_lt Nat_lt_if_succ_lt_succ by blast
@@ -73,7 +75,7 @@ lemma Nat_trichotomy:
   by (rule Ord_trichotomy[of m n]) discharge_types
 
 lemma Nat_le_if_succ_le: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> n \<Longrightarrow> m \<le> n"
-  sorry
+  unfolding nat_def using le_succ le_trans by blast
 
 lemma le_if_lt: "m < n \<Longrightarrow> m \<le> n" unfolding le_def by simp
 
@@ -101,20 +103,33 @@ lemma Nat_le_if_succ_le_succ: "\<lbrakk>n \<Ztypecolon> Nat; succ m \<le> succ n
 corollary Nat_succ_le_succ_iff_le [iff]: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> succ n \<longleftrightarrow> m \<le> n"
   using Nat_le_if_succ_le_succ Nat_succ_le_succ_if_le by blast
 
-lemma le_if_lt_succ: "m < succ n \<Longrightarrow> m \<le> n"
-  sorry
+lemma le_if_lt_succ: 
+  assumes "m < succ n"
+  shows " m \<le> n"
+proof -
+  obtain k where "k \<in> succ n" "m \<le> k" using assms by (blast elim: lt_mem_leE)
+  then consider "k \<in> n" | "k = n" using succ_eq_insert_self by blast
+  then show ?thesis
+  proof cases
+    case 1
+    then show ?thesis using lt_if_mem le_if_lt le_trans \<open>m \<le> k\<close> by fastforce
+  next
+    case 2
+    then show ?thesis using \<open>m \<le> k\<close> by auto
+  qed
+qed
 
-lemma Nat_lt_succ_if_le: "n \<Ztypecolon> Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m < succ n"
-  sorry
+lemma lt_succ_if_le: "m \<le> n \<Longrightarrow> m < succ n"
+  using lt_succ lt_if_lt_if_le by blast
 
-corollary Nat_lt_succ_iff_le: "n \<Ztypecolon> Nat \<Longrightarrow> m < succ n \<longleftrightarrow> m \<le> n"
-  using le_if_lt_succ Nat_lt_succ_if_le by blast
+corollary lt_succ_iff_le: "m < succ n \<longleftrightarrow> m \<le> n"
+  using le_if_lt_succ lt_succ_if_le by blast
 
 lemma Nat_succ_le_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarrow> succ m \<le> n"
   using le_if_lt_succ by auto
 
 lemma Nat_lt_if_succ_le: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> n \<Longrightarrow> m < n"
-  using Nat_lt_succ_if_le by auto
+  using lt_succ_if_le by auto
 
 corollary Nat_succ_le_iff_lt: "n \<Ztypecolon> Nat \<Longrightarrow> succ m \<le> n \<longleftrightarrow> m < n"
   using Nat_succ_le_if_lt Nat_lt_if_succ_le by blast
@@ -124,14 +139,15 @@ lemma Nat_if_lt_Nat: "n \<Ztypecolon> Nat \<Longrightarrow> m < n \<Longrightarr
   (*TODO: would be nice if this works*)
   (* unfolding nat_def lt_def using mem_omega_if_mem_if_mem_omega by auto *)
   (* unfolding nat_def lt_def by unfold_types (fact mem_omega_if_mem_if_mem_omega) *)
-  sorry
+  apply unfold_types
+  unfolding nat_def using lt_iff_mem_if_mem_omega mem_trans_closed_omega 
+    by (blast elim!: mem_trans_closedE)
 
 lemma Nat_if_le_Nat: "n \<Ztypecolon> Nat \<Longrightarrow> m \<le> n \<Longrightarrow> m \<Ztypecolon> Nat"
   unfolding le_def using Nat_if_lt_Nat by auto
 
-lemma Nat_lt_if_lt_succ_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> l < m \<Longrightarrow> m < succ n \<Longrightarrow> l < n"
-  (* using lt_if_le_if_lt[of n l m] by (auto intro: le_if_lt_succ) *)
-  sorry
+lemma lt_if_lt_succ_if_lt: "l < m \<Longrightarrow> m < succ n \<Longrightarrow> l < n"
+  using le_if_lt_succ lt_if_le_if_lt by blast
 
 lemma Nat_succ_lt_if_lt_if_lt: "n \<Ztypecolon> Nat \<Longrightarrow> l < m \<Longrightarrow> m < n \<Longrightarrow> succ l < n"
   by (rule lt_if_lt_if_le[of "succ l" m n])
@@ -154,7 +170,7 @@ proof -
       proof (rule step)
         fix l' assume "l' \<Ztypecolon> Nat" "l' < l"
         then have "l' < m"
-          using \<open>l < succ m\<close> Nat_lt_if_lt_succ_if_lt[of m l'] by auto
+          using \<open>l < succ m\<close> lt_if_lt_succ_if_lt[of l'] by auto
         then show "P l'" by (intro succ.IH[of l']) auto
       qed fact
     qed simp
@@ -182,23 +198,14 @@ qed (auto intro: Nat_if_le_Nat assms)
 
 subsection \<open>Truncated predecessor function\<close>
 
-definition "pred n = (if n = 0 then 0 else (THE m : \<nat>. n = succ m))"
-
-(*FIXME*)
 lemma pred_type [type]: "pred \<Ztypecolon> Nat \<Rightarrow> Nat"
-  unfolding pred_def apply unfold_types apply auto
-  by (urule pred_btheI[of "\<lambda>x. x \<in> \<nat>"]) (auto elim: mem_natE)
-
-lemma pred_zero_eq [simp]: "pred 0 = 0"
-  unfolding pred_def by simp
-
-lemma Nat_pred_succ_eq [simp]: "n \<Ztypecolon> Nat \<Longrightarrow> pred (succ n) = n"
-  unfolding pred_def by auto
+  apply unfold_types
+  using nat_def omega_closed_pred by auto
 
 lemma Nat_succ_pred_eq_if_ne_zero [simp]:
   "n \<Ztypecolon> Nat \<Longrightarrow> n \<noteq> 0 \<Longrightarrow> succ (pred n) = n"
-  unfolding pred_def by (rule NatE) (auto intro!: arg_cong[where ?f="succ"])
-
+  apply unfold_types
+  unfolding nat_def using succ_pred_eq_self_if_nz_if_mem_omega by auto
 
 subsubsection \<open>\<open>pred\<close> and \<open><\<close>\<close>
 

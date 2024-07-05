@@ -5,6 +5,7 @@ theory HOTG_Universes
   imports
     HOTG_Coproduct
     HOTG_Clean_Functions
+    HOTG_Ordinals_Base
 begin
 
 unbundle no_HOL_ascii_syntax
@@ -100,5 +101,7 @@ lemma univ_closed_inl [intro!]: "x \<in> univ A \<Longrightarrow> inl x \<in> un
 lemma univ_closed_inr [intro!]: "x \<in> univ A \<Longrightarrow> inr x \<in> univ A"
   unfolding inr_def by auto
 
+lemma univ_closed_succ [intro!]: "x \<in> univ A \<Longrightarrow> succ x \<in> univ A"
+  using succ_eq_insert_self by auto
 
 end
