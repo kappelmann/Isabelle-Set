@@ -254,6 +254,11 @@ lemma lt_eq_lt_if_ordinalE:
   obtains "X < Y" | "X = Y" | "Y < X"
   using assms lt_if_mem by (cases rule: mem_eq_mem_if_ordinalE) auto
 
+corollary lt_if_not_le_if_ordinal:
+  assumes "ordinal X" "ordinal Y"
+  shows "\<not> (X \<le> Y) \<Longrightarrow> Y < X"
+  using assms by (cases rule: lt_eq_lt_if_ordinalE) auto
+
 corollary connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
   by (auto elim: mem_eq_mem_if_ordinalE del: ordinal_mem_trans_closedE)
 

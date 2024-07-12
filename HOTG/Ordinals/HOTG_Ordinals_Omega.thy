@@ -48,6 +48,9 @@ lemma
   succ_mem_omega_if_mem [intro!]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   using limit_ordinal_omega by (auto elim: limit_ordinalE)
 
+lemma one_mem_omega [iff]: "1 \<in> \<omega>" by auto
+lemma two_mem_omega [iff]: "2 \<in> \<omega>" by auto
+
 lemma ordinal_if_mem_omega:
   assumes "n \<in> \<omega>"
   shows "ordinal n"
