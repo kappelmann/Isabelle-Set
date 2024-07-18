@@ -10,33 +10,33 @@ begin
 unbundle no_HOL_groups_syntax
 unbundle no_HOL_order_syntax
 
-definition fun_pow :: "('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a \<Rightarrow> 'a" where
+definition fun_pow :: "('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> ('a \<Rightarrow> 'a)" where
 "fun_pow f = omega_rec id (\<lambda>g. f \<circ> g)"
 
-bundle hotg_fun_pow_syntax begin notation fun_pow (infixl "#" 50) end
-bundle no_hotg_fun_pow_syntax begin no_notation fun_pow (infixl "#" 50) end
+bundle hotg_fun_pow_syntax begin notation fun_pow (infixl "^^" 50) end
+bundle no_hotg_fun_pow_syntax begin no_notation fun_pow (infixl "^^" 50) end
 unbundle hotg_fun_pow_syntax
 
 lemma fun_pow_succ:
   assumes "n \<in> \<omega>"
-  shows "(f # succ n) x = f ((f # n) x)"
+  shows "(f ^^ succ n) x = f ((f^^n) x)"
   unfolding fun_pow_def omega_rec_succ[OF assms] by simp
 
-lemma fun_pow_zero_eq_id [simp]: "f # 0 = id" 
+lemma fun_pow_zero_eq_id [simp]: "f^^0 = id" 
   unfolding fun_pow_def omega_rec_zero by auto
 
-lemma fun_pow_one_eq_self [simp]: "f # 1 = f" 
+lemma fun_pow_one_eq_self [simp]: "f^^1 = f" 
   unfolding fun_pow_succ[OF zero_mem_omega] by auto
 
-definition "trans_image f X = (\<Union>n \<in> \<omega> \<setminus> {0}. image (f # n) X)"
+definition "trans_image f X = (\<Union>n \<in> \<omega> \<setminus> {0}. image (f^^n) X)"
 
 lemma image_subset_trans_image: "image f X \<subseteq> trans_image f X" unfolding trans_image_def by force
 
 lemma image_trans_image_subset_trans_image: "image f (trans_image f X) \<subseteq> trans_image f X"
 proof
   fix y assume "y \<in> image f (trans_image f X)"
-  then obtain x n where "x \<in> X" "n \<in> \<omega>" "y = f ((f # n) x)" unfolding trans_image_def by auto
-  then have "y = (f # succ n) x" using fun_pow_succ[symmetric] by auto
+  then obtain x n where "x \<in> X" "n \<in> \<omega>" "y = f ((f^^ n) x)" unfolding trans_image_def by auto
+  then have "y = (f ^^ succ n) x" using fun_pow_succ[symmetric] by auto
   then show "y \<in> trans_image f X" 
     unfolding trans_image_def using \<open>x \<in> X\<close> \<open>n \<in> \<omega>\<close> succ_ne_zero by auto
 qed
@@ -46,15 +46,15 @@ proof -
   have "trans_image f X \<subseteq> image f X \<union> image f (trans_image f X)"
   proof
     fix y assume "y \<in> trans_image f X"
-    then obtain x n where "x \<in> X" "n \<in> \<omega> \<setminus> {0}" "y = (f # n) x" unfolding trans_image_def by auto
+    then obtain x n where "x \<in> X" "n \<in> \<omega> \<setminus> {0}" "y = (f^^n) x" unfolding trans_image_def by auto
     then consider "n = 1" | m where "m \<in> \<omega> \<setminus> {0}" "n = succ m" by (auto elim: mem_omegaE)
     then show "y \<in> image f X \<union> image f (trans_image f X)"
     proof cases
       case 1
-      then show ?thesis using \<open>x \<in> X\<close> \<open>y = (f # n) x\<close> by auto
+      then show ?thesis using \<open>x \<in> X\<close> \<open>y = (f^^n) x\<close> by auto
     next
       case 2
-      then have "y = f ((f # m) x)" using \<open>y = (f # n) x\<close> fun_pow_succ by auto
+      then have "y = f ((f^^m) x)" using \<open>y = (f^^n) x\<close> fun_pow_succ by auto
       then show ?thesis using \<open>x \<in> X\<close> \<open>m \<in> \<omega> \<setminus> {0}\<close> unfolding trans_image_def by fastforce
     qed
   qed
@@ -112,10 +112,10 @@ proof -
   define C where "C = trans_image f (A \<setminus> B)"
   have "C \<subseteq> B"
   proof -
-    have "n \<noteq> 0 \<Longrightarrow> image (f # n) (A \<setminus> B) \<subseteq> B" if "n \<in> \<omega>" for n using that
+    have "n \<noteq> 0 \<Longrightarrow> image (f^^n) (A \<setminus> B) \<subseteq> B" if "n \<in> \<omega>" for n using that
     proof (induction rule: omega_induct)
       case (succ n)
-      then have "(f # succ n) x \<in> B" if "n \<noteq> 0" "x \<in> (A \<setminus> B)" for x 
+      then have "(f ^^ succ n) x \<in> B" if "n \<noteq> 0" "x \<in> (A \<setminus> B)" for x 
         using assms fun_pow_succ[of n f x] that by auto
       then show ?case using \<open>(A \<Rightarrow> B) f\<close> by (cases "n = 0") auto
     qed (auto simp: assms)
@@ -123,11 +123,12 @@ proof -
   qed
   moreover define D where "D = B \<setminus> C"
   ultimately have B_disjoint_union: "B = C \<union> D" "C \<inter> D = \<emptyset>" by auto
-  then have "image f (A \<setminus> D) = image f (A \<setminus> B) \<union> image f C" using\<open>B \<subseteq> A\<close> by auto
+  then have "image f (A \<setminus> D) = image f (A \<setminus> B) \<union> image f C" using \<open>B \<subseteq> A\<close> by auto
   then have "image f (A \<setminus> D) = C" using trans_image_fixpoint C_def by auto
   then show ?thesis using preliminary_consideration B_disjoint_union by blast
 qed
 
+(* Move to HOL library *)
 lemma injective_on_comp_if_injective_on:
   fixes X Y :: set and f g :: "set \<Rightarrow> set"
   assumes "(X \<Rightarrow> Y) f"
@@ -157,6 +158,8 @@ proof -
     using symmetric_equipollent transitive_equipollent by (auto dest: symmetricD)
 qed
 
+(* Das braucht Cantor-Bernstein, man kommt aber sogar mit dem oben bewiesenen Spezialfall
+ equipollent_subset_if_injective_map_to_subset aus. *)
 corollary cardinality_le_if_injective_map:
   fixes f :: "set \<Rightarrow> set"
   assumes "(X \<Rightarrow> Y) f" "injective_on X f"
@@ -178,7 +181,8 @@ proof (rule ccontr)
     using mono_wrt_pred_if_bijection_on_right injective_on_if_bijection_on_right bijY by auto
   ultimately have "injective_on |X| (h\<^sub>Y \<circ> (f \<circ> g\<^sub>X))" using injective_on_comp_if_injective_on by auto
   moreover have "(|X| \<Rightarrow> |Y|) (h\<^sub>Y \<circ> (f \<circ> g\<^sub>X))" using \<open>(|X| \<Rightarrow> Y) (f \<circ> g\<^sub>X)\<close> \<open>(Y \<Rightarrow> |Y|) h\<^sub>Y\<close> by force
-  ultimately have "|X| \<approx> |Y|" using \<open>|Y| \<subseteq> |X|\<close> equipollent_subset_if_injective_map_to_subset by blast
+  ultimately have "|X| \<approx> |Y|" 
+    using \<open>|Y| \<subseteq> |X|\<close> equipollent_subset_if_injective_map_to_subset by blast
   then have "|X| = |Y|" using cardinality_eq_if_equipollent by force
   then show "False" using \<open>\<not> |X| \<le> |Y|\<close> by auto
 qed
@@ -205,6 +209,6 @@ qed
 
 corollary cardinality_le_iff_injective_map:
   shows "|X| \<le> |Y| \<longleftrightarrow> (\<exists>(f :: set \<Rightarrow> set) : X \<Rightarrow> Y. injective_on X f)"
-  using cardinality_le_if_injective_map injective_map_if_cardinality_leE by force
+  using cardinality_le_if_injective_map by (auto elim: injective_map_if_cardinality_leE)
 
 end

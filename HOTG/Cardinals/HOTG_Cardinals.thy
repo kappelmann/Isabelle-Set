@@ -7,6 +7,7 @@ theory HOTG_Cardinals
     HOTG_Cardinals_Base
     HOTG_Cardinals_Addition
     HOTG_Cardinals_Multiplication
+    HOTG_Cardinal_Comparability
 begin
 
 

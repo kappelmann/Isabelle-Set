@@ -169,7 +169,7 @@ definition omega_rec :: "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> se
   "omega_rec a r = transfrec (\<lambda>f n. if n = 0 then a else r (f (pred n)))"
 
 lemma
-  omega_rec_zero: "omega_rec a r 0 = a" and
+  omega_rec_zero [simp]: "omega_rec a r 0 = a" and
   omega_rec_succ: "n \<in> \<omega> \<Longrightarrow> omega_rec a r (succ n) = r (omega_rec a r n)"
 proof -
   let ?f = "omega_rec a r"
