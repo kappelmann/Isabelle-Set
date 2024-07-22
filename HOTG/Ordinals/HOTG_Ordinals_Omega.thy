@@ -48,6 +48,9 @@ lemma
   succ_mem_omega_if_mem [intro!]: "n \<in> \<omega> \<Longrightarrow> succ n \<in> \<omega>"
   using limit_ordinal_omega by (auto elim: limit_ordinalE)
 
+lemma one_mem_omega [iff]: "1 \<in> \<omega>" by auto
+lemma two_mem_omega [iff]: "2 \<in> \<omega>" by auto
+
 lemma ordinal_if_mem_omega:
   assumes "n \<in> \<omega>"
   shows "ordinal n"
@@ -166,7 +169,7 @@ definition omega_rec :: "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> se
   "omega_rec a r = transfrec (\<lambda>f n. if n = 0 then a else r (f (pred n)))"
 
 lemma
-  omega_rec_zero: "omega_rec a r 0 = a" and
+  omega_rec_zero [simp]: "omega_rec a r 0 = a" and
   omega_rec_succ: "n \<in> \<omega> \<Longrightarrow> omega_rec a r (succ n) = r (omega_rec a r n)"
 proof -
   let ?f = "omega_rec a r"
