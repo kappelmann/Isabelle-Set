@@ -16,6 +16,7 @@ session HOTG = Transport +
     "Binary_Relations/Properties"
     "Binary_Relations/Recursions"
     Cardinals
+    Equipollence
     Functions
     "Functions/Properties"
     Mem_Transitive_Closure
@@ -26,6 +27,7 @@ session HOTG = Transport +
     HOTG_Arithmetics
     HOTG_Binary_Relations
     HOTG_Cardinals
+    HOTG_Equipollence
     HOTG_Functions
     HOTG_Mem_Transitive_Closed
     HOTG_Mem_Transitive_Closure
@@ -38,7 +40,6 @@ session HOTG = Transport +
     HOTG_Coproduct
     HOTG_Empty_Set
     HOTG_Equality
-    HOTG_Equipollence
     HOTG_Finite_Sets
     HOTG_Foundation
     HOTG_Pairs

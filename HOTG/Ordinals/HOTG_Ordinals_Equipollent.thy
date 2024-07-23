@@ -3,7 +3,7 @@
 theory HOTG_Ordinals_Equipollent
   imports
     HOTG_Choice
-    HOTG_Equipollence
+    HOTG_Equipollence_Base
     HOTG_Transfinite_Recursion
     HOTG_Ordinals_Base
     HOTG_Set_Difference

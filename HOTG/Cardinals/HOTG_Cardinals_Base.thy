@@ -5,7 +5,7 @@ theory HOTG_Cardinals_Base
   imports
     Transport.Binary_Relations_Least
     HOTG_Ordinals_Equipollent
-    HOTG_Equipollence
+    HOTG_Equipollence_Base
     HOTG_Ordinals_Base
     HOTG_Less_Than
 begin

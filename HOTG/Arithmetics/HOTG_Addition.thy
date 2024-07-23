@@ -14,7 +14,7 @@ unbundle
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_set_arithemtics\<close> and
 \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set addition is associative and
-monotone and injective in the second argument, but it is not commutative (not proven here).\<close>
+monotone and injective in the second argument, but it is not commutative.\<close>
 
 definition "add X \<equiv> transfrec (\<lambda>addX Y. X \<union> image addX Y)"
 

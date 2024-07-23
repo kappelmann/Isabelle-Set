@@ -1,7 +1,7 @@
 \<^marker>\<open>creator "Linghan Fang"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Equipollence\<close>
-theory HOTG_Equipollence
+theory HOTG_Equipollence_Base
   imports
     HOTG_Functions_Bijection
     Transport.Equivalence_Relations

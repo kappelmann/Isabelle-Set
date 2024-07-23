@@ -160,7 +160,7 @@ proof -
   then show ?thesis using \<open>n = succ m\<close> by auto
 qed
 
-lemma pred_mem_if_ne_zero_if_mem_omega:
+lemma pred_mem_self_if_ne_zero_if_mem_omega:
   assumes "n \<in> \<omega>" "n \<noteq> 0"
   shows "pred n \<in> n"
   using succ_pred_eq_self_if_ne_zero_if_mem_omega assms mem_succ by auto
@@ -176,7 +176,7 @@ proof -
   let ?step = "\<lambda>f n. if n = 0 then a else r (f (pred n))"
   have f_eq: "?f n = (if n = 0 then a else r (?f (pred n)))" if "n \<in> \<omega>" for n
     using transfrec_eq[of ?step n] unfolding omega_rec_def[symmetric]
-    using pred_mem_if_ne_zero_if_mem_omega that by auto
+    using pred_mem_self_if_ne_zero_if_mem_omega that by auto
   then show "?f 0 = a" by auto
   assume "n \<in> \<omega>"
   then show "?f (succ n) = r (?f n)"

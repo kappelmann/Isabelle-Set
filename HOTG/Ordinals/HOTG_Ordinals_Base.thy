@@ -256,7 +256,8 @@ lemma lt_eq_lt_if_ordinalE:
 
 corollary lt_if_not_le_if_ordinal:
   assumes "ordinal X" "ordinal Y"
-  shows "\<not> (X \<le> Y) \<Longrightarrow> Y < X"
+  and "\<not>(X \<le> Y)"
+  shows "Y < X"
   using assms by (cases rule: lt_eq_lt_if_ordinalE) auto
 
 corollary connected_on_ordinal_mem: "connected_on ordinal (\<in>)"
