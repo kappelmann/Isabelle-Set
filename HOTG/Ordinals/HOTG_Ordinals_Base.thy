@@ -9,6 +9,7 @@ theory HOTG_Ordinals_Base
     HOTG_Less_Than
     Transport.HOL_Syntax_Bundles_Groups
     Transport.Functions_Inverse
+    Binary_Relations_Wellorder
 begin
 
 unbundle no_HOL_order_syntax
@@ -368,6 +369,18 @@ proof -
   then have "is_least_wrt_rel (\<le>) P \<alpha>"
     using \<open>P \<alpha>\<close> by (auto intro!: is_least_wrt_rel_if_antisymmetric_onI)
   then show ?thesis using least_wrt_rel_eqI by force
+qed
+
+lemma wellorder_on_mem_of_mem_if_ordinal:
+  assumes "ordinal \<alpha>"
+  shows "wellorder_on (mem_of \<alpha>) (\<in>)"
+proof -
+  have "asymmetric_on (mem_of \<alpha>) (\<in>)" using not_mem_if_mem by blast
+  moreover have "transitive_on (mem_of \<alpha>) (\<in>)" 
+    using assms by (blast elim!: ordinal_mem_trans_closedE)
+  moreover have "connected_on (mem_of \<alpha>) (\<in>)" 
+    using connected_on_ordinal_mem ordinal_if_mem_if_ordinal assms by blast
+  ultimately show ?thesis using wellfounded_mem by blast
 qed
 
 end

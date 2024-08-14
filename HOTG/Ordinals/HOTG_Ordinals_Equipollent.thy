@@ -112,4 +112,12 @@ proof -
   ultimately show ?thesis using \<open>X = Y\<close> by auto
 qed
 
+corollary wellordering_theorem: "\<exists>R. wellorder_on (mem_of X) R"
+proof -
+  obtain \<nu> where "ordinal \<nu>" "X \<approx> \<nu>" using bex_ordinal_equipollent by blast
+  then obtain nr e :: "set \<Rightarrow> set" where "bijection_on X \<nu> nr e" by auto
+  then show ?thesis
+    using wellorder_on_mem_of_mem_if_ordinal \<open>ordinal \<nu>\<close> wellorder_pullback by blast
+qed
+
 end
