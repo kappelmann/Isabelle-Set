@@ -18,6 +18,7 @@ session HOTG = Transport +
     Cardinals
     Equipollence
     Functions
+    Functors
     "Functions/Properties"
     Mem_Transitive_Closure
     Orders
