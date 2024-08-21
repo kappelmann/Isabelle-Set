@@ -6,6 +6,7 @@ theory HOTG_Ordinals
     HOTG_Ordinals_Equipollent
     HOTG_Ordinals_Max
     HOTG_Ordinals_Omega
+    HOTG_Order_Type
     HOTG_Ranks
 begin
 

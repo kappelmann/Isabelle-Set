@@ -121,7 +121,7 @@ proof -
   then have "(X \<Rightarrow> \<nu>) nr" "injective_on X nr"
     using injective_on_if_bijection_on_left mono_wrt_pred_if_bijection_on_left by auto
   then show ?thesis
-    using wellorder_on_pullback wellorder_on_mem_of_mem_if_ordinal \<open>ordinal \<nu>\<close> by blast
+    using wellorder_on_pullback wellorder_on_mem_if_ordinal \<open>ordinal \<nu>\<close> by blast
 qed
 
 end

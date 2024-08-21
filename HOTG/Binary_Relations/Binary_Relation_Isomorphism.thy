@@ -80,6 +80,9 @@ proof -
   ultimately show ?thesis by (auto intro: rel_isomorphismI)
 qed
 
+lemma rel_isomorphism_id: "rel_isomorphism D D R R id id"
+  using bijection_on_self_id by (auto intro!: rel_isomorphismI)
+
 definition "rel_isomorphic A B R S \<longleftrightarrow> (\<exists>\<phi> \<psi>. rel_isomorphism A B R S \<phi> \<psi>)"
 
 lemma rel_isomorphicI [intro]:
@@ -92,7 +95,7 @@ lemma rel_isomorphicE [elim]:
   obtains \<phi> \<psi> where "rel_isomorphism A B R S \<phi> \<psi>"
   using assms unfolding rel_isomorphic_def by blast
 
-lemma rel_isomorpism_sym:
+lemma rel_isomorphic_if_rel_isomorphic:
   assumes "rel_isomorphic A B R S"
   shows "rel_isomorphic B A S R"
   using assms rel_isomorphism_inverse by (blast elim!: rel_isomorphicE)
@@ -101,5 +104,8 @@ lemma rel_isomorphic_trans [intro]:
   assumes "rel_isomorphic A B R S" "rel_isomorphic B C S T"
   shows "rel_isomorphic A C R T"
   using assms by (blast intro: rel_isomorphism_compI elim!: rel_isomorphicE)
+
+lemma rel_isomorphic_self: "rel_isomorphic D D R R"
+  using rel_isomorphism_id by blast
 
 end

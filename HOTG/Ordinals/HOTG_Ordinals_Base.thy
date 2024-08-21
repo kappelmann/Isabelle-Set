@@ -381,7 +381,7 @@ proof -
   ultimately show ?thesis using wellfounded_mem by force
 qed
 
-corollary wellorder_on_mem_of_mem_if_ordinal:
+corollary wellorder_on_mem_if_ordinal:
   assumes "ordinal \<alpha>"
   shows "wellorder_on \<alpha> (\<in>)"
   using wellorder_on_ordinal_mem assms ordinal_if_mem_if_ordinal by blast
