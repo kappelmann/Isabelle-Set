@@ -9,7 +9,7 @@ theory HOTG_Ordinals_Base
     HOTG_Less_Than
     Transport.HOL_Syntax_Bundles_Groups
     Transport.Functions_Inverse
-    Binary_Relations_Wellorder
+    HOTG_Binary_Relations_Wellorder
 begin
 
 unbundle no_HOL_order_syntax
@@ -371,16 +371,19 @@ proof -
   then show ?thesis using least_wrt_rel_eqI by force
 qed
 
-lemma wellorder_on_mem_of_mem_if_ordinal:
-  assumes "ordinal \<alpha>"
-  shows "wellorder_on (mem_of \<alpha>) (\<in>)"
+lemma wellorder_on_ordinal_mem:
+  shows "wellorder_on ordinal (\<in>)"
 proof -
-  have "asymmetric_on (mem_of \<alpha>) (\<in>)" using not_mem_if_mem by blast
-  moreover have "transitive_on (mem_of \<alpha>) (\<in>)" 
-    using assms by (blast elim!: ordinal_mem_trans_closedE)
-  moreover have "connected_on (mem_of \<alpha>) (\<in>)" 
-    using connected_on_ordinal_mem ordinal_if_mem_if_ordinal assms by blast
-  ultimately show ?thesis using wellfounded_mem by blast
+  have "asymmetric_on ordinal (\<in>)" using not_mem_if_mem by blast
+  moreover have "transitive_on ordinal (\<in>)" by (blast elim!: ordinal_mem_trans_closedE)
+  moreover have "connected_on ordinal (\<in>)" 
+    using connected_on_ordinal_mem ordinal_if_mem_if_ordinal by blast
+  ultimately show ?thesis using wellfounded_mem by force
 qed
+
+corollary wellorder_on_mem_of_mem_if_ordinal:
+  assumes "ordinal \<alpha>"
+  shows "wellorder_on \<alpha> (\<in>)"
+  using wellorder_on_ordinal_mem assms ordinal_if_mem_if_ordinal by blast
 
 end

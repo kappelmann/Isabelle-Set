@@ -1,47 +1,67 @@
 theory Binary_Relations_Strict_Linear_Order
-  imports 
+  imports
     Binary_Relations_Asymmetric
     Transport.Binary_Relations_Transitive
     Transport.Binary_Relations_Connected
     Transport.Functions_Injective
 begin
 
-definition strict_linear_order_on :: "('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool" where
-"strict_linear_order_on P R \<longleftrightarrow> asymmetric_on P R \<and> transitive_on P R \<and> connected_on P R"
+consts strict_linear_order_on :: "'a \<Rightarrow> 'b \<Rightarrow> bool"
+
+overloading
+  strict_linear_order_on_pred \<equiv> "strict_linear_order_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
+begin
+  definition "strict_linear_order_on_pred (D :: 'a \<Rightarrow> bool) (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) 
+    \<equiv> asymmetric_on D R \<and> transitive_on D R \<and> connected_on D R"
+end
 
 lemma strict_linear_order_onI [intro]:
-  assumes "asymmetric_on P R" "transitive_on P R" "connected_on P R"
-  shows "strict_linear_order_on P R" 
-  using assms strict_linear_order_on_def by blast
+  fixes D :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "asymmetric_on D R" "transitive_on D R" "connected_on D R"
+  shows "strict_linear_order_on D R" 
+  using assms unfolding strict_linear_order_on_pred_def by blast
 
-lemma strict_linear_order_onD [dest]: 
-  assumes "strict_linear_order_on P R"
-  shows "asymmetric_on P R" "transitive_on P R" "connected_on P R"
-  using assms strict_linear_order_on_def by auto
+lemma strict_linear_order_onE [elim]: 
+  fixes D :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "strict_linear_order_on D R"
+  obtains "asymmetric_on D R" "transitive_on D R" "connected_on D R"
+  using assms unfolding strict_linear_order_on_pred_def by blast
 
-lemma asymmetric_on_if_strict_linear_order_onE:
-  assumes "strict_linear_order_on P R"
-  shows "asymmetric_on P R"
-  using assms strict_linear_order_on_def by blast
+lemma transitive_on_pullback:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "transitive_on A R" "(B \<Rightarrow> A) f"
+  shows "transitive_on B (rel_map f R)"
+  using assms by (fastforce intro!: transitive_onI dest!: transitive_onD)
 
-lemma transitive_on_if_strict_linear_order_onE:
-  assumes "strict_linear_order_on P R"
-  shows "transitive_on P R"
-  using assms strict_linear_order_on_def by blast
+lemma connected_on_pullback:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "connected_on A R" "(B \<Rightarrow> A) f" "injective_on B f"
+  shows "connected_on B (rel_map f R)"
+  using assms by (fastforce dest: injective_onD)
 
-lemma strict_linear_order_pullback:
-  assumes order: "strict_linear_order_on P R" 
-  assumes embedding: "(Q \<Rightarrow> P) f" "injective_on Q f"
-  shows "strict_linear_order_on Q (\<lambda>x y. Q x \<and> Q y \<and> R (f x) (f y))"
-proof -
-  let ?S = "\<lambda>x y. R (f x) (f y)"
-  have "\<not> ?S y x" if "Q x" "Q y" "R (f x) (f y)" for x y 
-    using that \<open>(Q \<Rightarrow> P) f\<close> order by blast
-  moreover have "?S x z" if "Q x" "Q y" "Q z" "?S x y" "?S y z" for x y z
-    using that \<open>(Q \<Rightarrow> P) f\<close> order by (blast dest!: transitive_onD)
-  moreover have "?S x y \<or> ?S y x" if "Q x" "Q y" "x \<noteq> y" for x y 
-    using that embedding strict_linear_order_onD[OF order] by (auto dest: injective_onD)
-  ultimately show ?thesis by blast
-qed
+lemma strict_linear_order_on_pullback:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "strict_linear_order_on A R" "(B \<Rightarrow> A) f" "injective_on B f"
+  shows "strict_linear_order_on B (rel_map f R)"
+  using assms asymmetric_on_pullback transitive_on_pullback connected_on_pullback
+  by (auto intro!: strict_linear_order_onI elim!: strict_linear_order_onE)
+
+lemma transitive_on_subdomain [intro]:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "transitive_on A R" "B \<le> A"
+  shows "transitive_on B R"
+  using assms by (blast dest: transitive_onD)
+
+lemma connected_on_subdomain [intro]:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "connected_on A R" "B \<le> A"
+  shows "connected_on B R"
+  using assms by blast
+
+lemma strict_linear_order_on_subdomain:
+  fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
+  assumes "strict_linear_order_on A R" "B \<le> A"
+  shows "strict_linear_order_on B R"
+  using assms by blast
 
 end
