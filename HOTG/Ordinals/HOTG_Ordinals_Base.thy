@@ -384,6 +384,7 @@ qed
 corollary wellorder_on_mem_if_ordinal:
   assumes "ordinal \<alpha>"
   shows "wellorder_on \<alpha> (\<in>)"
-  using wellorder_on_ordinal_mem assms ordinal_if_mem_if_ordinal by blast
+  using wellorder_on_ordinal_mem assms ordinal_if_mem_if_ordinal 
+  by (blast intro: wellorder_on_subdomain)
 
 end

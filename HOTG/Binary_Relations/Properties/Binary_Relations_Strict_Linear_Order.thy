@@ -46,13 +46,13 @@ lemma strict_linear_order_on_pullback:
   using assms asymmetric_on_pullback transitive_on_pullback connected_on_pullback
   by (auto intro!: strict_linear_order_onI elim!: strict_linear_order_onE)
 
-lemma transitive_on_subdomain [intro]:
+lemma transitive_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "transitive_on A R" "B \<le> A"
   shows "transitive_on B R"
   using assms by (blast dest: transitive_onD)
 
-lemma connected_on_subdomain [intro]:
+lemma connected_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "connected_on A R" "B \<le> A"
   shows "connected_on B R"
@@ -62,6 +62,7 @@ lemma strict_linear_order_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "strict_linear_order_on A R" "B \<le> A"
   shows "strict_linear_order_on B R"
-  using assms by blast
+  using assms
+  by (blast intro: asymmetric_on_subdomain transitive_on_subdomain connected_on_subdomain)
 
 end

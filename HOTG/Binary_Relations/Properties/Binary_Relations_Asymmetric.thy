@@ -42,7 +42,7 @@ lemma asymmetric_on_pullback:
   shows "asymmetric_on B (rel_map f R)"
   using assms by fastforce
 
-lemma asymmetric_on_subdomain [intro]:
+lemma asymmetric_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "asymmetric_on A R" "B \<le> A"
   shows "asymmetric_on B R"

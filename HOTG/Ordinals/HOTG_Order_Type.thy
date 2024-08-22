@@ -6,18 +6,17 @@ theory HOTG_Order_Type
     HOTG_Binary_Relation_Isomorphism
     HOTG_Functions_Bijection
     HOTG_Functions_Injective
-    HOTG_Functions_Restrict
 begin
 
 unbundle no_HOL_ascii_syntax
 
 definition order_type :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set" ("\<bbbO> _ _") where
-"(\<bbbO> X R) = (THE \<alpha> : ordinal. rel_isomorphic X \<alpha> R (\<in>))"
+"(\<bbbO> X R) = (THE \<alpha> : ordinal. rel_isomorphic_on X \<alpha> R (\<in>))"
 
-lemma bex_ordinal_rel_isomorphic_if_wellorder_on:
+lemma bex_ordinal_rel_isomorphic_on_if_wellorder_on:
   fixes X :: set and R :: "set \<Rightarrow> set \<Rightarrow> bool" (infixl "\<prec>" 50)
   assumes "wellorder_on X (\<prec>)"
-  shows "\<exists>\<nu> : ordinal. rel_isomorphic X \<nu> (\<prec>) (\<in>)"
+  shows "\<exists>\<nu> : ordinal. rel_isomorphic_on X \<nu> (\<prec>) (\<in>)"
 proof -
   let ?step = "\<lambda>nr x. {\<alpha> | y \<in> X, y \<prec> x \<and> \<alpha> = nr y}"
   define nr :: "set \<Rightarrow> set" where "nr = wfrec_on X (\<prec>) ?step"
@@ -44,14 +43,14 @@ proof -
   qed auto
   then obtain e where "bijection_on X \<nu> nr e" 
     unfolding \<nu>_def using bijection_on_has_inverse_on_the_inverse_on_if_injective_on by auto
-  then have "rel_isomorphism X \<nu> (\<prec>) (\<in>) nr e"
+  then have "rel_isomorphism_on X \<nu> (\<prec>) (\<in>) nr e"
     using nr_hom assms \<open>ordinal \<nu>\<close> wellorder_on_mem_if_ordinal  
-    by (blast intro!: rel_isomorphism_if_strict_linear_order_onI)
+    by (blast intro: rel_isomorphism_on_if_connected_if_asymmetricI)
   then show ?thesis using \<open>ordinal \<nu>\<close> by blast
 qed
 
-lemma rel_isomorphism_trivial_if_ordinal_to_ordinal:
-  assumes "ordinal \<alpha>" "ordinal \<alpha>'" and iso: "rel_isomorphism \<alpha> \<alpha>' (\<in>) (\<in>) \<phi> \<psi>"
+lemma rel_isomorphism_on_trivial_if_ordinal_to_ordinal:
+  assumes "ordinal \<alpha>" "ordinal \<alpha>'" and iso: "rel_isomorphism_on \<alpha> \<alpha>' (\<in>) (\<in>) \<phi> \<psi>"
   shows "\<beta> \<in> \<alpha> \<Longrightarrow> \<phi> \<beta> = \<beta>"
 proof (induction \<beta> rule: mem_induction)
   case (mem \<beta>)
@@ -76,13 +75,13 @@ proof (induction \<beta> rule: mem_induction)
   ultimately show ?case by blast
 qed
 
-corollary eq_if_rel_isomorphic_if_ordinal_if_ordinal:
-  assumes ord: "ordinal \<alpha>" "ordinal \<alpha>'" "rel_isomorphic \<alpha> \<alpha>' (\<in>) (\<in>)"
+corollary eq_if_rel_isomorphic_on_if_ordinal_if_ordinal:
+  assumes ord: "ordinal \<alpha>" "ordinal \<alpha>'" "rel_isomorphic_on \<alpha> \<alpha>' (\<in>) (\<in>)"
   shows "\<alpha> = \<alpha>'"
 proof -
   from assms obtain \<phi> \<psi> :: "set \<Rightarrow> set" 
-    where iso: "rel_isomorphism \<alpha> \<alpha>' (\<in>) (\<in>) \<phi> \<psi>" by auto
-  then have "\<forall>\<beta> : \<alpha>. \<phi> \<beta> = \<beta>" using ord rel_isomorphism_trivial_if_ordinal_to_ordinal by blast
+    where iso: "rel_isomorphism_on \<alpha> \<alpha>' (\<in>) (\<in>) \<phi> \<psi>" by auto
+  then have "\<forall>\<beta> : \<alpha>. \<phi> \<beta> = \<beta>" using ord rel_isomorphism_on_trivial_if_ordinal_to_ordinal by blast
   then have "image \<phi> \<alpha> = \<alpha>" by auto
   moreover have "image \<phi> \<alpha> = \<alpha>'" using iso image_eq_if_bijection_on_left_right by auto
   ultimately show ?thesis by auto
@@ -91,44 +90,44 @@ qed
 lemma 
   assumes "wellorder_on X R"
   shows
-    ordinal_order_type_if_wellorder_on: "ordinal \<bbbO> X R" and
-    rel_isomorphic_order_type_if_wellorder_on: "rel_isomorphic X (\<bbbO> X R) R (\<in>)" and
-    eq_order_type_if_ordinal_rel_isomorphic_if_wellorder_on:
-      "\<And>\<beta>. ordinal \<beta> \<Longrightarrow> rel_isomorphic X \<beta> R (\<in>) \<Longrightarrow> \<beta> = \<bbbO> X R" 
+    eq_order_type_if_ordinal_rel_isomorphic_on:
+      "\<And>\<beta>. ordinal \<beta> \<Longrightarrow> rel_isomorphic_on X \<beta> R (\<in>) \<Longrightarrow> \<beta> = \<bbbO> X R" and
+    ordinal_order_type_if_wellorder_on [intro]: "ordinal \<bbbO> X R" and
+    rel_isomorphic_on_order_type: "rel_isomorphic_on X (\<bbbO> X R) R (\<in>)"
 proof -
-  obtain \<alpha> where "ordinal \<alpha>" and iso_\<alpha>: "rel_isomorphic X \<alpha> R (\<in>)"
-    using assms bex_ordinal_rel_isomorphic_if_wellorder_on by blast
-  moreover have "\<alpha> = \<beta>" if "ordinal \<beta>" "rel_isomorphic X \<beta> R (\<in>)" for \<beta>
+  obtain \<alpha> where "ordinal \<alpha>" and iso_\<alpha>: "rel_isomorphic_on X \<alpha> R (\<in>)"
+    using assms bex_ordinal_rel_isomorphic_on_if_wellorder_on by blast
+  moreover have "\<alpha> = \<beta>" if "ordinal \<beta>" "rel_isomorphic_on X \<beta> R (\<in>)" for \<beta>
   proof -
-    from that have "rel_isomorphic \<alpha> \<beta> (\<in>) (\<in>)" 
-      using iso_\<alpha> rel_isomorphic_if_rel_isomorphic by blast
+    from that have "rel_isomorphic_on \<alpha> \<beta> (\<in>) (\<in>)" 
+      using iso_\<alpha> rel_isomorphic_on_if_rel_isomorphic_on by blast
     then show ?thesis 
-      using \<open>ordinal \<alpha>\<close> \<open>ordinal \<beta>\<close> eq_if_rel_isomorphic_if_ordinal_if_ordinal by blast
+      using \<open>ordinal \<alpha>\<close> \<open>ordinal \<beta>\<close> eq_if_rel_isomorphic_on_if_ordinal_if_ordinal by blast
   qed
-  ultimately have bex1: "\<exists>!\<alpha> : ordinal. rel_isomorphic X \<alpha> R (\<in>)" by blast
+  ultimately have bex1: "\<exists>!\<alpha> : ordinal. rel_isomorphic_on X \<alpha> R (\<in>)" by blast
   then show "ordinal \<bbbO> X R" unfolding order_type_def by (auto intro!: pred_btheI)
-  moreover from bex1 show "rel_isomorphic X (\<bbbO> X R) R (\<in>)"
+  moreover from bex1 show "rel_isomorphic_on X (\<bbbO> X R) R (\<in>)"
     unfolding order_type_def by (auto intro!: pred_btheI')
-  ultimately show "\<And>\<beta>. ordinal \<beta> \<Longrightarrow> rel_isomorphic X \<beta> R (\<in>) \<Longrightarrow> \<beta> = \<bbbO> X R"
+  ultimately show "\<And>\<beta>. ordinal \<beta> \<Longrightarrow> rel_isomorphic_on X \<beta> R (\<in>) \<Longrightarrow> \<beta> = \<bbbO> X R"
     using bex1 by auto
 qed
 
-lemma order_type_eq_iff_rel_isomorphic_if_wellorder_on:
+lemma order_type_eq_iff_rel_isomorphic_on:
   assumes "wellorder_on X R" "wellorder_on Y S"
-  shows "(\<bbbO> X R) = (\<bbbO> Y S) \<longleftrightarrow> rel_isomorphic X Y R S"
+  shows "(\<bbbO> X R) = (\<bbbO> Y S) \<longleftrightarrow> rel_isomorphic_on X Y R S"
 proof
   assume "(\<bbbO> X R) = (\<bbbO> Y S)"
-  then have "rel_isomorphic X (\<bbbO> Y S) R (\<in>)"
-    using \<open>wellorder_on X R\<close> rel_isomorphic_order_type_if_wellorder_on by force
-  then show "rel_isomorphic X Y R S" using \<open>wellorder_on Y S\<close> 
-      rel_isomorphic_order_type_if_wellorder_on rel_isomorphic_if_rel_isomorphic by blast
+  then have "rel_isomorphic_on X (\<bbbO> Y S) R (\<in>)"
+    using \<open>wellorder_on X R\<close> rel_isomorphic_on_order_type by force
+  then show "rel_isomorphic_on X Y R S" using \<open>wellorder_on Y S\<close> 
+      rel_isomorphic_on_order_type rel_isomorphic_on_if_rel_isomorphic_on by blast
 next
-  assume "rel_isomorphic X Y R S"
-  then have "rel_isomorphic X (\<bbbO> Y S) R (\<in>)" using \<open>wellorder_on Y S\<close> 
-      rel_isomorphic_order_type_if_wellorder_on rel_isomorphic_if_rel_isomorphic by blast
-  moreover have "ordinal \<bbbO> Y S" using \<open>wellorder_on Y S\<close> ordinal_order_type_if_wellorder_on by blast
+  assume "rel_isomorphic_on X Y R S"
+  then have "rel_isomorphic_on X (\<bbbO> Y S) R (\<in>)" using \<open>wellorder_on Y S\<close> 
+      rel_isomorphic_on_order_type rel_isomorphic_on_if_rel_isomorphic_on by blast
+  moreover have "ordinal \<bbbO> Y S" using \<open>wellorder_on Y S\<close> by blast
   ultimately show "(\<bbbO> X R) = (\<bbbO> Y S)" 
-    using \<open>wellorder_on X R\<close> eq_order_type_if_ordinal_rel_isomorphic_if_wellorder_on by force
+    using \<open>wellorder_on X R\<close> eq_order_type_if_ordinal_rel_isomorphic_on by force
 qed
 
 lemma order_type_eq_self_if_ordinal:
@@ -136,8 +135,14 @@ lemma order_type_eq_self_if_ordinal:
   shows "(\<bbbO> \<alpha> (\<in>)) = \<alpha>"
 proof -
   have "wellorder_on \<alpha> (\<in>)" using assms wellorder_on_mem_if_ordinal by blast
-  moreover have "rel_isomorphic \<alpha> \<alpha> (\<in>) (\<in>)" using rel_isomorphic_self by blast
-  ultimately show ?thesis using assms eq_order_type_if_ordinal_rel_isomorphic_if_wellorder_on by auto
+  moreover have "rel_isomorphic_on \<alpha> \<alpha> (\<in>) (\<in>)" using rel_isomorphic_on_self by blast
+  ultimately show ?thesis 
+    using assms eq_order_type_if_ordinal_rel_isomorphic_on by auto
 qed
+
+corollary order_type_order_type_eq_order_type:
+  assumes "wellorder_on X R"
+  shows "(\<bbbO> (\<bbbO> X R) (\<in>)) = \<bbbO> X R"
+  using assms order_type_eq_self_if_ordinal by auto
 
 end

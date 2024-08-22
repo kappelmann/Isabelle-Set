@@ -24,12 +24,10 @@ lemma wellorder_on_set_iff_wellorder_on_pred [iff]:
   by simp
 
 
-overloading
-  wfrec_on_set \<equiv> "wfrec_on :: set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> ((set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b"
-begin
-  definition "wfrec_on_set (S :: set) (R :: set \<Rightarrow> set \<Rightarrow> bool) (step :: ((set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b))
-    \<equiv> (wfrec_on (mem_of S) R step) :: set \<Rightarrow> 'b"
-end
+definition wfrec_on_set ::
+  "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> ((set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b" where
+"wfrec_on_set D = wfrec_on (mem_of D)"
+adhoc_overloading wfrec_on wfrec_on_set
 
 lemma wfrec_on_set_eq_wfrec_on_pred [simp]:
   "wfrec_on (S :: set) (R :: set \<Rightarrow> set \<Rightarrow> bool) (step :: (set \<Rightarrow> 'b) \<Rightarrow> set \<Rightarrow> 'b) 

@@ -37,7 +37,7 @@ lemma wellfounded_on_induct [consumes 1, case_names step]:
 proof (rule ccontr)
   assume "\<not> P z"
   then obtain m where "D m" "\<not> P m" "\<And>y. D y \<Longrightarrow> R y m \<Longrightarrow> P y"
-    using \<open>D z\<close> \<open>wellfounded_on D R\<close> by (blast elim!: wellfounded_onE[where P = "\<lambda>x. \<not> P x"])
+    using assms by (blast elim!: wellfounded_onE[where P = "\<lambda>x. \<not> P x"])
   then show "False" using step by auto
 qed
 
@@ -58,12 +58,10 @@ qed
 
 consts wfrec_on :: "'a \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> 'd"
 
-overloading
-  wfrec_on_pred \<equiv> "wfrec_on :: ('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b"
-begin
-  definition "wfrec_on_pred (D :: 'a \<Rightarrow> bool) (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) (step :: (('a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b))
-    \<equiv> wfrec R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub> step"
-end
+definition wfrec_on_pred ::
+  "('a \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> (('a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b" where
+"wfrec_on_pred D R step = wfrec R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub> step"
+adhoc_overloading wfrec_on wfrec_on_pred
 
 lemma wfrec_on_eq:
   fixes step
@@ -99,7 +97,7 @@ proof (intro wellfounded_onI)
   then show "\<exists>m : B. P m \<and> (\<forall>b : B. rel_map f R b m \<longrightarrow> \<not> P b)" using \<open>B m\<^sub>P\<close> \<open>P m\<^sub>P\<close> by blast
 qed
 
-corollary wellfounded_on_subdomain [intro]:
+corollary wellfounded_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "wellfounded_on A R" "B \<le> A"
   shows "wellfounded_on B R"
@@ -110,7 +108,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma wellfounded_on_subrelation [intro]:
+lemma wellfounded_on_subrelation:
   fixes D :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "wellfounded_on D R" "S \<le> R"
   shows "wellfounded_on D S"
@@ -136,7 +134,7 @@ corollary wellfounded_on_if_wellfounded [intro]:
   fixes D :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "wellfounded R"
   shows "wellfounded_on D R"
-  using assms by force
+  using assms wellfounded_on_subdomain by force
 
 consts wellorder_on :: "'a \<Rightarrow> 'b \<Rightarrow> bool"
 
@@ -165,10 +163,10 @@ lemma wellorder_on_pullback:
   shows "wellorder_on B (rel_map e R)" 
   using assms strict_linear_order_on_pullback wellfounded_on_pullback by fastforce
 
-lemma wellorder_on_subrelation [intro]:
+lemma wellorder_on_subdomain:
   fixes A :: "'a \<Rightarrow> bool" and R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"
   assumes "wellorder_on A R" "B \<le> A"
   shows "wellorder_on B R" 
-  using assms by (blast intro: strict_linear_order_on_subdomain)
+  using assms by (blast intro: wellfounded_on_subdomain strict_linear_order_on_subdomain)
 
 end
