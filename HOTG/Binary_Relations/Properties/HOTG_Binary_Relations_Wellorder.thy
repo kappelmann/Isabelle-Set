@@ -1,6 +1,6 @@
 theory HOTG_Binary_Relations_Wellorder
   imports 
-    HOTG_Binary_Relations_Base
+    HOTG_Basics
     Binary_Relations_Wellorder
 begin
 

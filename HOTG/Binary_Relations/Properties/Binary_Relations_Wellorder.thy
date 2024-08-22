@@ -3,6 +3,7 @@ theory Binary_Relations_Wellorder
     Binary_Relations_Strict_Linear_Order
     Transport.Binary_Relations_Wellfounded
     Transport.Functions_Bijection
+    Transport.Functions_Restrict
     Transport.Wellfounded_Recursion
 begin
 
@@ -66,12 +67,16 @@ end
 
 lemma wfrec_on_eq:
   fixes step
-  assumes "wellfounded_on D R"
+  assumes "wellfounded_on D R" "D x"
   defines "f \<equiv> wfrec_on D R step"
-  shows "f x = step (fun_rel_restrict f R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub> x) x"
+  shows "f x = step (fun_restrict (fun_rel_restrict f R x) D) x"
 proof -
   have wf: "wellfounded R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub>" using assms wellfounded_rel_restrict_if_wellfounded_on by blast
-  then show ?thesis by (simp only: f_def wfrec_step_eq wfrec_eq_wfrec_stepI wfrec_on_pred_def)
+  then have "f x = step (fun_rel_restrict f R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub> x) x"
+    by (simp only: f_def wfrec_step_eq wfrec_eq_wfrec_stepI wfrec_on_pred_def)
+  moreover have "fun_rel_restrict f R\<restriction>\<^bsub>D\<^esub>\<upharpoonleft>\<^bsub>D\<^esub> x = fun_restrict (fun_rel_restrict f R x) D"
+    using \<open>D x\<close> unfolding fun_rel_restrict_eq_fun_restrict fun_restrict_eq_if by force
+  ultimately show ?thesis by simp                      
 qed
 
 lemma wellfounded_on_pullback:

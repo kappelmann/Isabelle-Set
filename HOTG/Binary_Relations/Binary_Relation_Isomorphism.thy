@@ -4,25 +4,39 @@ theory Binary_Relation_Isomorphism
     Transport.Functions_Bijection
 begin
 
-definition "rel_isomorphism A B R S \<phi> \<psi> 
-  \<longleftrightarrow> bijection_on A B \<phi> \<psi> \<and> (\<forall>x y : A. S (\<phi> x) (\<phi> y) \<longleftrightarrow> R x y)"
+consts rel_isomorphism :: "'a \<Rightarrow> 'b \<Rightarrow> 'r \<Rightarrow> 's \<Rightarrow> ('c \<Rightarrow> 'd) \<Rightarrow> ('d \<Rightarrow> 'c) \<Rightarrow> bool"
+
+overloading
+  rel_isomorphism_pred \<equiv> "rel_isomorphism :: ('a \<Rightarrow> bool) \<Rightarrow> ('b \<Rightarrow> bool) \<Rightarrow> 
+    ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> ('b \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool"
+begin
+  definition "rel_isomorphism_pred (A :: 'a \<Rightarrow> bool) (B :: 'b \<Rightarrow> bool) 
+    (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) (S :: 'b \<Rightarrow> 'b \<Rightarrow> bool) (\<phi> :: 'a \<Rightarrow> 'b) (\<psi> :: 'b \<Rightarrow> 'a) 
+    \<equiv> bijection_on A B \<phi> \<psi> \<and> (\<forall>x y : A. S (\<phi> x) (\<phi> y) \<longleftrightarrow> R x y)"
+end
 
 lemma rel_isomorphismI:
   assumes "bijection_on A B \<phi> \<psi>" "\<And>x y. A x \<Longrightarrow> A y \<Longrightarrow> S (\<phi> x) (\<phi> y) \<longleftrightarrow> R x y"
   shows "rel_isomorphism A B R S \<phi> \<psi>"
-  using assms unfolding rel_isomorphism_def rel_map_def rel_bimap_def by blast
+  using assms unfolding rel_isomorphism_pred_def rel_map_def rel_bimap_def by blast
 
 lemma bijection_on_if_rel_isomorphismE [dest]:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and \<phi> :: "'a \<Rightarrow> 'b"
   assumes "rel_isomorphism A B R S \<phi> \<psi>"
   shows "bijection_on A B \<phi> \<psi>"
-  using assms unfolding rel_isomorphism_def by blast
+  using assms unfolding rel_isomorphism_pred_def by blast
 
 lemma rel_iff_rel_if_rel_isomorphismD [dest]:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and \<phi> :: "'a \<Rightarrow> 'b"
   assumes "rel_isomorphism A B R S \<phi> \<psi>" "A x" "A y"
   shows "S (\<phi> x) (\<phi> y) \<longleftrightarrow> R x y"
-  using assms unfolding rel_isomorphism_def by blast
+  using assms unfolding rel_isomorphism_pred_def by blast
 
 lemma rel_iff_rel_if_rel_isomorphismD' [dest]:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and \<phi> :: "'a \<Rightarrow> 'b"
   assumes iso: "rel_isomorphism A B R S \<phi> \<psi>" and "B x" "B y"
   shows "R (\<psi> x) (\<psi> y) \<longleftrightarrow> S x y"
 proof -
@@ -59,11 +73,16 @@ proof -
 qed
 
 lemma rel_isomorphism_inverse:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and \<phi> :: "'a \<Rightarrow> 'b"
   assumes "rel_isomorphism A B R S \<phi> \<psi>" 
   shows "rel_isomorphism B A S R \<psi> \<phi>"
   using assms by (blast intro: rel_isomorphismI)
 
 lemma rel_isomorphism_compI:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" and C :: "'c \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and T :: "'c \<Rightarrow> 'c \<Rightarrow> bool"
+  fixes \<phi>\<^sub>1 :: "'a \<Rightarrow> 'b" and \<phi>\<^sub>2 :: "'b \<Rightarrow> 'c"
   assumes iso1: "rel_isomorphism A B R S \<phi>\<^sub>1 \<psi>\<^sub>1"
   assumes iso2: "rel_isomorphism B C S T \<phi>\<^sub>2 \<psi>\<^sub>2"
   shows "rel_isomorphism A C R T (\<phi>\<^sub>2 \<circ> \<phi>\<^sub>1) (\<psi>\<^sub>1 \<circ> \<psi>\<^sub>2)"
@@ -80,32 +99,51 @@ proof -
   ultimately show ?thesis by (auto intro: rel_isomorphismI)
 qed
 
-lemma rel_isomorphism_id: "rel_isomorphism D D R R id id"
+lemma rel_isomorphism_id: 
+  shows "rel_isomorphism (D :: 'a \<Rightarrow> bool) D (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) R (id :: 'a \<Rightarrow> 'a) id"
   using bijection_on_self_id by (auto intro!: rel_isomorphismI)
 
-definition "rel_isomorphic A B R S \<longleftrightarrow> (\<exists>\<phi> \<psi>. rel_isomorphism A B R S \<phi> \<psi>)"
+
+consts rel_isomorphic :: "'a \<Rightarrow> 'b \<Rightarrow> 'r \<Rightarrow> 's \<Rightarrow> bool"
+
+overloading
+  rel_isomorphic_pred \<equiv> "rel_isomorphic :: ('a \<Rightarrow> bool) \<Rightarrow> ('b \<Rightarrow> bool) \<Rightarrow> 
+    ('a \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> ('b \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool"
+begin
+  definition "rel_isomorphic_pred 
+    (A :: 'a \<Rightarrow> bool) (B :: 'b \<Rightarrow> bool) (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) (S :: 'b \<Rightarrow> 'b \<Rightarrow> bool) 
+    \<equiv> \<exists>\<phi> \<psi>. rel_isomorphism A B R S (\<phi> :: 'a \<Rightarrow> 'b) \<psi>"
+end
 
 lemma rel_isomorphicI [intro]:
-  assumes "rel_isomorphism A B R S \<phi> \<psi>"
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool"
+  assumes "rel_isomorphism A B R S (\<phi> :: 'a \<Rightarrow> 'b) \<psi>"
   shows "rel_isomorphic A B R S"
-  using assms unfolding rel_isomorphic_def by blast
+  using assms unfolding rel_isomorphic_pred_def by blast
 
 lemma rel_isomorphicE [elim]:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool"
   assumes "rel_isomorphic A B R S"
-  obtains \<phi> \<psi> where "rel_isomorphism A B R S \<phi> \<psi>"
-  using assms unfolding rel_isomorphic_def by blast
+  obtains \<phi> \<psi> where "rel_isomorphism A B R S (\<phi> :: 'a \<Rightarrow> 'b) \<psi>"
+  using assms unfolding rel_isomorphic_pred_def by blast
 
 lemma rel_isomorphic_if_rel_isomorphic:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" 
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool"
   assumes "rel_isomorphic A B R S"
   shows "rel_isomorphic B A S R"
   using assms rel_isomorphism_inverse by (blast elim!: rel_isomorphicE)
 
 lemma rel_isomorphic_trans [intro]:
+  fixes A :: "'a \<Rightarrow> bool" and B :: "'b \<Rightarrow> bool" and C :: "'c \<Rightarrow> bool"
+  fixes R :: "'a \<Rightarrow> 'a \<Rightarrow> bool" and S :: "'b \<Rightarrow> 'b \<Rightarrow> bool" and T :: "'c \<Rightarrow> 'c \<Rightarrow> bool"
   assumes "rel_isomorphic A B R S" "rel_isomorphic B C S T"
   shows "rel_isomorphic A C R T"
   using assms by (blast intro: rel_isomorphism_compI elim!: rel_isomorphicE)
 
-lemma rel_isomorphic_self: "rel_isomorphic D D R R"
+lemma rel_isomorphic_self: "rel_isomorphic (D :: 'a \<Rightarrow> bool) D (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) R"
   using rel_isomorphism_id by blast
 
 end
