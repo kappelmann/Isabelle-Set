@@ -3,6 +3,9 @@ theory HOTG_Natural_Functors
 begin
 term "{}`x"
 term codom
+
+unbundle no_HOL_groups_syntax no_HOL_order_syntax
+
 locale HOTG_Natural_Functor = 
   fixes F 
   and n :: set
@@ -10,15 +13,22 @@ locale HOTG_Natural_Functor =
   and vFset
   assumes "n \<in> \<omega>"
   and Fmap_id: "\<And>U v. vector U n v \<Longrightarrow> Fmap (map set_id v) = set_id (F v)"
-  and Fmap_comp: "\<And>vf vg.
-    Fmap (g1 \<circ> f1) (g2 \<circ> f2) (g3 \<circ> f3) = Fmap vg \<circ> Fmap vf"
+  and Fmap_comp: "\<And>vf vg U vin vmid vout. (\<And>i. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
+  \<Longrightarrow> vector U n vmid \<Longrightarrow> vector U n vout
+  \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
+    Fmap (fun_vector_compose vg vf) = Fmap vg \<circ> Fmap vf"
+  and Fmap_type: "\<And>U vin vout vf i. vector U n vin \<Longrightarrow> vector U n vout \<Longrightarrow> vector U n vf
+   \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vout) (ith i vf)
+   \<Longrightarrow> ((vector U n) \<Rightarrow> (vector U n)) (Fmap vf)"
   and Fset_types:
-    "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> v !! i) (vFset !! i)"
-begin
+    "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> ith i v) (ith i vFset)"
+  and Fmap_cong: "\<And>U vf vg x. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> 
+  (\<And>i xi. xi \<in> (ith i (vFset`x)) \<Longrightarrow> (ith i vf)`xi = (ith i vg)`xi)
+  \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"
+  and FsetI_natural: "\<And>vf i. (ith i vFset) \<circ> (Fmap vf) = (ith i vf) \<circ> (ith i vFset)"
 
-end
 
-
+(*
 typedecl ('d, 'a, 'b, 'c) F
 
 
@@ -40,6 +50,6 @@ axiomatization
   and Fset1_natural: "\<And>f1 f2 f3. Fset1 \<circ> Fmap f1 f2 f3 = image f1 \<circ> Fset1"
   and Fset2_natural: "\<And>f1 f2 f3. Fset2 \<circ> Fmap f1 f2 f3 = image f2 \<circ> Fset2"
   and Fset3_natural: "\<And>f1 f2 f3. Fset3 \<circ> Fmap f1 f2 f3 = image f3 \<circ> Fset3"
-
+*)
 
 end
