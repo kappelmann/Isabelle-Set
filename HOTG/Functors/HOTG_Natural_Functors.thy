@@ -13,9 +13,9 @@ locale HOTG_Natural_Functor =
   and vFset
   assumes "n \<in> \<omega>"
   and Fmap_id: "\<And>U v. vector U n v \<Longrightarrow> Fmap (map set_id v) = set_id (F v)"
-  and Fmap_comp: "\<And>vf vg U vin vmid vout. (\<And>i. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
+  and Fmap_comp: "\<And>vf vg U vin vmid vout. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
   \<Longrightarrow> vector U n vmid \<Longrightarrow> vector U n vout
-  \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
+  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
     Fmap (fun_vector_compose vg vf) = Fmap vg \<circ> Fmap vf"
   and Fmap_type: "\<And>U vin vout vf i. vector U n vin \<Longrightarrow> vector U n vout \<Longrightarrow> vector U n vf
    \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vout) (ith i vf)
@@ -26,7 +26,29 @@ locale HOTG_Natural_Functor =
   (\<And>i xi. xi \<in> (ith i (vFset`x)) \<Longrightarrow> (ith i vf)`xi = (ith i vg)`xi)
   \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"
   and FsetI_natural: "\<And>vf i. (ith i vFset) \<circ> (Fmap vf) = (ith i vf) \<circ> (ith i vFset)"
+begin
 
+definition "Fin U vA = {x \<in> U | \<forall>i. (ith i vFset)`x \<subseteq> (ith i vA)}"
+
+lemma fmap_comp_id: (*is this interesting? - it's just fmap comp with a concrete element in one vector?*)
+  assumes "vector U (pred n) vf"
+  and "vector U n vg"
+  and "vector U n vin"
+  and "vector U n vmid"
+  and "vector U n vout"
+  and "\<And>i. ((ith i vin \<Rightarrow> ith i vmid) (ith i (cons (set_id U) vf)) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg))"
+shows "Fmap (fun_vector_compose vg (cons (set_id U) vf)) = (Fmap vg) \<circ>  (Fmap (cons (set_id U) vf))"
+proof -
+  from assms(1) length_cons_eq_succ have "vector U n (cons (set_id U) vf)" unfolding vector_def sorry
+  with assms Fmap_comp[of _ "(cons (set_id U) vf)"] show ?thesis by auto
+qed
+
+definition  "alg U vB (s::set) = ((\<forall>x i. x \<in> Fin U vB \<longrightarrow> ith i (s`x) \<in> (ith i vB)))"
+
+definition "mor U vB s vB' s' h \<equiv>
+   alg U vB s \<and> alg U vB' s' \<and> ((\<forall>x. x \<in> Fin U vB \<longrightarrow> h`(s`x) = s'`((Fmap h)`x)))"
+
+end
 
 (*
 typedecl ('d, 'a, 'b, 'c) F

@@ -29,7 +29,8 @@ axiomatization
   where ith_nil: "ith n nil = undefined"
   and ith_cons_zero: "ith 0 (cons x xs) = x"
   and ith_cons_succ: "ith (succ n) (cons x xs) = ith n xs"
-  and ith_type: "(mem_of \<omega> \<Rightarrow> list A \<Rightarrow> mem_of A) ith"
+  and ith_type: "(mem_of \<omega> \<Rightarrow> list A \<Rightarrow> mem_of A) ith"  
+  
 
 axiomatization
   vector_rec_2 ::  "'a \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> set \<Rightarrow> 'a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> set \<Rightarrow> 'a"
