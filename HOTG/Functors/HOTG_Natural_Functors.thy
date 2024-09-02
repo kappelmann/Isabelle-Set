@@ -30,6 +30,8 @@ begin
 
 definition "Fin U vA = {x \<in> U | \<forall>i. (ith i vFset)`x \<subseteq> (ith i vA)}"
 
+lemma succ_pred_eq: "succ (pred n) = n" sorry
+
 lemma fmap_comp_id: (*is this interesting? - it's just fmap comp with a concrete element in one vector?*)
   assumes "vector U (pred n) vf"
   and "vector U n vg"
@@ -39,8 +41,11 @@ lemma fmap_comp_id: (*is this interesting? - it's just fmap comp with a concrete
   and "\<And>i. ((ith i vin \<Rightarrow> ith i vmid) (ith i (cons (set_id U) vf)) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg))"
 shows "Fmap (fun_vector_compose vg (cons (set_id U) vf)) = (Fmap vg) \<circ>  (Fmap (cons (set_id U) vf))"
 proof -
-  from assms(1) length_cons_eq_succ have "vector U n (cons (set_id U) vf)" unfolding vector_def sorry
-  with assms Fmap_comp[of _ "(cons (set_id U) vf)"] show ?thesis by auto
+  have "set_id U \<in> U" sorry
+  with assms(1) have "list U (cons (set_id U) vf)" unfolding vector_def using cons_type by auto
+  with assms(1) have "length (cons (set_id U) vf) = n" using length_cons_eq_succ succ_pred_eq unfolding vector_def by auto
+  with \<open>list U (cons (set_id U) vf)\<close> have "vector U n (cons (set_id U) vf)" unfolding vector_def by auto
+  with assms Fmap_comp show ?thesis by auto
 qed
 
 definition  "alg U vB (s::set) = ((\<forall>x i. x \<in> Fin U vB \<longrightarrow> ith i (s`x) \<in> (ith i vB)))"
