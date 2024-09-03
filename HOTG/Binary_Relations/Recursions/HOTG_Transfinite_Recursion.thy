@@ -10,9 +10,6 @@ begin
 
 unbundle no_HOL_order_syntax
 
-lemma wellfounded_lt: "wellfounded (<)"
-  by (auto intro!: wellfoundedI elim: lt_minimal_set_witnessE)
-
 context
   includes fun_restrict_syntax no_rel_restrict_syntax
 begin

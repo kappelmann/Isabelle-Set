@@ -13,6 +13,7 @@ theory HOTG_Binary_Relation_Properties
     HOTG_Binary_Relations_Symmetric
     HOTG_Binary_Relations_Transitive
     HOTG_Binary_Relations_Wellfounded
+    HOTG_Binary_Relations_Wellorder
 begin
 
 end

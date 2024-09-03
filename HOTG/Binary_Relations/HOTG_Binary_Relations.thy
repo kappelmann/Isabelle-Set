@@ -8,6 +8,7 @@ theory HOTG_Binary_Relations
     HOTG_Binary_Relations_Base
     HOTG_Binary_Relations_Extend
     HOTG_Binary_Relations_Pow
+    HOTG_Binary_Relation_Isomorphism
 begin
 
 

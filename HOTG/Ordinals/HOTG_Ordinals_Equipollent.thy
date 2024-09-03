@@ -112,4 +112,16 @@ proof -
   ultimately show ?thesis using \<open>X = Y\<close> by auto
 qed
 
+corollary wellordering_theorem: 
+  fixes X :: set
+  shows "\<exists>R :: set \<Rightarrow> set \<Rightarrow> bool. wellorder_on X R"
+proof -
+  obtain \<nu> where "ordinal \<nu>" "X \<approx> \<nu>" using bex_ordinal_equipollent by blast
+  then obtain nr e :: "set \<Rightarrow> set" where "bijection_on X \<nu> nr e" by auto
+  then have "(X \<Rightarrow> \<nu>) nr" "injective_on X nr"
+    using injective_on_if_bijection_on_left mono_wrt_pred_if_bijection_on_left by auto
+  then show ?thesis
+    using wellorder_on_pullback wellorder_on_mem_if_ordinal \<open>ordinal \<nu>\<close> by blast
+qed
+
 end
