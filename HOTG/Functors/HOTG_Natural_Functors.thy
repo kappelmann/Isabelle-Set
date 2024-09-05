@@ -5,27 +5,27 @@ term "{}`x"
 term codom
 
 unbundle no_HOL_groups_syntax no_HOL_order_syntax
-
+(* vector_mono_wrt_pred *)
 locale HOTG_Natural_Functor = 
   fixes F 
   and n :: set
   and Fmap
   and vFset
   assumes "n \<in> \<omega>"
-  and Fmap_id: "\<And>U v. vector U n v \<Longrightarrow> Fmap (map set_id v) = set_id (F v)"
+  and Fmap_id: "\<And>U vT. vector U n vT \<Longrightarrow> Fmap (map set_id vT) = set_id (F vT)"
   and Fmap_comp: "\<And>vf vg U vin vmid vout. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
   \<Longrightarrow> vector U n vmid \<Longrightarrow> vector U n vout
-  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
+  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<and> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
     Fmap (fun_vector_compose vg vf) = Fmap vg \<circ> Fmap vf"
   and Fmap_type: "\<And>U vin vout vf i. vector U n vin \<Longrightarrow> vector U n vout \<Longrightarrow> vector U n vf
    \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vout) (ith i vf)
-   \<Longrightarrow> ((vector U n) \<Rightarrow> (vector U n)) (Fmap vf)"
+   \<Longrightarrow> (F vin \<Rightarrow> F vout) (Fmap vf)"
   and Fset_types:
     "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> ith i v) (ith i vFset)"
   and Fmap_cong: "\<And>U vf vg x. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> 
-  (\<And>i xi. xi \<in> (ith i (vFset`x)) \<Longrightarrow> (ith i vf)`xi = (ith i vg)`xi)
-  \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"
-  and FsetI_natural: "\<And>vf i. (ith i vFset) \<circ> (Fmap vf) = (ith i vf) \<circ> (ith i vFset)"
+  (\<And>i xi. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow>  xi \<in> (ith i (vFset))`x \<Longrightarrow> (ith i vf)`xi = (ith i vg)`xi)
+  \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"(* type vf vg x*)
+  and FsetI_natural: "\<And>vf i x. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> ((ith i vFset) \<circ> (Fmap vf))`x = {(ith i vf)`xi | xi \<in> (ith i vFset)`x}"
 begin
 
 definition "Fin U vA = {x \<in> U | \<forall>i. (ith i vFset)`x \<subseteq> (ith i vA)}"
@@ -38,7 +38,7 @@ lemma fmap_comp_id: (*is this interesting? - it's just fmap comp with a concrete
   and "vector U n vin"
   and "vector U n vmid"
   and "vector U n vout"
-  and "\<And>i. ((ith i vin \<Rightarrow> ith i vmid) (ith i (cons (set_id U) vf)) \<Longrightarrow> (ith i vmid \<Rightarrow> ith i vout) (ith i vg))"
+  and "\<And>i. ((ith i vin \<Rightarrow> ith i vmid) (ith i (cons (set_id U) vf)) \<and> (ith i vmid \<Rightarrow> ith i vout) (ith i vg))"
 shows "Fmap (fun_vector_compose vg (cons (set_id U) vf)) = (Fmap vg) \<circ>  (Fmap (cons (set_id U) vf))"
 proof -
   have "set_id U \<in> U" sorry
