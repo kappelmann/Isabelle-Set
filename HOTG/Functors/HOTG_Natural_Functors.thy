@@ -1,11 +1,16 @@
 theory HOTG_Natural_Functors 
-  imports HOTG_Vectors HOTG_Functions_Composition
+  imports HOTG_Lists HOTG_Functions_Composition
 begin
 term "{}`x"
 term codom
 
 unbundle no_HOL_groups_syntax no_HOL_order_syntax
 (* vector_mono_wrt_pred *)
+
+(*definition "vector_mono_wrt_pred vin vout =  zipWnth (\<Rightarrow>) vin vout"*)
+
+definition "vector_mono_wrt_pred vin vout = undefined"
+
 locale HOTG_Natural_Functor = 
   fixes F 
   and n :: set
@@ -15,40 +20,40 @@ locale HOTG_Natural_Functor =
   and Fmap_id: "\<And>U vT. vector U n vT \<Longrightarrow> Fmap (map set_id vT) = set_id (F vT)"
   and Fmap_comp: "\<And>vf vg U vin vmid vout. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
   \<Longrightarrow> vector U n vmid \<Longrightarrow> vector U n vout
-  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vmid) (ith i vf) \<and> (ith i vmid \<Rightarrow> ith i vout) (ith i vg)) \<Longrightarrow>
+  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (nth i vin \<Rightarrow> nth i vmid) (nth i vf) \<and> (nth i vmid \<Rightarrow> nth i vout) (nth i vg)) \<Longrightarrow>
     Fmap (fun_vector_compose vg vf) = Fmap vg \<circ> Fmap vf"
   and Fmap_type: "\<And>U vin vout vf i. vector U n vin \<Longrightarrow> vector U n vout \<Longrightarrow> vector U n vf
-   \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (ith i vin \<Rightarrow> ith i vout) (ith i vf)
+   \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (nth i vin \<Rightarrow> nth i vout) (nth i vf)
    \<Longrightarrow> (F vin \<Rightarrow> F vout) (Fmap vf)"
   and Fset_types:
-    "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> ith i v) (ith i vFset)"
+    "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> nth i v) (nth i vFset)"
   and Fmap_cong: "\<And>U vf vg x. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> 
-  (\<And>i xi. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow>  xi \<in> (ith i (vFset))`x \<Longrightarrow> (ith i vf)`xi = (ith i vg)`xi)
+  (\<And>i xi. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow>  xi \<in> (nth i (vFset))`x \<Longrightarrow> (nth i vf)`xi = (nth i vg)`xi)
   \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"(* type vf vg x*)
-  and FsetI_natural: "\<And>vf i x. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> ((ith i vFset) \<circ> (Fmap vf))`x = {(ith i vf)`xi | xi \<in> (ith i vFset)`x}"
+  and FsetI_natural: "\<And>vf i x. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> ((nth i vFset) \<circ> (Fmap vf))`x = {(nth i vf)`xi | xi \<in> (nth i vFset)`x}"
 begin
 
-definition "Fin U vA = {x \<in> U | \<forall>i. (ith i vFset)`x \<subseteq> (ith i vA)}"
+definition "Fin U vA = {x \<in> U | \<forall>i. (nth i vFset)`x \<subseteq> (nth i vA)}"
 
 lemma succ_pred_eq: "succ (pred n) = n" sorry
 
-lemma fmap_comp_id: (*is this interesting? - it's just fmap comp with a concrete element in one vector?*)
+lemma fmap_comp_id: (*is this interesting? - it's just fmap comp wnth a concrete element in one vector?*)
   assumes "vector U (pred n) vf"
   and "vector U n vg"
   and "vector U n vin"
   and "vector U n vmid"
   and "vector U n vout"
-  and "\<And>i. ((ith i vin \<Rightarrow> ith i vmid) (ith i (cons (set_id U) vf)) \<and> (ith i vmid \<Rightarrow> ith i vout) (ith i vg))"
+  and "\<And>i. ((nth i vin \<Rightarrow> nth i vmid) (nth i (cons (set_id U) vf)) \<and> (nth i vmid \<Rightarrow> nth i vout) (nth i vg))"
 shows "Fmap (fun_vector_compose vg (cons (set_id U) vf)) = (Fmap vg) \<circ>  (Fmap (cons (set_id U) vf))"
 proof -
   have "set_id U \<in> U" sorry
-  with assms(1) have "list U (cons (set_id U) vf)" unfolding vector_def using cons_type by auto
-  with assms(1) have "length (cons (set_id U) vf) = n" using length_cons_eq_succ succ_pred_eq unfolding vector_def by auto
-  with \<open>list U (cons (set_id U) vf)\<close> have "vector U n (cons (set_id U) vf)" unfolding vector_def by auto
-  with assms Fmap_comp show ?thesis by auto
+  wnth assms(1) have "list U (cons (set_id U) vf)" unfolding vector_def using cons_type by auto
+  wnth assms(1) have "length (cons (set_id U) vf) = n" using length_cons_eq_succ succ_pred_eq unfolding vector_def by auto
+  wnth \<open>list U (cons (set_id U) vf)\<close> have "vector U n (cons (set_id U) vf)" unfolding vector_def by auto
+  wnth assms Fmap_comp show ?thesis by auto
 qed
 
-definition  "alg U vB (s::set) = ((\<forall>x i. x \<in> Fin U vB \<longrightarrow> ith i (s`x) \<in> (ith i vB)))"
+definition  "alg U vB (s::set) = ((\<forall>x i. x \<in> Fin U vB \<longrightarrow> nth i (s`x) \<in> (nth i vB)))"
 
 definition "mor U vB s vB' s' h \<equiv>
    alg U vB s \<and> alg U vB' s' \<and> ((\<forall>x. x \<in> Fin U vB \<longrightarrow> h`(s`x) = s'`((Fmap h)`x)))"
