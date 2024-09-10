@@ -5,7 +5,6 @@ theory HOTG_Less_Than
   imports
     HOTG_Mem_Transitive_Closure
     Transport.HOL_Syntax_Bundles_Orders
-    Transport.Binary_Relations_Least
     Transport.Binary_Relations_Transitive_Closure
     Transport.Binary_Relations_Wellfounded
 begin
@@ -261,14 +260,14 @@ proof (rule ccontr)
 qed
 
 corollary wellfounded_lt: "wellfounded (<)"
-  by (auto intro!: wellfoundedI elim: lt_minimal_set_witnessE)
+  by (intro wellfoundedI) (auto elim: lt_minimal_set_witnessE)
 
 corollary wellfounded_mem: "wellfounded (\<in>)"
 proof (intro wellfoundedI)
   fix P and X :: set assume "P X"
-  then obtain M where "P M" "\<And>x. x < M \<Longrightarrow> \<not> P x" by (auto elim: lt_minimal_set_witnessE)
-  then have "\<not> P x" if "x \<in> M" for x using that lt_if_mem by blast
-  then show "\<exists>M : P. \<forall>x. x \<in> M \<longrightarrow> \<not> P x" using \<open>P M\<close> by blast
+  then obtain M where "P M" "\<And>x. x < M \<Longrightarrow> \<not>(P x)" by (auto elim: lt_minimal_set_witnessE)
+  then have "\<not>(P x)" if "x \<in> M" for x using that lt_if_mem by blast
+  then show "\<exists>M : P. \<forall>x. x \<in> M \<longrightarrow> \<not>(P x)" using \<open>P M\<close> by blast
 qed
 
 lemma mem_if_lt_if_mem_trans_closed: "mem_trans_closed S \<Longrightarrow> X < S \<Longrightarrow> X \<in> S"

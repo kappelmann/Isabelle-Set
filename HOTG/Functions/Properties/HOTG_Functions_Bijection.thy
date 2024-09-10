@@ -68,13 +68,6 @@ lemma bijection_on_image_the_inverse_on_if_injective_on:
 lemma image_eq_if_bijection_on_left_right:
   assumes "bijection_on A B f g"
   shows "image f A = B"
-proof
-  fix x assume "x \<in> image f A"
-  then show "x \<in> B" using assms mono_wrt_pred_if_bijection_on_left by auto
-next
-  fix x assume "x \<in> B"
-  then show "x \<in> image f A" using assms mono_wrt_pred_if_bijection_on_right 
-      inverse_on_if_bijection_on_right_left by (force dest!: inverse_onD)
-qed
+  using assms by (intro eqI) (fastforce dest: inverse_onD)+
 
 end

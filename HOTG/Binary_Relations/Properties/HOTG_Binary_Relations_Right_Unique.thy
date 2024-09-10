@@ -10,10 +10,12 @@ overloading
   right_unique_on_set \<equiv> "right_unique_on :: set \<Rightarrow> (set \<Rightarrow> 'a \<Rightarrow> bool) \<Rightarrow> bool"
   set_right_unique_on_pred \<equiv> "right_unique_on :: (set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
   set_right_unique_on_set \<equiv> "right_unique_on :: set \<Rightarrow> set \<Rightarrow> bool"
+  right_unique_set \<equiv> "right_unique :: set \<Rightarrow> bool"
 begin
   definition "right_unique_on_set (A :: set) (R :: set \<Rightarrow> 'a \<Rightarrow> bool) \<equiv> right_unique_on (mem_of A) R"
   definition "set_right_unique_on_pred (P :: set \<Rightarrow> bool) (R :: set) \<equiv> right_unique_on P (rel R)"
   definition "set_right_unique_on_set (A :: set) (R :: set) \<equiv> right_unique_on (mem_of A) R"
+  definition "right_unique_set :: set \<Rightarrow> bool \<equiv> right_unique_on (\<top> :: set \<Rightarrow> bool)"
 end
 
 lemma right_unique_on_set_eq_right_unique_on_pred [simp]:
@@ -35,7 +37,8 @@ lemma set_right_unique_on_pred_iff_right_unique_on_pred [iff]:
 
 lemma set_right_unique_on_pred_iff_right_unique_on_pred_uhint [uhint]:
   assumes "R \<equiv> rel S"
-  shows "right_unique_on (P :: set \<Rightarrow> bool) S \<equiv> right_unique_on P R"
+  and "P :: set \<Rightarrow> bool \<equiv> P'"
+  shows "right_unique_on P S \<equiv> right_unique_on P' R"
   using assms by simp
 
 lemma set_right_unique_on_set_eq_set_right_unique_on_pred [simp]:
@@ -81,7 +84,8 @@ lemma set_right_unique_at_pred_iff_right_unique_at_pred [iff]:
 
 lemma set_right_unique_at_pred_iff_right_unique_at_pred_uhint [uhint]:
   assumes "R \<equiv> rel S"
-  shows "right_unique_at (P :: set \<Rightarrow> bool) S \<equiv> right_unique_at P R"
+  and "P :: set \<Rightarrow> bool \<equiv> P'"
+  shows "right_unique_at P S \<equiv> right_unique_at P' R"
   using assms by simp
 
 lemma set_right_unique_at_set_eq_set_right_unique_at_pred [simp]:
@@ -95,6 +99,22 @@ lemma set_right_unique_at_set_eq_set_right_unique_at_pred_uhint [uhint]:
 
 lemma set_right_unique_at_set_iff_set_right_unique_at_pred [iff]:
   "right_unique_at (S :: set) (R :: set) \<longleftrightarrow> right_unique_at (mem_of S) R"
+  by simp
+
+lemma right_unique_set_eq_set_right_unique_on:
+  "(right_unique :: set \<Rightarrow> _) = right_unique_on (\<top> :: set \<Rightarrow> bool)"
+  unfolding right_unique_set_def ..
+
+lemma right_unique_set_eq_set_right_unique_on_uhint [uhint]:
+  "P \<equiv> (\<top> :: set \<Rightarrow> bool) \<Longrightarrow> (right_unique :: set \<Rightarrow> _) \<equiv> right_unique_on P"
+  by (simp add: right_unique_set_eq_set_right_unique_on)
+
+lemma right_unique_set_iff_right_unique_pred [iff]:
+  "right_unique S \<longleftrightarrow> right_unique (rel S)"
+  unfolding right_unique_set_eq_set_right_unique_on by (urule refl)
+
+lemma right_unique_set_eq_right_unique_pred_uhint [uhint]:
+  "R \<equiv> rel A \<Longrightarrow> right_unique A \<equiv> right_unique R"
   by simp
 
 end

@@ -4,12 +4,10 @@
 section \<open>Ordinals\<close>
 theory HOTG_Ordinals_Base
   imports
-    HOTG_Binary_Relations_Connected
-    HOTG_Foundation
     HOTG_Less_Than
+    HOTG_Wellorders
     Transport.HOL_Syntax_Bundles_Groups
     Transport.Functions_Inverse
-    HOTG_Binary_Relations_Wellorder
 begin
 
 unbundle no_HOL_order_syntax
@@ -42,12 +40,23 @@ lemma ordinal_if_mem_trans_closedI:
   shows "ordinal X"
   using assms unfolding ordinal_def by auto
 
+lemma transitive_on_ordinal_mem: "transitive_on ordinal (\<in>)"
+  by (blast elim!: ordinal_mem_trans_closedE)
+
 definition "succ X \<equiv> insert X X"
 
 lemma succ_eq_insert_self: "succ X = insert X X" by (simp add: succ_def)
 
 lemma succ_ne_self [iff]: "succ x \<noteq> x"
   using succ_eq_insert_self by auto
+
+lemma eq_empty_if_succ_eq_singleton [simp]:
+  assumes "succ x = {y}"
+  shows "x = {}" "y = {}"
+proof -
+  from assms show "y = {}" by (intro eqI) (auto simp: succ_eq_insert_self)
+  with assms show "x = {}" by (intro eqI) (auto simp: succ_eq_insert_self)
+qed
 
 lemma mem_succ: "x \<in> succ x" using succ_eq_insert_self by auto
 lemma lt_succ: "x < succ x" using mem_succ lt_if_mem by auto
@@ -290,6 +299,12 @@ proof (cases "limit_ordinal k")
   qed
 qed
 
+lemma eq_empty_if_eq_singleton_if_ordinal [simp]:
+  assumes "ordinal \<alpha>"
+  and "\<alpha> = {x}"
+  shows "\<alpha> = 1"
+  using assms by (cases rule: ordinal_cases) (auto elim: limit_ordinalE simp: succ_eq_insert_self)
+
 text\<open>Standard ordinal induction:\<close>
 
 lemma ordinal_induct [consumes 1, case_names zero succ limit, induct type: set]:
@@ -371,20 +386,24 @@ proof -
   then show ?thesis using least_wrt_rel_eqI by force
 qed
 
-lemma wellorder_on_ordinal_mem:
-  shows "wellorder_on ordinal (\<in>)"
-proof -
-  have "asymmetric_on ordinal (\<in>)" using not_mem_if_mem by blast
-  moreover have "transitive_on ordinal (\<in>)" by (blast elim!: ordinal_mem_trans_closedE)
-  moreover have "connected_on ordinal (\<in>)" 
-    using connected_on_ordinal_mem ordinal_if_mem_if_ordinal by blast
-  ultimately show ?thesis using wellfounded_mem by force
-qed
+lemma strict_partial_order_on_ordinal_mem: "strict_partial_order_on ordinal (\<in>)"
+  using transitive_on_ordinal_mem asymmetric_mem[THEN asymmetric_on_if_asymmetric]
+  by (rule strict_partial_order_onI)
+
+lemma strict_linear_order_on_ordinal_mem: "strict_linear_order_on ordinal (\<in>)"
+  using strict_partial_order_on_ordinal_mem connected_on_ordinal_mem
+  by (rule strict_linear_order_onI)
+
+lemma wellorder_on_ordinal_mem: "wellorder_on ordinal (\<in>)"
+  using strict_linear_order_on_ordinal_mem wellfounded_mem[THEN wellfounded_on_if_wellfounded]
+  by (rule wellorder_onI)
 
 corollary wellorder_on_mem_if_ordinal:
   assumes "ordinal \<alpha>"
   shows "wellorder_on \<alpha> (\<in>)"
-  using wellorder_on_ordinal_mem assms ordinal_if_mem_if_ordinal 
-  by (blast intro: wellorder_on_subdomain)
+proof -
+  from assms have "less_eq (mem_of \<alpha>) ordinal" using ordinal_if_mem_if_ordinal by blast
+  with wellorder_on_ordinal_mem antimono_wellorder_on show ?thesis by auto
+qed
 
 end
