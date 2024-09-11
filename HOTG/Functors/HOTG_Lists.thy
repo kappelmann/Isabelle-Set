@@ -170,6 +170,17 @@ lemma replicate_type: "(mem_of \<omega> \<Rightarrow> mem_of A \<Rightarrow> lis
 lemma replicate_succ: "n \<in> \<omega> \<Longrightarrow> replicate (succ n) x = cons x (replicate n x)"
   unfolding replicate_def by (rule omega_rec_succ)
 
+lemma zero_lt_succ: "i \<in> \<omega> \<Longrightarrow> 0 < succ i" 
+proof (induction i rule: omega_induct)
+  case zero
+  then show ?case by (simp add: zero_mem_succ_if_mem_omega lt_iff_mem_if_mem_omega)
+next
+  case (succ m)
+  then have "0 \<in> succ (succ m)" using zero_mem_succ_if_mem_omega[of "succ m"] by blast
+  moreover from succ have "succ (succ m) \<in> \<omega>" by blast
+  ultimately show ?case using zero_mem_succ_if_mem_omega[of "succ m"] lt_iff_mem_if_mem_omega[of "succ (succ m)" 0] by blast
+qed
+
 lemma replicate_nth:
   assumes "n \<in> \<omega>"
   and "i \<in> \<omega>"
@@ -190,12 +201,13 @@ next
   next
     case False
     then obtain j where "j \<in> \<omega>" "succ j = i" using \<open>i \<in> \<omega>\<close> by (auto elim: mem_omegaE)
-    then have "succ j < succ m" using succ by auto
-    then have "j < m" using \<open>j \<in> \<omega>\<close> \<open>m \<in> \<omega>\<close> lt_iff_mem_if_mem_omega by auto
-    have "0 < j" using \<open>j \<in> \<omega>\<close> False sorry
+    then have "succ j < succ m" using succ by blast
+    then have "j < m" using \<open>j \<in> \<omega>\<close> \<open>m \<in> \<omega>\<close> lt_iff_mem_if_mem_omega by blast
+    from \<open>succ j = i\<close> \<open>j \<in> \<omega>\<close> have "0 < i" using zero_lt_succ by blast
+    with \<open>j \<in> \<omega>\<close> have "0 \<le> j" using \<open>succ j = i\<close> False le_if_lt_succ by blast
     have "nth i (replicate (succ m) x) = nth j (replicate m x)" using \<open>succ j = i\<close> nthsucc repl_unf by auto
-    also have "... = x" using succ \<open>j < m\<close> \<open>0 < j\<close> \<open>j \<in> \<omega>\<close> by auto
-    finally show ?thesis by auto
+    also have "... = x" using succ \<open>j < m\<close> \<open>0 \<le> j\<close> \<open>j \<in> \<omega>\<close> by blast
+    finally show ?thesis by blast
   qed
 qed
 
