@@ -1,87 +1,152 @@
 theory HOTG_Natural_Functors 
-  imports HOTG_Lists HOTG_Functions_Composition
+  imports HOTG_Functions_Composition
 begin
-term "{}`x"
-term codom
+text \<open>Indexed identity function\<close>
 
-unbundle no_HOL_groups_syntax no_HOL_order_syntax
-(* vector_mono_wrt_pred *)
+definition "iid \<equiv> (\<lambda>_. id)"
 
-(*definition "vector_mono_wrt_pred vin vout =  zipWnth (\<Rightarrow>) vin vout"*)
+lemma iid_eq_id [simp]: "iid = (\<lambda>_. id)"
+  unfolding iid_def by simp
 
-definition "vector_mono_wrt_pred vin vout = undefined"
+text \<open>Indexed composition\<close>
 
-locale HOTG_Natural_Functor = 
-  fixes F 
-  and n :: set
-  and Fmap
-  and vFset
-  assumes "n \<in> \<omega>"
-  and Fmap_id: "\<And>U vT. vector U n vT \<Longrightarrow> Fmap (map set_id vT) = set_id (F vT)"
-  and Fmap_comp: "\<And>vf vg U vin vmid vout. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> vector U n vin
-  \<Longrightarrow> vector U n vmid \<Longrightarrow> vector U n vout
-  \<Longrightarrow> (\<And>i.0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (nth i vin \<Rightarrow> nth i vmid) (nth i vf) \<and> (nth i vmid \<Rightarrow> nth i vout) (nth i vg)) \<Longrightarrow>
-    Fmap (fun_vector_compose vg vf) = Fmap vg \<circ> Fmap vf"
-  and Fmap_type: "\<And>U vin vout vf i. vector U n vin \<Longrightarrow> vector U n vout \<Longrightarrow> vector U n vf
-   \<Longrightarrow> 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> (nth i vin \<Rightarrow> nth i vout) (nth i vf)
-   \<Longrightarrow> (F vin \<Rightarrow> F vout) (Fmap vf)"
-  and Fset_types:
-    "\<And>U v i. vector U n v \<Longrightarrow> 0 \<le> i  \<Longrightarrow> i < n \<Longrightarrow> (F v \<Rightarrow> nth i v) (nth i vFset)"
-  and Fmap_cong: "\<And>U vf vg x. vector U n vf \<Longrightarrow> vector U n vg \<Longrightarrow> 
-  (\<And>i xi. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow>  xi \<in> (nth i (vFset))`x \<Longrightarrow> (nth i vf)`xi = (nth i vg)`xi)
-  \<Longrightarrow> (Fmap vf)`x = (Fmap vg)`x"(* type vf vg x*)
-  and FsetI_natural: "\<And>vf i x. 0 \<le> i \<Longrightarrow> i < n \<Longrightarrow> ((nth i vFset) \<circ> (Fmap vf))`x = {(nth i vf)`xi | xi \<in> (nth i vFset)`x}"
+definition "comp_ifun (f :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) (g :: 'i \<Rightarrow> 'a \<Rightarrow> 'b) i \<equiv> f i \<circ> g i"
+adhoc_overloading comp comp_ifun
+
+lemma comp_ifun_eq [simp]: "((f :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> g) i = f i \<circ> g i"
+  unfolding comp_ifun_def by simp
+
+(*copied from HOL*)
+definition "fun_upd f i y = (\<lambda>x. if x = i then y else f x)"
+
+nonterminal updbinds and updbind
+syntax
+  "_updbind" :: "'a \<Rightarrow> 'a \<Rightarrow> updbind"             ("(2_ :=/ _)")
+  ""         :: "updbind \<Rightarrow> updbinds"             ("_")
+  "_updbinds":: "updbind \<Rightarrow> updbinds \<Rightarrow> updbinds" ("_,/ _")
+  "_Update"  :: "'a \<Rightarrow> updbinds \<Rightarrow> 'a"            ("_/'((_)')" [1000, 0] 900)
+syntax_consts
+  "_updbind" "_updbinds" "_Update" \<rightleftharpoons> fun_upd
+translations
+  "_Update f (_updbinds b bs)" \<rightleftharpoons> "_Update (_Update f b) bs"
+  "f(x:=y)" \<rightleftharpoons> "CONST fun_upd f x y"
+
+lemma fun_upd_apply [simp]: "(f(x := y)) z = (if z = x then y else f z)"
+  unfolding fun_upd_def by simp
+
+lemma fun_upd_triv [simp]: "f(x := f x) = f"
+  by (intro ext) simp
+
+(*end of copy*)
+
+locale HOTG_Functor =
+  fixes F :: "('i \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> bool"
+  and I :: "'i \<Rightarrow> bool"
+  \<comment>\<open>The type parameters of a functor are specified by a function from a given index type \<open>'i\<close>
+    subject to a restriction predicate @{term I}. In particular, a functor may have an infinite
+    number of type parameters.\<close>
+  and Fmap :: "('i \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
+  assumes Fmap_type: "\<And>iIn iOut. (((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) \<Rightarrow> F iIn \<Rightarrow> F iOut) Fmap"
+  and Fmap_id: "\<And>(iT :: 'i \<Rightarrow> set \<Rightarrow> bool) (ig :: 'i \<Rightarrow> set \<Rightarrow> set).
+    ((i : I) \<Rrightarrow> iT i \<Rrightarrow> (=)) ig iid \<Longrightarrow>
+    (F iT \<Rrightarrow> (=)) (Fmap ig) id"
+  and Fmap_comp: "\<And>ig ih iIn iMid iOut.
+    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow>
+    ((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih \<Longrightarrow>
+    (F iIn \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
 begin
 
-definition "Fin U vA = {x \<in> U | \<forall>i. (nth i vFset)`x \<subseteq> (nth i vA)}"
-
-lemma succ_pred_eq: "succ (pred n) = n" sorry
-
-lemma fmap_comp_id: (*is this interesting? - it's just fmap comp wnth a concrete element in one vector?*)
-  assumes "vector U (pred n) vf"
-  and "vector U n vg"
-  and "vector U n vin"
-  and "vector U n vmid"
-  and "vector U n vout"
-  and "\<And>i. ((nth i vin \<Rightarrow> nth i vmid) (nth i (cons (set_id U) vf)) \<and> (nth i vmid \<Rightarrow> nth i vout) (nth i vg))"
-shows "Fmap (fun_vector_compose vg (cons (set_id U) vf)) = (Fmap vg) \<circ>  (Fmap (cons (set_id U) vf))"
-proof -
-  have "set_id U \<in> U" sorry
-  wnth assms(1) have "list U (cons (set_id U) vf)" unfolding vector_def using cons_type by auto
-  wnth assms(1) have "length (cons (set_id U) vf) = n" using length_cons_eq_succ succ_pred_eq unfolding vector_def by auto
-  wnth \<open>list U (cons (set_id U) vf)\<close> have "vector U n (cons (set_id U) vf)" unfolding vector_def by auto
-  wnth assms Fmap_comp show ?thesis by auto
+lemma Fmap_id_comp: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun iid ig)) (Fmap ig)"
+proof-
+  have "comp_ifun iid ig = ig"  by auto
+  then show ?thesis by auto
 qed
 
-definition  "alg U vB (s::set) = ((\<forall>x i. x \<in> Fin U vB \<longrightarrow> nth i (s`x) \<in> (nth i vB)))"
-
-definition "mor U vB s vB' s' h \<equiv>
-   alg U vB s \<and> alg U vB' s' \<and> ((\<forall>x. x \<in> Fin U vB \<longrightarrow> h`(s`x) = s'`((Fmap h)`x)))"
+lemma Fmap_comp_id: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun ig iid)) (Fmap ig)"
+proof-
+  have "comp_ifun ig iid = ig" by auto
+  then show ?thesis by auto
+qed
 
 end
 
-(*
-typedecl ('d, 'a, 'b, 'c) F
+definition "image_pred (f :: 'a \<Rightarrow> 'b) (P :: 'a \<Rightarrow> bool) \<equiv> has_inverse_on P f"
+
+lemma image_pred_eq_has_inverse_on [simp]: "image_pred f P = has_inverse_on P f"
+  unfolding image_pred_def by simp
 
 
-consts Fmap :: "('a1 \<Rightarrow> 'a2) \<Rightarrow> ('b1 \<Rightarrow> 'b2) \<Rightarrow> ('c1 \<Rightarrow> 'c2) \<Rightarrow>
-    ('d, 'a1, 'b1, 'c1) F \<Rightarrow> ('d, 'a2, 'b2, 'c2) F"
-  Fset1 :: "('d, 'a, 'b, 'c) F \<Rightarrow> 'a set"
-  Fset2 :: "('d, 'a, 'b, 'c) F \<Rightarrow> 'b set"
-  Fset3 :: "('d, 'a, 'b, 'c) F \<Rightarrow> 'c set"
 
-axiomatization
-  where Fmap_id: "Fmap id id id = id"
-  and Fmap_comp: "\<And>f1 f2 f3 g1 g2 g3.
-    Fmap (g1 \<circ> f1) (g2 \<circ> f2) (g3 \<circ> f3) = Fmap g1 g2 g3 \<circ> Fmap f1 f2 f3"
-  and Fmap_cong: "\<And>f1 f2 f3 g1 g2 g3 x.
-    (\<And>x1. x1 \<in> Fset1 x \<Longrightarrow> f1 x1 = g1 x1) \<Longrightarrow>
-    (\<And>x2. x2 \<in> Fset2 x \<Longrightarrow> f2 x2 = g2 x2) \<Longrightarrow>
-    (\<And>x3. x3 \<in> Fset3 x \<Longrightarrow> f3 x3 = g3 x3) \<Longrightarrow>
-    Fmap f1 f2 f3 x = Fmap g1 g2 g3 x"
-  and Fset1_natural: "\<And>f1 f2 f3. Fset1 \<circ> Fmap f1 f2 f3 = image f1 \<circ> Fset1"
-  and Fset2_natural: "\<And>f1 f2 f3. Fset2 \<circ> Fmap f1 f2 f3 = image f2 \<circ> Fset2"
-  and Fset3_natural: "\<And>f1 f2 f3. Fset3 \<circ> Fmap f1 f2 f3 = image f3 \<circ> Fset3"
-*)
+(*unbundle HOL_order_syntax
+  no_hotg_le_syntax*)
+
+locale HOTG_Natural_Functor = HOTG_Functor +
+  fixes Fpred :: "'i \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool"
+  assumes Fpred_type: "\<And>iT. ((i : I) \<Rightarrow> F iT \<Rightarrow> (\<ge>) (iT i)) Fpred"
+  and Fpred_natural: "\<And>iIn iOut ig i.
+    \<comment> \<open>maybe \<open>(iIn i \<Rightarrow> iOut i) (ig i)\<close> is enough?\<close>
+    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig \<Longrightarrow>
+    I i \<Longrightarrow>
+    (F iIn \<Rrightarrow> (=)) (Fpred i \<circ> Fmap ig) (image_pred (ig i) \<circ> Fpred i)"
+  and Fmap_cong: "\<And>iIn iOut1 iOut2 ig ih x.
+    F iIn x \<Longrightarrow>
+    \<comment> \<open>maybe we do not need the types of \<open>ig\<close> and \<open>ih\<close>?\<close>
+    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut1 i) ig \<Longrightarrow>
+    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut2 i) ih \<Longrightarrow>
+    ((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) ig ih \<Longrightarrow>
+    Fmap ig x = Fmap ih x"
+begin
+
+lemma Fmap_Fmap_eq_Fmap_comp_update_if_eq_id:
+  assumes x_type: "F iIn x"
+  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig"
+  and ih_type: "((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih"
+  and "I i"
+  and ig_id: "(iIn i \<Rrightarrow> (=)) (ig i) id"
+  shows "Fmap ih (Fmap ig x) = Fmap ((ih \<circ> ig)(i := ih i)) x"
+proof -
+  from assms Fmap_comp have "Fmap ih (Fmap ig x) = Fmap (ih \<circ> ig) x" by fastforce
+  also from x_type have "... = Fmap ((ih \<circ> ig)(i := ih i)) x"
+  proof (rule Fmap_cong)
+    from ig_type ih_type show comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ih \<circ> ig)" by fastforce
+    moreover show "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ((ih \<circ> ig)(i := ih i))"
+    proof (urule (rr) dep_mono_wrt_predI)
+      fix j y assume prems: "I j" "iIn j y"
+      show "iOut j (((ih \<circ> ig)(i := ih i)) j y)"
+      proof (cases "i = j")
+        case False
+        with prems comp_type have "iOut j ((ih \<circ> ig) j y)" by blast
+        moreover from False have "iOut j (((ih \<circ> ig)(i := ih i)) j y) \<longleftrightarrow> iOut j ((ih \<circ> ig) j y)"
+          by auto
+        ultimately show ?thesis by simp
+      next
+        case True
+        with ig_id prems have "ig j y = y" by auto
+        with prems ig_type have "iMid j y" by fastforce
+        with prems ih_type have "iOut j (ih j y)" by blast
+        with True show ?thesis by simp
+      qed
+    qed
+    show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (ih \<circ> ig) ((ih \<circ> ig)(i := ih i))"
+    proof (urule (rr) Dep_Fun_Rel_predI)
+      fix j y assume prems: "I j" "Fpred j x y"
+      show "(ih \<circ> ig) j y = ((ih \<circ> ig)(i := ih i)) j y"
+      proof (cases "i = j")
+        case True
+        have "(ih \<circ> ig) j y = ih j (ig j y)" by simp
+        moreover have "ig j y = y"
+        proof -
+          from \<open>I j\<close> x_type Fpred_type have "Fpred j x \<le> iIn j" by blast
+          with prems have "iIn j y" by blast
+          with True \<open>I j\<close> ig_id show "ig j y = y" by auto
+        qed
+        then show ?thesis by auto
+      qed simp
+    qed
+  qed
+  finally show ?thesis by simp
+qed
+
+end
 
 end
