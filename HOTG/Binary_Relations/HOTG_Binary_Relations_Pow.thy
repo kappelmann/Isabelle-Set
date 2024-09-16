@@ -3,17 +3,17 @@
 subsection \<open>Power of Relations\<close>
 theory HOTG_Binary_Relations_Pow
   imports
-    HOTG_Transfinite_Recursion
+    HOTG_Epsilon_Recursion
     Transport.Binary_Relations_Transitive_Closure
 begin
 
 paragraph \<open>Summary\<close>
 text \<open>The n-th composition of a relation with itself:\<close>
 
-definition "rel_pow R = transfrec (\<lambda>r_pow n x y. R x y \<or> (\<exists>m : n. \<exists>z. r_pow m x z \<and> R z y))"
+definition "rel_pow R = mem_rec (\<lambda>r_pow n x y. R x y \<or> (\<exists>m : n. \<exists>z. r_pow m x z \<and> R z y))"
 
 lemma rel_pow_iff: "rel_pow R n x y \<longleftrightarrow> R x y \<or> (\<exists>m : n. \<exists>z. rel_pow R m x z \<and> R z y)"
-  using transfrec_eq[of "\<lambda>r_pow n x y. R x y \<or> (\<exists>m : n. \<exists>z. r_pow m x z \<and> R z y)" n]
+  using mem_rec_eq[of "\<lambda>r_pow n x y. R x y \<or> (\<exists>m : n. \<exists>z. r_pow m x z \<and> R z y)" n]
   unfolding rel_pow_def by auto
 
 lemma rel_pow_if_rel:

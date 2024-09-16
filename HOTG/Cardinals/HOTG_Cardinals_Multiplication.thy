@@ -16,7 +16,7 @@ lemma cardinal_mul_eq_cardinality_pair: "X \<otimes> Y = |X \<times> Y|"
   unfolding cardinal_mul_def ..
 
 lemma pair_equipollent_self_commute: "X \<times> Y \<approx> Y \<times> X"
-  by (intro equipollentI[where ?f=swap and ?g=swap]) (fastforce dest: inverse_onD)
+  by (intro equipollentI[where ?f=swap and ?g=swap]) fastforce
 
 lemma cardinal_mul_comm: "X \<otimes> Y = Y \<otimes> X"
   unfolding cardinal_mul_eq_cardinality_pair

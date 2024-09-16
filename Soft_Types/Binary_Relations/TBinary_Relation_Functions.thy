@@ -26,6 +26,10 @@ definition "rel_restrict_right_type (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool
   rel_restrict_right R (of_type T)"
 adhoc_overloading rel_restrict_right rel_restrict_right_type
 
+definition "rel_restrict_type (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) (T :: 'a type) \<equiv>
+  rel_restrict R (of_type T)"
+adhoc_overloading rel_restrict rel_restrict_type
+
 lemma rel_restrict_left_type_eq_rel_restrict_left_pred [simp]:
   "(R :: 'a \<Rightarrow> 'b \<Rightarrow> bool)\<restriction>\<^bsub>T :: 'a type\<^esub> = R\<restriction>\<^bsub>of_type T\<^esub>"
   unfolding rel_restrict_left_type_def by simp
@@ -46,6 +50,16 @@ lemma rel_restrict_right_type_eq_rel_restrict_right_pred_uhint [uhint]:
   shows "(R :: 'a \<Rightarrow> 'b \<Rightarrow> bool)\<upharpoonleft>\<^bsub>T :: 'b type\<^esub> \<equiv> R'\<upharpoonleft>\<^bsub>P\<^esub>"
   using assms by simp
 
+lemma rel_restrict_type_eq_rel_restrict_pred [simp]:
+  "(R :: 'a \<Rightarrow> 'a \<Rightarrow> bool)\<up>\<^bsub>T :: 'a type\<^esub> = R\<up>\<^bsub>of_type T\<^esub>"
+  unfolding rel_restrict_type_def by simp
+
+lemma rel_restrict_type_eq_rel_restrict_pred_uhint [uhint]:
+  assumes "R \<equiv> R'"
+  and "P \<equiv> of_type T"
+  shows "(R :: 'a \<Rightarrow> 'a \<Rightarrow> bool)\<up>\<^bsub>T :: 'a type\<^esub> \<equiv> R'\<up>\<^bsub>P\<^esub>"
+  using assms by simp
+
 context
   notes dep_mono_wrt_type_eq_pred_map_dep_mono_wrt_pred_comp_type_if_iff[simp]
 begin
@@ -57,6 +71,10 @@ lemma rel_restrict_left_Dep_bin_rel_type [type]:
 lemma rel_restrict_right_Dep_bin_rel_type [type]:
   "rel_restrict_right \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (B' : Any) \<Rightarrow> ({\<Sum>}x : A. B x & B')"
   by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_rel_restrict_right)
+
+lemma rel_restrict_Dep_bin_rel_type [type]:
+  "rel_restrict \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (C : Any) \<Rightarrow> ({\<Sum>}x : A & C. B x & C)"
+  by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_rel_restrict)
 
 end
 

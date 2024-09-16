@@ -2,6 +2,7 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 theory HOTG_Ordinals
   imports
+    HOTG_Order_Types
     HOTG_Ordinals_Base
     HOTG_Ordinals_Equipollent
     HOTG_Ordinals_Max

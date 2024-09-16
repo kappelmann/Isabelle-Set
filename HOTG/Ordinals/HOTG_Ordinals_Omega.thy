@@ -2,7 +2,7 @@
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
 theory HOTG_Ordinals_Omega
   imports
-    HOTG_Transfinite_Recursion
+    HOTG_Epsilon_Recursion
     HOTG_Universes
 begin
 
@@ -166,7 +166,7 @@ lemma pred_mem_self_if_ne_zero_if_mem_omega:
   using succ_pred_eq_self_if_ne_zero_if_mem_omega assms mem_succ by auto
 
 definition omega_rec :: "'a \<Rightarrow> ('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" where
-  "omega_rec a r = transfrec (\<lambda>f n. if n = 0 then a else r (f (pred n)))"
+  "omega_rec a r = mem_rec (\<lambda>f n. if n = 0 then a else r (f (pred n)))"
 
 lemma
   omega_rec_zero [simp]: "omega_rec a r 0 = a" and
@@ -175,7 +175,7 @@ proof -
   let ?f = "omega_rec a r"
   let ?step = "\<lambda>f n. if n = 0 then a else r (f (pred n))"
   have f_eq: "?f n = (if n = 0 then a else r (?f (pred n)))" if "n \<in> \<omega>" for n
-    using transfrec_eq[of ?step n] unfolding omega_rec_def[symmetric]
+    using mem_rec_eq[of ?step n] unfolding omega_rec_def[symmetric]
     using pred_mem_self_if_ne_zero_if_mem_omega that by auto
   then show "?f 0 = a" by auto
   assume "n \<in> \<omega>"

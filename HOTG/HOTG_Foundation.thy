@@ -6,6 +6,7 @@ theory HOTG_Foundation
   imports
     HOTG_Mem_Transitive_Closed_Base
     HOTG_Union_Intersection
+    Transport.Binary_Relations_Asymmetric
 begin
 
 lemma bex_disjoint_if_ne_empty: "X \<noteq> {} \<Longrightarrow> \<exists>Y : X. disjoint Y X"
@@ -44,6 +45,9 @@ proof (rule ccontr)
     using empty_or_bex_disjoint[of "{a, b}"] by simp
   then show "False" by cases (use \<open>b \<in> a\<close> assms in auto)
 qed auto
+
+corollary asymmetric_mem: "asymmetric (\<in>)"
+  using not_mem_if_mem by blast
 
 lemma not_mem_self [iff]: "a \<notin> a" using not_mem_if_mem by blast
 

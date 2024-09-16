@@ -65,4 +65,9 @@ lemma bijection_on_image_the_inverse_on_if_injective_on:
   shows "bijection_on A (image f A) f (the_inverse_on A f)"
   using assms by (urule bijection_on_has_inverse_on_the_inverse_on_if_injective_on)
 
+lemma image_eq_if_bijection_on_left_right:
+  assumes "bijection_on A B f g"
+  shows "image f A = B"
+  using assms by (intro eqI) (fastforce dest: inverse_onD)+
+
 end

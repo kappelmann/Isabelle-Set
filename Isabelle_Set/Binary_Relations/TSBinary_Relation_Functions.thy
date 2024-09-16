@@ -63,6 +63,23 @@ lemma mono_pred_map_comp_type_set_rel_restrict_right_eq_mono_rel_restrict_right_
   = ((x : A) \<Rightarrow> (y : (B x :: _ \<Rightarrow> bool)) \<Rightarrow> C x y) rel_restrict_right"
   by (simp cong: dep_mono_wrt_pred_codom_iff_cong)
 
+definition "set_rel_restrict_type (R :: set) (T :: set type) \<equiv> rel_restrict R (of_type T)"
+adhoc_overloading rel_restrict set_rel_restrict_type
+
+lemma set_rel_restrict_type_eq_set_rel_restrict_pred [simp]:
+  "(R :: set)\<up>\<^bsub>T :: set type\<^esub> = R\<up>\<^bsub>of_type T\<^esub>"
+  unfolding set_rel_restrict_type_def by simp
+
+lemma set_rel_restrict_type_eq_set_rel_restrict_pred_uhint [uhint]:
+  assumes "P \<equiv> of_type T"
+  shows "(R :: set)\<up>\<^bsub>T :: set type\<^esub> \<equiv> R\<up>\<^bsub>P\<^esub>"
+  using assms by simp
+
+lemma mono_pred_map_comp_type_set_rel_restrict_eq_mono_rel_restrict_pred [simp, type_to_HOL_simp]:
+  "((x : A) \<Rightarrow> pred_map (\<lambda>f. f \<circ> type) ((y : B x) \<Rightarrow> C x y)) rel_restrict
+  = ((x : A) \<Rightarrow> (y : (B x :: _ \<Rightarrow> bool)) \<Rightarrow> C x y) rel_restrict"
+  by (simp cong: dep_mono_wrt_pred_codom_iff_cong)
+
 context
   notes dep_mono_wrt_type_eq_pred_map_dep_mono_wrt_pred_comp_type_if_iff[simp]
 begin
@@ -74,6 +91,10 @@ lemma rel_restrict_left_Set_dep_bin_rel_type [type]:
 lemma rel_restrict_right_Dep_bin_rel_type [type]:
   "rel_restrict_right \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (B' : Any) \<Rightarrow> ({\<Sum>}x : A. B x & B')"
   by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict_right)
+
+lemma rel_restrict_Dep_bin_rel_type [type]:
+  "rel_restrict \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> (C : Any) \<Rightarrow> ({\<Sum>}x : A & C. B x & C)"
+  by (urule mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict)
 
 lemma extend_set_type [type]:
   "extend_set \<Ztypecolon> (x : A) \<Rightarrow> B x \<Rightarrow> ({\<Sum>}x : A'. B' x) \<Rightarrow> ({\<Sum>}x : A \<bar> A'. (B x \<bar> B' x))"

@@ -16,14 +16,14 @@ text \<open>Translation of generalised set multiplication for sets from \<^cite>
 and \<^cite>\<open>ZFC_in_HOL_AFP\<close>. Note that general set multiplication is associative,
 but it is not commutative (not proven here).\<close>
 
-definition "mul X \<equiv> transfrec (\<lambda>mulX Y. \<Union>(image (\<lambda>y. lift (mulX y) X) Y))"
+definition "mul X \<equiv> mem_rec (\<lambda>mulX Y. \<Union>y \<in> Y. lift (mulX y) X)"
 
 bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
 bundle no_hotg_mul_syntax begin no_notation mul (infixl "*" 70) end
 unbundle hotg_mul_syntax
 
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
-  unfolding mul_def by (urule transfrec_eq)
+  unfolding mul_def by (urule mem_rec_eq)
 
 corollary mul_eq_idx_union_repl_mul_add: "X * Y = (\<Union>y \<in> Y. {X * y + x | x \<in> X})"
   using mul_eq_idx_union_lift_mul[of X Y] lift_eq_repl_add by simp

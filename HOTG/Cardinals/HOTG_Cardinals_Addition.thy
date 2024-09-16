@@ -25,7 +25,7 @@ lemma cardinal_add_eq_cardinality_coprod: "X \<oplus> Y = |X \<Coprod> Y|"
 
 lemma coprod_equipollent_self_commute: "X \<Coprod> Y \<approx> Y \<Coprod> X"
   by (intro equipollentI[where ?f="coprod_rec inr inl" and ?g="coprod_rec inr inl"])
-  (fastforce dest: inverse_onD)
+  fastforce
 
 lemma cardinal_add_comm: "X \<oplus> Y = Y \<oplus> X"
   unfolding cardinal_add_eq_cardinality_coprod

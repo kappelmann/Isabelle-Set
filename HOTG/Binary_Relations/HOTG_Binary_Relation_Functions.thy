@@ -418,7 +418,7 @@ context
   notes set_to_HOL_simp[simp, symmetric, simp del]
 begin
 
-lemma rel_restrict_right_cong:
+lemma set_rel_restrict_right_cong:
   assumes "\<And>y. P y \<longleftrightarrow> P' y"
   and "\<And>x y. P' y \<Longrightarrow>  \<langle>x, y\<rangle> \<in> R \<longleftrightarrow> \<langle>x, y\<rangle> \<in> R'"
   shows "R\<upharpoonleft>\<^bsub>P\<^esub> = R'\<upharpoonleft>\<^bsub>P'\<^esub>"
@@ -491,5 +491,93 @@ lemma set_rel_restrict_right_set_eq_set_rel_restrict_right_pred_uhint [uhint]:
   shows "(R :: set)\<upharpoonleft>\<^bsub>A\<^esub> \<equiv> R'\<upharpoonleft>\<^bsub>P\<^esub>"
   using assms by simp
 
+definition "rel_restrict_set (R :: set \<Rightarrow> set \<Rightarrow> bool) A \<equiv> rel_restrict R (mem_of A)"
+adhoc_overloading rel_restrict rel_restrict_set
+
+lemma rel_restrict_set_eq_rel_restrict_pred [simp]: "(R :: set \<Rightarrow> set \<Rightarrow> bool)\<up>\<^bsub>A\<^esub> = R\<up>\<^bsub>mem_of A\<^esub>"
+  unfolding rel_restrict_set_def by simp
+
+lemma rel_restrict_set_eq_rel_restrict_pred_uhint [uhint]:
+  assumes "R \<equiv> R'"
+  and "P \<equiv> mem_of A"
+  shows "(R :: set \<Rightarrow> set \<Rightarrow> bool)\<up>\<^bsub>A\<^esub> \<equiv> R'\<up>\<^bsub>P\<^esub>"
+  using assms by simp
+
+definition "set_rel_restrict_pred (R :: set) (P :: set \<Rightarrow> bool) \<equiv> R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>P\<^esub>"
+adhoc_overloading rel_restrict set_rel_restrict_pred
+
+lemma mem_rel_restrictI [intro]:
+  assumes "p \<in> R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>P\<^esub>"
+  shows "p \<in> R\<up>\<^bsub>P\<^esub>"
+  using assms unfolding set_rel_restrict_pred_def by blast
+
+lemma mem_rel_restrictD [dest!]:
+  assumes "p \<in> R\<up>\<^bsub>P\<^esub>"
+  shows "p \<in> R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>P\<^esub>"
+  using assms unfolding set_rel_restrict_pred_def by blast
+
+lemma is_bin_rel_set_rel_restrict [iff]: "is_bin_rel R\<up>\<^bsub>P\<^esub>" by fast
+
+lemma rel_restrict_eq_restrict_rel [simp, set_to_HOL_simp]:
+  "rel (R\<up>\<^bsub>P :: set \<Rightarrow> bool\<^esub>) = (rel R)\<up>\<^bsub>P\<^esub>"
+  by fastforce
+
+context
+  notes set_to_HOL_simp[simp, symmetric, simp del]
+begin
+
+lemma set_rel_restrict_cong:
+  assumes "\<And>x. P x \<longleftrightarrow> P' x"
+  and "\<And>x y. P' x \<Longrightarrow> P' y \<Longrightarrow> \<langle>x, y\<rangle> \<in> R \<longleftrightarrow> \<langle>x, y\<rangle> \<in> R'"
+  shows "R\<up>\<^bsub>P\<^esub> = R'\<up>\<^bsub>P'\<^esub>"
+  by (urule rel_restrict_cong) (use assms in auto)
+
+lemma set_rel_restrict_restrict_eq_restrict [simp]: "(R :: set)\<up>\<^bsub>P\<^esub>\<up>\<^bsub>P\<^esub> = R\<up>\<^bsub>P\<^esub>"
+  by (urule rel_restrict_restrict_eq_restrict)
+
+lemma set_rel_restrict_top_eq_if_is_bin_rel [simp]:
+  assumes [simp]: "is_bin_rel R"
+  shows "(R :: set)\<up>\<^bsub>\<top> :: set \<Rightarrow> bool\<^esub> = R"
+  by (urule rel_restrict_top_eq)
+
+lemma set_rel_restrict_bottom_eq [simp]: "(R :: set)\<up>\<^bsub>\<bottom> :: set \<Rightarrow> bool\<^esub> = {}"
+  by (urule rel_restrict_bottom_eq)
+
+lemma empty_restrict_eq [simp]: "{}\<up>\<^bsub>P :: set \<Rightarrow> bool\<^esub> = {}"
+  by (urule bottom_restrict_eq)
+
+lemma rel_restrict_subset_self: "R\<up>\<^bsub>(P :: set \<Rightarrow> bool)\<^esub> \<subseteq> R"
+  by (urule rel_restrict_le_self)
+
+lemma subset_rel_restrict_self_if_mem_of_field_le_if_is_bin_rel:
+  assumes [simp]: "is_bin_rel R"
+  and "mem_of (field R) \<le> P"
+  shows "R \<subseteq> R\<up>\<^bsub>(P :: set \<Rightarrow> bool)\<^esub>"
+  by (urule le_rel_restrict_self_if_in_field_le) (use assms in fast)
+
+corollary set_rel_restrict_eq_self_if_mem_of_field_le_if_is_bin_rel:
+  assumes [simp]: "is_bin_rel R"
+  and "mem_of (field R) \<le> P"
+  shows "R\<up>\<^bsub>P\<^esub> = R"
+  by (urule rel_restrict_eq_self_if_in_field_le) (use assms in fast)
+
+end
+
+lemma mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict:
+  "(({\<Sum>}x : A. B x) \<Rightarrow> (P : \<top>) \<Rightarrow> ({\<Sum>}x : A \<sqinter> P. B x \<sqinter> P :: set \<Rightarrow> bool)) rel_restrict"
+  by fast
+
+definition "set_rel_restrict_set (R :: set) A \<equiv> rel_restrict R (mem_of A)"
+adhoc_overloading rel_restrict set_rel_restrict_set
+
+lemma set_rel_restrict_set_eq_set_rel_restrict_pred [simp]:
+  "(R :: set)\<up>\<^bsub>A\<^esub> = R\<up>\<^bsub>mem_of A\<^esub>"
+  unfolding set_rel_restrict_set_def by simp
+
+lemma set_rel_restrict_set_eq_set_rel_restrict_pred_uhint [uhint]:
+  assumes "R \<equiv> R'"
+  and "P \<equiv> mem_of A"
+  shows "(R :: set)\<up>\<^bsub>A\<^esub> \<equiv> R'\<up>\<^bsub>P\<^esub>"
+  using assms by simp
 
 end
