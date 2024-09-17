@@ -16,6 +16,9 @@ adhoc_overloading comp comp_ifun
 lemma comp_ifun_eq [simp]: "((f :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> g) i = f i \<circ> g i"
   unfolding comp_ifun_def by simp
 
+lemma comp_assoc: "(f :: 'i \<Rightarrow> 'c \<Rightarrow> 'd) \<circ> (g :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> (h :: 'i \<Rightarrow> 'a \<Rightarrow> 'b) = f \<circ> (g \<circ> h)" 
+  unfolding comp_ifun_def by (auto simp add: fun_eq_iff)
+
 (*copied from HOL*)
 definition "fun_upd f i y = (\<lambda>x. if x = i then y else f x)"
 
@@ -147,6 +150,43 @@ proof -
   finally show ?thesis by simp
 qed
 
+lemma Fmap_eq_Fmap_update_if_eq:
+  assumes x_type: "F iIn x"
+  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
+  and ih_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ih"
+  and "I i"
+  and ig_eq: "(iIn i \<Rrightarrow> (=)) (ih i) (ig i)"
+  shows "Fmap ig x = Fmap (ig(i := ih i)) x"
+proof -
+  have upd_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ig(i := ih i))" proof (urule (rr) dep_mono_wrt_predI)
+    fix j y assume "I j" "iIn j y"
+    then show "iOut j ((ig(i := ih i)) j y)" using ig_type ih_type by auto
+  qed
+  have "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (ig) (ig(i := ih i))"
+  proof (urule (rr) Dep_Fun_Rel_predI)
+    fix j y assume "I j" "Fpred j x y"
+    show "(ig) j y = (ig(i := ih i)) j y" proof (cases "i = j")
+      case True
+      with \<open>I j\<close> x_type Fpred_type \<open>Fpred j x y\<close> have "iIn j y" by blast
+      with ig_eq True show "ig j y = (ig(i := ih i)) j y" by auto
+    qed auto
+  qed
+    with assms upd_type Fmap_cong show "Fmap ig x = Fmap (ig(i := ih i)) x" by auto
+  qed
+
+lemma Fmap_comp_decomp:
+  assumes x_type: "F iIn x"
+  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
+  and ih_type: "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
+  and ii_type: "((i : I) \<Rightarrow> iMid2 i \<Rightarrow> iOut i) ii"
+  and "I i"
+shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
+proof-
+  have comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid2 i) (ih \<circ> ig)" using assms by fastforce
+    have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)" using Fmap_comp[of iIn iMid1 ig iMid2 ih] assms by auto
+    also have "... = Fmap (ii \<circ> ih \<circ> ig) x" using comp_type Fmap_comp[of iIn iMid2 "(ih \<circ> ig)" iOut ii] assms comp_assoc[of ii ih ig] by auto
+    finally show "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))" ..
+  qed
 end
 
 end
