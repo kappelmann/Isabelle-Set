@@ -293,7 +293,7 @@ next
   then obtain z where Fpred_leq:"\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<lambda>i. Grp \<top> (ig i)) i x y)" and Fx_eq: "Fmap (\<lambda>_. fst) z = Fx"
     and Fy_eq: "Fmap (\<lambda>_. snd) z = Fy" by (auto elim: FrelE)
   then have "\<And>a i. I i \<Longrightarrow> (Fpred i z) a \<Longrightarrow> Grp \<top> (ig i) (fst a) (snd a)" by fastforce
-  have z_type: "F (\<lambda>i. iin i \<times> iout i) z" sorry
+  have z_type: "F (\<lambda>i. iin i \<times> iout i) z" using \<open>F iin Fx\<close> \<open>F iout Fy\<close> Fx_eq Fy_eq sorry
   show "Grp \<top> (Fmap ig) Fx Fy" proof (subst Grp_top_eq_eq_comp)
     from FrelFxFy Fx_eq Fpred_leq Fy_eq have eq_comp:"((=) \<circ> Fmap ig) Fx Fy = (Fmap ig (Fmap (\<lambda>_. fst) z) = Fmap (\<lambda>_. snd) z)" by auto
     have eq:"((i : I) \<Rrightarrow> Fpred i z \<Rrightarrow> (=)) (ig \<circ> (\<lambda>_.fst)) (\<lambda>_. snd)" apply (intro Dep_Fun_Rel_predI Fun_Rel_predI) using Fpred_leq GrpE by fastforce
@@ -312,7 +312,12 @@ lemma Frel_Grp_top_Fmap:
   assumes ig_type: "((i : I) \<Rightarrow> iin i \<Rightarrow> iout i) ig"
   and "F iin x"
   shows "Frel (\<lambda>i. Grp \<top> (ig i)) x (Fmap ig x)"
-  sorry
+  using assms Grp_top_Fmap_eq_Frel_Grp[of iin iout ig] Grp_top_eq_eq_comp proof-
+  from Fmap_type ig_type \<open>F iin x\<close> have Fmap_ig_type: "F iout (Fmap ig x)" by auto
+  have "Grp \<top> (Fmap ig) x (Fmap ig x)" by (auto intro: GrpI)
+  with assms Grp_top_Fmap_eq_Frel_Grp[of iin iout ig] Fmap_ig_type show "Frel (\<lambda>i. Grp \<top> (ig i)) x (Fmap ig x)" by (auto elim: Dep_Fun_Rel_relE)
+qed
+
 
 end
 
