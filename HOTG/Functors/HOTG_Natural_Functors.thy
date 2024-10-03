@@ -295,7 +295,6 @@ next
   then have "\<And>a i. I i \<Longrightarrow> (Fpred i z) a \<Longrightarrow> Grp \<top> (ig i) (fst a) (snd a)" by fastforce
   have z_type: "F (\<lambda>i. iin i \<times> iout i) z" using \<open>F iin Fx\<close> \<open>F iout Fy\<close> Fx_eq Fy_eq sorry
   show "Grp \<top> (Fmap ig) Fx Fy" proof (subst Grp_top_eq_eq_comp)
-    from FrelFxFy Fx_eq Fpred_leq Fy_eq have eq_comp:"((=) \<circ> Fmap ig) Fx Fy = (Fmap ig (Fmap (\<lambda>_. fst) z) = Fmap (\<lambda>_. snd) z)" by auto
     have eq:"((i : I) \<Rrightarrow> Fpred i z \<Rrightarrow> (=)) (ig \<circ> (\<lambda>_.fst)) (\<lambda>_. snd)" apply (intro Dep_Fun_Rel_predI Fun_Rel_predI) using Fpred_leq GrpE by fastforce
     have fst_type: "((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iin i) (\<lambda>_. fst)" apply (intro dep_mono_wrt_predI) by fastforce
     have ig_fst_type:"((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iout i) (ig \<circ> (\<lambda>_. fst))" apply (intro dep_mono_wrt_predI) using ig_type by fastforce
@@ -318,6 +317,30 @@ lemma Frel_Grp_top_Fmap:
   with assms Grp_top_Fmap_eq_Frel_Grp[of iin iout ig] Fmap_ig_type show "Frel (\<lambda>i. Grp \<top> (ig i)) x (Fmap ig x)" by (auto elim: Dep_Fun_Rel_relE)
 qed
 
+lemma eq_alt: "(=) = Grp \<top> (id::set \<Rightarrow> set)"
+  unfolding Grp_def by auto
+
+lemma Grp_icong: assumes rel_f_g:"(F iT \<Rrightarrow> (=)) (Fmap ig) id"
+shows "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap ig)) (Grp \<top> id)"
+  sorry
+
+
+lemma Frel_eq: "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Frel (\<lambda>i. (=))) (=)"
+proof(intro Fun_Rel_predI)
+  fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
+  have eq_unf:"Frel (\<lambda>i. (=)) = Frel (\<lambda>i. Grp \<top> (iid i))" using eq_alt by auto
+  have iid_type:"((i : I) \<Rightarrow> iT i \<Rightarrow> iT i) iid" by fastforce
+  then have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap iid)) (Frel (\<lambda>i. Grp \<top> (iid i)))" using Grp_top_Fmap_eq_Frel_Grp by auto
+  with iid_type eq_unf have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> id) (Frel (\<lambda>i. (=)))" using Fmap_id[of iT iid] Grp_icong[of iT iid] by fastforce
+  with eq_alt FiT_Fx FiT_Fy show "(Frel (\<lambda>i. (=))) Fx Fy = (=) Fx Fy" by auto
+qed
+  
+
+lemma Frel_mono:
+  assumes "Frel iR Fx Fy"
+  and "\<And>i x y. I i  \<Longrightarrow> iR i x y \<Longrightarrow> iS i x y"
+shows "Frel iS Fx Fy"
+  apply (insert assms(1)) apply (erule FrelE) apply (intro FrelI) using assms by fastforce+
 
 end
 
