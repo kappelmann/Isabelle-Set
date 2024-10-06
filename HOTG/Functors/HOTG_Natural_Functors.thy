@@ -305,8 +305,6 @@ next
   qed
 qed
 
-  
-
 lemma Frel_Grp_top_Fmap:
   assumes ig_type: "((i : I) \<Rightarrow> iin i \<Rightarrow> iout i) ig"
   and "F iin x"
@@ -320,10 +318,21 @@ qed
 lemma eq_alt: "(=) = Grp \<top> (id::set \<Rightarrow> set)"
   unfolding Grp_def by auto
 
-lemma Grp_icong: assumes rel_f_g:"(F iT \<Rrightarrow> (=)) (Fmap ig) id"
+lemma Grp_Fmap_eq_id_if_Fmap_eq_id: assumes rel_f_g:"(F iT \<Rrightarrow> (=)) (Fmap ig) id"
 shows "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap ig)) (Grp \<top> id)"
-  sorry
-
+ proof (intro Fun_Rel_predI, intro iffI) 
+   fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
+   assume "Grp \<top> (Fmap ig) Fx Fy"
+   then have "(Fmap ig) Fx = Fy" by (auto elim: GrpE)
+   then have "id Fx = Fy" using rel_f_g FiT_Fx by auto
+   then show "Grp \<top> id Fx Fy" by (auto intro: GrpI)
+ next
+   fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
+   assume "Grp \<top> id Fx Fy"
+   then have "id Fx = Fy" by (auto elim: GrpE)
+   then have "(Fmap ig) Fx = Fy" using rel_f_g FiT_Fx by auto
+   then show "Grp \<top> (Fmap ig) Fx Fy" by (auto intro: GrpI)
+ qed
 
 lemma Frel_eq: "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Frel (\<lambda>i. (=))) (=)"
 proof(intro Fun_Rel_predI)
@@ -331,7 +340,7 @@ proof(intro Fun_Rel_predI)
   have eq_unf:"Frel (\<lambda>i. (=)) = Frel (\<lambda>i. Grp \<top> (iid i))" using eq_alt by auto
   have iid_type:"((i : I) \<Rightarrow> iT i \<Rightarrow> iT i) iid" by fastforce
   then have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap iid)) (Frel (\<lambda>i. Grp \<top> (iid i)))" using Grp_top_Fmap_eq_Frel_Grp by auto
-  with iid_type eq_unf have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> id) (Frel (\<lambda>i. (=)))" using Fmap_id[of iT iid] Grp_icong[of iT iid] by fastforce
+  with iid_type eq_unf have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> id) (Frel (\<lambda>i. (=)))" using Fmap_id[of iT iid] Grp_Fmap_eq_id_if_Fmap_eq_id[of iT iid] by fastforce
   with eq_alt FiT_Fx FiT_Fy show "(Frel (\<lambda>i. (=))) Fx Fy = (=) Fx Fy" by auto
 qed
   
@@ -342,6 +351,21 @@ lemma Frel_mono:
 shows "Frel iS Fx Fy"
   apply (insert assms(1)) apply (erule FrelE) apply (intro FrelI) using assms by fastforce+
 
+end
+
+
+locale HOTG_subdist_Natural_Functor = HOTG_Natural_Functor +
+  assumes Frel_comp_le_Frel_rel_comp: "Frel iR \<circ>\<circ> Frel iS \<le> Frel (\<lambda>i. (iR i) \<circ>\<circ> (iS i))"
+begin
+
+lemma Frel_rel_comp_le_Frel_comp: "Frel (\<lambda>i. rel_comp_rel (iR i) (iS i)) \<le> Frel iR \<circ>\<circ> Frel iS"
+proof (intro le_relI)
+  fix Fx Fy assume "Frel (\<lambda>i. iR i \<circ>\<circ> iS i) Fx Fy"
+  then obtain z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (iR i \<circ>\<circ> iS i) x y)" and "Fmap (\<lambda>_. fst) z = Fx" and "Fmap (\<lambda>_. snd) z = Fy" by (blast elim: FrelE)
+  then have "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<exists>mid. (iR i) x mid \<and> (iS i) mid y))" by fast
+  then have "\<And>i. I i \<Longrightarrow> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<exists>mid. (iR i) x mid \<and> (iS i) mid y)) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<exists>mid. (iR i) x mid))" by auto
+  show "(Frel iR \<circ>\<circ> Frel iS) Fx Fy" apply (intro rel_compI, intro FrelI) apply auto sorry
+qed
 end
 
 end
