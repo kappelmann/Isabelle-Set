@@ -4,13 +4,11 @@ theory HOTG_Cardinals_Multiplication
   imports HOTG_Cardinals_Base HOTG_Pairs
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 definition "cardinal_mul X Y \<equiv> |X \<times> Y|"
 
-bundle hotg_cardinal_mul_syntax begin notation cardinal_mul (infixl "\<otimes>" 65) end
-bundle no_hotg_cardinal_mul_syntax begin no_notation cardinal_mul (infixl "\<otimes>" 65) end
-unbundle hotg_cardinal_mul_syntax
+open_bundle hotg_cardinal_mul_syntax begin notation cardinal_mul (infixl "\<otimes>" 65) end
 
 lemma cardinal_mul_eq_cardinality_pair: "X \<otimes> Y = |X \<times> Y|"
   unfolding cardinal_mul_def ..

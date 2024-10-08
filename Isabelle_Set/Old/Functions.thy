@@ -10,9 +10,7 @@ subsection \<open>Evaluation of Functions\<close>
 
 definition "eval S x \<equiv> THE y. \<langle>x, y\<rangle> \<in> S"
 
-bundle isa_set_eval_syntax begin notation eval ("(_`_)" [999, 1000] 999) end
-bundle no_isa_set_eval_syntax begin no_notation eval ("_`_" [999, 1000] 999) end
-unbundle isa_set_eval_syntax
+open_bundle isa_set_eval_syntax begin notation eval ("(_`_)" [999, 1000] 999) end
 
 lemma eval_singleton_eq [simp]: "{\<langle>x, y\<rangle>}`x = y"
   unfolding eval_def by auto
@@ -612,9 +610,7 @@ subsection \<open>Composition\<close>
 
 definition "fun_comp g f \<equiv> \<lambda>x \<in> dom f. g`(f`x)"
 
-bundle isa_set_fun_comp_syntax begin notation fun_comp (infixr "\<circ>" 80) end
-bundle no_isa_set_fun_comp_syntax begin no_notation fun_comp (infixr "\<circ>" 80) end
-unbundle isa_set_fun_comp_syntax
+open_bundle isa_set_fun_comp_syntax begin notation fun_comp (infixr "\<circ>" 80) end
 
 lemma fun_comp_type [type]:
   "(\<circ>) : ((x \<in> B) \<rightarrow> C x) \<Rightarrow> (f : A \<rightarrow> B) \<Rightarrow> (x \<in> A) \<rightarrow> C (f`x)"
@@ -641,9 +637,7 @@ subsection \<open>Restriction\<close>
 
 definition "restriction f A \<equiv> \<lambda>a \<in> dom f \<inter> A. f`a"
 
-bundle isa_set_restriction_syntax begin notation restriction (infix "\<restriction>" 100) end
-bundle no_isa_set_restriction_syntax begin no_notation restriction (infix "\<restriction>" 100) end
-unbundle isa_set_restriction_syntax
+open_bundle isa_set_restriction_syntax begin notation restriction (infix "\<restriction>" 100) end
 
 lemma restriction_type [type]:
   "(\<restriction>) : ((x \<in> A) \<rightarrow> B x) \<Rightarrow> (A' : Set) \<Rightarrow> (x \<in> A \<inter> A') \<rightarrow> B x"

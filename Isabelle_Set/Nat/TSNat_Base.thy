@@ -8,7 +8,7 @@ theory TSNat_Base
     TSOrdinals
 begin
 
-unbundle no_HOL_groups_syntax no_HOL_order_syntax
+unbundle no HOL_groups_syntax and no HOL_order_syntax
 
 text \<open>The basic results have already been shown for \<nat> = \<omega>.\<close>
 
@@ -17,9 +17,7 @@ generalised addition/subtraction from HOTG*)
 
 definition "nat \<equiv> \<omega>"
 
-bundle isa_set_nat_syntax begin notation nat ("\<nat>") end
-bundle no_isa_set_nat_syntax begin no_notation nat ("\<nat>") end
-unbundle isa_set_nat_syntax
+open_bundle isa_set_nat_syntax begin notation nat ("\<nat>") end
 
 lemmas
   zero_mem_nat [iff] = zero_mem_omega[folded nat_def]

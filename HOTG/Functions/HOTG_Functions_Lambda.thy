@@ -8,7 +8,7 @@ theory HOTG_Functions_Lambda
     ML_Unification.Unification_Attributes
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition "rel_lambda_set A :: (set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a \<Rightarrow> bool \<equiv> rel_lambda (mem_of A)"
 adhoc_overloading rel_lambda rel_lambda_set

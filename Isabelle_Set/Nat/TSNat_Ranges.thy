@@ -4,57 +4,33 @@ theory TSNat_Ranges
   imports TSNat_Base
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 subsection \<open>Ranges\<close>
 
 definition "range_incl_excl l u \<equiv> {i \<in> \<nat> | l \<le> i \<and> i < u}"
 
-bundle isa_set_range_incl_excl_syntax
-begin notation range_incl_excl ("[_,\<dots>,_[") end
-bundle no_isa_set_range_incl_excl_syntax
-begin no_notation range_incl_excl ("[_,\<dots>,_[") end
-unbundle isa_set_range_incl_excl_syntax
+open_bundle isa_set_range_incl_excl_syntax begin notation range_incl_excl ("[_,\<dots>,_[") end
 
 abbreviation "range_incl_incl l u \<equiv> [l,\<dots>,succ u["
 
-bundle isa_set_range_incl_incl_syntax
-begin notation range_incl_incl ("[_,\<dots>,_]") end
-bundle no_isa_set_range_incl_incl_syntax
-begin no_notation range_incl_incl ("[_,\<dots>,_]") end
-unbundle isa_set_range_incl_incl_syntax
+open_bundle isa_set_range_incl_incl_syntax begin notation range_incl_incl ("[_,\<dots>,_]") end
 
 abbreviation "range_excl_incl l u \<equiv> [succ l,\<dots>,u]"
 
-bundle isa_set_range_excl_incl_syntax
-begin notation range_excl_incl ("]_,\<dots>,_]") end
-bundle no_isa_set_range_excl_incl_syntax
-begin no_notation range_excl_incl ("]_,\<dots>,_]") end
-unbundle isa_set_range_excl_incl_syntax
+open_bundle isa_set_range_excl_incl_syntax begin notation range_excl_incl ("]_,\<dots>,_]") end
 
 abbreviation "range_excl_excl l u \<equiv> [succ l,\<dots>,u["
 
-bundle isa_set_range_excl_excl_syntax
-begin notation range_excl_excl ("]_,\<dots>,_[") end
-bundle no_isa_set_range_excl_excl_syntax
-begin no_notation range_excl_excl ("]_,\<dots>,_[") end
-unbundle isa_set_range_excl_excl_syntax
+open_bundle isa_set_range_excl_excl_syntax begin notation range_excl_excl ("]_,\<dots>,_[") end
 
 bundle isa_set_range_syntax
 begin
 unbundle
   isa_set_range_incl_excl_syntax
-  isa_set_range_incl_incl_syntax
-  isa_set_range_excl_incl_syntax
-  isa_set_range_excl_excl_syntax
-end
-bundle no_isa_set_range_syntax
-begin
-unbundle
-  no_isa_set_range_incl_excl_syntax
-  no_isa_set_range_incl_incl_syntax
-  no_isa_set_range_excl_incl_syntax
-  no_isa_set_range_excl_excl_syntax
+  and isa_set_range_incl_incl_syntax
+  and isa_set_range_excl_incl_syntax
+  and isa_set_range_excl_excl_syntax
 end
 
 lemma range_incl_excl_type [type]: "range_incl_excl \<Ztypecolon> Nat \<Rightarrow> Nat \<Rightarrow> Subset \<nat>"

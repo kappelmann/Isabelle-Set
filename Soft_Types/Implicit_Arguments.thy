@@ -12,6 +12,7 @@ consts
 
 syntax
   "_implicit" :: "id_position \<Rightarrow> logic" ("\<implicit>_")
+syntax_consts "_implicit" \<rightleftharpoons> implicit_arg
 translations
   "\<implicit> x" \<rightleftharpoons> "CONST implicit_arg (\<lambda>x. CONST implicit_dummy)"
 

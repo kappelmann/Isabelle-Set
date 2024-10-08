@@ -13,7 +13,7 @@ relations on the same type. Uses the Set-Extension mechanism from Isabelle/Set.
 See @{locale set_extension}.\<close>
 
 context
-  includes galois_rel_syntax transport_syntax
+  includes galois_rel_syntax and transport_syntax
 begin
 
 no_notation Groups.zero_class.zero ("0")

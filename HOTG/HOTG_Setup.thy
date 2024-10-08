@@ -7,7 +7,7 @@ begin
 
 text \<open>Remove conflicting HOL-specific syntax.\<close>
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 text \<open>Additional logical rules\<close>
 

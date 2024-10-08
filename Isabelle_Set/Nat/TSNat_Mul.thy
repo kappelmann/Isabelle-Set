@@ -11,10 +11,7 @@ definition "nat_mul m n = nat_rec m 0 (nat_add n)"
 lemma nat_mul_type [type]: "nat_mul \<Ztypecolon> Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_mul_def by auto
 
-bundle isa_set_nat_mul_syntax begin notation nat_mul (infixl "*" 70) end
-bundle no_isa_set_nat_mul_syntax begin no_notation nat_mul (infixl "*" 70) end
-
-unbundle isa_set_nat_mul_syntax
+open_bundle isa_set_nat_mul_syntax begin notation nat_mul (infixl "*" 70) end
 
 lemma zero_nat_mul_eq [simp]: "0 * n = 0"
   unfolding nat_mul_def by simp

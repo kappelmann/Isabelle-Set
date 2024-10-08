@@ -10,8 +10,8 @@ theory HOTG_Arithmetics_Cardinal_Arithmetics
     HOTG_Multiplication
 begin
 
-unbundle no_HOL_groups_syntax
-unbundle no_HOL_order_syntax
+unbundle no HOL_groups_syntax
+  and no HOL_order_syntax
 
 lemma cardinality_lift_eq_cardinality_right [simp]: "|lift X Y| = |Y|"
 proof (intro cardinality_eq_if_equipollent equipollentI)

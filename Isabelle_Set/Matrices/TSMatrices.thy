@@ -6,7 +6,7 @@ theory TSMatrices
     TSMonoids
 begin
 
-unbundle no_HOL_groups_syntax no_HOL_order_syntax
+unbundle no HOL_groups_syntax and no HOL_order_syntax
 
 definition "matrices A m n :: set \<equiv> [0,\<dots>,m[ \<rightarrow>\<^sub>c [0,\<dots>,n[ \<rightarrow>\<^sub>c A"
 

@@ -10,7 +10,7 @@ begin
 text \<open>This theory introduces a generic notion of soft types based on HOL
 predicates. It contains the basic definitions and technical tool setup.\<close>
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 subsection \<open>Basic type judgments\<close>
 
@@ -26,11 +26,7 @@ where
   meaning_of_adj: "type_of x (adj P T) \<equiv> P x \<and> type_of x T" and
   meaning_of_type: "type_of x (type P) \<equiv> P x"
 
-bundle soft_type_base_syntax
-begin notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and type_of (infix "\<Ztypecolon>" 39) end
-bundle no_soft_type_base_syntax
-begin no_notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and type_of (infix "\<Ztypecolon>" 39) end
-unbundle soft_type_base_syntax
+open_bundle soft_type_base_syntax begin notation adj (infixr "\<sqdot>" \<comment>\<open>\<sqdot>\<close> 56) and type_of (infix "\<Ztypecolon>" 39) end
 
 definition "of_type T x \<equiv> x \<Ztypecolon> T"
 

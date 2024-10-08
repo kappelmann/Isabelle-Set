@@ -6,7 +6,7 @@ theory TSIntegers_Rep_Base
     TSNat
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 text \<open>We construct the integers as a pair of a non-negative and a negative part.
 By using the set extension principle, we will ensure that \<open>\<nat> \<subseteq> \<int>\<close>.\<close>

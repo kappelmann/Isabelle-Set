@@ -5,7 +5,7 @@ theory HOTG_Ordinals_Max
     HOTG_Less_Than
 begin
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 definition max_ordinal :: "set \<Rightarrow> set \<Rightarrow> set" where
   "max_ordinal A B = (if A \<in> B then B else A)"
@@ -13,7 +13,7 @@ definition max_ordinal :: "set \<Rightarrow> set \<Rightarrow> set" where
 lemma pred_max_ordinal_if_pred_if_pred: "P A \<Longrightarrow> P B \<Longrightarrow> P (max_ordinal A B)"
   using max_ordinal_def by auto
 
-corollary ordinal_max_ordinal_if_ordinal_if_ordinal: 
+corollary ordinal_max_ordinal_if_ordinal_if_ordinal:
   "ordinal A \<Longrightarrow> ordinal B \<Longrightarrow> ordinal (max_ordinal A B)"
   using pred_max_ordinal_if_pred_if_pred by auto
 

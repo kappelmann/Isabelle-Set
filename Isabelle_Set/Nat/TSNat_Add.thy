@@ -3,18 +3,15 @@ theory TSNat_Add
   imports TSNat_Rec
 begin
 
-unbundle no_hotg_add_syntax
+unbundle no hotg_add_syntax
 
 definition "nat_add m n \<equiv> nat_rec m n succ"
 
 lemma nat_add_type [type]: "nat_add \<Ztypecolon> Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_add_def by auto
 
-bundle isa_set_nat_add_syntax begin notation nat_add (infixl "+" 65) end
-bundle no_isa_set_nat_add_syntax begin no_notation nat_add (infixl "+" 65) end
-
-unbundle no_HOL_groups_syntax
-unbundle isa_set_nat_add_syntax
+open_bundle isa_set_nat_add_syntax begin notation nat_add (infixl "+" 65) end
+unbundle no HOL_groups_syntax
 
 lemma zero_add_eq [simp]: "0 + n = n"
   unfolding nat_add_def by simp
@@ -79,7 +76,7 @@ corollary nat_pred_add_succ [simp]:
   by (auto simp only: Nat_add_comm[of m] Nat_add_comm[of "pred m"]
     intro: Nat_succ_add_pred_eq)
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 lemma Nat_le_add [intro]: "m \<Ztypecolon> Nat \<Longrightarrow> n \<Ztypecolon> Nat \<Longrightarrow> m \<le> m + n"
   by (induction m rule: Nat_induct) auto

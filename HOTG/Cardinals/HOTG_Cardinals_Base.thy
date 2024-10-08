@@ -10,8 +10,8 @@ theory HOTG_Cardinals_Base
     HOTG_Less_Than
 begin
 
-unbundle no_HOL_groups_syntax
-unbundle no_HOL_order_syntax
+unbundle no HOL_groups_syntax
+  and no HOL_order_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of cardinality from HOL-Library and \<^cite>\<open>ZFC_in_HOL_AFP\<close>.
@@ -22,9 +22,7 @@ Further details can be found in \<^url>\<open>https://en.wikipedia.org/wiki/Card
 
 definition "cardinality (X :: set) \<equiv> least_wrt_rel (\<le>) (ordinal \<sqinter> ((\<approx>) X))"
 
-bundle hotg_cardinality_syntax begin notation cardinality ("|_|") end
-bundle no_hotg_cardinality_syntax begin no_notation cardinality ("|_|") end
-unbundle hotg_cardinality_syntax
+open_bundle hotg_cardinality_syntax begin notation cardinality ("|_|") end
 
 lemma cardinality_eq_if_equipollent_if_le_if_ordinal:
   assumes "ordinal Y"

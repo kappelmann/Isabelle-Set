@@ -7,7 +7,7 @@ theory HOTG_Ranks
     HOTG_Epsilon_Recursion
 begin
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 definition rank :: "set \<Rightarrow> set" where
   "rank = mem_rec (\<lambda>rank X. (\<Union>x \<in> X. succ (rank x)))"

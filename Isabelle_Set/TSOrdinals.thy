@@ -8,7 +8,7 @@ theory TSOrdinals
     TSBasics
 begin
 
-unbundle no_HOL_ascii_syntax no_HOL_groups_syntax no_HOL_order_syntax
+unbundle no HOL_ascii_syntax and no HOL_groups_syntax and no HOL_order_syntax
 
 text \<open>The class of ordinal numbers is defined abstractly, as the \<in>-transitive sets
 whose members are also \<in>-transitive.\<close>

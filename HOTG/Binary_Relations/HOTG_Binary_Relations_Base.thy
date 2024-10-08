@@ -8,7 +8,7 @@ theory HOTG_Binary_Relations_Base
     Transport.Dependent_Binary_Relations
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition "rel R x y \<equiv> \<langle>x, y\<rangle> \<in> R"
 

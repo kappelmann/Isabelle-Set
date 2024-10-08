@@ -6,17 +6,13 @@ theory HOTG_Finite_Sets
   imports HOTG_Unordered_Pairs
 begin
 
-bundle hotg_finite_sets_syntax
+unbundle no HOL_ascii_syntax
+
+open_bundle hotg_finite_sets_syntax
 begin
 syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
 end
-bundle no_hotg_finite_sets_syntax
-begin
-no_syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
-end
-unbundle hotg_finite_sets_syntax
-unbundle no_HOL_ascii_syntax
-
+syntax_consts "_finset" \<rightleftharpoons> insert
 translations
   "{x, xs}" \<rightleftharpoons> "CONST insert x {xs}"
   "{x}" \<rightleftharpoons> "CONST insert x {}"

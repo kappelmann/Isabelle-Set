@@ -11,17 +11,12 @@ text \<open>Replacement based on function-like predicates, as formulated in firs
 definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "replace A P = {THE y. P x y | x \<in> {x \<in> A | \<exists>!y. P x y}}"
 
-bundle hotg_replacement_syntax
+open_bundle hotg_replacement_syntax
 begin
 syntax
   "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("{_ |/ _ \<in> _, _}")
 end
-bundle no_hotg_replacement_syntax
-begin
-no_syntax
-  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("{_ |/ _ \<in> _, _}")
-end
-unbundle hotg_replacement_syntax
+syntax_consts "_replace" \<rightleftharpoons> replace
 translations
   "{y | x \<in> A, Q}" \<rightleftharpoons> "CONST replace A (\<lambda>x y. Q)"
 

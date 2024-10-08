@@ -10,10 +10,7 @@ definition "nat_sub m n \<equiv> nat_rec n m pred"
 lemma nat_sub_type [type]: "nat_sub \<Ztypecolon> Nat \<Rightarrow> Nat \<Rightarrow> Nat"
   unfolding nat_sub_def by discharge_types
 
-bundle isa_set_nat_sub_syntax begin notation nat_sub (infixl "-" 65) end
-bundle no_isa_set_nat_sub_syntax begin no_notation nat_sub (infixl "-" 65) end
-
-unbundle isa_set_nat_sub_syntax
+open_bundle isa_set_nat_sub_syntax begin notation nat_sub (infixl "-" 65) end
 
 lemma nat_sub_zero_eq [simp]: "m - 0 = m"
   unfolding nat_sub_def by simp

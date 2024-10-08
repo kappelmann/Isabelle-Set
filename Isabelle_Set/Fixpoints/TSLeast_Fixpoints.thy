@@ -5,7 +5,7 @@ theory TSLeast_Fixpoints
   imports TSMonotone_Operators
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 subsubsection \<open>Knaster-Tarski Theorem\<close>
 

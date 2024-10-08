@@ -6,7 +6,7 @@ theory TSIntegers
     Set_Extensions
 begin
 
-unbundle no_HOL_groups_syntax no_hotg_add_syntax
+unbundle no HOL_groups_syntax and no hotg_add_syntax
 
 subsection \<open>The Integers as a Subset of the Naturals\<close>
 
@@ -15,10 +15,7 @@ interpretation Int : set_extension \<nat> int_rep Int_Rep_nonneg
 
 abbreviation "int \<equiv> Int.Abs"
 
-bundle isa_set_int_syntax begin notation int ("\<int>") end
-bundle no_isa_set_int_syntax begin no_notation int ("\<int>") end
-
-unbundle isa_set_int_syntax
+open_bundle isa_set_int_syntax begin notation int ("\<int>") end
 
 abbreviation "Int \<equiv> Element \<int>"
 
@@ -63,22 +60,13 @@ lemma
 text \<open>We need a notation package that also does inference to determine if a
 number is a Nat, Int, etc. Typeclass integration here already?\<close>
 
-bundle isa_set_int_add_syntax begin notation int_add (infixl "+" 65) end
-bundle no_isa_set_int_add_syntax begin no_notation int_add (infixl "+" 65) end
+open_bundle isa_set_int_add_syntax begin notation int_add (infixl "+" 65) end
+open_bundle isa_set_int_sub_syntax begin notation int_sub (infixl "-" 65) end
+open_bundle isa_set_int_mul_syntax begin notation int_mul (infixl "*" 70) end
 
-bundle isa_set_int_sub_syntax begin notation int_sub (infixl "-" 65) end
-bundle no_isa_set_int_sub_syntax begin no_notation int_sub (infixl "-" 65) end
-
-bundle isa_set_int_mul_syntax begin notation int_mul (infixl "*" 70) end
-bundle no_isa_set_int_mul_syntax begin no_notation int_mul (infixl "*" 70) end
-
-unbundle
-  no_isa_set_nat_add_syntax
-  no_isa_set_nat_sub_syntax
-  no_isa_set_nat_mul_syntax
-  isa_set_int_add_syntax
-  isa_set_int_sub_syntax
-  isa_set_int_mul_syntax
+unbundle no isa_set_nat_add_syntax
+  and no isa_set_nat_sub_syntax
+  and no isa_set_nat_mul_syntax
 
 
 (*TODO: no proper normal forms at the moment*)
@@ -116,12 +104,7 @@ definition "int_Group \<equiv> object {
     \<langle>$inv, \<lambda>i : \<int>. Int_Rep_inv i\<rangle>
   }"
 
-bundle isa_set_int_Group_syntax
-begin notation int_Group ("'(\<int>, +')") end
-bundle no_isa_set_int_Monoid_syntax
-begin no_notation int_Group ("'(\<int>, +')") end
-
-unbundle isa_set_int_Group_syntax
+open_bundle isa_set_int_Group_syntax begin notation int_Group ("'(\<int>, +')") end
 
 (*TODO: The following should be automatically generated*)
 lemma [simp]:
@@ -153,12 +136,7 @@ definition "int_Mul_Monoid \<equiv> object {
     \<langle>$mul, \<lambda>i j : \<int>. int_mul i j\<rangle>
   }"
 
-bundle isa_set_int_Mul_Monoid_syntax
-begin notation int_Mul_Monoid ("'(\<int>, *')") end
-bundle no_isa_set_int_Mul_Monoid_syntax
-begin no_notation int_Mul_Monoid ("'(\<int>, *')") end
-
-unbundle isa_set_int_Mul_Monoid_syntax
+open_bundle isa_set_int_Mul_Monoid_syntax begin notation int_Mul_Monoid ("'(\<int>, *')") end
 
 (* lemma int_mul_assoc:
   assumes "i \<Ztypecolon> Int" "j \<Ztypecolon> Int" "k \<Ztypecolon> Int"

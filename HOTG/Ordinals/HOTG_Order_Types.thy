@@ -9,7 +9,7 @@ theory HOTG_Order_Types
     HOTG_Wellfounded_Recursion
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition order_type :: "set \<Rightarrow> (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> set" where
   "order_type X R \<equiv> THE \<alpha> : ordinal. order_isomorphic_on X \<alpha> R (\<in>)"

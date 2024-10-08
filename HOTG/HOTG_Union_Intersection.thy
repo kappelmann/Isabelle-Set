@@ -8,9 +8,7 @@ begin
 
 definition "inter A \<equiv> {x \<in> \<Union>A | \<forall>y : A. x \<in> y}"
 
-bundle hotg_inter_syntax begin notation inter ("\<Inter>_" [90] 90) end
-bundle no_hotg_inter_syntax begin no_notation inter ("\<Inter>_" [90] 90) end
-unbundle hotg_inter_syntax
+open_bundle hotg_inter_syntax begin notation inter ("\<Inter>_" [90] 90) end
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
 
@@ -69,23 +67,15 @@ lemma antimono_inter: "A \<noteq> {} \<Longrightarrow> A \<subseteq> A' \<Longri
 
 subsection \<open>Indexed Union and Intersection:\<close>
 
-bundle hotg_idx_union_inter_syntax
+open_bundle hotg_idx_union_inter_syntax
 begin
 syntax
   "_idx_union" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Union>_ \<in> _./ _)" [0, 0, 10] 10)
   "_idx_inter" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10] 10)
 end
-bundle no_hotg_idx_union_inter_syntax
-begin
-no_syntax
-  "_idx_union" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Union>_ \<in> _./ _)" [0, 0, 10] 10)
-  "_idx_inter" :: \<open>[pttrn, set, set \<Rightarrow> set] => set\<close> ("(3\<Inter>_ \<in> _./ _)" [0, 0, 10] 10)
-end
-unbundle hotg_idx_union_inter_syntax
-
 translations
-  "\<Union>x \<in> A. B" \<rightleftharpoons> "\<Union>{B | x \<in> A}"
-  "\<Inter>x \<in> A. B" \<rightleftharpoons> "\<Inter>{B | x \<in> A}"
+  "\<Union>x \<in> A. P" \<rightleftharpoons> "\<Union>{P | x \<in> A}"
+  "\<Inter>x \<in> A. P" \<rightleftharpoons> "\<Inter>{P | x \<in> A}"
 
 
 lemma mem_idx_unionE [elim!]:
@@ -204,15 +194,11 @@ subsection \<open>Binary Union and Intersection\<close>
 
 definition "bin_union A B \<equiv> \<Union>{A, B}"
 
-bundle hotg_bin_union_syntax begin notation bin_union (infixl "\<union>" 70) end
-bundle no_hotg_bin_union_syntax begin no_notation bin_union (infixl "\<union>" 70) end
-unbundle hotg_bin_union_syntax
+open_bundle hotg_bin_union_syntax begin notation bin_union (infixl "\<union>" 70) end
 
 definition "bin_inter A B \<equiv> \<Inter>{A, B}"
 
-bundle hotg_bin_inter_syntax begin notation bin_inter (infixl "\<inter>" 70) end
-bundle no_hotg_bin_inter_syntax begin no_notation bin_inter (infixl "\<inter>" 70) end
-unbundle hotg_bin_inter_syntax
+open_bundle hotg_bin_inter_syntax begin notation bin_inter (infixl "\<inter>" 70) end
 
 lemma mem_bin_union_iff [iff]: "x \<in> A \<union> B \<longleftrightarrow> x \<in> A \<or> x \<in> B"
   unfolding bin_union_def by auto

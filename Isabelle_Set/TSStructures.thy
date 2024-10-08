@@ -31,7 +31,6 @@ abbreviation zero_implicit :: "set"
   where "zero_implicit \<equiv> zero \<implicit>Z"
 
 bundle isa_set_zero_implicit_syntax begin notation zero_implicit ("0") end
-bundle no_isa_set_zero_implicit_syntax begin no_notation zero_implicit ("0") end
 
 definition [typeclass]: "One A \<equiv> type (\<lambda>O. O@$one \<Ztypecolon> A)"
 
@@ -50,7 +49,6 @@ abbreviation one_implicit :: "set"
   where "one_implicit \<equiv> one \<implicit>O"
 
 bundle isa_set_one_implicit_syntax begin notation one_implicit ("1") end
-bundle no_isa_set_one_implicit_syntax begin no_notation one_implicit ("1") end
 
 
 subsection \<open>Additive structures\<close>
@@ -77,7 +75,6 @@ abbreviation add_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
   where "add_implicit x y \<equiv> add \<implicit>P x y"
 
 bundle isa_set_add_implicit_syntax begin notation add_implicit  (infixl "+" 65) end
-bundle no_isa_set_add_implicit_syntax begin no_notation add_implicit  (infixl "+" 65) end
 
 
 subsection \<open>Multiplicative structures\<close>
@@ -102,7 +99,6 @@ abbreviation mul_implicit :: "set \<Rightarrow> set \<Rightarrow> set"
   where "mul_implicit x y \<equiv> mul \<implicit>T x y"
 
 bundle isa_set_mul_implicit_syntax begin notation mul_implicit  (infixl "*" 65) end
-bundle no_isa_set_mul_implicit_syntax begin no_notation mul_implicit  (infixl "*" 65) end
 
 
 subsection \<open>Structures with additive inverses\<close>
@@ -123,7 +119,6 @@ lemma inv_type [type]: "inv \<Ztypecolon> Inv A \<Rightarrow> A \<Rightarrow> A"
 abbreviation inv_implicit where "inv_implicit x \<equiv> inv \<implicit>I x"
 
 bundle isa_set_inv_implicit_syntax begin notation inv_implicit  ("_\<inverse>" [1000]) end
-bundle no_isa_set_inv_implicit_syntax begin no_notation inv_implicit  ("_\<inverse>" [1000]) end
 
 
 end

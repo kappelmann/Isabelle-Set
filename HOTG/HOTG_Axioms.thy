@@ -31,28 +31,18 @@ in first-order logic. Moreover, @{thm replacement} takes a meta-level function \
 
 text \<open>Let us define some expected notation.\<close>
 
-bundle hotg_mem_syntax begin notation mem (infixl "\<in>" 50) end
-bundle no_hotg_mem_syntax begin no_notation mem (infixl "\<in>" 50) end
+open_bundle hotg_mem_syntax begin notation mem (infixl \<open>\<in>\<close> 50) end
 
-bundle hotg_emptyset_zero_syntax begin notation emptyset ("\<emptyset>") end
-bundle no_hotg_emptyset_zero_syntax begin no_notation emptyset ("\<emptyset>") end
+bundle hotg_emptyset_zero_syntax begin notation emptyset (\<open>\<emptyset>\<close>) end
+bundle hotg_emptyset_braces_syntax begin notation emptyset (\<open>{}\<close>) end
 
-bundle hotg_emptyset_braces_syntax begin notation emptyset ("{}") end
-bundle no_hotg_emptyset_braces_syntax begin no_notation emptyset ("{}") end
-
-bundle hotg_emptyset_syntax
+open_bundle hotg_emptyset_syntax
 begin
-  unbundle hotg_emptyset_zero_syntax hotg_emptyset_braces_syntax
-end
-bundle no_hotg_emptyset_syntax
-begin
-  unbundle no_hotg_emptyset_zero_syntax no_hotg_emptyset_braces_syntax
+  unbundle hotg_emptyset_zero_syntax
+    and hotg_emptyset_braces_syntax
 end
 
-bundle hotg_union_syntax begin notation union ("\<Union>_" [90] 90) end
-bundle no_hotg_union_syntax begin no_notation union ("\<Union>_" [90] 90) end
-
-unbundle hotg_mem_syntax hotg_emptyset_syntax hotg_union_syntax
+open_bundle hotg_union_syntax begin notation union ("\<Union>_" [90] 90) end
 
 definition "mem_of A x \<equiv> x \<in> A"
 lemma mem_of_eq: "mem_of = (\<lambda>A x. x \<in> A)" unfolding mem_of_def by simp
@@ -69,21 +59,14 @@ lemma mem_of_eq_mem_uhint [uhint]:
 
 abbreviation "not_mem x y \<equiv> \<not>(x \<in> y)"
 
-bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end
-bundle no_hotg_not_mem_syntax begin no_notation not_mem (infixl "\<notin>" 50) end
-
-unbundle hotg_not_mem_syntax
-
+open_bundle hotg_not_mem_syntax begin notation not_mem (infixl "\<notin>" 50) end
 
 text \<open>Based on the membership relation, we can define the subset relation.\<close>
 definition subset :: \<open>set \<Rightarrow> set \<Rightarrow> bool\<close>
   where "subset A B \<equiv> \<forall>x. x \<in> A \<longrightarrow> x \<in> B"
 
 text \<open>Again, we define some notation.\<close>
-bundle hotg_subset_syntax begin notation subset (infixl "\<subseteq>" 50) end
-bundle no_hotg_subset_syntax begin no_notation subset (infixl "\<subseteq>" 50) end
-
-unbundle hotg_subset_syntax
+open_bundle hotg_subset_syntax begin notation subset (infixl "\<subseteq>" 50) end
 
 text \<open>The axiom of extensionality and powerset.\<close>
 axiomatization
@@ -119,23 +102,13 @@ where
   univ_min: "\<lbrakk>X \<in> U; mem_trans_closed U; ZF_closed U\<rbrakk> \<Longrightarrow> univ X \<subseteq> U"
 
 (* Bundles to switch basic hotg notations on and off *)
-bundle hotg_basic_syntax
+open_bundle hotg_basic_syntax
 begin
-  unbundle
-    hotg_mem_syntax
-    hotg_not_mem_syntax
-    hotg_emptyset_syntax
-    hotg_union_syntax
-    hotg_subset_syntax
-end
-bundle no_hotg_basic_syntax
-begin
-  unbundle
-    no_hotg_mem_syntax
-    no_hotg_not_mem_syntax
-    no_hotg_emptyset_syntax
-    no_hotg_union_syntax
-    no_hotg_subset_syntax
+  unbundle hotg_mem_syntax
+    and hotg_not_mem_syntax
+    and hotg_emptyset_syntax
+    and hotg_union_syntax
+    and hotg_subset_syntax
 end
 
 end
