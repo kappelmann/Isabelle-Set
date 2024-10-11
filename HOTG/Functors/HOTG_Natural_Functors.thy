@@ -379,6 +379,16 @@ locale HOTG_subdist_Natural_Functor = HOTG_Natural_Functor +
   assumes Frel_comp_le_Frel_rel_comp: "(F i1 \<Rrightarrow> F i2 \<Rrightarrow> (\<le>)) (Frel iR \<circ>\<circ> Frel iS) (Frel (\<lambda>i. (iR i) \<circ>\<circ> (iS i)))"
 begin
 
+(* @Kevin please have a look at it, I can't see what would be correct for \<langle>x, y\<rangle>*)
+lemma example: assumes x_type: "F iin x" and y_type: "F iout y" and iR_xy: "(\<And>i. I i \<longrightarrow> iR i x y)"
+  shows "Frel iR x y"
+proof(intro FrelI)
+  show "\<And>i. I i \<Longrightarrow> Fpred i \<langle>x, y\<rangle> \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)" sorry
+  show "Fmap (\<lambda>_. fst) \<langle>x, y\<rangle> = x" sorry
+  show "Fmap (\<lambda>_. snd) \<langle>x, y\<rangle> = y" sorry
+qed
+  
+
 lemma Frel_rel_comp_le_Frel_comp: "(F i1 \<Rrightarrow> F i2 \<Rrightarrow> (\<le>)) (Frel (\<lambda>i. rel_comp_rel (iR i) (iS i))) (Frel iR \<circ>\<circ> Frel iS)"
 proof (intro Fun_Rel_predI)
   fix x y assume "F i1 x" and "F i2 y"
@@ -387,7 +397,6 @@ proof (intro Fun_Rel_predI)
     assume "Frel (\<lambda>i. iR i \<circ>\<circ> iS i) x y"
     then obtain z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (iR i \<circ>\<circ> iS i) x y)"
       and "Fmap (\<lambda>_. fst) z = x" and "Fmap (\<lambda>_. snd) z = y" by (blast elim: FrelE)
-    then have "\<And>i. I i \<Longrightarrow> Fpred i (Fmap (\<lambda>_. fst) z) \<le> (\<lambda>x. \<exists>y. (iR i \<circ>\<circ> iS i) x y)" using Fpred_natural sorry
     have "\<And>i. I i \<Longrightarrow> Fpred i (Fmap (\<lambda>i. (snd \<circ> fstOp (iR i) (iS i))) z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)" unfolding fstOp_def sorry
     show "(Frel iR \<circ>\<circ> Frel iS) x y" proof
         show "Frel iR x (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) x)" sorry
