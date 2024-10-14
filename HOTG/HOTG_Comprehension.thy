@@ -7,21 +7,16 @@ theory HOTG_Comprehension
     HOTG_Finite_Sets
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition collect :: \<open>set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close>
   where "collect A P \<equiv> \<Union>{if P x then {x} else {} | x \<in> A}"
 
-bundle hotg_collect_syntax
+open_bundle hotg_collect_syntax
 begin
 syntax "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
 end
-bundle no_hotg_collect_syntax
-begin
-no_syntax "_collect" :: \<open>idt \<Rightarrow> set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set\<close> ("(1{_ \<in> _ |/ _})")
-end
-unbundle hotg_collect_syntax
-
+syntax_consts "_collect" \<rightleftharpoons> collect
 translations
   "{x \<in> A | P}" \<rightleftharpoons> "CONST collect A (\<lambda>x. P)"
 

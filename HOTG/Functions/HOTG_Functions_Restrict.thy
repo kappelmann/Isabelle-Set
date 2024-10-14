@@ -5,10 +5,10 @@ theory HOTG_Functions_Restrict
     Transport.Functions_Restrict
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 context
-  includes fun_restrict_syntax no_rel_restrict_syntax
+  includes fun_restrict_syntax and no rel_restrict_syntax
 begin
 
 definition "fun_restrict_set f A \<equiv> f\<restriction>\<^bsub>mem_of A\<^esub>"

@@ -7,7 +7,7 @@ theory HOTG_Cardinals_Addition
     HOTG_Coproduct
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Cardinal addition is the cardinality of the disjoint union of two sets.
@@ -16,9 +16,7 @@ We also derive the connection between set addition and cardinal addition.\<close
 
 definition "cardinal_add X Y \<equiv> |X \<Coprod> Y|"
 
-bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 65) end
-bundle no_hotg_cardinal_add_syntax begin no_notation cardinal_add (infixl "\<oplus>" 65) end
-unbundle hotg_cardinal_add_syntax
+open_bundle hotg_cardinal_add_syntax begin notation cardinal_add (infixl "\<oplus>" 65) end
 
 lemma cardinal_add_eq_cardinality_coprod: "X \<oplus> Y = |X \<Coprod> Y|"
   unfolding cardinal_add_def ..

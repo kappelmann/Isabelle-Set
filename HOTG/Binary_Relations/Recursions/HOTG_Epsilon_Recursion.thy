@@ -8,10 +8,10 @@ theory HOTG_Epsilon_Recursion
     Transport.Wellfounded_Transitive_Recursion
 begin
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 context
-  includes fun_restrict_syntax no_rel_restrict_syntax
+  includes fun_restrict_syntax and no rel_restrict_syntax
 begin
 
 definition mem_rec :: "((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a" where

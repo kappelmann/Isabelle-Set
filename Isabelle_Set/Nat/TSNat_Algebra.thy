@@ -11,18 +11,13 @@ imports
   TSMonoids
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 subsubsection \<open>Algebraic Structures\<close>
 
 definition "nat_Monoid \<equiv> object {\<langle>$zero, 0\<rangle>, \<langle>$add, \<lambda>m n : \<nat>. nat_add m n\<rangle>}"
 
-bundle isa_set_nat_Monoid_syntax
-begin notation nat_Monoid ("'(\<nat>, +')") end
-bundle no_isa_set_nat_Monoid_syntax
-begin no_notation nat_Monoid ("'(\<nat>, +')") end
-
-unbundle isa_set_nat_Monoid_syntax
+open_bundle isa_set_nat_Monoid_syntax begin notation nat_Monoid ("'(\<nat>, +')") end
 
 (*TODO: The following should be automatically generated*)
 lemma nat_Monoid_simps [simp]:
@@ -59,12 +54,7 @@ qed
 
 definition "nat_Mul_Monoid \<equiv> object {\<langle>$one, 1\<rangle>, \<langle>$mul, \<lambda>m n : \<nat>. nat_mul m n\<rangle>}"
 
-bundle isa_set_nat_Mul_Monoid_syntax
-begin notation nat_Mul_Monoid ("'(\<nat>, *')") end
-bundle no_isa_set_nat_Mul_Monoid_syntax
-begin no_notation nat_Mul_Monoid ("'(\<nat>, *')") end
-
-unbundle isa_set_nat_Mul_Monoid_syntax
+open_bundle isa_set_nat_Mul_Monoid_syntax begin notation nat_Mul_Monoid ("'(\<nat>, *')") end
 
 lemma nat_Mul_Monoid: "(\<nat>, *) \<Ztypecolon> Mul_Monoid Nat"
 proof (rule Mul_MonoidI)

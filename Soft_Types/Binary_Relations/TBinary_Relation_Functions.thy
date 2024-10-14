@@ -6,7 +6,7 @@ theory TBinary_Relation_Functions
     TDependent_Binary_Relations
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 context
   notes type_to_HOL_simp[simp, symmetric, simp del]

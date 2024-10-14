@@ -7,9 +7,7 @@ theory HOTG_Subset
 begin
 
 abbreviation (input) "supset A B \<equiv> B \<subseteq> A"
-bundle hotg_supset_syntax begin notation supset (infix "\<supseteq>" 50) end
-bundle no_hotg_supset_syntax begin no_notation supset (infix "\<supseteq>" 50) end
-unbundle hotg_supset_syntax
+open_bundle hotg_supset_syntax begin notation supset (infix "\<supseteq>" 50) end
 
 lemma subsetI [intro]: "(\<And>x. x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> A \<subseteq> B"
   unfolding subset_def by simp
@@ -57,9 +55,7 @@ subsection \<open>Strict Subsets\<close>
 
 definition "ssubset A B \<equiv> A \<subseteq> B \<and> A \<noteq> B"
 
-bundle hotg_ssubset_syntax begin notation ssubset (infixl "\<subset>" 50) end
-bundle no_hotg_xsubset_syntax begin no_notation ssubset (infixl "\<subset>" 50) end
-unbundle hotg_ssubset_syntax
+open_bundle hotg_ssubset_syntax begin notation ssubset (infixl "\<subset>" 50) end
 
 lemma ssubsetI [intro]:
   assumes "A \<subseteq> B"

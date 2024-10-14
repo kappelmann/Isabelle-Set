@@ -10,7 +10,7 @@ theory HOTG_Ordinals_Base
     Transport.Functions_Inverse
 begin
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
@@ -86,21 +86,15 @@ abbreviation "set_zero \<equiv> {}"
 abbreviation "set_one \<equiv> succ set_zero"
 abbreviation "set_two \<equiv> succ set_one"
 
-bundle hotg_set_zero_syntax begin notation set_zero ("0") end
-bundle no_hotg_set_zero_syntax begin no_notation set_zero ("0") end
+open_bundle hotg_set_zero_syntax begin notation set_zero ("0") end
+open_bundle hotg_set_one_syntax begin notation set_one ("1") end
+open_bundle hotg_set_two_syntax begin notation set_two ("2") end
 
-bundle hotg_set_one_syntax begin notation set_one ("1") end
-bundle no_hotg_set_one_syntax begin no_notation set_one ("1") end
-
-bundle hotg_set_two_syntax begin notation set_two ("2") end
-bundle no_hotg_set_two_syntax begin no_notation set_two ("2") end
-
-unbundle
-  hotg_set_zero_syntax
-  hotg_set_one_syntax
-  hotg_set_two_syntax
-  no_HOL_ascii_syntax
-  no_HOL_groups_syntax
+unbundle hotg_set_zero_syntax
+  and hotg_set_one_syntax
+  and hotg_set_two_syntax
+  and no HOL_ascii_syntax
+  and no HOL_groups_syntax
 
 context
   notes ordinal_mem_trans_closedE[elim!] ordinal_if_mem_trans_closedI[intro!]

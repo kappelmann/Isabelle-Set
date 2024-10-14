@@ -10,7 +10,7 @@ theory HOTG_Clean_Functions
     Transport.Binary_Relations_Clean_Functions
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition "crel_dep_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : mem_of A) \<rightarrow>\<^sub>c mem_of (B x)"
 adhoc_overloading crel_dep_mono_wrt crel_dep_mono_wrt_set

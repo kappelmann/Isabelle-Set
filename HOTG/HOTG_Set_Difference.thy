@@ -8,9 +8,7 @@ begin
 
 definition "diff A B \<equiv> {x \<in> A | x \<notin> B}"
 
-bundle hotg_diff_syntax begin notation diff (infixl "\<setminus>" 65) end
-bundle no_hotg_diff_syntax begin no_notation diff (infixl "\<setminus>" 65) end
-unbundle hotg_diff_syntax
+open_bundle hotg_diff_syntax begin notation diff (infixl "\<setminus>" 65) end
 
 lemma mem_diff_iff [iff]: "a \<in> A \<setminus> B \<longleftrightarrow> (a \<in> A \<and> a \<notin> B)"
   unfolding diff_def by auto

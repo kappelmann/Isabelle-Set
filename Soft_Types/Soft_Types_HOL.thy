@@ -13,7 +13,7 @@ theory Soft_Types_HOL
     "print_opaque_terms" "print_types" :: diag
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>This theory contains the automation setup for soft-types for HOL.\<close>
@@ -135,12 +135,7 @@ subsection \<open>Intersection and Union Types\<close>
 
 definition [typedef]: "Inter A B \<equiv> type (of_type A \<sqinter> of_type B)"
 
-bundle soft_type_Inter_syntax
-begin notation Inter (infixl "&" 55) end
-bundle no_soft_type_Inter_syntax
-begin no_notation Inter (infixl "&" 55) end
-
-unbundle soft_type_Inter_syntax
+open_bundle soft_type_Inter_syntax begin notation Inter (infixl "&" 55) end
 
 lemma of_type_Inter_eq_of_type_inf_of_type [type_to_HOL_simp]:
   "of_type (A & B) = of_type A \<sqinter> of_type B"
@@ -161,12 +156,7 @@ lemma InterE:
 
 definition [typedef]: "Union A B \<equiv> type (of_type A \<squnion> of_type B)"
 
-bundle soft_type_Union_syntax
-begin notation Union (infixl "\<bar>" 55) end
-bundle no_soft_type_Union_syntax
-begin no_notation Union (infixl "\<bar>" 55) end
-
-unbundle soft_type_Union_syntax
+open_bundle soft_type_Union_syntax begin notation Union (infixl "\<bar>" 55) end
 
 lemma of_type_Union_eq_of_type_sup_of_type [type_to_HOL_simp]:
   "of_type (A \<bar> B) = of_type A \<squnion> of_type B"
@@ -222,12 +212,7 @@ subsection \<open>Type annotations\<close>
 definition with_type :: "'a \<Rightarrow> 'a type \<Rightarrow> 'a"
   where "with_type x T \<equiv> x"
 
-bundle soft_type_with_type_syntax
-begin notation with_type (infixl ":>" 50) end
-bundle no_soft_type_with_type_syntax
-begin no_notation with_type (infixl ":>" 50) end
-
-unbundle soft_type_with_type_syntax
+open_bundle soft_type_with_type_syntax begin notation with_type (infixl ":>" 50) end
 
 text \<open>
 \<^term>\<open>x :> T\<close> annotates \<^term>\<open>x\<close> with type \<^term>\<open>T\<close>, and is used by automated

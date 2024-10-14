@@ -7,9 +7,7 @@ begin
 definition fun_pow :: "('a \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> ('a \<Rightarrow> 'a)" where
   "fun_pow f = omega_rec id ((\<circ>) f)"
 
-bundle hotg_fun_pow_syntax begin notation fun_pow ("(_)\<^bsup>(_)\<^esup>" [1000]) end
-bundle no_hotg_fun_pow_syntax begin no_notation fun_pow ("(_)\<^bsup>(_)\<^esup>" [1000]) end
-unbundle hotg_fun_pow_syntax
+open_bundle hotg_fun_pow_syntax begin notation fun_pow ("(_)\<^bsup>(_)\<^esup>" [1000]) end
 
 lemma fun_pow_zero_eq_id [simp]: "f\<^bsup>0\<^esup> = id"
   unfolding fun_pow_def omega_rec_zero by auto

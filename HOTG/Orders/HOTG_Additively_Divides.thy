@@ -5,13 +5,11 @@ theory HOTG_Additively_Divides
     Transport.Functions_Base
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 definition "additively_divides x y \<equiv> has_inverse ((+) x) y"
 
-bundle hotg_additively_divides_syntax begin notation additively_divides (infix "\<unlhd>" 50) end
-bundle no_hotg_additively_divides_syntax begin no_notation additively_divides (infix "\<unlhd>" 50) end
-unbundle hotg_additively_divides_syntax
+open_bundle hotg_additively_divides_syntax begin notation additively_divides (infix "\<unlhd>" 50) end
 
 lemma additively_dividesI [intro]:
   assumes "x + d = y"

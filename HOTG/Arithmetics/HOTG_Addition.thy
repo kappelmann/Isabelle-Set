@@ -7,9 +7,9 @@ theory HOTG_Addition
     HOTG_Epsilon_Recursion
 begin
 
-unbundle
-  no_HOL_groups_syntax
-  no_HOL_order_syntax
+unbundle no HOL_groups_syntax
+  and no HOL_order_syntax
+  and no HOL_ascii_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_set_arithemtics\<close> and
@@ -18,11 +18,7 @@ monotone and injective in the second argument, but it is not commutative.\<close
 
 definition "add X \<equiv> mem_rec (\<lambda>addX Y. X \<union> image addX Y)"
 
-bundle hotg_add_syntax begin notation add (infixl "+" 65) end
-bundle no_hotg_add_syntax begin no_notation add (infixl "+" 65) end
-unbundle
-  hotg_add_syntax
-  no_HOL_ascii_syntax
+open_bundle hotg_add_syntax begin notation add (infixl "+" 65) end
 
 lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
   unfolding add_def supply mem_rec_eq[uhint] by (urule refl)

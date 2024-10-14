@@ -10,7 +10,7 @@ theory TSMonoids
     TSStructures
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 text \<open>An experiment with softly-typed, set-theoretic type classes.
 

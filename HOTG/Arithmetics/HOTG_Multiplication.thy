@@ -9,7 +9,7 @@ theory HOTG_Multiplication
     HOTG_Ranks
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set multiplication for sets from \<^cite>\<open>kirby_set_arithemtics\<close>
@@ -18,9 +18,7 @@ but it is not commutative (not proven here).\<close>
 
 definition "mul X \<equiv> mem_rec (\<lambda>mulX Y. \<Union>y \<in> Y. lift (mulX y) X)"
 
-bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
-bundle no_hotg_mul_syntax begin no_notation mul (infixl "*" 70) end
-unbundle hotg_mul_syntax
+open_bundle hotg_mul_syntax begin notation mul (infixl "*" 70) end
 
 lemma mul_eq_idx_union_lift_mul: "X * Y = (\<Union>y \<in> Y. lift (X * y) X)"
   unfolding mul_def by (urule mem_rec_eq)

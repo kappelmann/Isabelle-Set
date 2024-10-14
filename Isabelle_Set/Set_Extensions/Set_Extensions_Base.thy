@@ -9,7 +9,7 @@ theory Set_Extensions_Base
     TSBasics
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 text \<open>This theory defines a definitional principle for set extensions.
 

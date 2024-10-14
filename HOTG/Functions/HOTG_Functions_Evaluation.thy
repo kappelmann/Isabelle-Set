@@ -7,7 +7,7 @@ theory HOTG_Functions_Evaluation
     Transport.Binary_Relations_Function_Evaluation
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 subsubsection \<open>Evaluation\<close>
 

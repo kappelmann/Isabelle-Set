@@ -6,7 +6,7 @@ theory HOTG_Functions_Base
     Transport.Binary_Relations_Function_Base
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition "rel_dep_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : mem_of A) \<rightarrow> mem_of (B x)"
 adhoc_overloading rel_dep_mono_wrt rel_dep_mono_wrt_set

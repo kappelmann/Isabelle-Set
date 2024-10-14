@@ -9,7 +9,7 @@ theory HOTG_Ordinals_Equipollent
     HOTG_Set_Difference
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 text \<open>The following requires the axiom of choice. It is in fact equivalent to the axiom of choice
 over ZF since it implies the well ordering theorem.\<close>

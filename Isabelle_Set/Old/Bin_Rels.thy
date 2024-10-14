@@ -236,9 +236,7 @@ subsection \<open>Composition\<close>
 definition "rel_comp S R \<equiv>
   {u \<in> dom R \<times> rng S | \<exists>z.codomst u, z\<rangle> \<in> R \<and> \<langle>z, snd u\<rangle> \<in> S}"
 
-bundle isa_set_rel_comp_syntax begin notation rel_comp (infixr "\<circ>\<^sub>r" 60) end
-bundle no_isa_set_rel_comp_syntax begin no_notation rel_comp (infixr "\<circ>\<^sub>r" 60) end
-unbundle isa_set_rel_comp_syntax
+open_bundle isa_set_rel_comp_syntax begin notation rel_comp (infixr "\<circ>\<^sub>r" 60) end
 
 lemma rel_comp_type [type]:
   "rel_comp : (S : Relation B C) \<Rightarrow> (R : Relation A B) \<Rightarrow> Relation A C"

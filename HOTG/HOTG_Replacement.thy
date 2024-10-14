@@ -9,15 +9,11 @@ theory HOTG_Replacement
     Transport.Functions_Injective
 begin
 
-bundle hotg_repl_syntax
+open_bundle hotg_repl_syntax
 begin
 syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
 end
-bundle no_hotg_repl_syntax
-begin no_syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
-end
-unbundle hotg_repl_syntax
-
+syntax_consts "_repl" \<rightleftharpoons> repl
 translations
   "{y | x \<in> A}" \<rightleftharpoons> "CONST repl A (\<lambda>x. y)"
 

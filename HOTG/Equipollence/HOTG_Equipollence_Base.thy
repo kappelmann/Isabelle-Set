@@ -15,9 +15,7 @@ We show that equipollence is an equivalence relation.\<close>
 definition "equipollent (X :: set) (Y :: set) \<equiv>
   \<exists>(f :: set \<Rightarrow> set) (g :: set \<Rightarrow> set). bijection_on X Y f g"
 
-bundle hotg_equipollent_syntax begin notation equipollent (infixl "\<approx>" 50) end
-bundle no_hotg_equipollent_syntax begin no_notation equipollent (infixl "\<approx>" 50) end
-unbundle hotg_equipollent_syntax
+open_bundle hotg_equipollent_syntax begin notation equipollent (infixl "\<approx>" 50) end
 
 lemma equipollentI [intro]:
   assumes "bijection_on X Y (f :: set \<Rightarrow> set) (g :: set \<Rightarrow> set)"

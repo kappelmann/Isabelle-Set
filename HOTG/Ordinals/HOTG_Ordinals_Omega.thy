@@ -6,17 +6,14 @@ theory HOTG_Ordinals_Omega
     HOTG_Universes
 begin
 
-unbundle
-  no_HOL_ascii_syntax
-  no_HOL_groups_syntax
-  no_HOL_order_syntax
+unbundle no HOL_ascii_syntax
+  and no HOL_groups_syntax
+  and no HOL_order_syntax
 
 definition omega :: set where
   "omega = least_wrt_rel (\<le>) limit_ordinal"
 
-bundle hotg_omega_syntax begin notation omega ("\<omega>") end
-bundle no_hotg_omega_syntax begin no_notation omega ("\<omega>") end
-unbundle hotg_omega_syntax
+open_bundle hotg_omega_syntax begin notation omega ("\<omega>") end
 
 text \<open>This proves the existence of limit ordinals.\<close>
 

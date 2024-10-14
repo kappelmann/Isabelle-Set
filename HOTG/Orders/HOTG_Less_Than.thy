@@ -20,11 +20,8 @@ text \<open>A set \<open>X\<close> is smaller than a set \<open>Y\<close> if \<o
 
 definition "lt X Y \<equiv> X \<in> mem_trans_closure Y"
 
-bundle hotg_lt_syntax begin notation lt (infix "<" 50) end
-bundle no_hotg_lt_syntax begin no_notation lt (infix "<" 50) end
-unbundle
-  hotg_lt_syntax
-  no_HOL_order_syntax
+open_bundle hotg_lt_syntax begin notation lt (infix "<" 50) end
+unbundle no HOL_order_syntax
 
 lemma lt_iff_mem_trans_closure: "X < Y \<longleftrightarrow> X \<in> mem_trans_closure Y"
   unfolding lt_def by simp
@@ -78,9 +75,7 @@ subsection \<open>Less-Than or Equal Order\<close>
 
 definition "le X Y \<equiv> X < Y \<or> X = Y"
 
-bundle hotg_le_syntax begin notation le (infix "\<le>" 60) end
-bundle no_hotg_le_syntax begin no_notation le (infix "\<le>" 60) end
-unbundle hotg_le_syntax
+open_bundle hotg_le_syntax begin notation le (infix "\<le>" 60) end
 
 lemma le_if_lt:
   assumes "X < Y"

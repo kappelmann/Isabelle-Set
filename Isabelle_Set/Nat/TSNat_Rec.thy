@@ -8,7 +8,7 @@ theory TSNat_Rec
     TSPairs
 begin
 
-unbundle no_HOL_groups_syntax
+unbundle no HOL_groups_syntax
 
 text \<open>Recursion on Nat. Axiomatized, for now.\<close>
 

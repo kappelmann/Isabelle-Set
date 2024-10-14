@@ -8,24 +8,19 @@ theory HOTG_Pairs
     Transport.Dependent_Binary_Relations
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 subsection \<open>Dependent Pair Type\<close>
 
 consts dep_pair :: "'a \<Rightarrow> ('b \<Rightarrow> 'c) \<Rightarrow> 'd"
 consts pair :: "'a \<Rightarrow> 'b \<Rightarrow> 'c"
 
-bundle pair_syntax
+open_bundle pair_syntax
 begin
 syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [52, 51, 51] 52)
 notation pair (infixr "\<times>" 51)
 end
-bundle no_pair_syntax
-begin
-no_syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [52, 51, 51] 52)
-no_notation pair (infixr "\<times>" 51)
-end
-unbundle pair_syntax
+syntax_consts "_dep_pair" \<rightleftharpoons> dep_pair
 translations
   "\<Sum>x : A. B" \<rightleftharpoons> "CONST dep_pair A (\<lambda>x. B)"
 
@@ -35,15 +30,11 @@ subsection \<open>Set-Theoretic Pairs\<close>
 definition mk_pair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
   where "mk_pair x y \<equiv> {{x}, {x, y}}"
 
-bundle hotg_mk_pair_syntax
+open_bundle hotg_mk_pair_syntax
 begin
 syntax "_mk_pair" :: \<open>args \<Rightarrow> set\<close> ("\<langle>_\<rangle>")
 end
-bundle no_hotg_mk_pair_syntax
-begin
-no_syntax "_mk_pair" :: \<open>args \<Rightarrow> set\<close> ("\<langle>_\<rangle>")
-end
-unbundle hotg_mk_pair_syntax
+syntax_consts "_mk_pair" \<rightleftharpoons> mk_pair
 translations
   "\<langle>x, y, z\<rangle>" \<rightleftharpoons> "\<langle>x, \<langle>y, z\<rangle>\<rangle>"
   "\<langle>x, y\<rangle>" \<rightleftharpoons> "CONST mk_pair x y"
@@ -277,15 +268,10 @@ subsection \<open>Functions on Pairs\<close>
 
 definition "uncurry f p \<equiv> f (fst p) (snd p)"
 
-bundle hotg_uncurry_syntax
+open_bundle hotg_uncurry_syntax
 begin
 syntax "_tuple_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
 end
-bundle no_hotg_uncurry_syntax
-begin
-no_syntax "_tuple_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
-end
-unbundle hotg_uncurry_syntax
 translations
   "\<lambda>\<langle>x, y, zs\<rangle>. b" \<rightleftharpoons> "CONST uncurry (\<lambda>x \<langle>y, zs\<rangle>. b)"
   "\<lambda>\<langle>x, y\<rangle>. b" \<rightleftharpoons> "CONST uncurry (\<lambda>x y. b)"

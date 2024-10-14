@@ -5,7 +5,7 @@ theory HOTG_Coproduct
     HOTG_Functions_Base
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 definition "inl a = \<langle>{}, a\<rangle>"
 definition "inr b = \<langle>{{}}, b\<rangle>"
@@ -26,9 +26,7 @@ lemma coprod_rec_eq:
 
 consts coprod :: "'a \<Rightarrow> 'b \<Rightarrow> 'c"
 
-bundle coprod_syntax begin notation coprod (infixr "\<Coprod>" 70) end
-bundle no_coprod_syntax begin no_notation coprod (infixr "\<Coprod>" 70) end
-unbundle coprod_syntax
+open_bundle coprod_syntax begin notation coprod (infixr "\<Coprod>" 70) end
 
 definition "set_coprod_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> bool) \<equiv>
   has_inverse_on A inl \<squnion> has_inverse_on B inr"

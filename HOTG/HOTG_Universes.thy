@@ -8,7 +8,7 @@ theory HOTG_Universes
     HOTG_Ordinals_Base
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 lemma
   assumes "ZF_closed U"

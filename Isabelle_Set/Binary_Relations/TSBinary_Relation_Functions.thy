@@ -6,7 +6,7 @@ theory TSBinary_Relation_Functions
     TSBinary_Relations_Base
 begin
 
-unbundle no_HOL_ascii_syntax
+unbundle no HOL_ascii_syntax
 
 lemma dom_type [type]: "dom \<Ztypecolon> ({\<Sum>}x : A. B x) \<Rightarrow> Collection A"
   by unfold_types fastforce

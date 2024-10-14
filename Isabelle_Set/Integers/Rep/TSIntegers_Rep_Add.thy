@@ -5,7 +5,7 @@ theory TSIntegers_Rep_Add
     TSIntegers_Rep_Succ_Pred_Inv
 begin
 
-unbundle no_hotg_add_syntax
+unbundle no hotg_add_syntax
 
 definition "Int_Rep_add x y \<equiv> Int_Rep_rec
   (\<lambda>m. nat_rec m y Int_Rep_succ)
@@ -262,7 +262,7 @@ lemma Int_Rep_neg_add_neg_eq [simp]:
   using assms by (induction n rule: Nat_induct)
   (auto simp: Int_Rep_neg_succ_add_eq)
 
-unbundle no_HOL_order_syntax
+unbundle no HOL_order_syntax
 
 (*TODO: we could add more lemmas like the two above and simplify some proofs(?)*)
 lemma Int_Rep_nonneg_add_neg_eq [simp]:
