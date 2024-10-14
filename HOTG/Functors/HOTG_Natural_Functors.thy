@@ -1,18 +1,26 @@
-theory HOTG_Natural_Functors 
-  imports HOTG_Functions_Composition Transport.LBinary_Relations Transport.LFunctions Hilbert_Eps
+theory HOTG_Natural_Functors
+  imports
+    HOTG_Functions_Composition
+    Transport.LBinary_Relations
+    Transport.LFunctions
+    Hilbert_Eps
 begin
 
+definition "K x \<equiv> \<lambda>_. x"
 
-(* with 't/'f pairs for the relator are quite a pain *)
-type_synonym t = "set" 
-type_synonym f = "set"
+lemma K_eq [simp]: "K = (\<lambda>x _. x)"
+  unfolding K_def by simp
+
+lemma mono_K: "((A :: 'a \<Rightarrow> bool) \<Rightarrow> B \<Rightarrow> A) K" by fastforce
 
 text \<open>Indexed identity function\<close>
 
-definition "iid \<equiv> (\<lambda>_. id)"
+definition "iid \<equiv> K id"
 
-lemma iid_eq_id [simp]: "iid = (\<lambda>_. id)"
+lemma iid_eq_id [simp]: "iid = K id"
   unfolding iid_def by simp
+
+lemma mono_iid: "((i : (I :: 'i \<Rightarrow> bool)) \<Rightarrow> (iT i :: 'a \<Rightarrow> bool) \<Rightarrow> iT i) iid" by fastforce
 
 text \<open>Indexed composition\<close>
 
@@ -22,8 +30,18 @@ adhoc_overloading comp comp_ifun
 lemma comp_ifun_eq [simp]: "((f :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> g) i = f i \<circ> g i"
   unfolding comp_ifun_def by simp
 
-lemma comp_assoc: "(f :: 'i \<Rightarrow> 'c \<Rightarrow> 'd) \<circ> (g :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> (h :: 'i \<Rightarrow> 'a \<Rightarrow> 'b) = f \<circ> (g \<circ> h)" 
+lemma comp_ifun_assoc: "(f :: 'i \<Rightarrow> 'c \<Rightarrow> 'd) \<circ> (g :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) \<circ> (h :: 'i \<Rightarrow> 'a \<Rightarrow> 'b) = f \<circ> (g \<circ> h)"
   unfolding comp_ifun_def by (auto simp add: fun_eq_iff)
+
+lemma mono_mono_wrt_mono_wrt_comp_ifun:
+  "(((I :: 'i \<Rightarrow> bool) \<Rightarrow> (B :: 'b \<Rightarrow> bool) \<Rightarrow> C) \<Rightarrow> (I \<Rightarrow> A \<Rightarrow> B) \<Rightarrow> I \<Rightarrow> A \<Rightarrow> C) (\<circ>)"
+  by force
+
+definition "rel_comp_irel (R :: 'i \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool) (S :: 'i \<Rightarrow> 'b \<Rightarrow> 'c \<Rightarrow> bool) i \<equiv> R i \<circ>\<circ> S i"
+adhoc_overloading rel_comp rel_comp_irel
+
+lemma rel_comp_irel_eq [simp]: "((R :: 'i \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool) \<circ>\<circ> S) i = R i \<circ>\<circ> S i"
+  unfolding rel_comp_irel_def by simp
 
 (*copied from HOL*)
 definition "fun_upd f i y = (\<lambda>x. if x = i then y else f x)"
@@ -48,6 +66,10 @@ lemma fun_upd_triv [simp]: "f(x := f x) = f"
 
 (*end of copy*)
 
+(* with 't/'f pairs for the relator are quite a pain *)
+type_synonym t = "set"
+type_synonym f = "set"
+
 locale HOTG_Functor =
   fixes F :: "('i \<Rightarrow> t \<Rightarrow> bool) \<Rightarrow> f \<Rightarrow> bool"
   and I :: "'i \<Rightarrow> bool"
@@ -65,30 +87,24 @@ locale HOTG_Functor =
     (F iIn \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
 begin
 
-lemma Fmap_id_comp: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun iid ig)) (Fmap ig)"
-proof-
+lemma Fmap_iid_comp: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun iid ig)) (Fmap ig)"
+proof -
   have "comp_ifun iid ig = ig" by auto
   then show ?thesis by auto
 qed
 
-lemma Fmap_comp_id: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun ig iid)) (Fmap ig)"
-proof-
+lemma Fmap_comp_iid: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun ig iid)) (Fmap ig)"
+proof -
   have "comp_ifun ig iid = ig" by auto
   then show ?thesis by auto
 qed
-definition "test \<equiv> \<emptyset>"
-end
 
+end
 
 definition "image_pred (f :: 'a \<Rightarrow> 'b) (P :: 'a \<Rightarrow> bool) \<equiv> has_inverse_on P f"
 
 lemma image_pred_eq_has_inverse_on [simp]: "image_pred f P = has_inverse_on P f"
   unfolding image_pred_def by simp
-
-term "inverse"
-
-(*unbundle HOL_order_syntax
-  no_hotg_le_syntax*)
 
 locale HOTG_Natural_Functor = HOTG_Functor +
   fixes Fpred :: "'i \<Rightarrow> f \<Rightarrow> t \<Rightarrow> bool"
@@ -105,14 +121,12 @@ locale HOTG_Natural_Functor = HOTG_Functor +
     ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut2 i) ih \<Longrightarrow>
     ((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) ig ih \<Longrightarrow>
     Fmap ig x = Fmap ih x"
-  
 begin
 
 lemma Fmap_Fmap_eq_Fmap_comp_update_if_eq_id:
   assumes x_type: "F iIn x"
   and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig"
   and ih_type: "((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih"
-  and "I i"
   and ig_id: "(iIn i \<Rrightarrow> (=)) (ig i) id"
   shows "Fmap ih (Fmap ig x) = Fmap ((ih \<circ> ig)(i := ih i)) x"
 proof -
@@ -120,7 +134,7 @@ proof -
   also from x_type have "... = Fmap ((ih \<circ> ig)(i := ih i)) x"
   proof (rule Fmap_cong)
     from ig_type ih_type show comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ih \<circ> ig)" by fastforce
-    moreover show "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ((ih \<circ> ig)(i := ih i))"
+    show "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ((ih \<circ> ig)(i := ih i))"
     proof (urule (rr) dep_mono_wrt_predI)
       fix j y assume prems: "I j" "iIn j y"
       show "iOut j (((ih \<circ> ig)(i := ih i)) j y)"
@@ -155,275 +169,280 @@ proof -
       qed simp
     qed
   qed
-  finally show ?thesis by simp
+  finally show ?thesis .
 qed
 
 lemma Fmap_eq_Fmap_update_if_eq:
   assumes x_type: "F iIn x"
   and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
   and ih_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ih"
-  and "I i"
   and ig_eq: "(iIn i \<Rrightarrow> (=)) (ih i) (ig i)"
   shows "Fmap ig x = Fmap (ig(i := ih i)) x"
 proof -
-  have upd_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ig(i := ih i))" proof (urule (rr) dep_mono_wrt_predI)
+  have upd_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ig(i := ih i))"
+  proof (urule (rr) dep_mono_wrt_predI)
     fix j y assume "I j" "iIn j y"
     then show "iOut j ((ig(i := ih i)) j y)" using ig_type ih_type by auto
   qed
   have "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (ig) (ig(i := ih i))"
   proof (urule (rr) Dep_Fun_Rel_predI)
     fix j y assume "I j" "Fpred j x y"
-    show "(ig) j y = (ig(i := ih i)) j y" proof (cases "i = j")
+    show "ig j y = (ig(i := ih i)) j y"
+    proof (cases "i = j")
       case True
-      with \<open>I j\<close> x_type Fpred_type \<open>Fpred j x y\<close> ig_eq True show "ig j y = (ig(i := ih i)) j y" by fastforce
+      with \<open>I j\<close> x_type Fpred_type \<open>Fpred j x y\<close> ig_eq True show "ig j y = (ig(i := ih i)) j y"
+        by fastforce
     qed auto
   qed
-    with assms upd_type Fmap_cong show "Fmap ig x = Fmap (ig(i := ih i)) x" by auto
-  qed
+  with assms upd_type Fmap_cong show "Fmap ig x = Fmap (ig(i := ih i)) x" by auto
+qed
 
-lemma Fmap_comp_decomp:
-  assumes x_type: "F iIn x"
-  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
-  and ih_type: "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
-  and ii_type: "((i : I) \<Rightarrow> iMid2 i \<Rightarrow> iOut i) ii"
-  and "I i"
+lemma Fmap_comp_comp_eq_Fmap_Fmap_Fmap:
+  assumes "F iIn x"
+  and "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
+  and "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
 shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
-proof-
+proof -
   have comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid2 i) (ih \<circ> ig)" using assms by fastforce
-    have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)" using Fmap_comp[of iIn iMid1 ig iMid2 ih] assms by auto
-    also have "... = Fmap (ii \<circ> ih \<circ> ig) x" using comp_type Fmap_comp[of iIn iMid2 "(ih \<circ> ig)" iOut ii] assms comp_assoc[of ii ih ig] by auto
-    finally show "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))" ..
-  qed
+  from Fmap_comp have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)"
+    using assms by fastforce
+  also from Fmap_comp have "... = Fmap (ii \<circ> ih \<circ> ig) x"
+    using comp_type assms comp_ifun_assoc[of ii ih ig] by fastforce
+  finally show "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))" ..
+qed
+
+paragraph \<open>Relator\<close>
 
 (* locale 't 'f set *)
-definition "Frel (iR :: 'i \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) Fx Fy = (\<exists>Fz. (\<forall>i. I i \<longrightarrow> (Fpred i Fz) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)) 
-    \<and> (Fmap (\<lambda>_. fst) Fz = Fx)  \<and> (Fmap (\<lambda>_. snd) Fz = Fy))"
-
+definition "Frel (iR :: 'i \<Rightarrow> f \<Rightarrow> f \<Rightarrow> bool) x y \<equiv> \<exists>z.
+  (\<forall>i : I. Fpred i z \<le> is_pair \<sqinter> uncurry (iR i))
+  \<and> Fmap (K fst) z = x
+  \<and> Fmap (K snd) z = y"
 
 lemma FrelI:
-  assumes "\<And>i. I i \<Longrightarrow> (Fpred i Fz) \<le> (\<lambda>a.\<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)"
-  and "Fmap (\<lambda>_. fst) Fz = Fx"
-  and "Fmap (\<lambda>_. snd) Fz = Fy"
-  shows "Frel iR Fx Fy"
-  using assms Frel_def by auto
+  assumes "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (iR i)"
+  and "Fmap (K fst) z = x"
+  and "Fmap (K snd) z = y"
+  shows "Frel iR x y"
+  unfolding Frel_def using assms
+  by (intro exI[where x=z]) (force intro!: le_predI)
 
 lemma FrelE:
-  assumes "Frel iR Fx Fy"
-  obtains z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)" and "Fmap (\<lambda>_. fst) z = Fx" and "Fmap (\<lambda>_. snd) z = Fy" 
-  using assms Frel_def by auto
+  assumes "Frel iR x y"
+  obtains z where "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (iR i)"
+  and "Fmap (K fst) z = x" and "Fmap (K snd) z = y"
+  using assms Frel_def by fastforce
 
-definition "Grp A f \<equiv> (\<lambda>a b. b = f a \<and> A a)"
+definition "Graph_on P f \<equiv> \<lambda>x y. y = f x \<and> P x"
 
-lemma GrpI: "\<lbrakk>f x = y; A x\<rbrakk> \<Longrightarrow> Grp A f x y"
-  unfolding Grp_def by auto
+lemma Graph_onI [intro]: "\<lbrakk>y = f x; P x\<rbrakk> \<Longrightarrow> Graph_on P f x y"
+  unfolding Graph_on_def by auto
 
-lemma GrpE: "Grp A f x y \<Longrightarrow> (\<lbrakk>f x = y; A x\<rbrakk> \<Longrightarrow> R) \<Longrightarrow> R"
-  unfolding Grp_def by auto
+lemma Graph_onE [elim]:
+  assumes "Graph_on P f x y"
+  obtains "P x" "y = f x"
+  using assms unfolding Graph_on_def by auto
 
-definition "convol f g \<equiv> \<lambda>(a::set). \<langle>f a, g a\<rangle>"
+definition "Graph \<equiv> Graph_on \<top>"
 
-lemma convol_type: assumes f_type: "(a \<Rightarrow> b) f" and g_type: "(a \<Rightarrow> c) g"
-  shows "((a :: set \<Rightarrow> bool) \<Rightarrow> (b \<times> c)) (convol f g)"
-  using assms unfolding convol_def by auto
+lemma Graph_eq_Graph_on: "Graph = Graph_on \<top>"
+  unfolding Graph_def ..
 
-lemma fst_comp_convol_eq: "fst \<circ> (convol f g) = f" using convol_def by auto
-lemma snd_comp_convol_eq: "snd \<circ> (convol f g) = g" using convol_def by auto
+lemma Graph_eq_Graph_on_uhint [uhint]:
+  assumes "P \<equiv> (\<top> :: 'a \<Rightarrow> bool)"
+  shows "Graph :: ('a \<Rightarrow> 'b) \<Rightarrow> _ \<equiv> Graph_on P"
+  using assms by (simp add: Graph_eq_Graph_on)
 
-lemma Grp_top_eq_eq_comp: "Grp \<top> f = (=) \<circ> f"
-  by(intro ext) (auto elim: GrpE intro: GrpI)
+lemma GraphI [intro]:
+  assumes "y = f x"
+  shows "Graph f x y"
+  using assms by (urule Graph_onI) simp
 
-lemma Fi1_Fmap_Fst_Fi2_Fmap_Snd_imp_Fi1i2:
-  assumes "F i1 (Fmap (\<lambda>_. fst) z)"
-  and "F i2 (Fmap (\<lambda>_. snd) z)"
-  shows "F (\<lambda>i. i1 i \<times> i2 i) z"
+lemma GraphD [dest]:
+  assumes "Graph f x y"
+  shows "y = f x"
+  using assms by (urule (e) Graph_onE)
+
+lemma Graph_eq_eq_comp [simp]: "Graph f = (=) \<circ> f"
+  by (intro ext) auto
+
+lemma Graph_id_eq_eq [simp]: "Graph id = (=)"
+  by auto
+
+definition "convol f g \<equiv> \<lambda>x. \<langle>f x, g x\<rangle>"
+
+lemma convol_eq [simp]: "convol f g \<equiv> \<lambda>x. \<langle>f x, g x\<rangle>"
+  unfolding convol_def by simp
+
+lemma mono_mono_wrt_mono_wrt_convol: "((A \<Rightarrow> B) \<Rightarrow> (A \<Rightarrow> C) \<Rightarrow> (A :: 'a \<Rightarrow> bool) \<Rightarrow> B \<times> C) convol"
+  unfolding convol_def by fastforce
+
+lemma fst_comp_convol_eq [simp]: "fst \<circ> (convol f g) = f" by auto
+lemma snd_comp_convol_eq [simp]: "snd \<circ> (convol f g) = g" by auto
+
+lemma Fbin_rel_if_Fmap_snd_if_Fmap_fst:
+  assumes "F iT (Fmap (K fst) z)"
+  and "F iS (Fmap (K snd) z)"
+  (*I think you will also need the following*)
+  (* and "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair"  *)
+  shows "F (\<lambda>i. iT i \<times> iS i) z"
   sorry
 
-lemma Grp_top_Fmap_eq_Frel_Grp: 
-  assumes ig_type: "((i : I) \<Rightarrow> (iin i) \<Rightarrow> (iout i)) ig"
-  shows "((F iin) \<Rrightarrow> (F iout) \<Rrightarrow> (=)) (Grp \<top> (Fmap ig)) (Frel (\<lambda>i. Grp \<top> (ig i)))"
+lemma Graph_Fmap_eq_Frel_GraphI:
+  assumes ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
+  shows "(F iIn \<Rrightarrow> F iOut \<Rrightarrow> (=)) (Graph (Fmap ig)) (Frel (\<lambda>i. Graph (ig i)))"
 proof (intro Fun_Rel_predI iffI)
-  fix Fx Fy assume "F iin Fx" and "F iout Fy"
-  assume "Grp \<top> (Fmap ig) Fx Fy"
-  then have Fy_eq:"(Fmap ig) Fx = Fy" by (elim GrpE)
-  have inner_type: "((i : I) \<Rightarrow> iin i \<Rightarrow> (iin i \<times> iout i)) (\<lambda>i. convol id (ig i))" proof (intro dep_mono_wrt_predI) 
-    fix i assume "I i" then show "(iin i \<Rightarrow> iin i \<times> iout i) (convol id (ig i))" 
-      using ig_type convol_type[of "iin i" "iin i" "id" "iout i" "ig i"] mono_wrt_pred_self_id by auto
-    qed
-  show "Frel (\<lambda>i. Grp \<top> (ig i)) Fx Fy" proof (intro FrelI[of "Fmap (\<lambda>i. convol id (ig i)) _"])
-    fix i x assume "I i"
-    then have "(F iin \<Rrightarrow> (=)) (Fpred i \<circ> Fmap (\<lambda>i. convol id (ig i))) ((image_pred (convol id (ig i))) \<circ> Fpred i)" using inner_type
-         Fpred_natural[of iin "\<lambda>i. iin i \<times> iout i" "(\<lambda>i. convol id (ig i))"] by auto
-    then have 1:"(Fpred i \<circ> Fmap (\<lambda>i. convol id (ig i))) Fx = ((image_pred (convol id (ig i))) \<circ> Fpred i) Fx" using \<open>F iin Fx\<close> by auto
-    have "((image_pred (convol id (ig i))) \<circ> Fpred i) Fx \<le> (\<lambda>a. \<exists>xa y. a = \<langle>xa, y\<rangle> \<and> Grp \<top> (ig i) xa y)" proof
-      fix x
-      have "((image_pred (convol id (ig i))) \<circ> Fpred i) Fx x \<Longrightarrow> (\<exists>xa y. x = \<langle>xa, y\<rangle> \<and> Grp \<top> (ig i) xa y)" proof-
-        assume "((image_pred (convol id (ig i))) \<circ> Fpred i) Fx x"
-        then obtain A where "(Fpred i Fx) A" and "convol id (ig i) A = x" by auto
-        then have "x = \<langle>A, ig i A\<rangle>" using convol_def by auto
-        moreover have "Grp \<top> (ig i) A (ig i A)" using Grp_def[of \<top> "ig i"] by auto
-        ultimately show "\<exists>A y. x = \<langle>A, y\<rangle> \<and> Grp \<top> (ig i) A y" by auto
-      qed
-        then show "(image_pred (convol id (ig i)) \<circ> Fpred i) Fx x \<le> (\<exists>xa y. x = \<langle>xa, y\<rangle> \<and> Grp \<top> (ig i) xa y)" by auto
-      qed
-      with 1 show "Fpred i (Fmap (\<lambda>i. convol id (ig i)) Fx) \<le> (\<lambda>a. \<exists>xa y. a = \<langle>xa, y\<rangle> \<and> Grp \<top> (ig i) xa y)" 
-        by (auto simp: Grp_top_eq_eq_comp)
+  fix x y assume x_type: "F iIn x" and y_type: "F iOut y" and "Graph (Fmap ig) x y"
+  then have y_eq: "y = Fmap ig x" by simp
+  have inner_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iIn i \<times> iOut i) (\<lambda>i. convol id (ig i))"
+  proof (intro dep_mono_wrt_predI)
+    fix i assume "I i"
+    then show "(iIn i \<Rightarrow> iIn i \<times> iOut i) (convol id (ig i))"
+      using ig_type mono_mono_wrt_mono_wrt_convol mono_wrt_pred_self_id by fastforce
+  qed
+  show "Frel (\<lambda>i. Graph (ig i)) x y"
+  proof (intro FrelI[of "Fmap (\<lambda>i. convol id (ig i)) _"])
+    fix i assume "I i"
+    with Fpred_natural have
+      "(F iIn \<Rrightarrow> (=)) (Fpred i \<circ> Fmap (\<lambda>i. convol id (ig i))) (image_pred (convol id (ig i)) \<circ> Fpred i)"
+      using inner_type by auto
+    then have "(Fpred i \<circ> Fmap (\<lambda>i. convol id (ig i))) x = (image_pred (convol id (ig i)) \<circ> Fpred i) x"
+      using x_type by auto
+    also have "... \<le> is_pair \<sqinter> uncurry (Graph (ig i))" by (intro le_predI) auto
+    finally show "Fpred i (Fmap (\<lambda>i. convol id (ig i)) x) \<le> is_pair \<sqinter> uncurry (Graph (ig i))"
+      by simp
   next
-    have "((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iin i) (\<lambda>_. fst)" apply (intro dep_mono_wrt_predI) by auto
-    with inner_type have "(F iin \<Rrightarrow> (=)) (Fmap (comp_ifun (\<lambda>_. fst) (\<lambda>i. convol id (ig i)))) 
-      (Fmap (\<lambda>_. fst) \<circ> Fmap (\<lambda>i. convol id (ig i)))" (* needs type-checking to use Fmap_comp!*)
-      using Fmap_comp[of iin "\<lambda>i. (iin i) \<times> (iout i)" "(\<lambda>i. convol id (ig i))" "iin" "(\<lambda>_. fst)"] by blast
-    moreover with \<open>F iin Fx\<close> have "Fmap (comp_ifun (\<lambda>_. fst) (\<lambda>i. convol id (ig i))) Fx = 
-                                  (Fmap (\<lambda>_. fst) \<circ> Fmap (\<lambda>i. convol id (ig i))) Fx" by blast
-    moreover have "(comp_ifun (\<lambda>_. fst) (\<lambda>i. convol id (ig i))) = (\<lambda>i. (\<lambda>_. fst) i \<circ> (\<lambda>i.(convol id (ig i))) i)"
-      using comp_ifun_eq[of "\<lambda>_. fst" "\<lambda>i. convol id (ig i)"] by auto
-    moreover then have "Fmap (comp_ifun (\<lambda>_. fst) (\<lambda>i. convol id (ig i))) Fx = Fx"
-      using fst_comp_convol_eq Fmap_id[of iin iid] \<open>F iin Fx\<close> by (fastforce elim!: Dep_Fun_Rel_relE)
-    ultimately show "Fmap (\<lambda>_. fst) (Fmap (\<lambda>i. convol id (ig i)) Fx) = Fx"  by auto
-    have "((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iout i) (\<lambda>_. snd)" apply (intro dep_mono_wrt_predI) by auto
-    with inner_type have "(F iin \<Rrightarrow> (=)) (Fmap (comp_ifun (\<lambda>_. snd) (\<lambda>i. convol id (ig i)))) 
-      (Fmap (\<lambda>_. snd) \<circ> Fmap (\<lambda>i. convol id (ig i)))" (* needs type-checking to use Fmap_comp!*)
-      using Fmap_comp[of iin "\<lambda>i. (iin i) \<times> (iout i)" "(\<lambda>i. convol id (ig i))" "iout" "(\<lambda>_. snd)"] by blast
-    moreover with \<open>F iin Fx\<close> have "Fmap (comp_ifun (\<lambda>_. snd) (\<lambda>i. convol id (ig i))) Fx = 
-                                  (Fmap (\<lambda>_. snd) \<circ> Fmap (\<lambda>i. convol id (ig i))) Fx" by blast
-    moreover have "(comp_ifun (\<lambda>_. snd) (\<lambda>i. convol id (ig i))) = (\<lambda>i. (\<lambda>_. snd) i \<circ> (\<lambda>i.(convol id (ig i))) i)"
-      using comp_ifun_eq[of "\<lambda>_. fst" "\<lambda>i. convol id (ig i)"] by auto
-    moreover then have "Fmap (comp_ifun (\<lambda>_. snd) (\<lambda>i. convol id (ig i))) Fx = Fmap ig Fx" using snd_comp_convol_eq by auto
-    moreover then have "... = Fy" using Fy_eq by blast
-    ultimately show "Fmap (\<lambda>_. snd) (Fmap (\<lambda>i. convol id (ig i)) Fx) = Fy" by auto
+    have map_convol_eq: "Fmap (K f) (Fmap (\<lambda>i. convol id (ig i)) x) =
+      Fmap ((\<lambda>(_ :: 'i). f) \<circ> (\<lambda>i. convol id (ig i))) x" for f
+      using Fmap_comp x_type inner_type by fastforce
+    moreover have "Fmap ((\<lambda>(_ :: 'i). fst) \<circ> (\<lambda>i. convol id (ig i))) x = Fmap (\<lambda>(_ :: 'i). id) x"
+      using x_type by (intro Fmap_cong Dep_Fun_Rel_predI) auto
+    moreover have "... = x" using Fmap_id x_type by fastforce
+    ultimately show "Fmap (K fst) (Fmap (\<lambda>i. convol id (ig i)) x) = x" by auto
+    have "Fmap ((\<lambda>(_ :: 'i). snd) \<circ> (\<lambda>i. convol id (ig i))) x = y"
+      unfolding y_eq using x_type by (intro Fmap_cong Dep_Fun_Rel_predI) auto
+    with map_convol_eq show "Fmap (K snd) (Fmap (\<lambda>i. convol id (ig i)) x) = y" by auto
   qed
 next
-  fix Fx Fy assume "F iin Fx" and "F iout Fy"
-  assume FrelFxFy: "Frel (\<lambda>i. Grp \<top> (ig i)) Fx Fy"
-  then obtain z where Fpred_leq:"\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<lambda>i. Grp \<top> (ig i)) i x y)" and Fx_eq: "Fmap (\<lambda>_. fst) z = Fx"
-    and Fy_eq: "Fmap (\<lambda>_. snd) z = Fy" by (auto elim: FrelE)
-  then have "\<And>a i. I i \<Longrightarrow> (Fpred i z) a \<Longrightarrow> Grp \<top> (ig i) (fst a) (snd a)" by fastforce
-  have z_type: "F (\<lambda>i. iin i \<times> iout i) z" using \<open>F iin Fx\<close> \<open>F iout Fy\<close> Fx_eq Fy_eq Fi1_Fmap_Fst_Fi2_Fmap_Snd_imp_Fi1i2 by auto
-  show "Grp \<top> (Fmap ig) Fx Fy" proof (subst Grp_top_eq_eq_comp)
-    have eq:"((i : I) \<Rrightarrow> Fpred i z \<Rrightarrow> (=)) (ig \<circ> (\<lambda>_.fst)) (\<lambda>_. snd)"  using Fpred_leq GrpE by fastforce
-    have fst_type: "((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iin i) (\<lambda>_. fst)" by fastforce
-    have ig_fst_type:"((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iout i) (ig \<circ> (\<lambda>_. fst))"  using ig_type by fastforce
-    have snd_type:"((i : I) \<Rightarrow> (iin i \<times> iout i) \<Rightarrow> iout i) (\<lambda>_. snd)" by fastforce
-    from eq ig_fst_type snd_type z_type have "Fmap (ig \<circ> (\<lambda>_.fst)) z = Fmap (\<lambda>_.snd) z" using Fmap_cong[of "\<lambda>i. iin i \<times> iout i" z iout "ig \<circ> (\<lambda>_. fst)" iout "\<lambda>_.snd"] by auto
-    then have "Fmap ig (Fmap (\<lambda>_.fst) z) = Fmap (\<lambda>_.snd) z" using ig_type Fmap_comp[of "\<lambda>i. iin i \<times> iout i" iin "\<lambda>_. fst" iout ig] z_type fst_type by auto
-    then show "((=) \<circ> Fmap ig) Fx Fy" using Fx_eq Fy_eq by auto
-  qed
+  fix x y assume x_type: "F iIn x" and y_type: "F iOut y"
+  assume Frel_x_y: "Frel (\<lambda>i. Graph (ig i)) x y"
+  then obtain z
+    where Fpred_leq: "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (Graph (ig i))"
+    and x_eq: "Fmap (K fst) z = x"
+    and y_eq: "Fmap (K snd) z = y" by (blast elim: FrelE)
+  from x_eq y_eq have "F (\<lambda>i. iIn i \<times> iOut i) z"
+    using x_type y_type Fbin_rel_if_Fmap_snd_if_Fmap_fst by blast
+  moreover with Fpred_leq have "Fmap (ig \<circ> K fst) z = Fmap (K snd) z" by (intro Fmap_cong) fastforce+
+  ultimately have "Fmap ig (Fmap (K fst) z) = Fmap (K snd) z"
+    using Fmap_comp[of "\<lambda>i. iIn i \<times> iOut i" iIn "K fst"] ig_type by force
+  with x_eq y_eq  show "Graph (Fmap ig) x y" by simp
 qed
 
-lemma Frel_Grp_top_Fmap:
-  assumes ig_type: "((i : I) \<Rightarrow> iin i \<Rightarrow> iout i) ig"
-  and "F iin x"
-  shows "Frel (\<lambda>i. Grp \<top> (ig i)) x (Fmap ig x)"
-  using assms Grp_top_Fmap_eq_Frel_Grp[of iin iout ig] Grp_top_eq_eq_comp proof-
-  from Fmap_type ig_type \<open>F iin x\<close> have Fmap_ig_type: "F iout (Fmap ig x)" by auto
-  have "Grp \<top> (Fmap ig) x (Fmap ig x)" by (auto intro: GrpI)
-  with assms Grp_top_Fmap_eq_Frel_Grp[of iin iout ig] Fmap_ig_type show "Frel (\<lambda>i. Grp \<top> (ig i)) x (Fmap ig x)" by (auto elim: Dep_Fun_Rel_relE)
+corollary Frel_Graph_FmapI:
+  assumes "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
+  and "F iIn x"
+  shows "Frel (\<lambda>i. Graph (ig i)) x (Fmap ig x)"
+  using assms Fmap_type Graph_Fmap_eq_Frel_GraphI by fastforce
+
+lemma Graph_Fmap_eq_Graph_idI:
+  assumes "(F iT \<Rrightarrow> (=)) (Fmap ig) id"
+  shows "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Graph (Fmap ig)) (Graph id)"
+  using assms by fastforce
+
+lemma Frel_K_eq_eq_eq: "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Frel (K (=))) (=)"
+proof -
+  from Graph_Fmap_eq_Frel_GraphI have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Graph (Fmap iid)) (Frel (K (Graph id)))"
+    using mono_iid by fastforce
+  then have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Graph id) (Frel (K (=)))"
+    using Fmap_id[where ig=iid] Graph_Fmap_eq_Graph_idI by fastforce
+  then show ?thesis by auto
 qed
 
-lemma eq_alt: "(=) = Grp \<top> (id::set \<Rightarrow> set)"
-  unfolding Grp_def by auto
-
-lemma Grp_Fmap_eq_id_if_Fmap_eq_id: assumes rel_f_g:"(F iT \<Rrightarrow> (=)) (Fmap ig) id"
-shows "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap ig)) (Grp \<top> id)"
- proof (intro Fun_Rel_predI, intro iffI) 
-   fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
-   assume "Grp \<top> (Fmap ig) Fx Fy"
-   then have "(Fmap ig) Fx = Fy" by (auto elim: GrpE)
-   then have "id Fx = Fy" using rel_f_g FiT_Fx by auto
-   then show "Grp \<top> id Fx Fy" by (auto intro: GrpI)
- next
-   fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
-   assume "Grp \<top> id Fx Fy"
-   then have "id Fx = Fy" by (auto elim: GrpE)
-   then have "(Fmap ig) Fx = Fy" using rel_f_g FiT_Fx by auto
-   then show "Grp \<top> (Fmap ig) Fx Fy" by (auto intro: GrpI)
- qed
-
-lemma Frel_eq: "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Frel (\<lambda>i. (=))) (=)"
-proof(intro Fun_Rel_predI)
-  fix Fx Fy assume FiT_Fx:"F iT Fx" and FiT_Fy:"F iT Fy"
-  have eq_unf:"Frel (\<lambda>i. (=)) = Frel (\<lambda>i. Grp \<top> (iid i))" using eq_alt by auto
-  have iid_type:"((i : I) \<Rightarrow> iT i \<Rightarrow> iT i) iid" by fastforce
-  then have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> (Fmap iid)) (Frel (\<lambda>i. Grp \<top> (iid i)))" using Grp_top_Fmap_eq_Frel_Grp by auto
-  with iid_type eq_unf have "(F iT \<Rrightarrow> F iT \<Rrightarrow> (=)) (Grp \<top> id) (Frel (\<lambda>i. (=)))" using Fmap_id[of iT iid] Grp_Fmap_eq_id_if_Fmap_eq_id[of iT iid] by fastforce
-  with eq_alt FiT_Fx FiT_Fy show "(Frel (\<lambda>i. (=))) Fx Fy = (=) Fx Fy" by auto
-qed
-  
-
-lemma Frel_mono:
-  assumes "Frel iR Fx Fy"
-  and "\<And>i x y. I i  \<Longrightarrow> iR i x y \<Longrightarrow> iS i x y"
-shows "Frel iS Fx Fy"
-  apply (insert assms(1)) apply (erule FrelE) apply (intro FrelI) using assms by fastforce+
+lemma mono_mono_wrt_le_le_Frel: "((I \<Rrightarrow> (\<le>)) \<Rightarrow> (\<le>)) Frel"
+  by (force elim!: FrelE intro!: le_predI FrelI)
 
 end
 
-definition "pick_middlep P Q a c = (SOME b. P a b \<and> Q b c)"
+definition "pick_middlep P Q a c \<equiv> SOME b. P a b \<and> Q b c"
 
-lemma pick_middlep:
+lemma pick_middlep_and_pick_middlep_if_rel_comp:
   "(P \<circ>\<circ> Q) a c \<Longrightarrow> P a (pick_middlep P Q a c) \<and> Q (pick_middlep P Q a c) c"
   unfolding pick_middlep_def by (rule someI_ex) auto
 
-definition fstOp where
-  "fstOp P Q ac = \<langle>fst ac, pick_middlep P Q (fst ac) (snd ac)\<rangle>"
+lemma pick_middlep_and_pick_middlep_if_rel_compE:
+  assumes "(P \<circ>\<circ> Q) a c"
+  obtains "P a (pick_middlep P Q a c)" "Q (pick_middlep P Q a c) c"
+  using assms pick_middlep_and_pick_middlep_if_rel_comp by force
 
-definition sndOp where
-  "sndOp P Q ac = \<langle>pick_middlep P Q (fst ac) (snd ac), (snd ac)\<rangle>"
+definition "fstOp P Q p \<equiv> \<langle>fst p, pick_middlep P Q (fst p) (snd p)\<rangle>"
+definition "sndOp P Q p \<equiv> \<langle>pick_middlep P Q (fst p) (snd p), (snd p)\<rangle>"
 
-lemma fst_fstOp: "fst bc = (fst \<circ> fstOp P Q) bc"
-  unfolding fstOp_def by simp
+lemma fst_comp_fstOp_eq_fst: "fst \<circ> fstOp P Q = fst"
+  unfolding fstOp_def by (intro ext) simp
 
-lemma snd_sndOp: "snd bc = (snd \<circ> sndOp P Q) bc"
-  unfolding sndOp_def by simp
+lemma snd_comp_sndOp_eq_snd: "snd \<circ> sndOp P Q = snd"
+  unfolding sndOp_def by (intro ext) simp
 
-locale HOTG_subdist_Natural_Functor = HOTG_Natural_Functor +
-  assumes Frel_comp_le_Frel_rel_comp: "(F i1 \<Rrightarrow> F i2 \<Rrightarrow> (\<le>)) (Frel iR \<circ>\<circ> Frel iS) (Frel (\<lambda>i. (iR i) \<circ>\<circ> (iS i)))"
+locale HOTG_Natural_Functor_Subdist = HOTG_Natural_Functor +
+  assumes Frel_comp_Frel_le_Frel_comp:
+    "\<And>iT1 iT2 iR iS. (F iT1 \<Rrightarrow> F iT2 \<Rrightarrow> (\<le>)) (Frel iR \<circ>\<circ> Frel iS) (Frel (iR \<circ>\<circ> iS))"
 begin
 
 (* @Kevin please have a look at it, I can't see what would be correct for \<langle>x, y\<rangle>*)
-lemma example: assumes x_type: "F iin x" and y_type: "F iout y" and iR_xy: "(\<And>i. I i \<longrightarrow> iR i x y)"
+lemma example:
+  assumes x_type: "F iT1 x"
+  and y_type: "F iT2 y"
+  and iR_xy: "\<And>i. I i \<Longrightarrow> iR i x y" (*this makes no sense:
+    `iR i` is a relation on elements in the functor and not a relation between functors*)
   shows "Frel iR x y"
-proof(intro FrelI)
-  show "\<And>i. I i \<Longrightarrow> Fpred i \<langle>x, y\<rangle> \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)" sorry
-  show "Fmap (\<lambda>_. fst) \<langle>x, y\<rangle> = x" sorry
-  show "Fmap (\<lambda>_. snd) \<langle>x, y\<rangle> = y" sorry
+proof (intro FrelI)
+  show "\<And>i. I i \<Longrightarrow> Fpred i \<langle>x, y\<rangle> \<le> is_pair \<sqinter> uncurry (iR i)" sorry
+  show "Fmap (K fst) \<langle>x, y\<rangle> = x" sorry
+  show "Fmap (K snd) \<langle>x, y\<rangle> = y" sorry
 qed
-  
 
-lemma Frel_rel_comp_le_Frel_comp: "(F i1 \<Rrightarrow> F i2 \<Rrightarrow> (\<le>)) (Frel (\<lambda>i. rel_comp_rel (iR i) (iS i))) (Frel iR \<circ>\<circ> Frel iS)"
-proof (intro Fun_Rel_predI)
-  fix x y assume "F i1 x" and "F i2 y"
-  show "Frel (\<lambda>i. iR i \<circ>\<circ> iS i) x y \<le> (Frel iR \<circ>\<circ> Frel iS) x y"  
-  proof
-    assume "Frel (\<lambda>i. iR i \<circ>\<circ> iS i) x y"
-    then obtain z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (iR i \<circ>\<circ> iS i) x y)"
-      and "Fmap (\<lambda>_. fst) z = x" and "Fmap (\<lambda>_. snd) z = y" by (blast elim: FrelE)
-    have "\<And>i. I i \<Longrightarrow> Fpred i (Fmap (\<lambda>i. (snd \<circ> fstOp (iR i) (iS i))) z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> iR i x y)" unfolding fstOp_def sorry
-    show "(Frel iR \<circ>\<circ> Frel iS) x y" proof
-        show "Frel iR x (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) x)" sorry
-        show "Frel iS (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) x) y" sorry
-      qed
-    qed
+(*are you following the proof from the Transport-AFP entry?*)
+lemma Frel_comp_le_Frel_comp_Frel: "(F iT1 \<Rrightarrow> F iT2 \<Rrightarrow> (\<le>)) (Frel (iR \<circ>\<circ> iS)) (Frel iR \<circ>\<circ> Frel iS)"
+proof (intro Fun_Rel_predI le_boolI)
+  fix x y assume "F iT1 x" "F iT2 y" "Frel (iR \<circ>\<circ> iS) x y"
+  then obtain z where "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"
+    and "Fmap (K fst) z = x" "Fmap (K snd) z = y" by (elim FrelE) auto
+  have "\<And>i. I i \<Longrightarrow> Fpred i (Fmap (\<lambda>i. (snd \<circ> fstOp (iR i) (iS i))) z) \<le> is_pair \<sqinter> uncurry (iR i)"
+    unfolding fstOp_def sorry
+  show "(Frel iR \<circ>\<circ> Frel iS) x y"
+  proof (rule rel_compI)
+    show "Frel iR x (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) x)" sorry
+    show "Frel iS (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) x) y" sorry
   qed
-      
+qed
+
+corollary Frel_comp_eq_Frel_comp_Frel: "(F iT1 \<Rrightarrow> F iT2 \<Rrightarrow> (=)) (Frel (iR \<circ>\<circ> iS)) (Frel iR \<circ>\<circ> Frel iS)"
+  using Frel_comp_le_Frel_comp_Frel Frel_comp_Frel_le_Frel_comp by fast
+
 (*
 proof (intro le_relI)
   fix Fx Fy assume "Frel (\<lambda>i. iR i \<circ>\<circ> iS i) Fx Fy"
-  then obtain z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (iR i \<circ>\<circ> iS i) x y)" and "Fmap (\<lambda>_. fst) z = Fx" and "Fmap (\<lambda>_. snd) z = Fy" by (blast elim: FrelE)
+  then obtain z where "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (iR i \<circ>\<circ> iS i) x y)" and "Fmap (K fst) z = Fx" and "Fmap (K snd) z = Fy" by (blast elim: FrelE)
   then have "\<And>i. I i \<Longrightarrow> (Fpred i z) \<le> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<exists>mid. (iR i) x mid \<and> (iS i) mid y))" by fast
   then have "\<And>i. I i \<Longrightarrow> (\<lambda>a. \<exists>x y. a = \<langle>x,y\<rangle> \<and> (\<exists>mid. (iR i) x mid \<and> (iS i) mid y)) \<le> (\<lambda>a. \<exists>x y. fst a = x \<and> (iR i x y))" by fastforce
   show "(Frel iR \<circ>\<circ> Frel iS) Fx Fy" apply (intro rel_compI, intro FrelI) apply auto sorry
 qed *)
 end
 
-locale HOTG_Algebra = HOTG_Natural_Functor +
+context HOTG_Natural_Functor
+begin
+
+context
   fixes i
   assumes "I i"
 begin
 
-definition "algebra iB s = (\<forall>x. (F iB x \<longrightarrow> (iB i) (s x)))"
+definition "algebra iB s \<equiv> \<forall>x : F iB. iB i (s x)"
 
-lemma alg_Fpred: "algebra iB s \<Longrightarrow> (\<forall>i. I i \<longrightarrow> Fpred i x \<le> iB i) \<Longrightarrow> (iB i) (s x)"
+lemma alg_Fpred: "algebra iB s \<Longrightarrow> (\<And>i. I i \<Longrightarrow> Fpred i x \<le> iB i) \<Longrightarrow> iB i (s x)"
   unfolding algebra_def sorry
 
 end
+end
+
 end
