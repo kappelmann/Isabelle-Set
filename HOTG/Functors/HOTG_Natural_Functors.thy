@@ -72,16 +72,16 @@ type_synonym f = "set"
 
 locale HOTG_Functor =
   fixes F :: "('i \<Rightarrow> t \<Rightarrow> bool) \<Rightarrow> f \<Rightarrow> bool"
-  and I :: "'i \<Rightarrow> bool"
-  \<comment>\<open>The type parameters of a functor are specified by a function from a given index type \<open>'i\<close>
+    and I :: "'i \<Rightarrow> bool"
+    \<comment>\<open>The type parameters of a functor are specified by a function from a given index type \<open>'i\<close>
     subject to a restriction predicate @{term I}. In particular, a functor may have an infinite
     number of type parameters.\<close>
-  and Fmap :: "('i \<Rightarrow> t \<Rightarrow> t) \<Rightarrow> f \<Rightarrow> f"
+    and Fmap :: "('i \<Rightarrow> t \<Rightarrow> t) \<Rightarrow> f \<Rightarrow> f"
   assumes Fmap_type: "\<And>iIn iOut. (((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) \<Rightarrow> F iIn \<Rightarrow> F iOut) Fmap"
-  and Fmap_id: "\<And>(iT :: 'i \<Rightarrow> t \<Rightarrow> bool) (ig :: 'i \<Rightarrow> t \<Rightarrow> t).
+    and Fmap_id: "\<And>(iT :: 'i \<Rightarrow> t \<Rightarrow> bool) (ig :: 'i \<Rightarrow> t \<Rightarrow> t).
     ((i : I) \<Rrightarrow> iT i \<Rrightarrow> (=)) ig iid \<Longrightarrow>
     (F iT \<Rrightarrow> (=)) (Fmap ig) id"
-  and Fmap_comp: "\<And>ig ih iIn iMid iOut.
+    and Fmap_comp: "\<And>ig ih iIn iMid iOut.
     ((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow>
     ((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih \<Longrightarrow>
     (F iIn \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
@@ -109,12 +109,12 @@ lemma image_pred_eq_has_inverse_on [simp]: "image_pred f P = has_inverse_on P f"
 locale HOTG_Natural_Functor = HOTG_Functor +
   fixes Fpred :: "'i \<Rightarrow> f \<Rightarrow> t \<Rightarrow> bool"
   assumes Fpred_type: "\<And>iT. ((i : I) \<Rightarrow> F iT \<Rightarrow> (\<ge>) (iT i)) Fpred"
-  and Fpred_natural: "\<And>iIn iOut ig i.
+    and Fpred_natural: "\<And>iIn iOut ig i.
     \<comment> \<open>maybe \<open>(iIn i \<Rightarrow> iOut i) (ig i)\<close> is enough?\<close>
     ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig \<Longrightarrow>
     I i \<Longrightarrow>
     (F iIn \<Rrightarrow> (=)) (Fpred i \<circ> Fmap ig) (image_pred (ig i) \<circ> Fpred i)"
-  and Fmap_cong: "\<And>iIn iOut1 iOut2 ig ih x.
+    and Fmap_cong: "\<And>iIn iOut1 iOut2 ig ih x.
     F iIn x \<Longrightarrow>
     \<comment> \<open>maybe we do not need the types of \<open>ig\<close> and \<open>ih\<close>?\<close>
     ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut1 i) ig \<Longrightarrow>
@@ -125,9 +125,9 @@ begin
 
 lemma Fmap_Fmap_eq_Fmap_comp_update_if_eq_id:
   assumes x_type: "F iIn x"
-  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig"
-  and ih_type: "((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih"
-  and ig_id: "(iIn i \<Rrightarrow> (=)) (ig i) id"
+    and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig"
+    and ih_type: "((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih"
+    and ig_id: "(iIn i \<Rrightarrow> (=)) (ig i) id"
   shows "Fmap ih (Fmap ig x) = Fmap ((ih \<circ> ig)(i := ih i)) x"
 proof -
   from assms Fmap_comp have "Fmap ih (Fmap ig x) = Fmap (ih \<circ> ig) x" by fastforce
@@ -174,9 +174,9 @@ qed
 
 lemma Fmap_eq_Fmap_update_if_eq:
   assumes x_type: "F iIn x"
-  and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
-  and ih_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ih"
-  and ig_eq: "(iIn i \<Rrightarrow> (=)) (ih i) (ig i)"
+    and ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
+    and ih_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ih"
+    and ig_eq: "(iIn i \<Rrightarrow> (=)) (ih i) (ig i)"
   shows "Fmap ig x = Fmap (ig(i := ih i)) x"
 proof -
   have upd_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) (ig(i := ih i))"
@@ -199,9 +199,9 @@ qed
 
 lemma Fmap_comp_comp_eq_Fmap_Fmap_Fmap:
   assumes "F iIn x"
-  and "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
-  and "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
-shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
+    and "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
+    and "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
+  shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
 proof -
   have comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid2 i) (ih \<circ> ig)" using assms by fastforce
   from Fmap_comp have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)"
@@ -225,15 +225,15 @@ definition "Frel (iR :: 'i \<Rightarrow> f \<Rightarrow> f \<Rightarrow> bool) x
 
 lemma FrelI:
   assumes "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z"
-  and "Fmap (K fst) z = x"
-  and "Fmap (K snd) z = y"
+    and "Fmap (K fst) z = x"
+    and "Fmap (K snd) z = y"
   shows "Frel iR x y"
   unfolding Frel_def using assms by force
 
 lemma FrelE:
   assumes "Frel iR x y"
   obtains z where "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z"
-  and "Fmap (K fst) z = x" and "Fmap (K snd) z = y"
+    and "Fmap (K fst) z = x" and "Fmap (K snd) z = y"
   using assms Frel_def by fastforce
 
 definition "Graph_on P f \<equiv> \<lambda>x y. y = f x \<and> P x"
@@ -283,27 +283,26 @@ lemma mono_mono_wrt_mono_wrt_convol: "((A \<Rightarrow> B) \<Rightarrow> (A \<Ri
 lemma fst_comp_convol_eq [simp]: "fst \<circ> (convol f g) = f" by auto
 lemma snd_comp_convol_eq [simp]: "snd \<circ> (convol f g) = g" by auto
 
+lemma Fx_imp_F_in_dom_Graph_x:
+  assumes x_type: "F iIn x"
+  shows "F (\<lambda>i. in_dom (Graph (ig i))) x"
+  using x_type apply (rule aux2) apply (intro le_predI in_domI GraphI) by auto
+
 lemma Graph_Fmap_eq_Frel_GraphI:
   assumes ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
   shows "(F iIn \<Rrightarrow> F iOut \<Rrightarrow> (=)) (Graph (Fmap ig)) (Frel (\<lambda>i. Graph (ig i)))"
 proof (intro Fun_Rel_predI iffI)
-  fix x y assume x_type: "F iIn x" and y_type: "F iOut y" and "Graph (Fmap ig) x y"
+  fix x y assume  "F iIn x" and "Graph (Fmap ig) x y"
   then have y_eq: "y = Fmap ig x" by simp
-  from x_type ig_type have in_dom_x: "F (\<lambda>i. in_dom (Graph (ig i))) x" sorry
-  have inner_type: "((i : I) \<Rightarrow> in_dom (Graph (ig i)) \<Rightarrow> in_dom (Graph (ig i)) \<times> in_codom (Graph (ig i))) (\<lambda>i. convol id (ig i))"
-  proof (intro dep_mono_wrt_predI)
-    fix i assume "I i"
-    then show "(in_dom (Graph (ig i)) \<Rightarrow> in_dom (Graph (ig i)) \<times> in_codom (Graph (ig i))) (convol id (ig i))"
-      using ig_type mono_mono_wrt_mono_wrt_convol mono_wrt_pred_self_id by fastforce
-  qed
-  then have convol_type:"((i : I) \<Rightarrow> in_dom (Graph (ig i)) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i))) (\<lambda>i. convol id (ig i))" by fastforce
+  from \<open>F iIn x\<close> Fx_imp_F_in_dom_Graph_x have x_type: "F (\<lambda>i. in_dom (Graph (ig i))) x" by blast
+  have convol_type:"((i : I) \<Rightarrow> in_dom (Graph (ig i)) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i))) (\<lambda>i. convol id (ig i))" by fastforce
   show "Frel (\<lambda>i. Graph (ig i)) x y"
   proof (intro FrelI[where z="Fmap (\<lambda>i. convol id (ig i)) x"])
-    from convol_type in_dom_x show "F (\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))) (Fmap (\<lambda>i. convol id (ig i)) x)" using Fmap_type by fastforce
+    from convol_type x_type show "F (\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))) (Fmap (\<lambda>i. convol id (ig i)) x)" using Fmap_type by fastforce
   next
     have map_convol_eq: "Fmap (K f) (Fmap (\<lambda>i. convol id (ig i)) x) =
       Fmap ((\<lambda>(_ :: 'i). f) \<circ> (\<lambda>i. convol id (ig i))) x" for f
-      using Fmap_comp in_dom_x convol_type by fastforce
+      using Fmap_comp x_type convol_type by fastforce
     moreover have "Fmap ((\<lambda>(_ :: 'i). fst) \<circ> (\<lambda>i. convol id (ig i))) x = Fmap (\<lambda>(_ :: 'i). id) x"
       using x_type by (intro Fmap_cong Dep_Fun_Rel_predI) auto
     ultimately show "Fmap (K fst) (Fmap (\<lambda>i. convol id (ig i)) x) = x" using Fmap_id x_type by fastforce
@@ -312,37 +311,38 @@ proof (intro Fun_Rel_predI iffI)
     with map_convol_eq show "Fmap (K snd) (Fmap (\<lambda>i. convol id (ig i)) x) = y" by auto
   qed
 next
-  fix x y assume x_type: "F iIn x" and y_type: "F iOut y"
+  fix x y assume "F iIn x"
   assume Frel_x_y: "Frel (\<lambda>i. Graph (ig i)) x y"
   then obtain z
     where z_type: "F (\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))) z"
-    and x_eq: "Fmap (K fst) z = x"
-    and y_eq: "Fmap (K snd) z = y" by (blast elim: FrelE)
-  then have ig_comp_fst_eq_snd:"Fmap (ig \<circ> K fst) z = Fmap (K snd) z" proof (intro Fmap_cong)
+      and x_eq: "Fmap (K fst) z = x"
+      and y_eq: "Fmap (K snd) z = y" by (blast elim: FrelE)
+  from \<open>F iIn x\<close> Fx_imp_F_in_dom_Graph_x have x_type: "F (\<lambda>i. in_dom (Graph (ig i))) x" by blast
+  have ig_comp_fst_eq_snd:"Fmap (ig \<circ> K fst) z = Fmap (K snd) z" proof (intro Fmap_cong)
     show "F (\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))) z" using z_type by blast
-    show "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i)) \<Rightarrow> in_dom (Graph (ig i))) (ig \<circ> K fst)" using ig_type by fastforce
+    show "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i)) \<Rightarrow> in_dom (Graph (ig i))) (ig \<circ> K fst)" by fastforce
     show "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i)) \<Rightarrow> in_codom (Graph (ig i))) (K snd)" by fastforce
     show "((i : I) \<Rrightarrow> Fpred i z \<Rrightarrow> (=)) (ig \<circ> K fst) (K snd)" proof
       fix i assume "I i"
       then show "(Fpred i z \<Rrightarrow> (=)) ((ig \<circ> K fst) i) (K snd i)" proof(intro Fun_Rel_predI)
         fix p assume "Fpred i z p"
         have "Fpred i z \<le> is_pair \<sqinter> uncurry (Graph (ig i))" 
-           using \<open>I i\<close> Fpred_type[of "\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))"] z_type by auto
+          using \<open>I i\<close> Fpred_type[of "\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))"] z_type by auto
         with \<open>Fpred i z p\<close> have "(is_pair \<sqinter> uncurry (Graph (ig i))) p" using Frel_x_y z_type by blast
         then show "(ig \<circ> K fst) i p = (K snd) i p" by auto
       qed
     qed
   qed
   have "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (Graph (ig i)) \<Rightarrow> in_dom (Graph (ig i))) (K fst)" by fastforce
-    then have "Fmap ig (Fmap (K fst) z) = Fmap (ig \<circ> (K fst)) z"
-      using Fmap_comp[of "\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))" "\<lambda>i. in_dom (Graph (ig i))" "K fst" "\<lambda>i. in_codom (Graph (ig i))" ig] ig_type z_type by fastforce
-    with ig_comp_fst_eq_snd have "Fmap ig (Fmap (K fst) z) = Fmap (K snd) z" by blast
+  then have "Fmap ig (Fmap (K fst) z) = Fmap (ig \<circ> (K fst)) z"
+    using Fmap_comp[of "\<lambda>i. is_pair \<sqinter> uncurry (Graph (ig i))" "\<lambda>i. in_dom (Graph (ig i))" "K fst" "\<lambda>i. in_codom (Graph (ig i))" ig] z_type by fastforce
+  with ig_comp_fst_eq_snd have "Fmap ig (Fmap (K fst) z) = Fmap (K snd) z" by blast
   with x_eq y_eq show "Graph (Fmap ig) x y" by simp
 qed
 
 corollary Frel_Graph_FmapI:
   assumes "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
-  and "F iIn x"
+    and "F iIn x"
   shows "Frel (\<lambda>i. Graph (ig i)) x (Fmap ig x)"
   using assms Fmap_type Graph_Fmap_eq_Frel_GraphI by fastforce
 
@@ -365,7 +365,7 @@ proof (intro mono_wrt_relI le_relI)
   fix iR iS assume iR_iS:"(I \<Rrightarrow> (\<le>)) (iR::'i \<Rightarrow> set \<Rightarrow> set \<Rightarrow> bool) iS"
   fix x y assume "Frel iR x y"
   then obtain z where z_type:"F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z"
-  and "Fmap (K fst) z = x" and "Fmap (K snd) z = y" by (elim FrelE)
+    and "Fmap (K fst) z = x" and "Fmap (K snd) z = y" by (elim FrelE)
   then show "Frel iS x y" proof(intro FrelI[where z=z])
     from z_type Fpred_type[of "\<lambda>i. is_pair \<sqinter> uncurry (iR i)"] have "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (iR i)" by auto
     also from iR_iS have "\<And>i. I i \<Longrightarrow> is_pair \<sqinter> uncurry (iR i) \<le> is_pair \<sqinter> uncurry (iS i)" by fastforce
@@ -406,41 +406,42 @@ proof (intro Fun_Rel_predI le_boolI)
   fix x y assume "F iT1 x" "F iT2 y" "Frel (iR \<circ>\<circ> iS) x y"
   then obtain z where z_type: "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)) z"
     and x_eq: "Fmap (K fst) z = x" and y_eq:"Fmap (K snd) z = y" by (elim FrelE) auto
-  show "(Frel iR \<circ>\<circ> Frel iS) x y" proof (rule rel_compI, rule FrelI)
+  show "(Frel iR \<circ>\<circ> Frel iS) x y"
+  proof (rule rel_compI, rule FrelI)
     have fst_op_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i))) (\<lambda>i. fstOp (iR i) (iS i))"
       unfolding fstOp_def by(intro dep_mono_wrt_predI, intro mono_wrt_predI) (auto elim: pick_middlep_and_pick_middlep_if_rel_compE)   
-  have fst_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_dom (iR i)) (K fst)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
-  have snd_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_codom (iR i)) (K snd)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
-  from fst_op_type z_type show "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z)" using Fmap_type by fast
-  from fst_type z_type fst_op_type fst_comp_fstOp_eq_fst have "Fmap (K fst) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (comp_ifun (K fst) (\<lambda>i. fstOp (iR i) (iS i))) z"
-    using Fmap_comp[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)" and iMid="\<lambda>i. is_pair \<sqinter> uncurry (iR i)" and iOut="\<lambda>i. in_dom (iR i)" and ig="\<lambda>i. fstOp (iR i) (iS i)" and ih="K fst"]
-    by auto
-  also have "... = Fmap (K fst) z" using z_type fst_comp_fstOp_eq_fst by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
-  finally show "Fmap (K fst) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = x" using x_eq by blast
-  from snd_type z_type fst_op_type have "Fmap (K snd) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (comp_ifun (K snd) (\<lambda>i. fstOp (iR i) (iS i))) z"
-    using Fmap_comp[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)" and iMid="\<lambda>i. is_pair \<sqinter> uncurry (iR i)" and iOut="\<lambda>i. in_codom (iR i)" and ig="\<lambda>i. fstOp (iR i) (iS i)" and ih="K snd"]
-    by auto
-  also have "... = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" unfolding fstOp_def using z_type pick_middlep_and_pick_middlep_if_rel_comp by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
-  finally show "Fmap (K snd) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" .
- next
-   show "Frel iS (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z) y" proof(intro FrelI[where z="Fmap (\<lambda>i. sndOp (iR i) (iS i)) z"])
-  have snd_type:"((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_codom (iR i)) (K snd)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
-  have snd_op_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)) \<Rightarrow> (is_pair \<sqinter> uncurry (iS i))) (\<lambda>i. sndOp (iR i) (iS i))"
-    unfolding sndOp_def by(intro dep_mono_wrt_predI, intro mono_wrt_predI) (auto elim: pick_middlep_and_pick_middlep_if_rel_compE)
-  with z_type show "F (\<lambda>i. is_pair \<sqinter> uncurry (iS i)) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z)" using Fmap_type by fast
-  have fst_type: "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (iS i) \<Rightarrow> in_dom (iS i)) (K fst)" by (intro dep_mono_wrt_predI, intro mono_wrt_predI) auto
-  with snd_op_type z_type have "Fmap (K fst) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (comp_ifun (K fst) (\<lambda>i. sndOp (iR i) (iS i))) z"
-    using Fmap_comp by fastforce
-  also have "... = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" unfolding fstOp_def using z_type sndOp_def pick_middlep_and_pick_middlep_if_rel_comp 
-    by(intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"])fastforce+
-  finally show "Fmap (K fst) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" .
-  have "Fmap (K snd) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (comp_ifun (K snd) (\<lambda>i. sndOp (iR i) (iS i))) z"
-    using snd_op_type snd_type z_type Fmap_comp by fastforce
-  also have "... = Fmap (\<lambda>i. snd \<circ> sndOp (iR i) (iS i)) z" using z_type pick_middlep_and_pick_middlep_if_rel_comp
-    by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
-  finally show "Fmap (K snd) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = y" using snd_comp_sndOp_eq_snd y_eq by auto
-qed
-qed
+    have fst_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_dom (iR i)) (K fst)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
+    have snd_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_codom (iR i)) (K snd)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
+    from fst_op_type z_type show "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z)" using Fmap_type by fast
+    from fst_type z_type fst_op_type fst_comp_fstOp_eq_fst have "Fmap (K fst) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (comp_ifun (K fst) (\<lambda>i. fstOp (iR i) (iS i))) z"
+      using Fmap_comp[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)" and iMid="\<lambda>i. is_pair \<sqinter> uncurry (iR i)" and iOut="\<lambda>i. in_dom (iR i)" and ig="\<lambda>i. fstOp (iR i) (iS i)" and ih="K fst"]
+      by auto
+    also have "... = Fmap (K fst) z" using z_type fst_comp_fstOp_eq_fst by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
+    finally show "Fmap (K fst) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = x" using x_eq by blast
+    from snd_type z_type fst_op_type have "Fmap (K snd) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (comp_ifun (K snd) (\<lambda>i. fstOp (iR i) (iS i))) z"
+      using Fmap_comp[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)" and iMid="\<lambda>i. is_pair \<sqinter> uncurry (iR i)" and iOut="\<lambda>i. in_codom (iR i)" and ig="\<lambda>i. fstOp (iR i) (iS i)" and ih="K snd"]
+      by auto
+    also have "... = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" unfolding fstOp_def using z_type pick_middlep_and_pick_middlep_if_rel_comp by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
+    finally show "Fmap (K snd) (Fmap (\<lambda>i. fstOp (iR i) (iS i)) z) = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" .
+  next
+    show "Frel iS (Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z) y" proof(intro FrelI[where z="Fmap (\<lambda>i. sndOp (iR i) (iS i)) z"])
+      have snd_type:"((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i)) \<Rightarrow> in_codom (iR i)) (K snd)" by (intro dep_mono_wrt_predI mono_wrt_predI) auto
+      have snd_op_type: "((i : I) \<Rightarrow> (is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)) \<Rightarrow> (is_pair \<sqinter> uncurry (iS i))) (\<lambda>i. sndOp (iR i) (iS i))"
+        unfolding sndOp_def by(intro dep_mono_wrt_predI, intro mono_wrt_predI) (auto elim: pick_middlep_and_pick_middlep_if_rel_compE)
+      with z_type show "F (\<lambda>i. is_pair \<sqinter> uncurry (iS i)) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z)" using Fmap_type by fast
+      have fst_type: "((i : I) \<Rightarrow> is_pair \<sqinter> uncurry (iS i) \<Rightarrow> in_dom (iS i)) (K fst)" by (intro dep_mono_wrt_predI, intro mono_wrt_predI) auto
+      with snd_op_type z_type have "Fmap (K fst) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (comp_ifun (K fst) (\<lambda>i. sndOp (iR i) (iS i))) z"
+        using Fmap_comp by fastforce
+      also have "... = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" unfolding fstOp_def using z_type sndOp_def pick_middlep_and_pick_middlep_if_rel_comp 
+        by(intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"])fastforce+
+      finally show "Fmap (K fst) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (\<lambda>i. snd \<circ> fstOp (iR i) (iS i)) z" .
+      have "Fmap (K snd) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = Fmap (comp_ifun (K snd) (\<lambda>i. sndOp (iR i) (iS i))) z"
+        using snd_op_type snd_type z_type Fmap_comp by fastforce
+      also have "... = Fmap (\<lambda>i. snd \<circ> sndOp (iR i) (iS i)) z" using z_type pick_middlep_and_pick_middlep_if_rel_comp
+        by (intro Fmap_cong[where iIn="\<lambda>i. is_pair \<sqinter> uncurry (iR i \<circ>\<circ> iS i)"]) fastforce+
+      finally show "Fmap (K snd) (Fmap (\<lambda>i. sndOp (iR i) (iS i)) z) = y" using snd_comp_sndOp_eq_snd y_eq by auto
+    qed
+  qed
 qed
 
 corollary Frel_comp_eq_Frel_comp_Frel: "(F iT1 \<Rrightarrow> F iT2 \<Rrightarrow> (=)) (Frel (iR \<circ>\<circ> iS)) (Frel iR \<circ>\<circ> Frel iS)"
