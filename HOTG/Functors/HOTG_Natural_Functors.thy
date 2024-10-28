@@ -211,12 +211,29 @@ proof -
   finally show "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))" ..
 qed
 
-paragraph \<open>Relator\<close>
-
 (* does this follow from axioms? *)
-lemma aux1:"F iT x \<Longrightarrow> F (\<lambda>i. Fpred i x) x" sorry
-lemma aux2:"F iT x \<Longrightarrow> (\<And>i. I i \<Longrightarrow> Fpred i x \<le> iS i) \<Longrightarrow> F iS x" sorry
 
+lemma aux2:
+  assumes x_type: "F iT x" and Fpred_leq_iS: "(\<And>i. I i \<Longrightarrow> Fpred i x \<le> iS i)"
+  shows "F iS x"
+  sorry
+
+lemma aux1:
+  assumes iT_x:"F iT x"
+  shows "F (\<lambda>i. Fpred i x) x"
+  using assms aux2 by auto
+
+lemma F_mono:
+  assumes x_type:"F iT x"
+   and iT_leq_iS: "\<And>i. I i \<Longrightarrow> iT i \<le> iS i"
+  shows "F iS x"
+proof-
+  from iT_leq_iS have "((i : I) \<Rightarrow> (iT i) \<Rightarrow> (iS i)) (K id)" by fastforce
+  with x_type Fmap_type have "F iS (Fmap (K id) x)" by auto
+  with x_type Fmap_id show "F iS x" by fastforce
+qed
+
+paragraph \<open>Relator\<close>
 (* locale 't 'f set *)
 definition "Frel (iR :: 'i \<Rightarrow> f \<Rightarrow> f \<Rightarrow> bool) x y \<equiv> \<exists>z.
   F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z
@@ -286,7 +303,11 @@ lemma snd_comp_convol_eq [simp]: "snd \<circ> (convol f g) = g" by auto
 lemma Fx_imp_F_in_dom_Graph_x:
   assumes x_type: "F iIn x"
   shows "F (\<lambda>i. in_dom (Graph (ig i))) x"
-  using x_type apply (rule aux2) apply (intro le_predI in_domI GraphI) by auto
+proof-
+  have "\<And>i. I i \<Longrightarrow> iIn i \<le> in_dom (Graph (ig i))" by fastforce
+  with F_mono x_type show "F (\<lambda>i. in_dom (Graph (ig i))) x" by auto
+qed
+
 
 lemma Graph_Fmap_eq_Frel_GraphI:
   assumes ig_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig"
@@ -367,9 +388,8 @@ proof (intro mono_wrt_relI le_relI)
   then obtain z where z_type:"F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z"
     and "Fmap (K fst) z = x" and "Fmap (K snd) z = y" by (elim FrelE)
   then show "Frel iS x y" proof(intro FrelI[where z=z])
-    from z_type Fpred_type[of "\<lambda>i. is_pair \<sqinter> uncurry (iR i)"] have "\<And>i. I i \<Longrightarrow> Fpred i z \<le> is_pair \<sqinter> uncurry (iR i)" by auto
-    also from iR_iS have "\<And>i. I i \<Longrightarrow> is_pair \<sqinter> uncurry (iR i) \<le> is_pair \<sqinter> uncurry (iS i)" by fastforce
-    finally show "F (\<lambda>i. is_pair \<sqinter> uncurry (iS i)) z" using z_type aux2 by auto
+    from iR_iS have "\<And>i. I i \<Longrightarrow> is_pair \<sqinter> uncurry (iR i) \<le> is_pair \<sqinter> uncurry (iS i)" by fastforce
+    then show "F (\<lambda>i. is_pair \<sqinter> uncurry (iS i)) z" using z_type F_mono by auto
   qed auto
 qed
 
