@@ -22,6 +22,7 @@ lemma iid_eq_id [simp]: "iid = K id"
 
 lemma mono_iid: "((i : (I :: 'i \<Rightarrow> bool)) \<Rightarrow> (iT i :: 'a \<Rightarrow> bool) \<Rightarrow> iT i) iid" by fastforce
 
+
 text \<open>Indexed composition\<close>
 
 definition "comp_ifun (f :: 'i \<Rightarrow> 'b \<Rightarrow> 'c) (g :: 'i \<Rightarrow> 'a \<Rightarrow> 'b) i \<equiv> f i \<circ> g i"
@@ -66,6 +67,9 @@ lemma fun_upd_triv [simp]: "f(x := f x) = f"
 
 (*end of copy*)
 
+
+
+
 (* with 't/'f pairs for the relator are quite a pain *)
 type_synonym t = "set"
 type_synonym f = "set"
@@ -86,6 +90,22 @@ locale HOTG_Functor =
     ((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih \<Longrightarrow>
     (F iIn \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
 begin
+
+lemma mono_upd_iid:
+  assumes "((T::set \<Rightarrow> bool) \<Rightarrow> T') f"
+  and "((i : I) \<Rrightarrow> (\<le>)) iT ((K \<top>)(irec := T))"
+  shows "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T')) i) (iid(irec:=f))"
+proof(intro dep_mono_wrt_predI mono_wrt_predI)
+  fix i x assume i_type: "I i" and x_type: "iT i x"
+  show "(iT(irec := T')) i ((iid(irec := f)) i x)"
+  proof (cases "i = irec")                         
+    case True
+    with assms x_type i_type show ?thesis by fastforce
+  next
+    case False
+    with x_type show ?thesis by auto
+  qed
+qed
 
 lemma Fmap_iid_comp: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow> (F iIn \<Rrightarrow> (=)) (Fmap (comp_ifun iid ig)) (Fmap ig)"
 proof -
@@ -508,7 +528,7 @@ lemma algebra_not_empty:
   sorry
 *)
 
-definition "morphism irec T T' s s' f = (((T \<Rightarrow> T') f) \<longrightarrow> (\<forall>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<longrightarrow>
+definition "morphism irec T T' s s' f = (((T \<Rightarrow> T') f) \<and> (\<forall>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f))))))"
 
 lemma morphismI:
@@ -520,9 +540,9 @@ lemma morphismI:
 
 lemma morphismE:
   assumes "morphism irec T T' s s' f"
-  shows  "(((T \<Rightarrow> T') f) \<longrightarrow> (\<forall>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<longrightarrow>
-          (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f))))))"
-  using assms unfolding morphism_def .
+  shows  "(T \<Rightarrow> T') f" and "(\<forall>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<longrightarrow>
+          (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f)))))"
+  using assms unfolding morphism_def by auto
 
 lemma morphismE_alt:
   assumes "((T \<Rightarrow> T') f)"
@@ -548,10 +568,82 @@ qed
 
 lemma morphism_composition:
   assumes "morphism irec T1 T2 s1 s2 f"
-    and "morphism irec T2 T3 s3 s4 g"
-  shows "morphism irec T1 T3 s1 s4 (g \<circ> f)"
-  sorry
+    and "morphism irec T2 T3 s2 s3 g"
+  shows "morphism irec T1 T3 s1 s3 (g \<circ> f)"
+proof (intro morphismI)
+  have "(T1 \<Rightarrow> T2) f" using assms morphismE by fastforce
+  moreover have "(T2 \<Rightarrow> T3) g" using assms morphismE by fastforce
+  ultimately show "(T1 \<Rightarrow> T3) (g \<circ> f)" by fastforce
+  fix iT assume iT_eq: "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T1))"
+  show "(F iT \<Rrightarrow> (=)) (g \<circ> f \<circ> s1) (s3 \<circ> Fmap (iid(irec := g \<circ> f)))"
+  proof
+    fix x assume "F iT x"
+    with iT_eq assms(1) morphismE have "(f \<circ> s1) x = (s2 \<circ> (Fmap (iid(irec := f)))) x" by fastforce
+    then have gfs1:"(g \<circ> f \<circ> s1) x = (g \<circ> s2 \<circ> (Fmap (iid(irec := f)))) x" by auto
+    have f_type:"((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T2)) i) (iid(irec:=f))"
+    proof (intro dep_mono_wrt_predI mono_wrt_predI)
+      fix i x assume "I i" and "iT i x"
+      show "(iT(irec := T2)) i ((iid(irec := f)) i x)" proof (cases "i = irec")
+        case True
+        from assms morphismE \<open>iT i x\<close> True \<open>I i\<close> iT_eq show ?thesis by fastforce
+      next
+        case False
+        with \<open>iT i x\<close> show ?thesis by auto
+      qed
+    qed
+    with Fmap_type \<open>F iT x\<close> have "F (iT(irec := T2)) (Fmap (iid(irec := f)) x)" by fastforce
+    moreover from iT_eq have "(I \<Rrightarrow> (=)) (iT(irec := T2)) ((K \<top>)(irec := T2))" by fastforce
+    ultimately have gs2f: "g (s2 (Fmap (iid(irec := f)) x)) =
+          s3 (Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x))" using assms(2) morphismE by fastforce
+    have g_type:"((i : I) \<Rightarrow> (iT(irec := T2)) i\<Rightarrow> (iT(irec := T3)) i) (iid(irec := g))"
+      using mono_upd_iid assms morphismE by fastforce
+    with Fmap_comp \<open>F iT x\<close> f_type have "Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x) =
+           Fmap (iid(irec := g) \<circ> iid(irec := f)) x" by fastforce
+    with \<open>F iT x\<close> f_type g_type
+      Fmap_cong[of _ _ _ "iid(irec := g) \<circ> iid(irec := f)" "(iT(irec := T3))" "iid(irec := g \<circ> f)"]
+    also have "... = Fmap (iid(irec := g \<circ> f)) x" by fastforce
+    ultimately have "Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x) = Fmap (iid(irec := g \<circ> f)) x" by blast
+    with gs2f gfs1 show "(g \<circ> f \<circ> s1) x = (s3 \<circ> Fmap (iid(irec := g \<circ> f))) x" by fastforce
+  qed
+qed
 
+
+
+lemma morphism_cong:
+  assumes "(T \<Rrightarrow> (=)) f f'"
+    and "morphism irec T T' s s' f"
+  shows "morphism irec T T' s s' f'"
+proof (intro morphismI)
+  show "(T \<Rightarrow> T') f'" using assms morphismE by fastforce
+  fix iT assume iT_eq:"(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
+  show "(F iT \<Rrightarrow> (=)) (f' \<circ> s) (s' \<circ> Fmap (iid(irec := f')))"
+  proof
+    fix x assume "F iT x"
+      (* this step needs type information about s *)
+    from assms morphismE have "T (s x)" sorry
+    with assms have f_eq:"f' (s x) = f (s x)" by auto
+    moreover have maps_eq:"Fmap (iid(irec := f)) x = Fmap (iid(irec := f')) x"
+    proof (intro Fmap_cong[where iIn=iT and ?iOut1.0="(iT(irec := T'))" and ?iOut2.0="(iT(irec := T'))"])
+      show "F iT x" using \<open>F iT x\<close> by auto
+      show "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T')) i) (iid(irec := f))" using mono_upd_iid iT_eq assms morphismE(1) by fastforce
+      show "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T')) i) (iid(irec := f'))" using mono_upd_iid iT_eq assms morphismE(1) by fastforce
+      show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (iid(irec := f)) (iid(irec := f'))"
+      proof (intro Dep_Fun_Rel_predI Fun_Rel_predI)
+        fix i y assume "I i"  "Fpred i x y"
+        show "(iid(irec := f)) i y = (iid(irec := f')) i y"
+        proof (cases "i = irec")
+          case True
+          then have "Fpred i x \<le> T" using Fpred_type \<open>F iT x\<close> iT_eq \<open>I i\<close> by fastforce
+          with assms \<open>Fpred i x y\<close> show ?thesis by fastforce
+        next
+          case False
+          then show ?thesis by auto
+        qed
+      qed
+    qed
+    from f_eq maps_eq[symmetric] \<open>F iT x\<close> assms morphismE iT_eq show "(f' \<circ> s) x = (s' \<circ> Fmap (iid(irec := f'))) x" by fastforce
+  qed
+qed
 end
 
 end
