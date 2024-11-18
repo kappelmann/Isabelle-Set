@@ -1,6 +1,7 @@
 theory HOTG_Natural_Functors
   imports
     HOTG_Functions_Composition
+    HOTG_Pairs
     Transport.LBinary_Relations
     Transport.LFunctions
     Hilbert_Eps
@@ -130,6 +131,11 @@ proof-
   with x_type Fmap_id show "F iS x" by fastforce
 qed
 
+corollary F_type_if_eq:
+  assumes "F iT x"
+    and "(I \<Rrightarrow> (=)) iT iS"
+  shows "F iS x"
+  apply (rule F_type_if_leq) using assms by fastforce+
 
 end
 
@@ -504,8 +510,7 @@ end
 context HOTG_Natural_Functor
 begin
 
-
-definition "algebra irec T s \<equiv>  (F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
+definition "algebra irec T s \<equiv> (F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
 
 lemma algebraI:
   assumes "(F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
@@ -539,6 +544,62 @@ proof-
   with \<open>F iT x\<close> F_type_if_leq  \<open>algebra irec T s\<close> show "T (s x)" by (fastforce dest: algebraD)
 qed
 
+definition "weakly_initial_algebra irec \<equiv> \<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)"
+
+lemma weakly_initial_algebraI:
+  assumes "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
+  shows "weakly_initial_algebra irec p"
+  unfolding weakly_initial_algebra_def using assms .
+
+lemma weakly_initial_algebraE:
+  assumes "weakly_initial_algebra irec p"
+  obtains  "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
+  using assms unfolding weakly_initial_algebra_def by blast
+
+lemma weakly_initial_algebra_is_algebra:
+  assumes "weakly_initial_algebra irec p"
+  shows "algebra irec (mem_of (fst p)) (eval (snd p))"
+  using assms by (fastforce elim: weakly_initial_algebraE intro: algebraI)
+
+definition "stable_part irec T s T' \<equiv> T' \<le> T \<and> algebra irec T s \<and> algebra irec T' s"
+
+lemma stable_partE:
+  assumes "stable_part irec T s T'"
+  obtains "T' \<le> T" and "algebra irec T s" and "algebra irec T' s"
+  using assms unfolding stable_part_def by blast
+
+lemma stable_partI:
+  assumes "T' \<le> T"
+    and "algebra irec T s"
+    and "algebra irec T' s"
+  shows "stable_part irec T s T'"
+  unfolding stable_part_def using assms by blast
+
+definition "minimal_algebra irec T s \<equiv> \<lambda>x. (\<forall>T'. (stable_part irec T s T') \<longrightarrow> T' x)"
+
+lemma min_alg_stable:
+  assumes "algebra irec T s"
+  shows "stable_part irec T s (minimal_algebra irec T s)"
+proof(intro stable_partI)
+  show "(minimal_algebra irec T s) \<le> T" using assms unfolding minimal_algebra_def stable_part_def by blast
+  show "algebra irec T s" using assms .
+  show "algebra irec (minimal_algebra irec T s) s" proof (intro algebraI mono_wrt_predI)
+    fix x assume x_type:"F ((K \<top>)(irec := minimal_algebra irec T s)) x"
+    show "minimal_algebra irec T s (s x)" unfolding minimal_algebra_def 
+    proof(intro allI impI)
+      fix T' assume stable: "stable_part irec T s T'"
+      with x_type have "F ((K \<top>)(irec := T')) x"
+        unfolding minimal_algebra_def stable_part_def by (fastforce intro: F_type_if_leq)
+      with stable show "T' (s x)" by (fastforce elim: stable_partE dest: algebraD)
+    qed
+  qed
+qed
+
+corollary min_alg_alg:
+  assumes "algebra irec T s"
+  shows "algebra irec (minimal_algebra irec T s) s"
+  using assms min_alg_stable by (auto elim: stable_partE)
+
 (* needed?
 lemma algebra_not_empty:
   assumes "algebra irec T s"
@@ -546,41 +607,41 @@ lemma algebra_not_empty:
   sorry
 *)
 
-(* rename to algebra_morph*)
-definition "morphism irec T T' s s' f \<equiv> ((T \<Rightarrow> T') f) \<and>
+(* morphism between algebras *)
+definition "algebra_morph irec T T' s s' f \<equiv> ((T \<Rightarrow> T') f) \<and>
           (F ((K \<top>)(irec := T)) \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f))))"
 
-lemma morphismI:
+lemma algebra_morphI:
   assumes "((T \<Rightarrow> T') f)"
     and   "\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f))))"
-  shows "morphism irec T T' s s' f"
-  using assms unfolding morphism_def by blast
+  shows "algebra_morph irec T T' s s' f"
+  using assms unfolding algebra_morph_def by blast
 
-lemma morphismE:
-  assumes "morphism irec T T' s s' f"
+lemma algebra_morphE:
+  assumes "algebra_morph irec T T' s s' f"
   obtains  "(T \<Rightarrow> T') f" and "(\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f)))))"
 proof
-  from assms show "(T \<Rightarrow> T') f" unfolding morphism_def by auto
+  from assms show "(T \<Rightarrow> T') f" unfolding algebra_morph_def by auto
   show "\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow> (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> Fmap (iid(irec := f)))"
   proof
     fix iT x assume "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))" "F iT x"
     then have "(I \<Rrightarrow> (\<le>)) iT ((K \<top>)(irec := T))" by fastforce
     with \<open>F iT x\<close> F_type_if_leq assms show "(f \<circ> s) x = (s' \<circ> Fmap (iid(irec := f))) x"
-      unfolding morphism_def by fast
+      unfolding algebra_morph_def by fast
   qed
 qed
     
 
 
-lemma morphismE':
-  assumes "morphism irec T T' s s' f"
+lemma algebra_morphE':
+  assumes "algebra_morph irec T T' s s' f"
     and "((i : I) \<Rrightarrow> iT i \<Rrightarrow> (=)) ig (iid(irec:=f))"
     and "iT irec = T"
   obtains  "(T \<Rightarrow> T') f" and "(F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap ig))"
 proof
-  from assms morphismE show "(T \<Rightarrow> T') f" by blast
+  from assms algebra_morphE show "(T \<Rightarrow> T') f" by blast
   show "(F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> Fmap ig)"
   proof
     fix x assume "F iT x"
@@ -594,22 +655,22 @@ proof
         with Fpred_type \<open>F iT x\<close>  assms \<open>I i\<close> show "ig i y = (iid(irec:=f)) i y" by fastforce
       qed
     qed auto
-    with assms \<open>F ((K \<top>)(irec := T)) x\<close> show "(f \<circ> s) x = (s' \<circ> Fmap ig) x" by (fastforce elim: morphismE)
+    with assms \<open>F ((K \<top>)(irec := T)) x\<close> show "(f \<circ> s) x = (s' \<circ> Fmap ig) x" by (fastforce elim: algebra_morphE)
   qed
 qed
 
 
-lemma morphismE_alt:
+lemma algebra_morphE_alt:
   assumes "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
     and "F iT z"
-    and "morphism irec T T' s s' f"
+    and "algebra_morph irec T T' s s' f"
   shows "f (s z) = s' (Fmap (iid(irec := f)) z)"
-  using assms by (fastforce elim: morphismE)
+  using assms by (fastforce elim: algebra_morphE)
 
-lemma morphism_inclusion:
+lemma algebra_morph_inclusion:
   assumes "T \<le> T'"
-  shows "morphism irec T T' s s id"
-proof (intro morphismI)
+  shows "algebra_morph irec T T' s s id"
+proof (intro algebra_morphI)
   from assms show "(T \<Rightarrow> T') id" by fastforce
   fix iT assume "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
   show "(F iT \<Rrightarrow> (=)) (id \<circ> s) (s \<circ> Fmap (iid(irec := id)))"
@@ -620,26 +681,26 @@ proof (intro morphismI)
   qed
 qed
 
-lemma morphism_composition:
-  assumes "morphism irec T1 T2 s1 s2 f"
-    and "morphism irec T2 T3 s2 s3 g"
-  shows "morphism irec T1 T3 s1 s3 (g \<circ> f)"
-proof (intro morphismI)
-  have "(T1 \<Rightarrow> T2) f" using assms by (fastforce elim: morphismE)
-  moreover have "(T2 \<Rightarrow> T3) g" using assms by (fastforce elim: morphismE)
+lemma algebra_morph_composition:
+  assumes "algebra_morph irec T1 T2 s1 s2 f"
+    and "algebra_morph irec T2 T3 s2 s3 g"
+  shows "algebra_morph irec T1 T3 s1 s3 (g \<circ> f)"
+proof (intro algebra_morphI)
+  have "(T1 \<Rightarrow> T2) f" using assms by (fastforce elim: algebra_morphE)
+  moreover have "(T2 \<Rightarrow> T3) g" using assms by (fastforce elim: algebra_morphE)
   ultimately show "(T1 \<Rightarrow> T3) (g \<circ> f)" by fastforce
   fix iT assume iT_eq: "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T1))"
   show "(F iT \<Rrightarrow> (=)) (g \<circ> f \<circ> s1) (s3 \<circ> Fmap (iid(irec := g \<circ> f)))"
   proof
     fix x assume "F iT x"
-    with iT_eq assms(1) have "(f \<circ> s1) x = (s2 \<circ> (Fmap (iid(irec := f)))) x" by (fastforce elim: morphismE)
+    with iT_eq assms(1) have "(f \<circ> s1) x = (s2 \<circ> (Fmap (iid(irec := f)))) x" by (fastforce elim: algebra_morphE)
     then have gfs1:"(g \<circ> f \<circ> s1) x = (g \<circ> s2 \<circ> (Fmap (iid(irec := f)))) x" by auto
     have f_type:"((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T2)) i) (iid(irec:=f))"
     proof (intro dep_mono_wrt_predI mono_wrt_predI)
       fix i x assume "I i" and "iT i x"
       show "(iT(irec := T2)) i ((iid(irec := f)) i x)" proof (cases "i = irec")
         case True
-        from assms \<open>iT i x\<close> True \<open>I i\<close> iT_eq show ?thesis by (fastforce elim: morphismE)
+        from assms \<open>iT i x\<close> True \<open>I i\<close> iT_eq show ?thesis by (fastforce elim: algebra_morphE)
       next
         case False
         with \<open>iT i x\<close> show ?thesis by auto
@@ -648,9 +709,9 @@ proof (intro morphismI)
     with Fmap_type \<open>F iT x\<close> have "F (iT(irec := T2)) (Fmap (iid(irec := f)) x)" by fastforce
     moreover from iT_eq have "(I \<Rrightarrow> (=)) (iT(irec := T2)) ((K \<top>)(irec := T2))" by fastforce
     ultimately have gs2f: "g (s2 (Fmap (iid(irec := f)) x)) =
-          s3 (Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x))" using assms(2) by (fastforce elim: morphismE)
+          s3 (Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x))" using assms(2) by (fastforce elim: algebra_morphE)
     have g_type:"((i : I) \<Rightarrow> (iT(irec := T2)) i\<Rightarrow> (iT(irec := T3)) i) (iid(irec := g))"
-      using mono_upd_iid assms by (fastforce elim: morphismE)
+      using mono_upd_iid assms by (fastforce elim: algebra_morphE)
     with Fmap_comp \<open>F iT x\<close> f_type have "Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x) =
            Fmap (iid(irec := g) \<circ> iid(irec := f)) x" by fastforce
     moreover from \<open>F iT x\<close> f_type g_type
@@ -661,26 +722,27 @@ proof (intro morphismI)
   qed
 qed
 
-lemma morphism_cong:
+lemma algebra_morph_cong:
   assumes "(T \<Rrightarrow> (=)) f f'"
-    and "morphism irec T T' s s' f"
-  shows "morphism irec T T' s s' f'"
-proof (intro morphismI)
-  show "(T \<Rightarrow> T') f'" using assms by (fastforce elim: morphismE)
+    and "algebra_morph irec T T' s s' f"
+    and "algebra irec T s"
+  shows "algebra_morph irec T T' s s' f'"
+proof (intro algebra_morphI)
+  show "(T \<Rightarrow> T') f'" using assms by (fastforce elim: algebra_morphE)
   fix iT assume iT_eq:"(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
   show "(F iT \<Rrightarrow> (=)) (f' \<circ> s) (s' \<circ> Fmap (iid(irec := f')))"
   proof
     fix x assume "F iT x"
-      (* this step needs type information about s *)
-    from assms morphismE have "T (s x)" sorry
+      (* this step needs type information about s - here: algebra irec T s *)
+    with iT_eq F_type_if_eq assms algebra_morphE algebraD have "T (s x)" by fastforce
     with assms have f_eq:"f' (s x) = f (s x)" by auto
     moreover have maps_eq:"Fmap (iid(irec := f)) x = Fmap (iid(irec := f')) x"
     proof (intro Fmap_cong[where iIn=iT and ?iOut1.0="(iT(irec := T'))" and ?iOut2.0="(iT(irec := T'))"])
       show "F iT x" using \<open>F iT x\<close> by auto
       show "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T')) i) (iid(irec := f))"
-        using mono_upd_iid iT_eq assms by (fastforce elim: morphismE)
+        using mono_upd_iid iT_eq assms by (fastforce elim: algebra_morphE)
       show "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(irec := T')) i) (iid(irec := f'))"
-        using mono_upd_iid iT_eq assms by (fastforce elim: morphismE)
+        using mono_upd_iid iT_eq assms by (fastforce elim: algebra_morphE)
       show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (iid(irec := f)) (iid(irec := f'))"
       proof (intro Dep_Fun_Rel_predI Fun_Rel_predI)
         fix i y assume "I i"  "Fpred i x y"
@@ -696,17 +758,34 @@ proof (intro morphismI)
       qed
     qed
     from f_eq maps_eq[symmetric] \<open>F iT x\<close> assms iT_eq
-      show "(f' \<circ> s) x = (s' \<circ> Fmap (iid(irec := f'))) x" by (fastforce elim: morphismE)
+      show "(f' \<circ> s) x = (s' \<circ> Fmap (iid(irec := f'))) x" by (fastforce elim: algebra_morphE)
   qed
 qed
 
-lemma morphism_strong:
-  shows "morphism irec \<top> \<top> (Fmap (iid(irec := s))) s s"
-  by (intro morphismI) fastforce+
+lemma algebra_morph_str:
+  shows "algebra_morph irec \<top> \<top> (Fmap (iid(irec := s))) s s"
+  by (intro algebra_morphI) fastforce+
 
 
 end
 
 (* locale nat_funct_card, typ für card 'c, fixes suc + *)
+
+locale HOTG_Natural_Functor_Cardinality = HOTG_Natural_Functor +
+  fixes succ :: "'c \<Rightarrow> 'c"
+  and plus :: "'c \<Rightarrow> 'c \<Rightarrow> 'c"
+  and card_set :: "set \<Rightarrow> 'c"
+  and card_pred :: "set \<Rightarrow> bool \<Rightarrow> 'c"
+begin
+
+definition "min_G f i a \<equiv> \<exists>j. j < i \<and> f j = a"
+
+definition "min_H s f i irec T \<equiv> min_G f i \<squnion> (image_pred s (F ((K \<top>)(irec := T))))"
+
+(* definition "min_alg s f i irec T \<equiv> worec SucFbd (min_H s f i irec T)" *)
+
+(* problems: well_order recursion, Cardinal Ariths *)
+
+end
 
 end
