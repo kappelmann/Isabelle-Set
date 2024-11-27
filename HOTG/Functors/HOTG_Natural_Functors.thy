@@ -2,10 +2,14 @@ theory HOTG_Natural_Functors
   imports
     HOTG_Functions_Composition
     HOTG_Pairs
+    HOTG_Functions_Monotone
+    HOTG_Functions_Lambda
     Transport.LBinary_Relations
     Transport.LFunctions
     Hilbert_Eps
 begin
+
+unbundle no HOL_ascii_syntax
 
 definition "K x \<equiv> \<lambda>_. x"
 
@@ -510,7 +514,7 @@ end
 context HOTG_Natural_Functor
 begin
 
-definition "algebra irec T s \<equiv> (F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
+definition "algebra irec T (s :: set \<Rightarrow> set) \<equiv> (F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
 
 lemma algebraI:
   assumes "(F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
@@ -522,15 +526,14 @@ lemma algebraD:
   shows "(F ((K \<top>)(irec := T)) \<Rightarrow> T) s"
   using assms unfolding algebra_def by auto
 
-
 lemma algebraE:
   assumes "algebra irec T s"
-  obtains "\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow> (F iT \<Rightarrow> T) s"
+  obtains "\<And>iT. iT irec = T \<Longrightarrow> (F iT \<Rightarrow> T) s"
 proof
   from assms algebraD have s_type:"(F ((K \<top>)(irec := T)) \<Rightarrow> T) s" by blast
-  fix iT assume "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
-  then have "(I \<Rrightarrow> (\<le>)) iT ((K \<top>)(irec := T))" by fastforce
-  with  F_type_if_leq s_type show "(F iT \<Rightarrow> T) s" by blast
+  fix iT assume "iT irec = T"
+  then have "(I \<Rrightarrow> (\<le>)) iT ((K \<top>)(irec := T))" by auto
+  with F_type_if_leq s_type show "(F iT \<Rightarrow> T) s" by blast
 qed
 
 
@@ -544,61 +547,7 @@ proof-
   with \<open>F iT x\<close> F_type_if_leq  \<open>algebra irec T s\<close> show "T (s x)" by (fastforce dest: algebraD)
 qed
 
-definition "weakly_initial_algebra irec \<equiv> \<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)"
 
-lemma weakly_initial_algebraI:
-  assumes "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
-  shows "weakly_initial_algebra irec p"
-  unfolding weakly_initial_algebra_def using assms .
-
-lemma weakly_initial_algebraE:
-  assumes "weakly_initial_algebra irec p"
-  obtains  "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
-  using assms unfolding weakly_initial_algebra_def by blast
-
-lemma weakly_initial_algebra_is_algebra:
-  assumes "weakly_initial_algebra irec p"
-  shows "algebra irec (mem_of (fst p)) (eval (snd p))"
-  using assms by (fastforce elim: weakly_initial_algebraE intro: algebraI)
-
-definition "stable_part irec T s T' \<equiv> T' \<le> T \<and> algebra irec T s \<and> algebra irec T' s"
-
-lemma stable_partE:
-  assumes "stable_part irec T s T'"
-  obtains "T' \<le> T" and "algebra irec T s" and "algebra irec T' s"
-  using assms unfolding stable_part_def by blast
-
-lemma stable_partI:
-  assumes "T' \<le> T"
-    and "algebra irec T s"
-    and "algebra irec T' s"
-  shows "stable_part irec T s T'"
-  unfolding stable_part_def using assms by blast
-
-definition "minimal_algebra irec T s \<equiv> \<lambda>x. (\<forall>T'. (stable_part irec T s T') \<longrightarrow> T' x)"
-
-lemma min_alg_stable:
-  assumes "algebra irec T s"
-  shows "stable_part irec T s (minimal_algebra irec T s)"
-proof(intro stable_partI)
-  show "(minimal_algebra irec T s) \<le> T" using assms unfolding minimal_algebra_def stable_part_def by blast
-  show "algebra irec T s" using assms .
-  show "algebra irec (minimal_algebra irec T s) s" proof (intro algebraI mono_wrt_predI)
-    fix x assume x_type:"F ((K \<top>)(irec := minimal_algebra irec T s)) x"
-    show "minimal_algebra irec T s (s x)" unfolding minimal_algebra_def 
-    proof(intro allI impI)
-      fix T' assume stable: "stable_part irec T s T'"
-      with x_type have "F ((K \<top>)(irec := T')) x"
-        unfolding minimal_algebra_def stable_part_def by (fastforce intro: F_type_if_leq)
-      with stable show "T' (s x)" by (fastforce elim: stable_partE dest: algebraD)
-    qed
-  qed
-qed
-
-corollary min_alg_alg:
-  assumes "algebra irec T s"
-  shows "algebra irec (minimal_algebra irec T s) s"
-  using assms min_alg_stable by (auto elim: stable_partE)
 
 (* needed?
 lemma algebra_not_empty:
@@ -613,20 +562,20 @@ definition "algebra_morph irec T T' s s' f \<equiv> ((T \<Rightarrow> T') f) \<a
 
 lemma algebra_morphI:
   assumes "((T \<Rightarrow> T') f)"
-    and   "\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow>
+    and   "\<And>iT. iT irec = T \<Longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f))))"
   shows "algebra_morph irec T T' s s' f"
-  using assms unfolding algebra_morph_def by blast
+  using assms unfolding algebra_morph_def by fastforce
 
 lemma algebra_morphE:
   assumes "algebra_morph irec T T' s s' f"
-  obtains  "(T \<Rightarrow> T') f" and "(\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow>
+  obtains  "(T \<Rightarrow> T') f" and "(\<And>iT. iT irec = T \<Longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> (Fmap (iid(irec := f)))))"
 proof
   from assms show "(T \<Rightarrow> T') f" unfolding algebra_morph_def by auto
-  show "\<And>iT. (I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T)) \<Longrightarrow> (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> Fmap (iid(irec := f)))"
+  show "\<And>iT. iT irec = T \<Longrightarrow> (F iT \<Rrightarrow> (=)) (f \<circ> s) (s' \<circ> Fmap (iid(irec := f)))"
   proof
-    fix iT x assume "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))" "F iT x"
+    fix iT x assume "iT irec = T" "F iT x"
     then have "(I \<Rrightarrow> (\<le>)) iT ((K \<top>)(irec := T))" by fastforce
     with \<open>F iT x\<close> F_type_if_leq assms show "(f \<circ> s) x = (s' \<circ> Fmap (iid(irec := f))) x"
       unfolding algebra_morph_def by fast
@@ -655,24 +604,24 @@ proof
         with Fpred_type \<open>F iT x\<close>  assms \<open>I i\<close> show "ig i y = (iid(irec:=f)) i y" by fastforce
       qed
     qed auto
-    with assms \<open>F ((K \<top>)(irec := T)) x\<close> show "(f \<circ> s) x = (s' \<circ> Fmap ig) x" by (fastforce elim: algebra_morphE)
+    with assms \<open>F iT x\<close> show "(f \<circ> s) x = (s' \<circ> Fmap ig) x" by (fastforce elim: algebra_morphE)
   qed
 qed
 
 
-lemma algebra_morphE_alt:
-  assumes "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
+lemma eq_algebra_morph_appI:
+  assumes "iT irec = T"
     and "F iT z"
     and "algebra_morph irec T T' s s' f"
   shows "f (s z) = s' (Fmap (iid(irec := f)) z)"
   using assms by (fastforce elim: algebra_morphE)
 
-lemma algebra_morph_inclusion:
+lemma algebra_morph_id_if_le:
   assumes "T \<le> T'"
   shows "algebra_morph irec T T' s s id"
 proof (intro algebra_morphI)
   from assms show "(T \<Rightarrow> T') id" by fastforce
-  fix iT assume "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
+  fix iT assume "iT irec = T"
   show "(F iT \<Rrightarrow> (=)) (id \<circ> s) (s \<circ> Fmap (iid(irec := id)))"
   proof
     fix x assume "F iT x"
@@ -689,7 +638,7 @@ proof (intro algebra_morphI)
   have "(T1 \<Rightarrow> T2) f" using assms by (fastforce elim: algebra_morphE)
   moreover have "(T2 \<Rightarrow> T3) g" using assms by (fastforce elim: algebra_morphE)
   ultimately show "(T1 \<Rightarrow> T3) (g \<circ> f)" by fastforce
-  fix iT assume iT_eq: "(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T1))"
+  fix iT assume iT_eq: "iT irec = T1"
   show "(F iT \<Rrightarrow> (=)) (g \<circ> f \<circ> s1) (s3 \<circ> Fmap (iid(irec := g \<circ> f)))"
   proof
     fix x assume "F iT x"
@@ -707,7 +656,7 @@ proof (intro algebra_morphI)
       qed
     qed
     with Fmap_type \<open>F iT x\<close> have "F (iT(irec := T2)) (Fmap (iid(irec := f)) x)" by fastforce
-    moreover from iT_eq have "(I \<Rrightarrow> (=)) (iT(irec := T2)) ((K \<top>)(irec := T2))" by fastforce
+    moreover from iT_eq have "(iT(irec := T2)) irec = T2" by fastforce
     ultimately have gs2f: "g (s2 (Fmap (iid(irec := f)) x)) =
           s3 (Fmap (iid(irec := g)) (Fmap (iid(irec := f)) x))" using assms(2) by (fastforce elim: algebra_morphE)
     have g_type:"((i : I) \<Rightarrow> (iT(irec := T2)) i\<Rightarrow> (iT(irec := T3)) i) (iid(irec := g))"
@@ -729,11 +678,12 @@ lemma algebra_morph_cong:
   shows "algebra_morph irec T T' s s' f'"
 proof (intro algebra_morphI)
   show "(T \<Rightarrow> T') f'" using assms by (fastforce elim: algebra_morphE)
-  fix iT assume iT_eq:"(I \<Rrightarrow> (=)) iT ((K \<top>)(irec := T))"
+  fix iT assume iT_eq:"iT irec = T"
   show "(F iT \<Rrightarrow> (=)) (f' \<circ> s) (s' \<circ> Fmap (iid(irec := f')))"
   proof
     fix x assume "F iT x"
       (* this step needs type information about s - here: algebra irec T s *)
+    then have "F ((K \<top>)(irec := T)) x" apply (rule F_type_if_leq) using iT_eq by fastforce
     with iT_eq F_type_if_eq assms algebra_morphE algebraD have "T (s x)" by fastforce
     with assms have f_eq:"f' (s x) = f (s x)" by auto
     moreover have maps_eq:"Fmap (iid(irec := f)) x = Fmap (iid(irec := f')) x"
@@ -766,6 +716,158 @@ lemma algebra_morph_str:
   shows "algebra_morph irec \<top> \<top> (Fmap (iid(irec := s))) s s"
   by (intro algebra_morphI) fastforce+
 
+definition "is_weakly_initial_algebra irec T s \<equiv> algebra irec T s \<and>
+  (\<forall>T'. \<forall>s' : algebra irec T'. (\<exists>h. algebra_morph irec T T' s s' h))"
+
+lemma is_weakly_initial_algebraI:
+  assumes "algebra irec T s"
+    and "\<And>T' s'. algebra irec T' s' \<Longrightarrow> \<exists>h. algebra_morph irec T T' s s' h"
+  shows "is_weakly_initial_algebra irec T s"
+  unfolding is_weakly_initial_algebra_def using assms by blast
+
+lemma is_weakly_initial_algebraE:
+  assumes "is_weakly_initial_algebra irec T s"
+  obtains "algebra irec T s" and "\<And>T' s'. algebra irec T' s' \<Longrightarrow> \<exists>h. algebra_morph irec T T' s s' h"
+  using assms unfolding is_weakly_initial_algebra_def by blast
+
+term algebra
+term is_weakly_initial_algebra
+term "\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)"
+term snd 
+term eval_set
+term Fmap
+(* in Fuktor 'i \<Rightarrow> set, 'i \<Rightarrow> set > set 
+definition "algebra_prod_s is \<equiv> \<lambda>x. Fmap (\<lambda>i. \<lambda>a. a i) x"
+*)
+
+(*definition "algebra_prod_s irec is \<equiv> \<lambda>x j. is j (Fmap ((iid)(irec := \<lambda>p. eval p j)) x)"*)
+
+definition "algebra_prod_s irec J is :: set \<Rightarrow> set \<equiv> \<lambda>x. \<lambda>j : J. is j (Fmap (iid(irec := \<lambda>pr. pr`j)) x)"
+
+term "((j : (J :: set \<Rightarrow> bool)) \<rightarrow>  iT j) (f :: set)"
+term "((j : (J :: set \<Rightarrow> bool)) \<Rightarrow> iT j) (eval_set f)"
+term "dep_mono_wrt_pred"
+term "eval_set"
+term algebra
+term rel_lambda_set
+
+lemma algebra_prod_is_algebra:             
+  assumes "\<And>j. (j :: set) \<in> (J :: set) \<Longrightarrow> algebra irec (iT j) (is j)"
+  shows  "algebra irec ((j : mem_of J) \<rightarrow> iT j) (algebra_prod_s irec J is)"
+proof (intro algebraI mono_wrt_predI)
+  fix x assume x_is:"F ((K \<top>)(irec := (j : mem_of J) \<rightarrow> iT j)) x"
+  show "((j : mem_of J) \<rightarrow> iT j) (algebra_prod_s irec J is x)"
+    unfolding algebra_prod_s_def
+  proof (urule rel_dep_mono_wrt_predI) 
+    show "dep_mono_wrt (mem_of J) iT ((`) (\<lambda>j : mem_of J. is j (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`j)) x)))"
+    proof (intro dep_mono_wrt_predI)
+      fix xa assume J: "mem_of J xa"
+      then have "((i : I) \<Rightarrow> ((K \<top>)(irec := (j : mem_of J) \<rightarrow> iT j)) i \<Rightarrow> ((K \<top>)(irec := iT xa)) i)
+        ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`xa))" by fastforce
+      with x_is have x_mapped: "F ((K \<top>)(irec := iT xa)) (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`xa)) x)"
+        using Fmap_type by fastforce
+      from assms x_mapped J show "iT xa ((\<lambda>j : mem_of J. is j (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`j)) x))`xa)"
+        by (fastforce dest: algebraD)
+    qed
+  qed auto
+qed
+
+
+(*
+definition "algebra_prod_s irec is \<equiv> \<lambda>x j. is j (Fmap ((iid)(irec := \<lambda>p. eval p j)) x)"
+definition "algebra_prod_T' J iT :: set \<equiv> \<lambda>j : J. iT j"
+definition "algebra_prod_s' irec J is :: set \<Rightarrow> set \<equiv> \<lambda>x. \<lambda>j : J. is j (Fmap (iid(irec := \<lambda>pr. pr`j)) x)"
+
+term algebra
+lemma algebra_prod_is_algebra:             
+  assumes "(j :: set) \<in> (J :: set) \<Longrightarrow> algebra irec (mem_of (iT j)) (is j)"
+  shows  "algebra irec (mem_of (algebra_prod_T' J iT)) (algebra_prod_s' irec J is)"
+proof (intro algebraI mono_wrt_predI)
+  fix x assume "F ((K \<top>)(irec := (algebra_prod_T' irec iT j))) x"
+  show "(algebra_prod_T' irec iT j) (algebra_prod_s' irec J is x)"
+    unfolding algebra_prod_T'_def algebra_prod_s'_def apply auto sorry
+qed
+*)
+(*term "is_weakly_initial_algebra irec (\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) (eval \<circ> snd)"*)
+(* wi_alg: alle set \<Rightarrow> bool, *)
+(* typen = sets, weil Funktor :: set *)
+(*definition "weakly_initial_algebra irec (U :: t) :: t \<equiv> \<Sum>T : U.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)"*)
+(* T mit allen Funktionen \<rightarrow> T \<Longrightarrow> Powerset*)
+lemma "is_weakly_initial_algebra irec (mem_of (fst (weakly_initial_algebra irec))) (eval (snd (weakly_initial_algebra irec)))"
+  sorry
+(*
+lemma weakly_initial_algebraI:
+  assumes "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
+  shows "weakly_initial_algebra irec p"
+  unfolding weakly_initial_algebra_def using assms .
+
+lemma weakly_initial_algebraE:
+  assumes "weakly_initial_algebra irec p"
+  obtains  "(\<Sum>T : \<top>.  (F ((K \<top>)(irec := mem_of T)) \<rightarrow> mem_of T)) p"
+  using assms unfolding weakly_initial_algebra_def by blast
+
+lemma weakly_initial_algebra_is_algebra:
+  assumes "weakly_initial_algebra irec p"
+  shows "algebra irec (mem_of (fst p)) (eval (snd p))"
+  using assms by (fastforce elim: weakly_initial_algebraE intro: algebraI)*)
+
+(*del  algebrea irec T s *)
+definition "stable_part irec T s T' \<equiv> T' \<le> T \<and> algebra irec T s \<and> algebra irec T' s"
+
+lemma stable_partE:
+  assumes "stable_part irec T s T'"
+  obtains "T' \<le> T" and "algebra irec T s" and "algebra irec T' s"
+  using assms unfolding stable_part_def by blast
+
+lemma stable_partI:
+  assumes "T' \<le> T"
+    and "algebra irec T s"
+    and "algebra irec T' s"
+  shows "stable_part irec T s T'"
+  unfolding stable_part_def using assms by blast
+
+definition "minimal_algebra irec T s \<equiv> \<lambda>x. (\<forall>T'. (stable_part irec T s T') \<longrightarrow> T' x)"
+
+lemma minimal_algebra_stable:
+  assumes "algebra irec T s"
+  shows "stable_part irec T s (minimal_algebra irec T s)"
+proof(intro stable_partI)
+  show "(minimal_algebra irec T s) \<le> T" using assms
+    unfolding minimal_algebra_def stable_part_def by blast
+  show "algebra irec T s" using assms .
+  show "algebra irec (minimal_algebra irec T s) s" 
+  proof (intro algebraI mono_wrt_predI)
+    fix x assume x_type:"F ((K \<top>)(irec := minimal_algebra irec T s)) x"
+    show "minimal_algebra irec T s (s x)" unfolding minimal_algebra_def 
+    proof(intro allI impI)
+      fix T' assume stable: "stable_part irec T s T'"
+      with x_type have "F ((K \<top>)(irec := T')) x"
+        unfolding minimal_algebra_def stable_part_def by (fastforce intro: F_type_if_leq)
+      with stable show "T' (s x)" by (fastforce elim: stable_partE algebraE)
+    qed
+  qed
+qed
+
+corollary algebra_mininmal_algebra:
+  assumes "algebra irec T s"
+  shows "algebra irec (minimal_algebra irec T s) s"
+  using assms minimal_algebra_stable by (auto elim: stable_partE)
+
+
+
+definition "initial_algebra irec T s \<equiv> algebra irec T s \<and>
+      (\<forall> T' s'. algebra irec T' s' \<longrightarrow> (\<exists>! h. algebra_morph irec T T' s s' h))"
+
+lemma initial_algebraI:
+  assumes "algebra irec T s"
+    and "\<And>T' s'. algebra irec T' s' \<Longrightarrow> (\<exists>! h. algebra_morph irec T T' s s' h)"
+  shows "initial_algebra irec T s"
+  unfolding initial_algebra_def using assms by blast
+
+lemma initial_algebraE:
+  assumes "initial_algebra irec T s"
+  obtains "algebra irec T s" and "\<And>T' s'. algebra irec T' s' \<Longrightarrow> (\<exists>! h. algebra_morph irec T T' s s' h)"
+  using assms unfolding initial_algebra_def by blast
 
 end
 
