@@ -743,7 +743,8 @@ definition "algebra_prod_s is \<equiv> \<lambda>x. Fmap (\<lambda>i. \<lambda>a.
 
 (* algebra_prod_morph *)
 definition "algebra_prod_s irec J is :: set \<Rightarrow> set \<equiv> \<lambda>x. \<lambda>j : J. is j (Fmap (iid(irec := \<lambda>pr. pr`j)) x)"
-
+definition "algebra_prod_obj irec J iT :: set \<Rightarrow> bool \<equiv> ((j : mem_of J) \<rightarrow> iT j)"
+(* todo: algebra_prod_obj*)
 term "((j : (J :: set \<Rightarrow> bool)) \<rightarrow>  iT j) (f :: set)"
 term "((j : (J :: set \<Rightarrow> bool)) \<Rightarrow> iT j) (eval_set f)"
 term "dep_mono_wrt_pred"
@@ -753,17 +754,17 @@ term rel_lambda_set
 
 lemma algebra_prod_is_algebra:             
   assumes "\<And>j. (j :: set) \<in> (J :: set) \<Longrightarrow> algebra irec (iT j) (is j)"
-  shows  "algebra irec ((j : mem_of J) \<rightarrow> iT j) (algebra_prod_s irec J is)"
+  shows  "algebra irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)"
 proof (intro algebraI mono_wrt_predI)
-  fix x assume x_is:"F ((K \<top>)(irec := (j : mem_of J) \<rightarrow> iT j)) x"
-  show "((j : mem_of J) \<rightarrow> iT j) (algebra_prod_s irec J is x)"
-    unfolding algebra_prod_s_def
+  fix x assume x_is:"F ((K \<top>)(irec := algebra_prod_obj irec J iT)) x"
+  show "(algebra_prod_obj irec J iT) (algebra_prod_s irec J is x)"
+    unfolding algebra_prod_s_def algebra_prod_obj_def
   proof (urule rel_dep_mono_wrt_predI) 
     show "dep_mono_wrt (mem_of J) iT ((`) (\<lambda>j : mem_of J. is j (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`j)) x)))"
     proof (intro dep_mono_wrt_predI)
       fix xa assume J: "mem_of J xa"
-      then have "((i : I) \<Rightarrow> ((K \<top>)(irec := (j : mem_of J) \<rightarrow> iT j)) i \<Rightarrow> ((K \<top>)(irec := iT xa)) i)
-        ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`xa))" by fastforce
+      then have "((i : I) \<Rightarrow> ((K \<top>)(irec := algebra_prod_obj irec J iT)) i \<Rightarrow> ((K \<top>)(irec := iT xa)) i)
+        ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`xa))" unfolding algebra_prod_obj_def by fastforce
       with x_is have x_mapped: "F ((K \<top>)(irec := iT xa)) (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`xa)) x)"
         using Fmap_type by fastforce
       from assms x_mapped J show "iT xa ((\<lambda>j : mem_of J. is j (Fmap ((\<lambda>_. id)(irec := \<lambda>pr. rel pr`j)) x))`xa)"
@@ -774,8 +775,8 @@ qed
 
 lemma morph_prod_alg:
   assumes "j \<in> J"
-  shows "algebra_morph irec ((j : mem_of J) \<rightarrow> iT j) (iT j) (algebra_prod_s irec J is) (is j) (\<lambda>pr. pr`j)"
-  unfolding algebra_prod_s_def using assms by (fastforce intro: algebra_morphI)
+  shows "algebra_morph irec (algebra_prod_obj irec J iT) (iT j) (algebra_prod_s irec J is) (is j) (\<lambda>pr. pr`j)"
+  unfolding algebra_prod_s_def algebra_prod_obj_def using assms by (fastforce intro: algebra_morphI)
 
 (*
 definition "algebra_prod_s irec is \<equiv> \<lambda>x j. is j (Fmap ((iid)(irec := \<lambda>p. eval p j)) x)"
@@ -889,8 +890,27 @@ proof
   fix f x assume "algebra_morph irec (minimal_algebra_obj irec T s) T s s f" and "T x"
   then obtain  "(minimal_algebra_obj irec T s \<Rightarrow> T) f" and "(\<And>iT. iT irec = (minimal_algebra_obj irec T s) \<Longrightarrow>
           (F iT \<Rrightarrow> (=)) (f \<circ> s) (s \<circ> (Fmap (iid(irec := f)))))" by (blast elim: algebra_morphE)
+  have "injective id" by auto
+  then have "id \<circ> f = id \<circ> g \<Longrightarrow> f = g" by auto
   with \<open>T x\<close> show "f x = id x" sorry
 qed
+
+lemma prod_of_min_algs_has_morph:
+  assumes "\<And>j. (j :: set) \<in> (J :: set) \<Longrightarrow> algebra irec (iT j) (is j)"
+  shows  "\<And>j. j \<in> J \<Longrightarrow>  algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT)
+            (algebra_prod_s irec J is)) (iT j) (algebra_prod_s irec J is) (is j) ((\<lambda>pr. pr`j) \<circ> id)"
+proof(intro algebra_morph_composition)
+  fix j assume "j \<in> J"
+  from assms algebra_prod_is_algebra have "algebra irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)" by auto
+  with morphism_minimal_algebra_id show "algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT)
+            (algebra_prod_s irec J is)) (algebra_prod_obj irec J iT) (algebra_prod_s irec J is) (algebra_prod_s irec J is) id"
+    by auto
+  from \<open>j \<in> J\<close> morph_prod_alg show "algebra_morph irec (algebra_prod_obj irec J iT) (iT j)
+    (algebra_prod_s irec J is) (is j) (\<lambda>pr. pr`j)" by auto
+qed
+    
+
+
 
 definition "initial_algebra irec T s \<equiv> algebra irec T s \<and>
       (\<forall> T' s'. algebra irec T' s' \<longrightarrow> (\<exists>! h. algebra_morph irec T T' s s' h))"
@@ -908,23 +928,43 @@ lemma initial_algebraE:
 
 end
 
-(* locale nat_funct_card, typ für card 'c, fixes suc + *)
-
-locale HOTG_Natural_Functor_Cardinality = HOTG_Natural_Functor +
-  fixes succ :: "'c \<Rightarrow> 'c"
-  and plus :: "'c \<Rightarrow> 'c \<Rightarrow> 'c"
-  and card_set :: "set \<Rightarrow> 'c"
-  and card_pred :: "set \<Rightarrow> bool \<Rightarrow> 'c"
+locale HOTG_Algebra_Generator = HOTG_Natural_Functor + 
+  fixes J :: set
+    and iT :: "set \<Rightarrow> set \<Rightarrow> bool"
+    and "is" :: "set \<Rightarrow> set \<Rightarrow> set"
+  assumes every_alg_has_min: "\<And>T s. algebra irec T s \<Longrightarrow> \<exists>j : J. minimal_algebra_obj irec T s = iT j \<and> s = is j" (* restrict to min_alg_obj?*)
+  and every_index_is_min_alg: "\<And>j. j \<in> J \<Longrightarrow> \<exists>T s. minimal_algebra_obj irec T s = iT j \<and> s = is j \<and> algebra irec T s"
+(* def: is_minimal_algebra_of, <= *)
 begin
 
-definition "min_G f i a \<equiv> \<exists>j. j < i \<and> f j = a"
+lemma morph_from_min_prod: "\<And>j. j \<in> J 
+  \<Longrightarrow> \<exists>f. algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (iT j) (algebra_prod_s irec J is) (is j) f"
+proof
+  fix j assume "j \<in> J"
+  then have pr_morph: "algebra_morph irec (algebra_prod_obj irec J iT) (iT j) (algebra_prod_s irec J is) (is j) (\<lambda>pr. pr`j)" using morph_prod_alg by blast
+  have "\<And>j. j \<in> J \<Longrightarrow> algebra irec (iT j) (is j)"
+  proof-
+    fix j assume "j \<in> J"
+    with every_index_is_min_alg have "\<exists>T s. minimal_algebra_obj irec T (is j) = iT j \<and> algebra irec T (is j)" by auto
+    with minimal_algebra_obj_algebra show "algebra irec (iT j) (is j)" by fastforce
+  qed
+  then have "algebra irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)" using algebra_prod_is_algebra by auto
+  then have "algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (algebra_prod_obj irec J iT) (algebra_prod_s irec J is) (algebra_prod_s irec J is) id"
+    using morphism_minimal_algebra_id by blast
+  with pr_morph show "algebra_morph irec (minimal_algebra_obj irec(algebra_prod_obj irec J iT)
+        (algebra_prod_s irec J is)) (iT j) (algebra_prod_s irec J is) (is j) ((\<lambda>pr. pr`j) \<circ> id)"
+    apply (intro algebra_morph_composition) by auto
+qed
 
-definition "min_H s f i irec T \<equiv> min_G f i \<squnion> (image_pred s (F ((K \<top>)(irec := T))))"
-
-(* definition "min_alg s f i irec T \<equiv> worec SucFbd (min_H s f i irec T)" *)
-
-(* problems: well_order recursion, Cardinal Ariths *)
-
+corollary morph_to_all_alg: "\<And>irec T s. algebra irec T s \<Longrightarrow> \<exists>j f. algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (iT j) (algebra_prod_s irec J is) (is j) f"
+proof-
+  fix irec T s assume "algebra irec T s"
+  with every_alg_has_min obtain j where iTis:"minimal_algebra_obj irec T s = iT j \<and> s = is j" and "j \<in> J" by blast
+  with morph_from_min_prod iTis obtain f where pr:"algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (minimal_algebra_obj irec T s) (algebra_prod_s irec J is) s f" by auto
+  with morphism_minimal_algebra_id \<open>algebra irec T s\<close> iTis have "algebra_morph irec (iT j) T s s id" by fastforce
+  with pr iTis have "algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (minimal_algebra_obj irec T s) (algebra_prod_s irec J is) s (id \<circ> f)" by auto
+  with iTis show "\<exists>j f. algebra_morph irec (minimal_algebra_obj irec (algebra_prod_obj irec J iT) (algebra_prod_s irec J is)) (iT j) (algebra_prod_s irec J is) (is j) f" by fastforce
+qed
 end
 
 end
