@@ -1,8 +1,10 @@
-theory Hilbert_Eps
+\<^marker>\<open>creator "Niklas Krofta"\<close>
+\<^marker>\<open>creator "Kevin Kappelmann"\<close>
+section \<open>Hilbert's Epsilon Operator\<close>
+theory Hilbert_Epsilon_Choice
   imports HOTG_Basics
 begin
 (*from HOL Hilbert_Choice*)
-subsection \<open>Hilbert's epsilon\<close>
 
 axiomatization Eps :: "('a \<Rightarrow> bool) \<Rightarrow> 'a"
   where someI: "P x \<Longrightarrow> P (Eps P)"
@@ -24,8 +26,6 @@ print_translation \<open>
       let val (x, t) = Syntax_Trans.atomic_abs_tr' abs
       in Syntax.const \<^syntax_const>\<open>_Eps\<close> $ x $ t end)]
 \<close> \<comment> \<open>to avoid eta-contraction of body\<close>
-
-subsection \<open>Hilbert's Epsilon-operator\<close>
 
 lemma Eps_cong:
   assumes "\<And>x. P x = Q x"
