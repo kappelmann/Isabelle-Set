@@ -222,7 +222,7 @@ lemma F_if_le_if_F:
   and iT_leq_iS: "(I \<Rrightarrow> (\<le>)) iT iS"
   shows "F iS x"
 proof-
-  from iT_leq_iS have "((i : I) \<Rightarrow> (iT i) \<Rightarrow> (iS i)) iid" by fastforce
+  from iT_leq_iS have "((i : I) \<Rightarrow> iT i \<Rightarrow> iS i) iid" by fastforce
   with x_type Fmap_type show ?thesis by fastforce
 qed
 
@@ -421,22 +421,16 @@ lemma Frel_comp_eq_Frel_comp_Frel: "(F iT1 \<Rrightarrow> F iT2 \<Rrightarrow> (
 
 end
 
-locale Natural_Functor = Functor +
-  fixes Fpred :: "'i \<Rightarrow> 'f \<Rightarrow> 't \<Rightarrow> bool"
-  assumes Fpred_type: "\<And>iT. ((i : I) \<Rightarrow> F iT \<Rightarrow> (\<ge>) (iT i)) Fpred"
-  and Fpred_natural: "\<And>iIn iOut ig i.
-    \<comment> \<open>maybe \<open>(iIn i \<Rightarrow> iOut i) (ig i)\<close> is enough?\<close>
-    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iOut i) ig \<Longrightarrow>
-    I i \<Longrightarrow>
-    (F iIn \<Rrightarrow> (=)) (Fpred i \<circ> Fmap ig) (image_pred (ig i) \<circ> Fpred i)"
-  (* TODO: needed? *)
-  (*and Fmap_type_Fpred: "\<And>iIn iOut x ig.
-    ((i : I) \<Rightarrow> Fpred i x \<Rightarrow> iOut i) ig \<Longrightarrow> F iIn x \<Longrightarrow> F iOut (Fmap ig x)"*)
-  and Fmap_cong: "\<And>iIn ig ih x.
-    F iIn x \<Longrightarrow>
-    ((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) ig ih \<Longrightarrow>
-    Fmap ig x = Fmap ih x"
+locale Functor_Cong = Functor _ _ Fmap
+  for Fmap :: "('i \<Rightarrow> 't \<Rightarrow> 't) \<Rightarrow> 'f \<Rightarrow> 'f" +
+  assumes Fun_Rel_eq_Fmap_Fmap: "\<And>iT. (((i : I) \<Rrightarrow> iT i \<Rrightarrow> (=)) \<Rrightarrow> F iT \<Rrightarrow> (=)) Fmap Fmap"
 begin
+
+lemma Fmap_cong:
+  assumes "F iIn x"
+  and "\<And>i x. I i \<Longrightarrow> iIn i x \<Longrightarrow> ig i x = ih i x"
+  shows "Fmap ig x = Fmap ih x"
+  using assms Fun_Rel_eq_Fmap_Fmap by blast
 
 lemma Fmap_Fmap_eq_Fmap_comp_fun_upd_if_eq_idI:
   assumes x_type: "F iIn x"
@@ -448,20 +442,9 @@ proof -
   from assms Fmap_comp have "Fmap ih (Fmap ig x) = Fmap (ih \<circ> ig) x" by fastforce
   also from x_type have "... = Fmap ((ih \<circ> ig)(i := ih i)) x"
   proof (rule Fmap_cong)
-    show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (ih \<circ> ig) ((ih \<circ> ig)(i := ih i))"
-    proof (urule (rr) Dep_Fun_Rel_predI)
-      fix j y assume prems: "I j" "Fpred j x y"
-      show "(ih \<circ> ig) j y = ((ih \<circ> ig)(i := ih i)) j y"
-      proof (cases "i = j")
-        case True
-        have "ig j y = y"
-        proof -
-          from prems x_type Fpred_type have "iIn j y" by blast
-          with True ig_id show ?thesis by auto
-        qed
-        then show ?thesis by auto
-      qed simp
-    qed
+    fix j y assume "I j" "iIn j y"
+    with ig_id show "(ih \<circ> ig) j y = ((ih \<circ> ig)(i := ih i)) j y"
+    by (cases "i = j") auto
   qed
   finally show ?thesis .
 qed
@@ -472,17 +455,14 @@ lemma Fmap_eq_Fmap_fun_upd_if_eqI:
   shows "Fmap ig x = Fmap (ig(i := ih i)) x"
 using x_type
 proof (rule Fmap_cong)
-  show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (ig) (ig(i := ih i))"
-  proof (urule (rr) Dep_Fun_Rel_predI)
-    fix j y assume "I j" "Fpred j x y"
-    with x_type Fpred_type ig_eq show "ig j y = (ig(i := ih i)) j y" by (cases "i = j") force+
-  qed
+  fix j y assume "I j" "iIn j y"
+  with x_type ig_eq show "ig j y = (ig(i := ih i)) j y" by (cases "i = j") auto
 qed
 
 end
 
-locale HOTG_Natural_Functor = Natural_Functor _ _ Fmap + HOTG_Functor _ _ Fmap
-  for Fmap :: "('i \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
+locale HOTG_Functor_Cong = Functor_Cong F I Fmap + HOTG_Functor F I Fmap
+  for F I and Fmap :: "('i \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
 begin
 
 lemma Graph_on_Fmap_if_Frel_Graph_on:
@@ -495,16 +475,7 @@ proof (rule Graph_onI)
   then show "F iT x" by simp
   from x_eq have "Fmap ig x = Fmap ig (Fmap (K fst) z)" by simp
   also have "... = Fmap (ig \<circ> (K fst)) z" using Fmap_comp z_type by fastforce
-  also from z_type have "... = Fmap (K snd) z"
-  proof (rule Fmap_cong)
-    show "((i : I) \<Rrightarrow> Fpred i z \<Rrightarrow> (=)) (ig \<circ> K fst) (K snd)"
-    proof (urule (rr) Dep_Fun_Rel_predI)
-      fix i p assume "I i" "Fpred i z p"
-      moreover have "Fpred i z \<le> ?pair_Graph i" using \<open>I i\<close> Fpred_type z_type by blast
-      ultimately have "?pair_Graph i p" by blast
-      then show "(ig \<circ> K fst) i p = K snd i p" by auto
-    qed
-  qed
+  also have "... = Fmap (K snd) z" using z_type by (rule Fmap_cong) auto
   also have "... = y" using y_eq by simp
   finally show "y = Fmap ig x" by simp
 qed
@@ -677,7 +648,7 @@ qed
 
 end
 
-context Natural_Functor
+context Functor_Cong
 begin
 
 lemma algebra_morph_cong:
@@ -696,16 +667,8 @@ proof (intro algebra_morphI)
   proof -
     have "Fmap (iid(ia := f)) x = Fmap (iid(ia := f')) x" using x_type
     proof (rule Fmap_cong)
-      show "((i : I) \<Rrightarrow> Fpred i x \<Rrightarrow> (=)) (iid(ia := f)) (iid(ia := f'))"
-      proof (urule (rr) Fmap_cong Dep_Fun_Rel_predI)
-        fix i y assume "I i" "Fpred i x y"
-        show "(iid(ia := f)) i y = (iid(ia := f')) i y"
-        proof (cases "i = ia")
-          case True
-          with Fpred_type have "Fpred i x \<le> T" using iT_eq x_type \<open>I i\<close> by fastforce
-          with assms \<open>Fpred i x y\<close> show ?thesis by auto
-        qed auto
-      qed
+      fix i y assume "I i" "iT i y"
+      with feq_T iT_eq show "(iid(ia := f)) i y = (iid(ia := f')) i y" by (cases "i = ia") auto
     qed
     then show ?thesis by simp
   qed
@@ -825,7 +788,7 @@ corollary ex_algebra_morph_min_algebraI:
 end
 end
 
-context Natural_Functor
+context Functor_Cong
 begin
 
 context
@@ -847,8 +810,7 @@ proof -
       by (intro eq_app_if_algebra_morphI) auto
     also have "... = s' (Fmap (iid(ia := g)) x)"
     proof -
-      have "Fmap (iid(ia := f)) x = Fmap (iid(ia := g)) x"
-        using x_type_eq Fpred_type by (intro Fmap_cong) fastforce+
+      have "Fmap (iid(ia := f)) x = Fmap (iid(ia := g)) x" using x_type_eq by (rule Fmap_cong) auto
       then show ?thesis by simp
     qed
     also have "... = g (s x)"
@@ -942,7 +904,7 @@ end
 end
 end
 
-locale HOTG_Weakly_Initial_Algebra_Generator = HOTG_Functor _ _ "Fmap :: ('i \<Rightarrow> _) \<Rightarrow> _" for Fmap +
+locale HOTG_Weakly_Initial_Algebra_Generator = HOTG_Functor _ _ Fmap for Fmap :: "('i \<Rightarrow> _) \<Rightarrow> _" +
   fixes ia :: "'i"
   fixes J :: set
   and iT :: "set \<Rightarrow> set \<Rightarrow> bool"
@@ -988,8 +950,8 @@ end
 end
 
 locale HOTG_Initial_Algebra_Generator = HOTG_Weakly_Initial_Algebra_Generator F I Fmap +
-  HOTG_Natural_Functor F I _ Fmap
-  for F I and Fmap :: "('i \<Rightarrow> set \<Rightarrow> set) \<Rightarrow> set \<Rightarrow> set"
+  HOTG_Functor_Cong F I Fmap
+  for F I and Fmap :: "('i \<Rightarrow> _) \<Rightarrow> _"
 begin
 
 theorem "is_initial_algebra ia initial_algebra_obj initial_algebra_morph"
@@ -998,5 +960,22 @@ theorem "is_initial_algebra ia initial_algebra_obj initial_algebra_morph"
   by (rule is_initial_algebraI)
 
 end
+
+locale Natural_Functor = Functor _ _ Fmap for Fmap :: "('i \<Rightarrow> 't \<Rightarrow> _) \<Rightarrow> 'f \<Rightarrow> _" +
+  fixes Fpred :: "'i \<Rightarrow> 'f \<Rightarrow> 't \<Rightarrow> bool"
+  assumes Fpred_type: "\<And>iT. ((i : I) \<Rightarrow> F iT \<Rightarrow> (\<ge>) (iT i)) Fpred"
+  and Fpred_natural: "\<And>iT ig i.  I i \<Longrightarrow>
+    (F iT \<Rrightarrow> (=)) (Fpred i \<circ> Fmap ig) (image_pred (ig i) \<circ> Fpred i)"
+  (* TODO: needed? *)
+  (*and Fmap_type_Fpred: "\<And>iIn iOut x ig.
+    ((i : I) \<Rightarrow> Fpred i x \<Rightarrow> iOut i) ig \<Longrightarrow> F iIn x \<Longrightarrow> F iOut (Fmap ig x)"*)
+  and Fmap_cong: "\<And>iIn ig ih x.
+    F iIn x \<Longrightarrow>
+    ((i : I) \<Rrightarrow> iIn i \<Rrightarrow> (=)) ig ih \<Longrightarrow>
+    Fmap ig x = Fmap ih x"
+begin
+
+end
+
 
 end
