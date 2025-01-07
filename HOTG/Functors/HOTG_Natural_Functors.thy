@@ -954,10 +954,42 @@ locale HOTG_Initial_Algebra_Generator = HOTG_Weakly_Initial_Algebra_Generator F 
   for F I and Fmap :: "('i \<Rightarrow> _) \<Rightarrow> _"
 begin
 
-theorem "is_initial_algebra ia initial_algebra_obj initial_algebra_morph"
+theorem is_initial_algebra_initial_algebra: "is_initial_algebra ia initial_algebra_obj initial_algebra_morph"
   using is_weakly_initial_algebra_initial_algebra algebra_morph_min_algebra_unique
   unfolding initial_algebra_obj_def
   by (rule is_initial_algebraI)
+
+definition "fold s f = algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
+
+lemma foldI[intro]:
+  assumes "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
+  shows "fold s f"
+  using assms unfolding fold_def by blast
+
+lemma foldE[elim]:
+  assumes "fold s f"
+  shows "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
+  using assms unfolding fold_def by blast
+
+lemma fold1:
+  assumes "fold s f"
+  and "F ((K \<top>)(ia := initial_algebra_obj)) x"
+  shows "f (initial_algebra_morph x) = s (Fmap (iid(ia:=f)) x)"
+  using assms apply (intro eq_app_if_algebra_morphI) apply (urule (e) foldE) by auto
+                                            
+lemma fold_unique:
+  assumes "fold s f" and "fold s g"
+  shows "(initial_algebra_obj \<Rrightarrow> (=)) f g"
+proof-
+  from assms have "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
+    and "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s g" by auto
+  then show "(initial_algebra_obj \<Rrightarrow> (=)) f g" unfolding initial_algebra_obj_def using algebra_morph_min_algebra_unique by auto
+qed
+
+lemma fold_initial_morph_id:  "fold initial_algebra_morph id" 
+  apply (intro foldI) using algebra_morph_id by blast
+
+  
 
 end
 
