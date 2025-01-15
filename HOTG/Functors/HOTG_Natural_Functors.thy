@@ -107,6 +107,16 @@ lemma mono_dep_mono_wrt_dep_mono_wrt_convol:
 
 lemma fst_comp_convol_eq [simp]: "fst \<circ> (convol f g) = f" by auto
 lemma snd_comp_convol_eq [simp]: "snd \<circ> (convol f g) = g" by auto
+lemma convol_expand_snd: "\<And>x :: set. is_pair (f x) \<Longrightarrow> (fst \<circ> f) x  = g x \<Longrightarrow> convol g (snd \<circ> f) x = f x"
+proof-
+  fix x assume p: "is_pair (f x)" and g_eq:"(fst \<circ> f) x = g x"
+  then have "convol g (snd \<circ> f) x = \<langle>g x, (snd \<circ> f) x\<rangle>" by auto
+  also have "... = \<langle>(fst \<circ> f) x, (snd \<circ> f) x\<rangle>" using g_eq[symmetric] by blast
+  also have "... = \<langle>fst (f x), snd (f x)\<rangle>" by auto
+  with calculation have "is_pair  \<langle>fst (f x), snd (f x)\<rangle>" by auto
+  with p mk_pair_fst_snd_eq_if_is_pair[of "f x"] have "\<langle>fst (f x), snd (f x)\<rangle> = f x" by auto
+  with calculation show "convol g (snd \<circ> f) x = f x" by auto
+qed
 
 text \<open>Indexed identity function\<close>
 
@@ -646,6 +656,8 @@ proof (intro algebra_morphI)
   with gs2f gfs1 show "(g \<circ> f) (s1 x) = s3 (Fmap (iid(ia := g \<circ> f)) x)" by fastforce
 qed
 
+
+
 end
 
 context Functor_Cong
@@ -959,39 +971,174 @@ theorem is_initial_algebra_initial_algebra: "is_initial_algebra ia initial_algeb
   unfolding initial_algebra_obj_def
   by (rule is_initial_algebraI)
 
-definition "fold s f = algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
+end
 
-lemma foldI[intro]:
-  assumes "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
-  shows "fold s f"
-  using assms unfolding fold_def by blast
+context HOTG_Weakly_Initial_Algebra_Generator
+begin
 
-lemma foldE[elim]:
-  assumes "fold s f"
-  shows "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
-  using assms unfolding fold_def by blast
+definition "is_fold T s f = algebra_morph ia initial_algebra_obj T initial_algebra_morph s f"
+definition "fold T s = (SOME f. is_fold T s f)"
 
+lemma is_foldI[intro]:
+  assumes "algebra_morph ia initial_algebra_obj T initial_algebra_morph s f"
+  shows "is_fold T s f"
+  using assms unfolding is_fold_def by blast
+
+lemma is_foldE[elim]:
+  assumes "is_fold T s f"
+  shows "algebra_morph ia initial_algebra_obj T initial_algebra_morph s f"
+  using assms unfolding is_fold_def by blast
+
+end
+
+locale HOTG_is_fold = HOTG_Initial_Algebra_Generator +
+  fixes T s f
+  assumes fold_f:"is_fold T s f"
+begin
 lemma fold1:
-  assumes "fold s f"
-  and "F ((K \<top>)(ia := initial_algebra_obj)) x"
+  assumes  "F ((K \<top>)(ia := initial_algebra_obj)) x"
   shows "f (initial_algebra_morph x) = s (Fmap (iid(ia:=f)) x)"
-  using assms apply (intro eq_app_if_algebra_morphI) apply (urule (e) foldE) by auto
+   apply (intro eq_app_if_algebra_morphI) using fold_f assms by auto
                                             
 lemma fold_unique:
-  assumes "fold s f" and "fold s g"
+  assumes "is_fold T s g"
   shows "(initial_algebra_obj \<Rrightarrow> (=)) f g"
 proof-
-  from assms have "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s f"
-    and "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph s g" by auto
+  from fold_f assms have "algebra_morph ia initial_algebra_obj T initial_algebra_morph s f"
+    and "algebra_morph ia initial_algebra_obj T initial_algebra_morph s g" by auto
   then show "(initial_algebra_obj \<Rrightarrow> (=)) f g" unfolding initial_algebra_obj_def using algebra_morph_min_algebra_unique by auto
 qed
 
-lemma fold_initial_morph_id:  "fold initial_algebra_morph id" 
-  apply (intro foldI) using algebra_morph_id by blast
+lemma fold_initial_morph_id:  "is_fold initial_algebra_obj initial_algebra_morph id" 
+  apply (intro is_foldI) using algebra_morph_id by blast
 
-  
+lemma fold_type: "(initial_algebra_obj \<Rightarrow> T) f" using fold_f is_foldE[of T s f] by (auto elim: algebra_morphE)
 
 end
+
+context HOTG_Initial_Algebra_Generator
+begin
+context
+  fixes T s
+  assumes "algebra ia T s"
+begin
+interpretation Fold ?: HOTG_is_fold ia J iT "is" F I Fmap T s "fold T s"
+proof
+  show "is_fold T s (fold T s)" unfolding fold_def apply (urule someI_ex)
+    using \<open>algebra ia T s\<close> using ex_algebra_morph_if_algebra by fast
+qed
+
+
+
+end
+
+context
+  fixes s :: "set \<Rightarrow> set" 
+  and T :: "set \<Rightarrow> bool"
+  assumes s_type: "(F ((K \<top>)(ia := initial_algebra_obj \<times> T)) \<Rightarrow> T) s"
+begin
+lemma is_fold: "is_fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s) (fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s))"
+proof
+  have "algebra ia (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)"
+  proof (intro algebraI) 
+    fix iT assume iT_ia:"iT ia = initial_algebra_obj \<times> T"
+    show "(F iT \<Rightarrow> initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)"
+    proof (intro mono_wrt_predI)
+      fix x assume "F iT x"
+      show "(initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s x)"
+        unfolding convol_def proof (intro set_pair_mk_pairI)
+        from iT_ia have "((i : I) \<Rightarrow> iT i \<Rightarrow> (iT(ia := initial_algebra_obj)) i) (iid(ia := fst))"
+          by (intro dep_mono_wrt_predI, auto) 
+        with \<open>F iT x\<close> iT_ia have "F (iT(ia := initial_algebra_obj)) (Fmap (iid(ia:=fst)) x)" using Fmap_type by fast
+        then have "F ((K \<top>)(ia := initial_algebra_obj)) (Fmap (iid(ia:=fst)) x)" by (urule F_if_le_if_F, auto)
+        with algebra_initial_algebra show "initial_algebra_obj ((initial_algebra_morph  \<circ> Fmap (iid(ia := fst))) x)" 
+          unfolding algebra_def by auto
+        from iT_ia have "(I \<Rrightarrow> (\<le>)) iT ((K \<top>)(ia := initial_algebra_obj \<times> T))" by auto
+        with \<open>F iT x\<close> F_if_le_if_F have "F ((K \<top>)(ia := initial_algebra_obj \<times> T)) x" by auto
+        with s_type show "T (s x)" by auto
+      qed
+    qed
+  qed
+  with ex_algebra_morph_if_algebra show "algebra_morph ia initial_algebra_obj (initial_algebra_obj \<times> T) initial_algebra_morph (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)
+     (fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))" unfolding fold_def is_fold_def by (urule someI_ex)
+qed
+
+interpretation Fold ?: HOTG_is_fold ia J iT "is" F I Fmap "(initial_algebra_obj \<times> T)"
+  "convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s" "fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)"
+  by (standard, rule is_fold)
+
+(* T inital_algebra_obj x rng s*)
+definition "rec \<equiv> snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)"
+
+thm fold1
+
+lemma fst_rec: "(initial_algebra_obj \<Rrightarrow> (=)) (fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)) id"
+proof-
+   have "(initial_algebra_obj \<Rightarrow> initial_algebra_obj) (fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s))"
+   proof (intro mono_wrt_predI)
+     fix x assume "initial_algebra_obj x"
+     then show "initial_algebra_obj ((fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)) x)" using fold_type by auto
+   qed
+  then have "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph initial_algebra_morph ((fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)))"
+  proof (intro algebra_morphI)
+    fix iT x assume "iT ia = initial_algebra_obj" and "F iT x"
+    then have x_type: "F ((K \<top>)(ia := initial_algebra_obj)) x" using F_if_le_if_F[of iT x "((K \<top>)(ia := initial_algebra_obj))"]
+      by fastforce
+    then have "(fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)) (initial_algebra_morph x)
+              = fst (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s (Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x))"
+      using fold1 by auto
+    also have "... = (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) (Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x)"
+      by auto
+    also have "... = initial_algebra_morph (Fmap (iid(ia := fst)) (Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x))"
+      by auto
+    also have "... = initial_algebra_morph (Fmap (iid(ia := fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x)"
+      using fold_type Fmap_comp[of "((K \<top>)(ia := initial_algebra_obj))" "((K \<top>)(ia := initial_algebra_obj \<times> T))" "iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))"
+    "((K \<top>)(ia := initial_algebra_obj))" "iid(ia:=fst)"] x_type by fastforce
+    finally show "(fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)) (initial_algebra_morph x) =
+       initial_algebra_morph (Fmap (iid(ia := fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x)"
+      by fastforce    
+  qed blast
+  moreover have "algebra_morph ia initial_algebra_obj initial_algebra_obj initial_algebra_morph initial_algebra_morph id" using algebra_morph_id .
+  ultimately show "(initial_algebra_obj \<Rrightarrow> (=)) (fst \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)) id" 
+    using algebra_initial_algebra is_initial_algebra_initial_algebra by (auto elim: is_initial_algebraE)
+qed
+
+
+lemma rec:
+  assumes "F ((K \<top>)(ia := initial_algebra_obj)) x"
+  shows "rec (initial_algebra_morph x) = s (Fmap (iid(ia:=convol id rec)) x)"
+proof-
+  have "rec (initial_algebra_morph x) = (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)) (initial_algebra_morph x)" unfolding rec_def ..
+  also have "... = s (Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s))) x)" using fold1 assms by auto
+  also have "... = s (Fmap (iid(ia := convol id (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)))) x)"
+  proof-
+    have "(Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x) = 
+  Fmap (iid(ia := convol id (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)))) x"
+    proof (rule Fmap_cong)
+      show "F ((K \<top>)(ia := initial_algebra_obj)) x" using assms by blast
+      fix i x assume "I i" "((K \<top>)(ia := initial_algebra_obj)) i x"
+      then show "(iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) i x =
+           (iid(ia := convol id (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)))) i x"
+      proof (cases "i=ia")
+        case True
+        with \<open>((K \<top>)(ia := initial_algebra_obj)) i x\<close> have "initial_algebra_obj x" by auto
+        moreover then have "is_pair (fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s) x)" using fold_type by auto
+        ultimately have "fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s) x = convol id (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)) x"
+          using convol_expand_snd[of "fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)" x id, symmetric] fst_rec fold1 by auto
+        then show ?thesis by auto
+      next
+        case False
+        then show ?thesis by auto
+      qed
+    qed
+    then show "s (Fmap (iid(ia := fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s))) x) = s ( Fmap (iid(ia := convol id (snd \<circ> fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> Fmap (iid(ia := fst))) s)))) x)" by auto
+  qed
+  also have "... = s (Fmap (iid(ia:= convol id rec)) x)" unfolding rec_def ..
+  finally show ?thesis .
+qed
+end
+end
+
 
 locale Natural_Functor = Functor _ _ Fmap for Fmap :: "('i \<Rightarrow> 't \<Rightarrow> _) \<Rightarrow> 'f \<Rightarrow> _" +
   fixes Fpred :: "'i \<Rightarrow> 'f \<Rightarrow> 't \<Rightarrow> bool"
