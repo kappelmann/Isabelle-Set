@@ -198,34 +198,14 @@ locale Functor =
   and Fmap_id: "\<And>(iT :: 'i \<Rightarrow> 't \<Rightarrow> bool) (ig :: 'i \<Rightarrow> 't \<Rightarrow> 't).
     ((i : I) \<Rrightarrow> iT i \<Rrightarrow> (=)) ig iid \<Longrightarrow>
     (F iT \<Rrightarrow> (=)) (Fmap ig) id"
-  and Fmap_comp: "\<And>ig ih iIn iMid iOut.
-    ((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig \<Longrightarrow>
-    ((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih \<Longrightarrow>
-    (F iIn \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
+  and Fmap_comp: "\<And>ig ih.
+    (F (K \<top>) \<Rrightarrow> (=)) (Fmap (ih \<circ> ig)) (Fmap ih \<circ> Fmap ig)"
 begin
 
 lemma Fmap_iid_eq_selfI [simp]:
   assumes "F iT x"
   shows "Fmap iid x = id x"
-proof -
-  from assms Fmap_id have "Fmap iid x = id x" by blast
-  then show ?thesis by simp
-qed
-
-lemma Fmap_comp_comp_comp_eq_Fmap_Fmap_Fmap:
-  assumes "F iIn x"
-  and "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid1 i) ig"
-  and "((i : I) \<Rightarrow> iMid1 i \<Rightarrow> iMid2 i) ih"
-  shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
-proof -
-  from assms have comp_type: "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid2 i) (ih \<circ> ig)" by fastforce
-  have ii_type: "((i : I) \<Rightarrow> iMid2 i \<Rightarrow> \<top>) ii" by blast
-  from Fmap_comp have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)"
-    using assms by fastforce
-  also from Fmap_comp have "... = Fmap (ii \<circ> ih \<circ> ig) x"
-    using comp_type ii_type assms comp_ifun_assoc[of ii ih ig] by fastforce
-  finally show ?thesis ..
-qed
+  using assms Fmap_id by blast
 
 lemma F_if_le_if_F:
   assumes x_type: "F iT x"
@@ -244,6 +224,22 @@ corollary F_in_dom_Graph_on_if_F:
   shows "F (\<lambda>i. in_dom (Graph_on (iIn i) (ig i))) x"
   using assms by (rule F_if_le_if_F) auto
 
+corollary F_is_F_top[simp]:
+  assumes "F iT x"
+  shows "F (K \<top>) x"
+  using assms  by (urule F_if_le_if_F) auto
+
+lemma Fmap_comp_comp_comp_eq_Fmap_Fmap_Fmap:
+  assumes "F iIn x"
+  shows "Fmap (ii \<circ> ih \<circ> ig) x = Fmap ii (Fmap ih (Fmap ig x))"
+proof -
+  from assms have top_x: "F (K \<top>) x" by auto
+  with Fmap_comp[of ih ig] have "Fmap ii (Fmap ih (Fmap ig x)) = Fmap ii (Fmap (ih \<circ> ig) x)"
+    by auto
+  also from Fmap_comp[of ii "(ih \<circ> ig)"] have "... = Fmap (ii \<circ> ih \<circ> ig) x"
+    using assms top_x comp_ifun_assoc[of ii ih ig] by fastforce
+  finally show ?thesis ..
+qed
 end
 
 definition "pick_middlep R S a c \<equiv> SOME b. R a b \<and> S b c"
@@ -338,7 +334,7 @@ proof (rule FrelI)
   have "((i : I) \<Rightarrow> in_dom (?iGraph i) \<Rightarrow> ?pair_Graph i) ?convol" by fastforce
   then show "F ?pair_Graph (Fmap ?convol x)" using x_type Fmap_type by fastforce
   have map_convol_eq: "Fmap (K f) (Fmap ?convol x) = Fmap (comp_ifun (K f) ?convol) x" for f
-    using Fmap_comp x_type by fastforce
+    using Fmap_comp x_type F_is_F_top by fastforce
   moreover have "Fmap (comp_ifun (K fst) ?convol) x = Fmap iid x" (is "Fmap ?f x = Fmap ?g x")
   proof -
     have "?f = ?g" by fastforce
@@ -393,11 +389,11 @@ proof (intro Fun_Rel_predI le_boolI)
     then show "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) ?z" using z_type Fmap_type by fast
     have K_fst_comp_fpm_eq: "comp_ifun (K fst) ?fpm = K fst" by (intro ext) auto
     from Fmap_comp have "Fmap (K fst) ?z = Fmap (comp_ifun (K fst) ?fpm) z"
-      using z_type by fastforce
+      using z_type F_is_F_top by fastforce
     also with K_fst_comp_fpm_eq x_eq have "... = x" by simp
     finally show "Fmap (K fst) ?z = x" .
     from Fmap_comp have "Fmap (K snd) ?z = Fmap (comp_ifun (K snd) ?fpm) z"
-      using z_type by fastforce
+      using z_type F_is_F_top by fastforce
     also have "... = Fmap (\<lambda>i. snd \<circ> ?fpm i) z" unfolding comp_ifun_eq by simp
     finally show "Fmap (K snd) ?z = Fmap (\<lambda>i. snd \<circ> ?fpm i) z" .
   next
@@ -407,13 +403,13 @@ proof (intro Fun_Rel_predI le_boolI)
     then show "F (\<lambda>i. is_pair \<sqinter> uncurry (iS i)) ?z" using z_type Fmap_type by fast
     have K_snd_comp_spm_eq: "comp_ifun (K snd) ?spm = K snd" by (intro ext) auto
     with Fmap_comp have "Fmap (K fst) ?z = Fmap (comp_ifun (K fst) ?spm) z"
-      using z_type by fastforce
+      using z_type F_is_F_top by fastforce
     also have "... = Fmap (\<lambda>i. fst \<circ> ?spm i) z" unfolding comp_ifun_eq by simp
     also have "... = Fmap (\<lambda>i. snd \<circ> ?fpm i) z"
       unfolding snd_comp_fst_pick_middlep_eq_fst_comp_snd_pick_middlep by simp
     finally show "Fmap (K fst) ?z = Fmap (\<lambda>i. snd \<circ> ?fpm i) z" .
     from Fmap_comp have "Fmap (K snd) ?z = Fmap (comp_ifun (K snd) ?spm) z"
-      using z_type by fastforce
+      using z_type F_is_F_top by fastforce
     also with K_snd_comp_spm_eq y_eq have "... = y" by simp
     finally show "Fmap (K snd) ?z = y" .
   qed
@@ -444,12 +440,11 @@ lemma Fmap_cong:
 
 lemma Fmap_Fmap_eq_Fmap_comp_fun_upd_if_eq_idI:
   assumes x_type: "F iIn x"
-  and "((i : I) \<Rightarrow> iIn i \<Rightarrow> iMid i) ig"
-  and "((i : I) \<Rightarrow> iMid i \<Rightarrow> iOut i) ih"
   and ig_id: "(iIn i \<Rrightarrow> (=)) (ig i) id"
   shows "Fmap ih (Fmap ig x) = Fmap ((ih \<circ> ig)(i := ih i)) x"
 proof -
-  from assms Fmap_comp have "Fmap ih (Fmap ig x) = Fmap (ih \<circ> ig) x" by fastforce
+  from assms Fmap_comp[of ih ig] have "Fmap ih (Fmap ig x) = Fmap (ih \<circ> ig) x"
+    using F_is_F_top[of iIn x] by fastforce
   also from x_type have "... = Fmap ((ih \<circ> ig)(i := ih i)) x"
   proof (rule Fmap_cong)
     fix j y assume "I j" "iIn j y"
@@ -484,7 +479,7 @@ proof (rule Graph_onI)
     and y_eq: "Fmap (K snd) z = y" and "F iT x" by (fastforce elim: FrelE')
   then show "F iT x" by simp
   from x_eq have "Fmap ig x = Fmap ig (Fmap (K fst) z)" by simp
-  also have "... = Fmap (ig \<circ> (K fst)) z" using Fmap_comp z_type by fastforce
+  also have "... = Fmap (ig \<circ> (K fst)) z" using Fmap_comp z_type F_is_F_top  by fastforce
   also have "... = Fmap (K snd) z" using z_type by (rule Fmap_cong) auto
   also have "... = y" using y_eq by simp
   finally show "y = Fmap ig x" by simp
@@ -649,8 +644,8 @@ proof (intro algebra_morphI)
     using morph2 by (fastforce elim: algebra_morphE)
   have g_type: "((i : I) \<Rightarrow> (iT(ia := T2)) i\<Rightarrow> (iT(ia := T3)) i) (iid(ia := g))"
     using assms by (fastforce elim: algebra_morphE)
-  with Fmap_comp \<open>F iT x\<close> f_type have "Fmap (iid(ia := g)) (Fmap (iid(ia := f)) x) =
-    Fmap (iid(ia := g) \<circ> iid(ia := f)) x" by fastforce
+  with Fmap_comp[of "iid(ia := g)" "iid(ia := f)"] \<open>F iT x\<close> f_type have "Fmap (iid(ia := g)) (Fmap (iid(ia := f)) x) =
+    Fmap (iid(ia := g) \<circ> iid(ia := f)) x" using F_is_F_top by fastforce
   moreover have "... = Fmap (iid(ia := g \<circ> f)) x" by simp
   finally have "Fmap (iid(ia := g)) (Fmap (iid(ia := f)) x) = Fmap (iid(ia := g \<circ> f)) x" by blast
   with gs2f gfs1 show "(g \<circ> f) (s1 x) = s3 (Fmap (iid(ia := g \<circ> f)) x)" by fastforce
@@ -678,10 +673,7 @@ proof (intro algebra_morphI)
   also have "... = s' (Fmap (iid(ia := f')) x)"
   proof -
     have "Fmap (iid(ia := f)) x = Fmap (iid(ia := f')) x" using x_type
-    proof (rule Fmap_cong)
-      fix i y assume "I i" "iT i y"
-      with feq_T iT_eq show "(iid(ia := f)) i y = (iid(ia := f')) i y" by (cases "i = ia") auto
-    qed
+      apply (rule Fmap_cong) using feq_T iT_eq by auto
     then show ?thesis by simp
   qed
   finally show "f' (s x) = s' (Fmap (iid(ia := f')) x)" .
@@ -811,7 +803,7 @@ begin
 lemma min_algebra_obj_le_equaliser_if_morphs:
   assumes morph1: "algebra_morph ia obj T s s' f"
   and morph2: "algebra_morph ia obj T s s' g"
-  shows "obj \<le> equaliser f g"
+shows "obj \<le> equaliser f g"
 proof -
   have "obj \<le> obj \<sqinter> equaliser f g" (is "_ \<le> ?obj_eq")
   proof (urule (rr) min_algebra_obj_le_if_algebra algebraI mono_wrt_predI)
@@ -1086,9 +1078,11 @@ proof-
     fix iT x assume "iT ia = initial_algebra_obj" and "F iT x"
     then have x_type: "F ((K \<top>)(ia := initial_algebra_obj)) x" using F_if_le_if_F[of iT x "((K \<top>)(ia := initial_algebra_obj))"]
       by fastforce
-    then show "(fst \<circ> ?f) (initial_algebra_morph x) = initial_algebra_morph (Fmap (iid(ia := fst \<circ> ?f)) x)"
-      using fold_type Fmap_comp[of "((K \<top>)(ia := initial_algebra_obj))" "((K \<top>)(ia := initial_algebra_obj \<times> T))" "iid(ia := ?f)"
-    "((K \<top>)(ia := initial_algebra_obj))" "iid(ia:=fst)"] fold1 x_type by fastforce
+    moreover have top_x: "F (K \<top>) x" using x_type F_is_F_top by auto
+    moreover then have "Fmap (iid(ia := fst)) (Fmap (iid (ia := ?f)) x) = Fmap (iid (ia := (fst \<circ> ?f))) x" 
+      using Fmap_comp[of "iid(ia := fst)" "iid(ia := ?f)"] by fastforce
+    ultimately show "(fst \<circ> ?f) (initial_algebra_morph x) = initial_algebra_morph (Fmap (iid(ia := fst \<circ> ?f)) x)"
+      using fold1 by auto
   qed blast
   then show "(initial_algebra_obj \<Rrightarrow> (=)) (fst \<circ> ?f) id" 
     using algebra_initial_algebra is_initial_algebra_initial_algebra algebra_morph_id by (auto elim: is_initial_algebraE)
@@ -1100,22 +1094,17 @@ lemma rec:
   shows "rec (initial_algebra_morph x) = s (Fmap (iid(ia:=convol id rec)) x)"
 proof-
   let ?f = "fold (initial_algebra_obj \<times> T) (convol (initial_algebra_morph \<circ> (Fmap (iid(ia:=fst)))) s)"
-  have "rec (initial_algebra_morph x)  = s (Fmap (iid(ia := ?f)) x)" unfolding rec_def using fold1 assms by auto
+  have "rec (initial_algebra_morph x) = s (Fmap (iid(ia := ?f)) x)" unfolding rec_def using fold1 assms by auto
   also have "... = s (Fmap (iid(ia := convol id (snd \<circ> ?f))) x)"
   proof-
     have "(Fmap (iid(ia := ?f)) x) =  Fmap (iid(ia := convol id (snd \<circ> ?f))) x"
       proof (rule Fmap_cong)
       fix i x assume "I i" "((K \<top>)(ia := initial_algebra_obj)) i x"
       then show "(iid(ia := ?f)) i x = (iid(ia := convol id (snd \<circ> ?f))) i x"
-      proof (cases "i=ia")
-        case True
-        with \<open>((K \<top>)(ia := initial_algebra_obj)) i x\<close> have "initial_algebra_obj x" by auto
-        then show ?thesis
           using convol_expand_snd[of ?f x id, symmetric] fst_rec fold1 fold_type by force
-      qed auto
     qed (simp only: assms)
-    then show "s (Fmap (iid(ia :=?f)) x) = s ( Fmap (iid(ia := convol id (snd \<circ> ?f))) x)" by auto
-  qed  
+    then show "s (Fmap (iid(ia :=?f)) x) = s (Fmap (iid(ia := convol id (snd \<circ> ?f))) x)" by auto
+  qed
   finally show ?thesis unfolding rec_def by auto
 qed
 end
