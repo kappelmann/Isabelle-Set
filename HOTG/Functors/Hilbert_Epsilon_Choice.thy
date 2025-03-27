@@ -1,20 +1,15 @@
-\<^marker>\<open>creator "Niklas Krofta"\<close>
-\<^marker>\<open>creator "Kevin Kappelmann"\<close>
 section \<open>Hilbert's Epsilon Operator\<close>
 theory Hilbert_Epsilon_Choice
-  imports HOTG_Basics
+  imports HOTG_Setup
 begin
-(*from HOL Hilbert_Choice*)
+
+(*adapted from HOL Hilbert_Choice*)
 
 axiomatization Eps :: "('a \<Rightarrow> bool) \<Rightarrow> 'a"
   where someI: "P x \<Longrightarrow> P (Eps P)"
 
-syntax (epsilon)
-  "_Eps" :: "pttrn \<Rightarrow> bool \<Rightarrow> 'a"  ("(3\<some>_./ _)" [0, 10] 10)
-syntax (input)
-  "_Eps" :: "pttrn \<Rightarrow> bool \<Rightarrow> 'a"  ("(3@ _./ _)" [0, 10] 10)
 syntax
-  "_Eps" :: "pttrn \<Rightarrow> bool \<Rightarrow> 'a"  ("(3SOME _./ _)" [0, 10] 10)
+  "_Eps" :: "pttrn \<Rightarrow> bool \<Rightarrow> 'a"  (\<open>(\<open>indent=3 notation=\<open>binder SOME\<close>\<close>SOME _./ _)\<close> [0, 10] 10)
 
 syntax_consts "_Eps" \<rightleftharpoons> Eps
 
@@ -22,8 +17,8 @@ translations
   "SOME x. P" \<rightleftharpoons> "CONST Eps (\<lambda>x. P)"
 
 print_translation \<open>
-  [(\<^const_syntax>\<open>Eps\<close>, fn _ => fn [Abs abs] =>
-      let val (x, t) = Syntax_Trans.atomic_abs_tr' abs
+  [(\<^const_syntax>\<open>Eps\<close>, fn ctxt => fn [Abs abs] =>
+      let val (x, t) = Syntax_Trans.atomic_abs_tr' ctxt abs
       in Syntax.const \<^syntax_const>\<open>_Eps\<close> $ x $ t end)]
 \<close> \<comment> \<open>to avoid eta-contraction of body\<close>
 
@@ -66,13 +61,11 @@ lemma some1_equality: "\<exists>!x. P x \<Longrightarrow> P a \<Longrightarrow> 
 lemma some_eq_ex: "P (SOME x. P x) \<longleftrightarrow> (\<exists>x. P x)"
   by (blast intro: someI)
 
-
 lemma some_eq_trivial [simp]: "(SOME y. y = x) = x"
   by (rule some_equality) (rule refl)
 
 lemma some_sym_eq_trivial [simp]: "(SOME y. x = y) = x"
   by (iprover intro: some_equality)
-
 
 
 end

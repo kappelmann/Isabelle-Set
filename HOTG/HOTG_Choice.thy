@@ -1,6 +1,6 @@
 \<^marker>\<open>creator "Niklas Krofta"\<close>
 \<^marker>\<open>creator "Kevin Kappelmann"\<close>
-section \<open>Axiom of Choice\<close>
+section \<open>Axiom of Choice for @{typ set}\<close>
 theory HOTG_Choice
   imports
     HOTG_Functions_Monotone
