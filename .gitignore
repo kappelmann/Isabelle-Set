@@ -5,6 +5,7 @@
 *.bak
 *.dvi
 *.log
+*.marks
 *.nav
 *.out
 *.pag
