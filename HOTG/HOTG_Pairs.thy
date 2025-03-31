@@ -91,16 +91,16 @@ lemma mk_pair_fst_snd_eq_if_is_pair [simp]: "is_pair p \<Longrightarrow> \<langl
   by auto
 
 definition "set_dep_pair_pred A B p \<equiv> is_pair p \<and> A (fst p) \<and> B (fst p) (snd p)"
-adhoc_overloading dep_pair set_dep_pair_pred
+adhoc_overloading dep_pair \<rightleftharpoons> set_dep_pair_pred
 
 definition "set_dep_pair_set A B :: set \<Rightarrow> bool \<equiv> \<Sum>x : mem_of A. mem_of (B x)"
-adhoc_overloading dep_pair set_dep_pair_set
+adhoc_overloading dep_pair \<rightleftharpoons> set_dep_pair_set
 
 definition "set_pair_pred (A :: set \<Rightarrow> bool) B \<equiv> \<Sum>(_ :: set) : A. B"
-adhoc_overloading pair set_pair_pred
+adhoc_overloading pair \<rightleftharpoons> set_pair_pred
 
 definition "set_pair_set A B \<equiv> mem_of A \<times> mem_of B"
-adhoc_overloading pair set_pair_set
+adhoc_overloading pair \<rightleftharpoons> set_pair_set
 
 lemma set_dep_pair_set_eq_set_dep_pair_pred [simp]: "(\<Sum>x : A. B x) = \<Sum>x : mem_of A. mem_of (B x)"
   unfolding set_dep_pair_set_def by simp
@@ -312,10 +312,10 @@ lemma mono_set_pair_curry: "((A :: set \<Rightarrow> bool) \<times> B \<Rightarr
 subsection \<open>Sets of Pairs\<close>
 
 definition "set_set_dep_pair_set A B \<equiv> \<Union>a \<in> A. \<Union>y \<in> B a. {\<langle>a, y\<rangle>}"
-adhoc_overloading dep_pair set_set_dep_pair_set
+adhoc_overloading dep_pair \<rightleftharpoons> set_set_dep_pair_set
 
 definition "set_set_pair_set (A :: set) (B :: set) :: set \<equiv> \<Sum>(_ :: set) : A. B"
-adhoc_overloading pair set_set_pair_set
+adhoc_overloading pair \<rightleftharpoons> set_set_pair_set
 
 lemma set_set_pair_eq_set_set_dep_pair: "(A \<times> B :: set) = \<Sum>_ : A. B"
   unfolding set_set_pair_set_def by auto

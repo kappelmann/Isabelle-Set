@@ -9,9 +9,9 @@ begin
 unbundle no HOL_ascii_syntax
 
 definition "rel_dep_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : mem_of A) \<rightarrow> mem_of (B x)"
-adhoc_overloading rel_dep_mono_wrt rel_dep_mono_wrt_set
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> rel_dep_mono_wrt_set
 definition "rel_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> mem_of A \<rightarrow> mem_of B"
-adhoc_overloading rel_mono_wrt rel_mono_wrt_set
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> rel_mono_wrt_set
 
 lemma rel_dep_mono_wrt_set_eq_rel_dep_mono_wrt_pred [simp]:
   "((x : A) \<rightarrow> B x) = ((x : mem_of A) \<rightarrow> mem_of (B x))"
@@ -41,9 +41,9 @@ lemma rel_mono_wrt_set_iff_rel_mono_wrt_pred [iff]: "(A \<rightarrow> B) R \<lon
 
 definition "set_rel_dep_mono_wrt_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> set \<Rightarrow> bool) (R :: set) \<equiv>
   ((x : A) \<rightarrow> B x) (rel R)"
-adhoc_overloading rel_dep_mono_wrt set_rel_dep_mono_wrt_pred
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> set_rel_dep_mono_wrt_pred
 definition "set_rel_mono_wrt_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> bool) (R :: set) \<equiv> (A \<rightarrow> B) (rel R)"
-adhoc_overloading rel_mono_wrt set_rel_mono_wrt_pred
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> set_rel_mono_wrt_pred
 
 lemma set_rel_dep_mono_wrt_pred_iff_rel_dep_mono_wrt_pred [iff]:
   "((x : A) \<rightarrow> B x) R \<longleftrightarrow> ((x : A) \<rightarrow> B x) (rel R)"
@@ -77,9 +77,9 @@ lemma set_rel_mono_wrt_pred_eq_set_rel_dep_mono_wrt_pred_uhint [uhint]:
   using assms set_rel_mono_wrt_pred_eq_set_rel_dep_mono_wrt_pred by simp
 
 definition "set_rel_dep_mono_wrt_set A B :: set \<Rightarrow> bool \<equiv> ((x : mem_of A) \<rightarrow> mem_of (B x))"
-adhoc_overloading rel_dep_mono_wrt set_rel_dep_mono_wrt_set
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> set_rel_dep_mono_wrt_set
 definition "set_rel_mono_wrt_set A B :: set \<Rightarrow> bool \<equiv> (mem_of A \<rightarrow> mem_of B)"
-adhoc_overloading rel_mono_wrt set_rel_mono_wrt_set
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> set_rel_mono_wrt_set
 
 lemma set_rel_dep_mono_wrt_set_eq_set_rel_dep_mono_wrt_pred [simp]:
   "(((x : A) \<rightarrow> B x) :: set \<Rightarrow> bool) = ((x : mem_of A) \<rightarrow> mem_of (B x))"

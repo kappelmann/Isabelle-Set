@@ -22,7 +22,7 @@ signature UNIFICATION = sig
 
   type binder = string * term * typ     (* (name, soft type, rigid type) *)
   type 'o equation = binder list * (term * term) * 'o
-  type 'o unification_state 
+  type 'o unification_state
 
   val init: int -> 'o unification_state
 
@@ -177,7 +177,7 @@ fun map_bound_indices f =
 fun the_fail msg opt = case opt of SOME x => x | _ => raise Fail msg
 
 (*
-  Given 
+  Given
   - term [t] with loose bounds
   - the binder context [binders]
   - a list of indices [is]
@@ -191,8 +191,8 @@ fun abstract_over_loose_bounds binders is t =
   let
     (* mapping function for bound indices, which must match the binders we construct *)
     val bound_reorder = Inttab.lookup (Inttab.make (map_index swap (rev is)))
-  in  
-    t 
+  in
+    t
     |> map_bound_indices (bound_reorder #> the_fail "loose bound not covered by abstraction")
     |> fold_rev (fn (x, _, T) => fn b => Abs (x, T, b)) (map (nth binders) is)
   end
@@ -205,15 +205,15 @@ fun encode_indexname (x, i) = x ^ chr 0 ^ string_of_int i
 fun decode_indexname s =
   let val [x, is] = String.fields (fn c => Char.ord c = 0) s
   in (x, #1 (read_int (raw_explode is))) end
-  
-fun to_free (Var (ixn, T)) = Free (encode_indexname ixn, T)
-  | to_free t = t 
 
-fun to_var (t as Free (x, T)) = 
+fun to_free (Var (ixn, T)) = Free (encode_indexname ixn, T)
+  | to_free t = t
+
+fun to_var (t as Free (x, T)) =
       if exists_string (curry op = (chr 0)) x
       then Var (decode_indexname x, T)
       else t
-  | to_var t = t 
+  | to_var t = t
 
 fun abstract_over_frees vs t =
   let
@@ -229,8 +229,9 @@ fun abstract_over_frees vs t =
 
 
 fun replace_bounds ctxt binders t =
-  let 
-    val frees = map Free (Variable.variant_frees ctxt [t] (map (fn (x, _, T) => (x, T)) binders))
+  let
+    val frees = map Free (Variable.variant_names (fold Variable.declare_names [t] ctxt)
+      (map (fn (x, _, T) => (x, T)) binders))
     val reverse_op = abstract_over_frees frees
   in
     (Term.subst_bounds (frees, t), reverse_op)
@@ -240,7 +241,7 @@ fun replace_bounds ctxt binders t =
 (* Rewrites all rules, returning a list of changed and unchanged rules *)
 fun rewrite_eqns ctxt rews eqns =
   let
-    val simp_rules = flat (map (Raw_Simplifier.mksimps ctxt) rews) 
+    val simp_rules = flat (map (Raw_Simplifier.mksimps ctxt) rews)
 
     fun transform_term bs t =
       let val _ = Soft_Type.tracing ctxt ("Trying to rewrite " ^ Syntax.string_of_term ctxt t)
@@ -264,7 +265,7 @@ fun rewrite_eqns ctxt rews eqns =
 
   in
     transform_eqns eqns [] []
-  end 
+  end
 
 
 
@@ -287,22 +288,22 @@ fun can_replace F xs rhs =
       | (Bound i, rs) => i < d orelse member (op =) idxs (i - d) andalso forall (check_allowed_bounds d idxs) rs
       | (Abs (_, _, b), rs) => check_allowed_bounds (d + 1) idxs b
                                andalso forall (check_allowed_bounds d idxs) rs
-      | _ => raise Fail "Unreachable"  
+      | _ => raise Fail "Unreachable"
 
     val bvs =  map (fn s => case s of Bound i => i | _ => ~1) xs
-    val is_lhs_linear = 
+    val is_lhs_linear =
       is_Var F
       andalso not (has_duplicates (op =) bvs)
       andalso forall (fn i => (i >= 0)) bvs
-  in 
-    is_lhs_linear 
+  in
+    is_lhs_linear
     andalso check_allowed_bounds 0 bvs rhs
     andalso not (occurs F rhs)
   end
 
 
 
-(* 
+(*
   Creates an instantiation mapping the variable V to a new Variable V' which depends only on
   some given arguments of V.
 
@@ -322,7 +323,7 @@ fun make_projection (V, T) fresh_idx keep_args =
       (argTs ~~ keep_args)
       |> map_index I
       |> map_filter (fn (i, (T, keep)) => if keep then SOME (arity-i-1, T) else NONE)
-  in 
+  in
     (V,
       Var (apsnd (K fresh_idx) V, map #2 filtered_args ---> resultT)
       |> (fn v => list_comb (v, map (fn (i, _) => Bound i) filtered_args))
@@ -336,8 +337,8 @@ fun project_vars ctxt idxs t theta fresh_idx =
     fun proj d t (theta, fresh_idx) = case Envir.beta_norm (instantiate_term theta t) of
         Abs (x, T, b) => proj (d + 1) b (theta, fresh_idx) |> apfst (fn b' => Abs(x, T, b'))
       | t' => case strip_comb t' of
-          (Var ((x, i), T), rs) => 
-             let 
+          (Var ((x, i), T), rs) =>
+             let
                fun keep_arg (Bound i) = i < d orelse member (op =) idxs (i - d)
                  | keep_arg _ = true
              in if forall keep_arg rs then (t', (theta, fresh_idx)) else let
@@ -347,9 +348,9 @@ fun project_vars ctxt idxs t theta fresh_idx =
              in
                (t', (theta', fresh_idx + 1))
              end end
- 
+
         | (t, rs) => fold_map (proj d) rs (theta, fresh_idx) |> apfst (curry list_comb t)  (* Const, Free, Bound *)
-        
+
 in proj 0 t (theta, fresh_idx) end
 
 
@@ -379,7 +380,7 @@ fun rigidrigid u eqn f ss g ts =
         |> up_map_eqns (fn eqns => (new_eqns @ tl eqns))
       end
 
-(* Flex-Rigid case: 
+(* Flex-Rigid case:
 
   ?F ss = t    where ss are loose bounds
 
@@ -388,7 +389,7 @@ Instantiate ?F with (%ss. t)
 and flexrigid ctxt bs u F ss t =
       if occurs F t then error "Occurs check failed"
       else let
-        val bound_by_F = 
+        val bound_by_F =
           map (fn s => case s of Bound i => i | _ => error ("Not a pattern: " ^ \<^make_string> ss)) ss
         val _ = if not (can_replace F ss t)
                 then error ("Equation is not a pattern: " ^ \<^make_string> (F, ss, t)) else ()
@@ -399,7 +400,7 @@ and flexrigid ctxt bs u F ss t =
         val new_subst = Vartab.update inst theta'
         val instantiate = map (instantiate_eqn new_subst)
       in
-        u 
+        u
         |> up_map_eqns (instantiate o tl)
         |> up_map_postponed instantiate
         |> up_map_subst (K new_subst)
@@ -408,7 +409,7 @@ and flexrigid ctxt bs u F ss t =
 
 fun flexflex_same u F ss ts =
   let
-    fun can_unify (s, t) = (s aconv t) orelse case (s, t) of 
+    fun can_unify (s, t) = (s aconv t) orelse case (s, t) of
         (Bound _, Bound _) => false
       | (Bound _, Free _) => false
       | (Free _, Bound _) => false
@@ -418,7 +419,7 @@ fun flexflex_same u F ss ts =
       | _ => true
 
     val keep_args = map can_unify (ss ~~ ts)
-    val is_solved = ss ~~ ts ~~ keep_args 
+    val is_solved = ss ~~ ts ~~ keep_args
       |> forall (fn ((s, t), keep) => not keep orelse s aconv t)
     val inst = make_projection F (up_get_fresh_idx u) keep_args
     val theta = Vartab.update inst (up_get_subst u)
@@ -443,27 +444,27 @@ fun flexflex_different ctxt bs u F ss G ts =
 (* cf. clone in soft_type_inference.ML *)
 fun incr_bounds (Delta: binder list) =
   map (fn (x, st, T) => (x, Term.incr_boundvars 1 st, T)) Delta
-  
+
 fun abs_decompose u (Abs (x, T, b1)) (Abs (y, _, b2)) (bs, _, or) =
   let
     val name = if (x = "") then y else x
     val bs1 = incr_bounds ((name, Term.dummy, T) :: bs)
     val eqn1 = (bs1, (b1, b2), or)
   in
-    up_map_eqns (cons eqn1 o tl) u  
+    up_map_eqns (cons eqn1 o tl) u
   end
   | abs_decompose _ _ _ _ = raise Match
 
 
 
-fun cases ctxt u (eqn as (bs, (lhs, rhs), _)) = 
+fun cases ctxt u (eqn as (bs, (lhs, rhs), _)) =
       let
         val lhs' = Envir.beta_norm lhs
         val rhs' = Envir.beta_norm rhs
         val ((lhd, ss), (rhd, ts)) =
           (strip_comb lhs', strip_comb rhs')
       in case (lhd, rhd) of
-        (Var F, Var G)        => if (F = G) 
+        (Var F, Var G)        => if (F = G)
                                  then flexflex_same u F ss ts
                                  else flexflex_different ctxt bs u lhd ss rhd ts
       | (Var _, _)            => flexrigid ctxt bs u lhd ss rhs'
@@ -472,7 +473,7 @@ fun cases ctxt u (eqn as (bs, (lhs, rhs), _)) =
       | (Free _, Free _)      => rigidrigid u eqn lhd ss rhd ts
       | (Const _, Free _)     => rigidrigid u eqn lhd ss rhd ts
       | (Free _, Const _)     => rigidrigid u eqn lhd ss rhd ts
-      | (Abs _, Abs _)        => abs_decompose u lhs rhs eqn 
+      | (Abs _, Abs _)        => abs_decompose u lhs rhs eqn
       | (Const _, Bound _)      => error "Const-Bound clash"
       | (Free _, Bound _)     => error "Free-Bound clash"
       | (Bound _, Const _)    => error "Clash"
@@ -492,14 +493,14 @@ fun is_eqn_trivial (_, (lhs, rhs), _) = lhs aconv rhs
   but no rewriting
 *)
 fun simplify ctxt (u as UState {eqns, ...}) =
-  case eqns of 
+  case eqns of
     [] => u
           |> tap (Soft_Type.tracing ctxt o pr_unification_state ctxt)
-  | eqn :: _ => 
+  | eqn :: _ =>
     if is_eqn_trivial eqn then simplify ctxt (up_map_eqns tl u)
     else let
       val _ = Soft_Type.tracing ctxt ("Simplifying " ^ pr_equation ctxt eqn)
-    in 
+    in
       simplify ctxt (cases ctxt u eqn)
     end
 
@@ -508,12 +509,12 @@ fun simplify ctxt (u as UState {eqns, ...}) =
 
 
 
-fun add_equation ctxt eqn up = 
+fun add_equation ctxt eqn up =
   let
     val eqn1 = instantiate_eqn (up_get_subst up) eqn
     val _ = Soft_Type.tracing ctxt ("Adding Constraint: " ^ pr_equation ctxt eqn1)
   in
-    up 
+    up
     |> up_map_eqns (cons eqn1)
     |> simplify ctxt
   end
@@ -523,13 +524,13 @@ fun add_equation ctxt eqn up =
 (* Unification *)
 
 fun unify ctxt rews (u as UState {eqns, postponed, ...}) =
-  let 
+  let
     val _ = Soft_Type.tracing ctxt (pr_unification_state ctxt u)
   in
     if is_finished u then u
     else let
-      val next = case (eqns, postponed) of 
-         ((eqn as (_, (lhs, rhs), _)) :: _, _) => 
+      val next = case (eqns, postponed) of
+         ((eqn as (_, (lhs, rhs), _)) :: _, _) =>
            (if lhs aconv rhs (* reflexive case *)
            then up_map_eqns tl u
            else cases ctxt u eqn)

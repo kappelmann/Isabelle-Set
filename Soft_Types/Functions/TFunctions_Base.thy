@@ -32,7 +32,7 @@ lemma fun_map_type [type]:
 end
 
 definition "has_inverse_on_type T :: ('a type \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool \<equiv> has_inverse_on (of_type T)"
-adhoc_overloading has_inverse_on has_inverse_on_type
+adhoc_overloading has_inverse_on \<rightleftharpoons> has_inverse_on_type
 
 lemma has_inverse_on_type_eq_has_inverse_on_pred [simp]:
   "(has_inverse_on_type T :: ('a type \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool) = has_inverse_on (of_type T)"
@@ -53,7 +53,7 @@ lemma mono_wrt_dep_mono_wrt_top_inf_fun_restrict:
 
 definition "(fun_restrict_type (f :: 'a \<Rightarrow> 'b) (T :: 'a type) :: 'a \<Rightarrow> 'b) \<equiv>
   fun_restrict f (of_type T)"
-adhoc_overloading fun_restrict fun_restrict_type
+adhoc_overloading fun_restrict \<rightleftharpoons> fun_restrict_type
 
 lemma fun_restrict_type_eq_fun_restrict_pred [simp]:
   "(fun_restrict (f :: 'a \<Rightarrow> 'b) (T :: 'a type) :: 'a \<Rightarrow> 'b) = fun_restrict f (of_type T)"

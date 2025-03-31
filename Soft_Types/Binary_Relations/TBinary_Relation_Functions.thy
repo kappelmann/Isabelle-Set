@@ -20,15 +20,15 @@ lemma rel_inv_type [type]: "rel_inv \<Ztypecolon> A {\<times>} B \<Rightarrow> B
 
 definition "rel_restrict_left_type (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'a type) \<equiv>
   rel_restrict_left R (of_type T)"
-adhoc_overloading rel_restrict_left rel_restrict_left_type
+adhoc_overloading rel_restrict_left \<rightleftharpoons> rel_restrict_left_type
 
 definition "rel_restrict_right_type (R :: 'a \<Rightarrow> 'b \<Rightarrow> bool) (T :: 'b type) \<equiv>
   rel_restrict_right R (of_type T)"
-adhoc_overloading rel_restrict_right rel_restrict_right_type
+adhoc_overloading rel_restrict_right \<rightleftharpoons> rel_restrict_right_type
 
 definition "rel_restrict_type (R :: 'a \<Rightarrow> 'a \<Rightarrow> bool) (T :: 'a type) \<equiv>
   rel_restrict R (of_type T)"
-adhoc_overloading rel_restrict rel_restrict_type
+adhoc_overloading rel_restrict \<rightleftharpoons> rel_restrict_type
 
 lemma rel_restrict_left_type_eq_rel_restrict_left_pred [simp]:
   "(R :: 'a \<Rightarrow> 'b \<Rightarrow> bool)\<restriction>\<^bsub>T :: 'a type\<^esub> = R\<restriction>\<^bsub>of_type T\<^esub>"

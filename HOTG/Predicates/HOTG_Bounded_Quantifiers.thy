@@ -7,7 +7,7 @@ theory HOTG_Bounded_Quantifiers
 begin
 
 definition "ball_set A \<equiv> \<forall>\<^bsub>mem_of A\<^esub>"
-adhoc_overloading ball ball_set
+adhoc_overloading ball \<rightleftharpoons> ball_set
 
 lemma ball_set_eq_ball_pred [simp]: "\<forall>\<^bsub>A\<^esub> = \<forall>\<^bsub>mem_of A\<^esub>"
   unfolding ball_set_def by simp
@@ -21,7 +21,7 @@ lemma ball_set_iff_ball_pred [iff]: "(\<forall>x : A. P x) \<longleftrightarrow>
   by simp
 
 definition "bex_set A \<equiv> \<exists>\<^bsub>mem_of A\<^esub>"
-adhoc_overloading bex bex_set
+adhoc_overloading bex \<rightleftharpoons> bex_set
 
 lemma bex_set_eq_bex_pred [simp]: "\<exists>\<^bsub>A\<^esub> = \<exists>\<^bsub>mem_of A\<^esub>"
   unfolding bex_set_def by simp
@@ -35,7 +35,7 @@ lemma bex_set_iff_bex_pred [iff]: "(\<exists>x : A. Q x) \<longleftrightarrow> (
   by simp
 
 definition "bex1_set A \<equiv> \<exists>!\<^bsub>mem_of A\<^esub>"
-adhoc_overloading bex1 bex1_set
+adhoc_overloading bex1 \<rightleftharpoons> bex1_set
 
 lemma bex1_set_eq_bex1_pred [simp]: "\<exists>!\<^bsub>A\<^esub> = \<exists>!\<^bsub>mem_of A\<^esub>"
   unfolding bex1_set_def by simp

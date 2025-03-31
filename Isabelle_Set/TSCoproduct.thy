@@ -7,7 +7,7 @@ theory TSCoproduct
 begin
 
 definition "set_coprod_type A B \<equiv> of_type A \<Coprod> of_type B"
-adhoc_overloading coprod set_coprod_type
+adhoc_overloading coprod \<rightleftharpoons> set_coprod_type
 
 lemma set_coprod_type_eq_set_coprod_pred [simp]: "A \<Coprod> B = of_type A \<Coprod> of_type B"
   unfolding set_coprod_type_def by simp
@@ -22,7 +22,7 @@ lemma set_coprod_type_iff_set_coprod_pred [iff]: "(A \<Coprod> B) x \<longleftri
   by simp
 
 definition [typedef]: "Coprod (A :: set type) B \<equiv> type (A \<Coprod> B)"
-adhoc_overloading coprod Coprod
+adhoc_overloading coprod \<rightleftharpoons> Coprod
 
 lemma of_type_Coprod_eq_set_coprod_type [type_to_HOL_simp]:
   "of_type (A \<Coprod> B) = (A \<Coprod> B)"

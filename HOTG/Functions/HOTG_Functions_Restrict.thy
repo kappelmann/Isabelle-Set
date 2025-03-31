@@ -12,7 +12,7 @@ context
 begin
 
 definition "fun_restrict_set f A \<equiv> f\<restriction>\<^bsub>mem_of A\<^esub>"
-adhoc_overloading fun_restrict fun_restrict_set
+adhoc_overloading fun_restrict \<rightleftharpoons> fun_restrict_set
 
 lemma fun_restrict_set_eq_fun_restrict_pred [simp]: "f\<restriction>\<^bsub>A\<^esub> = f\<restriction>\<^bsub>mem_of A\<^esub>"
   unfolding fun_restrict_set_def by simp
@@ -24,7 +24,7 @@ lemma fun_restrict_set_eq_fun_restrict_pred_uhint [uhint]:
   using assms by simp
 
 definition "set_fun_restrict_pred :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set \<equiv> rel_restrict_left"
-adhoc_overloading fun_restrict set_fun_restrict_pred
+adhoc_overloading fun_restrict \<rightleftharpoons> set_fun_restrict_pred
 
 lemma set_fun_restrict_pred_eq_rel_restrict_left [simp]:
   "(set_fun_restrict_pred :: set \<Rightarrow> (set \<Rightarrow> bool) \<Rightarrow> set) = rel_restrict_left"
@@ -37,7 +37,7 @@ lemma set_fun_restrict_pred_eq_rel_restrict_left_uhint [uhint]:
   using assms by simp
 
 definition "set_fun_restrict_set :: set \<Rightarrow> set \<Rightarrow> set \<equiv> rel_restrict_left"
-adhoc_overloading fun_restrict set_fun_restrict_set
+adhoc_overloading fun_restrict \<rightleftharpoons> set_fun_restrict_set
 
 lemma set_fun_restrict_set_eq_rel_restrict_left [simp]:
   "(set_fun_restrict_set :: set \<Rightarrow> set \<Rightarrow> set) = rel_restrict_left"

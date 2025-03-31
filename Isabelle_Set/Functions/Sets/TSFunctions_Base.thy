@@ -7,9 +7,9 @@ theory TSFunctions_Base
 begin
 
 definition "set_rel_dep_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow> of_type (B x)"
-adhoc_overloading rel_dep_mono_wrt set_rel_dep_mono_wrt_type
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> set_rel_dep_mono_wrt_type
 definition "set_rel_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> of_type A \<rightarrow> of_type B"
-adhoc_overloading rel_mono_wrt set_rel_mono_wrt_type
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> set_rel_mono_wrt_type
 
 lemma set_rel_dep_mono_wrt_type_eq_set_rel_dep_mono_wrt_pred [simp]:
   "((x : A) \<rightarrow> B x :: set \<Rightarrow> bool) = ((x : of_type A) \<rightarrow> of_type (B x))"
@@ -40,7 +40,7 @@ lemma set_rel_mono_wrt_type_iff_set_rel_mono_wrt_pred [iff]:
   by simp
 
 definition [typedef]: "Set_rel_dep_fun (A :: set type) B \<equiv> type ((x : A) \<rightarrow> B x :: set \<Rightarrow> bool)"
-adhoc_overloading rel_dep_mono_wrt Set_rel_dep_fun
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> Set_rel_dep_fun
 
 lemma of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow> B x :: set type) = ((x : A) \<rightarrow> B x)"
@@ -51,7 +51,7 @@ soft_type_translation
   unfolding of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type[symmetric] by simp_all
 
 definition [typedef]: "Set_rel_fun (A :: set type) B \<equiv> type (A \<rightarrow> B :: set \<Rightarrow> bool)"
-adhoc_overloading rel_mono_wrt Set_rel_fun
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> Set_rel_fun
 
 lemma of_type_Set_rel_fun_eq_set_rel_mono_wrt_type [type_to_HOL_simp]:
   "of_type (A \<rightarrow> B :: set type) = (A \<rightarrow> B)"

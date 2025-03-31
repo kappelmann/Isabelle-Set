@@ -9,9 +9,9 @@ theory TBinary_Relations_Functions
 begin
 
 definition "rel_dep_mono_wrt_type A B :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow> of_type (B x)"
-adhoc_overloading rel_dep_mono_wrt rel_dep_mono_wrt_type
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> rel_dep_mono_wrt_type
 definition "rel_mono_wrt_type A B :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<equiv> of_type A \<rightarrow> of_type B"
-adhoc_overloading rel_mono_wrt rel_mono_wrt_type
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> rel_mono_wrt_type
 
 lemma rel_dep_mono_wrt_type_eq_rel_dep_mono_wrt_pred [simp]:
   "((x : A) \<rightarrow> B x) = ((x : of_type A) \<rightarrow> of_type (B x))"
@@ -40,7 +40,7 @@ lemma rel_mono_wrt_type_iff_rel_mono_wrt_pred [iff]: "(A \<rightarrow> B) R \<lo
   by simp
 
 definition [typedef]: "Rel_dep_fun (A :: 'a type) B \<equiv> type ((x : A) \<rightarrow> B x)"
-adhoc_overloading rel_dep_mono_wrt Rel_dep_fun
+adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> Rel_dep_fun
 
 lemma of_type_Rel_dep_fun_eq_rel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow> B x) = ((x : A) \<rightarrow> B x)"
@@ -51,7 +51,7 @@ soft_type_translation
   unfolding of_type_Rel_dep_fun_eq_rel_dep_mono_wrt_type[symmetric] by simp_all
 
 definition [typedef]: "Rel_fun (A :: 'a type) B \<equiv> type (A \<rightarrow> B)"
-adhoc_overloading rel_mono_wrt Rel_fun
+adhoc_overloading rel_mono_wrt \<rightleftharpoons> Rel_fun
 
 lemma of_type_Rel_fun_eq_rel_mono_wrt_type [type_to_HOL_simp]:
   "of_type (A \<rightarrow> B) = (A \<rightarrow> B)"
@@ -128,9 +128,9 @@ lemma rel_restrict_left_Rel_dep_fun_type [type]:
 end
 
 definition "crel_dep_mono_wrt_type A B :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow>\<^sub>c of_type (B x)"
-adhoc_overloading crel_dep_mono_wrt crel_dep_mono_wrt_type
+adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> crel_dep_mono_wrt_type
 definition "crel_mono_wrt_type A B :: ('a \<Rightarrow> 'b \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (of_type A) \<rightarrow>\<^sub>c of_type B"
-adhoc_overloading crel_mono_wrt crel_mono_wrt_type
+adhoc_overloading crel_mono_wrt \<rightleftharpoons> crel_mono_wrt_type
 
 lemma crel_dep_mono_wrt_type_eq_crel_dep_mono_wrt_pred [simp]:
   "((x : A) \<rightarrow>\<^sub>c B x) = ((x : of_type A) \<rightarrow>\<^sub>c of_type (B x))"
@@ -159,7 +159,7 @@ lemma crel_mono_wrt_type_iff_crel_mono_wrt_pred [iff]: "(A \<rightarrow>\<^sub>c
   by simp
 
 definition [typedef]: "Crel_dep_fun (A :: 'a type) B \<equiv> type ((x : A) \<rightarrow>\<^sub>c B x)"
-adhoc_overloading crel_dep_mono_wrt Crel_dep_fun
+adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> Crel_dep_fun
 
 lemma of_type_Crel_dep_fun_eq_crel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow>\<^sub>c B x) = ((x : A) \<rightarrow>\<^sub>c B x)"
@@ -170,7 +170,7 @@ soft_type_translation
   unfolding of_type_Crel_dep_fun_eq_crel_dep_mono_wrt_type[symmetric] by simp_all
 
 definition [typedef]: "Crel_fun (A :: 'a type) B \<equiv> type (A \<rightarrow>\<^sub>c B)"
-adhoc_overloading crel_mono_wrt Crel_fun
+adhoc_overloading crel_mono_wrt \<rightleftharpoons> Crel_fun
 
 lemma of_type_Crel_fun_eq_crel_mono_wrt_type [type_to_HOL_simp]:
   "of_type (A \<rightarrow>\<^sub>c B) = (A \<rightarrow>\<^sub>c B)"
@@ -245,7 +245,7 @@ lemma rel_restrict_left_Crel_dep_fun_type [type]:
 end
 
 definition "rel_lambda_type (T :: 'a type) :: ('a \<Rightarrow> 'b) \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool \<equiv> rel_lambda (of_type T)"
-adhoc_overloading rel_lambda rel_lambda_type
+adhoc_overloading rel_lambda \<rightleftharpoons> rel_lambda_type
 
 lemma rel_lambda_type_eq_rel_lambda_pred [simp]: "rel_lambda_type T = rel_lambda_pred (of_type T)"
   unfolding rel_lambda_type_def by simp

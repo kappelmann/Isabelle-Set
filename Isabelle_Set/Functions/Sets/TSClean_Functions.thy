@@ -8,9 +8,9 @@ theory TSClean_Functions
 begin
 
 definition "set_crel_dep_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow>\<^sub>c of_type (B x)"
-adhoc_overloading crel_dep_mono_wrt set_crel_dep_mono_wrt_type
+adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> set_crel_dep_mono_wrt_type
 definition "set_crel_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> of_type A \<rightarrow>\<^sub>c of_type B"
-adhoc_overloading crel_mono_wrt set_crel_mono_wrt_type
+adhoc_overloading crel_mono_wrt \<rightleftharpoons> set_crel_mono_wrt_type
 
 lemma set_crel_dep_mono_wrt_type_eq_set_crel_dep_mono_wrt_pred [simp]:
   "((x : A) \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool) = ((x : of_type A) \<rightarrow>\<^sub>c of_type (B x))"
@@ -41,7 +41,7 @@ lemma set_crel_mono_wrt_type_iff_set_crel_mono_wrt_pred [iff]:
   by simp
 
 definition [typedef]: "Set_crel_dep_fun (A :: set type) B \<equiv> type ((x : A) \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)"
-adhoc_overloading crel_dep_mono_wrt Set_crel_dep_fun
+adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> Set_crel_dep_fun
 
 lemma of_type_Set_crel_dep_fun_eq_set_crel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow>\<^sub>c B x :: set type) = ((x : A) \<rightarrow>\<^sub>c B x)"
@@ -60,7 +60,7 @@ soft_type_translation
   using mem_of_crel_dep_fun_eq_of_type_Set_crel_dep_fun_Element by simp_all
 
 definition [typedef]: "Set_crel_fun (A :: set type) B \<equiv> type (A \<rightarrow>\<^sub>c B :: set \<Rightarrow> bool)"
-adhoc_overloading crel_mono_wrt Set_crel_fun
+adhoc_overloading crel_mono_wrt \<rightleftharpoons> Set_crel_fun
 
 lemma of_type_Set_crel_fun_eq_set_crel_mono_wrt_type [type_to_HOL_simp]:
   "of_type (A \<rightarrow>\<^sub>c B :: set type) = (A \<rightarrow>\<^sub>c B)"

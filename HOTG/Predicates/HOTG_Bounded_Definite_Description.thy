@@ -7,7 +7,7 @@ theory HOTG_Bounded_Definite_Description
 begin
 
 definition "bthe_set A \<equiv> bthe (mem_of A)"
-adhoc_overloading bthe bthe_set
+adhoc_overloading bthe \<rightleftharpoons> bthe_set
 
 lemma bthe_set_eq_bthe_pred [simp]: "bthe A = bthe (mem_of A)"
   unfolding bthe_set_def by simp

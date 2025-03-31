@@ -7,7 +7,7 @@ theory HOTG_Binary_Relations_Extend
 begin
 
 definition "extend_set x y R \<equiv> insert \<langle>x, y\<rangle> R"
-adhoc_overloading extend extend_set
+adhoc_overloading extend \<rightleftharpoons> extend_set
 
 lemma mem_extend_leftI [iff]: "\<langle>x, y\<rangle> \<in> extend x y R"
   unfolding extend_set_def by blast
@@ -54,7 +54,7 @@ lemma dep_mono_set_dep_bin_rel_extend:
 
 
 definition "has_inverse_on_set A :: (set \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool \<equiv> has_inverse_on (mem_of A)"
-adhoc_overloading has_inverse_on has_inverse_on_set
+adhoc_overloading has_inverse_on \<rightleftharpoons> has_inverse_on_set
 
 lemma has_inverse_on_set_eq_has_inverse_on_pred [simp]:
   "(has_inverse_on_set A :: (set \<Rightarrow> 'a) \<Rightarrow> 'a \<Rightarrow> bool) = has_inverse_on (mem_of A)"
@@ -91,7 +91,7 @@ end
 
 
 definition "glue_set (\<R> :: set) \<equiv> \<Union>\<R>"
-adhoc_overloading glue glue_set
+adhoc_overloading glue \<rightleftharpoons> glue_set
 
 lemma mem_glueI [intro]:
   assumes "R \<in> \<R>"

@@ -160,7 +160,7 @@ lemma is_bin_rel_if_subset_if_is_bin_rel:
   using assms by (intro is_bin_relI) blast
 
 definition "dep_bin_rel_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> {\<Sum>}x : mem_of A. mem_of (B x)"
-adhoc_overloading dep_bin_rel dep_bin_rel_set
+adhoc_overloading dep_bin_rel \<rightleftharpoons> dep_bin_rel_set
 
 lemma dep_bin_rel_set_eq_dep_bin_rel_pred [simp]: "({\<Sum>}x : A. B x) = {\<Sum>}x : mem_of A. mem_of (B x)"
   unfolding dep_bin_rel_set_def by simp
@@ -176,7 +176,7 @@ lemma dep_bin_rel_set_iff_dep_bin_rel_pred [iff]:
   by simp
 
 definition "bin_rel_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> mem_of A {\<times>} mem_of B"
-adhoc_overloading bin_rel bin_rel_set
+adhoc_overloading bin_rel \<rightleftharpoons> bin_rel_set
 
 lemma bin_rel_set_eq_bin_rel_pred [simp]: "A {\<times>} B = mem_of A {\<times>} mem_of B"
   unfolding bin_rel_set_def by simp
@@ -192,10 +192,10 @@ lemma bin_rel_set_iff_bin_rel_pred [iff]: "(A {\<times>} B) R \<longleftrightarr
 
 definition "set_dep_bin_rel_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> set \<Rightarrow> bool) (R :: set) \<equiv>
   ({\<Sum>}x : A. B x) (rel R) \<and> is_bin_rel R"
-adhoc_overloading dep_bin_rel set_dep_bin_rel_pred
+adhoc_overloading dep_bin_rel \<rightleftharpoons> set_dep_bin_rel_pred
 
 definition "set_bin_rel_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> bool) :: set \<Rightarrow> bool \<equiv> {\<Sum>}_ : A. B"
-adhoc_overloading bin_rel set_bin_rel_pred
+adhoc_overloading bin_rel \<rightleftharpoons> set_bin_rel_pred
 
 lemma set_bin_rel_pred_eq_set_dep_bin_rel_pred:
   "((A :: set \<Rightarrow> bool) {\<times>} B :: set \<Rightarrow> _) = {\<Sum>}_ : A. B"
@@ -286,7 +286,7 @@ lemma mono_set_dep_bin_rel_dep_bin_rel_rel: "(({\<Sum>}x : A. B x :: set \<Right
 
 definition "set_dep_bin_rel_set (A :: set) (B :: set \<Rightarrow> set) :: set \<Rightarrow> bool \<equiv>
   {\<Sum>}x : mem_of A. mem_of (B x)"
-adhoc_overloading dep_bin_rel set_dep_bin_rel_set
+adhoc_overloading dep_bin_rel \<rightleftharpoons> set_dep_bin_rel_set
 
 lemma set_dep_bin_rel_set_eq_set_dep_bin_rel_pred [simp]:
   "({\<Sum>}x : A. B x :: set \<Rightarrow> bool) = {\<Sum>}x : mem_of A. mem_of (B x)"
@@ -328,7 +328,7 @@ corollary subset_dep_pair_eq_dep_bin_rel_uhint [uhint]:
 lemma set_dep_bin_rel_set_dep_pair: "({\<Sum>}x : A. B x) (\<Sum>x : A. B x :: set)" by blast
 
 definition "set_bin_rel_set (A :: set) (B :: set) :: set \<Rightarrow> bool \<equiv> mem_of A {\<times>} mem_of B"
-adhoc_overloading bin_rel set_bin_rel_set
+adhoc_overloading bin_rel \<rightleftharpoons> set_bin_rel_set
 
 lemma set_bin_rel_set_eq_set_bin_rel_pred [simp]: "(A {\<times>} B :: set \<Rightarrow> bool) = mem_of A {\<times>} mem_of B"
   unfolding set_bin_rel_set_def by simp

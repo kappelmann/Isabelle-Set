@@ -7,7 +7,7 @@ theory HOTG_Order_Isomorphisms
 begin
 
 definition "order_isomorphism_on_set A B \<equiv> order_isomorphism_on (mem_of A) (mem_of B)"
-adhoc_overloading order_isomorphism_on order_isomorphism_on_set
+adhoc_overloading order_isomorphism_on \<rightleftharpoons> order_isomorphism_on_set
 
 lemma order_isomorphism_on_set_eq_order_isomorphism_on_pred [simp]:
   "order_isomorphism_on A B = order_isomorphism_on (mem_of A) (mem_of B)"
@@ -24,7 +24,7 @@ lemma order_isomorphism_on_set_iff_order_isomorphism_on_pred [iff]:
   by simp
 
 definition "order_isomorphic_on_set A B = order_isomorphic_on (mem_of A) (mem_of B)"
-adhoc_overloading order_isomorphic_on order_isomorphic_on_set
+adhoc_overloading order_isomorphic_on \<rightleftharpoons> order_isomorphic_on_set
 
 lemma order_isomorphic_on_set_eq_order_isomorphic_on_pred [simp]:
   "order_isomorphic_on A B = order_isomorphic_on (mem_of A) (mem_of B)"

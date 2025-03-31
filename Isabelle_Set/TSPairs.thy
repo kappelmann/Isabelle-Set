@@ -8,10 +8,10 @@ theory TSPairs
 begin
 
 definition "set_dep_pair_type A B \<equiv> \<Sum>x : of_type A. of_type (B x)"
-adhoc_overloading dep_pair set_dep_pair_type
+adhoc_overloading dep_pair \<rightleftharpoons> set_dep_pair_type
 
 definition "set_pair_type A B \<equiv> of_type A \<times> of_type B"
-adhoc_overloading pair set_pair_type
+adhoc_overloading pair \<rightleftharpoons> set_pair_type
 
 lemma set_dep_pair_type_eq_set_dep_pair_pred [simp]:
   "(\<Sum>x : A. B x) = \<Sum>x : of_type A. of_type (B x)"
@@ -48,7 +48,7 @@ lemma set_set_pair_set_type [type]: "(\<times>) \<Ztypecolon> Subset A \<Rightar
 
 
 definition [typedef]: "Dep_pair (A :: set type) B \<equiv> type (\<Sum>x : A. B x)"
-adhoc_overloading dep_pair Dep_pair
+adhoc_overloading dep_pair \<rightleftharpoons> Dep_pair
 
 lemma of_type_Dep_pair_eq_set_dep_pair_type [type_to_HOL_simp]:
   "of_type (\<Sum>x : A. B x) = (\<Sum>x : A. B x)"
@@ -67,7 +67,7 @@ soft_type_translation
   using mem_of_dep_pairs_eq_of_type_Dep_pair_Element by simp_all
 
 definition [typedef]: "Pair (A :: set type) B \<equiv> type (A \<times> B)"
-adhoc_overloading pair Pair
+adhoc_overloading pair \<rightleftharpoons> Pair
 
 lemma of_type_Pair_eq_set_pair_type [type_to_HOL_simp]: "of_type (A \<times> B) = (A \<times> B)"
   unfolding Pair_def type_to_HOL_simp by simp

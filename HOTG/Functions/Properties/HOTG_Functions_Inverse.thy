@@ -8,7 +8,7 @@ theory HOTG_Functions_Inverse
 begin
 
 definition "the_inverse_on_set A \<equiv> the_inverse_on (mem_of A)"
-adhoc_overloading the_inverse_on the_inverse_on_set
+adhoc_overloading the_inverse_on \<rightleftharpoons> the_inverse_on_set
 
 lemma the_inverse_on_set_eq_the_inverse_on_pred [simp]:
   "the_inverse_on A = the_inverse_on (mem_of A)"

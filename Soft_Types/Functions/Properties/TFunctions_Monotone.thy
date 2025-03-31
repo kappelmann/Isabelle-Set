@@ -7,9 +7,9 @@ theory TFunctions_Monotone
 begin
 
 definition "dep_mono_wrt_type A B \<equiv> (x : of_type A) \<Rightarrow> of_type (B x)"
-adhoc_overloading dep_mono_wrt dep_mono_wrt_type
+adhoc_overloading dep_mono_wrt \<rightleftharpoons> dep_mono_wrt_type
 definition "mono_wrt_type A B \<equiv> of_type A \<Rightarrow> of_type B"
-adhoc_overloading mono_wrt mono_wrt_type
+adhoc_overloading mono_wrt \<rightleftharpoons> mono_wrt_type
 
 lemma dep_mono_wrt_type_eq_dep_mono_wrt_pred [simp]:
   "((x : A) \<Rightarrow> B x) = ((x : of_type A) \<Rightarrow> of_type (B x))"

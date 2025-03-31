@@ -30,7 +30,7 @@ open_bundle coprod_syntax begin notation coprod (infixr "\<Coprod>" 70) end
 
 definition "set_coprod_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> bool) \<equiv>
   has_inverse_on A inl \<squnion> has_inverse_on B inr"
-adhoc_overloading coprod set_coprod_pred
+adhoc_overloading coprod \<rightleftharpoons> set_coprod_pred
 
 lemma set_coprod_if_has_inverse_on_inl:
   assumes "has_inverse_on A inl x"
@@ -61,7 +61,7 @@ lemma mono_set_coprod_coprod_rec: "((A \<Rightarrow> C) \<Rightarrow> (B \<Right
 lemma mono_set_coprod: "((\<le>) \<Rightarrow> (\<le>) \<Rrightarrow> (\<le>)) (\<Coprod>)" by blast
 
 definition "set_coprod_set A B \<equiv> mem_of A \<Coprod> mem_of B"
-adhoc_overloading coprod set_coprod_set
+adhoc_overloading coprod \<rightleftharpoons> set_coprod_set
 
 lemma set_coprod_set_eq_set_coprod_pred [simp]: "A \<Coprod> B = mem_of A \<Coprod> mem_of B"
   unfolding set_coprod_set_def by simp
@@ -76,7 +76,7 @@ lemma set_coprod_set_iff_set_coprod_pred [iff]: "(A \<Coprod> B) x \<longleftrig
   by simp
 
 definition "set_set_coprod_set A B \<equiv> {inl a | a \<in> A} \<union> {inr b | b \<in> B}"
-adhoc_overloading coprod set_set_coprod_set
+adhoc_overloading coprod \<rightleftharpoons> set_set_coprod_set
 
 lemma mem_coprod_set_if_has_inverse_on_inl:
   assumes "has_inverse_on A inl x"

@@ -7,7 +7,7 @@ theory TFunctions_Inverse
 begin
 
 definition "the_inverse_on_type T \<equiv> the_inverse_on (of_type T)"
-adhoc_overloading the_inverse_on the_inverse_on_type
+adhoc_overloading the_inverse_on \<rightleftharpoons> the_inverse_on_type
 
 lemma the_inverse_on_type_eq_the_inverse_on_pred [simp]:
   "the_inverse_on T = the_inverse_on (of_type T)"

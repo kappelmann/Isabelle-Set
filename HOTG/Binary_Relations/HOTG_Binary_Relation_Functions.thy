@@ -133,7 +133,7 @@ lemma field_collect_eq [simp]: "field {\<langle>f x, g x\<rangle> | x \<in> A} =
 subsubsection \<open>Composition\<close>
 
 definition "rel_comp_set R S \<equiv> {p \<in> dom R \<times> codom S | \<exists>z. \<langle>fst p, z\<rangle> \<in> R \<and> \<langle>z, snd p\<rangle> \<in> S}"
-adhoc_overloading rel_comp rel_comp_set
+adhoc_overloading rel_comp \<rightleftharpoons> rel_comp_set
 
 lemma mem_rel_compI:
   assumes "is_pair p"
@@ -195,7 +195,7 @@ lemma set_pair_comp_dep_pair_eq_pair_idx_union [simp]:
 subsubsection \<open>Inverse\<close>
 
 definition "rel_inv_set R \<equiv> {swap p | p \<in> {p \<in> R | is_pair p}}"
-adhoc_overloading rel_inv rel_inv_set
+adhoc_overloading rel_inv \<rightleftharpoons> rel_inv_set
 
 lemma mem_rel_invI:
   assumes "is_pair p"
@@ -261,7 +261,7 @@ end
 subsubsection \<open>Restrictions\<close>
 
 definition "rel_restrict_left_set (R :: set \<Rightarrow> 'a \<Rightarrow> bool) A \<equiv> rel_restrict_left R (mem_of A)"
-adhoc_overloading rel_restrict_left rel_restrict_left_set
+adhoc_overloading rel_restrict_left \<rightleftharpoons> rel_restrict_left_set
 
 lemma rel_restrict_left_set_eq_rel_restrict_left_pred [simp]: "(R :: set \<Rightarrow> 'a \<Rightarrow> bool)\<restriction>\<^bsub>A\<^esub> = R\<restriction>\<^bsub>mem_of A\<^esub>"
   unfolding rel_restrict_left_set_def by simp
@@ -273,7 +273,7 @@ lemma rel_restrict_left_set_eq_rel_restrict_left_pred_uhint [uhint]:
   using assms by simp
 
 definition "set_rel_restrict_left_pred R P \<equiv> {p \<in> R | is_pair p \<and> P (fst p)}"
-adhoc_overloading rel_restrict_left set_rel_restrict_left_pred
+adhoc_overloading rel_restrict_left \<rightleftharpoons> set_rel_restrict_left_pred
 
 lemma mem_rel_restrict_leftI:
   assumes "is_pair p"
@@ -357,7 +357,7 @@ lemma mono_subset_rel_restrict_left: "((\<subseteq>) \<Rightarrow> (\<le>) \<Rri
 
 
 definition "set_rel_restrict_left_set (R :: set) A \<equiv> rel_restrict_left R (mem_of A)"
-adhoc_overloading rel_restrict_left set_rel_restrict_left_set
+adhoc_overloading rel_restrict_left \<rightleftharpoons> set_rel_restrict_left_set
 
 lemma set_rel_restrict_left_set_eq_set_rel_restrict_left_pred [simp]: "(R :: set)\<restriction>\<^bsub>A\<^esub> = R\<restriction>\<^bsub>mem_of A\<^esub>"
   unfolding set_rel_restrict_left_set_def by simp
@@ -369,7 +369,7 @@ lemma set_rel_restrict_left_set_eq_set_rel_restrict_left_pred_uhint [uhint]:
   using assms by simp
 
 definition "rel_restrict_right_set (R :: 'a \<Rightarrow> set \<Rightarrow> bool) A \<equiv> rel_restrict_right R (mem_of A)"
-adhoc_overloading rel_restrict_right rel_restrict_right_set
+adhoc_overloading rel_restrict_right \<rightleftharpoons> rel_restrict_right_set
 
 lemma rel_restrict_right_set_eq_rel_restrict_right_pred [simp]:
   "(R :: 'a \<Rightarrow> set \<Rightarrow> bool)\<upharpoonleft>\<^bsub>A\<^esub> = R\<upharpoonleft>\<^bsub>mem_of A\<^esub>"
@@ -382,7 +382,7 @@ lemma set_rel_restrict_right_eq_rel_restrict_right_pred_uhint [uhint]:
   using assms by simp
 
 definition "set_rel_restrict_right_pred R P \<equiv> {p \<in> R | is_pair p \<and> P (snd p)}"
-adhoc_overloading rel_restrict_right set_rel_restrict_right_pred
+adhoc_overloading rel_restrict_right \<rightleftharpoons> set_rel_restrict_right_pred
 
 lemma mem_rel_restrict_rightI:
   assumes "is_pair p"
@@ -480,7 +480,7 @@ end
 end
 
 definition "set_rel_restrict_right_set (R :: set) A \<equiv> rel_restrict_right R (mem_of A)"
-adhoc_overloading rel_restrict_right set_rel_restrict_right_set
+adhoc_overloading rel_restrict_right \<rightleftharpoons> set_rel_restrict_right_set
 
 lemma set_rel_restrict_right_set_eq_set_rel_restrict_right_pred [simp]: "(R :: set)\<upharpoonleft>\<^bsub>A\<^esub> = R\<upharpoonleft>\<^bsub>mem_of A\<^esub>"
   unfolding set_rel_restrict_right_set_def by simp
@@ -492,7 +492,7 @@ lemma set_rel_restrict_right_set_eq_set_rel_restrict_right_pred_uhint [uhint]:
   using assms by simp
 
 definition "rel_restrict_set (R :: set \<Rightarrow> set \<Rightarrow> bool) A \<equiv> rel_restrict R (mem_of A)"
-adhoc_overloading rel_restrict rel_restrict_set
+adhoc_overloading rel_restrict \<rightleftharpoons> rel_restrict_set
 
 lemma rel_restrict_set_eq_rel_restrict_pred [simp]: "(R :: set \<Rightarrow> set \<Rightarrow> bool)\<up>\<^bsub>A\<^esub> = R\<up>\<^bsub>mem_of A\<^esub>"
   unfolding rel_restrict_set_def by simp
@@ -504,7 +504,7 @@ lemma rel_restrict_set_eq_rel_restrict_pred_uhint [uhint]:
   using assms by simp
 
 definition "set_rel_restrict_pred (R :: set) (P :: set \<Rightarrow> bool) \<equiv> R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>P\<^esub>"
-adhoc_overloading rel_restrict set_rel_restrict_pred
+adhoc_overloading rel_restrict \<rightleftharpoons> set_rel_restrict_pred
 
 lemma mem_rel_restrictI [intro]:
   assumes "p \<in> R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>P\<^esub>"
@@ -568,7 +568,7 @@ lemma mono_dep_bin_rel_top_dep_bin_rel_inf_set_rel_restrict:
   by fast
 
 definition "set_rel_restrict_set (R :: set) A \<equiv> rel_restrict R (mem_of A)"
-adhoc_overloading rel_restrict set_rel_restrict_set
+adhoc_overloading rel_restrict \<rightleftharpoons> set_rel_restrict_set
 
 lemma set_rel_restrict_set_eq_set_rel_restrict_pred [simp]:
   "(R :: set)\<up>\<^bsub>A\<^esub> = R\<up>\<^bsub>mem_of A\<^esub>"

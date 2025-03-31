@@ -12,7 +12,7 @@ unbundle no HOL_ascii_syntax
 subsubsection \<open>Evaluation\<close>
 
 definition "eval_set R \<equiv> eval (rel R)"
-adhoc_overloading eval eval_set
+adhoc_overloading eval \<rightleftharpoons> eval_set
 
 lemma eval_set_eq_eval_rel [simp, set_to_HOL_simp]: "(R :: set)`x = (rel R)`x"
   unfolding eval_set_def by simp

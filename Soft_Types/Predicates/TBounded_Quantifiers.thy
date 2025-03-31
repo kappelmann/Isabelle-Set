@@ -7,10 +7,10 @@ theory TBounded_Quantifiers
 begin
 
 definition "ball_type T \<equiv> \<forall>\<^bsub>of_type T\<^esub>"
-adhoc_overloading ball ball_type
+adhoc_overloading ball \<rightleftharpoons> ball_type
 
 definition "bex_type T \<equiv> \<exists>\<^bsub>of_type T\<^esub>"
-adhoc_overloading bex bex_type
+adhoc_overloading bex \<rightleftharpoons> bex_type
 
 lemma ball_type_eq_ball [simp]: "\<forall>\<^bsub>T\<^esub> = \<forall>\<^bsub>of_type T\<^esub>"
   unfolding ball_type_def by simp
@@ -35,7 +35,7 @@ lemma bex_type_iff_bex [iff]: "(\<exists>x : T. P x) \<longleftrightarrow> (\<ex
   by simp
 
 definition "bex1_type T \<equiv> \<exists>!\<^bsub>of_type T\<^esub>"
-adhoc_overloading bex1 bex1_type
+adhoc_overloading bex1 \<rightleftharpoons> bex1_type
 
 lemma bex1_type_eq_bex1_pred [simp]: "\<exists>!\<^bsub>T\<^esub> = \<exists>!\<^bsub>of_type T\<^esub>"
   unfolding bex1_type_def by simp

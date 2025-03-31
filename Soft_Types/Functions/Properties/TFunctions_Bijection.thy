@@ -8,7 +8,7 @@ begin
 
 definition "bijection_on_type (A :: 'a type) (B :: 'b type) :: ('a \<Rightarrow> 'b) \<Rightarrow> ('b \<Rightarrow> 'a) \<Rightarrow> bool \<equiv>
   bijection_on (of_type A) (of_type B)"
-adhoc_overloading bijection_on bijection_on_type
+adhoc_overloading bijection_on \<rightleftharpoons> bijection_on_type
 
 lemma bijection_on_type_eq_bijection_on_pred [simp]:
   "bijection_on A B = bijection_on (of_type A) (of_type B)"

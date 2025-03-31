@@ -7,7 +7,7 @@ theory TBounded_Definite_Description
 begin
 
 definition "bthe_type T \<equiv> bthe (of_type T)"
-adhoc_overloading bthe bthe_type
+adhoc_overloading bthe \<rightleftharpoons> bthe_type
 
 lemma bthe_type_eq_bthe_pred [simp]: "bthe T = bthe (of_type T)"
   unfolding bthe_type_def by simp

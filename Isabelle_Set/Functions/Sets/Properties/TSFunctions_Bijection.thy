@@ -8,7 +8,7 @@ begin
 
 definition "set_bijection_on_type (S :: set type) (T :: set type) :: set \<Rightarrow> set \<Rightarrow> bool \<equiv>
   bijection_on (of_type S) (of_type T)"
-adhoc_overloading bijection_on set_bijection_on_type
+adhoc_overloading bijection_on \<rightleftharpoons> set_bijection_on_type
 
 lemma set_bijection_on_type_eq_set_bijection_on_pred [simp]:
   "(bijection_on (S :: set type) (T :: set type) :: set \<Rightarrow> set \<Rightarrow> bool) =

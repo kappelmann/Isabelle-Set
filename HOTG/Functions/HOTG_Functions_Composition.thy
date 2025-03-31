@@ -8,7 +8,7 @@ theory HOTG_Functions_Composition
 begin
 
 definition "comp_set (f :: set) (g :: set) \<equiv> g \<circ>\<circ> f"
-adhoc_overloading comp comp_set
+adhoc_overloading comp \<rightleftharpoons> comp_set
 
 lemma comp_set_eq_rel_comp_set [simp]: "(f :: set) \<circ> g = g \<circ>\<circ> f"
   unfolding comp_set_def by simp

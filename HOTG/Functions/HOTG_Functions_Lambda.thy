@@ -11,7 +11,7 @@ begin
 unbundle no HOL_ascii_syntax
 
 definition "rel_lambda_set A :: (set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a \<Rightarrow> bool \<equiv> rel_lambda (mem_of A)"
-adhoc_overloading rel_lambda rel_lambda_set
+adhoc_overloading rel_lambda \<rightleftharpoons> rel_lambda_set
 
 lemma rel_lambda_set_eq_rel_lambda_pred [simp]: "rel_lambda_set A = rel_lambda_pred (mem_of A)"
   unfolding rel_lambda_set_def by simp
@@ -25,7 +25,7 @@ lemma rel_lambda_set_iff_rel_lambda_pred [iff]: "(\<lambda>x : A. f x) x y \<lon
   by (simp only: rel_lambda_set_eq_rel_lambda_pred)
 
 definition "set_rel_lambda_set A f \<equiv> {\<langle>x, f x\<rangle> | x \<in> A}"
-adhoc_overloading rel_lambda set_rel_lambda_set
+adhoc_overloading rel_lambda \<rightleftharpoons> set_rel_lambda_set
 
 lemma mk_pair_mem_rel_lambdaI [intro]:
   assumes "x \<in> A"

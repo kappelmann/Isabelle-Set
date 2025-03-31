@@ -29,7 +29,7 @@ lemma rel_inv_set_type [type]: "rel_inv_set \<Ztypecolon> A {\<times>} B \<Right
 
 definition "set_rel_restrict_left_type (R :: set) (T :: set type) \<equiv>
   rel_restrict_left R (of_type T)"
-adhoc_overloading rel_restrict_left set_rel_restrict_left_type
+adhoc_overloading rel_restrict_left \<rightleftharpoons> set_rel_restrict_left_type
 
 lemma set_rel_restrict_left_type_eq_set_rel_restrict_left_pred [simp]:
   "(R :: set)\<restriction>\<^bsub>T :: set type\<^esub> = R\<restriction>\<^bsub>of_type T\<^esub>"
@@ -47,7 +47,7 @@ lemma mono_pred_map_comp_type_set_rel_restrict_left_eq_mono_rel_restrict_left_pr
 
 definition "set_rel_restrict_right_type (R :: set) (T :: set type) \<equiv>
   rel_restrict_right R (of_type T)"
-adhoc_overloading rel_restrict_right set_rel_restrict_right_type
+adhoc_overloading rel_restrict_right \<rightleftharpoons> set_rel_restrict_right_type
 
 lemma set_rel_restrict_right_type_eq_set_rel_restrict_right_pred [simp]:
   "(R :: set)\<upharpoonleft>\<^bsub>T :: set type\<^esub> = R\<upharpoonleft>\<^bsub>of_type T\<^esub>"
@@ -64,7 +64,7 @@ lemma mono_pred_map_comp_type_set_rel_restrict_right_eq_mono_rel_restrict_right_
   by (simp cong: dep_mono_wrt_pred_codom_iff_cong)
 
 definition "set_rel_restrict_type (R :: set) (T :: set type) \<equiv> rel_restrict R (of_type T)"
-adhoc_overloading rel_restrict set_rel_restrict_type
+adhoc_overloading rel_restrict \<rightleftharpoons> set_rel_restrict_type
 
 lemma set_rel_restrict_type_eq_set_rel_restrict_pred [simp]:
   "(R :: set)\<up>\<^bsub>T :: set type\<^esub> = R\<up>\<^bsub>of_type T\<^esub>"

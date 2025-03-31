@@ -8,7 +8,7 @@ begin
 
 definition "wf_rec_on_set (A :: set) :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> ((set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a) \<Rightarrow> set \<Rightarrow> 'a
   \<equiv> wf_rec_on (mem_of A)"
-adhoc_overloading wf_rec_on wf_rec_on_set
+adhoc_overloading wf_rec_on \<rightleftharpoons> wf_rec_on_set
 
 lemma wf_rec_on_set_eq_wf_rec_on_pred [simp]: "wf_rec_on A = wf_rec_on (mem_of A)"
   unfolding wf_rec_on_set_def by auto

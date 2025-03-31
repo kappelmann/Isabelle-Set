@@ -9,7 +9,7 @@ theory TSBinary_Relations_Base
 begin
 
 definition "set_dep_bin_rel_type A B :: set \<Rightarrow> bool \<equiv> {\<Sum>}x : of_type A. of_type (B x)"
-adhoc_overloading dep_bin_rel set_dep_bin_rel_type
+adhoc_overloading dep_bin_rel \<rightleftharpoons> set_dep_bin_rel_type
 
 lemma set_dep_bin_rel_type_eq_set_dep_bin_rel_pred [simp]:
   "({\<Sum>}x : A. B x :: set \<Rightarrow> bool) = {\<Sum>}x : of_type A. of_type (B x)"
@@ -26,7 +26,7 @@ lemma set_dep_bin_rel_type_iff_set_dep_bin_rel_pred [iff]:
   by simp
 
 definition "set_bin_rel_type A B :: set \<Rightarrow> bool \<equiv> of_type A {\<times>} of_type B"
-adhoc_overloading bin_rel set_bin_rel_type
+adhoc_overloading bin_rel \<rightleftharpoons> set_bin_rel_type
 
 lemma set_bin_rel_type_eq_set_bin_rel_pred [simp]:
   "(A {\<times>} B :: set \<Rightarrow> bool) = of_type A {\<times>} of_type B"
@@ -43,7 +43,7 @@ lemma set_bin_rel_type_iff_set_bin_rel_pred [iff]:
   by simp
 
 definition [typedef]: "Set_dep_bin_rel (A :: set type) B \<equiv> type ({\<Sum>}x : A. B x :: set \<Rightarrow> bool)"
-adhoc_overloading dep_bin_rel Set_dep_bin_rel
+adhoc_overloading dep_bin_rel \<rightleftharpoons> Set_dep_bin_rel
 
 lemma of_type_Set_dep_bin_rel_eq_set_set_dep_bin_rel_type [type_to_HOL_simp]:
   "of_type ({\<Sum>}x : A. B x :: set type) = ({\<Sum>}x : A. B x)"
@@ -66,7 +66,7 @@ corollary Subset_dep_pair_iff_Set_dep_bin_rel_Element [iff]:
   by (simp only: supset_dep_pair_eq_of_type_Set_dep_bin_rel_Element type_to_HOL_simp)
 
 definition [typedef]: "Set_bin_rel (A :: set type) B \<equiv> type (A {\<times>} B :: set \<Rightarrow> bool)"
-adhoc_overloading bin_rel Set_bin_rel
+adhoc_overloading bin_rel \<rightleftharpoons> Set_bin_rel
 
 lemma of_type_Set_bin_rel_eq_set_set_bin_rel_type [type_to_HOL_simp]:
   "of_type (A {\<times>} B :: set type) = (A {\<times>} B)"

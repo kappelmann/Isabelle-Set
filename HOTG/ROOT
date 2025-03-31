@@ -30,6 +30,7 @@ session HOTG = Transport +
     HOTG_Cardinals
     HOTG_Equipollence
     HOTG_Functions
+    HOTG_Natural_Functors
     HOTG_Mem_Transitive_Closed
     HOTG_Mem_Transitive_Closure
     HOTG_Orders

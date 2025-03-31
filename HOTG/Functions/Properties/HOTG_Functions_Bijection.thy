@@ -9,13 +9,13 @@ begin
 
 definition "bijection_on_set (A :: set) (B :: set) :: (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool \<equiv>
   bijection_on (mem_of A) (mem_of B)"
-adhoc_overloading bijection_on bijection_on_set
+adhoc_overloading bijection_on \<rightleftharpoons> bijection_on_set
 definition "set_bijection_on_pred (P :: set \<Rightarrow> bool) (Q :: set \<Rightarrow> bool) (f :: set) (g :: set) :: bool
   \<equiv> bijection_on P Q (eval f) (eval g)"
-adhoc_overloading bijection_on set_bijection_on_pred
+adhoc_overloading bijection_on \<rightleftharpoons> set_bijection_on_pred
 definition "set_bijection_on_set (A :: set) (B :: set) :: set \<Rightarrow> set \<Rightarrow> bool \<equiv>
   bijection_on (mem_of A) (mem_of B)"
-adhoc_overloading bijection_on set_bijection_on_set
+adhoc_overloading bijection_on \<rightleftharpoons> set_bijection_on_set
 
 lemma bijection_on_set_eq_bijection_on_pred [simp]:
   "(bijection_on (A :: set) (B :: set) :: (set \<Rightarrow> set) \<Rightarrow> (set \<Rightarrow> set) \<Rightarrow> bool) =
