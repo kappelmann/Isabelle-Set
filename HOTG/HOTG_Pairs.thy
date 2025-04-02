@@ -308,6 +308,18 @@ lemma swap_pair_eq' [simp]: "is_pair p \<Longrightarrow> swap p = \<langle>snd p
 lemma mono_set_pair_curry: "((A :: set \<Rightarrow> bool) \<times> B \<Rightarrow> B \<times> A) swap"
   by auto
 
+definition "convol f g \<equiv> \<lambda>x. \<langle>f x, g x\<rangle>"
+
+lemma convol_eq [simp]: "convol f g = (\<lambda>x. \<langle>f x, g x\<rangle>)"
+  unfolding convol_def by simp
+
+lemma mono_dep_mono_wrt_dep_mono_wrt_convol:
+  "(((x : A) \<Rightarrow> B x) \<Rightarrow> ((x : A) \<Rightarrow> C x) \<Rightarrow> (x : A) \<Rightarrow> B x \<times> C x) convol" for A :: "'a \<Rightarrow> bool"
+  unfolding convol_def by fastforce
+
+lemma fst_comp_convol_eq [simp]: "fst \<circ> (convol f g) = f" by auto
+lemma snd_comp_convol_eq [simp]: "snd \<circ> (convol f g) = g" by auto
+
 
 subsection \<open>Sets of Pairs\<close>
 

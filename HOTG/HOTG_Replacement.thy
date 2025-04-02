@@ -60,10 +60,11 @@ lemma mono_subset_subset_repl: "((\<subseteq>) \<Rightarrow> (\<subseteq>)) (\<l
 
 subsection \<open>Image\<close>
 
-definition "image f A \<equiv> {f x | x \<in> A}"
+definition "set_image_set f A \<equiv> {f x | x \<in> A}"
+adhoc_overloading image \<rightleftharpoons> set_image_set
 
-lemma image_eq_repl [simp]: "image f A = repl A f"
-  unfolding image_def by simp
+lemma image_eq_repl [simp]: "image f (A :: set) = repl A f"
+  unfolding set_image_set_def by simp
 
 lemma image_eq_repl_uhint [uhint]:
   assumes "f \<equiv> f'"
@@ -71,13 +72,16 @@ lemma image_eq_repl_uhint [uhint]:
   shows "image f A = repl A' f'"
   using assms by simp
 
+lemma mem_of_image_eq_image_mem_of [simp, set_to_HOL_simp]: "mem_of (image f A) = image f (mem_of A)"
+  by (intro ext) auto
+
 lemma injective_image_if_injective:
   assumes "injective f"
-  shows "injective (image f)"
+  shows "injective (image f :: set \<Rightarrow> set)"
   using assms by (intro injectiveI eqI) (auto dest: injectiveD)
 
 lemma injective_if_injective_image:
-  assumes "injective (image f)"
+  assumes "injective (image f :: set \<Rightarrow> set)"
   shows "injective f"
 proof (rule injectiveI)
   fix X Y assume "f X = f Y"
@@ -85,7 +89,7 @@ proof (rule injectiveI)
   with assms show "X = Y" by (blast dest: injectiveD)
 qed
 
-corollary injective_image_iff_injective [iff]: "injective (image f) \<longleftrightarrow> injective f"
+corollary injective_image_iff_injective [iff]: "injective (image f :: set \<Rightarrow> set) \<longleftrightarrow> injective f"
   using injective_image_if_injective injective_if_injective_image by blast
 
 

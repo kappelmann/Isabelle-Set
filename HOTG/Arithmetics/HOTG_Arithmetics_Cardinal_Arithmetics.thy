@@ -45,7 +45,7 @@ proof -
     ultimately have "x\<^sub>1 = x\<^sub>2 \<and> y\<^sub>1 = y\<^sub>2" using eq_if_mul_add_eq_mul_add_if_lt by blast
     then show "p\<^sub>1 = p\<^sub>2" using \<open>p\<^sub>1 = \<langle>x\<^sub>1, y\<^sub>1\<rangle>\<close> \<open>p\<^sub>2 = \<langle>x\<^sub>2, y\<^sub>2\<rangle>\<close> by auto
   qed auto
-  then obtain g where "bijection_on (X \<times> Y) (image f (X \<times> Y)) f g"
+  then obtain g where "bijection_on (X \<times> Y) (image f (X \<times> Y) :: set) f g"
     using bijection_on_image_the_inverse_on_if_injective_on by blast
   moreover have "image f (X \<times> Y) = X * Y"
     unfolding mul_eq_idx_union_repl_mul_add[of X Y] f_def by fastforce

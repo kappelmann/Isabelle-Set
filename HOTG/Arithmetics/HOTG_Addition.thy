@@ -25,7 +25,7 @@ lemma add_eq_bin_union_repl_add: "X + Y = X \<union> {X + y | y \<in> Y}"
 
 text \<open>The lift operation from \<^cite>\<open>kirby_set_arithemtics\<close>.\<close>
 
-definition "lift X \<equiv> image ((+) X)"
+definition "lift X :: set \<Rightarrow> set \<equiv> image ((+) X)"
 
 lemma lift_eq_image_add: "lift X = image ((+) X)"
   unfolding lift_def by simp

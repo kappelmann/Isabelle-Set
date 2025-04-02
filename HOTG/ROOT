@@ -16,6 +16,7 @@ session HOTG = Transport +
     "Binary_Relations/Properties"
     "Binary_Relations/Recursions"
     Cardinals
+    Choice
     Equipollence
     Functions
     Functors
@@ -28,6 +29,8 @@ session HOTG = Transport +
     HOTG_Arithmetics
     HOTG_Binary_Relations
     HOTG_Cardinals
+    Hilbert_Epsilon_Choice
+    HOTG_Choice
     HOTG_Equipollence
     HOTG_Functions
     HOTG_Natural_Functors
