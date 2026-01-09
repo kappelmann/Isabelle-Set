@@ -4,6 +4,10 @@ theory TSIntegers_Rep_Succ_Pred_Inv
   imports TSIntegers_Rep_Base
 begin
 
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+
 definition "Int_Rep_succ \<equiv> Int_Rep_rec (\<lambda>n. Int_Rep_nonneg (succ n))
   (\<lambda>n. (if n = 1 then Int_Rep_nonneg else Int_Rep_neg) (pred n))"
 

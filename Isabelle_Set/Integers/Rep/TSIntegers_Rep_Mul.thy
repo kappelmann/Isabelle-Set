@@ -4,6 +4,11 @@ theory TSIntegers_Rep_Mul
   imports TSIntegers_Rep_Base
 begin
 
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.times (infixl \<open>*\<close> 70)
+
 definition "Int_Rep_mul x y \<equiv>
   if x = Int_Rep_zero \<or> y = Int_Rep_zero then Int_Rep_zero
   else Int_Rep_rec

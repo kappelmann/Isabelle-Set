@@ -12,6 +12,10 @@ lemma nat_add_type [type]: "nat_add \<Ztypecolon> Nat \<Rightarrow> Nat \<Righta
 
 open_bundle isa_set_nat_add_syntax begin notation nat_add (infixl "+" 65) end
 unbundle no HOL_groups_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
 
 lemma zero_add_eq [simp]: "0 + n = n"
   unfolding nat_add_def by simp

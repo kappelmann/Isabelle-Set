@@ -7,6 +7,9 @@ theory TSMatrices
 begin
 
 unbundle no HOL_groups_syntax and no HOL_order_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 
 definition "matrices A m n :: set \<equiv> [0,\<dots>,m[ \<rightarrow>\<^sub>c [0,\<dots>,n[ \<rightarrow>\<^sub>c A"
 

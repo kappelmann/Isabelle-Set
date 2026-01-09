@@ -17,13 +17,13 @@ consts pair :: "'a \<Rightarrow> 'b \<Rightarrow> 'c"
 
 open_bundle pair_syntax
 begin
-syntax "_dep_pair" :: \<open>idt \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [52, 51, 51] 52)
+syntax "_dep_pair" :: \<open>pttrns \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [0, 51, 51] 52)
 notation pair (infixr "\<times>" 51)
 end
 syntax_consts "_dep_pair" \<rightleftharpoons> dep_pair
 translations
+  "\<Sum>x xs : A. B" \<rightharpoonup> "CONST dep_pair A (\<lambda>x. _dep_pair xs A B)"
   "\<Sum>x : A. B" \<rightleftharpoons> "CONST dep_pair A (\<lambda>x. B)"
-
 
 subsection \<open>Set-Theoretic Pairs\<close>
 

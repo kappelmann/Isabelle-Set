@@ -10,7 +10,7 @@ theory HOTG_Ordinals_Base
     Transport.Functions_Inverse
 begin
 
-unbundle no HOL_order_syntax
+unbundle no HOL_order_syntax 
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of ordinals from \<^url>\<open>https://www.isa-afp.org/entries/ZFC_in_HOL.html\<close>.
@@ -95,6 +95,9 @@ unbundle hotg_set_zero_syntax
   and hotg_set_two_syntax
   and no HOL_ascii_syntax
   and no HOL_groups_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 
 context
   notes ordinal_mem_trans_closedE[elim!] ordinal_if_mem_trans_closedI[intro!]

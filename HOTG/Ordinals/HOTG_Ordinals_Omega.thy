@@ -9,6 +9,9 @@ begin
 unbundle no HOL_ascii_syntax
   and no HOL_groups_syntax
   and no HOL_order_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 
 definition omega :: set where
   "omega = least_wrt_rel (\<le>) limit_ordinal"

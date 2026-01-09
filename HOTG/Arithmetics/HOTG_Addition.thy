@@ -10,6 +10,10 @@ begin
 unbundle no HOL_groups_syntax
   and no HOL_order_syntax
   and no HOL_ascii_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of generalised set addition from \<^cite>\<open>kirby_set_arithemtics\<close> and

@@ -11,6 +11,8 @@ lemma nat_sub_type [type]: "nat_sub \<Ztypecolon> Nat \<Rightarrow> Nat \<Righta
   unfolding nat_sub_def by discharge_types
 
 open_bundle isa_set_nat_sub_syntax begin notation nat_sub (infixl "-" 65) end
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.minus (infixl \<open>-\<close> 65)
 
 lemma nat_sub_zero_eq [simp]: "m - 0 = m"
   unfolding nat_sub_def by simp

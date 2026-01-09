@@ -6,6 +6,9 @@ theory TSNat_Mul
   imports TSNat_Add
 begin
 
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.times (infixl \<open>*\<close> 70)
+
 definition "nat_mul m n = nat_rec m 0 (nat_add n)"
 
 lemma nat_mul_type [type]: "nat_mul \<Ztypecolon> Nat \<Rightarrow> Nat \<Rightarrow> Nat"

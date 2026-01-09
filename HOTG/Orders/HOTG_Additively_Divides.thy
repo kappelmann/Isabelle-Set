@@ -6,6 +6,10 @@ theory HOTG_Additively_Divides
 begin
 
 unbundle no HOL_groups_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
 
 definition "additively_divides x y \<equiv> has_inverse ((+) x) y"
 

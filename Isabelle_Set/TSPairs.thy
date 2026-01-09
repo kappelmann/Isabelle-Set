@@ -84,11 +84,7 @@ soft_type_translation
   "p \<in> (A \<times> B)" \<rightleftharpoons> "p \<Ztypecolon> Element A \<times> Element B"
   using mem_of_pairs_eq_of_type_Pair_Element by simp_all
 
-context
-  notes type_to_HOL_simp[simp, symmetric, simp del]
-    [[ucombine add: \<open>Standard_Unification_Combine.eunif_data
-    (Standard_Unification_Combine.default_metadata \<^binding>\<open>ho_unif\<close>,
-    K Higher_Order_Unification.unify)\<close>]]
+context notes type_to_HOL_simp[simp, symmetric, simp del]
 begin
 
 lemma Dep_PairI [type_intro]:

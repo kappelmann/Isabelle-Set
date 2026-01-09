@@ -7,6 +7,9 @@ theory TSIntegers_Rep_Base
 begin
 
 unbundle no HOL_groups_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 
 text \<open>We construct the integers as a pair of a non-negative and a negative part.
 By using the set extension principle, we will ensure that \<open>\<nat> \<subseteq> \<int>\<close>.\<close>

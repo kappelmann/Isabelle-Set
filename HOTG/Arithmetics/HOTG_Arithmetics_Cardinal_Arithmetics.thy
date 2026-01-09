@@ -12,6 +12,11 @@ begin
 
 unbundle no HOL_groups_syntax
   and no HOL_order_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
+no_notation Groups.times (infixl \<open>*\<close> 70)
 
 lemma cardinality_lift_eq_cardinality_right [simp]: "|lift X Y| = |Y|"
 proof (intro cardinality_eq_if_equipollent equipollentI)

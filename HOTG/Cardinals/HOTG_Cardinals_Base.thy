@@ -12,6 +12,10 @@ begin
 
 unbundle no HOL_groups_syntax
   and no HOL_order_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
 
 paragraph \<open>Summary\<close>
 text \<open>Translation of cardinality from HOL-Library and \<^cite>\<open>ZFC_in_HOL_AFP\<close>.

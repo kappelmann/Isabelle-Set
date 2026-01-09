@@ -9,6 +9,9 @@ theory TSNat_Rec
 begin
 
 unbundle no HOL_groups_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 
 text \<open>Recursion on Nat. Axiomatized, for now.\<close>
 

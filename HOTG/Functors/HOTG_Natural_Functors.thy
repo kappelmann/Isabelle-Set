@@ -703,12 +703,11 @@ lemma algebra_morph_min_algebra_algebra_prod:
   assumes algebras: "\<And>j. j \<in> J \<Longrightarrow> algebra ia (iT j) (is j)"
   and "j \<in> J"
   shows "algebra_morph ia min_obj (iT j) morph (is j) (\<lambda>pr. pr`j)"
-supply comp_id_eq[uhint]
-proof (urule algebra_morph_compI)
+proof (urule algebra_morph_compI[where ?f=id])
   from algebras algebra_algebra_prodI have "algebra ia obj morph" by auto
   with algebra_morph_min_algebraI show "algebra_morph ia min_obj obj morph morph id" by auto
   from \<open>j \<in> J\<close> algebra_morph_algebra_prodI
-    show "algebra_morph ia obj (iT j) morph (is j) (\<lambda>pr. rel pr`j)" by auto
+    show "algebra_morph ia obj (iT j) morph (is j) (\<lambda>pr. (rel pr)`j)" by auto
 qed
 
 text \<open>There is a morphism from the product to any algebra of the product.\<close>

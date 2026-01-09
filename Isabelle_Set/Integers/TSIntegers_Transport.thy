@@ -4,7 +4,6 @@ theory TSIntegers_Transport
   imports
     TSIntegers
     Transport.Transport_Prototype
-    Transport.Transport_Syntax
 begin
 
 paragraph \<open>Summary\<close>
@@ -13,7 +12,7 @@ relations on the same type. Uses the Set-Extension mechanism from Isabelle/Set.
 See @{locale set_extension}.\<close>
 
 context
-  includes galois_rel_syntax and transport_syntax
+  includes transport_equivalences_syntax
 begin
 
 no_notation Groups.zero_class.zero ("0")
@@ -28,7 +27,7 @@ declare Int.partial_equivalence_rel_equivalence[per_intro]
 
 definition "RepZ ir i \<equiv> i \<in> \<int> \<and> ir = Int.r i"
 
-lemma int_rep_Galois_eq_RepZ: "(\<^bsub>(=\<^bsub>int_rep\<^esub>)\<^esub>\<lessapprox>\<^bsub>(=\<^bsub>\<int>\<^esub>) Int.r\<^esub>) \<equiv> RepZ"
+lemma int_rep_Galois_eq_RepZ: "galois_rel.Galois Int.L Int.R Int.r \<equiv> RepZ"
   unfolding galois_rel.Galois_def RepZ_def by (intro eq_reflection ext) auto
 
 declare int_rep_Galois_eq_RepZ[trp_relator_rewrite, trp_uhint]
@@ -120,7 +119,7 @@ trp_term int_if :: "(set \<Rightarrow> bool) \<Rightarrow> set \<Rightarrow> 'a 
   by trp_prover
 
 lemma Galois_id_hint [trp_uhint]:
-  "(L :: 'a \<Rightarrow> 'a \<Rightarrow> bool) \<equiv> R \<Longrightarrow> r \<equiv> id \<Longrightarrow> E \<equiv> L \<Longrightarrow> (\<^bsub>L\<^esub>\<lessapprox>\<^bsub>R r\<^esub>) \<equiv> L"
+  "(L :: 'a \<Rightarrow> 'a \<Rightarrow> bool) \<equiv> R \<Longrightarrow> r \<equiv> id \<Longrightarrow> E \<equiv> L \<Longrightarrow> galois_rel.Galois L R r \<equiv> L"
   by (simp only: eq_reflection[OF transport_id.left_Galois_eq_left])
 
 context

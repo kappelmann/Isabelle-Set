@@ -7,6 +7,10 @@ theory TSIntegers
 begin
 
 unbundle no HOL_groups_syntax and no hotg_add_syntax
+(*FIXME: why is no HOL_groups_syntax not sufficient*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
+no_notation Groups.plus (infixl \<open>+\<close> 65)
 
 subsection \<open>The Integers as a Subset of the Naturals\<close>
 
