@@ -47,8 +47,8 @@ fun normalize ctxt thm =
       | _ => [thm])
       handle TERM _ => [thm]
 
-    val simpctxt = (put_simpset HOL_ss ctxt) addsimps
-      @{thms meaning_of_type meaning_of_adj atomize_conjL}
+    val simpctxt = (Simplifier.put_simpset HOL_ss ctxt)
+      |> Simplifier.add_simps @{thms meaning_of_type meaning_of_adj atomize_conjL}
   in
     thm
     |> Simplifier.full_simplify simpctxt

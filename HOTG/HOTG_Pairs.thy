@@ -17,7 +17,7 @@ consts pair :: "'a \<Rightarrow> 'b \<Rightarrow> 'c"
 
 open_bundle pair_syntax
 begin
-syntax "_dep_pair" :: \<open>pttrns \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("\<Sum>_ : _./ _" [0, 51, 51] 52)
+syntax "_dep_pair" :: \<open>pttrns \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c\<close> ("(\<Sum>_ : _./ _)" [0, 0, 10] 51)
 notation pair (infixr "\<times>" 51)
 end
 syntax_consts "_dep_pair" \<rightleftharpoons> dep_pair
@@ -32,7 +32,7 @@ definition mk_pair :: \<open>set \<Rightarrow> set \<Rightarrow> set\<close>
 
 open_bundle hotg_mk_pair_syntax
 begin
-syntax "_mk_pair" :: \<open>args \<Rightarrow> set\<close> ("\<langle>_\<rangle>")
+syntax "_mk_pair" :: \<open>args \<Rightarrow> set\<close> ("(\<langle>_\<rangle>)")
 end
 syntax_consts "_mk_pair" \<rightleftharpoons> mk_pair
 translations
@@ -102,7 +102,7 @@ adhoc_overloading pair \<rightleftharpoons> set_pair_pred
 definition "set_pair_set A B \<equiv> mem_of A \<times> mem_of B"
 adhoc_overloading pair \<rightleftharpoons> set_pair_set
 
-lemma set_dep_pair_set_eq_set_dep_pair_pred [simp]: "(\<Sum>x : A. B x) = \<Sum>x : mem_of A. mem_of (B x)"
+lemma set_dep_pair_set_eq_set_dep_pair_pred [simp]: "(\<Sum>x : A. B x) = (\<Sum>x : mem_of A. mem_of (B x))"
   unfolding set_dep_pair_set_def by simp
 
 lemma set_dep_pair_set_eq_set_dep_pair_pred_uhint [uhint]:
@@ -127,13 +127,13 @@ lemma set_pair_set_eq_set_pair_pred_uhint [uhint]:
 lemma set_pair_set_iff_set_pair_pred [iff]: "(A \<times> B) p \<longleftrightarrow> (mem_of A \<times> mem_of B) p"
   by simp
 
-lemma set_pair_pred_eq_set_dep_pair_pred: "(A :: set \<Rightarrow> bool) \<times> B = \<Sum>_ : A. B"
+lemma set_pair_pred_eq_set_dep_pair_pred: "(A :: set \<Rightarrow> bool) \<times> B = (\<Sum>_ : A. B)"
   unfolding set_pair_pred_def by auto
 
 lemma set_pair_pred_eq_set_dep_pair_pred_uhint [uhint]:
   assumes "A :: set \<Rightarrow> bool \<equiv> A'"
   and "\<And>x. B \<equiv> B' x"
-  shows "A \<times> B = \<Sum>x : A'. B' x"
+  shows "A \<times> B \<equiv> (\<Sum>x : A'. B' x)"
   using assms by (simp add: set_pair_pred_eq_set_dep_pair_pred)
 
 lemma set_pair_pred_iff_set_dep_pair_pred: "((A :: set \<Rightarrow> bool) \<times> B) p \<longleftrightarrow> (\<Sum>_ : A. B) p"
@@ -157,7 +157,7 @@ lemma set_dep_pairE [elim!]:
   obtains x y where "A x" "B x y" "p = \<langle>x, y\<rangle>"
   using assms unfolding set_dep_pair_pred_def by auto
 
-lemma set_dep_pair_cong [cong]: "\<lbrakk>A = A'; \<And>x. A' x \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> (\<Sum>x : A. B x) = \<Sum>x : A'. B' x"
+lemma set_dep_pair_cong [cong]: "\<lbrakk>A = A'; \<And>x. A' x \<Longrightarrow> B x = B' x\<rbrakk> \<Longrightarrow> (\<Sum>x : A. B x) = (\<Sum>x : A'. B' x)"
   by auto
 
 lemma set_pairI:
@@ -257,11 +257,11 @@ lemma set_dep_pair_covariant_codom:
 
 lemma mono_set_pair: "mono (\<times>)" by fast
 
-lemma mono_set_dep_pair_mk_pair: "((x : (A :: set \<Rightarrow> bool)) \<Rightarrow> B x \<Rightarrow> \<Sum>x : A. B x) mk_pair" by auto
+lemma mono_set_dep_pair_mk_pair: "((x : (A :: set \<Rightarrow> bool)) \<Rightarrow> B x \<Rightarrow> (\<Sum>x : A. B x)) mk_pair" by auto
 
-lemma mono_set_dep_pair_fst: "((p : \<Sum>x : (A :: set \<Rightarrow> bool). B x) \<Rightarrow> A) fst" by auto
+lemma mono_set_dep_pair_fst: "((p : (\<Sum>x : (A :: set \<Rightarrow> bool). B x)) \<Rightarrow> A) fst" by auto
 
-lemma mono_set_dep_pair_snd: "((p : \<Sum>x : (A :: set \<Rightarrow> bool). B x) \<Rightarrow> B (fst p)) snd" by auto
+lemma mono_set_dep_pair_snd: "((p : (\<Sum>x : (A :: set \<Rightarrow> bool). B x)) \<Rightarrow> B (fst p)) snd" by auto
 
 
 subsection \<open>Functions on Pairs\<close>
@@ -270,7 +270,8 @@ definition "uncurry f p \<equiv> f (fst p) (snd p)"
 
 open_bundle hotg_uncurry_syntax
 begin
-syntax "_tuple_args"  :: "args => pttrn" ("\<langle>_\<rangle>")
+syntax "_tuple_args"  :: "args => pttrn" ("(\<langle>_\<rangle>)")
+syntax_consts "_tuple_args" \<rightleftharpoons> uncurry
 end
 translations
   "\<lambda>\<langle>x, y, zs\<rangle>. b" \<rightleftharpoons> "CONST uncurry (\<lambda>x \<langle>y, zs\<rangle>. b)"
@@ -291,11 +292,11 @@ lemma uncurry_curry_eq_if_is_pair [simp]: "is_pair p \<Longrightarrow> uncurry (
   by auto
 
 lemma mono_set_dep_pair_curry:
-  "(((p : \<Sum>x : A. (B x)) \<Rightarrow> C p) \<Rightarrow> (x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) curry"
+  "(((p : (\<Sum>x : A. (B x))) \<Rightarrow> C p) \<Rightarrow> (x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) curry"
   by fastforce
 
 lemma mono_set_dep_pair_uncurry:
-  "(((x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) \<Rightarrow> (p : \<Sum>x : A. (B x)) \<Rightarrow> C p) uncurry"
+  "(((x : (A :: set \<Rightarrow> bool)) \<Rightarrow> (y : B x) \<Rightarrow> C \<langle>x, y\<rangle>) \<Rightarrow> (p : (\<Sum>x : A. (B x))) \<Rightarrow> C p) uncurry"
   by fastforce
 
 definition "swap p = \<langle>snd p, fst p\<rangle>"
@@ -329,7 +330,7 @@ adhoc_overloading dep_pair \<rightleftharpoons> set_set_dep_pair_set
 definition "set_set_pair_set (A :: set) (B :: set) :: set \<equiv> \<Sum>(_ :: set) : A. B"
 adhoc_overloading pair \<rightleftharpoons> set_set_pair_set
 
-lemma set_set_pair_eq_set_set_dep_pair: "(A \<times> B :: set) = \<Sum>_ : A. B"
+lemma set_set_pair_eq_set_set_dep_pair: "(A \<times> B :: set) = (\<Sum>_ : A. B)"
   unfolding set_set_pair_set_def by auto
 
 lemma set_set_pair_eq_set_set_dep_pair_uhint [uhint]:
@@ -343,11 +344,11 @@ lemma mem_set_pair_iff_mem_set_dep_pair: "p \<in> A \<times> B \<longleftrightar
 
 lemma mem_dep_pair_if_set_dep_pair_set:
   assumes "(\<Sum>x : A. B x) p"
-  shows "p \<in> \<Sum>x : A. B x"
+  shows "p \<in> (\<Sum>x : A. B x)"
   using assms unfolding set_set_dep_pair_set_def by fastforce
 
 lemma set_dep_pair_set_if_mem_dep_pair:
-  assumes "p \<in> \<Sum>x : A. B x"
+  assumes "p \<in> (\<Sum>x : A. B x)"
   shows "(\<Sum>x : A. B x) p"
   using assms unfolding set_set_dep_pair_set_def by blast
 

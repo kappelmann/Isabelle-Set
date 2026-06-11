@@ -4,7 +4,7 @@ theory Function_Tests
     Isabelle_Set.SStrings
 begin
 
-lemma beta_should_succeed: "x \<in> A \<Longrightarrow> (\<lambda>x : A. \<langle>x, x\<rangle> :: set)`x = \<langle>x, x\<rangle>" by simp
+lemma beta_should_succeed: "x \<in> A \<Longrightarrow> (\<lambda>\<^sub>rx : A. \<langle>x, x\<rangle> :: set)`x = \<langle>x, x\<rangle>" by simp
 
 lemma graph_eval1: "{\<langle>x, y\<rangle>}`x = y" by simp
 

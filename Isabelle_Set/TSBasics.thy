@@ -26,7 +26,7 @@ lemma Element_if_subset_if_Element:
   assumes "a \<Ztypecolon> Element A"
   and "A \<subseteq> B"
   shows "a \<Ztypecolon> Element B"
-  supply type_to_HOL_simp[simp]
+  supply type_to_HOL_simp[simp, symmetric, simp del]
   using assms by (urule mem_if_subset_if_mem)
 
 soft_type_translation
@@ -44,7 +44,7 @@ corollary
   unfolding type_to_HOL_simp by simp_all
 
 context
-  notes type_to_HOL_simp[simp]
+  notes type_to_HOL_simp[simp, symmetric, simp del]
 begin
 
 lemma Subset_covariant:

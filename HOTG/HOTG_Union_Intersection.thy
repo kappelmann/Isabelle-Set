@@ -8,7 +8,7 @@ begin
 
 definition "inter A \<equiv> {x \<in> \<Union>A | \<forall>y : A. x \<in> y}"
 
-open_bundle hotg_inter_syntax begin notation inter ("\<Inter>_" [90] 90) end
+open_bundle hotg_inter_syntax begin notation inter ("(\<Inter>_)" [90] 90) end
 
 text \<open>Intersection is well-behaved only if the family is non-empty!\<close>
 

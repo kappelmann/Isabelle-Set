@@ -8,7 +8,7 @@ lemma mem_powerset_if_subset: "A \<subseteq> B \<Longrightarrow> A \<in> powerse
   by auto
 
 lemma mem_of_powerset_eq_supset [simp]: "mem_of (powerset B) = supset B"
-  by (intro ext) auto
+  by (intro ext) simp
 
 lemma subset_if_mem_powerset: "A \<in> powerset B  \<Longrightarrow> A \<subseteq> B"
   by auto

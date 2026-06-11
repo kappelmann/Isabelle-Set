@@ -162,7 +162,7 @@ lemma rel_rel_comp_eq_rel_comp_rel [simp, set_to_HOL_simp]:
 lemma mono_subset_rel_comp: "((\<subseteq>) \<Rightarrow> (\<subseteq>) \<Rrightarrow> (\<subseteq>)) (\<circ>\<circ>)" by fast
 
 context
-  notes set_to_HOL_simp[simp]
+  notes set_to_HOL_simp[simp, symmetric, simp del]
 begin
 
 lemma rel_comp_set_assoc: "(R :: set) \<circ>\<circ> (S \<circ>\<circ> T) = (R \<circ>\<circ> S) \<circ>\<circ> T"
@@ -249,8 +249,8 @@ lemma codom_rel_inv_eq_dom [simp]: "codom R\<inverse> = dom R"
 lemma field_rel_inv_eq [simp]: "field R\<inverse> = field R"
   by (urule in_field_rel_inv_eq_in_field)
 
-lemma rel_inv_set_comp_eq [simp]: "((R :: set) \<circ>\<circ> S)\<inverse> = S\<inverse> \<circ>\<circ> R\<inverse>"
-  by (urule rel_inv_comp_eq)
+lemma rel_inv_set_comp_rel_inv_eq [simp]: "S\<inverse> \<circ>\<circ> R\<inverse> = ((R :: set) \<circ>\<circ> S)\<inverse>"
+  by (urule rel_inv_comp_rel_inv_eq)
 
 lemma rel_inv_set_empty_eq [simp]: "{}\<inverse> = {}"
   by (urule rel_inv_bottom_eq)
@@ -460,18 +460,15 @@ context
   fixes R :: "set" and P Q :: "set \<Rightarrow> bool"
 begin
 
-lemma set_rel_restrict_right_eq: "R\<upharpoonleft>\<^bsub>P\<^esub> = ((R\<inverse>)\<restriction>\<^bsub>P\<^esub>)\<inverse>"
-  by (urule rel_restrict_right_eq)
+lemma set_rel_restrict_left_inv_eq_inv_restrict_right [simp]: "(R\<inverse>)\<restriction>\<^bsub>P\<^esub> = (R\<upharpoonleft>\<^bsub>P\<^esub>)\<inverse>"
+  by (urule rel_restrict_left_inv_eq_inv_restrict_right)
 
-lemma set_rel_inv_restrict_right_rel_inv_eq_restrict_left [simp]: "((R\<inverse>)\<upharpoonleft>\<^bsub>P\<^esub>)\<inverse> = R\<restriction>\<^bsub>P\<^esub>"
-  by (urule rel_inv_restrict_right_rel_inv_eq_restrict_left)
+lemma set_rel_restrict_right_eq_inv_restrict_left_inv: "R\<upharpoonleft>\<^bsub>P\<^esub> = ((R\<inverse>)\<restriction>\<^bsub>P\<^esub>)\<inverse>"
+  supply set_rel_restrict_left_inv_eq_inv_restrict_right[simp del]
+  by (urule rel_restrict_right_eq_inv_restrict_left_inv)
 
-lemma set_rel_restrict_right_iff_restrict_left: "\<langle>x, y\<rangle> \<in> R\<upharpoonleft>\<^bsub>P\<^esub> \<longleftrightarrow> \<langle>y, x\<rangle> \<in> R\<inverse>\<restriction>\<^bsub>P\<^esub>"
-  supply set_to_HOL_simp[simp del, symmetric, simp]
-  by (urule rel_restrict_right_iff_restrict_left[of "rel _"])
-
-lemma set_rel_inv_rel_restrict_left_inv_rel_restrict_left_eq: "(((R\<restriction>\<^bsub>P\<^esub>)\<inverse>)\<restriction>\<^bsub>Q\<^esub>)\<inverse> = (((R\<inverse>)\<restriction>\<^bsub>Q\<^esub>)\<inverse>)\<restriction>\<^bsub>P\<^esub>"
-  by (urule rel_inv_rel_restrict_left_inv_rel_restrict_left_eq)
+lemma set_rel_restrict_right_inv_eq_inv_restrict_left [simp]: "(R\<inverse>)\<upharpoonleft>\<^bsub>P\<^esub> = (R\<restriction>\<^bsub>P\<^esub>)\<inverse>"
+  by (urule rel_restrict_right_inv_eq_inv_restrict_left)
 
 lemma set_rel_restrict_left_right_eq_set_restrict_right_left: "R\<restriction>\<^bsub>P\<^esub>\<upharpoonleft>\<^bsub>Q\<^esub> = R\<upharpoonleft>\<^bsub>Q\<^esub>\<restriction>\<^bsub>P\<^esub>"
   by (urule rel_restrict_left_right_eq_restrict_right_left)
@@ -523,6 +520,7 @@ lemma rel_restrict_eq_restrict_rel [simp, set_to_HOL_simp]:
   by fastforce
 
 context
+  fixes R :: set and P :: "set \<Rightarrow> bool"
   notes set_to_HOL_simp[simp, symmetric, simp del]
 begin
 
@@ -532,27 +530,27 @@ lemma set_rel_restrict_cong:
   shows "R\<up>\<^bsub>P\<^esub> = R'\<up>\<^bsub>P'\<^esub>"
   by (urule rel_restrict_cong) (use assms in auto)
 
-lemma set_rel_restrict_restrict_eq_restrict [simp]: "(R :: set)\<up>\<^bsub>P\<^esub>\<up>\<^bsub>P\<^esub> = R\<up>\<^bsub>P\<^esub>"
+lemma set_rel_restrict_restrict_eq_restrict [simp]: "R\<up>\<^bsub>P\<^esub>\<up>\<^bsub>P\<^esub> = R\<up>\<^bsub>P\<^esub>"
   by (urule rel_restrict_restrict_eq_restrict)
 
 lemma set_rel_restrict_top_eq_if_is_bin_rel [simp]:
   assumes [simp]: "is_bin_rel R"
-  shows "(R :: set)\<up>\<^bsub>\<top> :: set \<Rightarrow> bool\<^esub> = R"
+  shows "R\<up>\<^bsub>\<top>\<^esub> = R"
   by (urule rel_restrict_top_eq)
 
-lemma set_rel_restrict_bottom_eq [simp]: "(R :: set)\<up>\<^bsub>\<bottom> :: set \<Rightarrow> bool\<^esub> = {}"
+lemma set_rel_restrict_bottom_eq [simp]: "R\<up>\<^bsub>\<bottom>\<^esub> = {}"
   by (urule rel_restrict_bottom_eq)
 
-lemma empty_restrict_eq [simp]: "{}\<up>\<^bsub>P :: set \<Rightarrow> bool\<^esub> = {}"
+lemma empty_restrict_eq [simp]: "{}\<up>\<^bsub>P\<^esub> = {}"
   by (urule bottom_restrict_eq)
 
-lemma rel_restrict_subset_self: "R\<up>\<^bsub>(P :: set \<Rightarrow> bool)\<^esub> \<subseteq> R"
+lemma rel_restrict_subset_self: "R\<up>\<^bsub>P\<^esub> \<subseteq> R"
   by (urule rel_restrict_le_self)
 
 lemma subset_rel_restrict_self_if_mem_of_field_le_if_is_bin_rel:
   assumes [simp]: "is_bin_rel R"
   and "mem_of (field R) \<le> P"
-  shows "R \<subseteq> R\<up>\<^bsub>(P :: set \<Rightarrow> bool)\<^esub>"
+  shows "R \<subseteq> R\<up>\<^bsub>P\<^esub>"
   by (urule le_rel_restrict_self_if_in_field_le) (use assms in fast)
 
 corollary set_rel_restrict_eq_self_if_mem_of_field_le_if_is_bin_rel:
@@ -560,6 +558,9 @@ corollary set_rel_restrict_eq_self_if_mem_of_field_le_if_is_bin_rel:
   and "mem_of (field R) \<le> P"
   shows "R\<up>\<^bsub>P\<^esub> = R"
   by (urule rel_restrict_eq_self_if_in_field_le) (use assms in fast)
+
+lemma set_rel_restrict_inv_eq_inv_restrict [simp]: "(R\<inverse>)\<up>\<^bsub>P\<^esub> = (R\<up>\<^bsub>P\<^esub>)\<inverse>"
+  by (urule rel_restrict_inv_eq_inv_restrict)
 
 end
 

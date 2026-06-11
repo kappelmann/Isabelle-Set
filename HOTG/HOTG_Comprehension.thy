@@ -26,7 +26,7 @@ lemma mem_collect_iff [iff]: "x \<in> {y \<in> A | P y} \<longleftrightarrow> x 
   by (auto simp: collect_def)
 
 lemma mem_of_collect_eq_mem_of_sup [set_to_HOL_simp]: "mem_of ({x \<in> A | P x}) = mem_of A \<sqinter> P"
-  by (intro ext) auto
+  by (intro ext) simp
 
 lemma mem_collectI [intro]: "\<lbrakk>x \<in> A; P x\<rbrakk> \<Longrightarrow> x \<in> {y \<in> A | P y}" by auto
 

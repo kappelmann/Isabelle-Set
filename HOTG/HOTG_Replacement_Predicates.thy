@@ -14,7 +14,7 @@ definition replace :: \<open>set \<Rightarrow> (set \<Rightarrow> set \<Rightarr
 open_bundle hotg_replacement_syntax
 begin
 syntax
-  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("{_ |/ _ \<in> _, _}")
+  "_replace" :: \<open>[pttrn, pttrn, set, set \<Rightarrow> set \<Rightarrow> bool] => set\<close> ("({_ |/ _ \<in> _, _})")
 end
 syntax_consts "_replace" \<rightleftharpoons> replace
 translations

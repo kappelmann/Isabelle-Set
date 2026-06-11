@@ -104,8 +104,8 @@ text \<open>Additive group structure\<close>
 
 definition "int_Group \<equiv> object {
     \<langle>$zero, 0\<rangle>,
-    \<langle>$add, \<lambda>i j : \<int>. int_add i j\<rangle>,
-    \<langle>$inv, \<lambda>i : \<int>. Int_Rep_inv i\<rangle>
+    \<langle>$add, \<lambda>\<^sub>ri j : \<int>. int_add i j\<rangle>,
+    \<langle>$inv, \<lambda>\<^sub>ri : \<int>. Int_Rep_inv i\<rangle>
   }"
 
 open_bundle isa_set_int_Group_syntax begin notation int_Group ("'(\<int>, +')") end
@@ -113,8 +113,8 @@ open_bundle isa_set_int_Group_syntax begin notation int_Group ("'(\<int>, +')") 
 (*TODO: The following should be automatically generated*)
 lemma [simp]:
   "(\<int>, +)@$zero = 0"
-  "(\<int>, +)@$add = \<lambda>i j : \<int>. int_add i j"
-  "(\<int>, +)@$inv = \<lambda>i : \<int>. Int_Rep_inv i"
+  "(\<int>, +)@$add = (\<lambda>\<^sub>ri j : \<int>. int_add i j)"
+  "(\<int>, +)@$inv = (\<lambda>\<^sub>ri : \<int>. Int_Rep_inv i)"
   (* unfolding int_Group_def by simp_all *)
   sorry
 
@@ -125,7 +125,7 @@ lemma "(\<int>, +) \<Ztypecolon> Group Int"
   (*TODO: object selector simplifier not working properly*)
   (* unfolding nat_Monoid_def by (rule AddI) simp *)
   proof (rule AddI)
-    have select_add_eq: "(\<int>, +)@@add = \<lambda>i j : \<int>. int_add i j" by simp
+    have select_add_eq: "(\<int>, +)@@add = \<lambda>\<^sub>ri j : \<int>. int_add i j" by simp
     show "(\<int>, +)@@add \<Ztypecolon> Int \<rightarrow>s Int \<rightarrow>s Int" by (subst select_add_eq) discharge_types
   qed
 (*TODO: needs transferred theorems from representation type*)
@@ -137,7 +137,7 @@ text \<open>Multiplicative monoid structure\<close>
 
 definition "int_Mul_Monoid \<equiv> object {
     \<langle>$one, 1\<rangle>,
-    \<langle>$mul, \<lambda>i j : \<int>. int_mul i j\<rangle>
+    \<langle>$mul, \<lambda>\<^sub>ri j : \<int>. int_mul i j\<rangle>
   }"
 
 open_bundle isa_set_int_Mul_Monoid_syntax begin notation int_Mul_Monoid ("'(\<int>, *')") end

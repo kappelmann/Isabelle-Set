@@ -116,7 +116,7 @@ type_synonym f = set
 paragraph \<open>Relator\<close>
 
 definition "Frel (iR :: 'i \<Rightarrow> t \<Rightarrow> t \<Rightarrow> bool) x y \<equiv>
-  \<exists>z :  F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)). x = Fmap (K fst) z \<and> y = Fmap (K snd) z"
+  \<exists>z : F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)). x = Fmap (K fst) z \<and> y = Fmap (K snd) z"
 
 lemma FrelI:
   assumes "F (\<lambda>i. is_pair \<sqinter> uncurry (iR i)) z"
@@ -661,7 +661,7 @@ begin
 text \<open>Algebra Product\<close>
 
 definition "algebra_prod_obj ia J iT :: t \<Rightarrow> bool \<equiv> ((j : mem_of J) \<rightarrow> iT j)"
-definition "algebra_prod_morph ia J is :: f \<Rightarrow> t \<equiv> \<lambda>x. \<lambda>j : J. is j (Fmap (iid(ia := \<lambda>pr. pr`j)) x)"
+definition "algebra_prod_morph ia J is :: f \<Rightarrow> t \<equiv> \<lambda>x. \<lambda>\<^sub>rj : J. is j (Fmap (iid(ia := \<lambda>pr. pr`j)) x)"
 
 context
   fixes ia J iT "is" obj morph
@@ -684,7 +684,7 @@ proof (intro algebraI mono_wrt_predI)
       by (fastforce simp: iS_obj)
     with x_type have "F (iS(ia := iT j)) (Fmap (iid(ia := \<lambda>pr. pr`j)) x)"
       using Fmap_type by fastforce
-    with is_type jmem show "iT j ((\<lambda>j : mem_of J. is j (Fmap (iid(ia := \<lambda>pr. rel pr`j)) x))`j)"
+    with is_type jmem show "iT j ((\<lambda>\<^sub>rj : mem_of J. is j (Fmap (iid(ia := \<lambda>pr. rel pr`j)) x))`j)"
       by fastforce
   qed auto
 qed

@@ -10,7 +10,7 @@ unbundle no HOL_ascii_syntax
 
 open_bundle hotg_finite_sets_syntax
 begin
-syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("{(_)}")
+syntax "_finset" :: \<open>args \<Rightarrow> set\<close> ("({_})")
 end
 syntax_consts "_finset" \<rightleftharpoons> insert
 translations

@@ -42,7 +42,7 @@ lemma of_type_eq_type_of_uhint [uhint]:
   assumes "x \<equiv> x'"
   and "T \<equiv> T'"
   shows "of_type T x \<equiv> x' \<Ztypecolon> T'"
-  using assms by simp
+  using assms by (simp add: of_type_eq)
 
 lemma eq_if_of_type_eq_of_type:
   assumes "of_type T = of_type S"
@@ -53,7 +53,7 @@ corollary eq_iff_of_type_eq_of_type [type_to_HOL_simp]: "T = S \<longleftrightar
   using eq_if_of_type_eq_of_type by blast
 
 lemma of_type_type_eq_self [type_to_HOL_simp]: "of_type (type P) = P"
-  by (intro ext) (simp add: meaning_of_type)
+  by (intro ext) (simp add: meaning_of_type of_type_eq)
 
 lemma of_type_type_iff_self: "of_type (type P) x \<longleftrightarrow> P x"
   unfolding of_type_type_eq_self by simp

@@ -7,7 +7,7 @@ theory HOTG_Functions_Monotone
 begin
 
 definition "dep_mono_wrt_set A B \<equiv> (x : mem_of A) \<Rightarrow> mem_of (B x)"
-adhoc_overloading dep_mono_wrt \<rightleftharpoons> dep_mono_wrt_set
+adhoc_overloading dep_mono_wrt_pred \<rightleftharpoons> dep_mono_wrt_set
 definition "mono_wrt_set A B \<equiv> mem_of A \<Rightarrow> mem_of B"
 adhoc_overloading mono_wrt \<rightleftharpoons> mono_wrt_set
 
@@ -39,11 +39,11 @@ lemma mono_wrt_set_iff_mono_wrt_pred [iff]: "(A \<Rightarrow> B) f \<longleftrig
   by simp
 
 definition "set_dep_mono_wrt_pred \<equiv> set_rel_dep_mono_wrt_pred"
-adhoc_overloading dep_mono_wrt \<rightleftharpoons> set_dep_mono_wrt_pred
+adhoc_overloading dep_mono_wrt_pred \<rightleftharpoons> set_dep_mono_wrt_pred
 definition "set_mono_wrt_pred \<equiv> set_rel_mono_wrt_pred"
 adhoc_overloading mono_wrt \<rightleftharpoons> set_mono_wrt_pred
 definition "set_dep_mono_wrt_set \<equiv> set_rel_dep_mono_wrt_set"
-adhoc_overloading dep_mono_wrt \<rightleftharpoons> set_dep_mono_wrt_set
+adhoc_overloading dep_mono_wrt_pred \<rightleftharpoons> set_dep_mono_wrt_set
 definition "set_mono_wrt_set \<equiv> set_rel_mono_wrt_set"
 adhoc_overloading mono_wrt \<rightleftharpoons> set_mono_wrt_set
 

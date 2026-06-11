@@ -55,7 +55,7 @@ lemma object_fields_extend_eq [simp]:
 
 definition "object_selector (O :: set) s \<equiv> (THE graph. O = object graph)`s"
 
-open_bundle isa_set_object_selector_syntax begin notation object_selector ("_@_" [999, 1000]) end
+open_bundle isa_set_object_selector_syntax begin notation object_selector ("(_@_)" [999, 1000]) end
 
 lemma
   shows object_selector_extend_eq [simp]:

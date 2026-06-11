@@ -13,7 +13,7 @@ begin
 unbundle no HOL_ascii_syntax
 
 definition "crel_dep_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (x : mem_of A) \<rightarrow>\<^sub>c mem_of (B x)"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> crel_dep_mono_wrt_set
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> crel_dep_mono_wrt_set
 definition "crel_mono_wrt_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> (mem_of A) \<rightarrow>\<^sub>c mem_of B"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> crel_mono_wrt_set
 
@@ -45,7 +45,7 @@ lemma crel_mono_wrt_set_iff_crel_mono_wrt_pred [iff]: "(A \<rightarrow>\<^sub>c 
 
 definition "set_crel_dep_mono_wrt_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> set \<Rightarrow> bool) (R :: set) \<equiv>
   ((x : A) \<rightarrow>\<^sub>c B x) (rel R) \<and> is_bin_rel R"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> set_crel_dep_mono_wrt_pred
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> set_crel_dep_mono_wrt_pred
 definition "set_crel_mono_wrt_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarrow> bool) :: set \<Rightarrow> bool \<equiv> (_ : A) \<rightarrow>\<^sub>c B"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> set_crel_mono_wrt_pred
 
@@ -272,7 +272,7 @@ proof (intro mono_wrt_predI dep_mono_wrt_predI)
 qed
 
 definition "set_crel_dep_mono_wrt_set A B :: set \<Rightarrow> bool \<equiv> ((x : mem_of A) \<rightarrow>\<^sub>c mem_of (B x))"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> set_crel_dep_mono_wrt_set
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> set_crel_dep_mono_wrt_set
 definition "set_crel_mono_wrt_set A B :: set \<Rightarrow> bool \<equiv> (mem_of A \<rightarrow>\<^sub>c mem_of B)"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> set_crel_mono_wrt_set
 
@@ -313,7 +313,7 @@ lemma codom_subset_idx_union_if_set_crel_dep_mono_wrt_set [simp]:
 subsubsection \<open>Set Function-Space\<close>
 
 definition "set_set_crel_dep_mono_wrt_set A B \<equiv> {R \<in> powerset (\<Sum>x : A. B x) | ((x : A) \<rightarrow>\<^sub>c B x) R}"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> set_set_crel_dep_mono_wrt_set
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> set_set_crel_dep_mono_wrt_set
 definition "set_set_crel_mono_wrt_set A B :: set \<equiv> (_ : A) \<rightarrow>\<^sub>c B"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> set_set_crel_mono_wrt_set
 

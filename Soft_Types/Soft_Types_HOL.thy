@@ -37,7 +37,7 @@ method unfold_types =
 subsection \<open>Dependent Function/Pi-Types (\<Pi>-Types)\<close>
 
 definition [typedef]: "Dep_fun (A :: 'a type) B \<equiv> type ((x : A) \<Rightarrow> B x)"
-adhoc_overloading dep_mono_wrt \<rightleftharpoons> Dep_fun
+adhoc_overloading dep_mono_wrt_pred \<rightleftharpoons> Dep_fun
 
 lemma of_type_Dep_fun_eq_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<Rightarrow> B x) = ((x : A) \<Rightarrow> B x)"
@@ -149,10 +149,11 @@ lemma
   Inter_covariant_right: "x \<Ztypecolon> A & B \<Longrightarrow> (x \<Ztypecolon> B \<Longrightarrow> x \<Ztypecolon> B') \<Longrightarrow> x \<Ztypecolon> A & B'"
   by unfold_types auto
 
+
 lemma InterE:
   assumes "x \<Ztypecolon> A & B"
   obtains "x \<Ztypecolon> A" "x \<Ztypecolon> B"
-  using assms unfolding Inter_def meaning_of_type by simp
+  using assms unfolding Inter_def meaning_of_type by auto
 
 definition [typedef]: "Union A B \<equiv> type (of_type A \<squnion> of_type B)"
 
@@ -273,7 +274,9 @@ val soft_type_simp_solver =
       THEN
       (SUBGOAL (fn (_, j) =>
         Derivation.full_discharge_types_tac (Simplifier.prems_of ctxt) [] ctxt j)) i
-  in map_theory_simpset (Simplifier.add_unsafe_solver (mk_solver "discharge_types" solver)) end
+  in Simplifier.map_theory_simpset
+    (Simplifier.add_unsafe_solver (Simplifier.mk_solver "discharge_types" solver))
+  end
 \<close>
 
 setup \<open>soft_type_simp_solver\<close>

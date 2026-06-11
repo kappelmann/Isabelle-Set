@@ -12,17 +12,19 @@ imports
 begin
 
 unbundle no HOL_groups_syntax
-
+(*FIXME: why is this unbundling needed?*)
+no_notation Groups.zero (\<open>0\<close>)
+no_notation Groups.one (\<open>1\<close>)
 subsubsection \<open>Algebraic Structures\<close>
 
-definition "nat_Monoid \<equiv> object {\<langle>$zero, 0\<rangle>, \<langle>$add, \<lambda>m n : \<nat>. nat_add m n\<rangle>}"
+definition "nat_Monoid \<equiv> object {\<langle>$zero, 0\<rangle>, \<langle>$add, \<lambda>\<^sub>rm n : \<nat>. nat_add m n\<rangle>}"
 
 open_bundle isa_set_nat_Monoid_syntax begin notation nat_Monoid ("'(\<nat>, +')") end
 
 (*TODO: The following should be automatically generated*)
 lemma nat_Monoid_simps [simp]:
   "(\<nat>, +)@$zero = 0"
-  "(\<nat>, +)@$add = \<lambda>m n : \<nat>. nat_add m n"
+  "(\<nat>, +)@$add = (\<lambda>\<^sub>rm n : \<nat>. nat_add m n)"
   unfolding nat_Monoid_def by simp_all
 term Set_crel_dep_fun
 lemma nat_Monoid: "(\<nat>, +) \<Ztypecolon> Monoid Nat"
@@ -32,7 +34,7 @@ proof (rule MonoidI)
   (*TODO: object selector simplifier not working properly*)
   (* unfolding nat_Monoid_def by (rule AddI) simp *)
   proof (rule AddI)
-    have select_add_eq: "(\<nat>, +)@$add = \<lambda>m n : \<nat>. nat_add m n" by simp
+    have select_add_eq: "(\<nat>, +)@$add = (\<lambda>\<^sub>rm n : \<nat>. nat_add m n)" by simp
     have "(\<nat>, +)@$add \<Ztypecolon> Nat \<rightarrow>\<^sub>c Nat \<rightarrow>\<^sub>c Nat"
       (* supply
         Set_crel_fun_iff_Set_crel_dep_fun[THEN iffD1, derive]
@@ -52,7 +54,7 @@ next
     unfolding add_def by (simp add: Nat_add_assoc)
 qed
 
-definition "nat_Mul_Monoid \<equiv> object {\<langle>$one, 1\<rangle>, \<langle>$mul, \<lambda>m n : \<nat>. nat_mul m n\<rangle>}"
+definition "nat_Mul_Monoid \<equiv> object {\<langle>$one, 1\<rangle>, \<langle>$mul, \<lambda>\<^sub>rm n : \<nat>. nat_mul m n\<rangle>}"
 
 open_bundle isa_set_nat_Mul_Monoid_syntax begin notation nat_Mul_Monoid ("'(\<nat>, *')") end
 
@@ -64,7 +66,7 @@ proof (rule Mul_MonoidI)
   (*TODO: object selector simplifier not working properly*)
   (* unfolding nat_Monoid_def by (rule AddI) simp *)
   proof (rule MulI)
-    have select_mul_eq: "(\<nat>, *)@$mul = \<lambda>m n : \<nat>. nat_mul m n"
+    have select_mul_eq: "(\<nat>, *)@$mul = (\<lambda>\<^sub>rm n : \<nat>. nat_mul m n)"
       unfolding nat_Mul_Monoid_def by simp
     have "(\<nat>, *)@$mul \<Ztypecolon> Nat \<rightarrow>\<^sub>c Nat \<rightarrow>\<^sub>c Nat"
       (* by (subst select_mul_eq) discharge_types *)

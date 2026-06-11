@@ -24,7 +24,7 @@ lemma eval_set_eq_eval_rel_uhint [uhint]:
   using assms by simp
 
 context
-  notes set_to_HOL_simp[simp, uhint, symmetric, simp del]
+  notes set_to_HOL_simp[simp, symmetric, simp del]
   fixes R :: set
 begin
 
@@ -46,7 +46,8 @@ lemma glue_set_eval_eqI:
   and "P x"
   and "\<langle>x, y\<rangle> \<in> R"
   shows "(glue \<R>)`x = y"
-  supply has_inverse_onI[rec_uhint] using assms by (urule glue_eval_eqI)
+  supply has_inverse_onI[rec_uhint]
+  using assms by (urule glue_eval_eqI)
 
 lemma glue_set_eval_eq_evalI:
   assumes "right_unique_on P (glue \<R>)"
@@ -54,7 +55,8 @@ lemma glue_set_eval_eq_evalI:
   and "P x"
   and "x \<in> dom R"
   shows "(glue \<R>)`x = R`x"
-  supply has_inverse_onI[rec_uhint] using assms by (urule glue_eval_eq_evalI)
+  supply has_inverse_onI[rec_uhint]
+  using assms by (urule glue_eval_eq_evalI)
 
 lemma extend_set_eval_eq_if_not_mem_dom [simp]:
   assumes "x \<notin> dom R"
@@ -90,6 +92,5 @@ lemma repl_eval_eq_if_mem [simp]:
   assumes "x \<in> A"
   shows "{\<langle>a, f a\<rangle> | a \<in> A}`x = f x"
   using assms by (auto intro: eval_eq_if_right_unique_onI)
-
 
 end

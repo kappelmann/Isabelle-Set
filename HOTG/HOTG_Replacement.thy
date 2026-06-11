@@ -11,7 +11,7 @@ begin
 
 open_bundle hotg_repl_syntax
 begin
-syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("{_ |/ _ \<in> _}")
+syntax "_repl" :: \<open>[set, pttrn, set] => set\<close> ("({_ |/ _ \<in> _})")
 end
 syntax_consts "_repl" \<rightleftharpoons> repl
 translations

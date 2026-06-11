@@ -8,7 +8,7 @@ theory TSClean_Functions
 begin
 
 definition "set_crel_dep_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow>\<^sub>c of_type (B x)"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> set_crel_dep_mono_wrt_type
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> set_crel_dep_mono_wrt_type
 definition "set_crel_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> of_type A \<rightarrow>\<^sub>c of_type B"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> set_crel_mono_wrt_type
 
@@ -41,7 +41,7 @@ lemma set_crel_mono_wrt_type_iff_set_crel_mono_wrt_pred [iff]:
   by simp
 
 definition [typedef]: "Set_crel_dep_fun (A :: set type) B \<equiv> type ((x : A) \<rightarrow>\<^sub>c B x :: set \<Rightarrow> bool)"
-adhoc_overloading crel_dep_mono_wrt \<rightleftharpoons> Set_crel_dep_fun
+adhoc_overloading crel_dep_mono_wrt_pred \<rightleftharpoons> Set_crel_dep_fun
 
 lemma of_type_Set_crel_dep_fun_eq_set_crel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow>\<^sub>c B x :: set type) = ((x : A) \<rightarrow>\<^sub>c B x)"
@@ -49,7 +49,8 @@ lemma of_type_Set_crel_dep_fun_eq_set_crel_dep_mono_wrt_type [type_to_HOL_simp]:
 
 soft_type_translation
   "((x : (A :: set type)) \<rightarrow>\<^sub>c B x) (R :: set)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> (x : A) \<rightarrow>\<^sub>c B x"
-  unfolding of_type_Set_crel_dep_fun_eq_set_crel_dep_mono_wrt_type[symmetric] by simp_all
+  unfolding of_type_Set_crel_dep_fun_eq_set_crel_dep_mono_wrt_type[symmetric]
+  by auto
 
 lemma mem_of_crel_dep_fun_eq_of_type_Set_crel_dep_fun_Element:
   "mem_of ((x : A) \<rightarrow>\<^sub>c B x) = of_type ((x : Element A) \<rightarrow>\<^sub>c Element (B x))"
@@ -57,7 +58,8 @@ lemma mem_of_crel_dep_fun_eq_of_type_Set_crel_dep_fun_Element:
 
 soft_type_translation
   "R \<in> ((x : A) \<rightarrow>\<^sub>c B x)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> (x : Element A) \<rightarrow>\<^sub>c Element (B x)"
-  using mem_of_crel_dep_fun_eq_of_type_Set_crel_dep_fun_Element by simp_all
+  using mem_of_crel_dep_fun_eq_of_type_Set_crel_dep_fun_Element
+  by auto
 
 definition [typedef]: "Set_crel_fun (A :: set type) B \<equiv> type (A \<rightarrow>\<^sub>c B :: set \<Rightarrow> bool)"
 adhoc_overloading crel_mono_wrt \<rightleftharpoons> Set_crel_fun
@@ -68,7 +70,8 @@ lemma of_type_Set_crel_fun_eq_set_crel_mono_wrt_type [type_to_HOL_simp]:
 
 soft_type_translation
   "((A :: set type) \<rightarrow>\<^sub>c B) (R :: set)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> A \<rightarrow>\<^sub>c B"
-  unfolding of_type_Set_crel_fun_eq_set_crel_mono_wrt_type[symmetric] by simp_all
+  unfolding of_type_Set_crel_fun_eq_set_crel_mono_wrt_type[symmetric]
+  by auto
 
 lemma mem_of_crel_fun_eq_of_type_Set_crel_fun_Element:
   "mem_of (A \<rightarrow>\<^sub>c B) = of_type (Element A \<rightarrow>\<^sub>c Element B)"
@@ -76,7 +79,8 @@ lemma mem_of_crel_fun_eq_of_type_Set_crel_fun_Element:
 
 soft_type_translation
   "R \<in> (A \<rightarrow>\<^sub>c B)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> Element A \<rightarrow>\<^sub>c Element B"
-  using mem_of_crel_fun_eq_of_type_Set_crel_fun_Element by simp_all
+  using mem_of_crel_fun_eq_of_type_Set_crel_fun_Element
+  by auto
 
 context
   notes type_to_HOL_simp[simp, symmetric, simp del]

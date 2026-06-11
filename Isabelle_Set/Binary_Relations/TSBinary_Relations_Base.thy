@@ -59,7 +59,7 @@ lemma supset_dep_pair_eq_of_type_Set_dep_bin_rel_Element:
 
 soft_type_translation
   "R \<subseteq> \<Sum>x : A. B x" \<rightleftharpoons> "(R :: set) \<Ztypecolon> {\<Sum>}x : Element A. Element (B x)"
-  using supset_dep_pair_eq_of_type_Set_dep_bin_rel_Element by simp_all
+  using supset_dep_pair_eq_of_type_Set_dep_bin_rel_Element by auto
 
 corollary Subset_dep_pair_iff_Set_dep_bin_rel_Element [iff]:
   "(R \<Ztypecolon> Subset (\<Sum>x : A. B x)) \<longleftrightarrow> (R \<Ztypecolon> {\<Sum>}x : Element A. Element (B x))"
@@ -81,7 +81,7 @@ lemma supset_pair_eq_of_type_Set_bin_rel_Element: "(\<supseteq>) (A \<times> B) 
 
 soft_type_translation
   "R \<subseteq> A \<times> B" \<rightleftharpoons> "(R :: set) \<Ztypecolon> Element A {\<times>} Element B"
-  using supset_pair_eq_of_type_Set_bin_rel_Element by simp_all
+  using supset_pair_eq_of_type_Set_bin_rel_Element by auto
 
 corollary Subset_pair_iff_Set_bin_rel_Element [iff]:
   "(R \<Ztypecolon> Subset (A \<times> B)) \<longleftrightarrow> (R \<Ztypecolon> Element A {\<times>} Element B)"

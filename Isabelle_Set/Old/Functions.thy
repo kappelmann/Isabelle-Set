@@ -10,7 +10,7 @@ subsection \<open>Evaluation of Functions\<close>
 
 definition "eval S x \<equiv> THE y. \<langle>x, y\<rangle> \<in> S"
 
-open_bundle isa_set_eval_syntax begin notation eval ("(_`_)" [999, 1000] 999) end
+open_bundle isa_set_eval_syntax begin notation eval ("_`_" [999, 1000] 999) end
 
 lemma eval_singleton_eq [simp]: "{\<langle>x, y\<rangle>}`x = y"
   unfolding eval_def by auto

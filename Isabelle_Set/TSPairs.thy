@@ -64,7 +64,7 @@ lemma mem_of_dep_pairs_eq_of_type_Dep_pair_Element:
 
 soft_type_translation
   "p \<in> \<Sum>x : A. B x" \<rightleftharpoons> "p \<Ztypecolon> \<Sum>x : Element A. Element (B x)"
-  using mem_of_dep_pairs_eq_of_type_Dep_pair_Element by simp_all
+  using mem_of_dep_pairs_eq_of_type_Dep_pair_Element by auto
 
 definition [typedef]: "Pair (A :: set type) B \<equiv> type (A \<times> B)"
 adhoc_overloading pair \<rightleftharpoons> Pair
@@ -82,7 +82,7 @@ lemma mem_of_pairs_eq_of_type_Pair_Element:
 
 soft_type_translation
   "p \<in> (A \<times> B)" \<rightleftharpoons> "p \<Ztypecolon> Element A \<times> Element B"
-  using mem_of_pairs_eq_of_type_Pair_Element by simp_all
+  using mem_of_pairs_eq_of_type_Pair_Element by auto
 
 context notes type_to_HOL_simp[simp, symmetric, simp del]
 begin

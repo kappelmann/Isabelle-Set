@@ -15,7 +15,7 @@ text \<open>The following are easier to work with variants of the axioms.\<close
 lemma not_mem_emptyset [iff]: "x \<notin> {}" using emptyset by blast
 
 lemma mem_of_empty_eq_bottom [simp,set_to_HOL_simp]: "mem_of {} = \<bottom>"
-  by (intro ext) auto
+  by (intro ext) simp
 
 lemma eq_if_subset_if_subset [intro]: "\<lbrakk>X \<subseteq> Y; Y \<subseteq> X\<rbrakk> \<Longrightarrow> X = Y"
   by (fact HOTG_Axioms.extensionality[rule_format])

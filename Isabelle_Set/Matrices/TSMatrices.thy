@@ -48,7 +48,7 @@ qed
 
 subsection \<open>Zero\<close>
 
-definition "Matrix_zero Z m n :: set \<equiv> \<lambda>i : [0,\<dots>,m[. \<lambda>j : [0,\<dots>,n[. zero Z"
+definition "Matrix_zero Z m n :: set \<equiv> \<lambda>\<^sub>ri : [0,\<dots>,m[. \<lambda>\<^sub>rj : [0,\<dots>,n[. zero Z"
 
 lemma Matrix_zero_type [type]:
   "Matrix_zero \<Ztypecolon> Zero A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n"
@@ -87,7 +87,7 @@ lemma Matrix_Zero_type: assumes "Z \<Ztypecolon> Zero A" "m \<Ztypecolon> Nat" "
 subsection \<open>One\<close>
 
 definition "Matrix_one Z O m n :: set \<equiv>
-  \<lambda>i : [0,\<dots>,m[. \<lambda>j : [0,\<dots>,n[. if i = j then one O else zero Z"
+  \<lambda>\<^sub>ri : [0,\<dots>,m[. \<lambda>\<^sub>rj : [0,\<dots>,n[. if i = j then one O else zero Z"
 
 lemma Matrix_one_type [type]:
   "Matrix_one \<Ztypecolon> Zero A \<Rightarrow> One A \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix A m n"
@@ -128,7 +128,7 @@ lemma Matrix_One_type:
 subsection \<open>Addition\<close>
 
 definition "Matrix_add A m n (M :: set) (N :: set) :: set \<equiv>
-  \<lambda>i : [0,\<dots>,m[. \<lambda>j : [0,\<dots>,n[. add A (M`i`j) (N`i`j)"
+  \<lambda>\<^sub>ri : [0,\<dots>,m[. \<lambda>\<^sub>rj : [0,\<dots>,n[. add A (M`i`j) (N`i`j)"
 
 lemma Matrix_add_type [type]:
   "Matrix_add \<Ztypecolon> Add C \<Rightarrow> (m : Nat) \<Rightarrow> (n : Nat) \<Rightarrow> Matrix C m n \<Rightarrow> Matrix C m n \<Rightarrow> Matrix C m n"
@@ -150,7 +150,7 @@ qed
 (* declare [[coercion_enabled]] [[coercion "eval"]]
 
 definition "Matrix_add' a m n (M :: set) (N :: set) \<equiv>
-  \<lambda>i : [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. add a (M i j) (N i j)"
+  \<lambda>\<^sub>ri : [0,\<dots>,m[. \<lambda>j \<in> [0,\<dots>,n[. add a (M i j) (N i j)"
 
 declare [[coercion "Element"]]
 
@@ -160,7 +160,7 @@ lemma Matrix_add'_type [type]: "Matrix_add' \<Ztypecolon> Add A \<Rightarrow> (m
   unfolding Matrix_def Matrix_add'_def by discharge_types *)
 
 definition "Matrix_Add C A m n \<equiv> object {
-    \<langle>$add, \<lambda>M N : matrices C m n. Matrix_add A m n M N\<rangle>
+    \<langle>$add, \<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N\<rangle>
   }"
 
 lemma Matrix_Add_type : assumes "A \<Ztypecolon> Add (Element C)" "m \<Ztypecolon> Nat" "n \<Ztypecolon> Nat"
@@ -170,26 +170,26 @@ proof -
     by (drule ElementD) discharge_types
   have 2 [derive]: "\<And>M. M \<Ztypecolon> Matrix (Element C) m n \<Longrightarrow> M \<Ztypecolon> Element (matrices C m n)"
     by (rule ElementI) discharge_types
-  (* then have "((\<lambda>M N : matrices C m n. Matrix_add A m n M N) :: set) \<Ztypecolon>
+  (* then have "((\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N) :: set) \<Ztypecolon>
     Element (matrices C m n) \<rightarrow>\<^sub>c Element (matrices C m n) \<rightarrow>\<^sub>c Matrix (Element C) m n"
     by discharge_types
-  then have "\<lambda>M N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
+  then have "\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
     Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow>\<^sub>c Matrix (Element C) m n"
     by (elim Dep_Function_if_CDep_Function)
-  then have "\<lambda>M N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
+  then have "\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
     Element (matrices C m n) \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
     by (rule Dep_Function_covariant_codom, intro Dep_Function_if_CDep_Function)
-  then have "\<lambda>M N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
+  then have "\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N \<Ztypecolon>
     Matrix (Element C) m n \<rightarrow> Element (matrices C m n) \<rightarrow> Matrix (Element C) m n"
     by (elim Dep_Function_contravariant_dom) discharge_types *)
-  then have "((\<lambda>M N : matrices C m n. Matrix_add A m n M N) :: set) \<Ztypecolon>
+  then have "((\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N) :: set) \<Ztypecolon>
     Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n \<rightarrow> Matrix (Element C) m n"
     (* by (elim Dep_Function_covariant_codom[OF Dep_Function_contravariant_dom]) *)
       (* simp_all *)
     sorry
   (* TODO Kevin: why is this selector not simplified automatically? *)
   have sel_simp:
-    "(Matrix_Add C A m n)@$add = \<lambda>M N : matrices C m n. Matrix_add A m n M N"
+    "(Matrix_Add C A m n)@$add = (\<lambda>\<^sub>rM N : matrices C m n. Matrix_add A m n M N)"
     unfolding Matrix_Add_def by simp
   show ?thesis by (intro AddI, subst sel_simp) fact
 qed
@@ -238,7 +238,7 @@ lemma Matrix_add_assoc:
 
 definition "Matrix_Monoid C M m n \<equiv> object {
   \<langle>$zero, Matrix_zero M m n\<rangle>,
-  \<langle>$add, \<lambda>N O : matrices C m n. Matrix_add M m n N O\<rangle>
+  \<langle>$add, \<lambda>\<^sub>rN O : matrices C m n. Matrix_add M m n N O\<rangle>
 }"
 
 (*TODO Kevin: Create object extension method so that one can re-use the proofs
@@ -266,7 +266,7 @@ subsection \<open>Multiplication\<close>
 
 text \<open>Multiplying an l \<times> 0 with a 0 \<times> n Matrix returns the l \<times> n zero Matrix.\<close>
 definition "Matrix_mul A M l m n (N :: set) (O :: set) :: set \<equiv>
-  \<lambda>i : [0,\<dots>,l[. \<lambda>j : [0,\<dots>,n[. nat_rec'
+  \<lambda>\<^sub>ri : [0,\<dots>,l[. \<lambda>\<^sub>rj : [0,\<dots>,n[. nat_rec'
     m (zero A) (\<lambda>k acc. add A acc (mul M (N`i`(pred k)) (O `(pred k) `j)))"
 
 (*Note Kevin: TODO: type derivator is not able to handle this automatically
@@ -301,7 +301,7 @@ lemma Matrix_mul_type [type]: "Matrix_mul \<Ztypecolon> Monoid C \<Rightarrow> M
 qed *)
 
 definition "Matrix_Mul C A M l m n \<equiv> object {
-    \<langle>$mul, \<lambda>N : matrices C l m. (\<lambda>O : matrices C m n. Matrix_mul A M l m n N O)\<rangle>
+    \<langle>$mul, \<lambda>\<^sub>rN : matrices C l m. \<lambda>\<^sub>rO : matrices C m n. Matrix_mul A M l m n N O\<rangle>
   }"
 
 lemma Matrix_Mul_type:

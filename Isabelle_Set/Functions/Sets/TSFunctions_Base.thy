@@ -7,7 +7,7 @@ theory TSFunctions_Base
 begin
 
 definition "set_rel_dep_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> (x : of_type A) \<rightarrow> of_type (B x)"
-adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> set_rel_dep_mono_wrt_type
+adhoc_overloading rel_dep_mono_wrt_pred \<rightleftharpoons> set_rel_dep_mono_wrt_type
 definition "set_rel_mono_wrt_type A B :: set \<Rightarrow> bool \<equiv> of_type A \<rightarrow> of_type B"
 adhoc_overloading rel_mono_wrt \<rightleftharpoons> set_rel_mono_wrt_type
 
@@ -40,7 +40,7 @@ lemma set_rel_mono_wrt_type_iff_set_rel_mono_wrt_pred [iff]:
   by simp
 
 definition [typedef]: "Set_rel_dep_fun (A :: set type) B \<equiv> type ((x : A) \<rightarrow> B x :: set \<Rightarrow> bool)"
-adhoc_overloading rel_dep_mono_wrt \<rightleftharpoons> Set_rel_dep_fun
+adhoc_overloading rel_dep_mono_wrt_pred \<rightleftharpoons> Set_rel_dep_fun
 
 lemma of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type [type_to_HOL_simp]:
   "of_type ((x : A) \<rightarrow> B x :: set type) = ((x : A) \<rightarrow> B x)"
@@ -48,7 +48,8 @@ lemma of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type [type_to_HOL_simp]:
 
 soft_type_translation
   "((x : (A :: set type)) \<rightarrow> B x) (R :: set)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> (x : A) \<rightarrow> B x"
-  unfolding of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type[symmetric] by simp_all
+  unfolding of_type_Set_rel_dep_fun_eq_set_rel_dep_mono_wrt_type[symmetric]
+  by auto
 
 definition [typedef]: "Set_rel_fun (A :: set type) B \<equiv> type (A \<rightarrow> B :: set \<Rightarrow> bool)"
 adhoc_overloading rel_mono_wrt \<rightleftharpoons> Set_rel_fun
@@ -59,7 +60,8 @@ lemma of_type_Set_rel_fun_eq_set_rel_mono_wrt_type [type_to_HOL_simp]:
 
 soft_type_translation
   "((A :: set type) \<rightarrow> B) (R :: set)" \<rightleftharpoons> "(R :: set) \<Ztypecolon> A \<rightarrow> B"
-  unfolding of_type_Set_rel_fun_eq_set_rel_mono_wrt_type[symmetric] by simp_all
+  unfolding of_type_Set_rel_fun_eq_set_rel_mono_wrt_type[symmetric]
+  by auto
 
 context
   notes type_to_HOL_simp[simp, symmetric, simp del]

@@ -92,7 +92,7 @@ lemma Zero_pair_type [type]: "Zero_pair \<Ztypecolon> Zero A \<Rightarrow> Zero 
   by (intro Dep_funI, rule ZeroI) auto
 
 definition "Add_pair A B AA AB \<equiv> object {
-    \<langle>$add, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>\<rangle>
+    \<langle>$add, \<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>\<rangle>
   }"
 
 (*TODO: These should be automatically generated*)
@@ -100,7 +100,7 @@ lemma Add_pair_fields_eq [simp]: "object_fields (Add_pair A B AA AB) = {$add}"
   unfolding Add_pair_def by simp
 
 lemma Add_pair_add_eq [simp]:
-  "(Add_pair A B AA AB)@$add = \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>"
+  "(Add_pair A B AA AB)@$add = (\<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>)"
   unfolding Add_pair_def by simp
 
 (* TODO: quite challenging for automatic type derivation *)
@@ -108,7 +108,7 @@ lemma Add_pair_type [type]:
   "Add_pair \<Ztypecolon> (A : Set) \<Rightarrow> (B : Set) \<Rightarrow> Add (Element A) \<Rightarrow> Add (Element B) \<Rightarrow> Add (Element A \<times> Element B)"
 proof (intro Dep_funI AddI, subst Add_pair_add_eq)
   fix A B AA AB assume h: "AA \<Ztypecolon> Add (Element A)" "AB \<Ztypecolon> Add (Element B)"
-  let ?f = "(\<lambda>\<langle>a1, b1\<rangle> : A \<times> B. \<lambda>\<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>) :: set"
+  let ?f = "(\<lambda>\<^sub>r\<langle>a1, b1\<rangle> : A \<times> B. \<lambda>\<^sub>r\<langle>a2, b2\<rangle> : A \<times> B. \<langle>add AA a1 a2, add AB b1 b2\<rangle>) :: set"
   from h have "?f \<Ztypecolon> Element A \<times> Element B \<rightarrow>\<^sub>c Element A \<times> Element B \<rightarrow>\<^sub>c Element A \<times> Element B"
     sorry
   then show "?f \<Ztypecolon> Element A \<times> Element B \<rightarrow> Element A \<times> Element B \<rightarrow> Element A \<times> Element B"
@@ -120,7 +120,7 @@ composition/extension.\<close>
 
 definition "Monoid_pair A B MA MB \<equiv> object {
     \<langle>$zero, \<langle>zero MA, zero MB\<rangle>\<rangle>,
-    \<langle>$add, \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>\<rangle>
+    \<langle>$add, \<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>\<rangle>
   }"
 
 lemma Monoid_pair_fields_eq [simp]: "object_fields (Monoid_pair A B MA MB) = {$zero, $add}"
@@ -129,7 +129,7 @@ lemma Monoid_pair_fields_eq [simp]: "object_fields (Monoid_pair A B MA MB) = {$z
 lemma [simp]:
   shows Monoid_pair_zero_eq: "(Monoid_pair A B MA MB)@$zero = \<langle>zero MA, zero MB\<rangle>"
   and Monoid_pair_add_eq: "(Monoid_pair A B MA MB)@$add =
-    \<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>"
+    (\<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>)"
   unfolding Monoid_pair_def by auto
 
 text \<open>The following proofs illustrate that reasoning with types is still very
@@ -143,7 +143,7 @@ proof (intro Dep_funI MonoidI)
   let ?M = "Monoid_pair A B MA MB"
   show "?M \<Ztypecolon> Zero (Element A \<times> Element B)"
     supply [[type_derivation_depth=4]] by (rule ZeroI) auto
-  have "((\<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>) :: set)
+  have "((\<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>) :: set)
     \<Ztypecolon> Element A \<times> Element B \<rightarrow>\<^sub>c Element A \<times> Element B \<rightarrow>\<^sub>c Element A \<times> Element B"
     sorry
     (* supply [[type_derivation_depth=8]]
@@ -157,7 +157,7 @@ proof (intro Dep_funI MonoidI)
     apply (intro Dep_funI)
     apply (simp_all only: 1)
     done *)
-  then have "((\<lambda>\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>) :: set)
+  then have "((\<lambda>\<^sub>r\<langle>a1, b1\<rangle> \<langle>a2, b2\<rangle> : A \<times> B. \<langle>add MA a1 a2, add MB b1 b2\<rangle>) :: set)
     \<Ztypecolon> Element A \<times> Element B \<rightarrow> Element A \<times> Element B \<rightarrow> Element A \<times> Element B"
     sorry
   show "?M \<Ztypecolon> Add (Element A \<times> Element B)"

@@ -162,7 +162,7 @@ lemma is_bin_rel_if_subset_if_is_bin_rel:
 definition "dep_bin_rel_set A B :: (set \<Rightarrow> set \<Rightarrow> bool) \<Rightarrow> bool \<equiv> {\<Sum>}x : mem_of A. mem_of (B x)"
 adhoc_overloading dep_bin_rel \<rightleftharpoons> dep_bin_rel_set
 
-lemma dep_bin_rel_set_eq_dep_bin_rel_pred [simp]: "({\<Sum>}x : A. B x) = {\<Sum>}x : mem_of A. mem_of (B x)"
+lemma dep_bin_rel_set_eq_dep_bin_rel_pred [simp]: "({\<Sum>}x : A. B x) = ({\<Sum>}x : mem_of A. mem_of (B x))"
   unfolding dep_bin_rel_set_def by simp
 
 lemma dep_bin_rel_set_eq_dep_bin_rel_pred_uhint [uhint]:
@@ -198,7 +198,7 @@ definition "set_bin_rel_pred (A :: set \<Rightarrow> bool) (B :: set \<Rightarro
 adhoc_overloading bin_rel \<rightleftharpoons> set_bin_rel_pred
 
 lemma set_bin_rel_pred_eq_set_dep_bin_rel_pred:
-  "((A :: set \<Rightarrow> bool) {\<times>} B :: set \<Rightarrow> _) = {\<Sum>}_ : A. B"
+  "((A :: set \<Rightarrow> bool) {\<times>} B :: set \<Rightarrow> _) = ({\<Sum>}_ : A. B)"
   unfolding set_bin_rel_pred_def by simp
 
 lemma set_bin_rel_pred_eq_set_dep_bin_rel_pred_uhint [uhint]:
@@ -231,7 +231,7 @@ lemma set_dep_bin_rel_pred_eq_dep_bin_rel_pred_uhint [uhint]:
   using assms by (intro eq_reflection) auto
 
 lemma set_dep_bin_rel_cong [cong]: "\<lbrakk>A = A'; \<And>x. A' x \<Longrightarrow> (B x :: set \<Rightarrow> bool) = B' x\<rbrakk> \<Longrightarrow>
-  (({\<Sum>}x : A. B x) :: set \<Rightarrow> bool) = {\<Sum>}x : A'. B' x"
+  (({\<Sum>}x : A. B x) :: set \<Rightarrow> bool) = ({\<Sum>}x : A'. B' x)"
   by (intro ext iffI set_dep_bin_relI dep_bin_relI) (auto 0 3)
 
 corollary is_bin_rel_if_set_dep_bin_rel:
@@ -281,7 +281,7 @@ lemma set_dep_bin_rel_bottom_dom_iff_eq_empty [iff]: "({\<Sum>}x : (\<bottom> ::
 lemma set_dep_bin_rel_bottom_codom_iff_eq_empty [iff]: "({\<Sum>}x : A. \<bottom>) R \<longleftrightarrow> R = {}"
   by (intro iffI) auto
 
-lemma mono_set_dep_bin_rel_dep_bin_rel_rel: "(({\<Sum>}x : A. B x :: set \<Rightarrow> bool) \<Rightarrow> {\<Sum>}x : A. B x) rel"
+lemma mono_set_dep_bin_rel_dep_bin_rel_rel: "(({\<Sum>}x : A. B x :: set \<Rightarrow> bool) \<Rightarrow> ({\<Sum>}x : A. B x)) rel"
   by auto
 
 definition "set_dep_bin_rel_set (A :: set) (B :: set \<Rightarrow> set) :: set \<Rightarrow> bool \<equiv>
