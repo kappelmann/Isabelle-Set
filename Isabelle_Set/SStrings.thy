@@ -188,8 +188,8 @@ ML \<open>
       THEN' word_ne_tac
     end
 
-  val string_simp_solver = map_theory_simpset
-    (Simplifier.add_unsafe_solver (mk_solver "distinguish strings" string_ne_tac))
+  val string_simp_solver = Simplifier.map_theory_simpset
+    (Simplifier.add_unsafe_solver (Simplifier.mk_solver "distinguish strings" string_ne_tac))
 \<close>
 
 setup \<open>string_simp_solver\<close>
